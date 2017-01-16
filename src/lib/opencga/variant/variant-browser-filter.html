@@ -356,6 +356,11 @@
                                 </select>
                                 <input type="text" value="" class="custom-sized-input" id="{{prefix}}PolyphenInput" name="Polyphen" on-keyup="updateQueryFilters">
                             </div>
+                            <form>
+                                <label style="font-weight: normal;">Operation :</label>
+                                <input type="radio" name="pss" id="pssAndRadio" value="and" style="margin-left: 16px" disabled on-change="updateQueryFilters"> AND
+                                <input type="radio" name="pss" id="pssOrRadio" value="or" style="margin-left: 10px" checked disabled on-change="updateQueryFilters"> OR<br>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -401,6 +406,12 @@
                                 </select>
                                 <input type="text" value="" class="custom-sized-input" id="{{prefix}}GerpInput" name="gerp" on-keyup="updateQueryFilters">
                             </div>
+                            <form>
+                                <label style="font-weight: normal;">Operation :</label>
+                                <input type="radio" name="conservation" id="conservationAndRadio" value="and" style="margin-left: 16px" disabled on-change="updateQueryFilters"> AND
+                                <input type="radio" name="conservation" id="conservationOrRadio" value="or" style="margin-left: 10px" checked disabled on-change="updateQueryFilters"> OR<br>
+                            </form>
+
                         </div>
                     </div>
                 </div>
@@ -794,6 +805,8 @@
                     this.$$("#" + this.prefix + "PhastconsOperator").value = "<";
                     this.$$("#" + this.prefix + "GerpInput").value = "";
                     this.$$("#" + this.prefix + "GerpOperator").value = "<";
+                    $('#conservationOrRadio').prop("checked", true);
+                    $("input:radio[name=conservation]").attr('disabled', true);
                 }
 
                 // Consequence Type
@@ -937,6 +950,20 @@
                 } else if (this.$$("#" + this.prefix + "PolyphenValues").value != "score") {
                     _filters.polyphen = this.$$("#" + this.prefix + "PolyphenValues").value;
                 }
+                if ((this.$$("#" + this.prefix + "SiftInput").value != "" && this.$$("#" + this.prefix + "PolyphenInput").value != "") ||
+                    (this.$$("#" + this.prefix + "SiftValues").value != "score" && this.$$("#" + this.prefix + "PolyphenInput").value != "") ||
+                    ((this.$$("#" + this.prefix + "SiftInput").value) != "" && this.$$("#" + this.prefix + "PolyphenValues").value != "score") ||
+                    (this.$$("#" + this.prefix + "SiftValues").value != "score" && this.$$("#" + this.prefix + "PolyphenValues").value != "score")) {
+                    $("input:radio[name=pss]").attr('disabled', false);
+                }
+//                if (typeof _filters.sift !== "undefined" && typeof _filters.polyphen !== "undefined") {
+//                    let filter = $('input:radio[name=pss]:checked').val();
+//                    if (filter == "and") {
+//                        _filters.protein_substitution = _filters.sift + ";" + _filters.polyphen;
+//                    } else {
+//                        _filters.protein_substitution = _filters.sift + ";" + _filters.polyphen;
+//                    }
+//                }
 
                 // Conservation
                 let conserArr = [];
@@ -952,8 +979,19 @@
                     let gerp = "gerp" + this.$$("#" + this.prefix + "GerpOperator").value + this.$$("#" + this.prefix + "GerpInput").value;
                     conserArr.push(gerp);
                 }
+                if ((this.$$("#" + this.prefix + "PhylopInput").value != "" && this.$$("#" + this.prefix + "PhastconsInput").value != "") ||
+                    (this.$$("#" + this.prefix + "PhylopInput").value != "" && this.$$("#" + this.prefix + "GerpInput").value != "") ||
+                    (this.$$("#" + this.prefix + "PhastconsInput").value != "" && this.$$("#" + this.prefix + "GerpInput").value != "")) {
+                    $("input:radio[name=conservation]").attr('disabled', false);
+                }
+
                 if (conserArr.length > 0) {
-                    _filters.conservation = conserArr.join(',');
+                    let filter = $('input:radio[name=conservation]:checked').val();
+                    if (filter == "and") {
+                        _filters.conservation = conserArr.join(';');
+                    } else {
+                        _filters.conservation = conserArr.join(',');
+                    }
                 }
 
                 // Consequence Type
