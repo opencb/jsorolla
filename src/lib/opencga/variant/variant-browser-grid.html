@@ -508,10 +508,9 @@
                 if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.studies !== "undefined" && this.populationFrequencies.studies.length > 0) {
                     if (this.showPopFreqInColor) {
                         let popIdx = 5;
-
                         // Just one column called 'Population Frequencies'
                         this.cols[0].splice(7, 0, {
-                            title: 'Population Frequencies <a data-toggle="tooltip" title="One coloured square is shown for each cohort, e.g. population. Frequencies are visualized as colours which classify values into very rare, rare, average, common or missing. Please, leave the cursor over each square to visualize the actual frequency value "><i class="fa fa-info-circle" aria-hidden="true"></i></a>',
+                            title: 'Population Frequencies <a data-toggle="tooltip" title="One coloured square is shown for each cohort, e.g. population. Frequencies are visualized as colours which classify values into very rare, rare, average, common or missing. Please, leave the cursor over each square to visualize the actual frequency value."><i class="fa fa-info-circle" aria-hidden="true"></i></a>',
                             field: '',
                             rowspan: 1,
                             colspan: this.populationFrequencies.studies.length,
@@ -693,14 +692,14 @@
                             halign: 'center'
                         },
                         {
-                            title: 'Protein Substitution',
+                            title: 'Protein Substitution <a data-toggle="tooltip" title="SIFT scores are classified into tolerated and deleterious. Polyphen scores are classified into benign, possibly damaging, probably damaging and possibly & probably damaging. Please, leave the cursor over each tag to visualize the actual score value. SIFT score takes values in the range [0, infinite[, the lower the values, the more damaging the prediction. Polyphen score takes values in the range [0, 1[, the closer to 2, the more damaging the prediction."><i class="fa fa-info-circle" aria-hidden="true"></i></a>',
 //                            field: 'Protein Substitution',
                             colspan: 2,
                             rowspan: 1,
                             halign: 'center'
                         },
                         {
-                            title: 'Conservation',
+                            title: 'Conservation  <a data-toggle="tooltip" title="Positive PhyloP scores measure conservation which is slower evolution than expected, at sites that are predicted to be conserved. Negative PhyloP scores measure acceleration, which is faster evolution than expected, at sites that are predicted to be fast-evolving. Absolute values of phyloP scores represent -log p-values under a null hypothesis of neutral evolution. The phastCons scores represent probabilities of negative selection and range between 0 and 1. Positive GERP scores represent a substitution deficit and thus indicate that a site may be under evolutionary constraint. Negative scores indicate that a site is probably evolving neutrally. Some authors suggest that a score threshold of 2 provides high sensitivity while still strongly enriching for truly constrained sites"><i class="fa fa-info-circle" aria-hidden="true"></i></a>',
                             field: 'Conservation',
                             colspan: 3,
                             rowspan: 1,
@@ -716,7 +715,7 @@
                     ],
                     [
                         {
-                            title: 'SIFT  <a data-toggle="tooltip" title="SIFT scores are classified into tolerated and deleterious. Please, leave the cursor over each tag to visualize the actual score value. SIFT score takes values in the range [0, infinite[, the lower the values, the more damaging the prediction."><i class="fa fa-info-circle" aria-hidden="true"></i></a>',
+                            title: 'SIFT',
                             field: {source: 'sift', context: this},
                             colspan: 1,
                             rowspan: 1,
@@ -724,7 +723,7 @@
                             halign: 'center'
                         },
                         {
-                            title: 'Polyphen  <a data-toggle="tooltip" title="Polyphen scores are classified into benign, possibly damaging, probably damaging and possibly & probably damaging. Please, leave the cursor over each tag to visualize the actual score value. Polyphen score takes values in the range [0, 1[, the closer to 2, the more damaging the prediction. "><i class="fa fa-info-circle" aria-hidden="true"></i></a>',
+                            title: 'Polyphen',
                             field: {source: 'polyphen', context: this},
                             colspan: 1,
                             rowspan: 1,
@@ -732,7 +731,7 @@
                             halign: 'center'
                         },
                         {
-                            title: 'PhyloP <a data-toggle="tooltip" title="Positive PhyloP scores measure conservation which is slower evolution than expected, at sites that are predicted to be conserved. Negative PhyloP scores measure acceleration, which is faster evolution than expected, at sites that are predicted to be fast-evolving. Absolute values of phyloP scores represent -log p-values under a null hypothesis of neutral evolution."><i class="fa fa-info-circle" aria-hidden="true"></i></a>',
+                            title: 'PhyloP',
                             field: 'phylop',
                             colspan: 1,
                             rowspan: 1,
@@ -740,7 +739,7 @@
                             halign: 'center'
                         },
                         {
-                            title: 'PhastCons <a data-toggle="tooltip" title="PhastCons estimates the probability that each nucleotide belongs to a conserved element. The phastCons scores represent probabilities of negative selection and range between 0 and 1."><i class="fa fa-info-circle" aria-hidden="true"></i></a>',
+                            title: 'PhastCons',
                             field: 'phastCons',
                             colspan: 1,
                             rowspan: 1,
@@ -748,7 +747,7 @@
                             halign: 'center'
                         },
                         {
-                            title: 'GERP <a data-toggle="tooltip" title="Positive scores represent a substitution deficit (i.e., fewer substitutions than the average neutral site) and thus indicate that a site may be under evolutionary constraint. Negative scores indicate that a site is probably evolving neutrally. Some authors suggest that a score threshold of 2 provides high sensitivity while still strongly enriching for truly constrained sites"><i class="fa fa-info-circle" aria-hidden="true"></i></a>',
+                            title: 'GERP',
                             field: 'gerp',
                             colspan: 1,
                             rowspan: 1,
