@@ -60,7 +60,7 @@
                         <!--Save...-->
                         <!--</button>-->
                         <!-- Button trigger modal -->
-                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#saveModal">
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#{{prefix}}SaveModal" on-click="launchModal">
                                 <i class="fa fa-floppy-o" aria-hidden="true" style="padding-right: 5px"></i>
                                 Save...
                             </button>
@@ -71,14 +71,14 @@
         </div>
 
         <!-- Modal -->
-        <div class="modal fade" id="saveModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal fade" id="{{prefix}}SaveModal" tabindex="-1" role="dialog" aria-labelledby="{{prefix}}SaveModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
-                        <h4 class="modal-title" id="myModalLabel">Filter</h4>
+                        <h4 class="modal-title" id="{{prefix}}SaveModalLabel">Filter</h4>
                     </div>
                     <div class="modal-body">
                         <div class="form-group row">
@@ -141,6 +141,10 @@
                 'checkFilters(opencgaClient._config.*)'
             ],
             ready: function () {
+                if (typeof this.prefix === "undefined" || this.prefix == "") {
+                    this.prefix = "browser" + Utils.randomString(6);
+                }
+
                 this.queryListEmpty = true;
             },
             clear: function () {
@@ -149,6 +153,9 @@
                 if (typeof $('#filtersList') !== "undefined") {
                     $('#filtersList').val("None");
                 }
+            },
+            launchModal: function () {
+                $('#' + this.prefix + 'SaveModal').modal('show');
             },
             checkSid: function (config) {
                 return typeof config.sessionId !== "undefined" && config.sessionId != "";
