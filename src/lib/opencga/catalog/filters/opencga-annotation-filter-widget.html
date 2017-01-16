@@ -24,7 +24,7 @@
             <label for="variableSetSelect">Variable Set</label>
             <select class="form-control" id="variableSetSelect" style="width: 100%" on-change="selectedVariableSet">
                 <template is="dom-repeat" items="{{variableSets}}">
-                    <option>{{item.name}}</option>
+                    <option data-variable="{{item}}">{{item.name}}</option>
                 </template>
             </select>
         </div>
@@ -82,7 +82,8 @@
                     value: function() { return {
                         variables: []
                     }; },
-                    notify: true
+                    notify: true,
+                    observer: 'renderVariableTemplate'
                 }
             },
             observers: [
@@ -160,6 +161,8 @@
             },
             addFilter: function(e) {
                 this.selectedVariable = {};
+                let variableSet = $("#variableSetSelect").find('option:selected')[0].dataVariable;
+                this.filteredVariables.variableSet = variableSet.id;
                 this.push('filteredVariables.variables', e.detail);
             }
         });

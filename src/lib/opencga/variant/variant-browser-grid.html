@@ -140,10 +140,14 @@
                         this._url = 'http://' + this.opencgaClient.getConfig().host;
                     }
 
-                    if (typeof _this.query !== "undefined" && typeof _this.query.studies !== "undefined" && _this.query.studies != "") {
+                    if (typeof this.project !== "undefined" && typeof this.study.alias !== "undefined") {
+                        if (typeof _this.query === "undefined") {
+                            _this.query = {};
+                        }
+                        if (typeof _this.query.studies === "undefined" || _this.query.studies == "") {
+                            _this.query.studies = this.project + ":" + this.study.alias;
+                        }
                         this._url += '/webservices/rest/v1/analysis/variant/query';
-//                    } else if (typeof this.project !== "undefined" && typeof this.study.alias !== "undefined") {
-//                        this._url = this._url + '/webservices/rest/v1/studies/' + this.project + ':' + this.study.alias + '/variants';
                     } else {
                         return;
                     }

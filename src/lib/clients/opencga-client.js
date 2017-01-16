@@ -295,14 +295,14 @@ class Users extends OpenCGAParentClass {
             if (response.error === "") {
                 if (this._config.useCookies) {
                     // Cookies being used
-                    Cookies.set(this._config.cookieSessionId, response.response[0].result[0].sessionId);
+                    Cookies.set(this._config.cookieSessionId, response.response[0].result[0].id);
                     Cookies.set(this._config.cookieUserId, userId);
                     Cookies.set(this._config.cookiePassword, encryptedPass);
                     Cookies.set(this._config.cookieLoginResponse, JSON.stringify(response));
                     console.log("Cookies properly set");
                 } else {
                     // No cookies used
-                    this._config.sessionId = response.response[0].result[0].sessionId;
+                    this._config.sessionId = response.response[0].result[0].id;
                     this._config.userId = userId;
                 }
                 return response;
@@ -317,6 +317,8 @@ class Users extends OpenCGAParentClass {
                     // Cookies being used
                     Cookies.expire(this._config.cookieSessionId);
                     Cookies.expire(this._config.cookieUserId);
+                    Cookies.expire(this._config.cookiePassword);
+                    Cookies.expire(this._config.cookieLoginResponse);
                     console.log("Cookies properly removed");
                 } else {
                     // No cookies being used

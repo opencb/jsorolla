@@ -55,8 +55,8 @@
                 <div style="padding-top: 20px">
                     <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
                         <li role="presentation" class="active"><a href="#{{prefix}}Annotation" role="tab" data-toggle="tab" class="variant-tab-title">Advanced Annotation</a></li>
+                        <li role="presentation"><a href="#{{prefix}}Genotype" role="tab" data-toggle="tab" class="variant-tab-title">Genotype Stats</a></li>
                         <li role="presentation"><a href="#{{prefix}}GenomeView" role="tab" data-toggle="tab" class="variant-tab-title">Genome Context</a></li>
-                        <li role="presentation"><a href="#{{prefix}}Genotype" role="tab" data-toggle="tab" class="variant-tab-title">Sample Genotypes & Files</a></li>
                         <li role="presentation"><a href="#{{prefix}}Beacon" role="tab" data-toggle="tab" class="variant-tab-title">Beacon Network</a></li>
                     </ul>
 
@@ -68,35 +68,60 @@
                                                              consequence-types="{{consequenceTypes}}" style="font-size: 12px"></cellbase-variantannotation-view>
                         </div>
 
-                        <!--Genome Context Tab-->
-                        <div role="tabpanel" class="tab-pane" id="{{prefix}}GenomeView">
-                            <!--<br>-->
-                            <!--<genome-context></genome-context>-->
-                        </div>
-
                         <!--Genotypes & Files Tab-->
                         <div role="tabpanel" class="tab-pane" id="{{prefix}}Genotype">
-                            <template is="dom-repeat" items="{{variantStudies}}" as="study">
-                                <div class="col-md-10">
-                                    <h4 style="font-weight: bold"><i class="fa fa-minus-circle" on-click="handleCollapseAction" data-id="{{getStudy(study.studyId)}}"
-                                                                     style="cursor: pointer;"></i>&nbsp;{{getStudy(study.studyId)}}
+                            <template is="dom-repeat" items="{{variantStudies}}" as="study" id="variantStudies">
+                                <div class="col-md-10" style="padding-top: 8px">
+                                    <h4 style="font-weight: bold;padding: 20px 0px 0px 0px">
+                                        <i class="fa fa-minus-circle" on-click="handleCollapseAction" data-id="{{getStudy(study.studyId)}}" style="cursor: pointer;"></i>&nbsp;{{getStudy(study.studyId)}}
                                     </h4>
 
                                     <div id="{{getStudy(study.studyId)}}">
+                                        <!--<h5><b>Cohorts Statistics</b></h5>-->
                                         <template is="dom-repeat" items="{{study.stats}}" as="stat">
                                             <div hidden$="{{!checkForGenotypes(stat)}}">
-                                                <div class="col-xs-3" id="{{stat.study}}{{stat.name}}" style="min-width: 200px; height: 200px; max-width: 400px; margin: 0 auto;"></div>
+                                                <div class="col-xs-1" id="{{stat.study}}{{stat.name}}" style="min-width: 200px; height: 200px; max-width: 400px; margin: 0 auto;"></div>
                                             </div>
 
-                                            <div hidden$="{{checkForGenotypes(stat)}}">
-                                                <div>No genotypes available for {{stat.name}}</div>
-                                            </div>
+                                            <!--<div hidden$="{{checkForGenotypes(stat)}}">-->
+                                                <!--<div style="white-space: nowrap; display:inline">No genotypes available</div>-->
+                                            <!--</div>-->
                                         </template>
+                                        <!--<h5><b>Sample Genotypes</b></h5>-->
+                                        <!--<div hidden$="{{!checkForSampleData(study.samplesData)}}">-->
+                                        <!--<table class="table table-bordered" style="width: 30%">-->
+                                        <!--<thead style="background-color: #eee">-->
+                                        <!--<tr>-->
+                                        <!--<th>Sample</th>-->
+                                        <!--<th>Genotype</th>-->
+                                        <!--</tr>-->
+                                        <!--</thead>-->
+                                        <!--<tbody>-->
+                                        <!--<template is="dom-repeat" items="{{study.samplesData}}">-->
+                                        <!--<tr>-->
+                                        <!--<td>{{item.name}}</td>-->
+                                        <!--<td>{{item.response}}</td>-->
+                                        <!--</tr>-->
+                                        <!--</template>-->
+                                        <!--</tbody>-->
+                                        <!--</table>-->
+                                        <!--</div>-->
+
+                                        <!--<div hidden$="{{checkForSampleData(study.samplesData)}}">-->
+                                        <!--<div>No samples data available</div>-->
+                                        <!--</div>-->
                                     </div>
+
                                     <br>
                                 </div>
                             </template>
+                        </div>
 
+                        <!--Genome Context Tab-->
+                        <div role="tabpanel" class="tab-pane" id="{{prefix}}GenomeView">
+                            <!--<br>-->
+                            This will be available in the coming days, sorry for any inconvenience.
+                            <!--<genome-context></genome-context>-->
                         </div>
 
                         <!--Beacon network-->
@@ -162,6 +187,11 @@
                     value: "No variant selected",
                     observer: 'variantChanged'
                 },
+                variantStudies: {
+                    type: Array,
+                    value: [],
+                    observer: "variantStudiesChanged"
+                },
                 prefix: {
                     type: String
                 },
@@ -172,6 +202,18 @@
             ready: function () {
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
                     this.prefix = "view" + Utils.randomString(6);
+                }
+                this.genotypeColor = {
+                    "0/0": "#6698FF",
+                    "0/1": "#FFA500",
+                    "1/0": "#FFA500",
+                    "1/1": "#FF0000",
+                    "./.": "#000000",
+                    "0|0": "#6698FF",
+                    "0|1": "#FFA500",
+                    "1|0": "#FFA500",
+                    "1|1": "#FF0000",
+                    ".|.": "#000000",
                 }
             },
             checkVariant: function(variant) {
@@ -185,39 +227,58 @@
                     let params = {
                         ids: this.variant,
                         studies: this.project + ":" + this.study.alias,
-                        exclude: "annotation"
+                        exclude: "annotation,studies.files,studies.samplesData"
                     };
                     let _this = this;
                     this.opencgaClient.variants().query(params)
                         .then(function (response) {
-                            let variantStudies = response.response[0].result[0].studies;
-                            for (let i = 0; i < variantStudies.length; i++) {
-                                let study = variantStudies[i].studyId.split(':')[1];
-                                let statsObject = variantStudies[i].stats;
+                            let _variantStudies = response.response[0].result[0].studies;
+                            for (let i = 0; i < _variantStudies.length; i++) {
+                                let study = _variantStudies[i].studyId.split(':')[1];
+                                let statsObject = _variantStudies[i].stats;
                                 let statsArray = [];
-                                Object.keys(statsObject).map(key => statsArray.push({
-                                    name: key,
-                                    value: statsObject[key],
-                                    study: study
-                                }));
-                                variantStudies[i].stats = statsArray;
-                                for (let j = 0; j < statsArray.length; j++) {
-                                    let genotypeCount = statsArray[j].value.genotypesCount;
-                                    let data = [];
-                                    if (Object.keys(genotypeCount).length > 0) {
-                                        for (let k in genotypeCount) {
-                                            data.push({
-                                                name: k,
-                                                y: genotypeCount[k]
-                                            });
-                                        }
-                                        let params = {title: statsArray[j].name, data: data};
-                                        _this._updatePieChart("#" + study + statsArray[j].name, params);
+                                Object.keys(statsObject).map(key => {
+                                    if (key === "ALL") {
+                                        statsArray.unshift({
+                                            name: key,
+                                            value: statsObject[key],
+                                            study: study
+                                        })
+                                    } else {
+                                        statsArray.push({
+                                            name: key,
+                                            value: statsObject[key],
+                                            study: study
+                                        })
                                     }
-                                }
+                                });
+                                _variantStudies[i].stats = statsArray;
                             }
-                            _this.variantStudies = variantStudies;
+                            _this.variantStudies = _variantStudies;
                         });
+                }
+            },
+            variantStudiesChanged: function () {
+                this.$.variantStudies.render();
+                if (this.variantStudies.length > 0) {
+                    for (let i = 0; i < this.variantStudies.length; i++) {
+                        let statsArray = this.variantStudies[i].stats;
+                        for (let j = 0; j < statsArray.length; j++) {
+                            let genotypeCount = statsArray[j].value.genotypesCount;
+                            let data = [];
+                            if (Object.keys(genotypeCount).length > 0) {
+                                for (let k in genotypeCount) {
+                                    data.push({
+                                        name: k,
+                                        y: genotypeCount[k],
+                                        color: this.genotypeColor[k]
+                                    });
+                                }
+                                let params = {title: statsArray[j].name, data: data};
+                                this._updatePieChart("#" + statsArray[j].study + statsArray[j].name, params);
+                            }
+                        }
+                    }
                 }
             },
             getStudy: function (study) {
@@ -227,6 +288,9 @@
             checkForGenotypes: function (stat) {
                 let genotypesCount = stat.value.genotypesCount;
                 return Object.keys(genotypesCount).length > 0;
+            },
+            checkForSampleData: function (samplesData) {
+                return samplesData.length > 0;
             },
             handleCollapseAction: function (e) {
                 let id = e.target.dataId;
@@ -241,11 +305,13 @@
             _updatePieChart: function(_id, params) {
                 // params = { title, data}
                 $(_id).highcharts({
+                    credits: {enabled: false},
                     chart: {
                         plotBackgroundColor: null,
                         plotBorderWidth: null,
                         plotShadow: false,
-                        type: 'pie'
+                        type: 'pie',
+                        width: 220
                     },
                     title: {
                         text: params.title
@@ -257,9 +323,12 @@
                         pie: {
                             allowPointSelect: true,
                             cursor: 'pointer',
+                            minSize: 75,
                             dataLabels: {
+                                padding: 4,
+                                connectorPadding: 4,
                                 enabled: true,
-                                format: '<b>{point.name}</b>: {point.percentage:.2f} %',
+                                format: '{point.name}: {point.percentage:.2f}%',
                                 style: {
                                     color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
                                 }
@@ -268,7 +337,6 @@
                     },
                     series: [{
                         name: 'Genotype Count',
-                        colorByPoint: true,
                         data: params.data
                     }]
                 });
