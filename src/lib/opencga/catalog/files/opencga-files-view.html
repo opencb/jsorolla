@@ -13,6 +13,9 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+
+<link rel="import" href="../../variant/variant-active-filters.html">
+
 <link rel="import" href="opencga-files-info-file.html">
 <link rel="import" href="opencga-files-info-samples.html">
 <link rel="import" href="opencga-files-info-jobs.html">
@@ -22,45 +25,45 @@
     <template>
         <style is="custom-style" include="jso-styles"></style>
 
-        <div style="padding: 10px;">
+        <br>
+        <variant-active-filters opencga-client="{{opencgaClient}}" query="{{filters}}">
+        </variant-active-filters>
 
-            <div style="height: 530px">
-                <table id="fileTable" data-search="true" data-show-columns="true" data-pagination="true"
-                       data-page-list="[10, 25, 50]" data-show-export="true" data-striped="true" style="cursor: pointer;">
-                </table>
-            </div>
 
-            <template is="dom-if" if="{{existsSelectedFile(_file)}}">
-                <h4><b>File:</b> {{_file.name}}</h4>
-                <div style="height: 530px; position: absolute; margin-top: 45px;">
-                    <ul id="myTabs" class="nav nav-tabs" role="tablist">
-                        <li role="presentation" class="active"><a href="#fileViewInfo" role="tab" data-toggle="tab">File Info</a></li>
-                        <li role="presentation"><a href="#samplesViewInfo" role="tab" data-toggle="tab">Samples</a></li>
-                        <li role="presentation"><a href="#jobsViewInfo" role="tab" data-toggle="tab">Jobs</a></li>
-                        <li role="presentation"><a href="#statsViewInfo" role="tab" data-toggle="tab">Stats</a></li>
-                    </ul>
+        <table id="fileTable" data-search="true" data-show-columns="true" data-pagination="true"
+               data-page-list="[10, 25, 50]" data-show-export="true" data-striped="true" style="cursor: pointer;">
+        </table>
 
-                    <div class="tab-content">
-                        <div id="fileViewInfo" role="tabpanel" class="tab-pane active">
-                            <opencga-files-info-file file="{{_file}}"></opencga-files-info-file>
-                        </div>
+        <template is="dom-if" if="{{existsSelectedFile(_file)}}">
+            <h4><b>File:</b> {{_file.name}}</h4>
+            <div style="height: 530px; position: absolute; margin-top: 45px;">
+                <ul id="myTabs" class="nav nav-tabs" role="tablist">
+                    <li role="presentation" class="active"><a href="#fileViewInfo" role="tab" data-toggle="tab">File Info</a></li>
+                    <li role="presentation"><a href="#samplesViewInfo" role="tab" data-toggle="tab">Samples</a></li>
+                    <li role="presentation"><a href="#jobsViewInfo" role="tab" data-toggle="tab">Jobs</a></li>
+                    <li role="presentation"><a href="#statsViewInfo" role="tab" data-toggle="tab">Stats</a></li>
+                </ul>
 
-                        <div id="samplesViewInfo" role="tabpanel" class="tab-pane">
-                            <opencga-files-info-samples opencga-client="{{opencgaClient}}" sample-ids="{{_file.sampleIds}}"></opencga-files-info-samples>
-                        </div>
+                <div class="tab-content">
+                    <div id="fileViewInfo" role="tabpanel" class="tab-pane active">
+                        <opencga-files-info-file file="{{_file}}"></opencga-files-info-file>
+                    </div>
 
-                        <div id="jobsViewInfo" role="tabpanel" class="tab-pane">
-                            <opencga-files-info-jobs file="{{_file}}"></opencga-files-info-jobs>
-                        </div>
+                    <div id="samplesViewInfo" role="tabpanel" class="tab-pane">
+                        <opencga-files-info-samples opencga-client="{{opencgaClient}}" sample-ids="{{_file.sampleIds}}">
+                        </opencga-files-info-samples>
+                    </div>
 
-                        <div id="statsViewInfo" role="tabpanel" class="tab-pane">
-                            <opencga-files-info-stats></opencga-files-info-stats>
-                        </div>
+                    <div id="jobsViewInfo" role="tabpanel" class="tab-pane">
+                        <opencga-files-info-jobs file="{{_file}}"></opencga-files-info-jobs>
+                    </div>
+
+                    <div id="statsViewInfo" role="tabpanel" class="tab-pane">
+                        <opencga-files-info-stats></opencga-files-info-stats>
                     </div>
                 </div>
-            </template>
-
-        </div>
+            </div>
+        </template>
 
     </template>
     <script>
@@ -80,6 +83,10 @@
                     observer: 'renderFromServer'
                 },
                 filters: {
+                    type: Object,
+                    notify: true
+                },
+                search: {
                     type: Object,
                     value: {},
                     observer: 'renderFromServer'
@@ -117,6 +124,10 @@
                 ];
             },
             renderFromServer: function() {
+                let filters = this.search;
+
+                this.files = [];
+
                 if (this.opencgaClient instanceof OpenCGAClient && this.studyId > 0) {
 
                     if (this.opencgaClient.getConfig().host.startsWith("https://")) {
@@ -139,13 +150,12 @@
                                 order: params.order,
                                 sort: params.sort,
                                 limit: params.limit,
-                                skip: params.offset,
-                                type: "FILE"
+                                skip: params.offset
                             };
                             if (params.search !== undefined && params.search.length > 0) {
                                 auxParams["name"] = "~" + params.search;
                             }
-                            return Object.assign({}, _this.filters, auxParams);
+                            return Object.assign({}, filters, auxParams);
                         },
                         responseHandler: function(response) {
                             if (!_this.hasOwnProperty("numTotalResults")) {
