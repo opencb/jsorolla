@@ -178,6 +178,11 @@
                             $($element).addClass('success');
                         }
                     });
+                } else {
+                    // Delete table
+                    $('#fileTable').bootstrapTable('destroy');
+                    this._file = {};
+                    this.numTotalResults = 0;
                 }
             },
             renderLocally: function() {

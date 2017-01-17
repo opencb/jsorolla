@@ -251,6 +251,10 @@
                     }).catch(function () {
                         console.log("Could not obtain the variable sets of the study " + _this.studyId);
                     });
+                } else {
+                    // Delete table
+                    $('#fileTable').bootstrapTable('destroy');
+                    this.numTotalResults = 0;
                 }
             },
             renderLocally: function () {

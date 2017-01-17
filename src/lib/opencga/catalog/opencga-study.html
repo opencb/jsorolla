@@ -24,27 +24,27 @@
         <div class="center">
 
             <!-- 1ST ROW: STUDY SUMMARY -->
-            <div>
-                <h2>General information</h2>
-                <dl>
-                    <dt>Name</dt>
-                    <dd>{{study.name}}</dd>
-                    <dt>Alias (id)</dt>
-                    <dd>{{study.alias}} ({{study.id}})</dd>
-                    <template is="dom-if" if="{{_isNotEmpty(study.type)}}">
-                        <dt>Type</dt>
-                        <dd>{{study.type}}</dd>
-                    </template>
-                    <dt>Date</dt>
-                    <dd>{{_formatDate(study.creationDate)}}</dd>
-                    <dt>Disk usage</dt>
-                    <dd>{{_getDiskUsage(study.diskUsage)}}</dd>
-                    <template is="dom-if" if="{{_isNotEmpty(study.description)}}">
-                        <dt>Description</dt>
-                        <dd>{{study.description}}</dd>
-                    </template>
-                </dl>
-            </div>
+            <!--<div>-->
+                <!--<h2>General information</h2>-->
+                <!--<dl>-->
+                    <!--<dt>Name</dt>-->
+                    <!--<dd>{{study.name}}</dd>-->
+                    <!--<dt>Alias (id)</dt>-->
+                    <!--<dd>{{study.alias}} ({{study.id}})</dd>-->
+                    <!--<template is="dom-if" if="{{_isNotEmpty(study.type)}}">-->
+                        <!--<dt>Type</dt>-->
+                        <!--<dd>{{study.type}}</dd>-->
+                    <!--</template>-->
+                    <!--<dt>Date</dt>-->
+                    <!--<dd>{{_formatDate(study.creationDate)}}</dd>-->
+                    <!--<dt>Disk usage</dt>-->
+                    <!--<dd>{{_getDiskUsage(study.diskUsage)}}</dd>-->
+                    <!--<template is="dom-if" if="{{_isNotEmpty(study.description)}}">-->
+                        <!--<dt>Description</dt>-->
+                        <!--<dd>{{study.description}}</dd>-->
+                    <!--</template>-->
+                <!--</dl>-->
+            <!--</div>-->
 
             <!-- 2ND ROW -->
             <div style="clear: both; padding: 15px 0px;">
@@ -237,7 +237,7 @@
 //            },
 
             _formatDate: function(dateStr) {
-                return moment(parseInt(dateStr)).format('D MMM YY');
+                return moment(dateStr, "YYYYMMDDHHmmss").format('D MMM YY');
             },
 
             getTotalPermissions: function(permissions) {
@@ -593,6 +593,7 @@
                 // params = { title, xAxisText, yAxisText, categories, series}
 
                 $(_id).highcharts({
+                    credits: {enabled: false},
                     chart: {
                         type: 'column'
                     },
@@ -633,6 +634,7 @@
             _updatePieChart: function(_id, params) {
                 // params = { title, data}
                 $(_id).highcharts({
+                    credits: {enabled: false},
                     chart: {
                         plotBackgroundColor: null,
                         plotBorderWidth: null,
