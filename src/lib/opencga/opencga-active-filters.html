@@ -1,0 +1,298 @@
+<!--
+  ~ Copyright 2015-2016 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<dom-module id="opencga-active-filters">
+    <template>
+        <style is="custom-style" include="jso-styles"></style>
+
+        <style>
+            .filter-button:hover {
+                text-decoration: line-through;
+            }
+        </style>
+
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <button type="button" class="btn btn-primary" on-click="clear">
+                    <i class="fa fa-refresh" aria-hidden="true" style="padding-right: 5px"></i>
+                    Clear
+                </button>
+
+                <span style="padding: 0px 25px 0px 25px">
+                    <template is="dom-if" if="{{queryListEmpty}}">
+                        <label>No filters selected</label>
+                    </template>
+
+                    <template is="dom-repeat" items="{{queryList}}">
+                        <template is="dom-if" if="{{!_isMultiValued(item)}}">
+                            <button type="button" class="btn btn-warning btn-sm filter-button" data-filter-name="{{item.name}}" data-filter-value="" on-click="onQueryFilterDelete">
+                                {{item.text}}
+                            </button>
+                        </template>
+
+                        <template is="dom-if" if="{{_isMultiValued(item)}}">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-warning btn-sm filter-button" data-filter-name="{{item.name}}" data-filter-value="" on-click="onQueryFilterDelete">
+                                    {{item.text}}
+                                </button>
+                                <button type="button" class="btn btn-warning btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <span class="caret"></span>
+                                    <span class="sr-only">Toggle Dropdown</span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <template is="dom-repeat" items="{{item.items}}" as="filterItem">
+                                        <li class="small filter-button" style="cursor: pointer">
+                                            <a on-click="onQueryFilterDelete" data-filter-name="{{item.name}}" data-filter-value="{{filterItem}}">{{filterItem}}</a>
+                                        </li>
+                                    </template>
+                                </ul>
+                            </div>
+                        </template>
+                    </template>
+                </span>
+
+                <template is="dom-if" if="{{checkSid(opencgaClient._config)}}">
+                    <span style="float: right">
+                        <form class="form-inline">
+                            <span class="form-group">
+                                <label for="filtersList">Load filter &nbsp; </label>
+                                <select class="form-control" name="filters" id="filtersList" on-change="onFilterChange">
+                                    <option>None</option>
+                                    <template is="dom-repeat" items="{{filters}}">
+                                        <option>{{item.name}}</option>
+                                    </template>
+                                </select>
+                            </span>
+
+                            <!--<button type="button" class="btn btn-primary" on-click="save">-->
+                            <!--<i class="fa fa-floppy-o" aria-hidden="true" style="padding-right: 5px"></i>-->
+                            <!--Save...-->
+                            <!--</button>-->
+                            <!-- Button trigger modal -->
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#{{prefix}}SaveModal" on-click="launchModal">
+                                <i class="fa fa-floppy-o" aria-hidden="true" style="padding-right: 5px"></i>
+                                Save...
+                            </button>
+                        </form>
+                    </span>
+                </template>
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div class="modal fade" id="{{prefix}}SaveModal" tabindex="-1" role="dialog" aria-labelledby="{{prefix}}SaveModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title" id="{{prefix}}SaveModalLabel">Filter</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group row">
+                            <label for="filterName" class="col-xs-2 col-form-label">Name</label>
+                            <div class="col-xs-10">
+                                <input class="form-control" type="text" id="filterName">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="filterDescription" class="col-xs-2 col-form-label">Description</label>
+                            <div class="col-xs-10">
+                                <input class="form-control" type="text" id="filterDescription">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="bioformats" class="col-xs-2 col-form-label">Bioformat</label>
+                            <div class="col-xs-10">
+                                <select class="form-control" name="filters" id="bioformats">
+                                    <template is="dom-repeat" items="{{bioformats}}">
+                                        <option>{{item}}</option>
+                                    </template>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="save">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'opencga-active-filters',
+            properties: {
+                opencgaClient: {
+                    type: Object,
+                    value: function() {
+                        return {'_config':{}};
+                    }
+                },
+                query: {
+                    type: Object,
+                    notify: true,
+                    observer: 'onQueryUpdate'
+                },
+                filters: {
+                    type: Array
+                },
+                alias: {
+                    type: Object,
+                },
+                prefix: {
+                    type: String
+                }
+            },
+            observers: [
+                'checkFilters(opencgaClient._config.*)'
+            ],
+            ready: function () {
+                if (typeof this.prefix === "undefined" || this.prefix == "") {
+                    this.prefix = "activeFilter_" + Utils.randomString(6);
+                }
+
+                this.queryListEmpty = true;
+            },
+            clear: function () {
+                this.query = {};
+                if (typeof $('#filtersList') !== "undefined") {
+                    $('#filtersList').val("None");
+                }
+
+                // Trigger clear event
+                this.fire('clear', {});
+            },
+            launchModal: function () {
+                $('#' + this.prefix + 'SaveModal').modal('show');
+            },
+            checkSid: function (config) {
+                return typeof config.sessionId !== "undefined" && config.sessionId != "";
+            },
+            checkFilters: function (config) {
+                let _this = this;
+                if (this.opencgaClient instanceof OpenCGAClient && typeof config.value.sessionId !== 'undefined') {
+                    this.opencgaClient.users().getFilters({}, {})
+                        .then(function(response) {
+                            let result = response.response[0].result;
+                            if (result.length > 0) {
+                                _this.filters = result;
+                            }
+                        });
+                    this.opencgaClient.files().getAllBioFormats()
+                        .then(function (response) {
+                            _this.bioformats = response.response[0].result;
+                        });
+                }
+            },
+            save: function () {
+                let params = {};
+                params.name = this.$.filterName.value;
+                params.description = this.$.filterDescription.value;
+                params.bioformat = this.$.bioformats.value;
+                params.query = this.query;
+                params.options = {};
+                let _this = this;
+                this.opencgaClient.users().getFilter(this.$.filterName.value, {}, {})
+                    .then(function (response) {
+                        if (response.response[0].result.length > 0) {
+                            delete params.name;
+                            _this.opencgaClient.users().updateFilter(_this.$.filterName.value, params, {})
+                                .then(function(response) {
+                                    for (let i in _this.filters) {
+                                        if (_this.filters[i].name == _this.$.filterName.value) {
+                                            _this.filters[i] = response.response[0].result[0];
+                                        }
+                                    }
+                                    _this.$.filterName.value = "";
+                                    _this.$.filterDescription.value = "";
+                                });
+                        } else {
+                            _this.opencgaClient.users().createFilter(params, {})
+                                .then(function(response) {
+                                    _this.push("filters", params);
+                                    _this.$.filterName.value = "";
+                                    _this.$.filterDescription.value = "";
+                                });
+                        }
+                    });
+            },
+            onFilterChange: function (e) {
+                if (e.target.selectedIndex == 0) {
+                    this.clear();
+                } else {
+                    this.query = this.filters[e.target.selectedIndex - 1].query;
+                    this.fire("filterchange", this.query);
+                }
+            },
+            onQueryFilterDelete: function (e) {
+                let _queryList = this.query;
+                let name = e.target.dataFilterName;
+                let value = e.target.dataFilterValue;
+
+                if (typeof value === 'undefined' || value === '') {
+                    delete _queryList[name];
+                } else {
+                    let filterFields = _queryList[name].split(new RegExp("[,;]"));
+                    let indexOfValue = filterFields.indexOf(value);
+                    filterFields.splice(indexOfValue, 1);
+                    if (_queryList[name].indexOf(',') != -1) {
+                        _queryList[name] = filterFields.join(",");
+                    } else {
+                        _queryList[name] = filterFields.join(";");
+                    }
+                }
+
+                this.query = Object.assign({}, _queryList);
+            },
+            onQueryUpdate: function () {
+                let _queryList = [];
+                var keys = Object.keys(this.query);
+                for (var keyIdx in keys) {
+                    let key = keys[keyIdx];
+                    if (typeof this.query[key] !== 'undefined' && this.query[key] != "") {
+                        // We use the alias to rename the key
+                        let title = key;
+                        if (typeof this.alias !== 'undefined' && typeof this.alias[key] !== 'undefined') {
+                            title = this.alias[key];
+                        }
+
+                        // We convert the Query object into an array of small objects (queryList)
+                        let value = this.query[key];
+                        let filterFields = value.split(new RegExp("[,;]"));
+                        // Just in case one is a flag
+                        if (filterFields.length === 0) {
+                            _queryList.push({name: key, text: title});
+                        } else {
+                            if (filterFields.length === 1) {
+                                _queryList.push({name: key, text: title + " = " + value});
+                            } else  {
+                                _queryList.push({name: key, text: title, items: filterFields});
+                            }
+                        }
+                    }
+                }
+
+                this.queryList = _queryList;
+                this.queryListEmpty = (this.queryList.length == 0);
+            },
+            _isMultiValued: function(item) {
+                return typeof item.items !== 'undefined';
+            }
+        });
+    </script>
+</dom-module>

@@ -36,7 +36,8 @@
             <div class="col-md-10" hidden$="{{checkProject(project)}}">
                 <variant-browser-view title="{{title}}" project="{{project}}" study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
                                       cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                      consequence-types="{{consequenceTypes}}" beacon-hosts="{{beaconHosts}}" query="{{query}}" search="[[search]]" on-propagate="propagateGeneEvent" config="{{config}}">
+                                      consequence-types="{{consequenceTypes}}" beacon-hosts="{{beaconHosts}}" query="{{query}}" search="[[search]]"
+                                      on-propagate="propagateGeneEvent" config="{{config}}"  on-clear="onClear" on-filterchange="onFilterChange">
                 </variant-browser-view>
             </div>
 
@@ -101,6 +102,12 @@
             },
             propagateGeneEvent: function (e) {
                 this.fire('gene', {gene: e.detail.gene});
+            },
+            onClear: function() {
+                this.search = {};
+            },
+            onFilterChange: function(e) {
+                this.search = e.detail;
             }
         });
     </script>
