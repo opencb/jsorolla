@@ -355,11 +355,11 @@
                                     <option value=">=">>=</option>
                                 </select>
                                 <input type="text" value="" class="custom-sized-input" id="{{prefix}}PolyphenInput" name="Polyphen" on-keyup="updateQueryFilters">
-                            </div>
+                            </div><br>
                             <form>
-                                <label style="font-weight: normal;">Operation :</label>
-                                <input type="radio" name="pss" id="pssAndRadio" value="and" style="margin-left: 16px" disabled on-change="updateQueryFilters"> AND
-                                <input type="radio" name="pss" id="pssOrRadio" value="or" style="margin-left: 10px" checked disabled on-change="updateQueryFilters"> OR<br>
+                                <label style="font-weight: normal;">Logical Operator</label><br>
+                                <input type="radio" name="pss" id="pssOrRadio" value="or" checked disabled on-change="updateQueryFilters"> OR<br>
+                                <input type="radio" name="pss" id="pssAndRadio" value="and" disabled on-change="updateQueryFilters"> AND<br>
                             </form>
                         </div>
                     </div>
@@ -406,10 +406,10 @@
                                 </select>
                                 <input type="text" value="" class="custom-sized-input" id="{{prefix}}GerpInput" name="gerp" on-keyup="updateQueryFilters">
                             </div>
-                            <form>
-                                <label style="font-weight: normal;">Operation :</label>
-                                <input type="radio" name="conservation" id="conservationAndRadio" value="and" style="margin-left: 16px" disabled on-change="updateQueryFilters"> AND
-                                <input type="radio" name="conservation" id="conservationOrRadio" value="or" style="margin-left: 10px" checked disabled on-change="updateQueryFilters"> OR<br>
+                            <form style="padding-top: 10px">
+                                <label style="font-weight: normal;">Logical Operator</label><br>
+                                <input type="radio" name="conservation" id="conservationOrRadio" value="or" checked disabled on-change="updateQueryFilters"> OR<br>
+                                <input type="radio" name="conservation" id="conservationAndRadio" value="and" disabled on-change="updateQueryFilters"> AND<br>
                             </form>
 
                         </div>
@@ -737,46 +737,46 @@
 
                 // Protein Substitution scores
                 // Sift
-                if (typeof query.sift !== "undefined") {
-                    if (query.sift.startsWith("<") || query.sift.startsWith(">")) {
-                        this.$$("#" + this.prefix + "SiftInput").value = query.sift.split(/[<=>]+/)[1];
-                        this.$$("#" + this.prefix + "SiftValues").value = "score";
-                        this.$$("#" + this.prefix + "SiftOperator").value = query.sift.split(/[-0-9.]+/)[0];
-                    } else {
-                        this.$$("#" + this.prefix + "SiftValues").value = query.sift;
-                        this.$$("#" + this.prefix + "SiftInput").value = "";
-                        this.$$("#" + this.prefix + "SiftOperator").value = "<";
-                    }
-                    this.$$("#" + this.prefix + "SiftInput").disabled = !(query.sift.startsWith("<") || query.sift.startsWith(">"));
-                    this.$$("#" + this.prefix + "SiftOperator").disabled = !(query.sift.startsWith("<") || query.sift.startsWith(">"));
-                } else {
-                    this.$$("#" + this.prefix + "SiftOperator").value = "<";
-                    this.$$("#" + this.prefix + "SiftValues").value = "score";
-                    this.$$("#" + this.prefix + "SiftInput").value = "";
-                    this.$$("#" + this.prefix + "SiftInput").disabled = false;
-                    this.$$("#" + this.prefix + "SiftOperator").disabled = false;
-                }
-
-                // Polyphen
-                if (typeof query.polyphen !== "undefined") {
-                    if (query.polyphen.startsWith("<") || query.polyphen.startsWith(">")) {
-                        this.$$("#" + this.prefix + "PolyphenInput").value = query.polyphen.split(/[<=>]+/)[1];
-                        this.$$("#" + this.prefix + "PolyphenValues").value = "score";
-                        this.$$("#" + this.prefix + "PolyphenOperator").value = query.polyphen.split(/[-0-9.]+/)[0];
-                    } else {
-                        this.$$("#" + this.prefix + "PolyphenValues").value = query.polyphen;
-                        this.$$("#" + this.prefix + "PolyphenInput").value = "";
-                        this.$$("#" + this.prefix + "PolyphenOperator").value = "<"
-                    }
-                    this.$$("#" + this.prefix + "PolyphenInput").disabled = !(query.polyphen.startsWith("<") || query.polyphen.startsWith(">"));
-                    this.$$("#" + this.prefix + "PolyphenOperator").disabled = !(query.polyphen.startsWith("<") || query.polyphen.startsWith(">"));
-                } else {
-                    this.$$("#" + this.prefix + "PolyphenOperator").value = "<";
-                    this.$$("#" + this.prefix + "PolyphenValues").value = "score";
-                    this.$$("#" + this.prefix + "PolyphenInput").value = "";
-                    this.$$("#" + this.prefix + "PolyphenInput").disabled = false;
-                    this.$$("#" + this.prefix + "PolyphenOperator").disabled = false;
-                }
+//                if (typeof query.sift !== "undefined") {
+//                    if (query.sift.startsWith("<") || query.sift.startsWith(">")) {
+//                        this.$$("#" + this.prefix + "SiftInput").value = query.sift.split(/[<=>]+/)[1];
+//                        this.$$("#" + this.prefix + "SiftValues").value = "score";
+//                        this.$$("#" + this.prefix + "SiftOperator").value = query.sift.split(/[-0-9.]+/)[0];
+//                    } else {
+//                        this.$$("#" + this.prefix + "SiftValues").value = query.sift;
+//                        this.$$("#" + this.prefix + "SiftInput").value = "";
+//                        this.$$("#" + this.prefix + "SiftOperator").value = "<";
+//                    }
+//                    this.$$("#" + this.prefix + "SiftInput").disabled = !(query.sift.startsWith("<") || query.sift.startsWith(">"));
+//                    this.$$("#" + this.prefix + "SiftOperator").disabled = !(query.sift.startsWith("<") || query.sift.startsWith(">"));
+//                } else {
+//                    this.$$("#" + this.prefix + "SiftOperator").value = "<";
+//                    this.$$("#" + this.prefix + "SiftValues").value = "score";
+//                    this.$$("#" + this.prefix + "SiftInput").value = "";
+//                    this.$$("#" + this.prefix + "SiftInput").disabled = false;
+//                    this.$$("#" + this.prefix + "SiftOperator").disabled = false;
+//                }
+//
+//                // Polyphen
+//                if (typeof query.polyphen !== "undefined") {
+//                    if (query.polyphen.startsWith("<") || query.polyphen.startsWith(">")) {
+//                        this.$$("#" + this.prefix + "PolyphenInput").value = query.polyphen.split(/[<=>]+/)[1];
+//                        this.$$("#" + this.prefix + "PolyphenValues").value = "score";
+//                        this.$$("#" + this.prefix + "PolyphenOperator").value = query.polyphen.split(/[-0-9.]+/)[0];
+//                    } else {
+//                        this.$$("#" + this.prefix + "PolyphenValues").value = query.polyphen;
+//                        this.$$("#" + this.prefix + "PolyphenInput").value = "";
+//                        this.$$("#" + this.prefix + "PolyphenOperator").value = "<"
+//                    }
+//                    this.$$("#" + this.prefix + "PolyphenInput").disabled = !(query.polyphen.startsWith("<") || query.polyphen.startsWith(">"));
+//                    this.$$("#" + this.prefix + "PolyphenOperator").disabled = !(query.polyphen.startsWith("<") || query.polyphen.startsWith(">"));
+//                } else {
+//                    this.$$("#" + this.prefix + "PolyphenOperator").value = "<";
+//                    this.$$("#" + this.prefix + "PolyphenValues").value = "score";
+//                    this.$$("#" + this.prefix + "PolyphenInput").value = "";
+//                    this.$$("#" + this.prefix + "PolyphenInput").disabled = false;
+//                    this.$$("#" + this.prefix + "PolyphenOperator").disabled = false;
+//                }
 
                 // Conservation
                 if (typeof query.conservation !== "undefined") {
@@ -940,15 +940,26 @@
                 }
 
                 // Protein Substitution scores
+                let pss = [];
+                let sift = "";
                 if (this.$$("#" + this.prefix + "SiftValues").value == "score" && this.$$("#" + this.prefix + "SiftInput").value != "" || this.$$("#" + this.prefix + "SiftOperator").value != "<") {
-                    _filters.sift = this.$$("#" + this.prefix + "SiftOperator").value + this.$$("#" + this.prefix + "SiftInput").value;
+//                    _filters.sift = this.$$("#" + this.prefix + "SiftOperator").value + this.$$("#" + this.prefix + "SiftInput").value;
+                    sift = "sift" + this.$$("#" + this.prefix + "SiftOperator").value + this.$$("#" + this.prefix + "SiftInput").value;
+                    pss.push(sift);
                 } else if (this.$$("#" + this.prefix + "SiftValues").value != "score") {
-                    _filters.sift = this.$$("#" + this.prefix + "SiftValues").value;
+//                    _filters.sift = this.$$("#" + this.prefix + "SiftValues").value;
+                    sift = "sift" + "=" + this.$$("#" + this.prefix + "SiftValues").value;
+                    pss.push(sift);
                 }
+                let polyphen = "";
                 if (this.$$("#" + this.prefix + "PolyphenValues").value == "score" && this.$$("#" + this.prefix + "PolyphenInput").value != "" || this.$$("#" + this.prefix + "PolyphenOperator").value != "<") {
-                    _filters.polyphen = this.$$("#" + this.prefix + "PolyphenOperator").value + this.$$("#" + this.prefix + "PolyphenInput").value;
+//                    _filters.polyphen = this.$$("#" + this.prefix + "PolyphenOperator").value + this.$$("#" + this.prefix + "PolyphenInput").value;
+                    polyphen = "polyphen" + this.$$("#" + this.prefix + "PolyphenOperator").value + this.$$("#" + this.prefix + "PolyphenInput").value;
+                    pss.push(polyphen);
                 } else if (this.$$("#" + this.prefix + "PolyphenValues").value != "score") {
-                    _filters.polyphen = this.$$("#" + this.prefix + "PolyphenValues").value;
+//                    _filters.polyphen = this.$$("#" + this.prefix + "PolyphenValues").value;
+                    polyphen = "polyphen" + "=" + this.$$("#" + this.prefix + "PolyphenValues").value;
+                    pss.push(polyphen);
                 }
                 if ((this.$$("#" + this.prefix + "SiftInput").value != "" && this.$$("#" + this.prefix + "PolyphenInput").value != "") ||
                     (this.$$("#" + this.prefix + "SiftValues").value != "score" && this.$$("#" + this.prefix + "PolyphenInput").value != "") ||
@@ -956,14 +967,14 @@
                     (this.$$("#" + this.prefix + "SiftValues").value != "score" && this.$$("#" + this.prefix + "PolyphenValues").value != "score")) {
                     $("input:radio[name=pss]").attr('disabled', false);
                 }
-//                if (typeof _filters.sift !== "undefined" && typeof _filters.polyphen !== "undefined") {
-//                    let filter = $('input:radio[name=pss]:checked').val();
-//                    if (filter == "and") {
-//                        _filters.protein_substitution = _filters.sift + ";" + _filters.polyphen;
-//                    } else {
-//                        _filters.protein_substitution = _filters.sift + ";" + _filters.polyphen;
-//                    }
-//                }
+                if (pss.length > 0) {
+                    let filter = $('input:radio[name=pss]:checked').val();
+                    if (filter == "and") {
+                        _filters.protein_substitution = pss.join(';');
+                    } else {
+                        _filters.protein_substitution = pss.join(',');
+                    }
+                }
 
                 // Conservation
                 let conserArr = [];

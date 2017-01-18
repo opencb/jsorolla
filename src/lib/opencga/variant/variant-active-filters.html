@@ -256,6 +256,15 @@
                     if (typeof this.query[key] !== 'undefined' && this.query[key] != "") {
                         let value = this.query[key];
                         switch (key) {
+                            case "studies":
+                                let studies = value.split(new RegExp("[,;]"));
+                                if (studies.length > 1) {
+                                    _queryList.push({name: key, text: key + " = " + value});
+                                    break;
+                                } else {
+                                    break;
+                                }
+                            case "protein_substitution":
                             case "conservation":
                             case "annot-population-maf":
                             case "annot-functional-score":
@@ -267,15 +276,6 @@
                                 break;
                             case "annot-ct":
                                 _queryList.push({name: key, text: "consequence types = " + value});
-                                break;
-                            case "sift":
-                            case "polyphen":
-                                if (value.charAt(0) == "<" || value.charAt(0) == ">") {
-                                    _queryList.push({name: key, text: key + value});
-
-                                } else {
-                                    _queryList.push({name: key, text: key + " = " + value});
-                                }
                                 break;
                             default:
                                 _queryList.push({name: key, text: key + " = " + value});
