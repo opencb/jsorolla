@@ -232,15 +232,9 @@
                     </div>
                     <div id="{{prefix}}Position" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}PositionHeading">
                         <div class="panel-body">
-                            Chromosomal location:
-                            <textarea id="{{prefix}}LocationTextarea" class="form-control clearable" rows="3" placeholder="3:444-55555, 1:1-1000000"
+                            Chromosomal location, Gene or SNP ID:
+                            <textarea id="{{prefix}}LocationTextarea" class="form-control clearable" rows="3" placeholder="3:444-55555, BRCA2, rs666"
                                       name="location" on-keyup="updateQueryFilters"></textarea>
-                            <br> Gene name:
-                            <textarea id="{{prefix}}GeneTextarea" class="form-control clearable" rows="3" placeholder="BRCA2, PPL"
-                                      name="ids" on-keyup="updateQueryFilters"></textarea>
-                            <br> SNP ID:
-                            <textarea id="{{prefix}}SnpTextarea" class="form-control clearable" rows="3" placeholder="rs666, rs9988179"
-                                      name="ids" on-keyup="updateQueryFilters"></textarea>
                             <input type="checkbox" value=""> With / Without dbSNP rs IDs<br>
                         </div>
                     </div>
@@ -320,13 +314,14 @@
                         <h4 class="panel-title">
                             <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}ProteinSubstitutionScore"
                                aria-expanded="false" aria-controls="{{prefix}}ProteinSubstitutionScore">
-                                Protein Substitution Score
+                                Deleteriousness
                             </a>
                         </h4>
                     </div>
                     <div id="{{prefix}}ProteinSubstitutionScore" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}ProteinSubstitutionScoreHeading">
                         <div class="panel-body">
-                            <div>
+                            <b>Protein Substitution Score</b>
+                            <div style="padding-top: 10px">
                                 <label style="font-weight: normal;">SIFT</label><br>
                                 <select class="options" name="Sift" id="{{prefix}}SiftValues" style="width: 90px" on-change="checkScore">
                                     <option value="score" selected>Score...</option>
@@ -343,7 +338,7 @@
                                 <div style="float: right" class="tooltip-div">
                                     <a data-toggle="tooltip" title="Select None in the drop-down list on the left to enable the input of a specific SIFT score threshold. SIFT score takes values in the range [0, infinite[, the lower the values, the more damaging the prediction"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
                                 </div>
-                            </div>
+                            </div><br>
                             <div>
                                 <label style="font-weight: normal;">Polyphen</label><br>
                                 <select class="options" name="Polyphen" id="{{prefix}}PolyphenValues" style="width: 90px" on-change="checkScore">
@@ -365,12 +360,39 @@
                                 <div style="float: right" class="tooltip-div">
                                     <a data-toggle="tooltip" title="Select None in the drop-down list on the left to enable the input of a specific Polyphen score threshold. Polyphen score takes values in the range [0, 1[, the closer to 2, the more damaging the prediction"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
                                 </div>
-                            </div>
+                            </div><br>
                             <form>
-                                <label style="font-weight: normal;">Logical Operator</label><br>
-                                <input type="radio" name="pss" id="pssOrRadio" value="or" checked disabled on-change="updateQueryFilters"> OR<br>
-                                <input type="radio" name="pss" id="pssAndRadio" value="and" disabled on-change="updateQueryFilters"> AND<br>
-                            </form>
+                                <label style="font-weight: normal;">Logical Operator</label>
+                                <input type="radio" name="pss" id="pssOrRadio" value="or" checked disabled on-change="updateQueryFilters" style="margin-left: 10px"> OR<br>
+                                <input type="radio" name="pss" id="pssAndRadio" value="and" disabled on-change="updateQueryFilters" style="margin-left: 102px"> AND<br>
+                            </form><br>
+                            <b>CADD</b>
+                            <div class="block" style="padding-top: 10px">
+                                <label>Raw</label>
+                                <select name="caddRawOperator" id="{{prefix}}CaddRawOperator" on-change="updateQueryFilters">
+                                    <option value="<" selected><</option>
+                                    <option value="<="><=</option>
+                                    <option value=">">></option>
+                                    <option value=">=">>=</option>
+                                </select>
+                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}CaddRawInput" name="caddRaw" on-keyup="updateQueryFilters">
+                                <div style="float: right" class="tooltip-div">
+                                    <a data-toggle="tooltip" title="Raw values have relative meaning, with higher values indicating that a variant is more likely to be simulated (or not observed) and therefore more likely to have deleterious effects. If discovering causal variants within an individual, or small groups, of exomes or genomes te use of the scaled CADD score is recommended."><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                </div>
+                            </div>
+                            <div class="block">
+                                <label>Scaled</label>
+                                <select name="caddRScaledOperator" id="{{prefix}}CaddScaledOperator" on-change="updateQueryFilters">
+                                    <option value="<" selected><</option>
+                                    <option value="<="><=</option>
+                                    <option value=">">></option>
+                                    <option value=">=">>=</option>
+                                </select>
+                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}CaddScaledInput" name="caddScaled" on-keyup="updateQueryFilters">
+                                <div style="float: right" class="tooltip-div">
+                                    <a data-toggle="tooltip" title="A scaled C-score of greater of equal 10 indicates that the substitution is predicted to be within the 10% most deleterious substitutions that you can do to the human genome, a score of greater or equal 20 indicates the 1% most deleterious and so on. If you would like to apply a cutoff on deleteriousness, it is suggested by the CADD authors to put a cutoff somewhere between 10 and 20. Maybe at 15, as this also happens to be the median value for all possible canonical splice site changes and non-synonymous variants"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -426,9 +448,9 @@
                                 </div>
                             </div>
                             <form style="padding-top: 10px">
-                                <label style="font-weight: normal;">Logical Operator</label><br>
-                                <input type="radio" name="conservation" id="conservationOrRadio" value="or" checked disabled on-change="updateQueryFilters"> OR<br>
-                                <input type="radio" name="conservation" id="conservationAndRadio" value="and" disabled on-change="updateQueryFilters"> AND<br>
+                                <label style="font-weight: normal;">Logical Operator</label>
+                                <input type="radio" name="conservation" id="conservationOrRadio" value="or" checked disabled on-change="updateQueryFilters" style="margin-left: 10px"> OR<br>
+                                <input type="radio" name="conservation" id="conservationAndRadio" value="and" disabled on-change="updateQueryFilters" style="margin-left: 102px"> AND<br>
                             </form>
 
                         </div>
@@ -501,47 +523,6 @@
                         <div class="panel-body">
                             <textarea id="{{prefix}}HumanPhenotypeOntologyTextarea" class="form-control clearable" rows="3"
                                       name="hpo" placeholder="HP:0000001, HP:3000079" on-keyup="updateQueryFilters"></textarea>
-                        </div>
-                    </div>
-                </div>
-
-                <!--Cadd Scores filter-->
-                <div class="panel panel-default">
-                    <div class="panel-heading" role="tab" id="{{prefix}}CaddFilterHeading">
-                        <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}CaddFilter" aria-expanded="false" aria-controls="{{prefix}}CaddFilter">
-                                CADD
-                            </a>
-                        </h4>
-                    </div>
-                    <div id="{{prefix}}CaddFilter" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}CaddFilterHeading">
-                        <div class="panel-body">
-                            <div class="block">
-                                <label>Raw</label>
-                                <select name="caddRawOperator" id="{{prefix}}CaddRawOperator" on-change="updateQueryFilters">
-                                    <option value="<" selected><</option>
-                                    <option value="<="><=</option>
-                                    <option value=">">></option>
-                                    <option value=">=">>=</option>
-                                </select>
-                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}CaddRawInput" name="caddRaw" on-keyup="updateQueryFilters">
-                                <div style="float: right" class="tooltip-div">
-                                    <a data-toggle="tooltip" title="Raw values have relative meaning, with higher values indicating that a variant is more likely to be simulated (or not observed) and therefore more likely to have deleterious effects. If discovering causal variants within an individual, or small groups, of exomes or genomes te use of the scaled CADD score is recommended."><i class="fa fa-info-circle" aria-hidden="true"></i></a>
-                                </div>
-                            </div>
-                            <div class="block">
-                                <label>Scaled</label>
-                                <select name="caddRScaledOperator" id="{{prefix}}CaddScaledOperator" on-change="updateQueryFilters">
-                                    <option value="<" selected><</option>
-                                    <option value="<="><=</option>
-                                    <option value=">">></option>
-                                    <option value=">=">>=</option>
-                                </select>
-                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}CaddScaledInput" name="caddScaled" on-keyup="updateQueryFilters">
-                                <div style="float: right" class="tooltip-div">
-                                    <a data-toggle="tooltip" title="A scaled C-score of greater of equal 10 indicates that the substitution is predicted to be within the 10% most deleterious substitutions that you can do to the human genome, a score of greater or equal 20 indicates the 1% most deleterious and so on. If you would like to apply a cutoff on deleteriousness, it is suggested by the CADD authors to put a cutoff somewhere between 10 and 20. Maybe at 15, as this also happens to be the median value for all possible canonical splice site changes and non-synonymous variants"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -697,22 +678,51 @@
                 let _this = this;
 
                 // Studies
-                if (typeof query.studies === "undefined") {
-                    if (this.$$("#includeOtherStudy") != null && this.$$("#differentStudies") != null) {
-                        this.$$("#includeOtherStudy").value = "in";
-                        let checkBoxes = this.$$("#differentStudies").querySelectorAll("input:checked");
-                        for (let i = 0; i < checkBoxes.length; i++) {
-                            checkBoxes[i].checked = false;
+                if (this.$$("#includeOtherStudy") != null && this.$$("#differentStudies") != null) {
+                    // Empty everything first
+                    let checkBoxes = this.$$("#differentStudies").querySelectorAll("input:checked");
+                    for (let i = 0; i < checkBoxes.length; i++) {
+                        checkBoxes[i].checked = false;
+                    }
+
+                    if (typeof query.studies !== "undefined") {
+                        let studies = query.studies.split(new RegExp("[,;]"));
+                        // Set the other studies apart from the current study
+                        if (studies.length > 1) {
+                            for (let i = 0; i < studies.length; i++) {
+                                let study = studies[i].split(':')[1];
+                                for (let j = 0; j < checkBoxes.length; j++) {
+                                    if (checkBoxes[j].value == study) {
+                                        checkBoxes[j].checked = true;
+                                    }
+                                }
+                            }
                         }
+                    } else {
+                        this.$$("#includeOtherStudy").value = "in";
                     }
                 }
 
                 // Position, Gene and Variant Ids
-                this.$$("#" + this.prefix + "LocationTextarea").value = typeof query.region !== "undefined"? query.region : "";
-                this.$$("#" + this.prefix + "GeneTextarea").value = typeof query.gene !== "undefined"? query.gene : "";
-                this.$$("#" + this.prefix + "SnpTextarea").value = typeof query.ids !== "undefined"? query.ids : "";
+//                this.$$("#" + this.prefix + "LocationTextarea").value = typeof query.region !== "undefined" ? query.region : "";
+//                this.$$("#" + this.prefix + "GeneTextarea").value = typeof query.gene !== "undefined" ? query.gene : "";
+//                this.$$("#" + this.prefix + "SnpTextarea").value = typeof query.ids !== "undefined" ? query.ids : "";
+
+                if (typeof query.region !== "undefined") {
+                    this.$$("#" + this.prefix + "LocationTextarea").value = query.region;
+                } else if (typeof query.gene !== "undefined") {
+                    this.$$("#" + this.prefix + "LocationTextarea").value = query.gene;
+                } else if (typeof query.ids !== "undefined") {
+                    this.$$("#" + this.prefix + "LocationTextarea").value = query.ids;
+                } else {
+                    this.$$("#" + this.prefix + "LocationTextarea").value = "";
+                }
 
                 // Type
+                let typeCheckBoxes = this.$$("#" + this.prefix + "Type").querySelectorAll("input:checked");
+                for (let i = 0; i < typeCheckBoxes.length; i++) {
+                    typeCheckBoxes[i].checked = false;
+                }
                 if (typeof query.type !== "undefined") {
                     let types = query.type.split(",");
                     let checkBoxes = this.$$("#" + this.prefix + "Type").querySelectorAll("input");
@@ -722,11 +732,6 @@
                                 checkBoxes[j].checked = true;
                             }
                         }
-                    }
-                } else {
-                    let checkBoxes = this.$$("#" + this.prefix + "Type").querySelectorAll("input:checked");
-                    for (let i = 0; i < checkBoxes.length; i++) {
-                        checkBoxes[i].checked = false;
                     }
                 }
 
@@ -761,6 +766,70 @@
                 }
 
                 // Protein Substitution scores
+                let pss = [];
+                if (typeof query["protein_substitution"] !== "undefined") {
+                    pss = query["protein_substitution"].split(new RegExp("[,;]"));
+                }
+                if (pss.length > 0) {
+                    if (pss.length == 1) {
+                        // In this case, only one is present so the other should be emptied
+                        if (pss[0].startsWith("sift")) {
+                            let value = pss[0].split("sift")[1];
+                            if (value.startsWith("<") || value.startsWith(">")) {
+                                this.$$("#" + this.prefix + "SiftInput").value = value.split(/[<=>]+/)[1];
+                                this.$$("#" + this.prefix + "SiftValues").value = "score";
+                                this.$$("#" + this.prefix + "SiftOperator").value = value.split(/[-0-9.]+/)[0];
+                            } else {
+                                this.$$("#" + this.prefix + "SiftValues").value = value.split('=')[1];
+                                this.$$("#" + this.prefix + "SiftInput").value = "";
+                                this.$$("#" + this.prefix + "SiftOperator").value = "<";
+                            }
+                            this.$$("#" + this.prefix + "SiftInput").disabled = !(value.startsWith("<") || value.startsWith(">"));
+                            this.$$("#" + this.prefix + "SiftOperator").disabled = !(value.startsWith("<") || value.startsWith(">"));
+                            // Empty Polyphen in case of Sift
+                            this.$$("#" + this.prefix + "PolyphenOperator").value = "<";
+                            this.$$("#" + this.prefix + "PolyphenValues").value = "score";
+                            this.$$("#" + this.prefix + "PolyphenInput").value = "";
+                            this.$$("#" + this.prefix + "PolyphenInput").disabled = false;
+                            this.$$("#" + this.prefix + "PolyphenOperator").disabled = false;
+                        } else {
+                            let value = pss[0].split("polyphen")[1];
+                            if (value.startsWith("<") || value.startsWith(">")) {
+                                this.$$("#" + this.prefix + "PolyphenInput").value = value.split(/[<=>]+/)[1];
+                                this.$$("#" + this.prefix + "PolyphenValues").value = "score";
+                                this.$$("#" + this.prefix + "PolyphenOperator").value = value.split(/[-0-9.]+/)[0];
+                            } else {
+                                this.$$("#" + this.prefix + "PolyphenValues").value = value.split('=')[1];
+                                this.$$("#" + this.prefix + "PolyphenInput").value = "";
+                                this.$$("#" + this.prefix + "PolyphenOperator").value = "<"
+                            }
+                            this.$$("#" + this.prefix + "PolyphenInput").disabled = !(value.startsWith("<") || value.startsWith(">"));
+                            this.$$("#" + this.prefix + "PolyphenOperator").disabled = !(value.startsWith("<") ||value.startsWith(">"));
+                            // Empty sift in case of polyphen
+                            this.$$("#" + this.prefix + "SiftOperator").value = "<";
+                            this.$$("#" + this.prefix + "SiftValues").value = "score";
+                            this.$$("#" + this.prefix + "SiftInput").value = "";
+                            this.$$("#" + this.prefix + "SiftInput").disabled = false;
+                            this.$$("#" + this.prefix + "SiftOperator").disabled = false;
+                        }
+                    } else {
+                        // both are present so the values should be set
+                    }
+                } else {
+                    this.$$("#" + this.prefix + "SiftOperator").value = "<";
+                    this.$$("#" + this.prefix + "SiftValues").value = "score";
+                    this.$$("#" + this.prefix + "SiftInput").value = "";
+                    this.$$("#" + this.prefix + "SiftInput").disabled = false;
+                    this.$$("#" + this.prefix + "SiftOperator").disabled = false;
+
+                    this.$$("#" + this.prefix + "PolyphenOperator").value = "<";
+                    this.$$("#" + this.prefix + "PolyphenValues").value = "score";
+                    this.$$("#" + this.prefix + "PolyphenInput").value = "";
+                    this.$$("#" + this.prefix + "PolyphenInput").disabled = false;
+                    this.$$("#" + this.prefix + "PolyphenOperator").disabled = false;
+
+                }
+
                 // Sift
 //                if (typeof query.sift !== "undefined") {
 //                    if (query.sift.startsWith("<") || query.sift.startsWith(">")) {
@@ -919,19 +988,15 @@
                     }
                 }
 
-                // Region
-                    if (this.$$("#" + this.prefix + "LocationTextarea").value != "") {
+                // Region, Gene, SNP ID
+                if (this.$$("#" + this.prefix + "LocationTextarea").value != "") {
+                    if (this.$$("#" + this.prefix + "LocationTextarea").value.indexOf(':') != -1 && this.$$("#" + this.prefix + "LocationTextarea").value.indexOf('-') != -1) {
                         _filters.region = this.$$("#" + this.prefix + "LocationTextarea").value;
+                    } else if (this.$$("#" + this.prefix + "LocationTextarea").value.startsWith("rs") || this.$$("#" + this.prefix + "LocationTextarea").value.split(':').length > 2) {
+                        _filters.ids = this.$$("#" + this.prefix + "LocationTextarea").value;
+                    } else {
+                        _filters.gene = this.$$("#" + this.prefix + "LocationTextarea").value;
                     }
-
-                // Gene
-                if (this.$$("#" + this.prefix + "GeneTextarea").value != "") {
-                    _filters.gene = this.$$("#" + this.prefix + "GeneTextarea").value;
-                }
-
-                // Variant Id
-                if (this.$$("#" + this.prefix + "SnpTextarea").value != "") {
-                    _filters.ids = this.$$("#" + this.prefix + "SnpTextarea").value;
                 }
 
                 // Type
@@ -968,21 +1033,17 @@
                 let pss = [];
                 let sift = "";
                 if (this.$$("#" + this.prefix + "SiftValues").value == "score" && this.$$("#" + this.prefix + "SiftInput").value != "" || this.$$("#" + this.prefix + "SiftOperator").value != "<") {
-//                    _filters.sift = this.$$("#" + this.prefix + "SiftOperator").value + this.$$("#" + this.prefix + "SiftInput").value;
                     sift = "sift" + this.$$("#" + this.prefix + "SiftOperator").value + this.$$("#" + this.prefix + "SiftInput").value;
                     pss.push(sift);
                 } else if (this.$$("#" + this.prefix + "SiftValues").value != "score") {
-//                    _filters.sift = this.$$("#" + this.prefix + "SiftValues").value;
                     sift = "sift" + "=" + this.$$("#" + this.prefix + "SiftValues").value;
                     pss.push(sift);
                 }
                 let polyphen = "";
                 if (this.$$("#" + this.prefix + "PolyphenValues").value == "score" && this.$$("#" + this.prefix + "PolyphenInput").value != "" || this.$$("#" + this.prefix + "PolyphenOperator").value != "<") {
-//                    _filters.polyphen = this.$$("#" + this.prefix + "PolyphenOperator").value + this.$$("#" + this.prefix + "PolyphenInput").value;
                     polyphen = "polyphen" + this.$$("#" + this.prefix + "PolyphenOperator").value + this.$$("#" + this.prefix + "PolyphenInput").value;
                     pss.push(polyphen);
                 } else if (this.$$("#" + this.prefix + "PolyphenValues").value != "score") {
-//                    _filters.polyphen = this.$$("#" + this.prefix + "PolyphenValues").value;
                     polyphen = "polyphen" + "=" + this.$$("#" + this.prefix + "PolyphenValues").value;
                     pss.push(polyphen);
                 }

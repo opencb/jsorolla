@@ -70,9 +70,9 @@
                             <span class="form-group">
                                 <label for="filtersList">Load filter &nbsp; </label>
                                 <select class="form-control" name="filters" id="filtersList" on-change="onFilterChange">
-                                    <option>None</option>
+                                    <option value="None">None</option>
                                     <template is="dom-repeat" items="{{filters}}">
-                                        <option>{{item.name}}</option>
+                                        <option value="{{item.name}}">{{item.name}}</option>
                                     </template>
                                 </select>
                             </span>
@@ -171,7 +171,7 @@
             clear: function () {
                 this.query = {};
                 if (typeof $('#filtersList') !== "undefined") {
-                    $('#filtersList').val("None");
+                    $("#filtersList option[value='None']").prop('selected', true);
                 }
 
                 // Trigger clear event
@@ -279,7 +279,9 @@
                             _queryList.push({name: key, text: title});
                         } else {
                             if (filterFields.length === 1) {
-                                _queryList.push({name: key, text: title + " = " + value});
+                                if (key != "studies") {
+                                    _queryList.push({name: key, text: title + " = " + value});
+                                }
                             } else  {
                                 _queryList.push({name: key, text: title, items: filterFields});
                             }
