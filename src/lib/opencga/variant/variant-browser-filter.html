@@ -94,6 +94,10 @@
                     <i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px 0px 5px"></i>
                     Search
                 </button>
+                <button type="button" class="btn btn-primary" style="width: 100%" on-click="clear">
+                    <i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px 0px 5px"></i>
+                    Clear
+                </button>
             </div>
             <br>
 
@@ -288,7 +292,7 @@
                                             <div class="horizontal layout">
                                                 <span>MAF</span>
                                                 <span>
-                                                    <select name="{{popFreq.id}}Operator" id="{{prefix}}{{study.id}}{{popFreq.id}}Operator" on-change="updateQueryFilters">
+                                                    <select name="{{popFreq.id}}Operator" id="{{prefix}}{{study.id}}{{popFreq.id}}Operator" on-change="updateQueryFilters"  class$="{{prefix}}FilterOperator">
                                                         <option value="<" selected><</option>
                                                         <option value="<="><=</option>
                                                         <option value=">">></option>
@@ -328,7 +332,7 @@
                                     <option value="tolerated">Tolerated</option>
                                     <option value="deleterious">Deleterious</option>
                                 </select>
-                                <select name="siftOperator" id="{{prefix}}SiftOperator" on-change="updateQueryFilters">
+                                <select name="siftOperator" id="{{prefix}}SiftOperator" on-change="updateQueryFilters" class$="{{prefix}}FilterOperator">
                                     <option value="<" selected><</option>
                                     <option value="<="><=</option>
                                     <option value=">">></option>
@@ -349,7 +353,7 @@
                                     <option value="probably damaging">Probably damaging</option>
                                     <option value="possibly damaging,probably damaging">Possibly & Probably damaging</option>
                                 </select>
-                                <select name="polyphenOperator" id="{{prefix}}PolyphenOperator" on-change="updateQueryFilters">
+                                <select name="polyphenOperator" id="{{prefix}}PolyphenOperator" on-change="updateQueryFilters" class$="{{prefix}}FilterOperator">
                                     <option value="<" selected><</option>
                                     <option value="<="><=</option>
                                     <option value=">">></option>
@@ -366,10 +370,11 @@
                                 <input type="radio" name="pss" id="pssOrRadio" value="or" checked disabled on-change="updateQueryFilters" style="margin-left: 10px"> OR<br>
                                 <input type="radio" name="pss" id="pssAndRadio" value="and" disabled on-change="updateQueryFilters" style="margin-left: 102px"> AND<br>
                             </form><br>
+
                             <b>CADD</b>
                             <div class="block" style="padding-top: 10px">
                                 <label>Raw</label>
-                                <select name="caddRawOperator" id="{{prefix}}CaddRawOperator" on-change="updateQueryFilters">
+                                <select name="caddRawOperator" id="{{prefix}}CaddRawOperator" on-change="updateQueryFilters" class$="{{prefix}}FilterOperator">
                                     <option value="<" selected><</option>
                                     <option value="<="><=</option>
                                     <option value=">">></option>
@@ -382,7 +387,7 @@
                             </div>
                             <div class="block">
                                 <label>Scaled</label>
-                                <select name="caddRScaledOperator" id="{{prefix}}CaddScaledOperator" on-change="updateQueryFilters">
+                                <select name="caddRScaledOperator" id="{{prefix}}CaddScaledOperator" on-change="updateQueryFilters" class$="{{prefix}}FilterOperator">
                                     <option value="<" selected><</option>
                                     <option value="<="><=</option>
                                     <option value=">">></option>
@@ -410,7 +415,7 @@
                         <div class="panel-body">
                             <div class="block">
                                 <label>PhyloP</label>
-                                <select name="phylopOperator" id="{{prefix}}PhylopOperator" on-change="updateQueryFilters">
+                                <select name="phylopOperator" id="{{prefix}}PhylopOperator" on-change="updateQueryFilters" class$="{{prefix}}FilterOperator">
                                     <option value="<" selected><</option>
                                     <option value="<="><=</option>
                                     <option value=">">></option>
@@ -423,7 +428,7 @@
                             </div>
                             <div class="block">
                                 <label>PhastCons</label>
-                                <select name="phastconsOperator" id="{{prefix}}PhastconsOperator" on-change="updateQueryFilters">
+                                <select name="phastconsOperator" id="{{prefix}}PhastconsOperator" on-change="updateQueryFilters" class$="{{prefix}}FilterOperator">
                                     <option value="<" selected><</option>
                                     <option value="<="><=</option>
                                     <option value=">">></option>
@@ -436,7 +441,7 @@
                             </div>
                             <div class="block">
                                 <label>Gerp</label>
-                                <select name="gerpOperator" id="{{prefix}}GerpOperator" on-change="updateQueryFilters">
+                                <select name="gerpOperator" id="{{prefix}}GerpOperator" on-change="updateQueryFilters" class$="{{prefix}}FilterOperator">
                                     <option value="<" selected><</option>
                                     <option value="<="><=</option>
                                     <option value=">">></option>
@@ -672,11 +677,15 @@
             },
             fireClear: function () {
                 this._filters = {};
-                this.setQueryFilters({});
+//                this.setQueryFilters({});
+
+            },
+            clear: function() {
+                $("." + this.prefix + "FilterOperator").val("<");
             },
             setQueryFilters: function (query) {
+                console.log("setQueryFilters")
                 let _this = this;
-
                 // Studies
                 if (this.$$("#includeOtherStudy") != null && this.$$("#differentStudies") != null) {
                     // Empty everything first
@@ -778,16 +787,16 @@
                             if (value.startsWith("<") || value.startsWith(">")) {
                                 this.$$("#" + this.prefix + "SiftInput").value = value.split(/[<=>]+/)[1];
                                 this.$$("#" + this.prefix + "SiftValues").value = "score";
-                                this.$$("#" + this.prefix + "SiftOperator").value = value.split(/[-0-9.]+/)[0];
+//                                this.$$("#" + this.prefix + "SiftOperator").value = value.split(/[-0-9.]+/)[0];
                             } else {
                                 this.$$("#" + this.prefix + "SiftValues").value = value.split('=')[1];
                                 this.$$("#" + this.prefix + "SiftInput").value = "";
-                                this.$$("#" + this.prefix + "SiftOperator").value = "<";
+//                                this.$$("#" + this.prefix + "SiftOperator").value = "<";
                             }
                             this.$$("#" + this.prefix + "SiftInput").disabled = !(value.startsWith("<") || value.startsWith(">"));
                             this.$$("#" + this.prefix + "SiftOperator").disabled = !(value.startsWith("<") || value.startsWith(">"));
                             // Empty Polyphen in case of Sift
-                            this.$$("#" + this.prefix + "PolyphenOperator").value = "<";
+//                            this.$$("#" + this.prefix + "PolyphenOperator").value = "<";
                             this.$$("#" + this.prefix + "PolyphenValues").value = "score";
                             this.$$("#" + this.prefix + "PolyphenInput").value = "";
                             this.$$("#" + this.prefix + "PolyphenInput").disabled = false;
@@ -797,16 +806,16 @@
                             if (value.startsWith("<") || value.startsWith(">")) {
                                 this.$$("#" + this.prefix + "PolyphenInput").value = value.split(/[<=>]+/)[1];
                                 this.$$("#" + this.prefix + "PolyphenValues").value = "score";
-                                this.$$("#" + this.prefix + "PolyphenOperator").value = value.split(/[-0-9.]+/)[0];
+//                                this.$$("#" + this.prefix + "PolyphenOperator").value = value.split(/[-0-9.]+/)[0];
                             } else {
                                 this.$$("#" + this.prefix + "PolyphenValues").value = value.split('=')[1];
                                 this.$$("#" + this.prefix + "PolyphenInput").value = "";
-                                this.$$("#" + this.prefix + "PolyphenOperator").value = "<"
+//                                this.$$("#" + this.prefix + "PolyphenOperator").value = "<"
                             }
                             this.$$("#" + this.prefix + "PolyphenInput").disabled = !(value.startsWith("<") || value.startsWith(">"));
                             this.$$("#" + this.prefix + "PolyphenOperator").disabled = !(value.startsWith("<") ||value.startsWith(">"));
                             // Empty sift in case of polyphen
-                            this.$$("#" + this.prefix + "SiftOperator").value = "<";
+//                            this.$$("#" + this.prefix + "SiftOperator").value = "<";
                             this.$$("#" + this.prefix + "SiftValues").value = "score";
                             this.$$("#" + this.prefix + "SiftInput").value = "";
                             this.$$("#" + this.prefix + "SiftInput").disabled = false;
@@ -816,13 +825,13 @@
                         // both are present so the values should be set
                     }
                 } else {
-                    this.$$("#" + this.prefix + "SiftOperator").value = "<";
+//                    this.$$("#" + this.prefix + "SiftOperator").value = "<";
                     this.$$("#" + this.prefix + "SiftValues").value = "score";
                     this.$$("#" + this.prefix + "SiftInput").value = "";
                     this.$$("#" + this.prefix + "SiftInput").disabled = false;
                     this.$$("#" + this.prefix + "SiftOperator").disabled = false;
 
-                    this.$$("#" + this.prefix + "PolyphenOperator").value = "<";
+//                    this.$$("#" + this.prefix + "PolyphenOperator").value = "<";
                     this.$$("#" + this.prefix + "PolyphenValues").value = "score";
                     this.$$("#" + this.prefix + "PolyphenInput").value = "";
                     this.$$("#" + this.prefix + "PolyphenInput").disabled = false;
@@ -1125,6 +1134,7 @@
                 this.search = this.query;
             },
             onQueryUpdate: function () {
+                console.log("onQueryUpdate")
                 this.setQueryFilters(this.query);
                 this._filters = this.query;
             },
