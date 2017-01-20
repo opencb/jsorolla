@@ -85,6 +85,11 @@
             select + input {
                 margin-left: 10px;
             }
+
+            .subsection {
+                padding: 5px 0px 5px 0px;
+                font-weight: bold;
+            }
         </style>
 
         <div>
@@ -227,7 +232,7 @@
                         <h4 class="panel-title">
                             <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
                                href="#{{prefix}}Position" aria-expanded="true" aria-controls="{{prefix}}Position">
-                                Position
+                                Location
                                 <div style="float: right" class="tooltip-div">
                                     <a data-toggle="tooltip" title="Introduce a region interval and/or gene/variant ids. The filter will allow variants which fall within provided genomic intervals OR match the ids provided"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
                                 </div>
@@ -236,12 +241,15 @@
                     </div>
                     <div id="{{prefix}}Position" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}PositionHeading">
                         <div class="panel-body">
-                            Chromosomal location:
+                            <span class="subsection">Chromosomal location</span>
                             <textarea id="{{prefix}}LocationTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="3" placeholder="3:444-55555, 1:1-100000"
                                       name="location" on-keyup="updateQueryFilters"></textarea>
-                            Gene or SNP ID:
-                            <textarea id="{{prefix}}GeneSnpTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="3" placeholder="BRCA2, PPL, rs666"
+
+                            <br>
+                            <span class="subsection">Feature IDs (gene, protein, SNP, ClinVar, ...)</span>
+                            <textarea id="{{prefix}}GeneSnpTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="5" placeholder="BRCA2, ENSG00000139618, ENST00000544455, P51587, 13:19748038:C:T, rs28897700, VAR_020705, RCV000162901, COSM3468368"
                                       name="geneSnp" on-keyup="updateQueryFilters"></textarea>
+
                             <input type="checkbox" value="" class$="{{prefix}}FilterCheckBox"> With / Without dbSNP rs IDs<br>
                         </div>
                     </div>
@@ -367,12 +375,14 @@
                                 <div style="float: right" class="tooltip-div">
                                     <a data-toggle="tooltip" title="Select None in the drop-down list on the left to enable the input of a specific Polyphen score threshold. Polyphen score takes values in the range [0, 1[, the closer to 2, the more damaging the prediction"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
                                 </div>
-                            </div><br>
+                            </div>
+                            <br>
                             <form>
                                 <label style="font-weight: normal;">Logical Operator</label>
                                 <input type="radio" name="pss" id="pssOrRadio" value="or" class$="{{prefix}}FilterRadio" checked disabled on-change="updateQueryFilters" style="margin-left: 10px"> OR<br>
                                 <input type="radio" name="pss" id="pssAndRadio" value="and" class$="{{prefix}}FilterRadio" disabled on-change="updateQueryFilters" style="margin-left: 102px"> AND<br>
-                            </form><br>
+                            </form>
+                            <br>
 
                             <b>CADD</b>
                             <div class="block" style="padding-top: 10px">
