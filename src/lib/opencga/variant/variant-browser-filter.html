@@ -99,10 +99,6 @@
                     <i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px 0px 5px"></i>
                     Search
                 </button>
-                <button type="button" class="btn btn-primary" style="width: 100%" on-click="clear">
-                    <i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px 0px 5px"></i>
-                    Clear
-                </button>
             </div>
             <br>
 
@@ -247,7 +243,7 @@
 
                             <br>
                             <span class="subsection">Feature IDs (gene, protein, SNP, ClinVar, ...)</span>
-                            <textarea id="{{prefix}}GeneSnpTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="5" placeholder="BRCA2, ENSG00000139618, ENST00000544455, P51587, 13:19748038:C:T, rs28897700, VAR_020705, RCV000162901, COSM3468368"
+                            <textarea id="{{prefix}}FeatureTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="5" placeholder="BRCA2, ENSG00000139618, ENST00000544455, P51587, 13:19748038:C:T, rs28897700, VAR_020705, RCV000162901, COSM3468368"
                                       name="geneSnp" on-keyup="updateQueryFilters"></textarea>
 
                             <input type="checkbox" value="" class$="{{prefix}}FilterCheckBox"> With / Without dbSNP rs IDs<br>
@@ -626,15 +622,23 @@
                 }
             },
             ready: function() {
-                this.sampleGenotypesObj = {};
-
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
                     this.prefix = "browser" + Utils.randomString(6);
                 }
 
+                this.sampleGenotypesObj = {};
                 this.query = {};
-                this._filters = {};
-//                this._filtersCount = 0;
+            },
+            onSearch: function () {
+                this.search = this.query;
+            },
+            onQueryUpdate: function () {
+                if (this._reset) {
+                    console.log("onQueryUpdate: calling to 'renderQueryFilters()'")
+                    this.renderQueryFilters();
+                } else {
+                    this._reset = true;
+                }
             },
             handleCollapseAction: function (e) {
                 let id = e.target.dataId;
@@ -688,27 +692,21 @@
                 }
                 this.updateQueryFilters();
             },
-            fireClear: function () {
-                this._filters = {};
-//                this.setQueryFilters({});
-
-            },
             clear: function() {
-                $("." + this.prefix + "FilterSelect").prop('selectedIndex', 0);
-                $("." + this.prefix + "FilterTextInput").val("");
-                $("." + this.prefix + "FilterCheckBox").prop("checked", false);
-                $("." + this.prefix + "FilterRadio").prop("checked", false);
-                $("." + this.prefix + "FilterRadio").filter('[value="or"]').prop('checked', true);
-                $("." + this.prefix + "FilterRadio").prop("disabled", true);
+                // This will trigger the event that call to renderQueryFilters
+                this.query = {};
+
+                // This refresh the variant main grid
+                this.search = {};
             },
-            setQueryFilters: function (query) {
-                console.log("setQueryFilters")
-                let _this = this;
+            renderQueryFilters: function () {
+                // Empty everything before rendering
+                this._clearHtmlDom();
 
                 // Studies
-                if (typeof query.studies !== "undefined") {
+                if (typeof this.query.studies !== "undefined") {
                     if (this.$$("#includeOtherStudy") != null && this.$$("#differentStudies") != null) {
-                        let studies = query.studies.split(new RegExp("[,;]"));
+                        let studies = this.query.studies.split(new RegExp("[,;]"));
                         if (studies.length > 1) { // Checking if other studies apart from the current study are present
                             let checkBoxes = this.$$("#differentStudies").querySelectorAll("input:checked");
                             for (let i = 0; i < studies.length; i++) {
@@ -724,20 +722,20 @@
                 }
 
                 // Position
-                if (typeof query.region !== "undefined") {
-                    this.$$("#" + this.prefix + "LocationTextarea").value = query.region;
+                if (typeof this.query.region !== "undefined") {
+                    this.$$("#" + this.prefix + "LocationTextarea").value = this.query.region;
                 }
 
                 // Gene and Variant Ids
-                if (typeof query.gene !== "undefined") {
-                    this.$$("#" + this.prefix + "GeneSnpTextarea").value = query.gene;
-                } else if (typeof query.ids !== "undefined") {
-                    this.$$("#" + this.prefix + "GeneSnpTextarea").value = query.ids;
+                if (typeof this.query.gene !== "undefined") {
+                    this.$$("#" + this.prefix + "FeatureTextarea").value = this.query.gene;
+                } else if (typeof this.query.ids !== "undefined") {
+                    this.$$("#" + this.prefix + "FeatureTextarea").value = this.query.ids;
                 }
 
                 // Type
-                if (typeof query.type !== "undefined") {
-                    let types = query.type.split(",");
+                if (typeof this.query.type !== "undefined") {
+                    let types = this.query.type.split(",");
                     let checkBoxes = this.$$("#" + this.prefix + "Type").querySelectorAll("input");
                     for (let i = 0; i < types.length; i++) {
                         for (let j = 0; j < checkBoxes.length; j++) {
@@ -750,14 +748,14 @@
 
                 // Population Freqs
                 let pfArray = [];
-                if (typeof query["annot-population-maf"] !== "undefined") {
-                    pfArray = query["annot-population-maf"].split(new RegExp("[,;]"));
+                if (typeof this.query["annot-population-maf"] !== "undefined") {
+                    pfArray = this.query["annot-population-maf"].split(new RegExp("[,;]"));
                 }
                 if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.studies !== "undefined" && this.populationFrequencies.studies.length > 0) {
-                    for (let i = 0; i < _this.populationFrequencies.studies.length; i++) {
-                        let study = _this.populationFrequencies.studies[i].id;
-                        for (let j = 0; j < _this.populationFrequencies.studies[i].populations.length; j++) {
-                            let population = _this.populationFrequencies.studies[i].populations[j].id;
+                    for (let i = 0; i < this.populationFrequencies.studies.length; i++) {
+                        let study = this.populationFrequencies.studies[i].id;
+                        for (let j = 0; j < this.populationFrequencies.studies[i].populations.length; j++) {
+                            let population = this.populationFrequencies.studies[i].populations[j].id;
                             if (pfArray.length > 0) {
                                 for (let k = 0; k < pfArray.length; k++) {
                                     let pf = pfArray[k];
@@ -773,8 +771,8 @@
                 }
 
                 // Protein Substitution scores
-                if (typeof query["protein_substitution"] !== "undefined") {
-                    let pss = query["protein_substitution"].split(new RegExp("[,;]"));
+                if (typeof this.query["protein_substitution"] !== "undefined") {
+                    let pss = this.query["protein_substitution"].split(new RegExp("[,;]"));
                     if (pss.length > 0) {
                         for (let i = 0; i < pss.length; i++) {
                             if (pss[i].startsWith("sift")) {
@@ -803,8 +801,8 @@
                 }
 
                 // Cadd scores
-                if (typeof query["annot-functional-score"] !== "undefined") {
-                    let fields = query["annot-functional-score"].split(new RegExp("[,;]"));
+                if (typeof this.query["annot-functional-score"] !== "undefined") {
+                    let fields = this.query["annot-functional-score"].split(new RegExp("[,;]"));
                     for (let i = 0; i < fields.length; i++) {
                         let source = fields[i].split(/[<=>]+/)[0];
                         switch(source) {
@@ -821,8 +819,8 @@
                 }
 
                 // Conservation
-                if (typeof query.conservation !== "undefined") {
-                    let fields = query.conservation.split(new RegExp("[,;]"));
+                if (typeof this.query.conservation !== "undefined") {
+                    let fields = this.query.conservation.split(new RegExp("[,;]"));
                     for (let i = 0; i < fields.length; i++) {
                         let source = fields[i].split(/[<=>]+/)[0];
                         switch(source) {
@@ -843,8 +841,8 @@
                 }
 
                 // Consequence Type
-                if (typeof query["annot-ct"] !== "undefined") {
-                    let types = query["annot-ct"].split(",");
+                if (typeof this.query["annot-ct"] !== "undefined") {
+                    let types = this.query["annot-ct"].split(",");
                     let checkBoxes = this.$$("#consequenceTypeFilter").querySelectorAll("li input");
                     for (let i = 0; i < types.length; i++) {
                         for (let j = 0; j < checkBoxes.length; j++) {
@@ -854,20 +852,19 @@
                         }
                     }
                 } else {
-                    this.set('ct', []); // Clearing the consequence type that is taken by query
+                    this.set('ct', []); // Clearing the consequence type that is taken by this.query
                 }
 
                 // Gene Ontology and Human Phenotype Ontology
-                if (typeof query["annot-go"] !== "undefined") {
-                    this.$$("#" + this.prefix + "GeneOntologyTextarea").value = query["annot-go"];
+                if (typeof this.query["annot-go"] !== "undefined") {
+                    this.$$("#" + this.prefix + "GeneOntologyTextarea").value = this.query["annot-go"];
                 }
-                if (typeof query["annot-hpo"] !== "undefined") {
-                    this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value = query["annot-hpo"];
+                if (typeof this.query["annot-hpo"] !== "undefined") {
+                    this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value = this.query["annot-hpo"];
                 }
             },
             updateQueryFilters: function () {
                 let _filters = {};
-                let _this = this;
 
                 // Adding sample genotypes filter
                 if (typeof this.sampleGenotypes !== "undefined" && this.sampleGenotypes != "") {
@@ -903,14 +900,17 @@
                     }
                 }
 
-                // Region, Gene, SNP ID
+                // Regions
                 if (this.$$("#" + this.prefix + "LocationTextarea").value != "") {
-                    if (this.$$("#" + this.prefix + "LocationTextarea").value.indexOf(':') != -1 && this.$$("#" + this.prefix + "LocationTextarea").value.indexOf('-') != -1) {
-                        _filters.region = this.$$("#" + this.prefix + "LocationTextarea").value;
-                    } else if (this.$$("#" + this.prefix + "LocationTextarea").value.startsWith("rs") || this.$$("#" + this.prefix + "LocationTextarea").value.split(':').length > 2) {
-                        _filters.ids = this.$$("#" + this.prefix + "LocationTextarea").value;
+                    _filters.region = this.$$("#" + this.prefix + "LocationTextarea").value;
+                }
+
+                // Features: Gene, SNP ID
+                if (this.$$("#" + this.prefix + "FeatureTextarea").value != "") {
+                    if (this.$$("#" + this.prefix + "FeatureTextarea").value.startsWith("rs") || this.$$("#" + this.prefix + "FeatureTextarea").value.split(':').length > 2) {
+                        _filters.ids = this.$$("#" + this.prefix + "FeatureTextarea").value;
                     } else {
-                        _filters.gene = this.$$("#" + this.prefix + "LocationTextarea").value;
+                        _filters.gene = this.$$("#" + this.prefix + "FeatureTextarea").value;
                     }
                 }
 
@@ -918,7 +918,7 @@
                 let types = this.$$("#" + this.prefix + "Type").querySelectorAll("input:checked");
                 let typesAux = [];
                 if (types.length > 0) {
-                    for (var i = 0; i < types.length; i++) {
+                    for (let i = 0; i < types.length; i++) {
                         typesAux.push(types[i].value);
                     }
                     _filters.type = typesAux.join(',');
@@ -928,10 +928,10 @@
                 // Population minor allele frequency: {study}:{population}[<|>|<=|>=]{number}
                 let popFreq = [];
                 if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.studies !== "undefined" && this.populationFrequencies.studies.length > 0) {
-                    for (let i = 0; i < _this.populationFrequencies.studies.length; i++) {
-                        let study = _this.populationFrequencies.studies[i].id;
-                        for (let j = 0; j < _this.populationFrequencies.studies[i].populations.length; j++) {
-                            let population = _this.populationFrequencies.studies[i].populations[j].id;
+                    for (let i = 0; i < this.populationFrequencies.studies.length; i++) {
+                        let study = this.populationFrequencies.studies[i].id;
+                        for (let j = 0; j < this.populationFrequencies.studies[i].populations.length; j++) {
+                            let population = this.populationFrequencies.studies[i].populations[j].id;
                             if (this.$$("#" + this.prefix + study + population).value != "" || this.$$("#" + this.prefix + study + population + "Operator").value != "<") {
                                 let operator = this.$$("#" + this.prefix + study + population + "Operator").value;
                                 let pf = study + ":" + population + operator + this.$$("#" + this.prefix + study + population).value;
@@ -1007,7 +1007,7 @@
                 }
 
                 // Consequence Type
-                if (typeof _this.ct !== "undefined" && _this.ct.length > 0) {
+                if (typeof this.ct !== "undefined" && this.ct.length > 0) {
                     _filters["annot-ct"]= this.ct.join(',');
                 }
 
@@ -1033,16 +1033,10 @@
                     _filters["annot-functional-score"] = cadd.join(',');
                 }
 
-                this._filters = _filters;
+                // To prevent to call renderQueryFilters we set this to false
+                this._reset = false;
                 this.query = _filters;
-            },
-            onSearch: function () {
-                this.search = this.query;
-            },
-            onQueryUpdate: function () {
-                console.log("onQueryUpdate")
-                this.setQueryFilters(this.query);
-                this._filters = this.query;
+                this._reset = true;
             },
             // Exclusive for prioritization
             refreshSegregationTable: function () {
@@ -1169,6 +1163,17 @@
                     }
                 }
                 this.sampleGenotypes = arr.join(';');
+            },
+            _clearHtmlDom: function() {
+                // Empty everything before rendering
+                $("." + this.prefix + "FilterSelect").prop('selectedIndex', 0);
+                $("." + this.prefix + "FilterSelect").prop("disabled", false);
+                $("." + this.prefix + "FilterTextInput").val("");
+                $("." + this.prefix + "FilterTextInput").prop("disabled", false);
+                $("." + this.prefix + "FilterCheckBox").prop("checked", false);
+                $("." + this.prefix + "FilterRadio").prop("checked", false);
+                $("." + this.prefix + "FilterRadio").filter('[value="or"]').prop('checked', true);
+                $("." + this.prefix + "FilterRadio").prop("disabled", true);
             },
             _updateMode: function () {
                 this.isPrioritization = true;

@@ -63,7 +63,7 @@
             var me = this;
             if (this._parentJsoPanel) {
                 this._parentJsoPanel.addEventListener('close', function(e) {
-                    me._clear();
+                    me._clearHtmlDom();
                 });
             }
         },
@@ -107,11 +107,11 @@
         },
         fileChanged: function(neo, old) {
             if (neo != null) {
-                this._clear();
+                this._clearHtmlDom();
                 this.loadPage();
             }
         },
-        _clear: function() {
+        _clearHtmlDom: function() {
             this.contentData = "";
             this._start = 0;
             this._limit = 100;

@@ -169,7 +169,7 @@
                 this.queryListEmpty = true;
             },
             clear: function () {
-                this.query = {};
+//                this.query = {};
                 if (typeof $('#filtersList') !== "undefined") {
                     $("#filtersList option[value='None']").prop('selected', true);
                 }
@@ -235,8 +235,9 @@
                 if (e.target.selectedIndex == 0) {
                     this.clear();
                 } else {
-                    this.query = this.filters[e.target.selectedIndex - 1].query;
-                    this.fire("filterchange", this.query);
+//                    this.query = this.filters[e.target.selectedIndex - 1].query;
+                    let _queryList = Object.assign({}, this.filters[e.target.selectedIndex - 1].query);
+                    this.fire("filterchange", _queryList);
                 }
             },
             onQueryFilterDelete: function (e) {
@@ -257,7 +258,13 @@
                     }
                 }
 
-                this.query = Object.assign({}, _queryList);
+                // When you deelte any query filter we are not longer using any known Filter
+                if (typeof $('#filtersList') !== "undefined") {
+                    $("#filtersList option[value='None']").prop('selected', true);
+                }
+
+                _queryList = Object.assign({}, _queryList);
+                this.fire("filterchange", _queryList);
             },
             onQueryUpdate: function () {
                 let _queryList = [];

@@ -104,9 +104,12 @@
                 this.fire('gene', {gene: e.detail.gene});
             },
             onClear: function() {
+                this.query = {};
                 this.search = {};
             },
             onFilterChange: function(e) {
+                this.query = e.detail;
+//                Object.assign(this.query, e.detail)
                 this.search = e.detail;
             }
         });
