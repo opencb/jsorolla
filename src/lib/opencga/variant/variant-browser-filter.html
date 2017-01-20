@@ -494,7 +494,7 @@
                                             </template>
                                             <ul>
                                                 <template is="dom-repeat" items="{{category.terms}}">
-                                                    <li><input type="checkbox" id="{{item.id}}" on-change="updateConsequenceTypeFilter" class$="soTermCheckBox {{prefix}}FilterCheckBox"> <span title="{{item.description}}">
+                                                    <li><input type="checkbox" id="{{item.name}}" on-change="updateConsequenceTypeFilter" class$="soTermCheckBox {{prefix}}FilterCheckBox"> <span title="{{item.description}}">
                                                         {{item.name}} (<a href="http://www.sequenceontology.org/browser/current_svn/term/{{item.id}}" target="_blank">{{item.id}}</a>)</span></li>
                                                 </template>
                                             </ul>
