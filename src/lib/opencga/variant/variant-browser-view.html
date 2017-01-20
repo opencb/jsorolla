@@ -89,40 +89,36 @@
                                                 <!--<div style="white-space: nowrap; display:inline">No genotypes available</div>-->
                                             <!--</div>-->
                                         </template>
-                                        <!--<div hidden$="{{!checkForGenotypes(stat)}}">-->
-                                            <!--<table class="table table-bordered" style="width: 70%">-->
-                                                <!--<thead style="background-color: #eee">-->
-                                                <!--<tr>-->
-                                                    <!--<th scope="col" rowspan="2">Reference Allele</th>-->
-                                                    <!--<th scope="col" rowspan="2">Alternate Allele</th>-->
-                                                    <!--<th colspan="2" scope="colgroup">Genotypes</th>-->
-                                                <!--</tr>-->
-                                                <!--<tr>-->
-                                                    <!--<th scope="col">0/0</th>-->
-                                                    <!--<th scope="col">0/0</th>-->
-                                                <!--</tr>-->
-                                                <!--</thead>-->
-                                                <!--<tbody>-->
-                                                <!--<tr>-->
-                                                    <!--<td>10,000</td>-->
-                                                    <!--<td>5,000</td>-->
-                                                    <!--<td>12,000</td>-->
-                                                    <!--<td>9,000</td>-->
-                                                <!--</tr>-->
+                                        <div hidden$="{{!checkForGenotypes(stat)}}">
+                                            <table class="table table-bordered" style="width: 70%">
+                                                <thead style="background-color: #eee">
+                                                <tr>
+                                                    <th scope="col" rowspan="2">Reference Allele</th>
+                                                    <th scope="col" rowspan="2">Alternate Allele</th>
+                                                    <th colspan="2" scope="colgroup">Genotypes</th>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="col">0/0</th>
+                                                    <th scope="col">0/0</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                <tr>
+                                                    <td>10,000</td>
+                                                    <td>5,000</td>
+                                                    <td>12,000</td>
+                                                    <td>9,000</td>
+                                                </tr>
 
-                                                <!--&lt;!&ndash;<template is="dom-repeat" items="{{study.samplesData}}">&ndash;&gt;-->
-                                                    <!--&lt;!&ndash;<tr>&ndash;&gt;-->
-                                                        <!--&lt;!&ndash;<td>{{item.name}}</td>&ndash;&gt;-->
-                                                        <!--&lt;!&ndash;<td>{{item.response}}</td>&ndash;&gt;-->
-                                                    <!--&lt;!&ndash;</tr>&ndash;&gt;-->
-                                                <!--&lt;!&ndash;</template>&ndash;&gt;-->
-                                                <!--</tbody>-->
-                                            <!--</table>-->
-                                        <!--</div>-->
-
-                                        <!--<div hidden$="{{checkForSampleData(study.samplesData)}}">-->
-                                        <!--<div>No samples data available</div>-->
-                                        <!--</div>-->
+                                                <!--<template is="dom-repeat" items="{{study.samplesData}}">-->
+                                                    <!--<tr>-->
+                                                        <!--<td>{{item.name}}</td>-->
+                                                        <!--<td>{{item.response}}</td>-->
+                                                    <!--</tr>-->
+                                                <!--</template>-->
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
 
                                     <br>
