@@ -486,19 +486,40 @@
                                 <ul id="consequenceTypeFilter">
                                     <template is="dom-repeat" items="{{consequenceTypes.categories}}" as="category">
                                         <li id="{{category.title}}">
+                                            <!--First check if there is a title for that category-->
                                             <template is="dom-if" if="{{checkTitle(category)}}">
-                                                <input type="checkbox" on-change="updateConsequenceTypeFilter" class$="{{prefix}}FilterCheckBox"> {{category.title}}
-                                            </template>
-                                            <template is="dom-if" if="{{!checkTitle(category)}}">
-                                                <input type="checkbox" on-change="updateConsequenceTypeFilter" class$="{{prefix}}FilterCheckBox"> {{category.name}}
-                                            </template>
-                                            <ul>
-                                                <template is="dom-repeat" items="{{category.terms}}">
-                                                    <li><input type="checkbox" id="{{item.name}}" on-change="updateConsequenceTypeFilter" class$="soTermCheckBox {{prefix}}FilterCheckBox"> <span title="{{item.description}}">
-                                                        {{item.name}} (<a href="http://www.sequenceontology.org/browser/current_svn/term/{{item.id}}" target="_blank">{{item.id}}</a>)</span></li>
+                                                <!--If it is a category, only title is shown as it doesn't have any SO term associated with it-->
+                                                <template is="dom-if" if="{{category.isCategory}}">
+                                                    <input type="checkbox" on-change="updateConsequenceTypeFilter" class$="{{prefix}}FilterCheckBox"> {{category.title}}
                                                 </template>
-                                            </ul>
-                                        </li>
+                                                <!--If it is not a category, SO terms should be shown along with its actual title-->
+                                                <template is="dom-if" if="{{!category.isCategory}}">
+                                                    <input type="checkbox" on-change="updateConsequenceTypeFilter" data-id="{{category.name}}" class$="soTermCheckBox {{prefix}}FilterCheckBox">
+                                                    <span title="{{item.description}}">
+                                                        {{category.title}} (<a href="http://www.sequenceontology.org/browser/current_svn/term/{{category.id}}" target="_blank">{{category.id}}</a>)</span>
+                                                </template>
+                                            </template>
+                                            <!--Title is optional. Consequence type name is taken in case title is not given-->
+                                            <template is="dom-if" if="{{!checkTitle(category)}}">
+                                                <!--If it is a category, only name is shown as it doesn't have any SO term associated with it-->
+                                                <template is="dom-if" if="{{category.isCategory}}">
+                                                    <input type="checkbox" on-change="updateConsequenceTypeFilter" class$="{{prefix}}FilterCheckBox"> {{category.name}}
+                                                </template>
+                                                <!--If it is not a category, SO terms should be shown along with its actual name-->
+                                                <template is="dom-if" if="{{!category.isCategory}}">
+                                                    <input type="checkbox" on-change="updateConsequenceTypeFilter" data-id="{{category.name}}" class$="soTermCheckBox {{prefix}}FilterCheckBox">
+                                                    <span title="{{item.description}}">
+                                                        {{category.name}} (<a href="http://www.sequenceontology.org/browser/current_svn/term/{{category.id}}" target="_blank">{{category.id}}</a>)</span>
+                                                </template>
+                                            </template>
+                                    <ul>
+                                        <template is="dom-repeat" items="{{category.terms}}">
+                                            <li><input type="checkbox" data-id="{{item.name}}" on-change="updateConsequenceTypeFilter" class$="soTermCheckBox {{prefix}}FilterCheckBox">
+                                                <span title="{{item.description}}">
+                                                    {{item.name}} (<a href="http://www.sequenceontology.org/browser/current_svn/term/{{item.id}}" target="_blank">{{item.id}}</a>)</span></li>
+                                        </template>
+                                    </ul>
+                                    </li>
                                     </template>
                                 </ul>
                             </div>
@@ -674,8 +695,7 @@
                 }
                 let selected = $('.soTermCheckBox:checked');
                 for (let i = 0; i < selected.length; i++) {
-                    let node = selected[i];
-                    soTerms.push($(node).attr('id'));
+                    soTerms.push(selected[i].dataId);
                 }
                 this.set('ct', soTerms);
                 this.updateQueryFilters();
@@ -828,7 +848,7 @@
                                 this.$$("#" + this.prefix + "PhylopInput").value = fields[i].split(/[<=>]+/)[1];
                                 this.$$("#" + this.prefix + "PhylopOperator").value = fields[i].split(/[-A-Za-z0-9]+/)[1];
                                 break;
-                            case "phastcons":
+                            case "phastCons":
                                 this.$$("#" + this.prefix + "PhastconsInput").value = fields[i].split(/[<=>]+/)[1];
                                 this.$$("#" + this.prefix + "PhastconsOperator").value = fields[i].split(/[-A-Za-z0-9]+/)[1];
                                 break;
@@ -846,7 +866,7 @@
                     let checkBoxes = this.$$("#consequenceTypeFilter").querySelectorAll("li input");
                     for (let i = 0; i < types.length; i++) {
                         for (let j = 0; j < checkBoxes.length; j++) {
-                            if (checkBoxes[j].id == types[i]) {
+                            if (checkBoxes[j].dataId == types[i]) {
                                 checkBoxes[j].checked = true;
                             }
                         }

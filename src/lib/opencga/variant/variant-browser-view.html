@@ -192,7 +192,7 @@
                 variantStudies: {
                     type: Array,
                     value: [],
-                    observer: "variantStudiesChanged"
+//                    observer: "variantStudiesChanged"
                 },
                 prefix: {
                     type: String
@@ -290,6 +290,7 @@
                 }
                 return value;
             },
+            // This observer is needed when pie charts are rendered instead of table. This is where the data needed for high charts is prepared
             variantStudiesChanged: function () {
                 this.$.variantStudies.render();
                 if (this.variantStudies.length > 0) {
