@@ -29,6 +29,10 @@
                 font-size: 115%;
                 font-weight: bold;
             }
+
+            th {
+                text-align:center
+            }
         </style>
 
         <div>
@@ -80,7 +84,7 @@
 
                                     <div id="{{getStudy(study.studyId)}}">
                                         <table class="table table-bordered" style="width: 70%">
-                                            <thead style="background-color: #eee">
+                                            <thead style="background-color: #eee;">
                                                 <tr>
                                                     <th scope="col" rowspan="2">Cohort</th>
                                                     <th scope="col" rowspan="2">Reference</th>
@@ -177,10 +181,6 @@
                     type: Object,
                     notify: true
                 },
-//                _filters: {
-//                    type: Object,
-//                    notify: true
-//                },
                 search: {
                     type: Object
                 },
@@ -216,7 +216,7 @@
                     "1|0": "#FFA500",
                     "1|1": "#FF0000",
                     ".|.": "#000000",
-                }
+                };
 
                 this.activeFilterAlias = {
                     "annot-ct": "Consequence Types",
