@@ -18,9 +18,25 @@
     <template>
         <style is="custom-style" include="jso-styles"></style>
 
+        <div id="{{prefix}}toolbar">
+            <!--<button id="remove" class="btn btn-default btn-sm">-->
+            <!--<i class="fa fa-download" aria-hidden="true"></i> Download-->
+            <!--</button>-->
+
+            <div class="btn-group">
+                <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-download" aria-hidden="true"></i> Download <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu btn-sm">
+                    <li><a id="{{prefix}}DownloadTabLink" on-click="_downloadTabFile">Tab</a></li>
+                    <li><a id="{{prefix}}DownloadJsonLink" on-click="_downloadJsonFile">JSON</a></li>
+                </ul>
+            </div>
+        </div>
+
         <div>
-            <table id="{{prefix}}VariantBrowserGrid" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
-                   data-show-export="true">
+            <table id="{{prefix}}VariantBrowserGrid" data-toolbar="#{{prefix}}toolbar" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
+                   data-show-export="true" data-id-field="variant">
                 <thead style="background-color: #eee"></thead>
             </table>
         </div>
@@ -97,6 +113,59 @@
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
                     this.prefix = "table" + Utils.randomString(6);
                 }
+                console.log("this.prefix")
+                console.log(this.prefix)
+
+//                this.table = $('#' + this.prefix + 'VariantBrowserGrid');
+            },
+            attached: function() {
+                this.table = $('#' + this.prefix + 'VariantBrowserGrid');
+            },
+            _downloadTabFile: function () {
+                console.log("_downloadtabFile")
+
+                let json = $('#' + this.prefix + 'VariantBrowserGrid').bootstrapTable('getData');
+                let dataString = [];
+                let variantString = [];
+                for (let i = 0; i < json.length; i++) {
+                    variantString.push(json[i].id);
+                    variantString.push(json[i].gene);
+                    variantString.push(json[i].id);
+                    variantString.push(json[i].id);
+
+                    dataString.push(variantString.join('\t'));
+                    variantString = [];
+                }
+                var data = new Blob([dataString.join('\n')], {type: 'text/plain'});
+                let file = window.URL.createObjectURL(data);
+                var a = document.createElement("a");
+                a.href = file;
+                a.download = "swaathi.txt";
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(function() {
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                }, 0);
+
+            },
+            _downloadJsonFile: function () {
+                console.log("_downloadtabFile")
+
+                let json = $('#' + this.prefix + 'VariantBrowserGrid').bootstrapTable('getData');
+
+                var data = new Blob([JSON.stringify(json)], {type: 'application/json'});
+                let file = window.URL.createObjectURL(data);
+                var a = document.createElement("a");
+                a.href = file;
+                a.download = "swaathi.json";
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(function() {
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                }, 0);
+
             },
             assignColors: function () {
                 if (typeof this.consequenceTypes !== "undefined") {
@@ -132,47 +201,52 @@
             renderFromServer: function () {
                 this.variant = ""; // Empty the variant every time the grid is loaded
                 let _this = this;
-                if (typeof OpenCGAClient !== "undefined" && this.opencgaClient instanceof OpenCGAClient && typeof this.project !== "undefined" && typeof this.study !== "undefined") {
+                if (typeof OpenCGAClient !== "undefined" && this.opencgaClient instanceof OpenCGAClient && typeof
+                        this.project !== "undefined" && typeof this.study !== "undefined" && typeof this.study.alias !== "undefined") {
 
-                    if (this.opencgaClient.getConfig().host.startsWith("https://")) {
-                        this._url = this.opencgaClient.getConfig().host;
-                    } else {
-                        this._url = 'http://' + this.opencgaClient.getConfig().host;
-                    }
+//                    if (this.opencgaClient.getConfig().host.startsWith("https://")) {
+//                        this._url = this.opencgaClient.getConfig().host;
+//                    } else {
+//                        this._url = 'http://' + this.opencgaClient.getConfig().host;
+//                    }
+//
+//                    if (typeof this.project !== "undefined" && typeof this.study.alias !== "undefined") {
+//                        if (typeof _this.query === "undefined") {
+//                            _this.query = {};
+//                        }
+//                        if (typeof _this.query.studies === "undefined" || _this.query.studies == "") {
+//                            _this.query.studies = this.project + ":" + this.study.alias;
+//                        }
+//                        this._url += '/webservices/rest/v1/analysis/variant/query';
+//                    } else {
+//                        return;
+//                    }
+//
+//                    var queryParams = {
+//                        sid: _this.opencgaClient._config.sessionId,
+//                        timeout: 10000
+//                    };
+//
+//                    Object.assign(queryParams, _this.query); // Important : Adding the query object contents to queryParams
+//
+//                    if (typeof this.samples !== "undefined" && this.samples.length > 0) {
+//                        let sampleNames = [];
+//                        for (sampleIdx in this.samples) {
+//                            sampleNames.push(this.samples[sampleIdx].name);
+//                        }
+//                        queryParams.returnedSamples = sampleNames.join();
+//                    } else {
+//                        queryParams.exclude = "studies";
+//                    }
 
-                    if (typeof this.project !== "undefined" && typeof this.study.alias !== "undefined") {
-                        if (typeof _this.query === "undefined") {
-                            _this.query = {};
-                        }
-                        if (typeof _this.query.studies === "undefined" || _this.query.studies == "") {
-                            _this.query.studies = this.project + ":" + this.study.alias;
-                        }
-                        this._url += '/webservices/rest/v1/analysis/variant/query';
-                    } else {
-                        return;
-                    }
-
-                    var queryParams = {
-                        sid: _this.opencgaClient._config.sessionId,
-                        timeout: 10000
-                    };
-
-                    Object.assign(queryParams, _this.query); // Important : Adding the query object contents to queryParams
-
-                    if (typeof this.samples !== "undefined" && this.samples.length > 0) {
-                        let sampleNames = [];
-                        for (sampleIdx in this.samples) {
-                            sampleNames.push(this.samples[sampleIdx].name);
-                        }
-                        queryParams.returnedSamples = sampleNames.join();
-                    } else {
-                        queryParams.exclude = "studies";
-                    }
+                    let urlQueryParams = this._getUrlQueryParams();
+                    let queryParams = urlQueryParams.queryParams;
 
                     let _numTotal = -1;
                     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('destroy');
                     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable({
-                        url: this._url,
+                        url: urlQueryParams.url,
+                        columns: this.cols,
                         method: 'get',
                         sidePagination: 'server',
                         queryParams: function (params) {
@@ -195,19 +269,24 @@
                             }
                             return {total: _numTotal, rows: res.response[0].result}
                         },
-                        columns: this.cols,
                         onClickRow: function (row, $element) {
-                            _this.variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
+                            console.log("ONCLICKROW %o", row)
+                            console.log("ONCLICKROW %o", $element)
+
+//                            _this.variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
                             $('.success').removeClass('success');
                             $($element).addClass('success');
+
+                            _this._onSelectVariant(row);
                         },
-//                        onLoadSuccess: function (data) {
-//                            let firstRow = data.rows[0];
-//                            _this.variant = firstRow.chromosome + ":" + firstRow.start + ":" + firstRow.reference + ":" + firstRow.alternate;
-//                            let $row = $('#' + _this.prefix + 'VariantBrowserGrid>tbody>tr:first')[0];
-//                            $($row).addClass('success');
-//                        }
+                        onLoadSuccess: function (data) {
+                            // The first time we mark as selected the first row that is rows[2] since the first two rows are the header
+                            Polymer.dom(_this.root).querySelector(_this.table.selector).rows[2].setAttribute('class', 'success');
+                            _this._onSelectVariant(data.rows[0]);
+                        }
                     });
+//                    $('#' + _this.prefix + 'VariantBrowserGrid').on('load-success.bs.table', _this._onSelectVariant(this));
+//                    _this.table.on('load-success.bs.table', _this._onSelectVariant());
                     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('showLoading');
                 } else if (this.cellbaseClient instanceof CellBaseClient) {
                     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('destroy');
@@ -253,6 +332,51 @@
                     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('showLoading');
                 }
             },
+            _getUrlQueryParams: function() {
+                let host = "";
+                if (this.opencgaClient.getConfig().host.startsWith("https://")) {
+                    host = this.opencgaClient.getConfig().host;
+                } else {
+                    host = 'http://' + this.opencgaClient.getConfig().host;
+                }
+
+                if (typeof this.project !== "undefined" && typeof this.study.alias !== "undefined") {
+                    if (typeof this.query === "undefined") {
+                        this.query = {};
+                    }
+                    if (typeof this.query.studies === "undefined" || this.query.studies == "") {
+                        this.query.studies = this.project + ":" + this.study.alias;
+                    }
+                    host += '/webservices/rest/v1/analysis/variant/query';
+                } else {
+                    return {url: host, queryParams: {}};
+                }
+
+                let queryParams = {
+                    sid: this.opencgaClient._config.sessionId,
+                    timeout: 10000
+                };
+
+                Object.assign(queryParams, this.query); // Important : Adding the query object contents to queryParams
+
+                if (typeof this.samples !== "undefined" && this.samples.length > 0) {
+                    let sampleNames = [];
+                    for (sampleIdx in this.samples) {
+                        sampleNames.push(this.samples[sampleIdx].name);
+                    }
+                    queryParams.returnedSamples = sampleNames.join();
+                } else {
+                    queryParams.exclude = "studies";
+                }
+
+                return {host: host, queryParams: queryParams};
+            },
+            _onSelectVariant: function(row) {
+                if (typeof row !== "undefined") {
+                    let _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
+                    this.fire('selectvariant', {id: _variant, variant: row});
+                }
+            },
             renderFromLocal: function () {
                 let _this = this;
                 $('#' + this.prefix + 'VariantBrowserGrid').bootstrapTable('destroy');
@@ -288,7 +412,7 @@
                         var geneLinks = [];
                         for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
                             if (typeof row.annotation.consequenceTypes[i].geneName !== "undefined" && row.annotation.consequenceTypes[i].geneName != ""
-                                    && typeof visited[row.annotation.consequenceTypes[i].geneName] === "undefined") {
+                                && typeof visited[row.annotation.consequenceTypes[i].geneName] === "undefined") {
                                 if (typeof this.field.context.project !== "undefined" && typeof this.field.context.study !== "undefined") {
                                     geneLinks.push('<a style="cursor: pointer;white-space: nowrap" href="#gene/' + this.field.context.project +'/' +
                                         this.field.context.study.alias + '/' + row.annotation.consequenceTypes[i].geneName + '">' + row.annotation.consequenceTypes[i].geneName + '</a>');
@@ -368,7 +492,7 @@
                     if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined") {
                         for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
                             if (typeof row.annotation.consequenceTypes[i].proteinVariantAnnotation !== "undefined"
-                                    && typeof row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores !== "undefined") {
+                                && typeof row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores !== "undefined") {
                                 for (let j = 0; j < row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores.length; j++) {
                                     if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].source == this.field.source) {
                                         switch (this.field.source) {
@@ -397,9 +521,9 @@
                     let str = description.polyphen;
                     if (str.indexOf(' ') >= 0) {
                         str = str
-                                .replace(/\s(.)/g, function($1) { return $1.toUpperCase(); })
-                                .replace(/\s/g, '')
-                                .replace(/^(.)/, function($1) { return $1.toLowerCase(); });
+                            .replace(/\s(.)/g, function($1) { return $1.toUpperCase(); })
+                            .replace(/\s/g, '')
+                            .replace(/^(.)/, function($1) { return $1.toLowerCase(); });
                     }
                     return '<span style="color: ' + this.field.context.pssColor.get(str) + '" title="' + max + '">' + description.polyphen + '</span>';
                 }
@@ -619,19 +743,19 @@
                                 halign: 'center'
                             });
                             this.cols[1].splice(0, 0, {
-                                        title: 'Somatic',
-                                        field: 'samples',
-                                        rowspan: 1,
-                                        colspan: 1,
-                                        halign: 'center'
-                                    },
-                                    {
-                                        title: 'Germline',
-                                        field: 'samples',
-                                        rowspan: 1,
-                                        colspan: 1,
-                                        halign: 'center'
-                                    }
+                                    title: 'Somatic',
+                                    field: 'samples',
+                                    rowspan: 1,
+                                    colspan: 1,
+                                    halign: 'center'
+                                },
+                                {
+                                    title: 'Germline',
+                                    field: 'samples',
+                                    rowspan: 1,
+                                    colspan: 1,
+                                    halign: 'center'
+                                }
                             );
                             break;
                         case "caseControl":
@@ -643,19 +767,19 @@
                                 halign: 'center'
                             });
                             this.cols[1].splice(0, 0, {
-                                        title: 'Control',
-                                        field: 'samples',
-                                        rowspan: 1,
-                                        colspan: 1,
-                                        halign: 'center'
-                                    },
-                                    {
-                                        title: 'Case',
-                                        field: 'samples',
-                                        rowspan: 1,
-                                        colspan: 1,
-                                        halign: 'center'
-                                    }
+                                    title: 'Control',
+                                    field: 'samples',
+                                    rowspan: 1,
+                                    colspan: 1,
+                                    halign: 'center'
+                                },
+                                {
+                                    title: 'Case',
+                                    field: 'samples',
+                                    rowspan: 1,
+                                    colspan: 1,
+                                    halign: 'center'
+                                }
                             );
                             break;
                         default:

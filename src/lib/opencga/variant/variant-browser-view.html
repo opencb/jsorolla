@@ -43,7 +43,8 @@
             <!-- Variant Browser Grid -->
             <variant-browser-grid study="{{study}}" project="{{project}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
                                   population-frequencies="{{populationFrequencies}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                  consequence-types="{{consequenceTypes}}" query="[[query]]" search="[[search]]" variant="{{variant}}" on-selected="selectedGene" style="font-size: 12px">
+                                  consequence-types="{{consequenceTypes}}" query="[[query]]" search="[[search]]" variant="{{variant}}" on-selected="selectedGene"
+                                  on-selectvariant="onSelectVariant" style="font-size: 12px">
             </variant-browser-grid>
 
             <div hidden$="{{checkVariant(variant)}}">
@@ -229,6 +230,11 @@
             },
             checkVariant: function(variant) {
                 return variant.split(':').length > 2;
+            },
+            onSelectVariant: function(e) {
+                this.variant = e.detail.id;
+                this.V = e.detail.variant;
+//                this.display3D();
             },
             selectedGene: function (e) {
                 this.fire('propagate', {gene: e.detail.gene});
