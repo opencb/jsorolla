@@ -25,7 +25,8 @@
 
             <div class="btn-group">
                 <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <i class="fa fa-download" aria-hidden="true"></i> Download <span class="caret"></span>
+                    <i id="{{prefix}}DownloadRefresh" class="fa fa-refresh fa-spin" aria-hidden="true" style="font-size:14px;display: none"></i>
+                    <i id="{{prefix}}DownloadIcon" class="fa fa-download" aria-hidden="true"></i> Download <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu btn-sm">
                     <li><a id="{{prefix}}DownloadTabLink" on-click="_downloadTabFile">Tab</a></li>
@@ -117,15 +118,22 @@
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
                     this.prefix = "table" + Utils.randomString(6);
                 }
+
             },
             attached: function() {
                 this.table = $('#' + this.prefix + 'VariantBrowserGrid');
+
+                this.downloadRefreshIcon = $("#" + this.prefix + "DownloadRefresh");
+                this.downloadIcon = $("#" + this.prefix + "DownloadIcon");
             },
             _downloadTabFile: function () {
                 let urlQueryParams = this._getUrlQueryParams();
                 let params = urlQueryParams.queryParams;
-                params.limit = 100; // Default limit is 100 for now
+                params.limit = 1000; // Default limit is 1000 for now
                 let _this = this;
+
+                this.downloadRefreshIcon.css('display', 'inline-block');
+                this.downloadIcon.css('display', 'none');
                 this.opencgaClient.variants().query(params)
                     .then(function (response) {
                         let json = response.response[0].result;
@@ -216,24 +224,20 @@
                                 }
 
                                 // Clinvar, cosmic
-                                if (typeof json[i].annotation.variantTraitAssociation !== "undefined") {
-                                    if (json[i].annotation.variantTraitAssociation != null) {
-                                        for (let key in json[i].annotation.variantTraitAssociation) {
-                                            let clinicalData = json[i].annotation.variantTraitAssociation[key];
-                                            if (typeof clinicalData !== "undefined") {
-                                                for (let cd = 0; cd < clinicalData.length; cd++) {
-                                                    switch (key) {
-                                                        case "clinvar":
-                                                            clinvar.push(clinicalData[cd].traits[0]);
-                                                            break;
-                                                        case "cosmic":
-                                                            cosmic.push(clinicalData[cd].primaryHistology);
-                                                            break;
-
-                                                    }
+                                if (typeof json[i].annotation.variantTraitAssociation !== "undefined" && json[i].annotation.variantTraitAssociation != null) {
+                                    for (let key in json[i].annotation.variantTraitAssociation) {
+                                        let clinicalData = json[i].annotation.variantTraitAssociation[key];
+                                        if (typeof clinicalData !== "undefined") {
+                                            for (let cd = 0; cd < clinicalData.length; cd++) {
+                                                switch (key) {
+                                                    case "clinvar":
+                                                        clinvar.push(clinicalData[cd].traits[0]);
+                                                        break;
+                                                    case "cosmic":
+                                                        cosmic.push(clinicalData[cd].primaryHistology);
+                                                        break;
                                                 }
                                             }
-
                                         }
                                     }
                                 }
@@ -269,6 +273,7 @@
                             dataString.push(variantString.join('\t'));
                             variantString = [];
                         }
+
                         let data = new Blob([dataString.join('\n')], {type: 'text/plain'});
                         let file = window.URL.createObjectURL(data);
                         let a = document.createElement("a");
@@ -278,21 +283,30 @@
                         a.click();
                         setTimeout(function() {
                             document.body.removeChild(a);
-//                    window.URL.revokeObjectURL(url);
                         }, 0);
+                    })
+                    .then(function() {
+                        _this.downloadRefreshIcon.css('display', 'none');
+                        _this.downloadIcon.css('display', 'inline-block');
                     });
-
-
             },
             _downloadJsonFile: function () {
                 let urlQueryParams = this._getUrlQueryParams();
                 let params = urlQueryParams.queryParams;
-                params.limit = 100; // Default limit is 100 for now
+                params.limit = 1000; // Default limit is 1000 for now
                 let _this = this;
+
+                this.downloadRefreshIcon.css('display', 'inline-block');
+                this.downloadIcon.css('display', 'none');
                 this.opencgaClient.variants().query(params)
                     .then(function (response) {
                         let json = response.response[0].result;
-                        let data = new Blob([JSON.stringify(json)], {type: 'application/json'});
+                        let dataString = [];
+                        for (let i = 0; i < json.length; i++) {
+                            dataString.push(JSON.stringify(json[i]));
+                        }
+
+                        let data = new Blob([dataString.join('\n')], {type: 'application/json'});
                         let file = window.URL.createObjectURL(data);
                         let a = document.createElement("a");
                         a.href = file;
@@ -301,8 +315,11 @@
                         a.click();
                         setTimeout(function() {
                             document.body.removeChild(a);
-//                    window.URL.revokeObjectURL(url);
                         }, 0);
+                    })
+                    .then(function () {
+                        _this.downloadRefreshIcon.css('display', 'none');
+                        _this.downloadIcon.css('display', 'inline-block');
                     });
             },
             assignColors: function () {
@@ -468,7 +485,7 @@
 
                 let query = ["limit=100"];
                 for (let key in queryParams) {
-                   query.push(key + "=" + queryParams[key]);
+                    query.push(key + "=" + queryParams[key]);
                 }
                 let url = host + "?" + query.join("&");
                 // For sharing URL
