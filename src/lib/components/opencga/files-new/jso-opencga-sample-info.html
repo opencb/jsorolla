@@ -246,6 +246,11 @@
             background-color: black;
             color: white;
         }
+
+        #previewFamilyTree {
+            height: 400px;
+            width: 600px;
+        }
     </style>
     <template>
         <div class="tabwrap">
@@ -325,9 +330,9 @@
                         <label class="columnFam">Name</label>
                         <label class="columnFam" style="margin-left:10px">Samples</label>
                     </div>
-                    <div id="familyInfo" class="family-info">
+                    <div id="familyInfo" class="family-info" style="overflow-y: auto;">
                         <template is="dom-repeat" items="{{familyListUserSaved}}">
-                            <div class="horizontal layout center flex" value$="{{item.name}}" data-list$="{{item.family}}" on-click="handleSelectedAttribute">
+                            <div class="horizontal layout center flex" value$="{{item.name}}" data-list$="{{item.family}}" on-click="handleSelectedAttribute" on-dblclick="handlepreviewFamilyTree">
                                 <div class="columnFam nameSam" title="{{item.name}}">{{item.name}}
                                 </div>
                                 <div class="columnFam nameSam flex horizontal layout" title="{{_getSamplesFamName(item.samplesInfo)}}">{{_getSamplesFamName(item.samplesInfo)}}
@@ -347,6 +352,15 @@
                 </div>
             </div>
         </div>
+        <jso-panel id="previewFamilyTree" modal closable hidden>
+            <div class="header"><i class="fa fa-eye" aria-hidden="true"></i>&nbsp; Family Tree Preview
+            </div>
+            <div class="container" style="padding: 10px;">
+                <div style="border: 1px solid grey; height:95%">
+                    <div id="familyPreviewPanel"></div>
+                </div>
+            </div>
+        </jso-panel>
         <jso-panel id="connectFamilyPanel" modal closable hidden>
             <div class="header"><i class="fa fa-users" aria-hidden="true"></i>&nbsp; Connect Family
             </div>
@@ -504,10 +518,15 @@
             familyMap: {
                 type: Array,
                 observer: 'familyMapChanged'
+            },
+            familyMapPreview: {
+                type: Array,
+                observer: 'familyMapPreviewChanged'
             }
         },
         ready: function() {
             this.scopeSubtree(this.$.familyPreview, true);
+            this.scopeSubtree(this.$.familyPreviewPanel, true);
         },
         handleOptions: function(e) {
             this.option = e.target.dataset.value;
@@ -743,8 +762,17 @@
                         mother: sampleDiv.querySelector(".mother").value,
                         id: sampleDiv.querySelector(".nameSam").value.id,
                         source: sampleDiv.querySelector(".nameSam").value.source,
-                        status: sampleDiv.querySelector(".nameSam").value.status
+                        status: sampleDiv.querySelector(".nameSam").value.status,
+                        marriages: []
                     };
+                    var cl = "man"
+                    if (elem.gender == "Female") {
+                        cl = "woman";
+                    }
+                    if (elem.proband == true) {
+                        cl = cl + " " + "proband";
+                    }
+                    elem["class"] = cl;
                     array.push(elem);
                 }
             }
@@ -778,7 +806,6 @@
                     hash[elem.name] = elem;
                 }
             }
-
             // Manage marriages
             for (var key in hash) {
                 var elem = hash[key];
@@ -938,48 +965,95 @@
             }
             return array.join(",");
         },
-        // addToFamilyPreview: function(e) {
-        //     // var sampleDiv = stv.utils.closest(e.currentTarget, "[data-id]");
-        //
-        //     var samples = this.$.familySamplesList.querySelectorAll("div.sample");
-        //     var x = 10;
-        //     var y = 10;
-        //     for (var i = 0; i < samples.length; i++) {
-        //         var sampleDiv = samples[i];
-        //         if (sampleDiv.querySelector(".addFam").checked == true) {
-        //             var name = sampleDiv.querySelector(".nameSam").value.name;
-        //             var proband = sampleDiv.querySelector(".proband").checked;
-        //             var gender = sampleDiv.querySelector(".gender").value;
-        //             var father = sampleDiv.querySelector(".father").value;
-        //             var mother = sampleDiv.querySelector(".mother").value;
-        //
-        //             var attributes = {};
-        //             var elementName = "rect";
-        //             attributes["style"] = "stroke:#666;fill:#666";
-        //             if (gender == "Female") {
-        //                 elementName = "circle";
-        //                 attributes["r"] = "12";
-        //                 attributes["cx"] = x;
-        //                 attributes["cy"] = y;
-        //             } else {
-        //                 attributes["height"] = "20";
-        //                 attributes["width"] = "20";
-        //                 attributes["x"] = x;
-        //                 attributes["y"] = y;
-        //             }
-        //             if (proband == true) {
-        //                 attributes["style"] = "stroke:#ff0000;fill:#ff0000";
-        //             }
-        //             SVG.addChild(this.$.familyPreview, elementName, attributes);
-        //         } else {
-        //
-        //         }
-        //         x += 20;
-        //         y += 20;
-        //     }
-        // }
         addToFamilyPreview: function(e) {
             this._createFamilyMap();
+        },
+        handlepreviewFamilyTree: function(e) {
+            this.$.previewFamilyTree.hidden = false;
+
+            var samples = e.model.item.samplesInfo;
+            if(samples[0].marriages[0]!=null && samples[0].marriages[0].spouse!=null){
+              this.set('familyMapPreview', samples);
+            }else{
+              this._generatePreviewFamily(samples);
+            }
+        },
+        _createFamilyJsonPreview: function(samples) {
+            var hash = {};
+            for (var i = 0; i < samples.length; i++) {
+                hash[samples[i].name] = samples[i];
+            }
+
+            for (var key in hash) {
+                var elem = hash[key];
+                var f = elem.father;
+                var m = elem.mother;
+
+                if (f in hash) {
+                    if (m in hash) {
+                        hash[f] = this._addMarriage(hash[f], elem, hash[m]);
+                    }
+                }
+                if (m in hash) {
+                    if (f in hash) {
+                        hash[m] = this._addMarriage(hash[m], elem, hash[f]);
+                    }
+                }
+            }
+            return hash;
+
+        },
+        _generatePreviewFamily: function(samples) {
+            var hash = this._createFamilyJsonPreview(samples);
+            var familyArray = [];
+            for (var key in hash) {
+                var elem = hash[key];
+                if ((elem.father == "-" || elem.mother == "-")) {
+                    var flag = false;
+                    for (var i = 0; i < familyArray.length; i++) {
+                        var m = familyArray[i].marriages;
+                        for (var j = 0; j < m.length; j++) {
+                            if (m[j].spouse.name == elem.name) {
+                                flag = true;
+                            }
+                        }
+                    }
+                    if (flag == false) {
+                        familyArray.push(elem);
+                    }
+                }
+            }
+
+            this.set('familyMapPreview', familyArray);
+        },
+        familyMapPreviewChanged: function(neo, old) {
+            if (neo) {
+                if (this.$.familyPreviewPanel.firstElementChild != null) {
+                    this.$.familyPreviewPanel.removeChild(this.$.familyPreviewPanel.firstElementChild);
+                }
+                var arrayAux = [];
+                arrayAux.push(neo[0]);
+
+                dTree.init(arrayAux, {
+                    target: this.$.familyPreviewPanel,
+                    debug: false,
+                    width: 385,
+                    height: 395,
+                    margin: {
+                        top: 0,
+                        right: 0,
+                        bottom: 0,
+                        left: 0
+                    },
+                    nodeWidth: 100,
+                    styles: {
+                        node: 'node',
+                        linage: 'linage',
+                        marriage: 'marriage',
+                        text: 'nodeText'
+                    }
+                });
+            }
         }
 
     });
