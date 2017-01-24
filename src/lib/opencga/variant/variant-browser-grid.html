@@ -32,6 +32,10 @@
                     <li><a id="{{prefix}}DownloadJsonLink" on-click="_downloadJsonFile">JSON</a></li>
                 </ul>
             </div>
+            <!--Share URL-->
+            <button type="button" class="btn btn-default btn-sm" data-toggle="popover" data-placement="right">
+                <i class="fa fa-share-alt" aria-hidden="true"></i> Share
+            </button>
         </div>
 
         <div>
@@ -113,59 +117,193 @@
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
                     this.prefix = "table" + Utils.randomString(6);
                 }
-                console.log("this.prefix")
-                console.log(this.prefix)
-
-//                this.table = $('#' + this.prefix + 'VariantBrowserGrid');
             },
             attached: function() {
                 this.table = $('#' + this.prefix + 'VariantBrowserGrid');
             },
             _downloadTabFile: function () {
-                console.log("_downloadtabFile")
+                let urlQueryParams = this._getUrlQueryParams();
+                let params = urlQueryParams.queryParams;
+                params.limit = 100; // Default limit is 100 for now
+                let _this = this;
+                this.opencgaClient.variants().query(params)
+                    .then(function (response) {
+                        let json = response.response[0].result;
+                        let dataString = [];
+                        let variantString = [];
+                        for (let i = 0; i < json.length; i++) {
+                            variantString.push(json[i].chromosome + ':' + json[i].start + " " + json[i].reference + '/' + json[i].alternate);
+                            variantString.push(json[i].id);
+                            let genes = [];
+                            let ct = [];
+                            let sift, polyphen, cadd = "-", phylop = "-", phastCons = "-", gerp = "-";
+                            let clinvar = [];
+                            let cosmic = [];
 
-                let json = $('#' + this.prefix + 'VariantBrowserGrid').bootstrapTable('getData');
-                let dataString = [];
-                let variantString = [];
-                for (let i = 0; i < json.length; i++) {
-                    variantString.push(json[i].id);
-                    variantString.push(json[i].gene);
-                    variantString.push(json[i].id);
-                    variantString.push(json[i].id);
+                            if (typeof json[i].annotation !== "undefined") {
+                                if (typeof json[i].annotation.consequenceTypes !== "undefined" && json[i].annotation.consequenceTypes.length > 0) {
+                                    let visitedGenes = {};
+                                    let visitedCT = new Set();
+                                    for (let j = 0; j < json[i].annotation.consequenceTypes.length; j++) {
+                                        // gene
+                                        if (typeof json[i].annotation.consequenceTypes[j].geneName !== "undefined" && json[i].annotation.consequenceTypes[j].geneName != ""
+                                            && typeof visitedGenes[json[i].annotation.consequenceTypes[j].geneName] === "undefined") {
+                                            genes.push(json[i].annotation.consequenceTypes[j].geneName);
+                                            visitedGenes[json[i].annotation.consequenceTypes[j].geneName] = true;
+                                        }
 
-                    dataString.push(variantString.join('\t'));
-                    variantString = [];
-                }
-                var data = new Blob([dataString.join('\n')], {type: 'text/plain'});
-                let file = window.URL.createObjectURL(data);
-                var a = document.createElement("a");
-                a.href = file;
-                a.download = "swaathi.txt";
-                document.body.appendChild(a);
-                a.click();
-                setTimeout(function() {
-                    document.body.removeChild(a);
-                    window.URL.revokeObjectURL(url);
-                }, 0);
+                                        // Consequence Type
+                                        for (let z = 0; z < json[i].annotation.consequenceTypes[j].sequenceOntologyTerms.length; z++) {
+                                            let consequenceTypeName = json[i].annotation.consequenceTypes[j].sequenceOntologyTerms[z].name;
+                                            if (typeof consequenceTypeName !== "undefined" && consequenceTypeName != "" && !visitedCT.has(consequenceTypeName)) {
+                                                ct.push(consequenceTypeName);
+                                                visitedCT.add(consequenceTypeName);
+                                            }
+                                        }
+
+                                        // Sift, Polyphen
+                                        let min = 10;
+                                        let max = 0;
+                                        let description = {};
+                                        if (typeof json[i].annotation.consequenceTypes[j].proteinVariantAnnotation !== "undefined"
+                                            && typeof json[i].annotation.consequenceTypes[j].proteinVariantAnnotation.substitutionScores !== "undefined") {
+                                            for (let ss = 0; ss < json[i].annotation.consequenceTypes[j].proteinVariantAnnotation.substitutionScores.length; ss++) {
+                                                let source = json[i].annotation.consequenceTypes[j].proteinVariantAnnotation.substitutionScores[ss].source;
+                                                switch (source) {
+                                                    case "sift":
+                                                        if (json[i].annotation.consequenceTypes[j].proteinVariantAnnotation.substitutionScores[ss].score < min) {
+                                                            min = json[i].annotation.consequenceTypes[j].proteinVariantAnnotation.substitutionScores[ss].score;
+                                                            description.sift = json[i].annotation.consequenceTypes[j].proteinVariantAnnotation.substitutionScores[ss].description;
+                                                        }
+                                                        break;
+                                                    case "polyphen":
+                                                        if (json[i].annotation.consequenceTypes[j].proteinVariantAnnotation.substitutionScores[ss].score > max) {
+                                                            max = json[i].annotation.consequenceTypes[j].proteinVariantAnnotation.substitutionScores[ss].score;
+                                                            description.polyphen = json[i].annotation.consequenceTypes[j].proteinVariantAnnotation.substitutionScores[ss].description;
+                                                        }
+                                                        break;
+                                                }
+                                            }
+                                        }
+                                        sift = typeof description.sift !== "undefined" ? description.sift : "-";
+                                        polyphen = typeof description.polyphen !== "undefined" ? description.polyphen : "-";
+                                    }
+                                }
+                                // CADD
+                                if (typeof json[i].annotation.functionalScore !== "undefined") {
+                                    for (let fs = 0; fs < json[i].annotation.functionalScore.length; fs++) {
+                                        if (typeof json[i].annotation.functionalScore[fs] !== "undefined" && json[i].annotation.functionalScore[fs].source == "cadd_scaled") {
+                                            cadd = Number(json[i].annotation.functionalScore[fs].score).toFixed(2);
+                                        }
+                                    }
+                                }
+
+                                // Conservation
+                                if (typeof json[i].annotation.conservation !== "undefined") {
+                                    for (let cons = 0; cons < json[i].annotation.conservation.length; cons++) {
+                                        switch (json[i].annotation.conservation[cons].source) {
+                                            case "phylop":
+                                                phylop = Number(json[i].annotation.conservation[cons].score).toFixed(3);
+                                                break;
+                                            case "phastCons":
+                                                phastCons = Number(json[i].annotation.conservation[cons].score).toFixed(3);
+                                                break;
+                                            case "gerp":
+                                                gerp = Number(json[i].annotation.conservation[cons].score).toFixed(3);
+                                                break;
+                                        }
+                                    }
+                                }
+
+                                // Clinvar, cosmic
+                                if (typeof json[i].annotation.variantTraitAssociation !== "undefined") {
+                                    if (json[i].annotation.variantTraitAssociation != null) {
+                                        for (let key in json[i].annotation.variantTraitAssociation) {
+                                            let clinicalData = json[i].annotation.variantTraitAssociation[key];
+                                            if (typeof clinicalData !== "undefined") {
+                                                for (let cd = 0; cd < clinicalData.length; cd++) {
+                                                    switch (key) {
+                                                        case "clinvar":
+                                                            clinvar.push(clinicalData[cd].traits[0]);
+                                                            break;
+                                                        case "cosmic":
+                                                            cosmic.push(clinicalData[cd].primaryHistology);
+                                                            break;
+
+                                                    }
+                                                }
+                                            }
+
+                                        }
+                                    }
+                                }
+                            }
+                            if (genes.length > 0) {
+                                variantString.push(genes.join(','));
+                            } else {
+                                variantString.push("-");
+                            }
+                            variantString.push(json[i].type);
+                            if (ct.length > 0) {
+                                variantString.push(ct.join(','));
+                            } else {
+                                variantString.push("-");
+                            }
+                            variantString.push(sift);
+                            variantString.push(polyphen);
+                            variantString.push(cadd);
+                            variantString.push(phylop);
+                            variantString.push(phastCons);
+                            variantString.push(gerp);
+                            if (clinvar.length > 0) {
+                                variantString.push(clinvar.join(','));
+                            } else {
+                                variantString.push("-");
+                            }
+                            if (cosmic.length > 0) {
+                                variantString.push(cosmic.join(','));
+                            } else {
+                                variantString.push("-");
+                            }
+
+                            dataString.push(variantString.join('\t'));
+                            variantString = [];
+                        }
+                        let data = new Blob([dataString.join('\n')], {type: 'text/plain'});
+                        let file = window.URL.createObjectURL(data);
+                        let a = document.createElement("a");
+                        a.href = file;
+                        a.download = _this.study.alias + ".txt";
+                        document.body.appendChild(a);
+                        a.click();
+                        setTimeout(function() {
+                            document.body.removeChild(a);
+//                    window.URL.revokeObjectURL(url);
+                        }, 0);
+                    });
+
 
             },
             _downloadJsonFile: function () {
-                console.log("_downloadtabFile")
-
-                let json = $('#' + this.prefix + 'VariantBrowserGrid').bootstrapTable('getData');
-
-                var data = new Blob([JSON.stringify(json)], {type: 'application/json'});
-                let file = window.URL.createObjectURL(data);
-                var a = document.createElement("a");
-                a.href = file;
-                a.download = "swaathi.json";
-                document.body.appendChild(a);
-                a.click();
-                setTimeout(function() {
-                    document.body.removeChild(a);
-                    window.URL.revokeObjectURL(url);
-                }, 0);
-
+                let urlQueryParams = this._getUrlQueryParams();
+                let params = urlQueryParams.queryParams;
+                params.limit = 100; // Default limit is 100 for now
+                let _this = this;
+                this.opencgaClient.variants().query(params)
+                    .then(function (response) {
+                        let json = response.response[0].result;
+                        let data = new Blob([JSON.stringify(json)], {type: 'application/json'});
+                        let file = window.URL.createObjectURL(data);
+                        let a = document.createElement("a");
+                        a.href = file;
+                        a.download = _this.study.alias + ".json";
+                        document.body.appendChild(a);
+                        a.click();
+                        setTimeout(function() {
+                            document.body.removeChild(a);
+//                    window.URL.revokeObjectURL(url);
+                        }, 0);
+                    });
             },
             assignColors: function () {
                 if (typeof this.consequenceTypes !== "undefined") {
@@ -204,41 +342,6 @@
                 if (typeof OpenCGAClient !== "undefined" && this.opencgaClient instanceof OpenCGAClient && typeof
                         this.project !== "undefined" && typeof this.study !== "undefined" && typeof this.study.alias !== "undefined") {
 
-//                    if (this.opencgaClient.getConfig().host.startsWith("https://")) {
-//                        this._url = this.opencgaClient.getConfig().host;
-//                    } else {
-//                        this._url = 'http://' + this.opencgaClient.getConfig().host;
-//                    }
-//
-//                    if (typeof this.project !== "undefined" && typeof this.study.alias !== "undefined") {
-//                        if (typeof _this.query === "undefined") {
-//                            _this.query = {};
-//                        }
-//                        if (typeof _this.query.studies === "undefined" || _this.query.studies == "") {
-//                            _this.query.studies = this.project + ":" + this.study.alias;
-//                        }
-//                        this._url += '/webservices/rest/v1/analysis/variant/query';
-//                    } else {
-//                        return;
-//                    }
-//
-//                    var queryParams = {
-//                        sid: _this.opencgaClient._config.sessionId,
-//                        timeout: 10000
-//                    };
-//
-//                    Object.assign(queryParams, _this.query); // Important : Adding the query object contents to queryParams
-//
-//                    if (typeof this.samples !== "undefined" && this.samples.length > 0) {
-//                        let sampleNames = [];
-//                        for (sampleIdx in this.samples) {
-//                            sampleNames.push(this.samples[sampleIdx].name);
-//                        }
-//                        queryParams.returnedSamples = sampleNames.join();
-//                    } else {
-//                        queryParams.exclude = "studies";
-//                    }
-
                     let urlQueryParams = this._getUrlQueryParams();
                     let queryParams = urlQueryParams.queryParams;
 
@@ -270,10 +373,6 @@
                             return {total: _numTotal, rows: res.response[0].result}
                         },
                         onClickRow: function (row, $element) {
-                            console.log("ONCLICKROW %o", row)
-                            console.log("ONCLICKROW %o", $element)
-
-//                            _this.variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
                             $('.success').removeClass('success');
                             $($element).addClass('success');
 
@@ -285,8 +384,6 @@
                             _this._onSelectVariant(data.rows[0]);
                         }
                     });
-//                    $('#' + _this.prefix + 'VariantBrowserGrid').on('load-success.bs.table', _this._onSelectVariant(this));
-//                    _this.table.on('load-success.bs.table', _this._onSelectVariant());
                     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('showLoading');
                 } else if (this.cellbaseClient instanceof CellBaseClient) {
                     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('destroy');
@@ -349,7 +446,7 @@
                     }
                     host += '/webservices/rest/v1/analysis/variant/query';
                 } else {
-                    return {url: host, queryParams: {}};
+                    return {host: host, queryParams: {}};
                 }
 
                 let queryParams = {
@@ -368,6 +465,16 @@
                 } else {
                     queryParams.exclude = "studies";
                 }
+
+                let query = ["limit=100"];
+                for (let key in queryParams) {
+                   query.push(key + "=" + queryParams[key]);
+                }
+                let url = host + "?" + query.join("&");
+                // For sharing URL
+                $("[data-toggle=popover]").popover({
+                    content: url
+                });
 
                 return {host: host, queryParams: queryParams};
             },
@@ -531,7 +638,7 @@
             },
             caddScaledFormatter:  function (value, row, index) {
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined" && typeof row.annotation.functionalScore !== "undefined") {
-                    for (let i = 0; i < row.annotation.conservation.length; i++) {
+                    for (let i = 0; i < row.annotation.functionalScore.length; i++) {
                         if (typeof row.annotation.functionalScore[i] !== "undefined") {
                             let value = Number(row.annotation.functionalScore[i].score).toFixed(2);
                             if (row.annotation.functionalScore[i].source == "cadd_scaled") {
