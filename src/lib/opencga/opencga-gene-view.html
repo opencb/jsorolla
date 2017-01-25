@@ -9,7 +9,7 @@
                 font-weight: bold;
             }
 
-            .variant-title {
+            .summary-title {
                 font-weight: bold;
             }
         </style>
@@ -20,92 +20,102 @@
             </div>
 
             <h2>{{geneObj.name}}</h2>
-            <div class="col-md-6">
-                <h3>Summary</h3>
-                <table width="100%">
-                    <tr>
-                        <td class="variant-title" width="20%">Name</td>
-                        <td width="80%">{{geneObj.name}} ({{geneObj.id}})</td>
-                    </tr>
-                    <tr>
-                        <td class="variant-title" width="20%">Biotype</td>
-                        <td width="80%">{{geneObj.biotype}}</td>
-                    </tr>
-                    <tr>
-                        <td class="variant-title" width="20%">Description</td>
-                        <td width="80%">{{geneObj.description}}</td>
-                    </tr>
-                    <tr>
-                        <td class="variant-title">Location</td>
-                        <td>{{geneObj.chromosome}}:{{geneObj.start}}-{{geneObj.end}} ({{geneObj.strand}})</td>
-                    </tr>
-                    <tr>
-                        <td class="variant-title">Genome Browser</td>
-                        <td>
-                            <a target="_blank" href="http://genomemaps.org/?region={{geneObj.chromosome}}:{{geneObj.start}}-{{geneObj.end}}">
-                                {{geneObj.chromosome}}:{{geneObj.start}}-{{geneObj.end}}
-                            </a>
-                        </td>
-                    </tr>
-                </table>
-            </div>
 
-            <div class="col-md-6">
-                <h3>Transcripts</h3>
-                <table class="table table-bordered" width="100%">
-                    <thead style="background-color: #eeeeee">
-                    <tr>
-                        <th>Name</th>
-                        <th>Ensembl ID</th>
-                        <th>Biotype</th>
-                        <th>Location</th>
-                        <th>Coding</th>
-                        <!--<th>cDNA</th>-->
-                        <!--<th>CDS Length</th>-->
-                        <th>Flags</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <template is="dom-repeat" items="{{geneObj.transcripts}}" as="transcript">
+            <div class="row" style="padding: 5px 0px 25px 0px">
+                <div class="col-md-6">
+                    <h3>Summary</h3>
+                    <table width="100%">
                         <tr>
-                            <td>{{transcript.name}}</td>
-                            <td>
-                                <a target="_blank"
-                                   href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;t={{transcript.id}}">{{transcript.id}}</a>
-                            </td>
-                            <td>{{transcript.biotype}}</td>
-                            <td>
-                                <a target="_blank"
-                                   href="http://genomemaps.org/?region={{transcript.chromosome}}:{{transcript.start}}-{{transcript.end}}">
-                                    {{transcript.chromosome}}:{{transcript.start}}-{{transcript.end}}
-                                </a>
-                            </td>
-                            <td>
-                                <a target="_blank"
-                                   href="http://genomemaps.org/?region={{transcript.chromosome}}:{{transcript.genomicCodingStart}}-{{transcript.genomicCodingEnd}}">
-                                    {{transcript.genomicCodingStart}}-{{transcript.genomicCodingEnd}}
-                                </a>
-                            </td>
-                            <!--<td>-->
-                            <!--{{transcript.cdnaCodingStart}}-{{transcript.cdnaCodingEnd}}-->
-                            <!--</td>-->
-                            <!--<td>{{transcript.cdsLength}}</td>-->
-                            <td>{{transcript.annotationFlags}}</td>
+                            <td class="summary-title" width="20%">Name</td>
+                            <td width="80%">{{geneObj.name}} ({{geneObj.id}})</td>
                         </tr>
-                    </template>
-                    </tbody>
-                </table>
+                        <tr>
+                            <td class="summary-title" width="20%">Biotype</td>
+                            <td width="80%">{{geneObj.biotype}}</td>
+                        </tr>
+                        <tr>
+                            <td class="summary-title" width="20%">Description</td>
+                            <td width="80%">{{geneObj.description}}</td>
+                        </tr>
+                        <tr>
+                            <td class="summary-title">Location</td>
+                            <td>{{geneObj.chromosome}}:{{geneObj.start}}-{{geneObj.end}} ({{geneObj.strand}})</td>
+                        </tr>
+                        <tr>
+                            <td class="summary-title">Genome Browser</td>
+                            <td>
+                                <a target="_blank" href="http://genomemaps.org/?region={{geneObj.chromosome}}:{{geneObj.start}}-{{geneObj.end}}">
+                                    {{geneObj.chromosome}}:{{geneObj.start}}-{{geneObj.end}}
+                                </a>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="col-md-6">
+                    <h3>Transcripts</h3>
+                    <table class="table table-bordered" width="100%">
+                        <thead style="background-color: #eeeeee">
+                        <tr>
+                            <th>Name</th>
+                            <th>Ensembl ID</th>
+                            <th>Biotype</th>
+                            <th>Location</th>
+                            <th>Coding</th>
+                            <!--<th>cDNA</th>-->
+                            <!--<th>CDS Length</th>-->
+                            <th>Flags</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <template is="dom-repeat" items="{{geneObj.transcripts}}" as="transcript">
+                            <tr>
+                                <td>{{transcript.name}}</td>
+                                <td>
+                                    <a target="_blank"
+                                       href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;t={{transcript.id}}">{{transcript.id}}</a>
+                                </td>
+                                <td>{{transcript.biotype}}</td>
+                                <td>
+                                    <a target="_blank"
+                                       href="http://genomemaps.org/?region={{transcript.chromosome}}:{{transcript.start}}-{{transcript.end}}">
+                                        {{transcript.chromosome}}:{{transcript.start}}-{{transcript.end}}
+                                    </a>
+                                </td>
+                                <td>
+                                    <a target="_blank"
+                                       href="http://genomemaps.org/?region={{transcript.chromosome}}:{{transcript.genomicCodingStart}}-{{transcript.genomicCodingEnd}}">
+                                        {{transcript.genomicCodingStart}}-{{transcript.genomicCodingEnd}}
+                                    </a>
+                                </td>
+                                <!--<td>-->
+                                <!--{{transcript.cdnaCodingStart}}-{{transcript.cdnaCodingEnd}}-->
+                                <!--</td>-->
+                                <!--<td>{{transcript.cdsLength}}</td>-->
+                                <td>{{transcript.annotationFlags}}</td>
+                            </tr>
+                        </template>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
 
             <br>
             <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
                 <li role="presentation" class="active"><a href="#{{prefix}}Variants" role="tab" data-toggle="tab" class="variant-tab-title">Variants</a></li>
-                <li role="presentation"><a href="#{{prefix}}Genotype" role="tab" data-toggle="tab" class="variant-tab-title">Protein</a></li>
+                <li role="presentation"><a href="#{{prefix}}Protein" role="tab" data-toggle="tab" class="variant-tab-title">Protein</a></li>
             </ul>
 
             <div class="tab-content" style="height: 680px">
                 <div role="tabpanel" class="tab-pane active" id="{{prefix}}Variants">
+                    <div class="btn-group btn-group" role="group" aria-label="..." style="padding: 15px;float: right">
+                        <button type="button" class="btn btn-default btn-warning">All</button>
+                        <button type="button" class="btn btn-default btn-warning">Missense</button>
+                        <button type="button" class="btn btn-default btn-warning">LoF</button>
+                    </div>
+
+                    <br>
                     <br>
                     <variant-browser-grid project="{{project}}" study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
                                           population-frequencies="{{populationFrequencies}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
@@ -122,6 +132,10 @@
                         <h3>Advanced Annotation for Variant: {{variant}}</h3>
                         <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-client="{{cellbaseClient}}" style="font-size: 12px"></cellbase-variantannotation-view>
                     </div>
+                </div>
+
+                <div role="tabpanel" class="tab-pane" id="{{prefix}}Protein">
+
                 </div>
 
             </div>
