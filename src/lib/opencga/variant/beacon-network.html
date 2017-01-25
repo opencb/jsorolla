@@ -3,15 +3,16 @@
         <style is="custom-style" include="jso-styles"></style>
 
         <div>
-            <table class="table table-bordered" style="width: 30%">
+            <i class="fa fa-spinner fa-spin" aria-hidden="true" id="spinGif" style="display:none"></i>
+            <table class="table table-bordered" style="width: 70%">
                 <thead style="background-color: #eee">
                 <tr>
-                    <th>Host</th>
+                    <th style="width: 50%">Host</th>
                     <th>Response</th>
                 </tr>
                 </thead>
                 <tbody>
-                <template is="dom-repeat" items="{{hosts}}">
+                <template is="dom-repeat" items="{{results}}">
                     <tr>
                         <td>{{item.name}}</td>
                         <td>{{item.response}}</td>
@@ -39,22 +40,39 @@
                 }
             },
             searchBeaconNetwork: function () {
-                if (this.variant.split(':').length > 0) {
-                    let hosts = this.hosts;
-                    for (let i = 0; i < hosts.length; i++) {
-                        if (this.variant.split(':').length > 2) {
-                            let chromosome = variant[0];
-                            let position = variant[1];
-                            let reference = variant[2];
-                            let alternate = variant[3];
+                if (this.variant.split(':').length > 2) {
+                    let results = [];
+                    let hosts = this.hosts.join(',');
+                    let [chromosome, position, reference, alternate] = this.variant.split(':');
 
-// url to search : https://beacon-network.org/api/responses?allele=C&beacon=%5Bcosmic%5D&chrom=1&pos=99999&ref=GRCh37&referenceAllele=A
-//                    let xhr = new XMLHttpRequest();
-//                    let url = "https://beacon-network.org/api/responses";
+                    $('#spinGif').show();
+                    let xhr = new XMLHttpRequest();
 
+                    // url to search : https://beacon-network.org/api/responses?allele=C&beacon=[cosmic]&chrom=1&pos=99999&ref=GRCh37&referenceAllele=A
+                    // TODO: Assembly is hardcoded for now. It has to be taken care in the future
+                    let url = "https://beacon-network.org/api/responses?allele=" + alternate + "&beacon=[" + hosts + "]&chrom=" + chromosome
+                        + "&pos=" + position + "&ref=GRCh37&referenceAllele=" + reference;
+                    console.log(url)
+                    let _this = this;
+                    xhr.onload = function (event) {
+                        if (xhr.readyState === xhr.DONE) {
+                            if (xhr.status === 200) {
+                                let contentType = xhr.getResponseHeader('Content-Type');
+                                if (contentType === 'application/json') {
+                                    let beaconResponse = JSON.parse(xhr.response);
+                                    for (let i = 0; i < beaconResponse.length; i++) {
+                                        if (beaconResponse[i].response != null) {
+                                            results.push({name: beaconResponse[i].beacon.name, response: beaconResponse[i].response});
+                                        }
+                                    }
+                                    _this.results = results;
+                                    $('#spinGif').hide();
+                                }
+                            }
                         }
-
-                    }
+                    };
+                    xhr.open("GET", url, true);
+                    xhr.send(null);
                 }
             }
         });
