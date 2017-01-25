@@ -3,23 +3,56 @@
 <dom-module id="opencga-gene-view">
     <template>
         <style is="custom-style" include="jso-styles"></style>
+        <style>
+            .variant-tab-title {
+                font-size: 150%;
+                font-weight: bold;
+            }
+
+            .variant-title {
+                font-weight: bold;
+            }
+        </style>
+
         <div>
-            <div style="float: right">
+            <div style="float: right;padding: 10px 5px 10px 5px">
                 <button type="button" class="btn btn-primary" on-click="showBrowser">Back to Variant Browser</button>
             </div>
-            <div>
-                <h3>Gene: {{geneObj.name}}</h3>
-                {{geneObj.name}} - {{geneObj.description}}<br>
-                <!--Number of Variants - {{totalVariants}} <br>-->
-                Genome Browser - <a target="_blank"
-                                    href="http://genomemaps.org/?region={{geneObj.chromosome}}:{{geneObj.start}}-{{geneObj.end}}">
-                {{geneObj.chromosome}}:{{geneObj.start}}-{{geneObj.end}}
-            </a> <br>
+
+            <h2>{{geneObj.name}}</h2>
+            <div class="col-md-6">
+                <h3>Summary</h3>
+                <table width="100%">
+                    <tr>
+                        <td class="variant-title" width="20%">Name</td>
+                        <td width="80%">{{geneObj.name}} ({{geneObj.id}})</td>
+                    </tr>
+                    <tr>
+                        <td class="variant-title" width="20%">Biotype</td>
+                        <td width="80%">{{geneObj.biotype}}</td>
+                    </tr>
+                    <tr>
+                        <td class="variant-title" width="20%">Description</td>
+                        <td width="80%">{{geneObj.description}}</td>
+                    </tr>
+                    <tr>
+                        <td class="variant-title">Location</td>
+                        <td>{{geneObj.chromosome}}:{{geneObj.start}}-{{geneObj.end}} ({{geneObj.strand}})</td>
+                    </tr>
+                    <tr>
+                        <td class="variant-title">Genome Browser</td>
+                        <td>
+                            <a target="_blank" href="http://genomemaps.org/?region={{geneObj.chromosome}}:{{geneObj.start}}-{{geneObj.end}}">
+                                {{geneObj.chromosome}}:{{geneObj.start}}-{{geneObj.end}}
+                            </a>
+                        </td>
+                    </tr>
+                </table>
             </div>
 
-            <div>
+            <div class="col-md-6">
                 <h3>Transcripts</h3>
-                <table class="table table-bordered">
+                <table class="table table-bordered" width="100%">
                     <thead style="background-color: #eeeeee">
                     <tr>
                         <th>Name</th>
@@ -27,9 +60,9 @@
                         <th>Biotype</th>
                         <th>Location</th>
                         <th>Coding</th>
-                        <th>cDNA</th>
-                        <th>CDS Length</th>
-                        <th>Annotation Flags</th>
+                        <!--<th>cDNA</th>-->
+                        <!--<th>CDS Length</th>-->
+                        <th>Flags</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -53,32 +86,44 @@
                                     {{transcript.genomicCodingStart}}-{{transcript.genomicCodingEnd}}
                                 </a>
                             </td>
-                            <td>
-                                {{transcript.cdnaCodingStart}}-{{transcript.cdnaCodingEnd}}
-                            </td>
-                            <td>{{transcript.cdsLength}}</td>
+                            <!--<td>-->
+                            <!--{{transcript.cdnaCodingStart}}-{{transcript.cdnaCodingEnd}}-->
+                            <!--</td>-->
+                            <!--<td>{{transcript.cdsLength}}</td>-->
                             <td>{{transcript.annotationFlags}}</td>
                         </tr>
                     </template>
                     </tbody>
                 </table>
             </div>
-            <div>
-                <h3>Variants</h3>
-                <variant-browser-grid project="{{project}}" study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
-                                      population-frequencies="{{populationFrequencies}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                      consequence-types="{{consequenceTypes}}" search="{{query}}" query="{{query}}" variant="{{variant}}"></variant-browser-grid>
 
-                <div hidden$="{{checkVariant(variant)}}">
+
+            <br>
+            <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active"><a href="#{{prefix}}Variants" role="tab" data-toggle="tab" class="variant-tab-title">Variants</a></li>
+                <li role="presentation"><a href="#{{prefix}}Genotype" role="tab" data-toggle="tab" class="variant-tab-title">Protein</a></li>
+            </ul>
+
+            <div class="tab-content" style="height: 680px">
+                <div role="tabpanel" class="tab-pane active" id="{{prefix}}Variants">
                     <br>
-                    <h3>Please select a variant to view variant's detailed annotation</h3>
+                    <variant-browser-grid project="{{project}}" study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
+                                          population-frequencies="{{populationFrequencies}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                          consequence-types="{{consequenceTypes}}" search="{{query}}" query="{{query}}" variant="{{variant}}" on-selectvariant="onSelectVariant">
+                    </variant-browser-grid>
+
+                    <div hidden$="{{checkVariant(variant)}}">
+                        <br>
+                        <h3>Please select a variant to view variant's detailed annotation</h3>
+                    </div>
+
+                    <!-- Bottom tabs with specific variant information -->
+                    <div style="padding-top: 20px" hidden$="{{!checkVariant(variant)}}">
+                        <h3>Advanced Annotation for Variant: {{variant}}</h3>
+                        <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-client="{{cellbaseClient}}" style="font-size: 12px"></cellbase-variantannotation-view>
+                    </div>
                 </div>
 
-                <!-- Bottom tabs with specific variant information -->
-                <div style="padding-top: 20px" hidden$="{{!checkVariant(variant)}}">
-                    <h3>Advanced Annotation for Variant: {{variant}}</h3>
-                    <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-client="{{cellbaseClient}}" mode="vertical" style="font-size: 12px"></cellbase-variantannotation-view>
-                </div>
             </div>
 
         </div>
@@ -143,7 +188,12 @@
                 let hash = window.location.hash.split('/');
                 let newHash = '#browser/' + hash[1] + '/' + hash[2];
                 window.location.hash = newHash;
-            }
+            },
+            onSelectVariant: function(e) {
+                this.variant = e.detail.id;
+//                this.V = e.detail.variant;
+//                this.display3D();
+            },
         });
     </script>
 </dom-module>

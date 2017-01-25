@@ -37,6 +37,16 @@
             <button type="button" class="btn btn-default btn-sm" data-toggle="popover" data-placement="bottom" on-click="_shareLink">
                 <i class="fa fa-share-alt" aria-hidden="true"></i> Share
             </button>
+
+            <!--<button type="button" class="btn btn-default btn-sm" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample" on-click="_test">-->
+                <!--<i class="fa fa-share-alt" aria-hidden="true"></i> Share-->
+            <!--</button>-->
+            <!--<div class="collapse" id="collapseExample" style="padding-top: 5px">-->
+                <!--<div class="well" style="background-color: #FAFAFA">-->
+                    <!--URL:<br>-->
+                    <!--{{_test()}}-->
+                <!--</div>-->
+            <!--</div>-->
         </div>
 
         <div>
@@ -110,6 +120,11 @@
                     type: Boolean,
                     value: true
                 }
+            },
+            _test: function () {
+                let getUrlQueryParams = this._getUrlQueryParams();
+                debugger
+                return ">>" + getUrlQueryParams.url;
             },
             ready: function () {
                 // TO BE REMOVED!
@@ -251,6 +266,10 @@
                 }
             },
             _getUrlQueryParams: function() {
+                if (typeof this.opencgaClient === "undefined") {
+                    return {host: "", queryParams: {}, url: ""};
+                }
+
                 let host = "";
                 if (this.opencgaClient.getConfig().host.startsWith("https://")) {
                     host = this.opencgaClient.getConfig().host;
