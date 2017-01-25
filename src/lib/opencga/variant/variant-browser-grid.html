@@ -34,7 +34,7 @@
                 </ul>
             </div>
             <!--Share URL-->
-            <button type="button" class="btn btn-default btn-sm" data-toggle="popover" data-placement="right">
+            <button type="button" class="btn btn-default btn-sm" data-toggle="popover" data-placement="bottom" on-click="_shareLink">
                 <i class="fa fa-share-alt" aria-hidden="true"></i> Share
             </button>
         </div>
@@ -125,202 +125,6 @@
 
                 this.downloadRefreshIcon = $("#" + this.prefix + "DownloadRefresh");
                 this.downloadIcon = $("#" + this.prefix + "DownloadIcon");
-            },
-            _downloadTabFile: function () {
-                let urlQueryParams = this._getUrlQueryParams();
-                let params = urlQueryParams.queryParams;
-                params.limit = 1000; // Default limit is 1000 for now
-                let _this = this;
-
-                this.downloadRefreshIcon.css('display', 'inline-block');
-                this.downloadIcon.css('display', 'none');
-                this.opencgaClient.variants().query(params)
-                    .then(function (response) {
-                        let json = response.response[0].result;
-                        let dataString = [];
-                        let variantString = [];
-                        for (let i = 0; i < json.length; i++) {
-                            variantString.push(json[i].chromosome + ':' + json[i].start + " " + json[i].reference + '/' + json[i].alternate);
-                            variantString.push(json[i].id);
-                            let genes = [];
-                            let ct = [];
-                            let sift, polyphen, cadd = "-", phylop = "-", phastCons = "-", gerp = "-";
-                            let clinvar = [];
-                            let cosmic = [];
-
-                            if (typeof json[i].annotation !== "undefined") {
-                                if (typeof json[i].annotation.consequenceTypes !== "undefined" && json[i].annotation.consequenceTypes.length > 0) {
-                                    let visitedGenes = {};
-                                    let visitedCT = new Set();
-                                    for (let j = 0; j < json[i].annotation.consequenceTypes.length; j++) {
-                                        // gene
-                                        if (typeof json[i].annotation.consequenceTypes[j].geneName !== "undefined" && json[i].annotation.consequenceTypes[j].geneName != ""
-                                            && typeof visitedGenes[json[i].annotation.consequenceTypes[j].geneName] === "undefined") {
-                                            genes.push(json[i].annotation.consequenceTypes[j].geneName);
-                                            visitedGenes[json[i].annotation.consequenceTypes[j].geneName] = true;
-                                        }
-
-                                        // Consequence Type
-                                        for (let z = 0; z < json[i].annotation.consequenceTypes[j].sequenceOntologyTerms.length; z++) {
-                                            let consequenceTypeName = json[i].annotation.consequenceTypes[j].sequenceOntologyTerms[z].name;
-                                            if (typeof consequenceTypeName !== "undefined" && consequenceTypeName != "" && !visitedCT.has(consequenceTypeName)) {
-                                                ct.push(consequenceTypeName);
-                                                visitedCT.add(consequenceTypeName);
-                                            }
-                                        }
-
-                                        // Sift, Polyphen
-                                        let min = 10;
-                                        let max = 0;
-                                        let description = {};
-                                        if (typeof json[i].annotation.consequenceTypes[j].proteinVariantAnnotation !== "undefined"
-                                            && typeof json[i].annotation.consequenceTypes[j].proteinVariantAnnotation.substitutionScores !== "undefined") {
-                                            for (let ss = 0; ss < json[i].annotation.consequenceTypes[j].proteinVariantAnnotation.substitutionScores.length; ss++) {
-                                                let source = json[i].annotation.consequenceTypes[j].proteinVariantAnnotation.substitutionScores[ss].source;
-                                                switch (source) {
-                                                    case "sift":
-                                                        if (json[i].annotation.consequenceTypes[j].proteinVariantAnnotation.substitutionScores[ss].score < min) {
-                                                            min = json[i].annotation.consequenceTypes[j].proteinVariantAnnotation.substitutionScores[ss].score;
-                                                            description.sift = json[i].annotation.consequenceTypes[j].proteinVariantAnnotation.substitutionScores[ss].description;
-                                                        }
-                                                        break;
-                                                    case "polyphen":
-                                                        if (json[i].annotation.consequenceTypes[j].proteinVariantAnnotation.substitutionScores[ss].score > max) {
-                                                            max = json[i].annotation.consequenceTypes[j].proteinVariantAnnotation.substitutionScores[ss].score;
-                                                            description.polyphen = json[i].annotation.consequenceTypes[j].proteinVariantAnnotation.substitutionScores[ss].description;
-                                                        }
-                                                        break;
-                                                }
-                                            }
-                                        }
-                                        sift = typeof description.sift !== "undefined" ? description.sift : "-";
-                                        polyphen = typeof description.polyphen !== "undefined" ? description.polyphen : "-";
-                                    }
-                                }
-                                // CADD
-                                if (typeof json[i].annotation.functionalScore !== "undefined") {
-                                    for (let fs = 0; fs < json[i].annotation.functionalScore.length; fs++) {
-                                        if (typeof json[i].annotation.functionalScore[fs] !== "undefined" && json[i].annotation.functionalScore[fs].source == "cadd_scaled") {
-                                            cadd = Number(json[i].annotation.functionalScore[fs].score).toFixed(2);
-                                        }
-                                    }
-                                }
-
-                                // Conservation
-                                if (typeof json[i].annotation.conservation !== "undefined") {
-                                    for (let cons = 0; cons < json[i].annotation.conservation.length; cons++) {
-                                        switch (json[i].annotation.conservation[cons].source) {
-                                            case "phylop":
-                                                phylop = Number(json[i].annotation.conservation[cons].score).toFixed(3);
-                                                break;
-                                            case "phastCons":
-                                                phastCons = Number(json[i].annotation.conservation[cons].score).toFixed(3);
-                                                break;
-                                            case "gerp":
-                                                gerp = Number(json[i].annotation.conservation[cons].score).toFixed(3);
-                                                break;
-                                        }
-                                    }
-                                }
-
-                                // Clinvar, cosmic
-                                if (typeof json[i].annotation.variantTraitAssociation !== "undefined" && json[i].annotation.variantTraitAssociation != null) {
-                                    for (let key in json[i].annotation.variantTraitAssociation) {
-                                        let clinicalData = json[i].annotation.variantTraitAssociation[key];
-                                        if (typeof clinicalData !== "undefined") {
-                                            for (let cd = 0; cd < clinicalData.length; cd++) {
-                                                switch (key) {
-                                                    case "clinvar":
-                                                        clinvar.push(clinicalData[cd].traits[0]);
-                                                        break;
-                                                    case "cosmic":
-                                                        cosmic.push(clinicalData[cd].primaryHistology);
-                                                        break;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            if (genes.length > 0) {
-                                variantString.push(genes.join(','));
-                            } else {
-                                variantString.push("-");
-                            }
-                            variantString.push(json[i].type);
-                            if (ct.length > 0) {
-                                variantString.push(ct.join(','));
-                            } else {
-                                variantString.push("-");
-                            }
-                            variantString.push(sift);
-                            variantString.push(polyphen);
-                            variantString.push(cadd);
-                            variantString.push(phylop);
-                            variantString.push(phastCons);
-                            variantString.push(gerp);
-                            if (clinvar.length > 0) {
-                                variantString.push(clinvar.join(','));
-                            } else {
-                                variantString.push("-");
-                            }
-                            if (cosmic.length > 0) {
-                                variantString.push(cosmic.join(','));
-                            } else {
-                                variantString.push("-");
-                            }
-
-                            dataString.push(variantString.join('\t'));
-                            variantString = [];
-                        }
-
-                        let data = new Blob([dataString.join('\n')], {type: 'text/plain'});
-                        let file = window.URL.createObjectURL(data);
-                        let a = document.createElement("a");
-                        a.href = file;
-                        a.download = _this.study.alias + ".txt";
-                        document.body.appendChild(a);
-                        a.click();
-                        setTimeout(function() {
-                            document.body.removeChild(a);
-                        }, 0);
-                    })
-                    .then(function() {
-                        _this.downloadRefreshIcon.css('display', 'none');
-                        _this.downloadIcon.css('display', 'inline-block');
-                    });
-            },
-            _downloadJsonFile: function () {
-                let urlQueryParams = this._getUrlQueryParams();
-                let params = urlQueryParams.queryParams;
-                params.limit = 1000; // Default limit is 1000 for now
-                let _this = this;
-
-                this.downloadRefreshIcon.css('display', 'inline-block');
-                this.downloadIcon.css('display', 'none');
-                this.opencgaClient.variants().query(params)
-                    .then(function (response) {
-                        let json = response.response[0].result;
-                        let dataString = [];
-                        for (let i = 0; i < json.length; i++) {
-                            dataString.push(JSON.stringify(json[i]));
-                        }
-
-                        let data = new Blob([dataString.join('\n')], {type: 'application/json'});
-                        let file = window.URL.createObjectURL(data);
-                        let a = document.createElement("a");
-                        a.href = file;
-                        a.download = _this.study.alias + ".json";
-                        document.body.appendChild(a);
-                        a.click();
-                        setTimeout(function() {
-                            document.body.removeChild(a);
-                        }, 0);
-                    })
-                    .then(function () {
-                        _this.downloadRefreshIcon.css('display', 'none');
-                        _this.downloadIcon.css('display', 'inline-block');
-                    });
             },
             assignColors: function () {
                 if (typeof this.consequenceTypes !== "undefined") {
@@ -463,7 +267,7 @@
                     }
                     host += '/webservices/rest/v1/analysis/variant/query';
                 } else {
-                    return {host: host, queryParams: {}};
+                    return {host: host, queryParams: {}, url: ""};
                 }
 
                 let queryParams = {
@@ -489,11 +293,11 @@
                 }
                 let url = host + "?" + query.join("&");
                 // For sharing URL
-                $("[data-toggle=popover]").popover({
-                    content: url
-                });
+//                $("[data-toggle=popover]").popover({
+//                    content: url
+//                });
 
-                return {host: host, queryParams: queryParams};
+                return {host: host, queryParams: queryParams, url: url};
             },
             _onSelectVariant: function(row) {
                 if (typeof row !== "undefined") {
@@ -1058,6 +862,208 @@
                     ]
                 ];
                 return initCols;
+            },
+            _downloadTabFile: function () {
+                let urlQueryParams = this._getUrlQueryParams();
+                let params = urlQueryParams.queryParams;
+                params.limit = 1000; // Default limit is 1000 for now
+                let _this = this;
+
+                this.downloadRefreshIcon.css('display', 'inline-block');
+                this.downloadIcon.css('display', 'none');
+                this.opencgaClient.variants().query(params)
+                    .then(function (response) {
+                        let json = response.response[0].result;
+                        let dataString = [];
+                        let variantString = [];
+                        for (let i = 0; i < json.length; i++) {
+                            variantString.push(json[i].chromosome + ':' + json[i].start + " " + json[i].reference + '/' + json[i].alternate);
+                            variantString.push(json[i].id);
+                            let genes = [];
+                            let ct = [];
+                            let sift, polyphen, cadd = "-", phylop = "-", phastCons = "-", gerp = "-";
+                            let clinvar = [];
+                            let cosmic = [];
+
+                            if (typeof json[i].annotation !== "undefined") {
+                                if (typeof json[i].annotation.consequenceTypes !== "undefined" && json[i].annotation.consequenceTypes.length > 0) {
+                                    let visitedGenes = {};
+                                    let visitedCT = new Set();
+                                    for (let j = 0; j < json[i].annotation.consequenceTypes.length; j++) {
+                                        // gene
+                                        if (typeof json[i].annotation.consequenceTypes[j].geneName !== "undefined" && json[i].annotation.consequenceTypes[j].geneName != ""
+                                            && typeof visitedGenes[json[i].annotation.consequenceTypes[j].geneName] === "undefined") {
+                                            genes.push(json[i].annotation.consequenceTypes[j].geneName);
+                                            visitedGenes[json[i].annotation.consequenceTypes[j].geneName] = true;
+                                        }
+
+                                        // Consequence Type
+                                        for (let z = 0; z < json[i].annotation.consequenceTypes[j].sequenceOntologyTerms.length; z++) {
+                                            let consequenceTypeName = json[i].annotation.consequenceTypes[j].sequenceOntologyTerms[z].name;
+                                            if (typeof consequenceTypeName !== "undefined" && consequenceTypeName != "" && !visitedCT.has(consequenceTypeName)) {
+                                                ct.push(consequenceTypeName);
+                                                visitedCT.add(consequenceTypeName);
+                                            }
+                                        }
+
+                                        // Sift, Polyphen
+                                        let min = 10;
+                                        let max = 0;
+                                        let description = {};
+                                        if (typeof json[i].annotation.consequenceTypes[j].proteinVariantAnnotation !== "undefined"
+                                            && typeof json[i].annotation.consequenceTypes[j].proteinVariantAnnotation.substitutionScores !== "undefined") {
+                                            for (let ss = 0; ss < json[i].annotation.consequenceTypes[j].proteinVariantAnnotation.substitutionScores.length; ss++) {
+                                                let source = json[i].annotation.consequenceTypes[j].proteinVariantAnnotation.substitutionScores[ss].source;
+                                                switch (source) {
+                                                    case "sift":
+                                                        if (json[i].annotation.consequenceTypes[j].proteinVariantAnnotation.substitutionScores[ss].score < min) {
+                                                            min = json[i].annotation.consequenceTypes[j].proteinVariantAnnotation.substitutionScores[ss].score;
+                                                            description.sift = json[i].annotation.consequenceTypes[j].proteinVariantAnnotation.substitutionScores[ss].description;
+                                                        }
+                                                        break;
+                                                    case "polyphen":
+                                                        if (json[i].annotation.consequenceTypes[j].proteinVariantAnnotation.substitutionScores[ss].score > max) {
+                                                            max = json[i].annotation.consequenceTypes[j].proteinVariantAnnotation.substitutionScores[ss].score;
+                                                            description.polyphen = json[i].annotation.consequenceTypes[j].proteinVariantAnnotation.substitutionScores[ss].description;
+                                                        }
+                                                        break;
+                                                }
+                                            }
+                                        }
+                                        sift = typeof description.sift !== "undefined" ? description.sift : "-";
+                                        polyphen = typeof description.polyphen !== "undefined" ? description.polyphen : "-";
+                                    }
+                                }
+                                // CADD
+                                if (typeof json[i].annotation.functionalScore !== "undefined") {
+                                    for (let fs = 0; fs < json[i].annotation.functionalScore.length; fs++) {
+                                        if (typeof json[i].annotation.functionalScore[fs] !== "undefined" && json[i].annotation.functionalScore[fs].source == "cadd_scaled") {
+                                            cadd = Number(json[i].annotation.functionalScore[fs].score).toFixed(2);
+                                        }
+                                    }
+                                }
+
+                                // Conservation
+                                if (typeof json[i].annotation.conservation !== "undefined") {
+                                    for (let cons = 0; cons < json[i].annotation.conservation.length; cons++) {
+                                        switch (json[i].annotation.conservation[cons].source) {
+                                            case "phylop":
+                                                phylop = Number(json[i].annotation.conservation[cons].score).toFixed(3);
+                                                break;
+                                            case "phastCons":
+                                                phastCons = Number(json[i].annotation.conservation[cons].score).toFixed(3);
+                                                break;
+                                            case "gerp":
+                                                gerp = Number(json[i].annotation.conservation[cons].score).toFixed(3);
+                                                break;
+                                        }
+                                    }
+                                }
+
+                                // Clinvar, cosmic
+                                if (typeof json[i].annotation.variantTraitAssociation !== "undefined" && json[i].annotation.variantTraitAssociation != null) {
+                                    for (let key in json[i].annotation.variantTraitAssociation) {
+                                        let clinicalData = json[i].annotation.variantTraitAssociation[key];
+                                        if (typeof clinicalData !== "undefined") {
+                                            for (let cd = 0; cd < clinicalData.length; cd++) {
+                                                switch (key) {
+                                                    case "clinvar":
+                                                        clinvar.push(clinicalData[cd].traits[0]);
+                                                        break;
+                                                    case "cosmic":
+                                                        cosmic.push(clinicalData[cd].primaryHistology);
+                                                        break;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            if (genes.length > 0) {
+                                variantString.push(genes.join(','));
+                            } else {
+                                variantString.push("-");
+                            }
+                            variantString.push(json[i].type);
+                            if (ct.length > 0) {
+                                variantString.push(ct.join(','));
+                            } else {
+                                variantString.push("-");
+                            }
+                            variantString.push(sift);
+                            variantString.push(polyphen);
+                            variantString.push(cadd);
+                            variantString.push(phylop);
+                            variantString.push(phastCons);
+                            variantString.push(gerp);
+                            if (clinvar.length > 0) {
+                                variantString.push(clinvar.join(','));
+                            } else {
+                                variantString.push("-");
+                            }
+                            if (cosmic.length > 0) {
+                                variantString.push(cosmic.join(','));
+                            } else {
+                                variantString.push("-");
+                            }
+
+                            dataString.push(variantString.join('\t'));
+                            variantString = [];
+                        }
+
+                        let data = new Blob([dataString.join('\n')], {type: 'text/plain'});
+                        let file = window.URL.createObjectURL(data);
+                        let a = document.createElement("a");
+                        a.href = file;
+                        a.download = _this.study.alias + ".txt";
+                        document.body.appendChild(a);
+                        a.click();
+                        setTimeout(function() {
+                            document.body.removeChild(a);
+                        }, 0);
+                    })
+                    .then(function() {
+                        _this.downloadRefreshIcon.css('display', 'none');
+                        _this.downloadIcon.css('display', 'inline-block');
+                    });
+            },
+            _downloadJsonFile: function () {
+                let urlQueryParams = this._getUrlQueryParams();
+                let params = urlQueryParams.queryParams;
+                params.limit = 1000; // Default limit is 1000 for now
+                let _this = this;
+
+                this.downloadRefreshIcon.css('display', 'inline-block');
+                this.downloadIcon.css('display', 'none');
+                this.opencgaClient.variants().query(params)
+                    .then(function (response) {
+                        let json = response.response[0].result;
+                        let dataString = [];
+                        for (let i = 0; i < json.length; i++) {
+                            dataString.push(JSON.stringify(json[i]));
+                        }
+
+                        let data = new Blob([dataString.join('\n')], {type: 'application/json'});
+                        let file = window.URL.createObjectURL(data);
+                        let a = document.createElement("a");
+                        a.href = file;
+                        a.download = _this.study.alias + ".json";
+                        document.body.appendChild(a);
+                        a.click();
+                        setTimeout(function() {
+                            document.body.removeChild(a);
+                        }, 0);
+                    })
+                    .then(function () {
+                        _this.downloadRefreshIcon.css('display', 'none');
+                        _this.downloadIcon.css('display', 'inline-block');
+                    });
+            },
+            _shareLink: function () {
+                let getUrlQueryParams = this._getUrlQueryParams();
+                $("[data-toggle=popover]").popover({
+                    content: getUrlQueryParams.url
+                });
             }
         });
     </script>
