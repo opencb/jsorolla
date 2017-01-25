@@ -306,15 +306,16 @@
                     queryParams.exclude = "studies";
                 }
 
-                let query = ["limit=100"];
+                let query = ["limit=1000"];
                 for (let key in queryParams) {
-                    query.push(key + "=" + queryParams[key]);
+                    // Check sid has a proper value. For public projects sid is undefined. In that case, sid must be removed from the url
+                    if (key == "sid" && queryParams[key] === undefined) {
+                        delete queryParams["sid"];
+                    } else {
+                        query.push(key + "=" + queryParams[key]);
+                    }
                 }
                 let url = host + "?" + query.join("&");
-                // For sharing URL
-//                $("[data-toggle=popover]").popover({
-//                    content: url
-//                });
 
                 return {host: host, queryParams: queryParams, url: url};
             },
@@ -1079,9 +1080,14 @@
                     });
             },
             _shareLink: function () {
-                let getUrlQueryParams = this._getUrlQueryParams();
+                let _this = this;
                 $("[data-toggle=popover]").popover({
-                    content: getUrlQueryParams.url
+                    content: function() {
+                        let getUrlQueryParams = _this._getUrlQueryParams();
+                        return getUrlQueryParams.url;
+                    }
+                }).on("show.bs.popover", function () {
+                    $(this).data("bs.popover").tip().css("max-width", "none");
                 });
             }
         });
