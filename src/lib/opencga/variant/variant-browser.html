@@ -91,11 +91,36 @@
                     type: Object
                 },
                 search: {
-                    type: Object
+                    type: Object,
+                    observer: 'renderHashQueryParams'
                 },
                 prefix: {
                     type: String
                 }
+            },
+            renderHashQueryParams: function () {
+                let hashFrag = window.location.hash.split('?')[0];
+                if (typeof this.query !== "undefined" && Object.keys(this.query).length > 0) {
+                    let qArray = [];
+                    for (let key in this.query) {
+                        if (key != "studies") {
+                            qArray.push(key + "=" + this.query[key]);
+                        }
+                    }
+                    hashFrag += "?" + qArray.join('&');
+                }
+                window.location.hash = hashFrag;
+
+                // for reading from the url,
+//                if (typeof query !== "undefined") {
+//                    let params = query.split('&');
+//                    let queryObject = {};
+//                    for (let i = 0; i < params.length; i++) {
+//                        let [key, value] = params[i].split('=');
+//                        queryObject[key] = value;
+//                    }
+//                    this._query = queryObject;
+//                }
             },
             checkProject: function (project) {
                 return project == "";
