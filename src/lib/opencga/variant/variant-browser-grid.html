@@ -882,6 +882,7 @@
                             variantString.push(json[i].id);
                             let genes = [];
                             let ct = [];
+                            let pfArray  = [];
                             let sift, polyphen, cadd = "-", phylop = "-", phastCons = "-", gerp = "-";
                             let clinvar = [];
                             let cosmic = [];
@@ -961,6 +962,28 @@
                                     }
                                 }
 
+                                // Population frequency
+                                let populationMap = {};
+                                if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.studies !== "undefined" && this.populationFrequencies.studies.length > 0) {
+                                    for (let i = 0; i < this.populationFrequencies.studies.length; i++) {
+                                        let study = this.populationFrequencies.studies[i].id;
+                                        for (let j = 0; j < this.populationFrequencies.studies[i].populations.length; j++) {
+                                            let population = this.populationFrequencies.studies[i].populations[j].id;
+                                            populationMap[study + "_" + population] = 'NA';
+                                        }
+                                    }
+                                }
+
+                                if (typeof json[i].annotation.populationFrequencies !== "undefined") {
+                                    for (let pf = 0; pf < json[i].annotation.populationFrequencies.length; pf++) {
+                                        let pop = json[i].annotation.populationFrequencies[pf].study + '_' + json[i].annotation.populationFrequencies[pf].population;
+                                        if (typeof populationMap[pop] !== "undefined" && populationMap[pop] == "NA") {
+                                            populationMap[pop] = Number(json[i].annotation.populationFrequencies[pf].altAlleleFreq).toFixed(4);
+                                        }
+                                    }
+                                }
+                                pfArray = Object.keys(populationMap).map(key => populationMap[key]);
+
                                 // Clinvar, cosmic
                                 if (typeof json[i].annotation.variantTraitAssociation !== "undefined" && json[i].annotation.variantTraitAssociation != null) {
                                     for (let key in json[i].annotation.variantTraitAssociation) {
@@ -997,6 +1020,7 @@
                             variantString.push(phylop);
                             variantString.push(phastCons);
                             variantString.push(gerp);
+                            variantString.push(pfArray.join(','));
                             if (clinvar.length > 0) {
                                 variantString.push(clinvar.join(','));
                             } else {
