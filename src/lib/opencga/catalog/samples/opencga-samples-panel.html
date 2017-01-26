@@ -28,7 +28,7 @@
 
         <div class="col-md-10">
             <opencga-samples-view opencga-client="{{opencgaClient}}" study-id="{{studyId}}" filters="{{filters}}"
-            search="{{search}}"></opencga-samples-view>
+            search="{{search}}" samples="{{samples}}"></opencga-samples-view>
         </div>
 
     </template>
@@ -47,6 +47,10 @@
                 },
                 search: {
                     type: Object
+                },
+                samples: {
+                    type: Array,
+                    notify: true
                 }
             }
         });

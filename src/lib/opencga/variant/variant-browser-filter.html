@@ -242,11 +242,17 @@
                                       name="location" on-keyup="updateQueryFilters"></textarea>
 
                             <br>
-                            <span class="subsection">Feature IDs (gene, protein, SNP, ClinVar, ...)</span>
-                            <textarea id="{{prefix}}FeatureTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="5" placeholder="BRCA2, ENSG00000139618, ENST00000544455, P51587, 13:19748038:C:T, rs28897700, VAR_020705, RCV000162901, COSM3468368"
+                            <span class="subsection">Feature IDs (gene, transcript, SNP IDs)</span>
+                            <!--<span class="subsection">Feature IDs (gene, protein, SNP, ClinVar, ...)</span>-->
+
+                            <textarea id="{{prefix}}FeatureTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="5" placeholder="BRCA2, ENSG00000139618, ENST00000544455, rs28897700"
                                       name="geneSnp" on-keyup="updateQueryFilters"></textarea>
 
-                            <input type="checkbox" value="" class$="{{prefix}}FilterCheckBox"> With / Without dbSNP rs IDs<br>
+                            <!--TODO: Update when server side starts to support all xrefs and with/without rs ids-->
+                            <!--<textarea id="{{prefix}}FeatureTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="5" placeholder="BRCA2, ENSG00000139618, ENST00000544455, P51587, 13:19748038:C:T, rs28897700, VAR_020705, RCV000162901, COSM3468368"-->
+                            <!--name="geneSnp" on-keyup="updateQueryFilters"></textarea>-->
+
+                            <!--<input type="checkbox" value="" class$="{{prefix}}FilterCheckBox"> With / Without dbSNP rs IDs<br>-->
                         </div>
                     </div>
                 </div>
@@ -927,11 +933,12 @@
 
                 // Features: Gene, SNP ID
                 if (this.$$("#" + this.prefix + "FeatureTextarea").value != "") {
-                    if (this.$$("#" + this.prefix + "FeatureTextarea").value.startsWith("rs") || this.$$("#" + this.prefix + "FeatureTextarea").value.split(':').length > 2) {
-                        _filters.ids = this.$$("#" + this.prefix + "FeatureTextarea").value;
-                    } else {
-                        _filters.gene = this.$$("#" + this.prefix + "FeatureTextarea").value;
-                    }
+//                    if (this.$$("#" + this.prefix + "FeatureTextarea").value.startsWith("rs") || this.$$("#" + this.prefix + "FeatureTextarea").value.split(':').length > 2) {
+//                        _filters.ids = this.$$("#" + this.prefix + "FeatureTextarea").value;
+//                    } else {
+//                        _filters.gene = this.$$("#" + this.prefix + "FeatureTextarea").value;
+//                    }
+                    _filters["annot-xref"] = this.$$("#" + this.prefix + "FeatureTextarea").value;
                 }
 
                 // Type
