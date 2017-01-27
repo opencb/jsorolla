@@ -102,7 +102,7 @@
                             let geneName = proteinObj.gene[0].name[0].value;
 
                             if (typeof _this.opencgaClient !== "undefined" && typeof _this.study !== "undefined" && typeof _this.study.alias !== "undefined") {
-                                let query = {gene: geneName, "annot-ct": "missense_variant", studies: _this.project + ":" + _this.study.alias};
+                                let query = {gene: geneName, "annot-ct": "missense_variant", studies: _this.project + ":" + _this.study.alias, returnedStudies: _this.project + ":" + _this.study.alias};
                                 let options = {exclude: "annotation,studies.samplesdata,,studies.files", limit: 10};
                                 _this.opencgaClient.variants().query(query, options)
                                     .then(function(variants) {
@@ -137,31 +137,59 @@
                 SVG.addChild(svg, 'rect', {width: svgSWidth, height: svgHeight, style: "fill: white;stroke: black"});
 
 
-                let gFeatures = SVG.create('g', {});
                 let center = (svgHeight - 20) / 2;
                 SVG.addChild(svg, 'rect', {x: 20, y: center + 5, rx: 2, ry: 2, width: 1000, height: 15, style: "fill: lightgrey"});
 
                 // Lollipop
+                let variantPositions = new Set();
+                let verticalOffset = 0;
                 let gVariants = SVG.create('g', {});
                 for (let i = 0; i < variants.length; i++) {
                     for (let j = 0; j < variants[i].annotation.consequenceTypes.length; j++) {
 
                         if (variants[i].annotation.consequenceTypes[j].biotype == "protein_coding" && variants[i].annotation.consequenceTypes[j].geneName == this.gene) {
                             let proteinVariantAnnotation = variants[i].annotation.consequenceTypes[j].proteinVariantAnnotation;
-                            SVG.addChild(gVariants, 'circle', {cx: 20 + proteinVariantAnnotation.position, cy: center - 20 - 5, r: 5, width: 600, height: 25, style: "fill: red"});
+                            if (variantPositions.has(proteinVariantAnnotation.position - 2)
+                                || variantPositions.has(proteinVariantAnnotation.position -1)
+                                || variantPositions.has(proteinVariantAnnotation.position)
+                                || variantPositions.has(proteinVariantAnnotation.position + 1)
+                                || variantPositions.has(proteinVariantAnnotation.position + 2)) {
+                                verticalOffset = -15;
+                            }
+
                             SVG.addChild(gVariants, 'line', {
                                 x1: 20 + proteinVariantAnnotation.position,
-                                y1: center - 20,
+                                y1: center - 20 + verticalOffset,
                                 x2: 20 + proteinVariantAnnotation.position,
                                 y2: center + 5,
                                 width: 600, height: 25, style: "stroke: grey;stroke-width: 2"});
+
+                            let stats = variants[i].studies[0].stats["ALL"];
+                            let variant = SVG.addChild(gVariants, 'circle', {
+                                cx: 20 + proteinVariantAnnotation.position,
+                                cy: center - 20 - 5 + verticalOffset,
+                                r: 5 + stats.altAlleleFreq * (8 - 5),
+                                style: "fill: red"});
+
+                            $(variant).qtip({
+                                content: {
+                                    title: variants[i].id,
+                                    text: variants[i].id + '<br>'
+                                    + stats.altAlleleFreq},
+                                position: {viewport: $(window), target: "mouse", adjust: {x: 25, y: 15}},
+                                style: {width: true, classes: ' ui-tooltip ui-tooltip-shadow'},
+                                show: {delay: 250},
+                                hide: {delay: 200}
+                            });
+                            variantPositions.add(proteinVariantAnnotation.position);
+                            verticalOffset = 0;
                         }
                     }
-
                 }
                 svg.appendChild(gVariants);
 
                 // Features
+                let gFeatures = SVG.create('g', {});
                 for (let i = 0; i < protein.feature.length; i++) {
                     console.log(protein.feature[i])
                     if (typeof protein.feature[i].ref != "undefined" && typeof protein.feature[i].location.end !== "undefined") {
