@@ -175,7 +175,7 @@
             renderFromServer: function () {
                 this.variant = ""; // Empty the variant every time the grid is loaded
                 let _this = this;
-                if (typeof OpenCGAClient !== "undefined" && this.opencgaClient instanceof OpenCGAClient && typeof
+                if (typeof this.opencgaClient !== "undefined" && this.opencgaClient instanceof OpenCGAClient && typeof
                         this.project !== "undefined" && typeof this.study !== "undefined" && typeof this.study.alias !== "undefined") {
 
                     let urlQueryParams = this._getUrlQueryParams();

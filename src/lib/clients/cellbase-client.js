@@ -108,6 +108,10 @@ class CellBaseClient {
         return this.get('feature', 'transcript', id, resource, params, options);
     }
 
+    getProteinClient(id, resource, params, options) {
+        return this.get('feature', 'protein', id, resource, params, options);
+    }
+
     getVariationClient(id, resource, params, options) {
         return this.get('feature', 'variation', id, resource, params, options);
     }

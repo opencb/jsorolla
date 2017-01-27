@@ -1,4 +1,5 @@
 <link rel="import" href="../opencga/variant/variant-browser-grid.html">
+<link rel="import" href="../opencga/variant/variant-protein-view.html">
 
 <dom-module id="opencga-gene-view">
     <template>
@@ -135,7 +136,7 @@
                 </div>
 
                 <div role="tabpanel" class="tab-pane" id="{{prefix}}Protein">
-
+                    <variant-protein-view opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" study="{{study}}" gene="{{gene}}" protein="{{protein}}"></variant-protein-view>
                 </div>
 
             </div>
@@ -193,6 +194,8 @@
                         });
                     this.query = query;
                 }
+
+//                this.protein = "BMPR2";
             },
             checkVariant: function(variant) {
                 return variant.split(':').length > 2;
