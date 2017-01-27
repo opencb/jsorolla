@@ -101,45 +101,91 @@
                 </div>
             </div>
 
-
-            <br>
-            <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
-                <li role="presentation" class="active"><a href="#{{prefix}}Variants" role="tab" data-toggle="tab" class="variant-tab-title">Variants</a></li>
-                <li role="presentation"><a href="#{{prefix}}Protein" role="tab" data-toggle="tab" class="variant-tab-title">Protein</a></li>
-            </ul>
-
-            <div class="tab-content" style="height: 680px">
-                <div role="tabpanel" class="tab-pane active" id="{{prefix}}Variants">
-                    <div class="btn-group btn-group" role="group" aria-label="..." style="padding: 15px;float: right">
-                        <button type="button" class="btn btn-default btn-warning">All</button>
-                        <button type="button" class="btn btn-default btn-warning">Missense</button>
-                        <button type="button" class="btn btn-default btn-warning">LoF</button>
-                    </div>
-
-                    <br>
-                    <br>
-                    <variant-browser-grid project="{{project}}" study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
-                                          population-frequencies="{{populationFrequencies}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                          consequence-types="{{consequenceTypes}}" search="{{query}}" query="{{query}}" variant="{{variant}}" on-selectvariant="onSelectVariant">
-                    </variant-browser-grid>
-
-                    <div hidden$="{{checkVariant(variant)}}">
-                        <br>
-                        <h3>Please select a variant to view variant's detailed annotation</h3>
-                    </div>
-
-                    <!-- Bottom tabs with specific variant information -->
-                    <div style="padding-top: 20px" hidden$="{{!checkVariant(variant)}}">
-                        <h3>Advanced Annotation for Variant: {{variant}}</h3>
-                        <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-client="{{cellbaseClient}}" style="font-size: 12px"></cellbase-variantannotation-view>
-                    </div>
-                </div>
-
-                <div role="tabpanel" class="tab-pane" id="{{prefix}}Protein">
-                    <variant-protein-view opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" study="{{study}}" gene="{{gene}}" protein="{{protein}}"></variant-protein-view>
-                </div>
-
+            <div class="col-md-6">
+                <h3>Transcripts</h3>
+                <table class="table table-bordered" width="100%">
+                    <thead style="background-color: #eeeeee">
+                    <tr>
+                        <th>Name</th>
+                        <th>Ensembl ID</th>
+                        <th>Biotype</th>
+                        <th>Location</th>
+                        <th>Coding</th>
+                        <!--<th>cDNA</th>-->
+                        <!--<th>CDS Length</th>-->
+                        <th>Flags</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <template is="dom-repeat" items="{{geneObj.transcripts}}" as="transcript">
+                        <tr>
+                            <td>{{transcript.name}}</td>
+                            <td>
+                                <a target="_blank"
+                                   href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;t={{transcript.id}}">{{transcript.id}}</a>
+                            </td>
+                            <td>{{transcript.biotype}}</td>
+                            <td>
+                                <a target="_blank"
+                                   href="http://genomemaps.org/?region={{transcript.chromosome}}:{{transcript.start}}-{{transcript.end}}">
+                                    {{transcript.chromosome}}:{{transcript.start}}-{{transcript.end}}
+                                </a>
+                            </td>
+                            <td>
+                                <a target="_blank"
+                                   href="http://genomemaps.org/?region={{transcript.chromosome}}:{{transcript.genomicCodingStart}}-{{transcript.genomicCodingEnd}}">
+                                    {{transcript.genomicCodingStart}}-{{transcript.genomicCodingEnd}}
+                                </a>
+                            </td>
+                            <!--<td>-->
+                            <!--{{transcript.cdnaCodingStart}}-{{transcript.cdnaCodingEnd}}-->
+                            <!--</td>-->
+                            <!--<td>{{transcript.cdsLength}}</td>-->
+                            <td>{{transcript.annotationFlags}}</td>
+                        </tr>
+                    </template>
+                    </tbody>
+                </table>
             </div>
+        </div>
+
+        <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist" style="padding-top: 200px">
+            <li role="presentation" class="active"><a href="#{{prefix}}Variants" role="tab" data-toggle="tab" class="variant-tab-title">Variants</a></li>
+            <li role="presentation"><a href="#{{prefix}}Protein" role="tab" data-toggle="tab" class="variant-tab-title">Protein</a></li>
+        </ul>
+
+        <div class="tab-content" style="height: 680px">
+            <div role="tabpanel" class="tab-pane active" id="{{prefix}}Variants">
+                <div class="btn-group btn-group" role="group" aria-label="..." style="padding: 15px;float: right">
+                    <button type="button" class="btn btn-default btn-warning">All</button>
+                    <button type="button" class="btn btn-default btn-warning">Missense</button>
+                    <button type="button" class="btn btn-default btn-warning">LoF</button>
+                </div>
+
+                <br>
+                <br>
+                <variant-browser-grid project="{{project}}" study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
+                                      population-frequencies="{{populationFrequencies}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                      consequence-types="{{consequenceTypes}}" search="{{query}}" query="{{query}}" variant="{{variant}}" on-selectvariant="onSelectVariant">
+                </variant-browser-grid>
+
+                <div hidden$="{{checkVariant(variant)}}">
+                    <br>
+                    <h3>Please select a variant to view variant's detailed annotation</h3>
+                </div>
+
+                <!-- Bottom tabs with specific variant information -->
+                <div style="padding-top: 20px" hidden$="{{!checkVariant(variant)}}">
+                    <h3>Advanced Annotation for Variant: {{variant}}</h3>
+                    <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-client="{{cellbaseClient}}" style="font-size: 12px"></cellbase-variantannotation-view>
+                </div>
+            </div>
+
+            <div role="tabpanel" class="tab-pane" id="{{prefix}}Protein">
+                <variant-protein-view opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" study="{{study}}" gene="{{gene}}" protein="{{protein}}"></variant-protein-view>
+            </div>
+
+        </div>
 
         </div>
     </template>
