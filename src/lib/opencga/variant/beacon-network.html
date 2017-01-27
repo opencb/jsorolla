@@ -15,7 +15,14 @@
                 <template is="dom-repeat" items="{{results}}">
                     <tr>
                         <td>{{item.name}}</td>
-                        <td>{{item.response}}</td>
+                        <!--if response is false, display in black-->
+                        <template is="dom-if" if="{{!item.response}}">
+                            <td>{{item.response}}</td>
+                        </template>
+                        <!--if response is true, display in red-->
+                        <template is="dom-if" if="{{item.response}}">
+                            <td style="color: red">{{item.response}}</td>
+                        </template>
                     </tr>
                 </template>
                 </tbody>
