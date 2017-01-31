@@ -23,25 +23,9 @@
         <div>
             <div class="block">
                 <label class="align-left">ID</label>
-                <div class="align-right">{{data.id}}</div> <br>
+                <div class="align-right"><a target="_blank" href="http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v={{data.id}}">{{data.id}}</a></div> <br>
             </div>
-            <div class="block">
-                <label class="align-left">Alleles</label>
-                <div class="align-right">{{data.reference}}/{{data.alternate}}</div> <br>
-            </div>
-            <div class="block">
-                <label class="align-left">Location</label>
-                <div class="align-right">{{data.chromosome}}:{{data.start}}-{{data.end}}</div> <br>
-            </div>
-            <div class="block">
-                <label class="align-left">Type</label>
-                <div class="align-right">{{data.type}}</div> <br>
-            </div>
-            <div class="block">
-                <label class="align-left">Most Severe Consequence Type</label>
-                <div class="align-right">{{data.displayConsequenceType}}</div> <br>
-            </div>
-            <div class="block">
+            <div class="block" hidden="{{isDataEmpty(data.hgvs)}}">
                 <label class="align-left">HGVS</label>
                 <div class="align-right">
                     <template is="dom-repeat" items="{{data.hgvs}}">
@@ -50,31 +34,31 @@
                 </div> <br>
             </div>
             <div class="block">
+                <label class="align-left">Alleles</label>
+                <div class="align-right">{{data.reference}}/{{data.alternate}}</div> <br>
+            </div>
+            <div class="block">
+                <label class="align-left">Location</label>
+                <div class="align-right"><a target="_blank" href="http://genomemaps.org/?region={{data.chromosome}}:{{data.start}}">
+                    {{data.chromosome}}:{{data.start}}<div hidden="{{isDataEmpty(data.end)}}">-{{data.end}}</div></a></div> <br>
+            </div>
+            <div class="block" hidden="{{isDataEmpty(data.type)}}">
+                <label class="align-left">Type</label>
+                <div class="align-right">{{data.type}}</div> <br>
+            </div>
+            <div class="block" hidden="{{isDataEmpty(data.ancestralAllele)}}">
                 <label class="align-left">Ancestral Allele</label>
                 <div class="align-right">{{data.ancestralAllele}}</div> <br>
             </div>
-            <div class="block">
+            <div class="block" hidden="{{isDataEmpty(data.minorAlleleFreq)}}">
                 <label class="align-left">MAF</label>
                 <div class="align-right">{{data.minorAlleleFreq}} ({{data.minorAllele}})</div> <br>
             </div>
-            <!--<div class="block">-->
-                <!--<label class="align-left">Population Frequency</label>-->
-                <!--<div class="align-right">-->
-                    <!--&lt;!&ndash;<div id="{{prefix}}Container"></div>&ndash;&gt;-->
-                    <!--<div id="{{prefix}}Container" style="min-width: 400px; max-width: 600px; height: 400px; margin: 0 auto"></div>-->
-                    <!--&lt;!&ndash;<template is="dom-repeat" items="{{data.populationFrequencies}}" as="popFreq">&ndash;&gt;-->
-                        <!--&lt;!&ndash;<template is="dom-if" if="{{checkforAll(popFreq)}}">&ndash;&gt;-->
-                            <!--&lt;!&ndash;{{popFreq.study}}: <b><i>{{popFreq.population}}</i></b> - {{popFreq.altAlleleFreq}} &nbsp;&ndash;&gt;-->
-                            <!--&lt;!&ndash;<template is="dom-repeat" items="{{minimumFreq}}" as="minFreq">&ndash;&gt;-->
-                                <!--&lt;!&ndash;<template is="dom-if" if="{{checkSameStudy(popFreq, minFreq)}}">&ndash;&gt;-->
-                                    <!--&lt;!&ndash;<b><i>Minimum:</i></b> {{minFreq.freq}} ({{minFreq.population}})&ndash;&gt;-->
-                                <!--&lt;!&ndash;</template>&ndash;&gt;-->
-                            <!--&lt;!&ndash;</template>&ndash;&gt;-->
-                            <!--&lt;!&ndash;<br>&ndash;&gt;-->
-                        <!--&lt;!&ndash;</template>&ndash;&gt;-->
-                    <!--&lt;!&ndash;</template>&ndash;&gt;-->
-                <!--</div> <br>-->
-            <!--</div>-->
+            <div class="block">
+                <label class="align-left">Most Severe Consequence Type</label>
+                <div class="align-right">{{data.displayConsequenceType}} <span hidden="{{isDataEmpty(ctGene)}}">(<b>Gene</b> : {{ctGene}}, <b>Transcript</b> : {{ctTranscript}})</span></div> <br>
+            </div>
+
 
             <div class="block">
                 <label class="align-left">Variant Trait Association</label>
@@ -151,19 +135,33 @@
                     this.prefix = "annotation" + Utils.randomString(6);
                 }
             },
-            checkforAll: function(populationFreq) {
-                return populationFreq.population == "ALL";
-            },
-            checkSameStudy: function(popFreq, minFreq) {
-                return !!(popFreq.study == minFreq.study && minFreq.population != "ALL");
-            },
             isTranscriptAvailable: function(item) {
                 return item != "";
+            },
+            isDataEmpty: function (data) {
+                return typeof data === "undefined";
             },
             variantAnnotationChanged: function(neo, old) {
                 let _this = this;
 
-                if (typeof this.data !== "undefined") {
+                if (typeof _this.data !== "undefined") {
+                    // Consequence type
+                    if (typeof _this.data.consequenceTypes !== "undefined") {
+                        for (let i = 0; i < _this.data.consequenceTypes.length; i++) {
+                            for (let j = 0; j < _this.data.consequenceTypes[i].sequenceOntologyTerms.length; j++) {
+                                if (_this.data.displayConsequenceType === _this.data.consequenceTypes[i].sequenceOntologyTerms[j].name) {
+                                    _this.ctGene = _this.data.consequenceTypes[i].geneName;
+                                    _this.ctTranscript = _this.data.consequenceTypes[i].ensemblTranscriptId;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+
+
+
+
                     let vta = [];
                     if (_this.data.variantTraitAssociation != null) {
                         for (let i in _this.data.variantTraitAssociation) {
@@ -293,32 +291,6 @@
                             ]
                         });
                     }
-
-//                    let minimumFreq = [];
-//                    if (_this.data.populationFrequencies != null) {
-//                        let minFreq = {};
-//                        for (let i in _this.data.populationFrequencies) {
-//                            let populationFreq = _this.data.populationFrequencies[i];
-//                            if (Object.keys(minFreq).length === 0 && minFreq.constructor === Object) {
-//                                minFreq.freq = populationFreq.altAlleleFreq;
-//                                minFreq.population = populationFreq.population;
-//                                minFreq.study = populationFreq.study;
-//                            } else if (populationFreq.study == minFreq.study) {
-//                                if (populationFreq.altAlleleFreq < minFreq.freq) {
-//                                    minFreq.freq = populationFreq.altAlleleFreq;
-//                                    minFreq.population = populationFreq.population;
-//                                    minFreq.study = populationFreq.study;
-//                                }
-//                            } else {
-//                                minimumFreq.push({freq: minFreq.freq, population: minFreq.population, study: minFreq.study});
-//                                minFreq.freq = populationFreq.altAlleleFreq;
-//                                minFreq.population = populationFreq.population;
-//                                minFreq.study = populationFreq.study;
-//                            }
-//                        }
-//                        minimumFreq.push({freq: minFreq.freq, population: minFreq.population, study: minFreq.study}); // last study's minimum frequency have to be pushed
-//                    }
-//                    _this.minimumFreq = minimumFreq;
 
                 }
             }
