@@ -60,68 +60,39 @@
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
                     this.prefix = "protein" + Utils.randomString(6);
                 }
-
-                this.project = "reference_grch37";
             },
             attached: function () {
                 this.svgCanvas = $("#" + this.prefix + "SvgCanvas");
-                this._render();
+//                this._render();
             },
             _onGeneChange: function () {
-                if (typeof this.cellbaseClient !== "undefined") {
+                if (typeof this.cellbaseClient !== "undefined" && typeof this.opencgaClient !== "undefined") {
                     let _this = this;
-                    this.cellbaseClient.getGeneClient(this.gene, 'info', {exclude: "annotation,transcripts.exons"}, {cache: false})
+                    this.cellbaseClient.getProteinClient(null, 'search', {gene: _this.gene})
                         .then(function (response) {
-                            let geneObj = response.response[0].result[0];
-                            for (let i = 0; i < geneObj.transcripts.length; i++) {
-                                if (geneObj.transcripts[i].biotype == "protein_coding") {
-                                    for (let j = 0; j < geneObj.transcripts[i].xrefs.length; j++) {
-                                        if (geneObj.transcripts[i].xrefs[j].dbName == "uniprotkb_acc") {
-                                            // store all proteins
-                                            _this.protein = geneObj.transcripts[i].xrefs[j].id;
-                                            break;
+                            let proteinObjects = response.response[0].result;
+                            if (proteinObjects.length > 0 && typeof _this.project !== "undefined" && typeof _this.study !== "undefined" && typeof _this.study.alias !== "undefined") {
+                                let query = {gene: _this.gene, "annot-ct": "missense_variant", studies: _this.project + ":" + _this.study.alias, returnedStudies: _this.project + ":" + _this.study.alias};
+                                let options = {exclude: "annotation,studies.samplesdata,,studies.files", limit: 10};
+                                _this.opencgaClient.variants().query(query, options)
+                                    .then(function (variants) {
+                                        let svgSettings = {width: 2048, height: 140, proteinPositioningInterval: 3};
+                                        for (let i = 0; i < proteinObjects.length; i++) {
+                                            let svg = _this._createSvg(proteinObjects[i], variants.response[0].result, svgSettings);
+                                            let querySelector = Polymer.dom(_this.root).querySelector("#" + _this.prefix + "SvgCanvas");
+                                            querySelector.appendChild(svg);
                                         }
-                                    }
-                                }
+                                    }).catch(function (e) {
+                                    console.log(e);
+                                    });
                             }
-                        })
-                        .catch(function (e) {
-                            console.log(e);
+                        }).catch(function (e) {
+                        console.log(e);
                         });
                 }
             },
             _onProteinChange: function () {
-                if (typeof this.cellbaseClient !== "undefined") {
-                    let _this = this;
-                    // TODO: for each protein.split(,);  ==> change order: 1st. get variants, 2nd get proteins and call to SVG?
-                    this.cellbaseClient.getProteinClient(this.protein, 'info', {exclude: "reference,comment,dbReference"}, {cache: false})
-                        .then(function (response) {
-                            let proteinObj = response.response[0].result[0];
 
-                            // This must be made more secure
-                            let geneName = proteinObj.gene[0].name[0].value;
-
-                            if (typeof _this.opencgaClient !== "undefined" && typeof _this.study !== "undefined" && typeof _this.study.alias !== "undefined") {
-                                let query = {gene: geneName, "annot-ct": "missense_variant", studies: _this.project + ":" + _this.study.alias, returnedStudies: _this.project + ":" + _this.study.alias};
-                                let options = {exclude: "annotation,studies.samplesdata,,studies.files", limit: 10};
-                                _this.opencgaClient.variants().query(query, options)
-                                    .then(function(variants) {
-                                        let svg = _this._createSvg(proteinObj, variants.response[0].result);
-
-                                        let querySelector = Polymer.dom(_this.root).querySelector("#" + _this.prefix + "SvgCanvas");
-                                        querySelector.appendChild(svg);
-
-                                    })
-                                    .catch(function (e) {
-                                        console.log(e);
-                                    });
-                            }
-                        })
-                        .catch(function (e) {
-                            console.log(e);
-                        });
-
-                }
             },
             _createSvg: function (protein, variants, settings) {
                 console.log("protein")
@@ -130,8 +101,8 @@
 
                 let domains = new Set(["domain", "topological domain", "transmembrane region"]);
 
-                let svgSWidth = 2048;
-                let svgHeight = 140;
+                let svgSWidth = settings.width;
+                let svgHeight = settings.height;
 
                 let svg = SVG.create('svg', {width: svgSWidth, height: svgHeight, viewBox: "0 0 2048 140", style: "fill: white"});
                 SVG.addChild(svg, 'rect', {width: svgSWidth, height: svgHeight, style: "fill: white;stroke: black"});
@@ -149,14 +120,12 @@
 
                         if (variants[i].annotation.consequenceTypes[j].biotype == "protein_coding" && variants[i].annotation.consequenceTypes[j].geneName == this.gene) {
                             let proteinVariantAnnotation = variants[i].annotation.consequenceTypes[j].proteinVariantAnnotation;
-                            if (variantPositions.has(proteinVariantAnnotation.position - 2)
-                                || variantPositions.has(proteinVariantAnnotation.position -1)
-                                || variantPositions.has(proteinVariantAnnotation.position)
-                                || variantPositions.has(proteinVariantAnnotation.position + 1)
-                                || variantPositions.has(proteinVariantAnnotation.position + 2)) {
-                                verticalOffset = -15;
+                            for (let z = -(settings.proteinPositioningInterval); z <= settings.proteinPositioningInterval; z++) {
+                                if (variantPositions.has(proteinVariantAnnotation.position + z)) {
+                                    verticalOffset = -15;
+                                    break;
+                                }
                             }
-
                             SVG.addChild(gVariants, 'line', {
                                 x1: 20 + proteinVariantAnnotation.position,
                                 y1: center - 20 + verticalOffset,

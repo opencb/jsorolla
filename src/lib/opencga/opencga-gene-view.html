@@ -100,53 +100,6 @@
                     </table>
                 </div>
             </div>
-
-            <!--<div class="col-md-6">-->
-                <!--<h3>Transcripts</h3>-->
-                <!--<table class="table table-bordered" width="100%">-->
-                    <!--<thead style="background-color: #eeeeee">-->
-                    <!--<tr>-->
-                        <!--<th>Name</th>-->
-                        <!--<th>Ensembl ID</th>-->
-                        <!--<th>Biotype</th>-->
-                        <!--<th>Location</th>-->
-                        <!--<th>Coding</th>-->
-                        <!--&lt;!&ndash;<th>cDNA</th>&ndash;&gt;-->
-                        <!--&lt;!&ndash;<th>CDS Length</th>&ndash;&gt;-->
-                        <!--<th>Flags</th>-->
-                    <!--</tr>-->
-                    <!--</thead>-->
-                    <!--<tbody>-->
-                    <!--<template is="dom-repeat" items="{{geneObj.transcripts}}" as="transcript">-->
-                        <!--<tr>-->
-                            <!--<td>{{transcript.name}}</td>-->
-                            <!--<td>-->
-                                <!--<a target="_blank"-->
-                                   <!--href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;t={{transcript.id}}">{{transcript.id}}</a>-->
-                            <!--</td>-->
-                            <!--<td>{{transcript.biotype}}</td>-->
-                            <!--<td>-->
-                                <!--<a target="_blank"-->
-                                   <!--href="http://genomemaps.org/?region={{transcript.chromosome}}:{{transcript.start}}-{{transcript.end}}">-->
-                                    <!--{{transcript.chromosome}}:{{transcript.start}}-{{transcript.end}}-->
-                                <!--</a>-->
-                            <!--</td>-->
-                            <!--<td>-->
-                                <!--<a target="_blank"-->
-                                   <!--href="http://genomemaps.org/?region={{transcript.chromosome}}:{{transcript.genomicCodingStart}}-{{transcript.genomicCodingEnd}}">-->
-                                    <!--{{transcript.genomicCodingStart}}-{{transcript.genomicCodingEnd}}-->
-                                <!--</a>-->
-                            <!--</td>-->
-                            <!--&lt;!&ndash;<td>&ndash;&gt;-->
-                            <!--&lt;!&ndash;{{transcript.cdnaCodingStart}}-{{transcript.cdnaCodingEnd}}&ndash;&gt;-->
-                            <!--&lt;!&ndash;</td>&ndash;&gt;-->
-                            <!--&lt;!&ndash;<td>{{transcript.cdsLength}}</td>&ndash;&gt;-->
-                            <!--<td>{{transcript.annotationFlags}}</td>-->
-                        <!--</tr>-->
-                    <!--</template>-->
-                    <!--</tbody>-->
-                <!--</table>-->
-            <!--</div>-->
         </div>
 
         <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
@@ -182,7 +135,7 @@
             </div>
 
             <div role="tabpanel" class="tab-pane" id="{{prefix}}Protein">
-                <variant-protein-view opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" study="{{study}}" gene="{{gene}}" protein="{{protein}}"></variant-protein-view>
+                <variant-protein-view opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" project="{{project}}" study="{{study}}" gene="{{gene}}" protein="{{protein}}"></variant-protein-view>
             </div>
 
         </div>
@@ -198,6 +151,9 @@
                 },
                 opencgaClient: {
                     type: Object
+                },
+                project: {
+                    type: String
                 },
                 study: {
                     type: Object
