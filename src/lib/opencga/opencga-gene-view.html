@@ -110,9 +110,9 @@
         <div class="tab-content" style="height: 680px">
             <div role="tabpanel" class="tab-pane active" id="{{prefix}}Variants">
                 <div class="btn-group btn-group" role="group" aria-label="..." style="padding: 15px;float: right">
-                    <button type="button" class="btn btn-default btn-warning">All</button>
-                    <button type="button" class="btn btn-default btn-warning">Missense</button>
-                    <button type="button" class="btn btn-default btn-warning">LoF</button>
+                    <button type="button" class="btn btn-default btn-warning" on-click="updateQuery">All</button>
+                    <button type="button" class="btn btn-default btn-warning" on-click="updateQuery">Missense</button>
+                    <button type="button" class="btn btn-default btn-warning" on-click="updateQuery">LoF</button>
                 </div>
 
                 <br>
@@ -198,6 +198,24 @@
                 }
 
 //                this.protein = "BMPR2";
+            },
+            updateQuery: function (e) {
+                let query = this.query;
+                switch (e.target.textContent) {
+                    case "Missense":
+                        query["annot-ct"] = "missense_variant";
+                        break;
+                    case "LoF":
+                        query["annot-ct"] = "transcript_ablation,splice_acceptor_variant,splice_donor_variant,stop_gained,frameshift_variant," +
+                            "stop_lost,start_lost,transcript_amplification,inframe_insertion,inframe_deletion";
+                        break;
+                    default:
+                        if (typeof query["annot-ct"] !== "undefined") {
+                            delete query["annot-ct"];
+                        }
+                        break;
+                }
+                this.query = Object.assign({}, query);
             },
             checkVariant: function(variant) {
                 return variant.split(':').length > 2;

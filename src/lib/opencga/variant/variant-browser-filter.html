@@ -807,7 +807,7 @@
                                     this.$$("#" + this.prefix + "SiftInput").value = value.split(/[<=>]+/)[1];
                                     this.$$("#" + this.prefix + "SiftOperator").value = value.split(/[-0-9.]+/)[0];
                                 } else {
-                                    this.$$("#" + this.prefix + "SiftValues").value = value.split('=')[1];
+                                    this.$$("#" + this.prefix + "SiftValues").value = value.split('==')[1];
                                 }
                                 this.$$("#" + this.prefix + "SiftInput").disabled = !(value.startsWith("<") || value.startsWith(">"));
                                 this.$$("#" + this.prefix + "SiftOperator").disabled = !(value.startsWith("<") || value.startsWith(">"));
@@ -817,7 +817,7 @@
                                     this.$$("#" + this.prefix + "PolyphenInput").value = value.split(/[<=>]+/)[1];
                                     this.$$("#" + this.prefix + "PolyphenOperator").value = value.split(/[-0-9.]+/)[0];
                                 } else {
-                                    this.$$("#" + this.prefix + "PolyphenValues").value = value.split('=')[1];
+                                    this.$$("#" + this.prefix + "PolyphenValues").value = value.split('==')[1];
                                 }
                                 this.$$("#" + this.prefix + "PolyphenInput").disabled = !(value.startsWith("<") || value.startsWith(">"));
                                 this.$$("#" + this.prefix + "PolyphenOperator").disabled = !(value.startsWith("<") || value.startsWith(">"));
@@ -978,7 +978,7 @@
                     sift = "sift" + this.$$("#" + this.prefix + "SiftOperator").value + this.$$("#" + this.prefix + "SiftInput").value;
                     pss.push(sift);
                 } else if (this.$$("#" + this.prefix + "SiftValues").value != "score") {
-                    sift = "sift" + "=" + this.$$("#" + this.prefix + "SiftValues").value;
+                    sift = "sift" + "==" + this.$$("#" + this.prefix + "SiftValues").value;
                     pss.push(sift);
                 }
                 let polyphen = "";
@@ -986,8 +986,12 @@
                     polyphen = "polyphen" + this.$$("#" + this.prefix + "PolyphenOperator").value + this.$$("#" + this.prefix + "PolyphenInput").value;
                     pss.push(polyphen);
                 } else if (this.$$("#" + this.prefix + "PolyphenValues").value != "score") {
-                    polyphen = "polyphen" + "=" + this.$$("#" + this.prefix + "PolyphenValues").value;
-                    pss.push(polyphen);
+                    let value = this.$$("#" + this.prefix + "PolyphenValues").value;
+                    let polyphenValues = value.split(',');
+                    for (let i = 0; i < polyphenValues.length; i++) {
+                        polyphen = "polyphen" + "==" + polyphenValues[i];
+                        pss.push(polyphen);
+                    }
                 }
                 if ((this.$$("#" + this.prefix + "SiftInput").value != "" && this.$$("#" + this.prefix + "PolyphenInput").value != "") ||
                     (this.$$("#" + this.prefix + "SiftValues").value != "score" && this.$$("#" + this.prefix + "PolyphenInput").value != "") ||
