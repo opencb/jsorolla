@@ -18,78 +18,84 @@
 <dom-module id="opencga-samples-filter">
     <template>
         <style is="custom-style" include="jso-styles">
-            .border-padding {
-                padding-top: 5px;
-                padding-right: 3px;
-                padding-bottom: 5px;
-                padding-left: 8px;
-            }
+            /*.border-padding {*/
+                /*padding-top: 5px;*/
+                /*padding-right: 3px;*/
+                /*padding-bottom: 5px;*/
+                /*padding-left: 8px;*/
+            /*}*/
         </style>
 
         <div>
 
             <!--<button type="button" class="btn btn-default" style="margin-bottom: 15px;" on-click="clear">Clear all-->
             <!--</button>-->
+            <div style="width: 60%;margin: 0 auto">
+                <button type="button" class="btn btn-primary" style="width: 100%" on-click="onSearch">
+                    <i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px 0px 5px"></i>
+                    Search
+                </button>
+            </div>
+            <br>
 
-            <div class="panel-group" id="{{prefix}}Accordion">
+            <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true">
                 <!--Sample name-->
                 <div class="panel panel-default">
-                    <div class="panel-heading">
+                    <div class="panel-heading" role="tab" id="{{prefix}}SampleGeneralFilterHeading">
                         <h4 class="panel-title">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
+                               href="#{{prefix}}General" aria-expanded="true" aria-controls="{{prefix}}General">
+                                General
+                                <div style="float: right" class="tooltip-div">
+                                    <a data-toggle="tooltip" title="Generic sample filters">
+                                        <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                    </a>
+                                </div>
+                            </a>
                             <!--<i hidden$="{{!sampleNameSearch.length}}" class="fa fa-check" aria-hidden="true" style="color: green;"></i>-->
                             <!--<i hidden$="{{!sampleSourceSearch.length}}" class="fa fa-check" aria-hidden="true"-->
                                <!--style="color: green;"></i>-->
-                            <a href data-toggle="collapse" data-parent$="#{{prefix}}Accordion" href$="#{{prefix}}SampleNameCollapse">
-                                Name
-                            </a>
+                            <!--<a href data-toggle="collapse" data-parent$="#{{prefix}}Accordion" href$="#{{prefix}}SampleNameCollapse">-->
+                                <!--Name-->
+                            <!--</a>-->
                         </h4>
                     </div>
-                    <div id="{{prefix}}SampleNameCollapse" class="panel-collapse">
+                    <div id="{{prefix}}SampleGeneralFilter" class="panel-collapse" role="tabpanel"
+                         aria-labelledby="{{prefix}}SampleGeneralFilterHeading">
                         <div class="form-group has-feedback panel-body">
-                            <!--Sample Name-->
-                            Name:
-                            <input type="text" id="{{prefix}}SampleName" class="form-control" placeholder="Search by sample name"
-                                   on-keyup="calculateFilters" value="{{sampleNameSearch::input}}">
-                            <i class="fa fa-search form-control-feedback" aria-hidden="true" style="padding: 15px; margin-right: 20px; margin-top: 18px"></i>
-                            <br>
-                            <!--Sample source-->
-                            File:
-                            <input type="text" id="{{prefix}}SampleSource" class="form-control" placeholder="Search by sample source"
-                                   on-keyup="calculateFilters" value="{{sampleSourceSearch::input}}">
-                            <i class="fa fa-search form-control-feedback" aria-hidden="true" style="padding: 15px; margin-right: 20px; margin-top: 92px;"></i>
+                            Sample name:
+                            <textarea id="{{prefix}}NameTextarea" class="form-control clearable" rows="3"
+                                      placeholder="HG01879, HG01880, HG01881..."
+                                      name="name" on-keyup="calculateFilters"></textarea>
+
+                            <br> Individual name:
+                            <textarea id="{{prefix}}IndividualTextarea" class="form-control clearable" rows="3"
+                                      placeholder="Smith, Grant ..."
+                                      name="individual" on-keyup="calculateFilters"></textarea>
                         </div>
                     </div>
                 </div>
 
                 <div class="panel panel-default">
-                    <div class="panel-heading">
+                    <div class="panel-heading" role="tab" id="{{prefix}}SampleClinicalFilterHeading">
                         <h4 class="panel-title">
-                            <!--<i hidden$="{{!filteredVariables.variables.length}}" class="fa fa-check" aria-hidden="true" style="color: green;"></i>-->
-                            <a href data-toggle="collapse" data-parent$="#{{prefix}}Accordion" href$="#{{prefix}}SampleVariablesCollapse">
-                                Variables
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
+                               href="#{{prefix}}ClinicalCollapse" aria-expanded="true" aria-controls="{{prefix}}ClinicalCollapse">
+                                Clinical data
+                                <div style="float: right" class="tooltip-div">
+                                    <a data-toggle="tooltip" title="Clinical data filters">
+                                        <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                    </a>
+                                </div>
                             </a>
                         </h4>
                     </div>
-                    <div id="{{prefix}}SampleVariablesCollapse" class="panel-collapse collapse">
+                    <div id="{{prefix}}ClinicalCollapse" class="panel-collapse" role="tabpanel"
+                         aria-labelledby="{{prefix}}ClinicalCollapse">
                         <div class="panel-body">
                             <opencga-annotation-filter-widget opencga-client="{{opencgaClient}}" study-id="{{studyId}}"
                                                               filtered-variables="{{filteredVariables}}">
                             </opencga-annotation-filter-widget>
-
-                            <!--<div hidden$="{{!filteredVariables.variables.length}}" class="panel panel-success">-->
-                                <!--<div class="panel-heading">Active filters <span class="badge">{{filteredVariables.variables.length}}</span>-->
-                                <!--</div>-->
-                                <!--<ul class="list-group" style="max-height: 150px; overflow-y: auto;">-->
-                                    <!--<template is="dom-repeat" items="{{filteredVariables.variables}}" as="filter">-->
-                                        <!--<li class="list-group-item">-->
-                                            <!--<a on-click="removeVariableFilter" class="btn btn-default" data-variable="{{filter}}">-->
-                                                <!--<i class="fa fa-times add-right-margin" aria-hidden="true"></i>-->
-                                                <!--{{filter.name}}: {{filter.value}}-->
-                                            <!--</a>-->
-                                        <!--</li>-->
-                                    <!--</template>-->
-                                <!--</ul>-->
-                            <!--</div>-->
                         </div>
                     </div>
                 </div>
@@ -112,46 +118,53 @@
                 },
                 filters: {
                     type: Object,
+                    notify: true,
+                    observer: "onFilterUpdate"
+                },
+                search: {
+                    type: Object,
                     notify: true
                 },
-                update: {
-                    type: Object,
-                    value: {},
-                    observer: "updateFilter"
-                }
+//                update: {
+//                    type: Object,
+//                    value: {},
+//                    observer: "updateFilter"
+//                }
             },
             observers: [
                 'calculateFilters(filteredVariables.variables.*)'
             ],
+
             ready: function() {
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
                     this.prefix = "sample" + Utils.randomString(6);
                 }
             },
-            updateFilter: function () {
-                this.filters = this.update;
-                if (typeof this.update.name === "undefined") {
-                    $("#" + this.prefix + "SampleName").val("");
-                    this.sampleNameSearch = "";
-                }
 
-                if (typeof this.update.source === "undefined") {
-                    $("#" + this.prefix + "SampleSource").val("");
-                    this.sampleSourceSearch = "";
-                }
-
-                if (typeof this.update.annotation !== "undefined") {
-                    for (let i = 0; i < this.update.annotation.length; i++) {
-                        for (let j = 0; j < this.filteredVariables.variables.length; j++) {
-                            if (this.update.annotation[i].name != this.filteredVariables.variables[j].name) {
-                                this.splice("filteredVariables.variables", j, 1);
-                            }
-                        }
-                    }
-                } else {
-                    this.set("filteredVariables.variables", []);
-                }
-            },
+//            updateFilter: function () {
+//                this.filters = this.update;
+//                if (typeof this.update.name === "undefined") {
+//                    $("#" + this.prefix + "SampleName").val("");
+//                    this.sampleNameSearch = "";
+//                }
+//
+//                if (typeof this.update.source === "undefined") {
+//                    $("#" + this.prefix + "SampleSource").val("");
+//                    this.sampleSourceSearch = "";
+//                }
+//
+//                if (typeof this.update.annotation !== "undefined") {
+//                    for (let i = 0; i < this.update.annotation.length; i++) {
+//                        for (let j = 0; j < this.filteredVariables.variables.length; j++) {
+//                            if (this.update.annotation[i].name != this.filteredVariables.variables[j].name) {
+//                                this.splice("filteredVariables.variables", j, 1);
+//                            }
+//                        }
+//                    }
+//                } else {
+//                    this.set("filteredVariables.variables", []);
+//                }
+//            },
 //            removeVariableFilter: function(e) {
 //                for (let i = 0; i < this.filteredVariables.variables.length; i++) {
 //                    if (e.target.dataVariable === this.filteredVariables.variables[i]) {
@@ -159,16 +172,79 @@
 //                    }
 //                }
 //            },
+
+            /**
+             * If filters have been removed, clean the values from the forms.
+             */
+            onFilterUpdate: function () {
+                this.updateForms(this.filters);
+            },
+
+            updateForms: function(filters) {
+                // This is just to avoid entering here when it has just been initialized
+                if (this.prefix === undefined) {
+                    return;
+                }
+
+                let sampleName = this.$$("#" + this.prefix + "NameTextarea").value;
+                if (!filters.hasOwnProperty("name") && sampleName !== undefined && sampleName.length > 0) {
+                    this.$$("#" + this.prefix + "NameTextarea").value = "";
+                }
+
+                let individual = this.$$("#" + this.prefix + "IndividualTextarea").value;
+                if (!filters.hasOwnProperty("individual.id") && individual !== undefined && individual.length > 0) {
+                    this.$$("#" + this.prefix + "IndividualTextarea").value = "";
+                }
+
+                if (this.filteredVariables.variables.length > 0) {
+                    if (!filters.hasOwnProperty("annotation")) {
+                        // Remove the filter variableSetId as it won't make more sense.
+//                        delete filters.variableSetId;
+                        this.set("filteredVariables.variables", []);
+
+                    } else if (filters.annotation.length < this.filteredVariables.variables.length) {
+                        debugger
+                        let tmpVariables = [];
+                        filters.annotation.forEach(function(variable) {
+                            tmpVariables.push(variable);
+                        });
+
+                        this.set("filteredVariables.variables", tmpVariables);
+                    }
+//                    } else if (!filters.hasOwnProperty("variableSetId")) {
+//                        // They have removed the variableSetId so all the annotations should be out
+//                        delete filters.variables;
+//                        this.filteredVariables.variables = [];
+//                    }
+                }
+
+            },
+
+            /**
+             * Read from the values in the forms, and sets the filters.
+             */
             calculateFilters: function() {
                 let filters = {};
-                if (this.sampleNameSearch !== undefined && this.sampleNameSearch.length > 0) {
-                    filters["name"] = "~" + this.sampleNameSearch;
+                let sampleName = "";
+                let individual = "";
+
+                if (this.$$("#" + this.prefix + "NameTextarea") !== null) {
+                    sampleName = this.$$("#" + this.prefix + "NameTextarea").value;
                 }
-                if (this.sampleSourceSearch !== undefined && this.sampleSourceSearch.length > 0) {
-                    filters["source"] = "~" + this.sampleSourceSearch;
+                if (this.$$("#" + this.prefix + "IndividualTextarea") !== null) {
+                    individual = this.$$("#" + this.prefix + "IndividualTextarea").value;
                 }
+
+                if (sampleName !== undefined && sampleName.length > 0) {
+                    filters["name"] = "~" + sampleName;
+                }
+
+                if (individual !== undefined && individual.length > 0) {
+                    filters["individual.id"] = "~" + individual;
+                }
+
                 if (this.filteredVariables.variables !== undefined && this.filteredVariables.variables.length > 0) {
-                    filters["variableSetId"] = this.filteredVariables.variableSet;
+//                    filters["variableSetId"] = this.filteredVariables.variableSet;
                     let annotations = [];
                     this.filteredVariables.variables.forEach(function(variable) {
                         annotations.push(variable);
@@ -176,6 +252,45 @@
                     filters["annotation"] = annotations;
                 }
                 this.filters = filters;
+            },
+
+            onSearch: function () {
+                // Convert the filters to an objectParam that can be directly send to the sample search
+                let filterParams = {};
+
+                let keys = Object.keys(this.filters);
+                for (let i = 0; i < keys.length; i++) {
+                    // Some filters can come as an array of things.
+                    // annotation = [{name: name, value: Smith}, {name: age, value: >5}]
+                    if (Array.isArray(this.filters[keys[i]])) {
+                        let myArray = this.filters[keys[i]];
+
+                        let myArrayFilter = [];
+
+                        // The elements in the array can be either an object
+                        if (Object.getPrototypeOf(myArray[0]) === Object.prototype) {
+                            let myArray = this.filters[keys[i]];
+                            for (let j = 0; j < myArray.length; j++) {
+                                // TODO: We have to check if the value already has an operand
+                                myArrayFilter.push(myArray[j].name + "=" + myArray[j].value);
+                            }
+                        } else {
+                            // Or an array of strings or numbers
+                            myArrayFilter = this.filters[keys[i]];
+                        }
+
+                        filterParams[keys[i]] = myArrayFilter.join(";");
+                    } else {
+                        filterParams[keys[i]] = this.filters[keys[i]];
+                    }
+                }
+
+                if (this.filters.hasOwnProperty("annotation")) {
+                    // Add the variable set whose annotations will be queried
+                    filterParams["variableSetId"] = this.filteredVariables.variableSet;
+                }
+
+                this.search = filterParams;
             }
         });
     </script>

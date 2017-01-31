@@ -22,11 +22,13 @@
 
         <div class="col-md-2">
             <br>
-            <opencga-files-filter opencga-client="{{opencgaClient}}" study-id="{{studyId}}" files="{{files}}" filters="{{filters}}"></opencga-files-filter>
+            <opencga-files-filter opencga-client="{{opencgaClient}}" filters="{{filters}}" search="{{search}}">
+            </opencga-files-filter>
         </div>
 
         <div class="col-md-10">
-            <opencga-files-view opencga-client="{{opencgaClient}}" study-id="{{studyId}}" files="{{files}}" filters="{{filters}}"></opencga-files-view>
+            <opencga-files-view opencga-client="{{opencgaClient}}" study-id="{{studyId}}" filters="{{filters}}"
+                                search="{{search}}"></opencga-files-view>
         </div>
     </template>
     <script>
@@ -39,10 +41,10 @@
                 studyId: {
                     type: Number
                 },
-                files: {
-                    type: Array
-                },
                 filters: {
+                    type: Object
+                },
+                search: {
                     type: Object
                 }
             }

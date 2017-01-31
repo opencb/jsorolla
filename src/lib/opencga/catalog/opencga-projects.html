@@ -10,13 +10,13 @@
 
         <div>
             <h2 hidden$="{{hideText}}" class="center">Projects</h2>
-            <br>
+            <!--<br>-->
             <table class="table table-bordered center">
                 <thead>
                     <!--<tr class="table-header" style="background-color: #eee">-->
                     <tr class="table-header bg-primary">
                         <th>Project</th>
-                        <th>Studies</th>
+                        <th>Study</th>
                         <th>Date</th>
                         <th>Files</th>
                         <th>Samples</th>
@@ -115,7 +115,7 @@
                 }
             },
             _formatDate: function(dateStr) {
-                return moment(parseInt(dateStr)).format('D MMM YY');
+                return moment(dateStr, "YYYYMMDDHHmmss").format('D MMM YY');
             },
             _exists: function(data) {
                 return data !== undefined;

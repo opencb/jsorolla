@@ -13,6 +13,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+<link rel="import" href="../../variant/variant-active-filters.html">
 <link rel="import" href="opencga-sample-comparator.html">
 <dom-module id="opencga-samples-view">
     <template>
@@ -28,24 +29,25 @@
             }
         </style>
         <br>
-        <div class="panel panel-default">
-            <div class="panel-body">
-                <button type="button" class="btn btn-primary" on-click="clear"><i class="fa fa-refresh" aria-hidden="true" style="padding-right: 5px"></i>
-                    Clear
-                </button>
+        <variant-active-filters opencga-client="{{opencgaClient}}" query="{{filters}}" search="{{search}}"></variant-active-filters>
+        <!--<div class="panel panel-default">-->
+            <!--<div class="panel-body">-->
+                <!--<button type="button" class="btn btn-primary" on-click="clear"><i class="fa fa-refresh" aria-hidden="true" style="padding-right: 5px"></i>-->
+                    <!--Clear-->
+                <!--</button>-->
 
-                <span style="padding: 0px 25px 0px 25px">
-                    <template is="dom-if" if="{{filtersEmpty}}">
-                        <label>No filters selected</label>
-                    </template>
+                <!--<span style="padding: 0px 25px 0px 25px">-->
+                    <!--<template is="dom-if" if="{{filtersEmpty}}">-->
+                        <!--<label>No filters selected</label>-->
+                    <!--</template>-->
 
-                    <template is="dom-repeat" items="{{filtersList}}">
-                        <button type="button" class="btn btn-warning btn-sm filter-button" on-click="onFilterDelete" data-filter-category="{{item.category}}"
-                                data-filter-name="{{item.name}}" data-filter-value="{{item.text}}">{{item.name}} = {{item.text}}</button>
-                    </template>
-                </span>
-            </div>
-        </div>
+                    <!--<template is="dom-repeat" items="{{filtersList}}">-->
+                        <!--<button type="button" class="btn btn-warning btn-sm filter-button" on-click="onFilterDelete" data-filter-category="{{item.category}}"-->
+                                <!--data-filter-name="{{item.name}}" data-filter-value="{{item.text}}">{{item.name}} = {{item.text}}</button>-->
+                    <!--</template>-->
+                <!--</span>-->
+            <!--</div>-->
+        <!--</div>-->
         <table id="samplestable" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
                data-checkbox-header="false" data-maintain-selected="true" style="cursor: pointer;">
             <thead style="background-color: #eee"></thead>
@@ -55,22 +57,24 @@
         <div style="padding: 10px;height: 530px" class="row">
 
             <ul id="sampleViewTabs" class="nav nav-tabs" role="tablist">
-                <li role="presentation" class="active"><a href="#sampleViewClinicalData" role="tab" data-toggle="tab">ClinicalData</a></li>
+                <li role="presentation" class="active"><a href="#sampleViewClinicalData" role="tab" data-toggle="tab">Clinical data</a></li>
                 <li role="presentation"><a href="#sampleViewIndividual" role="tab" data-toggle="tab">Individuals</a></li>
                 <li role="presentation"><a href="#sampleViewAcl" role="tab" data-toggle="tab">ACL</a></li>
             </ul>
 
             <div class="tab-content">
                 <div id="sampleViewClinicalData" role="tabpanel" class="tab-pane active">
-                    <opencga-sample-comparator opencga-client="{{opencgaClient}}" samples="{{samples}}" variable-sets="{{variableSets}}"></opencga-sample-comparator>
+                    <opencga-sample-comparator opencga-client="{{opencgaClient}}" samples="{{samples}}" variable-sets="{{variableSets}}">
+
+                    </opencga-sample-comparator>
                 </div>
 
                 <div id="sampleViewIndividual" role="tabpanel" class="tab-pane">
-
+                    Pending...
                 </div>
 
                 <div id="sampleViewAcl" role="tabpanel" class="tab-pane">
-
+                    Pending...
                 </div>
             </div>
         </div>
@@ -95,15 +99,21 @@
                 },
                 filters: {
                     type: Object,
-                    observer: 'renderFromServer',
                     notify: true
+                },
+                search: {
+                    type: Object,
+                    value: {},
+                    observer: 'renderFromServer'
                 },
                 samples: {
                     type: Array,
-                    notify: true,
-                    observer: 'sampleChanged'
+                    notify: true
                 }
             },
+//            observers: [
+//                'renderFromServer(search, studyId)'
+//            ],
 
             ready: function () {
                 this.filtersEmpty = true;
@@ -133,35 +143,14 @@
             },
             clear: function () {
                 this.filters = {};
-                this.fire("update", {filter : this.filters});
+//                this.fire("update", {filter : this.filters});
                 this.filtersList = [];
                 this.filtersEmpty = true;
             },
             renderFromServer: function () {
+                let filters = this.search;
+
                 this.samples = [];
-                this.individuals = {};
-                let _filterList = [];
-                var keys = Object.keys(this.filters);
-                for (var keyIdx in keys) {
-                    let key = keys[keyIdx];
-                    let value = this.filters[key];
-                    switch (key) {
-                        case "name":
-                        case "source":
-                            _filterList.push({category: key, name: key, text: value.split("~")[1]});
-                            break;
-                        case "annotation":
-                            for (let i = 0; i < value.length; i++) {
-                                let obj = value[i];
-                                _filterList.push({category: key, name: obj.name, text: obj.value});
-                            }
-                            break;
-                    }
-                }
-                this.filtersList = _filterList;
-                this.filtersEmpty = (this.filtersList.length == 0);
-
-
                 let _this = this;
                 if (this.opencgaClient instanceof OpenCGAClient && this.studyId > 0) {
 
@@ -186,10 +175,10 @@
                                 limit: params.limit,
                                 skip: params.offset
                             };
-                            if (params.search !== undefined && params.search.length > 0) {
-                                auxParams["name"] = "~" + params.search;
-                            }
-                            return $.extend({}, _this.filters, auxParams);
+//                            if (params.search !== undefined && params.search.length > 0) {
+//                                auxParams["name"] = "~" + params.search;
+//                            }
+                            return $.extend({}, filters, auxParams);
                         },
                         responseHandler: function (response) {
                             if (!_this.hasOwnProperty("numTotalResults")) {
@@ -258,11 +247,15 @@
                         }
                     });
 
-                    this.opencgaClient.studies().info(this.studyId, {include: "variableSets"}).then(function (response) {
+                    this.opencgaClient.studies().info(this.studyId).then(function (response) {
                         _this.variableSets = response.response[0].result[0].variableSets;
                     }).catch(function () {
                         console.log("Could not obtain the variable sets of the study " + _this.studyId);
                     });
+                } else {
+                    // Delete table
+                    $('#fileTable').bootstrapTable('destroy');
+                    this.numTotalResults = 0;
                 }
             },
             renderLocally: function () {

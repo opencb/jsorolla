@@ -61,7 +61,8 @@
                 this.fire('study', {study: e.target.dataStudy});
             },
             projectChanged: function() {
-                if (typeof this.opencgaClient !== "undefined" && typeof this.project !== "undefined" && Object.keys(this.project).length > 0) {
+                if (typeof this.opencgaClient !== "undefined" && typeof this.project !== "undefined"
+                        && Object.keys(this.project).length > 0) {
                     let _this = this;
                     // Obtain the summary of the studies
                     let studyPromises = [];
@@ -81,7 +82,7 @@
                 }
             },
             _formatDate: function(dateStr) {
-                return moment(parseInt(dateStr)).format('D MMM YY');
+                return moment(dateStr, "YYYYMMDDHHmmss").format('D MMM YY');
             }
         });
     </script>

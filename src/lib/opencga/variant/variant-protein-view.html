@@ -1,0 +1,227 @@
+<!--
+  ~ Copyright 2015-2016 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<dom-module id="variant-protein-view">
+    <template>
+        <style is="custom-style" include="jso-styles"></style>
+
+        <h4>{{study.alias}} - {{protein}}</h4>
+
+        <div id="{{prefix}}SvgCanvas"></div>
+    </template>
+    <script>
+        Polymer({
+            is: 'variant-protein-view',
+            properties: {
+                project: {
+                    type: String
+                },
+                study: {
+                    type: Object
+                },
+                config: {
+                    type: Object
+                },
+                opencgaClient: {
+                    type: Object
+                },
+                cellbaseClient: {
+                    type: Object
+                },
+                query: {
+                    type: Object
+                },
+                gene: {
+                    type: String,
+                    observer: "_onGeneChange"
+                },
+                protein: {
+                    type: String,
+                    observer: "_onProteinChange"
+                },
+                prefix: {
+                    type: String
+                }
+            },
+            ready: function () {
+                if (typeof this.prefix === "undefined" || this.prefix == "") {
+                    this.prefix = "protein" + Utils.randomString(6);
+                }
+            },
+            attached: function () {
+                this.svgCanvas = $("#" + this.prefix + "SvgCanvas");
+//                this._render();
+            },
+            _onGeneChange: function () {
+                if (typeof this.cellbaseClient !== "undefined" && typeof this.opencgaClient !== "undefined") {
+                    let _this = this;
+                    this.cellbaseClient.getProteinClient(null, 'search', {gene: _this.gene})
+                        .then(function (response) {
+                            let proteinObjects = response.response[0].result;
+                            if (proteinObjects.length > 0 && typeof _this.project !== "undefined" && typeof _this.study !== "undefined" && typeof _this.study.alias !== "undefined") {
+                                let query = {gene: _this.gene, "annot-ct": "missense_variant", studies: _this.project + ":" + _this.study.alias, returnedStudies: _this.project + ":" + _this.study.alias};
+                                let options = {exclude: "annotation,studies.samplesdata,,studies.files", limit: 10};
+                                _this.opencgaClient.variants().query(query, options)
+                                    .then(function (variants) {
+                                        let svgSettings = {width: 2048, height: 140, proteinPositioningInterval: 3};
+                                        for (let i = 0; i < proteinObjects.length; i++) {
+                                            let svg = _this._createSvg(proteinObjects[i], variants.response[0].result, svgSettings);
+                                            let querySelector = Polymer.dom(_this.root).querySelector("#" + _this.prefix + "SvgCanvas");
+                                            querySelector.appendChild(svg);
+                                        }
+                                    }).catch(function (e) {
+                                    console.log(e);
+                                    });
+                            }
+                        }).catch(function (e) {
+                        console.log(e);
+                        });
+                }
+            },
+            _onProteinChange: function () {
+
+            },
+            _createSvg: function (protein, variants, settings) {
+                console.log("protein")
+                console.log(protein)
+                console.log(variants)
+
+                let domains = new Set(["domain", "topological domain", "transmembrane region"]);
+
+                let svgSWidth = settings.width;
+                let svgHeight = settings.height;
+
+                let svg = SVG.create('svg', {width: svgSWidth, height: svgHeight, viewBox: "0 0 2048 140", style: "fill: white"});
+                SVG.addChild(svg, 'rect', {width: svgSWidth, height: svgHeight, style: "fill: white;stroke: black"});
+
+
+                let center = (svgHeight - 20) / 2;
+                SVG.addChild(svg, 'rect', {x: 20, y: center + 5, rx: 2, ry: 2, width: 1000, height: 15, style: "fill: lightgrey"});
+
+                // Lollipop
+                let variantPositions = new Set();
+                let verticalOffset = 0;
+                let gVariants = SVG.create('g', {});
+                for (let i = 0; i < variants.length; i++) {
+                    for (let j = 0; j < variants[i].annotation.consequenceTypes.length; j++) {
+
+                        if (variants[i].annotation.consequenceTypes[j].biotype == "protein_coding" && variants[i].annotation.consequenceTypes[j].geneName == this.gene) {
+                            let proteinVariantAnnotation = variants[i].annotation.consequenceTypes[j].proteinVariantAnnotation;
+                            for (let z = -(settings.proteinPositioningInterval); z <= settings.proteinPositioningInterval; z++) {
+                                if (variantPositions.has(proteinVariantAnnotation.position + z)) {
+                                    verticalOffset = -15;
+                                    break;
+                                }
+                            }
+                            SVG.addChild(gVariants, 'line', {
+                                x1: 20 + proteinVariantAnnotation.position,
+                                y1: center - 20 + verticalOffset,
+                                x2: 20 + proteinVariantAnnotation.position,
+                                y2: center + 5,
+                                width: 600, height: 25, style: "stroke: grey;stroke-width: 2"});
+
+                            let stats = variants[i].studies[0].stats["ALL"];
+                            let variant = SVG.addChild(gVariants, 'circle', {
+                                cx: 20 + proteinVariantAnnotation.position,
+                                cy: center - 20 - 5 + verticalOffset,
+                                r: 5 + stats.altAlleleFreq * (8 - 5),
+                                style: "fill: red"});
+
+                            $(variant).qtip({
+                                content: {
+                                    title: variants[i].id,
+                                    text: variants[i].id + '<br>'
+                                    + stats.altAlleleFreq},
+                                position: {viewport: $(window), target: "mouse", adjust: {x: 25, y: 15}},
+                                style: {width: true, classes: ' ui-tooltip ui-tooltip-shadow'},
+                                show: {delay: 250},
+                                hide: {delay: 200}
+                            });
+                            variantPositions.add(proteinVariantAnnotation.position);
+                            verticalOffset = 0;
+                        }
+                    }
+                }
+                svg.appendChild(gVariants);
+
+                // Features
+                let gFeatures = SVG.create('g', {});
+                for (let i = 0; i < protein.feature.length; i++) {
+                    console.log(protein.feature[i])
+                    if (typeof protein.feature[i].ref != "undefined" && typeof protein.feature[i].location.end !== "undefined") {
+                        if (protein.feature[i].ref.indexOf("PF") == 0) {
+                            console.log(protein.feature[i])
+
+                            let width = protein.feature[i].location.end.position - protein.feature[i].location.begin.position;
+                            let rect = SVG.addChild(gFeatures, 'rect', {
+                                x: 20 + protein.feature[i].location.begin.position,
+                                y: center,
+                                rx: 5,
+                                ry: 5,
+                                width: width,
+                                height: 25,
+                                style: "fill: #00DD00"});
+
+                            let text = SVG.addChild(gFeatures, 'text', {
+                                x: 20 + protein.feature[i].location.begin.position + 5,
+                                y: center + 15,
+                                style: "fill: white;font-size=4px;font-weight:10"});
+                            text.textContent = protein.feature[i].description.substring(0, 10);
+
+                            $(rect).qtip({
+                                content: {text: protein.feature[i].description, title: protein.feature[i].ref},
+                                position: {viewport: $(window), target: "mouse", adjust: {x: 25, y: 15}},
+                                style: {width: true, classes: ' ui-tooltip ui-tooltip-shadow'},
+                                show: {delay: 250},
+                                hide: {delay: 200}
+                            });
+
+                        }
+                    }
+                }
+                svg.appendChild(gFeatures);
+
+                let ruleSVG = this._createSvgRuleBar(1000, {});
+                svg.appendChild(ruleSVG);
+
+                return svg;
+            },
+            _createSvgRuleBar: function (length, settings) {
+                Object.assign(settings, {
+                    height: 20,
+                    startX: 20,
+                    startY: 90,
+                });
+
+                let g = SVG.create('g', {});
+
+                let line = SVG.addChild(g, 'line', {x1: settings.startX, y1: settings.startY, x2: settings.startX + length, y2: settings.startY, style: "stroke: grey"});
+
+                for (let i = 0; i < length; i += 10) {
+                    SVG.addChild(g, 'line', {x1: settings.startX + i, y1: settings.startY, x2: settings.startX + i, y2: settings.startY + 5, style: "stroke: grey"});
+                }
+
+                for (let i = 0; i <= length; i += 50) {
+                    SVG.addChild(g, 'line', {x1: settings.startX + i, y1: settings.startY, x2: settings.startX + i, y2: settings.startY + 10, style: "stroke: grey"});
+                    let text = SVG.addChild(g, 'text', {x: settings.startX + i - 8, y: settings.startY + 25, style: "fill: black;font-size=4px;font-weight:10"});
+                    text.textContent = i;
+                }
+
+                return g;
+            }
+        });
+    </script>
+</dom-module>

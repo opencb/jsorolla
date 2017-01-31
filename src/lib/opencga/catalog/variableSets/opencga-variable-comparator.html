@@ -116,7 +116,8 @@
                     studyId: this.studyId,
                     variableSetId: this.variableSet.id,
                     // TODO: Add annotation set name
-                    include: "annotationSets"
+                    include: "annotationSets",
+                    limit: 10000
                 };
 
                 if (selection === "samples") {
@@ -139,7 +140,7 @@
                 // This is used to sort numbers for highcharts
                 let compareNumbers = function(a, b) {
                     return a - b;
-                }
+                };
 
                 data.result.forEach(function(entry) {
                     // TODO: Loop only over the corresponding annotation set

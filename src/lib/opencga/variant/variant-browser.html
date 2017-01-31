@@ -26,16 +26,18 @@
             <h3 style="margin: 10px 5px 15px 25px"><i class="fa fa-search" aria-hidden="true"></i>&nbsp;{{title}}</h3>
 
             <div class="col-md-2" hidden$="{{checkProject(project)}}">
-                <variant-browser-filter study="{{study}}" project="{{project}}" studies="{{studies}}" config="{{config}}" samples="{{samples}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
-                                        population-frequencies="{{populationFrequencies}}" consequence-types="{{consequenceTypes}}" query="{{query}}"
-                                        search="{{search}}" style="font-size: 12px">
+                <variant-browser-filter study="{{study}}" project="{{project}}" studies="{{studies}}" config="{{config}}"
+                                        samples="{{samples}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
+                                        cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}"
+                                        consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}" style="font-size: 12px">
                 </variant-browser-filter>
             </div>
 
             <div class="col-md-10" hidden$="{{checkProject(project)}}">
                 <variant-browser-view title="{{title}}" project="{{project}}" study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
                                       cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                      consequence-types="{{consequenceTypes}}" query="{{query}}" search="[[search]]" on-propagate="propagateGeneEvent" config="{{config}}">
+                                      consequence-types="{{consequenceTypes}}" beacon-hosts="{{beaconHosts}}" query="{{query}}" search="[[search]]"
+                                      on-propagate="propagateGeneEvent" config="{{config}}"  on-clear="onClear" on-filterchange="onFilterChange">
                 </variant-browser-view>
             </div>
 
@@ -82,21 +84,58 @@
                 proteinSubstitutionScores: {
                     type: Object
                 },
+                beaconHosts: {
+                    type: Array
+                },
                 query: {
                     type: Object
                 },
                 search: {
-                    type: Object
+                    type: Object,
+                    observer: 'renderHashQueryParams'
                 },
                 prefix: {
                     type: String
                 }
+            },
+            renderHashQueryParams: function () {
+                let hashFrag = window.location.hash.split('?')[0];
+                if (typeof this.query !== "undefined" && Object.keys(this.query).length > 0) {
+                    let qArray = [];
+                    for (let key in this.query) {
+                        if (key != "studies") {
+                            qArray.push(key + "=" + this.query[key]);
+                        }
+                    }
+                    hashFrag += "?" + qArray.join('&');
+                }
+                window.location.hash = hashFrag;
+
+                // for reading from the url,
+//                if (typeof query !== "undefined") {
+//                    let params = query.split('&');
+//                    let queryObject = {};
+//                    for (let i = 0; i < params.length; i++) {
+//                        let [key, value] = params[i].split('=');
+//                        queryObject[key] = value;
+//                    }
+//                    this._query = queryObject;
+//                }
             },
             checkProject: function (project) {
                 return project == "";
             },
             propagateGeneEvent: function (e) {
                 this.fire('gene', {gene: e.detail.gene});
+            },
+            onClear: function() {
+                this.query = {};
+                this.search = {};
+            },
+            onFilterChange: function(e) {
+                this.query = e.detail;
+//                Object.assign(this.query, e.detail)
+                this.search = e.detail;
             }
         });
     </script>

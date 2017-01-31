@@ -163,7 +163,6 @@
                     let _this = this;
                     _this.variableSets = [];
                     _this.variableSet = {};
-                    _this.variableSetSummary = {};
                     this.opencgaClient.studies().info(this.studyId, {include: "variableSets"}).then(function(response) {
                         _this.variableSets = response.response[0].result[0].variableSets;
                         if (_this.variableSets.length > 0) {
@@ -174,7 +173,6 @@
             },
             variableSetChanged: function() {
                 this.renderVariableSet();
-                this.obtainVariableSummary();
             },
             renderVariableSet: function() {
                 let _this = this;
@@ -230,36 +228,6 @@
                         this.selectedVariables = selectedTmp;
                     }.bind(_this)
                 });
-            },
-            obtainVariableSummary: function() {
-                let _this = this;
-                if (this.opencgaClient !== undefined && this.variableSet !== undefined && this.variableSet.hasOwnProperty("id")) {
-                    this.opencgaClient.variables().summary(this.variableSet.id).then(function (response) {
-                        let result = response.response[0].result[0];
-
-                        // Convert the arrays to hash
-                        let cohorts = {};
-                        for (let i = 0; i < result.cohorts.length; i++) {
-                            cohorts[result.cohorts[i].name] = result.cohorts[i];
-                        }
-
-                        let samples = {};
-                        for (let i = 0; i < result.samples.length; i++) {
-                            samples[result.samples[i].name] = result.samples[i];
-                        }
-
-                        let individuals = {};
-                        for (let i = 0; i < result.individuals.length; i++) {
-                            individuals[result.individuals[i].name] = result.individuals[i];
-                        }
-
-                        result["samples"] = samples;
-                        result["individuals"] = individuals;
-                        result["cohorts"] = cohorts;
-
-                        _this.variableSetSummary = result;
-                    });
-                }
             },
             obtainVariable: function(variableObject, variableName) {
                 if (variableObject === undefined || variableObject === null) {

@@ -51,8 +51,8 @@
             fileChanged: function() {
                 console.log(this.file)
                 this.description = this.file.description != "" ? this.file.description : "-";
-                this.creationDate = moment(parseInt(this.file.creationDate)).format('D MMM YY');
-                this.modificationDate = moment(parseInt(this.file.modificationDate)).format('D MMM YY');
+                this.creationDate = moment(this.file.creationDate, "YYYYMMDDHHmmss").format('D MMM YY');
+                this.modificationDate = moment(this.file.modificationDate, "YYYYMMDDHHmmss").format('D MMM YY');
             }
         });
     </script>
