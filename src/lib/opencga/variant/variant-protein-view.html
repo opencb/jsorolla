@@ -18,10 +18,31 @@
     <template>
         <style is="custom-style" include="jso-styles"></style>
 
-        <h4>{{study.alias}} - {{protein}}</h4>
+        <!--<h4>{{study.alias}} - {{protein.id}}</h4>-->
 
-        <div id="{{prefix}}SvgCanvas"></div>
+        <ul class="nav nav-pills">
+            <template is="dom-repeat" items="{{proteins}}" as="protein">
+                <template is="dom-if" if="{{protein.active}}" id="">
+                    <li role="presentation" class="active"><a href="#{{prefix}}{{protein.id}}" role="tab" data-toggle="tab">{{protein.id}}</a></li>
+                </template>
+                <template is="dom-if" if="{{!protein.active}}">
+                    <li role="presentation"><a href="#{{prefix}}{{protein.id}}" role="tab" data-toggle="tab">{{protein.id}}</a></li>
+                </template>
+            </template>
+        </ul>
+
+        <div class="tab-content">
+            <template is="dom-repeat" items="{{proteins}}" as="protein" id="proteinsDiv">
+                <template is="dom-if" if="{{protein.active}}">
+                    <div role="tabpanel" class="tab-pane active" id="{{prefix}}{{protein.id}}"></div>
+                </template>
+                <template is="dom-if" if="{{!protein.active}}">
+                    <div role="tabpanel" class="tab-pane" id="{{prefix}}{{protein.id}}"></div>
+                </template>
+            </template>
+        </div>
     </template>
+
     <script>
         Polymer({
             is: 'variant-protein-view',
@@ -48,10 +69,6 @@
                     type: String,
                     observer: "_onGeneChange"
                 },
-                protein: {
-                    type: String,
-                    observer: "_onProteinChange"
-                },
                 prefix: {
                     type: String
                 }
@@ -61,55 +78,67 @@
                     this.prefix = "protein" + Utils.randomString(6);
                 }
             },
-            attached: function () {
-                this.svgCanvas = $("#" + this.prefix + "SvgCanvas");
-//                this._render();
-            },
             _onGeneChange: function () {
                 if (typeof this.cellbaseClient !== "undefined" && typeof this.opencgaClient !== "undefined") {
                     let _this = this;
                     this.cellbaseClient.getProteinClient(null, 'search', {gene: _this.gene})
                         .then(function (response) {
                             let proteinObjects = response.response[0].result;
+
+                            // This render the Boostrap tabs with Nav pills
+                            let _proteins = [];
+                            for (let i = 0; i < proteinObjects.length; i++) {
+                                _proteins.push({id: proteinObjects[i].accession[0], active: (i == 0)});
+                            }
+                            _this.proteins = _proteins;
+
+                            // DO NOT EVEN DARE TO TOUCH THIS LINE!
+                            _this.$.proteinsDiv.render();
                             if (proteinObjects.length > 0 && typeof _this.project !== "undefined" && typeof _this.study !== "undefined" && typeof _this.study.alias !== "undefined") {
-                                let query = {gene: _this.gene, "annot-ct": "missense_variant", studies: _this.project + ":" + _this.study.alias, returnedStudies: _this.project + ":" + _this.study.alias};
-                                let options = {exclude: "annotation,studies.samplesdata,,studies.files", limit: 10};
-                                _this.opencgaClient.variants().query(query, options)
+                                let params = {gene: _this.gene, "annot-ct": "missense_variant",
+                                    studies: _this.project + ":" + _this.study.alias, returnedStudies: _this.project + ":" + _this.study.alias,
+                                    exclude: "studies.samplesData,studies.files"};
+//                                let options = {exclude: "annotation,studies.samplesData,studies.files"};
+                                _this.opencgaClient.variants().query(params)
                                     .then(function (variants) {
-                                        let svgSettings = {width: 2048, height: 140, proteinPositioningInterval: 3};
                                         for (let i = 0; i < proteinObjects.length; i++) {
+                                            let svgSettings = {length: proteinObjects[i].sequence.length, height: 140, proteinPositioningInterval: 3};
                                             let svg = _this._createSvg(proteinObjects[i], variants.response[0].result, svgSettings);
-                                            let querySelector = Polymer.dom(_this.root).querySelector("#" + _this.prefix + "SvgCanvas");
+                                            let querySelector = Polymer.dom(_this.root).querySelector("#" + _this.prefix + proteinObjects[i].accession[0]);
                                             querySelector.appendChild(svg);
                                         }
                                     }).catch(function (e) {
                                     console.log(e);
-                                    });
+                                });
                             }
-                        }).catch(function (e) {
-                        console.log(e);
+                        })
+                        .catch(function (e) {
+                            console.log(e);
                         });
                 }
             },
-            _onProteinChange: function () {
-
-            },
             _createSvg: function (protein, variants, settings) {
+                console.time("_createSvg");
                 console.log("protein")
                 console.log(protein)
-                console.log(variants)
+//                console.log(variants)
 
-                let domains = new Set(["domain", "topological domain", "transmembrane region"]);
+//                let domains = new Set(["domain", "topological domain", "transmembrane region"]);
 
-                let svgSWidth = settings.width;
+                settings = Object.assign(_this.getDefaultSetting(), settings);
+
+                let length = protein.sequence.length;
+                let ratio = length / settings.width;
+                let svgSWidth = settings.width * ratio;
                 let svgHeight = settings.height;
+                settings.ratio = ratio;
 
-                let svg = SVG.create('svg', {width: svgSWidth, height: svgHeight, viewBox: "0 0 2048 140", style: "fill: white"});
+                let svg = SVG.create('svg', {width: svgSWidth, height: svgHeight, viewBox: "0 0 " + svgSWidth + " " + svgHeight, style: "fill: white"});
                 SVG.addChild(svg, 'rect', {width: svgSWidth, height: svgHeight, style: "fill: white;stroke: black"});
 
 
                 let center = (svgHeight - 20) / 2;
-                SVG.addChild(svg, 'rect', {x: 20, y: center + 5, rx: 2, ry: 2, width: 1000, height: 15, style: "fill: lightgrey"});
+                SVG.addChild(svg, 'rect', {x: 20 * ratio, y: center + 5, rx: 2 * ratio, ry: 2, width: svgSWidth, height: 15, style: "fill: lightgrey"});
 
                 // Lollipop
                 let variantPositions = new Set();
@@ -127,15 +156,15 @@
                                 }
                             }
                             SVG.addChild(gVariants, 'line', {
-                                x1: 20 + proteinVariantAnnotation.position,
+                                x1: (20 + proteinVariantAnnotation.position) * ratio,
                                 y1: center - 20 + verticalOffset,
-                                x2: 20 + proteinVariantAnnotation.position,
+                                x2: (20 + proteinVariantAnnotation.position) * ratio,
                                 y2: center + 5,
-                                width: 600, height: 25, style: "stroke: grey;stroke-width: 2"});
+                                width: svgSWidth, height: 25, style: "stroke: grey;stroke-width: 2"});
 
                             let stats = variants[i].studies[0].stats["ALL"];
                             let variant = SVG.addChild(gVariants, 'circle', {
-                                cx: 20 + proteinVariantAnnotation.position,
+                                cx: (20 + proteinVariantAnnotation.position) * ratio,
                                 cy: center - 20 - 5 + verticalOffset,
                                 r: 5 + stats.altAlleleFreq * (8 - 5),
                                 style: "fill: red"});
@@ -160,23 +189,23 @@
                 // Features
                 let gFeatures = SVG.create('g', {});
                 for (let i = 0; i < protein.feature.length; i++) {
-                    console.log(protein.feature[i])
+//                    console.log(protein.feature[i])
                     if (typeof protein.feature[i].ref != "undefined" && typeof protein.feature[i].location.end !== "undefined") {
                         if (protein.feature[i].ref.indexOf("PF") == 0) {
-                            console.log(protein.feature[i])
+//                            console.log(protein.feature[i])
 
                             let width = protein.feature[i].location.end.position - protein.feature[i].location.begin.position;
                             let rect = SVG.addChild(gFeatures, 'rect', {
-                                x: 20 + protein.feature[i].location.begin.position,
+                                x: (20 + protein.feature[i].location.begin.position) * ratio,
                                 y: center,
-                                rx: 5,
+                                rx: 5 * ratio,
                                 ry: 5,
-                                width: width,
+                                width: width * ratio,
                                 height: 25,
                                 style: "fill: #00DD00"});
 
                             let text = SVG.addChild(gFeatures, 'text', {
-                                x: 20 + protein.feature[i].location.begin.position + 5,
+                                x: (20 + protein.feature[i].location.begin.position + 5) * ratio,
                                 y: center + 15,
                                 style: "fill: white;font-size=4px;font-weight:10"});
                             text.textContent = protein.feature[i].description.substring(0, 10);
@@ -194,9 +223,10 @@
                 }
                 svg.appendChild(gFeatures);
 
-                let ruleSVG = this._createSvgRuleBar(1000, {});
+                let ruleSVG = this._createSvgRuleBar(length, settings);
                 svg.appendChild(ruleSVG);
 
+                console.timeEnd("_createSvg");
                 return svg;
             },
             _createSvgRuleBar: function (length, settings) {
@@ -208,19 +238,25 @@
 
                 let g = SVG.create('g', {});
 
-                let line = SVG.addChild(g, 'line', {x1: settings.startX, y1: settings.startY, x2: settings.startX + length, y2: settings.startY, style: "stroke: grey"});
+                let line = SVG.addChild(g, 'line', {x1: settings.startX * settings.ratio, y1: settings.startY, x2: (settings.startX + length) * settings.ratio, y2: settings.startY, style: "stroke: grey"});
 
                 for (let i = 0; i < length; i += 10) {
-                    SVG.addChild(g, 'line', {x1: settings.startX + i, y1: settings.startY, x2: settings.startX + i, y2: settings.startY + 5, style: "stroke: grey"});
+                    SVG.addChild(g, 'line', {x1: (settings.startX + i) * settings.ratio, y1: settings.startY, x2: (settings.startX + i) * settings.ratio, y2: settings.startY + 5, style: "stroke: grey"});
                 }
 
                 for (let i = 0; i <= length; i += 50) {
-                    SVG.addChild(g, 'line', {x1: settings.startX + i, y1: settings.startY, x2: settings.startX + i, y2: settings.startY + 10, style: "stroke: grey"});
-                    let text = SVG.addChild(g, 'text', {x: settings.startX + i - 8, y: settings.startY + 25, style: "fill: black;font-size=4px;font-weight:10"});
+                    SVG.addChild(g, 'line', {x1: (settings.startX + i) * settings.ratio, y1: settings.startY, x2: (settings.startX + i) * settings.ratio, y2: settings.startY + 10, style: "stroke: grey"});
+                    let text = SVG.addChild(g, 'text', {x: (settings.startX + i - 8) * settings.ratio, y: settings.startY + 25, style: "fill: black;font-size=4px;font-weight:10"});
                     text.textContent = i;
                 }
 
                 return g;
+            },
+            _getDefaultSetting() {
+                let config = {
+
+                };
+                return config;
             }
         });
     </script>

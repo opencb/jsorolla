@@ -171,7 +171,7 @@ class OpenCGAParentClass {
         }
 
         if (rpc.toLowerCase() === "rest") {
-            let url = this._createRestUrl(host, version, category1, ids1, category2, ids2, action, params);
+            let url = this._createRestUrl(host, version, category1, ids1, category2, ids2, action);
             // if (method === "GET") {
             url = this._addQueryParams(url, params);
             if (method === "POST") {
