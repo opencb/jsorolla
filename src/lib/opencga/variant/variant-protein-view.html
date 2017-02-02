@@ -22,7 +22,7 @@
 
         <ul class="nav nav-pills">
             <template is="dom-repeat" items="{{proteins}}" as="protein">
-                <template is="dom-if" if="{{protein.active}}" id="">
+                <template is="dom-if" if="{{protein.active}}">
                     <li role="presentation" class="active"><a href="#{{prefix}}{{protein.id}}" role="tab" data-toggle="tab">{{protein.id}}</a></li>
                 </template>
                 <template is="dom-if" if="{{!protein.active}}">
@@ -85,7 +85,7 @@
                         .then(function (response) {
                             let proteinObjects = response.response[0].result;
 
-                            // This render the Boostrap tabs with Nav pills
+                            // This render the Bootstrap tabs with Nav pills
                             let _proteins = [];
                             for (let i = 0; i < proteinObjects.length; i++) {
                                 _proteins.push({id: proteinObjects[i].accession[0], active: (i == 0)});
@@ -94,15 +94,15 @@
 
                             // DO NOT EVEN DARE TO TOUCH THIS LINE!
                             _this.$.proteinsDiv.render();
+
                             if (proteinObjects.length > 0 && typeof _this.project !== "undefined" && typeof _this.study !== "undefined" && typeof _this.study.alias !== "undefined") {
                                 let params = {gene: _this.gene, "annot-ct": "missense_variant",
                                     studies: _this.project + ":" + _this.study.alias, returnedStudies: _this.project + ":" + _this.study.alias,
                                     exclude: "studies.samplesData,studies.files"};
-//                                let options = {exclude: "annotation,studies.samplesData,studies.files"};
                                 _this.opencgaClient.variants().query(params)
                                     .then(function (variants) {
                                         for (let i = 0; i < proteinObjects.length; i++) {
-                                            let svgSettings = {length: proteinObjects[i].sequence.length, height: 140, proteinPositioningInterval: 3};
+                                            let svgSettings = {width: proteinObjects[i].sequence.length, height: 140, proteinPositioningInterval: 3};
                                             let svg = _this._createSvg(proteinObjects[i], variants.response[0].result, svgSettings);
                                             let querySelector = Polymer.dom(_this.root).querySelector("#" + _this.prefix + proteinObjects[i].accession[0]);
                                             querySelector.appendChild(svg);
@@ -118,17 +118,14 @@
                 }
             },
             _createSvg: function (protein, variants, settings) {
-                console.time("_createSvg");
-                console.log("protein")
-                console.log(protein)
-//                console.log(variants)
-
 //                let domains = new Set(["domain", "topological domain", "transmembrane region"]);
 
-                settings = Object.assign(_this.getDefaultSetting(), settings);
+                settings = Object.assign(this._getDefaultSetting(), settings);
 
-                let length = protein.sequence.length;
-                let ratio = length / settings.width;
+                if (typeof settings.length === "undefined") {
+                    settings.length = protein.sequence.length;
+                }
+                let ratio = settings.length / settings.width;
                 let svgSWidth = settings.width * ratio;
                 let svgHeight = settings.height;
                 settings.ratio = ratio;
@@ -189,11 +186,8 @@
                 // Features
                 let gFeatures = SVG.create('g', {});
                 for (let i = 0; i < protein.feature.length; i++) {
-//                    console.log(protein.feature[i])
                     if (typeof protein.feature[i].ref != "undefined" && typeof protein.feature[i].location.end !== "undefined") {
                         if (protein.feature[i].ref.indexOf("PF") == 0) {
-//                            console.log(protein.feature[i])
-
                             let width = protein.feature[i].location.end.position - protein.feature[i].location.begin.position;
                             let rect = SVG.addChild(gFeatures, 'rect', {
                                 x: (20 + protein.feature[i].location.begin.position) * ratio,
@@ -223,10 +217,9 @@
                 }
                 svg.appendChild(gFeatures);
 
-                let ruleSVG = this._createSvgRuleBar(length, settings);
+                let ruleSVG = this._createSvgRuleBar(settings.length, settings);
                 svg.appendChild(ruleSVG);
 
-                console.timeEnd("_createSvg");
                 return svg;
             },
             _createSvgRuleBar: function (length, settings) {
@@ -254,7 +247,9 @@
             },
             _getDefaultSetting() {
                 let config = {
-
+                    width: 1000,
+                    height: 140,
+                    proteinPositioningInterval: 3
                 };
                 return config;
             }

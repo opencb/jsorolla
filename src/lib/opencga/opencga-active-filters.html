@@ -184,6 +184,7 @@
                 return typeof config.sessionId !== "undefined" && config.sessionId != "";
             },
             checkFilters: function (config) {
+                debugger
                 let _this = this;
                 if (this.opencgaClient instanceof OpenCGAClient && typeof config.value.sessionId !== 'undefined') {
                     this.opencgaClient.users().getFilters({}, {})
