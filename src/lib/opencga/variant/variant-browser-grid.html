@@ -203,7 +203,8 @@
                         },
                         responseHandler: function (res) {
                             if (_numTotal == -1) {
-                                if (typeof _this.query !== 'undefined' && typeof _this.query.gene !== 'undefined' && _this.query.gene != "") {
+                                if (typeof _this.query !== 'undefined' && typeof _this.query.annot-xref !== 'undefined' && _this.query.annot-xref != ""
+                                    && typeof _this.query.gene !== 'undefined' && _this.query.gene != "") {
                                     _numTotal = res.response[0].numTotalResults;
 //                                    _numTotal = 1150;
                                 } else {
@@ -240,7 +241,7 @@
                     }
 
                     let queryParams = {
-                        timeout: 10000
+                        timeout: 20000
                     };
 
                     Object.assign(queryParams, _this.query); // Important : Adding the query object contents to queryParams
