@@ -203,8 +203,7 @@
                         },
                         responseHandler: function (res) {
                             if (_numTotal == -1) {
-                                if (typeof _this.query !== 'undefined' && typeof _this.query.annot-xref !== 'undefined' && _this.query.annot-xref != ""
-                                    && typeof _this.query.gene !== 'undefined' && _this.query.gene != "") {
+                                if (typeof _this.query !== 'undefined' && typeof _this.query.gene !== 'undefined' && _this.query.gene != "") {
                                     _numTotal = res.response[0].numTotalResults;
 //                                    _numTotal = 1150;
                                 } else {
