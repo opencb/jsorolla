@@ -77,43 +77,52 @@
                         && typeof this.projects !== "undefined" && this.projects.length > 0) {
                     let _this = this;
 
-                    // Obtain the summary of the studies
+                    let summaryArray = [];
                     let projectPromises = [];
-
-                    this.projects.forEach(function(project) {
-                        let studyPromises = [];
-                        project.studies.forEach(function(study) {
-                            studyPromises.push(_this.opencgaClient.studies().summary(project.alias + ":" + study.alias));
-                        });
-                        projectPromises.push(Promise.all(studyPromises).then(function(responses) {
-                            let studies = [];
-                            responses.forEach(function (response) {
-                                let study = response.response[0].result[0];
-                                study.creationDate = _this._formatDate(study.creationDate);
-                                studies.push(study);
+                    for (let i = 0; i < _this.projects.length; i++) {
+                        if (typeof _this.projects[i].summary !== "undefined") {
+                            summaryArray.push(this.projects[i].summary);
+                        } else {
+                            // Obtain the summary of the studies
+                            let studyPromises = [];
+                            _this.projects[i].studies.forEach(function (study) {
+                                studyPromises.push(_this.opencgaClient.studies().summary(_this.projects[i].alias + ":" + study.alias));
                             });
-                            return studies;
-                        }));
-                    });
-
-                    Promise.all(projectPromises).then(function(responses) {
-                        for (let i = 0; i < responses.length; i++) {
-                            // We only put the rowspan information in the first one so we are sure that we only put the project info once in the table
-                            if (responses[i].length > 0) {
-                                responses[i][0].rowspan = responses[i].length;
-                            }
-
-                            for (let j = 0; j < responses[i].length; j++) {
-                                responses[i][j]._project = this.projects[i];
-                            }
-
+                            projectPromises.push(Promise.all(studyPromises).then(function (responses) {
+                                let studies = [];
+                                responses.forEach(function (response) {
+                                    let study = response.response[0].result[0];
+                                    study.creationDate = moment(study.creationDate, "YYYYMMDDHHmmss").format('D MMM YY');
+                                    studies.push(study);
+                                });
+                                return studies;
+                            }));
                         }
-                        this._projects = responses;
-                    }.bind(_this))
+                    }
+
+                    if (summaryArray.length > 0) {
+                        _this.renderProjectsTable(summaryArray);
+                    }
+
+                    if (projectPromises.length > 0) {
+                        Promise.all(projectPromises).then(function (responses) {
+                            _this.renderProjectsTable(responses);
+                        });
+                    }
                 }
             },
-            _formatDate: function(dateStr) {
-                return moment(dateStr, "YYYYMMDDHHmmss").format('D MMM YY');
+            renderProjectsTable: function(data) {
+                for (let i = 0; i < data.length; i++) {
+                    // We only put the rowspan information in the first one so we are sure that we only put the project info once in the table
+                    if (data[i].length > 0) {
+                        data[i][0].rowspan = data[i].length;
+                    }
+
+                    for (let j = 0; j < data[i].length; j++) {
+                        data[i][j]._project = this.projects[i];
+                    }
+                }
+                this._projects = data;
             },
             _exists: function(data) {
                 return data !== undefined;
