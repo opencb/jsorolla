@@ -119,6 +119,10 @@
                 showPopFreqInColor: {
                     type: Boolean,
                     value: true
+                },
+                queryCellbase: {
+                    type: Boolean,
+                    value: false
                 }
             },
             _test: function () {
@@ -221,7 +225,10 @@
                         }
                     });
                     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('showLoading');
-                } else if (this.cellbaseClient instanceof CellBaseClient) {
+                }
+             
+                // To query from cellbase, 'queryCellbase' property must be set to true explicitly
+                if (typeof this.queryCellbase !== "undefined" && this.queryCellbase && this.cellbaseClient instanceof CellBaseClient) {
                     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('destroy');
                     let _numTotal = -1;
 
