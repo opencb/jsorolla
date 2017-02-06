@@ -226,7 +226,7 @@
                     });
                     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('showLoading');
                 }
-             
+
                 // To query from cellbase, 'queryCellbase' property must be set to true explicitly
                 if (typeof this.queryCellbase !== "undefined" && this.queryCellbase && this.cellbaseClient instanceof CellBaseClient) {
                     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('destroy');
@@ -288,7 +288,7 @@
                     if (typeof this.query === "undefined") {
                         this.query = {};
                     }
-                    if (typeof this.query.studies === "undefined" || this.query.studies == "") {
+                    if (typeof this.query.studies === "undefined" || this.query.studies == "" || this.query.studies.split(';').length == 1) {
                         this.query.studies = this.project + ":" + this.study.alias;
                     }
                     host += '/webservices/rest/v1/analysis/variant/query';

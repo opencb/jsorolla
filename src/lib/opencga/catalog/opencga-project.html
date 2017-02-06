@@ -25,7 +25,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <template is="dom-repeat" items="{{_studies}}">
+                <template is="dom-repeat" items="{{project.summary}}">
                     <tr>
                         <td>
                             <a href="#" on-click="fireSelectStudy" data-study="{{item}}">{{item.name}}</a>
@@ -52,37 +52,35 @@
                     type: Object,
                     observer: 'projectChanged'
                 },
-                _studies: {
-                    type: Array
-                }
             },
             fireSelectStudy: function (e) {
                 e.preventDefault();
                 this.fire('study', {study: e.target.dataStudy});
             },
-            projectChanged: function() {
+            projectChanged: function () {
                 if (typeof this.opencgaClient !== "undefined" && typeof this.project !== "undefined"
-                        && Object.keys(this.project).length > 0) {
+                    && Object.keys(this.project).length > 0) {
                     let _this = this;
-                    // Obtain the summary of the studies
-                    let studyPromises = [];
-                    this.project.studies.forEach(function(study) {
-                        studyPromises.push(_this.opencgaClient.studies().summary(_this.project.alias + ":" + study.alias));
-                    });
-
-                    Promise.all(studyPromises).then(function(responses) {
-                        let studies = [];
-                        responses.forEach(function (response) {
-                            let study = response.response[0].result[0];
-                            study.creationDate = _this._formatDate(study.creationDate);
-                            studies.push(study);
+                    // If project is not provided with summary, quries are made to obatin study-summary details
+                    if (typeof this.project.summary === "undefined") {
+                        // Obtain the summary of the studies
+                        let studyPromises = [];
+                        this.project.studies.forEach(function (study) {
+                            studyPromises.push(_this.opencgaClient.studies().summary(_this.project.alias + ":" + study.alias));
                         });
-                        _this._studies = studies;
-                    });
+
+                        Promise.all(studyPromises).then(function (responses) {
+                            let studies = [];
+                            responses.forEach(function (response) {
+                                let study = response.response[0].result[0];
+                                study.creationDate = moment(study.creationDate, "YYYYMMDDHHmmss").format('D MMM YY');
+                                studies.push(study);
+                            });
+                            let _project = Object.assign({summary: studies}, _this.project);
+                            _this.project = _project;
+                        });
+                    }
                 }
-            },
-            _formatDate: function(dateStr) {
-                return moment(dateStr, "YYYYMMDDHHmmss").format('D MMM YY');
             }
         });
     </script>
