@@ -45,9 +45,7 @@
                                href="#{{prefix}}General" aria-expanded="true" aria-controls="{{prefix}}General">
                                 General
                                 <div style="float: right" class="tooltip-div">
-                                    <a data-toggle="tooltip" title="Generic file filters">
-                                        <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                    </a>
+                                    <a data-toggle="tooltip" title="Generic file filters"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
                                 </div>
                             </a>
                         </h4>
@@ -56,18 +54,15 @@
                          aria-labelledby="{{prefix}}FileGeneralFilterHeading">
                         <div class="form-group has-feedback panel-body">
                             Name:
-                            <textarea id="{{prefix}}NameTextarea" class="form-control clearable" rows="3"
-                                      placeholder="accepted_hits.bam, phenotypes.vcf..."
+                            <textarea id="{{prefix}}NameTextarea" class="form-control clearable" rows="3" placeholder="accepted_hits.bam, phenotypes.vcf..."
                                       name="name" on-keyup="calculateFilters"></textarea>
 
                             <br> Path:
-                            <textarea id="{{prefix}}PathTextarea" class="form-control clearable" rows="3"
-                                      placeholder="genomes/resources/files/..."
+                            <textarea id="{{prefix}}PathTextarea" class="form-control clearable" rows="3" placeholder="genomes/resources/files/..."
                                       name="path" on-keyup="calculateFilters"></textarea>
 
                             <br> Sample:
-                            <textarea id="{{prefix}}SampleTextarea" class="form-control clearable" rows="3"
-                                      placeholder="HG01879, HG01880, HG01881..."
+                            <textarea id="{{prefix}}SampleTextarea" class="form-control clearable" rows="3" placeholder="HG01879, HG01880, HG01881..."
                                       name="sampleIds" on-keyup="calculateFilters"></textarea>
 
                         </div>
@@ -80,12 +75,11 @@
                     <div class="panel-heading" role="tab" id="{{prefix}}OtherFilterHeading">
                         <h4 class="panel-title">
                             <a class="collapsed" role="button" data-toggle="collapse" data-parent="{{prefix}}Accordion"
-                               href="#{{prefix}}OtherFilterCollapse" aria-expanded="false" aria-controls="{{prefix}}OtherFilterCollapse">
+                               href="#{{prefix}}OtherFilterCollapse" aria-expanded="false"
+                               aria-controls="{{prefix}}OtherFilterCollapse">
                                 Other filters
                                 <div style="float: right" class="tooltip-div">
-                                    <a data-toggle="tooltip" title="Other filters">
-                                        <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                    </a>
+                                    <a data-toggle="tooltip" title="Other filters"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
                                 </div>
                             </a>
                         </h4>
@@ -93,7 +87,7 @@
 
 
                     <div id="{{prefix}}OtherFilterCollapse" class="panel-collapse">
-                         <!--aria-labelledby="{{prefix}}OtherFilterCollapse">-->
+                        <!--aria-labelledby="{{prefix}}OtherFilterCollapse">-->
                         <div class="form-group has-feedback panel-body">
 
                             Date range:
@@ -131,12 +125,10 @@
                             <br> Bioformat:
                             <div style="white-space: nowrap; overflow: scroll; height: 125px; padding: 5px;"
                                  class="panel panel-default">
-                                <!--<div class="panel-body">-->
-                                    <template is="dom-repeat" items="{{bioformats}}">
-                                        <input type="checkbox" name="{{prefix}}bioformat" value="{{item}}"
-                                               on-change="calculateFilters"> {{item}}<br>
-                                    </template>
-                                <!--</div>-->
+                                <template is="dom-repeat" items="{{bioformats}}">
+                                    <input type="checkbox" name="{{prefix}}bioformat" value="{{item}}"
+                                           on-change="calculateFilters"> {{item}}<br>
+                                </template>
                             </div>
 
                             <br> Format:
@@ -149,6 +141,7 @@
                             </div>
                         </div>
                     </div>
+                </div>
             </div>
         </div>
     </template>
@@ -176,7 +169,7 @@
                         type: "FILE"
                     },
                     notify: true
-                },
+                }
             },
             ready: function() {
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
