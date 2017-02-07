@@ -752,8 +752,10 @@
                     this.$$("#" + this.prefix + "LocationTextarea").value = this.query.region;
                 }
 
-                // Gene and Variant Ids
-                if (typeof this.query.gene !== "undefined") {
+                // XRefs, Gene and Variant Ids
+                if (typeof this.query["annot-xref"] !== "undefined") {
+                    this.$$("#" + this.prefix + "FeatureTextarea").value = this.query["annot-xref"];
+                } else if (typeof this.query.gene !== "undefined") {
                     this.$$("#" + this.prefix + "FeatureTextarea").value = this.query.gene;
                 } else if (typeof this.query.ids !== "undefined") {
                     this.$$("#" + this.prefix + "FeatureTextarea").value = this.query.ids;
