@@ -23,9 +23,11 @@
         <ul class="nav nav-pills">
             <template is="dom-repeat" items="{{proteins}}" as="protein">
                 <template is="dom-if" if="{{protein.active}}">
+                    <br>
                     <li role="presentation" class="active"><a href="#{{prefix}}{{protein.id}}" role="tab" data-toggle="tab">{{protein.id}}</a></li>
                 </template>
                 <template is="dom-if" if="{{!protein.active}}">
+                    <br>
                     <li role="presentation"><a href="#{{prefix}}{{protein.id}}" role="tab" data-toggle="tab">{{protein.id}}</a></li>
                 </template>
             </template>
@@ -34,10 +36,14 @@
         <div class="tab-content">
             <template is="dom-repeat" items="{{proteins}}" as="protein" id="proteinsDiv">
                 <template is="dom-if" if="{{protein.active}}">
+                    <br>
                     <div role="tabpanel" class="tab-pane active" id="{{prefix}}{{protein.id}}"></div>
+                    <br>
                 </template>
                 <template is="dom-if" if="{{!protein.active}}">
+                    <br>
                     <div role="tabpanel" class="tab-pane" id="{{prefix}}{{protein.id}}"></div>
+                    <br>
                 </template>
             </template>
         </div>
@@ -144,7 +150,10 @@
                 for (let i = 0; i < variants.length; i++) {
                     for (let j = 0; j < variants[i].annotation.consequenceTypes.length; j++) {
 
-                        if (variants[i].annotation.consequenceTypes[j].biotype == "protein_coding" && variants[i].annotation.consequenceTypes[j].geneName == this.gene) {
+                        if (variants[i].annotation.consequenceTypes[j].biotype == "protein_coding"
+                            && variants[i].annotation.consequenceTypes[j].geneName == this.gene
+                            && typeof variants[i].annotation.consequenceTypes[j].proteinVariantAnnotation != "undefined") {
+
                             let proteinVariantAnnotation = variants[i].annotation.consequenceTypes[j].proteinVariantAnnotation;
                             for (let z = -(settings.proteinPositioningInterval); z <= settings.proteinPositioningInterval; z++) {
                                 if (variantPositions.has(proteinVariantAnnotation.position + z)) {
