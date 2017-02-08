@@ -266,15 +266,45 @@
                 return config;
             },
             _getMutationTooltip(variant, consequenceType) {
-                let proteinVariantAnnotation = consequenceType.proteinVariantAnnotation;
+                let mutation = "-";
+                let codon = consequenceType.codon || '-';
+                let score = [];
+                let cadd = "-";
+                let conservation = [];
+                if (typeof consequenceType.proteinVariantAnnotation !== "undefined") {
+                    let proteinVariantAnnotation = consequenceType.proteinVariantAnnotation;
+                    mutation = proteinVariantAnnotation.reference + "/" + proteinVariantAnnotation.alternate;
+                    if (typeof proteinVariantAnnotation.substitutionScores !== "undefined" && proteinVariantAnnotation.substitutionScores.length > 0) {
+                        for (let i = 0; i < proteinVariantAnnotation.substitutionScores.length; i++) {
+                            score.push("<b>" + proteinVariantAnnotation.substitutionScores[i].source.charAt(0).toUpperCase()
+                                + proteinVariantAnnotation.substitutionScores[i].source.slice(1) + "</b>: " + proteinVariantAnnotation.substitutionScores[0].score);
+                        }
+                    }
+                }
+                if (typeof variant.annotation !== "undefined") {
+                    if (typeof variant.annotation.functionalScore !== "undefined") {
+                        for (let i = 0; i < variant.annotation.functionalScore.length; i++) {
+                            if (variant.annotation.functionalScore[i].source == "cadd_scaled") {
+                                cadd = variant.annotation.functionalScore[i].score;
+                                break;
+                            }
+                        }
+                    }
 
-                return "ID: " + variant.id + '<br>'
-                + "<b>Mutation</b>: " + proteinVariantAnnotation.reference + "/" + proteinVariantAnnotation.alternate + '<br>'
-                + "Codon:" + consequenceType.codon + '<br>'
-//                                    + proteinVariantAnnotation.substitutionScores[0].source + ": " + proteinVariantAnnotation.substitutionScores[0].score + '<br>'
-//                                    + proteinVariantAnnotation.substitutionScores[1].source + ": " + proteinVariantAnnotation.substitutionScores[1].score + '<br>'
-                + "CADD: " + variant.annotation.functionalScore[0].score
-                + "Conservation: " + variant.annotation.conservation[0].score;
+                    if (typeof variant.annotation.conservation !== "undefined") {
+                        for (let j = 0; j < variant.annotation.conservation.length; j++) {
+                            conservation.push("<b>" + variant.annotation.conservation[j].source.charAt(0).toUpperCase()
+                                + variant.annotation.conservation[j].source.slice(1) + "</b>: " + variant.annotation.conservation[j].score);
+                        }
+                    }
+                }
+
+                return "<b>ID</b>: " + variant.id + "<br>"
+                    + "<b>Mutation</b>: " + mutation + "<br>"
+                    + "<b>Codon</b>: " + codon + "<br>"
+                    + score.join("<br>") + "<br>"
+                    + "<b>CADD</b>: " + cadd + "<br>"
+                    + conservation.join("<br>");
             }
         });
     </script>
