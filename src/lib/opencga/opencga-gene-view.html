@@ -135,7 +135,8 @@
             </div>
 
             <div role="tabpanel" class="tab-pane" id="{{prefix}}Protein">
-                <variant-protein-view opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" project="{{project}}" study="{{study}}" gene="{{gene}}"></variant-protein-view>
+                <variant-protein-view opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" project="{{project}}" study="{{study}}"
+                                      gene="{{gene}}" config="{{config.protein}}"></variant-protein-view>
             </div>
 
         </div>
@@ -178,6 +179,9 @@
                 variant: {
                     type: String,
                     value: ""
+                },
+                config: {
+                    type: Object
                 }
             },
             ready: function () {
@@ -196,7 +200,6 @@
                         });
                     this.query = query;
                 }
-
 //                this.protein = "BMPR2";
             },
             updateQuery: function (e) {

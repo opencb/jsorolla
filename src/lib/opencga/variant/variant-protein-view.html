@@ -102,7 +102,10 @@
                             _this.$.proteinsDiv.render();
 
                             if (proteinObjects.length > 0 && typeof _this.project !== "undefined" && typeof _this.study !== "undefined" && typeof _this.study.alias !== "undefined") {
-                                let params = {gene: _this.gene, "annot-ct": "missense_variant",
+                                let params = {
+                                    gene: _this.gene,
+                                    "annot-ct": "missense_variant,transcript_ablation,splice_acceptor_variant,splice_donor_variant,stop_gained,frameshift_variant,stop_lost,start_lost," +
+                                    "transcript_amplification,inframe_insertion,inframe_deletion",
                                     studies: _this.project + ":" + _this.study.alias, returnedStudies: _this.project + ":" + _this.study.alias,
                                     exclude: "studies.samplesData,studies.files"};
                                 _this.opencgaClient.variants().query(params)
@@ -173,13 +176,13 @@
                                 cx: (20 + proteinVariantAnnotation.position) * ratio,
                                 cy: center - 20 - 5 + verticalOffset,
                                 r: 5 + stats.altAlleleFreq * (8 - 5),
-                                style: "fill: red"});
+//                                style: "fill: red"});
+                                style: "fill: " + this.config.color[variants[i].annotation.consequenceTypes[j].sequenceOntologyTerms[0].name]});
 
                             $(variant).qtip({
                                 content: {
                                     title: variants[i].id,
-                                    text: variants[i].id + '<br>'
-                                    + stats.altAlleleFreq},
+                                    text: this._getMutationTooltip(variants[i], variants[i].annotation.consequenceTypes[j])},
                                 position: {viewport: $(window), target: "mouse", adjust: {x: 25, y: 15}},
                                 style: {width: true, classes: ' ui-tooltip ui-tooltip-shadow'},
                                 show: {delay: 250},
@@ -231,7 +234,7 @@
 
                 return svg;
             },
-            _createSvgRuleBar: function (length, settings) {
+            _createSvgRuleBar(length, settings) {
                 Object.assign(settings, {
                     height: 20,
                     startX: 20,
@@ -261,6 +264,17 @@
                     proteinPositioningInterval: 3
                 };
                 return config;
+            },
+            _getMutationTooltip(variant, consequenceType) {
+                let proteinVariantAnnotation = consequenceType.proteinVariantAnnotation;
+
+                return "ID: " + variant.id + '<br>'
+                + "<b>Mutation</b>: " + proteinVariantAnnotation.reference + "/" + proteinVariantAnnotation.alternate + '<br>'
+                + "Codon:" + consequenceType.codon + '<br>'
+//                                    + proteinVariantAnnotation.substitutionScores[0].source + ": " + proteinVariantAnnotation.substitutionScores[0].score + '<br>'
+//                                    + proteinVariantAnnotation.substitutionScores[1].source + ": " + proteinVariantAnnotation.substitutionScores[1].score + '<br>'
+                + "CADD: " + variant.annotation.functionalScore[0].score
+                + "Conservation: " + variant.annotation.conservation[0].score;
             }
         });
     </script>
