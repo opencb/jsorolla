@@ -218,6 +218,7 @@
     opencgaClient.users().login(OPENCGA_USER, OPENCGA_PASSWORD)
             .then(function() {
                 console.log("User " + OPENCGA_USER + " successfully logged in in opencga.");
+                opencgaClient = new OpenCGAClient(opencgaClientConfig);
             })
             .catch(function(e) {
                 console.log("Error logging in " + OPENCGA_USER, e);
@@ -227,6 +228,11 @@
     let fileId;
     if (typeof queryParams.BAM_NAME !== "undefined") {
         fileId = queryParams.BAM_NAME;
+    }
+
+    let study;
+    if (typeof queryParams.STUDY !== "undefined") {
+        study = queryParams.STUDY;
     }
 
     var genomeViewer;
@@ -352,7 +358,11 @@
             //visibleRegionSize: 9000,
             height: 150,
             renderer: new AlignmentRenderer(FEATURE_TYPES.alignment),
-            dataAdapter: new OpencgaAdapter(opencgaClient, "analysis/alignment", undefined, "query", {fileId: fileId})
+            dataAdapter: new OpencgaAdapter(opencgaClient, "analysis/alignment", undefined, "query",
+                    {
+                        fileId: fileId,
+                        study: study
+                    })
         });
 
         tracks.push(alignment);
