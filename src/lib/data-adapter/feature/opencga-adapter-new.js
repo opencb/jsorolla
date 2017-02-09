@@ -85,6 +85,8 @@ class OpencgaAdapter {
             return;
         }
 
+        var study = params.study;
+
         // Create the chunks to be retrieved
         let start = this._getStartChunkPosition(region.start);
         let end = this._getStartChunkPosition(region.end);
@@ -105,7 +107,11 @@ class OpencgaAdapter {
         let chunks = [];
         for (let i = 0; i < groupedRegions.length; i++) {
             args.webServiceCallCount++;
-            this.client.alignments().query(fileId, {region: groupedRegions[i]})
+            this.client.alignments().query(fileId,
+                {
+                    region: groupedRegions[i],
+                    study: study
+                })
                 .then(function (response) {
                     var responseChunks = _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
                     args.webServiceCallCount--;

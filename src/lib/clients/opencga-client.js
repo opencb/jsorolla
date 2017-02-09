@@ -828,7 +828,11 @@ class Alignment extends OpenCGAParentClass {
     }
 
     query(id, params, options) {
-        return this.get("analysis/alignment", id, "query", params, options);
+        if (params === undefined) {
+            params = {};
+        }
+        params["file"] = id;
+        return this.get("analysis/alignment", undefined, "query", params, options);
     }
 
     stats(id, params, options) {
