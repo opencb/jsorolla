@@ -123,7 +123,7 @@
 //                }
             },
             checkProject: function (project) {
-                return project == {};
+                return Object.keys(project).length == 0;
             },
             propagateGeneEvent: function (e) {
                 this.fire('gene', {gene: e.detail.gene});

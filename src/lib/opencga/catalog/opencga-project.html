@@ -25,7 +25,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <template is="dom-repeat" items="{{project.summary}}">
+                <template is="dom-repeat" items="{{_studySummaries}}">
                     <tr>
                         <td>
                             <a href="#" on-click="fireSelectStudy" data-study="{{item}}">{{item.name}}</a>
@@ -52,6 +52,13 @@
                     type: Object,
                     observer: 'projectChanged'
                 },
+                summaries: {
+                    type: Array,
+                    observer: 'studySummariesChanged'
+                }
+            },
+            ready: function () {
+                this._studySummaries = [];
             },
             fireSelectStudy: function (e) {
                 e.preventDefault();
@@ -61,24 +68,33 @@
                 if (typeof this.opencgaClient !== "undefined" && typeof this.project !== "undefined"
                     && Object.keys(this.project).length > 0) {
                     let _this = this;
-                    // If project is not provided with summary, quries are made to obatin study-summary details
-                    if (typeof this.project.summary === "undefined") {
+                    // If project is not provided with summary, queries are made to obtain study-summary details
+                    if (typeof this.summaries === "undefined") {
                         // Obtain the summary of the studies
                         let studyPromises = [];
-//                        this.project.studies.forEach(function (study) {
-//                            studyPromises.push(_this.opencgaClient.studies().summary(_this.project.alias + ":" + study.alias));
-//                        });
-//
-//                        Promise.all(studyPromises).then(function (responses) {
-//                            let studies = [];
-//                            responses.forEach(function (response) {
-//                                let study = response.response[0].result[0];
-//                                study.creationDate = moment(study.creationDate, "YYYYMMDDHHmmss").format('D MMM YY');
-//                                studies.push(study);
-//                            });
-//                            let _project = Object.assign({summary: studies}, _this.project);
-//                            _this.project = _project;
-//                        });
+                        this.project.studies.forEach(function (study) {
+                            studyPromises.push(_this.opencgaClient.studies().summary(_this.project.alias + ":" + study.alias));
+                        });
+
+                        Promise.all(studyPromises).then(function (responses) {
+                            let studies = [];
+                            responses.forEach(function (response) {
+                                let study = response.response[0].result[0];
+                                study.creationDate = moment(study.creationDate, "YYYYMMDDHHmmss").format('D MMM YY');
+                                studies.push(study);
+                            });
+                            _this._studySummaries = studies;
+                        });
+                    }
+                }
+            },
+            studySummariesChanged: function () {
+                if (typeof this.summaries !== "undefined" && this.summaries.length > 0) {
+                    for (let i = 0; i < this.summaries.length; i++) {
+                        if (this.project.alias === this.summaries[i].alias) {
+                            this._studySummaries = this.summaries[i].studies;
+                            break;
+                        }
                     }
                 }
             }
