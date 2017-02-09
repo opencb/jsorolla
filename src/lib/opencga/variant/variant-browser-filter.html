@@ -596,7 +596,7 @@
             is: 'variant-browser-filter',
             properties: {
                 project: {
-                    type: String,
+                    type: Object
                 },
                 study: {
                     type: Object,
@@ -681,7 +681,11 @@
                 return typeof consequenceType.title !== "undefined" && consequenceType.title != null;
             },
             moreStudiesPresent: function (studies) {
-                return studies.length > 1;
+                if (typeof studies !== "undefined") {
+                    return studies.length > 1;
+                } else {
+                    return false;
+                }
             },
             updateDifferentStudies: function () {
                 let differentStudies = [];
@@ -905,9 +909,9 @@
                     let selectedStudies = this.$$("#differentStudies").querySelectorAll("input:checked");
                     if (selectedStudies.length > 0) {
                         // Always add the study that we are browsing currently
-                        studies.push(this.project + ':' + this.study.alias);
+                        studies.push(this.project.alias + ':' + this.study.alias);
                         for (let i = 0; i < selectedStudies.length; i++) {
-                            studies.push(this.project + ':' + selectedStudies[i].value);
+                            studies.push(this.project.alias + ':' + selectedStudies[i].value);
                         }
                     }
 

@@ -62,7 +62,7 @@
             is: 'variant-browser-grid',
             properties: {
                 project: {
-                    type: String
+                    type: Object
                 },
                 study: {
                     type: Object,
@@ -127,7 +127,6 @@
             },
             _test: function () {
                 let getUrlQueryParams = this._getUrlQueryParams();
-                debugger
                 return ">>" + getUrlQueryParams.url;
             },
             ready: function () {
@@ -184,7 +183,6 @@
 
                     let urlQueryParams = this._getUrlQueryParams();
                     let queryParams = urlQueryParams.queryParams;
-
                     let _numTotal = -1;
                     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('destroy');
                     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable({
@@ -289,7 +287,7 @@
                         this.query = {};
                     }
                     if (typeof this.query.studies === "undefined" || this.query.studies == "" || this.query.studies.split(';').length == 1) {
-                        this.query.studies = this.project + ":" + this.study.alias;
+                        this.query.studies = this.project.alias + ":" + this.study.alias;
                     }
                     host += '/webservices/rest/v1/analysis/variant/query';
                 } else {
@@ -369,7 +367,7 @@
                             if (typeof row.annotation.consequenceTypes[i].geneName !== "undefined" && row.annotation.consequenceTypes[i].geneName != ""
                                 && typeof visited[row.annotation.consequenceTypes[i].geneName] === "undefined") {
                                 if (typeof this.field.context.project !== "undefined" && typeof this.field.context.study !== "undefined") {
-                                    geneLinks.push('<a style="cursor: pointer;white-space: nowrap" href="#gene/' + this.field.context.project +'/' +
+                                    geneLinks.push('<a style="cursor: pointer;white-space: nowrap" href="#gene/' + this.field.context.project.alias +'/' +
                                         this.field.context.study.alias + '/' + row.annotation.consequenceTypes[i].geneName + '">' + row.annotation.consequenceTypes[i].geneName + '</a>');
                                 } else {
                                     geneLinks.push('<a style="cursor: pointer;white-space: nowrap">' + row.annotation.consequenceTypes[i].geneName + '</a>')

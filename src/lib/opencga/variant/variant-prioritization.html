@@ -54,7 +54,7 @@
                     type: String
                 },
                 project: {
-                    type: String
+                    type: Object
                 },
                 study: {
                     type: Object
@@ -93,7 +93,7 @@
                 }
             },
             checkProject: function (project) {
-                return project == "";
+                return project == {};
             },
             propagateGeneEvent: function (e) {
                 this.fire('gene', {gene: e.detail.gene});

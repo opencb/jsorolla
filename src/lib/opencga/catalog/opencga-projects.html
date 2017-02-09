@@ -85,18 +85,18 @@
                         } else {
                             // Obtain the summary of the studies
                             let studyPromises = [];
-                            _this.projects[i].studies.forEach(function (study) {
-                                studyPromises.push(_this.opencgaClient.studies().summary(_this.projects[i].alias + ":" + study.alias));
-                            });
-                            projectPromises.push(Promise.all(studyPromises).then(function (responses) {
-                                let studies = [];
-                                responses.forEach(function (response) {
-                                    let study = response.response[0].result[0];
-                                    study.creationDate = moment(study.creationDate, "YYYYMMDDHHmmss").format('D MMM YY');
-                                    studies.push(study);
-                                });
-                                return studies;
-                            }));
+                            <!--_this.projects[i].studies.forEach(function (study) {-->
+                                <!--studyPromises.push(_this.opencgaClient.studies().summary(_this.projects[i].alias + ":" + study.alias));-->
+                            <!--});-->
+                            <!--projectPromises.push(Promise.all(studyPromises).then(function (responses) {-->
+                                <!--let studies = [];-->
+                                <!--responses.forEach(function (response) {-->
+                                    <!--let study = response.response[0].result[0];-->
+                                    <!--study.creationDate = moment(study.creationDate, "YYYYMMDDHHmmss").format('D MMM YY');-->
+                                    <!--studies.push(study);-->
+                                <!--});-->
+                                <!--return studies;-->
+                            <!--}));-->
                         }
                     }
 

@@ -31,7 +31,7 @@
             }
 
             th {
-                text-align:center
+                text-align: center
             }
         </style>
 
@@ -151,7 +151,7 @@
                     type: String
                 },
                 project: {
-                    type: String
+                    type: Object
                 },
                 study: {
                     type: Object
@@ -244,7 +244,7 @@
                 if (this.variant.split(':').length > 2) {
                     let params = {
                         ids: this.variant,
-                        studies: this.project + ":" + this.study.alias,
+                        studies: this.project.alias + ":" + this.study.alias,
                         exclude: "annotation,studies.files,studies.samplesData"
                     };
                     let _this = this;
