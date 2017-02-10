@@ -57,10 +57,20 @@
                     type: Object
                 },
                 projects: {
-                    type: Array
+                    type: Array,
+                    observer: 'projectsChanged'
                 },
                 studySummaries: {
-                    type: Array
+                    type: Array,
+                    observer: 'summariesChanged'
+                },
+                 /*
+                 Auto property is the mode that calls to web service from this component if set to true. By default,
+                 it is false (study summaries are given preference over projects)
+                 */
+                auto: {
+                    type: Boolean,
+                    value: false
                 },
                 hideText: {
                     type: Boolean,
@@ -68,20 +78,15 @@
                     value: false
                 }
             },
-            observers: [
-                'clientProjectChanged(opencgaClient, projects, studySummaries)'
-            ],
             ready: function() {
                 this._studies = [];
             },
-            clientProjectChanged: function(opencgaClient, projects, studySummaries) {
+            projectsChanged: function() {
                 if (typeof this.opencgaClient !== "undefined" && this.opencgaClient instanceof OpenCGAClient
                         && typeof this.projects !== "undefined" && this.projects.length > 0) {
                     let _this = this;
 
-                    if (typeof this.studySummaries !== "undefined" && this.studySummaries.length > 0) {
-                        _this.renderProjectsTable(_this.studySummaries);
-                    } else {
+                    if (this.auto) {
                         let projectPromises = [];
                         this.projects.forEach(function(project) {
                             let studyPromises = [];
@@ -109,6 +114,11 @@
                                 _this.renderProjectsTable(_studySummaries);
                             });
                     }
+                }
+            },
+            summariesChanged: function () {
+                if (!this.auto) {
+                    this.renderProjectsTable(this.studySummaries);
                 }
             },
             renderProjectsTable: function(projects) {

@@ -52,9 +52,17 @@
                     type: Object,
                     observer: 'projectChanged'
                 },
-                summaries: {
+                studySummaries: {
                     type: Array,
                     observer: 'studySummariesChanged'
+                },
+                /*
+                 Auto property is the mode that calls to web service from this component if set to true. By default,
+                 it is false (study summaries are given preference over project)
+                 */
+                auto: {
+                    type: Boolean,
+                    value: false
                 }
             },
             ready: function () {
@@ -68,8 +76,7 @@
                 if (typeof this.opencgaClient !== "undefined" && typeof this.project !== "undefined"
                     && Object.keys(this.project).length > 0) {
                     let _this = this;
-                    // If project is not provided with summary, queries are made to obtain study-summary details
-                    if (typeof this.summaries === "undefined") {
+                    if (this.auto) {
                         // Obtain the summary of the studies
                         let studyPromises = [];
                         this.project.studies.forEach(function (study) {
@@ -85,17 +92,24 @@
                             });
                             _this._studySummaries = studies;
                         });
+                    } else {
+                        // It is necessary to call because 'projectChanged' observer is called every time when a new project is selected.
+                        // Study summaries are called only once when they are set. If auto mode is false, respective studies for that project should be shown.
+                        _this.studySummariesChanged();
                     }
                 }
             },
             studySummariesChanged: function () {
-                if (typeof this.summaries !== "undefined" && this.summaries.length > 0) {
-                    for (let i = 0; i < this.summaries.length; i++) {
-                        if (this.project.alias === this.summaries[i].alias) {
-                            this._studySummaries = this.summaries[i].studies;
-                            break;
+                if (typeof this.studySummaries !== "undefined" && this.studySummaries.length > 0) {
+                    if (!this.auto) {
+                        for (let i = 0; i < this.studySummaries.length; i++) {
+                            if (this.project.alias === this.studySummaries[i].alias) {
+                                this._studySummaries = this.studySummaries[i].studies;
+                                break;
+                            }
                         }
                     }
+
                 }
             }
         });
