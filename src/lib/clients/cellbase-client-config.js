@@ -32,7 +32,7 @@ class CellBaseClientConfig {
             active: true,
             database: this.species + "_" + this.version + "_cellbase_cache",
             subcategories: ["genomic_chromosome", "genomic_region", "genomic_variant", "feature_gene", "feature_variation",
-                "feature_clinical", "feature_id", "feature_protein"]
+                "feature_clinical", "feature_id", "feature_protein", "feature_transcript"]
         }
     }
 

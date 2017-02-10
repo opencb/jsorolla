@@ -34,18 +34,24 @@
         </ul>
 
         <div class="tab-content">
-            <template is="dom-repeat" items="{{proteins}}" as="protein" id="proteinsDiv">
-                <template is="dom-if" if="{{protein.active}}">
-                    <br>
-                    <div role="tabpanel" class="tab-pane active" id="{{prefix}}{{protein.id}}"></div>
-                    <br>
+            <div hidden$="{{!checkProteinsAvailable(proteins)}}">
+                <template is="dom-repeat" items="{{proteins}}" as="protein" id="proteinsDiv">
+                    <template is="dom-if" if="{{protein.active}}">
+                        <br>
+                        <div role="tabpanel" class="tab-pane active" id="{{prefix}}{{protein.id}}"></div>
+                        <br>
+                    </template>
+                    <template is="dom-if" if="{{!protein.active}}">
+                        <br>
+                        <div role="tabpanel" class="tab-pane" id="{{prefix}}{{protein.id}}"></div>
+                        <br>
+                    </template>
                 </template>
-                <template is="dom-if" if="{{!protein.active}}">
-                    <br>
-                    <div role="tabpanel" class="tab-pane" id="{{prefix}}{{protein.id}}"></div>
-                    <br>
-                </template>
-            </template>
+            </div>
+            <div hidden$="{{checkProteinsAvailable(proteins)}}" style="padding-left: 10px">
+                <h4>No proteins present</h4>
+            </div>
+
         </div>
     </template>
 
@@ -84,7 +90,11 @@
                     this.prefix = "protein" + Utils.randomString(6);
                 }
             },
+            checkProteinsAvailable: function (proteins) {
+                return proteins.length > 0;
+            },
             _onGeneChange: function () {
+                this.proteins = []; // Reset the previously shown proteins svg
                 if (typeof this.cellbaseClient !== "undefined" && typeof this.opencgaClient !== "undefined") {
                     let _this = this;
                     this.cellbaseClient.getProteinClient(null, 'search', {gene: _this.gene})
@@ -234,7 +244,7 @@
 
                 return svg;
             },
-            _createSvgRuleBar(length, settings) {
+            _createSvgRuleBar: function (length, settings) {
                 Object.assign(settings, {
                     height: 20,
                     startX: 20,
@@ -257,7 +267,7 @@
 
                 return g;
             },
-            _getDefaultSetting() {
+            _getDefaultSetting: function () {
                 let config = {
                     width: 1000,
                     height: 140,
@@ -265,7 +275,7 @@
                 };
                 return config;
             },
-            _getMutationTooltip(variant, consequenceType) {
+            _getMutationTooltip: function (variant, consequenceType) {
                 let mutation = "-";
                 let codon = consequenceType.codon || '-';
                 let score = [];

@@ -84,8 +84,9 @@
                                     </h4>
 
                                     <div id="{{getStudy(study.studyId)}}">
-                                        <table class="table table-bordered" style="width: 70%">
-                                            <thead style="background-color: #eee;">
+                                        <div hidden$="{{!checkStatsAvailable(study.stats)}}">
+                                            <table class="table table-bordered" style="width: 70%">
+                                                <thead style="background-color: #eee;">
                                                 <tr>
                                                     <th scope="col" rowspan="2">Cohort</th>
                                                     <th scope="col" rowspan="2">Reference</th>
@@ -101,8 +102,8 @@
                                                     <th scope="col">0/1 (count)</th>
                                                     <th scope="col">1/1 (count)</th>
                                                 </tr>
-                                            </thead>
-                                            <tbody>
+                                                </thead>
+                                                <tbody>
                                                 <template is="dom-repeat" items="{{study.stats}}" as="cohort">
                                                     <tr>
                                                         <td>{{cohort.name}}</td>
@@ -116,8 +117,12 @@
                                                         <td>{{cohort.value.genotypesFreq.homalt}} ({{cohort.value.genotypesCount.homalt}})</td>
                                                     </tr>
                                                 </template>
-                                            </tbody>
-                                        </table>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div hidden$="{{checkStatsAvailable(study.stats)}}">
+                                            No Genotypes statistics available
+                                        </div>
                                     </div>
                                     <br>
                                 </div>
@@ -239,6 +244,9 @@
             },
             selectedGene: function (e) {
                 this.fire('propagate', {gene: e.detail.gene});
+            },
+            checkStatsAvailable: function (stats) {
+                return stats.length > 0;
             },
             variantChanged: function (e) {
                 if (this.variant.split(':').length > 2) {
