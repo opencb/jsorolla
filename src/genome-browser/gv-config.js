@@ -606,7 +606,7 @@ FEATURE_TYPES = {
         },
         color: function (f, chr) {
             if (f.nextMatePosition.referenceName != chr) {
-                return "lightgreen";
+                return "DarkGray";
             }
             return f.alignment.position.strand === "POS_STRAND" ? "DarkGray" : "LightGray";
             /**/
@@ -630,7 +630,7 @@ FEATURE_TYPES = {
             return f.nextMatePosition === undefined;
         },
         infoWidgetId: "id",
-        height: 13,
+        height: 10,
         histogramColor: "grey"
     },
     bam: {
