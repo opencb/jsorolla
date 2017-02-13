@@ -236,7 +236,7 @@
     }
 
     var genomeViewer;
-    var region = new Region({chromosome: "13", start: 32889611, end: 32889611});
+    var region = new Region({chromosome: "1", start: 14500, end: 15500});
     //        var region = new Region({chromosome: "X", start: 139865187, end: 139865193});
 
 
@@ -295,11 +295,11 @@
             autoRender: true,
             resizable: true,
             karyotypePanelConfig: {
-                collapsed: false,
+                collapsed: true,
                 collapsible: true
             },
             chromosomePanelConfig: {
-                collapsed: false,
+                collapsed: true,
                 collapsible: true
             },
             navigationBarConfig: {
@@ -339,7 +339,6 @@
                     }
                 }
             }),
-
             dataAdapter: new CellBaseAdapter(cellbaseClient, "genomic", "region", "gene",
                     {
                         exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence'
@@ -347,8 +346,8 @@
                         chunkSize: 100000
                     })
         });
-
         tracks.push(this.gene);
+
 
         let alignment = new AlignmentTrack({
             title: "Alignment",
@@ -356,7 +355,7 @@
             //minHistogramRegionSize: 12000,
             //maxLabelRegionSize: 3000,
             //visibleRegionSize: 9000,
-            height: 150,
+            height: 300,
             renderer: new AlignmentRenderer(FEATURE_TYPES.alignment),
             dataAdapter: new OpencgaAdapter(opencgaClient, "analysis/alignment", undefined, "query",
                     {
@@ -364,7 +363,6 @@
                         study: study
                     })
         });
-
         tracks.push(alignment);
         /*
         * var adapter = new OpencgaAdapter({

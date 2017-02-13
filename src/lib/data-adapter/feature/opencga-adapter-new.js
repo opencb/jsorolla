@@ -49,7 +49,6 @@ class OpencgaAdapter {
 
     getData(args) {
         var _this = this;
-
         var params = {};
 //                    histogram: (dataType == 'histogram')
         _.extend(params, this.params);
@@ -101,31 +100,84 @@ class OpencgaAdapter {
         } while(myRegion < end);
 
         let groupedRegions = this._groupQueries(regions);
-        // TODO: to REMOVE
         args.regions = groupedRegions;
 
         let chunks = [];
         for (let i = 0; i < groupedRegions.length; i++) {
             args.webServiceCallCount++;
-            this.client.alignments().query(fileId,
+            let alignments = this.client.alignments().query(fileId,
                 {
                     region: groupedRegions[i],
                     study: study
                 })
                 .then(function (response) {
-                    var responseChunks = _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
-                    args.webServiceCallCount--;
-                    chunks = chunks.concat(responseChunks);
-                    if (args.webServiceCallCount === 0) {
-                        args.done({
-                            items: chunks, dataType: dataType, chunkSize: chunkSize, sender: _this
-                        });
-                    }
+                    return _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
+                });
+
+
+            let coverage = this.client.alignments().coverage(fileId,
+                {
+                    region: groupedRegions[i],
+                    study: study
                 })
-                // .catch(function () {
-                //     console.log('Server error');
-                //     // args.done();
-                // });
+                .then(function (response) {
+                    let aux = _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
+                    // We fix a little the object
+                    for (let i = 0; i < aux.length; i++) {
+                        aux[i].windowSize = aux[i].value[0].windowSize;
+                        aux[i].value = aux[i].value[0].values;
+                    }
+                    return aux;
+                });
+
+            Promise.all([alignments, coverage]).then(function(response) {
+                args.webServiceCallCount--;
+                let auxArray = [];
+                // The array of alignments and coverage should be the same size
+                for (let i = 0; i < response[0].length; i++) {
+                    if (response[0][i].chunkKey === response[1][i].chunkKey) {
+                        let auxObject = {
+                            region: response[0][i].region,
+                            chunkKey: response[0][i].chunkKey,
+                            alignments: response[0][i].value,
+                            coverage: {
+                                windowSize: response[1][i].windowSize,
+                                value: response[1][i].value
+                            }
+                        };
+                        auxArray.push(auxObject);
+                    } else {
+                        console.log("Unexpected behaviour when retrieving alignments and coverage. Something went wrong.");
+                        console.log("Alignment chunk key: " + response[0][i].chunkKey + ". Coverage chunk key: "
+                            + response[1][i].chunkKey);
+                        return;
+                    }
+                }
+                chunks = chunks.concat(auxArray);
+
+                if (args.webServiceCallCount === 0) {
+                    args.done({
+                        items: chunks, dataType: dataType, chunkSize: chunkSize, sender: _this
+                    });
+                }
+            });
+
+
+            // this.client.alignments().query(fileId,
+            //     {
+            //         region: groupedRegions[i],
+            //         study: study
+            //     })
+            //     .then(function (response) {
+            //         var responseChunks = _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
+            //         args.webServiceCallCount--;
+            //         chunks = chunks.concat(responseChunks);
+            //         if (args.webServiceCallCount === 0) {
+            //             args.done({
+            //                 items: chunks, dataType: dataType, chunkSize: chunkSize, sender: _this
+            //             });
+            //         }
+            //     });
         }
 
         // /**
@@ -191,14 +243,13 @@ class OpencgaAdapter {
         var timeId = Utils.randomString(4) + this.resource + " save";
         console.time(timeId);
         /** time log **/
-
         var responseItems = [];
         for (var i = 0; i < data.response.length; i++) {
             // var chunks = [];
             // var queryResult = data.response[i].result;
             responseItems.push({
-                chunkKey: args.regions[i],
-                region: new Region(args.regions[i]),
+                chunkKey: data.response[i].id,
+                region: new Region(data.response[i].id),
                 value: data.response[i].result
             });
             // for (var j = 0; j < queryResult.length; j++) {

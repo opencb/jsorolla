@@ -86,86 +86,74 @@ AlignmentRenderer.prototype.render = function (response, args) {
 
     var drawCoverage = function (chunk) {
         //var coverageList = chunk.coverage.all;
-        var coverageList = chunk.coverage.all;
-        var coverageListA = chunk.coverage.a;
-        var coverageListC = chunk.coverage.c;
-        var coverageListG = chunk.coverage.g;
-        var coverageListT = chunk.coverage.t;
-        var start = parseInt(chunk.start);
-        var end = parseInt(chunk.end);
+        var coverageList = chunk.coverage.value;
+        // var coverageListA = chunk.coverage.a;
+        // var coverageListC = chunk.coverage.c;
+        // var coverageListG = chunk.coverage.g;
+        // var coverageListT = chunk.coverage.t;
+        var start = parseInt(chunk.region.start);
+        var end = parseInt(chunk.region.end);
         var pixelWidth = (end - start + 1) * args.pixelBase;
 
         var middle = args.width / 2;
-        var points = "", pointsA = "", pointsC = "", pointsG = "", pointsT = "";
         var baseMid = (args.pixelBase / 2) - 0.5;//4.5 cuando pixelBase = 10
 
-        var x, y, p = parseInt(chunk.start);
-        var lineA = "", lineC = "", lineG = "", lineT = "";
+        // var x, y, p = parseInt(chunk.start);
+        // var lineA = "", lineC = "", lineG = "", lineT = "";
         var coverageNorm = 200, covHeight = 50;
-        for (var i = 0; i < coverageList.length; i++) {
-            //x = _this.pixelPosition+middle-((_this.position-p)*_this.pixelBase)+baseMid;
-            x = args.pixelPosition + middle - ((args.position - p) * args.pixelBase);
-            xx = args.pixelPosition + middle - ((args.position - p) * args.pixelBase) + args.pixelBase;
 
-            lineA += x + "," + coverageListA[i] / coverageNorm * covHeight + " ";
-            lineA += xx + "," + coverageListA[i] / coverageNorm * covHeight + " ";
-            lineC += x + "," + (coverageListC[i] + coverageListA[i]) / coverageNorm * covHeight + " ";
-            lineC += xx + "," + (coverageListC[i] + coverageListA[i]) / coverageNorm * covHeight + " ";
-            lineG += x + "," + (coverageListG[i] + coverageListC[i] + coverageListA[i]) / coverageNorm * covHeight + " ";
-            lineG += xx + "," + (coverageListG[i] + coverageListC[i] + coverageListA[i]) / coverageNorm * covHeight + " ";
-            lineT += x + "," + (coverageListT[i] + coverageListG[i] + coverageListC[i] + coverageListA[i]) / coverageNorm * covHeight + " ";
-            lineT += xx + "," + (coverageListT[i] + coverageListG[i] + coverageListC[i] + coverageListA[i]) / coverageNorm * covHeight + " ";
+        let histogram = [];
+        let length = coverageList.length;
+        let maximumValue = Math.max.apply(null, coverageList);
+        let points = "";
 
-            p++;
+        if (maximumValue > 0) {
+            let maxValueRatio = covHeight / maximumValue;
+
+
+            let previousCoverage = -1;
+            let previousPosition = -1;
+
+            let xx = args.pixelPosition + middle - ((args.position - (start)) * args.pixelBase);
+            histogram.push(xx + "," + covHeight);
+            for (let i = 0; i < length; i++) {
+                if (coverageList[i] !== previousCoverage) {
+                    previousCoverage = coverageList[i];
+                    if (previousPosition + 1 < i) {
+                        // We need to add the previous position as well to make a flat line between positions with equal coverage
+                        let x = args.pixelPosition + middle - ((args.position - (start + (i - 1))) * args.pixelBase);
+                        let y = covHeight - (coverageList[i - 1] * maxValueRatio);
+                        if (y < 0 || y > covHeight) {
+                            debugger
+                        }
+                        histogram.push(x + "," + y);
+                    }
+                    previousPosition = i;
+
+                    let x = args.pixelPosition + middle - ((args.position - (start + i)) * args.pixelBase);
+                    let y = covHeight - (coverageList[i] * maxValueRatio);
+                    histogram.push(x + "," + y);
+                }
+            }
+
+            let x = args.pixelPosition + middle - ((args.position - (start + (length - 1))) * args.pixelBase);
+            let y = covHeight - (coverageList[length - 1] * maxValueRatio);
+            histogram.push(x + "," + y);
+            histogram.push(x + "," + covHeight);
+            points = histogram.join(" ");
+        } else {
+            let x1 = args.pixelPosition + middle - ((args.position - (start)) * args.pixelBase);
+            let x2 = args.pixelPosition + middle - ((args.position - (start + (length - 1))) * args.pixelBase);
+            points = x1 + "," + covHeight + " " + x2 + "," + covHeight;
         }
 
-        //reverse to draw the polylines(polygons) for each nucleotid
-        var rlineC = lineC.split(" ").reverse().join(" ").trim();
-        var rlineG = lineG.split(" ").reverse().join(" ").trim();
-        var rlineT = lineT.split(" ").reverse().join(" ").trim();
-
-        var firstPoint = args.pixelPosition + middle - ((args.position - parseInt(chunk.start)) * args.pixelBase) + baseMid;
-        var lastPoint = args.pixelPosition + middle - ((args.position - parseInt(chunk.end)) * args.pixelBase) + baseMid;
-
-        var polA = SVG.addChild(bamCoverGroup, "polyline", {
-            "points": firstPoint + ",0 " + lineA + lastPoint + ",0",
-            //"opacity":"1",
-            //"stroke-width":"1",
-            //"stroke":"gray",
-            "fill": "green"
-        });
-        var polC = SVG.addChild(bamCoverGroup, "polyline", {
-            "points": lineA + " " + rlineC,
-            //"opacity":"1",
-            //"stroke-width":"1",
-            //"stroke":"black",
-            "fill": "blue"
-        });
-        var polG = SVG.addChild(bamCoverGroup, "polyline", {
-            "points": lineC + " " + rlineG,
-            //"opacity":"1",
-            //"stroke-width":"1",
-            //"stroke":"black",
-            "fill": "gold"
-        });
-        var polT = SVG.addChild(bamCoverGroup, "polyline", {
-            "points": lineG + " " + rlineT,
-            //"opacity":"1",
-            //"stroke-width":"1",
-            //"stroke":"black",
-            "fill": "red"
-        });
-
-        var dummyRect = SVG.addChild(bamCoverGroup, "rect", {
-            "x": args.pixelPosition + middle - ((args.position - start) * args.pixelBase),
-            "y": 0,
+        var dummyRect = SVG.addChild(bamCoverGroup, "polyline", {
+            "points": points,
+            "fill": 'lightgrey',
             "width": pixelWidth,
             "height": covHeight,
-            "opacity": "0.5",
-            "fill": "lightgray",
             "cursor": "pointer"
         });
-
 
         $(dummyRect).qtip({
             content: " ",
@@ -177,13 +165,14 @@ AlignmentRenderer.prototype.render = function (response, args) {
 
 
         args.trackListPanel.on('mousePosition:change', function (e) {
-            var pos = e.mousePos - parseInt(chunk.start);
+            var pos = e.mousePos - parseInt(start);
             //if(coverageList[pos]!=null){
-            var str = 'depth: <span class="ssel">' + coverageList[pos] + '</span><br>' +
-                '<span style="color:green">A</span>: <span class="ssel">' + chunk.coverage.a[pos] + '</span><br>' +
-                '<span style="color:blue">C</span>: <span class="ssel">' + chunk.coverage.c[pos] + '</span><br>' +
-                '<span style="color:darkgoldenrod">G</span>: <span class="ssel">' + chunk.coverage.g[pos] + '</span><br>' +
-                '<span style="color:red">T</span>: <span class="ssel">' + chunk.coverage.t[pos] + '</span><br>';
+            // var str = 'depth: <span class="ssel">' + coverageList[pos] + '</span><br>' +
+            //     '<span style="color:green">A</span>: <span class="ssel">' + chunk.coverage.a[pos] + '</span><br>' +
+            //     '<span style="color:blue">C</span>: <span class="ssel">' + chunk.coverage.c[pos] + '</span><br>' +
+            //     '<span style="color:darkgoldenrod">G</span>: <span class="ssel">' + chunk.coverage.g[pos] + '</span><br>' +
+            //     '<span style="color:red">T</span>: <span class="ssel">' + chunk.coverage.t[pos] + '</span><br>';
+            var str = 'depth: <span class="ssel">' + coverageList[pos] + '</span><br>';
             $(dummyRect).qtip('option', 'content.text', str);
             //}
         });
@@ -239,6 +228,10 @@ AlignmentRenderer.prototype.render = function (response, args) {
                     });
                     position += myLength;
                     length += feature.alignment.cigar[i].operationLength;
+                    break;
+                case "SKIP":
+                    cigar += "N";
+                    position += parseInt(feature.alignment.cigar[i].operationLength);
                     break;
                 default:
                     debugger;
@@ -369,14 +362,18 @@ AlignmentRenderer.prototype.render = function (response, args) {
 
                 $(featureGroup).qtip({
                     content: {text: tooltipText, title: tooltipTitle},
-                    position: {target: "mouse", adjust: {x: 25, y: 15}},
+                    // position: {target: "mouse", adjust: {x: 25, y: 15}},
                     style: {width: 300, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
-                    show: 'mouseenter',
-                    hide: {
-                        event: 'mousedown mouseup mouseleave',
-                        delay: 300,
-                        fixed: true
-                    }
+                    show: {
+                        event: 'click',
+                        solo: true
+                    },
+                    // hide: {
+                    //     event: 'mousedown mouseup mouseleave',
+                    //     delay: 300,
+                    //     fixed: true
+                    // }
+                    hide: 'unfocus'
                 });
 
                 featureGroup.addEventListener('click', function (event) {
@@ -575,10 +572,8 @@ AlignmentRenderer.prototype.render = function (response, args) {
     };
 
     var drawChunk = function (chunk) {
-        // TODO: Recover this call
-        // drawCoverage(chunk.value);
-        // var alignments = chunk.value.alignments;
-        var alignments = chunk.value;
+        drawCoverage(chunk);
+        var alignments = chunk.alignments;
         for (var i = 0, li = alignments.length; i < li; i++) {
             var alignment = alignments[i];
             if (viewAsPairs) {
