@@ -1,7 +1,7 @@
 <link rel="import" href="../opencga/variant/variant-browser-grid.html">
 <link rel="import" href="../opencga/variant/variant-protein-view.html">
 
-<dom-module id="opencga-gene-view">
+<dom-module id="opencga-transcript-view">
     <template>
         <style is="custom-style" include="jso-styles"></style>
         <style>
@@ -17,11 +17,11 @@
 
         <div>
             <div style="float: right;padding: 10px 5px 10px 5px">
-                <button type="button" class="btn btn-primary" on-click="showBrowser">
-                    <i class="fa fa-hand-o-left" aria-hidden="true"></i> Variant Browser</button>
+                <button type="button" class="btn btn-primary" on-click="showGeneView">
+                    <i class="fa fa-hand-o-left" aria-hidden="true"></i> Gene</button>
             </div>
 
-            <h2>{{geneObj.name}}</h2>
+            <h2>{{transcriptObj.name}}</h2>
 
             <div class="row" style="padding: 5px 0px 25px 0px">
                 <div class="col-md-5">
@@ -29,76 +29,30 @@
                     <table width="100%">
                         <tr>
                             <td class="summary-title" width="20%">Name</td>
-                            <td width="80%">{{geneObj.name}} ({{geneObj.id}})</td>
+                            <td width="80%">{{transcriptObj.name}} ({{transcriptObj.id}})</td>
                         </tr>
                         <tr>
                             <td class="summary-title" width="20%">Biotype</td>
-                            <td width="80%">{{geneObj.biotype}}</td>
-                        </tr>
-                        <tr>
-                            <td class="summary-title" width="20%">Description</td>
-                            <td width="80%">{{geneObj.description}}</td>
+                            <td width="80%">{{transcriptObj.biotype}}</td>
                         </tr>
                         <tr>
                             <td class="summary-title">Location</td>
-                            <td>{{geneObj.chromosome}}:{{geneObj.start}}-{{geneObj.end}} ({{geneObj.strand}})</td>
+                            <td>{{transcriptObj.chromosome}}:{{transcriptObj.start}}-{{transcriptObj.end}} ({{transcriptObj.strand}})</td>
                         </tr>
                         <tr>
                             <td class="summary-title">Genome Browser</td>
                             <td>
-                                <a target="_blank" href="http://genomemaps.org/?region={{geneObj.chromosome}}:{{geneObj.start}}-{{geneObj.end}}">
-                                    {{geneObj.chromosome}}:{{geneObj.start}}-{{geneObj.end}}
+                                <a target="_blank" href="http://genomemaps.org/?region={{transcriptObj.chromosome}}:{{transcriptObj.start}}-{{transcriptObj.end}}">
+                                    {{transcriptObj.chromosome}}:{{transcriptObj.start}}-{{transcriptObj.end}}
                                 </a>
                             </td>
                         </tr>
                     </table>
                 </div>
 
-                <div class="col-md-7">
-                    <h3>Transcripts</h3>
-                    <table class="table table-bordered" width="100%">
-                        <thead style="background-color: #eeeeee">
-                        <tr>
-                            <th>Name</th>
-                            <th>Ensembl ID</th>
-                            <th>Biotype</th>
-                            <th>Location</th>
-                            <th>Coding</th>
-                            <!--<th>cDNA</th>-->
-                            <!--<th>CDS Length</th>-->
-                            <th>Flags</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <template is="dom-repeat" items="{{geneObj.transcripts}}" as="transcript">
-                            <tr>
-                                <td>{{transcript.name}}</td>
-                                <td>
-                                    <a href="#transcript/{{project.alias}}/{{study.alias}}/{{transcript.id}}">{{transcript.id}}</a>
-                                </td>
-                                <td>{{transcript.biotype}}</td>
-                                <td>
-                                    <a target="_blank"
-                                       href="http://genomemaps.org/?region={{transcript.chromosome}}:{{transcript.start}}-{{transcript.end}}">
-                                        {{transcript.chromosome}}:{{transcript.start}}-{{transcript.end}}
-                                    </a>
-                                </td>
-                                <td>
-                                    <a target="_blank"
-                                       href="http://genomemaps.org/?region={{transcript.chromosome}}:{{transcript.genomicCodingStart}}-{{transcript.genomicCodingEnd}}">
-                                        {{transcript.genomicCodingStart}}-{{transcript.genomicCodingEnd}}
-                                    </a>
-                                </td>
-                                <!--<td>-->
-                                <!--{{transcript.cdnaCodingStart}}-{{transcript.cdnaCodingEnd}}-->
-                                <!--</td>-->
-                                <!--<td>{{transcript.cdsLength}}</td>-->
-                                <td>{{transcript.annotationFlags}}</td>
-                            </tr>
-                        </template>
-                        </tbody>
-                    </table>
-                </div>
+                <!--<div class="col-md-7">-->
+
+                <!--</div>-->
             </div>
         </div>
 
@@ -148,7 +102,7 @@
     </template>
     <script>
         Polymer({
-            is: 'opencga-gene-view',
+            is: 'opencga-transcript-view',
             properties: {
                 cellbaseClient: {
                     type: Object
@@ -162,9 +116,9 @@
                 study: {
                     type: Object
                 },
-                gene: {
+                transcript: {
                     type: String,
-                    observer: 'geneChanged'
+                    observer: 'transcriptChanged'
                 },
                 populationFrequencies: {
                     type: Array
@@ -185,21 +139,21 @@
             },
             ready: function () {
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
-                    this.prefix = "gene" + Utils.randomString(6);
+                    this.prefix = "transcript" + Utils.randomString(6);
                 }
             },
-            geneChanged: function (neo, old) {
+            transcriptChanged: function () {
+                console.log("transcript", this.transcript)
                 let query = {};
                 let _this= this;
-                if (typeof this.gene !== "undefined" && this.gene != "") {
-                    query.gene = this.gene;
-                    this.cellbaseClient.getGeneClient(this.gene, 'info', {exclude: "annotation"}, {})
+                if (typeof this.transcript !== "undefined" && this.transcript != "") {
+                    query["annot-xref"] = this.transcript;
+                    _this.cellbaseClient.getTranscriptClient(this.transcript, 'info', {}, {})
                         .then(function (response) {
-                            _this.geneObj = response.response[0].result[0];
+                            _this.transcriptObj = response.response[0].result[0];
                         });
-                    this.query = query;
+                    _this.query = query;
                 }
-//                this.protein = "BMPR2";
             },
             updateQuery: function (e) {
                 let query = this.query;
@@ -222,17 +176,17 @@
             checkVariant: function(variant) {
                 return variant.split(':').length > 2;
             },
-            showBrowser: function () {
-                $('#browser').show();
-                let hash = window.location.hash.split('/');
-                let newHash = '#browser/' + hash[1] + '/' + hash[2];
-                window.location.hash = newHash;
-            },
+//            showGeneView: function () {
+//                $('#browser').show();
+//                let hash = window.location.hash.split('/');
+//                let newHash = '#browser/' + hash[1] + '/' + hash[2];
+//                window.location.hash = newHash;
+//            },
             onSelectVariant: function(e) {
                 this.variant = e.detail.id;
 //                this.V = e.detail.variant;
 //                this.display3D();
-            },
+            }
         });
     </script>
 </dom-module>
