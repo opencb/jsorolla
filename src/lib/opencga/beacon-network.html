@@ -65,7 +65,11 @@
                                         let beaconResponse = JSON.parse(xhr.response);
                                         for (let j = 0; j < beaconResponse.length; j++) {
                                             if (beaconResponse[j].response != null) {
-                                                $("#" + _this.hosts[i]).html("" + beaconResponse[j].response);
+                                                let response = beaconResponse[j].response.toString();
+                                                $("#" + _this.hosts[i]).html("" + response.charAt(0).toUpperCase() + response.slice(1));
+                                                if (response == "true") {
+                                                    $("#" + _this.hosts[i]).css("color", "red"); // Highlighting the true response in the table
+                                                }
                                             } else {
                                                 $("#" + _this.hosts[i]).html("False");
                                             }

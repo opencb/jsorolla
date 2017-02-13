@@ -17,8 +17,8 @@
 
         <div>
             <div style="float: right;padding: 10px 5px 10px 5px">
-                <button type="button" class="btn btn-primary" on-click="showGeneView">
-                    <i class="fa fa-hand-o-left" aria-hidden="true"></i> Gene</button>
+                <button type="button" class="btn btn-primary" on-click="showBrowser">
+                    <i class="fa fa-hand-o-left" aria-hidden="true"></i> Variant Browser</button>
             </div>
 
             <h2>{{transcriptObj.name}}</h2>
@@ -38,6 +38,10 @@
                         <tr>
                             <td class="summary-title">Location</td>
                             <td>{{transcriptObj.chromosome}}:{{transcriptObj.start}}-{{transcriptObj.end}} ({{transcriptObj.strand}})</td>
+                        </tr>
+                        <tr>
+                            <td class="summary-title">Gene</td>
+                            <td><a href="#gene/{{project.alias}}/{{study.alias}}/{{gene}}">{{gene}}</a></td>
                         </tr>
                         <tr>
                             <td class="summary-title">Genome Browser</td>
@@ -93,7 +97,7 @@
 
             <div role="tabpanel" class="tab-pane" id="{{prefix}}Protein">
                 <variant-protein-view opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" project="{{project}}" study="{{study}}"
-                                      gene="{{gene}}" config="{{config.protein}}"></variant-protein-view>
+                                      ids="{{transcriptObj.id}}" config="{{config.protein}}"></variant-protein-view>
             </div>
 
         </div>
@@ -120,6 +124,9 @@
                     type: String,
                     observer: 'transcriptChanged'
                 },
+                gene: {
+                    type: String
+                },
                 populationFrequencies: {
                     type: Array
                 },
@@ -143,7 +150,6 @@
                 }
             },
             transcriptChanged: function () {
-                console.log("transcript", this.transcript)
                 let query = {};
                 let _this= this;
                 if (typeof this.transcript !== "undefined" && this.transcript != "") {
@@ -176,12 +182,11 @@
             checkVariant: function(variant) {
                 return variant.split(':').length > 2;
             },
-//            showGeneView: function () {
-//                $('#browser').show();
-//                let hash = window.location.hash.split('/');
-//                let newHash = '#browser/' + hash[1] + '/' + hash[2];
-//                window.location.hash = newHash;
-//            },
+            showBrowser: function () {
+                let hash = window.location.hash.split('/');
+                let newHash = '#browser/' + hash[1] + '/' + hash[2];
+                window.location.hash = newHash;
+            },
             onSelectVariant: function(e) {
                 this.variant = e.detail.id;
 //                this.V = e.detail.variant;

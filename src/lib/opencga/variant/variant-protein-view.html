@@ -82,7 +82,12 @@
                 },
                 gene: {
                     type: String,
-                    observer: "_onGeneChange"
+                    observer: "_fetchProteins"
+                },
+                // xref ids accept protein ids, transcript ids. Eg: CCDS31418.1,Q9UL59,ENST00000278314
+                ids: {
+                    type: String,
+                    observer: "_fetchProteins"
                 },
                 prefix: {
                     type: String
@@ -96,11 +101,21 @@
             checkProteinsAvailable: function (proteins) {
                 return proteins.length > 0;
             },
-            _onGeneChange: function () {
+            _fetchProteins: function () {
                 this.proteins = []; // Reset the previously shown proteins svg
                 if (typeof this.cellbaseClient !== "undefined" && typeof this.opencgaClient !== "undefined") {
                     let _this = this;
-                    this.cellbaseClient.getProteinClient(null, 'search', {gene: _this.gene})
+                    let queryParams = {};
+                    if (typeof this.gene !== "undefined" && this.gene != "") {
+                        queryParams.gene = this.gene;
+                        if (typeof this.ids !== "undefined" && this.ids != "") {
+                            queryParams.xrefs = this.ids;
+                        }
+                    } else if (typeof this.ids !== "undefined" && this.ids != "") {
+                        queryParams.xrefs = this.ids;
+                    }
+
+                    this.cellbaseClient.getProteinClient(null, 'search', queryParams)
                         .then(function (response) {
                             let proteinObjects = response.response[0].result;
 

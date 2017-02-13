@@ -199,7 +199,6 @@
                         });
                     this.query = query;
                 }
-//                this.protein = "BMPR2";
             },
             updateQuery: function (e) {
                 let query = this.query;
@@ -223,7 +222,6 @@
                 return variant.split(':').length > 2;
             },
             showBrowser: function () {
-                $('#browser').show();
                 let hash = window.location.hash.split('/');
                 let newHash = '#browser/' + hash[1] + '/' + hash[2];
                 window.location.hash = newHash;

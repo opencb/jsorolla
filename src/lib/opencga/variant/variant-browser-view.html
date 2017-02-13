@@ -18,7 +18,7 @@
 <!--<link rel="import" href="variant-active-filters.html">-->
 <link rel="import" href="../opencga-active-filters.html">
 <link rel="import" href="../../cellbase/variation/cellbase-variantannotation-view.html">
-<link rel="import" href="beacon-network.html">
+<link rel="import" href="../beacon-network.html">
 <!--<link rel="import" href="../../cellbase/genome-context.html">-->
 
 <dom-module id="variant-browser-view">
@@ -139,7 +139,8 @@
                         <!--Beacon network-->
                         <div role="tabpanel" class="tab-pane" id="{{prefix}}Beacon">
                             <br>
-                            <button class="btn btn-primary" type="button" on-click="triggerBeacon">Search beacon network</button>
+                            <button class="btn btn-primary" type="button" on-click="triggerBeacon">Search Beacon Network</button>
+                            <a data-toggle="tooltip" title="Beacon Network is a search engine across the world's public beacons. You can find it here - https://beacon-network.org/#/"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
                             <br><br>
                             <beacon-network hosts="{{beaconHosts}}" search="{{searchBeacon}}" variant="{{variant}}"></beacon-network>
                         </div>
