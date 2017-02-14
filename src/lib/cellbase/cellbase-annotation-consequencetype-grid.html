@@ -25,6 +25,9 @@
                 consequenceTypes: {
                     type: Object,
                     observer: 'assignColors'
+                },
+                hashFragmentCredentials: {
+                    type: Object
                 }
             },
             assignColors: function () {
@@ -94,7 +97,8 @@
                         [
                             {
                                 title: 'Uniprot Accession',
-                                field: 'proteinVariantAnnotation.uniprotAccession',
+                                field: {context: this},
+                                formatter: this.uniprotAccessionFormatter,
                                 colspan: 1,
                                 rowspan: 1
                             },
@@ -133,6 +137,19 @@
                         ]
                     ]
                 });
+            },
+            uniprotAccessionFormatter: function (value, row, index) {
+                if (typeof row.proteinVariantAnnotation !== 'undefined' && typeof row.proteinVariantAnnotation.uniprotAccession !== 'undefined') {
+                    if (typeof this.field.context.hashFragmentCredentials !== "undefined") {
+                        return '<a href="#protein/' + this.field.context.hashFragmentCredentials.project + '/' + this.field.context.hashFragmentCredentials.study + '/' +
+                            row.proteinVariantAnnotation.uniprotAccession + '">' + row.proteinVariantAnnotation.uniprotAccession + '</a>';
+                    } else {
+                        return '<a href="http://www.uniprot.org/uniprot/' + row.proteinVariantAnnotation.uniprotAccession + '">' + row.proteinVariantAnnotation.uniprotAccession
+                           + '</a>';
+                    }
+                } else {
+                    return '-';
+                }
             },
             seqOntologyFormatter: function (value, row, index) {
                 let soTerm = row.sequenceOntologyTerms[0];

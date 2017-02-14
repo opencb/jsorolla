@@ -247,7 +247,7 @@ class Lollipop {
             if (typeof variant.annotation.functionalScore !== "undefined") {
                 for (let i = 0; i < variant.annotation.functionalScore.length; i++) {
                     if (variant.annotation.functionalScore[i].source == "cadd_scaled") {
-                        cadd = variant.annotation.functionalScore[i].score;
+                        cadd = Number(variant.annotation.functionalScore[i].score).toFixed(2);
                         break;
                     }
                 }
@@ -256,16 +256,21 @@ class Lollipop {
             if (typeof variant.annotation.conservation !== "undefined") {
                 for (let j = 0; j < variant.annotation.conservation.length; j++) {
                     conservation.push("<b>" + variant.annotation.conservation[j].source.charAt(0).toUpperCase()
-                        + variant.annotation.conservation[j].source.slice(1) + "</b>: " + variant.annotation.conservation[j].score);
+                        + variant.annotation.conservation[j].source.slice(1) + "</b>: " + Number(variant.annotation.conservation[j].score).toFixed(3));
                 }
             }
         }
 
-        return "<b>ID</b>: " + variant.id + "<br>"
+        let tooltip = "<b>ID</b>: " + variant.id + "<br>"
             + "<b>Mutation</b>: " + mutation + "<br>"
-            + "<b>Codon</b>: " + codon + "<br>"
-            + score.join("<br>") + "<br>"
-            + "<b>CADD</b>: " + cadd + "<br>"
-            + conservation.join("<br>");
+            + "<b>Codon</b>: " + codon + "<br>";
+        if (score.length > 0) {
+            tooltip += score.join("<br>") + "<br>";
+        }
+        tooltip += "<b>CADD</b>: " + cadd + "<br>";
+        if (conservation.length > 0) {
+            tooltip += conservation.join("<br>");
+        }
+        return tooltip;
     }
 }

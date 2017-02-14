@@ -72,7 +72,8 @@
                         <!--Annotation Tab-->
                         <div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">
                             <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-client="{{cellbaseClient}}" mode="vertical"
-                                                             consequence-types="{{consequenceTypes}}" protein-substitution-scores="{{proteinSubstitutionScores}}" style="font-size: 12px"></cellbase-variantannotation-view>
+                                                             hash-fragment-credentials="{{hashFragmentCredentials}}" consequence-types="{{consequenceTypes}}"
+                                                             protein-substitution-scores="{{proteinSubstitutionScores}}" style="font-size: 12px"></cellbase-variantannotation-view>
                         </div>
 
                         <!--Genotypes & Files Tab-->
@@ -89,7 +90,7 @@
                                                 <thead style="background-color: #eee;">
                                                 <tr>
                                                     <th scope="col" rowspan="2">Cohort</th>
-                                                    <th scope="col" rowspan="2">Reference</th>
+                                                    <th scope="col" rowspan="2">Reference</th>hash-fragment-credentials="{{hashFragmentCredentials}}"
                                                     <th scope="col" rowspan="2">Alternate</th>
                                                     <th scope="col" rowspan="2">MAF (allele)</th>
                                                     <th colspan="2" scope="colgroup">Allele Frequencies</th>
@@ -208,6 +209,9 @@
                     type: Object
                 },
             },
+            observers: [
+                'projectStudyObtained(project, study)'
+            ],
             ready: function () {
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
                     this.prefix = "view" + Utils.randomString(6);
@@ -233,6 +237,14 @@
                     "protein_substitution": "Protein Substitution",
                     "annot-go": "GO",
                     "annot-hpo": "HPO"
+                }
+            },
+            projectStudyObtained: function (project, study) {
+                if (typeof this.project !== "undefined" && this.project.alias != "" && typeof this.study !== "undefined" && this.study.alias != "") {
+                    this.hashFragmentCredentials = {
+                        project: this.project.alias,
+                        study: this.study.alias
+                    }
                 }
             },
             checkVariant: function(variant) {

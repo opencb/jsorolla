@@ -89,8 +89,8 @@
                 <!-- Bottom tabs with specific variant information -->
                 <div style="padding-top: 20px; height: 400px" hidden$="{{!checkVariant(variant)}}">
                     <h3>Advanced Annotation for Variant: {{variant}}</h3>
-                    <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-client="{{cellbaseClient}}" style="font-size: 12px"
-                                                     population-frequencies="{{populationFrequencies}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
+                    <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-client="{{cellbaseClient}}" hash-fragment-credentials="{{hashFragmentCredentials}}"
+                                                     style="font-size: 12px" population-frequencies="{{populationFrequencies}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
                                                      consequence-types="{{consequenceTypes}}"></cellbase-variantannotation-view>
                 </div>
             </div>
@@ -144,9 +144,20 @@
                     type: Object
                 }
             },
+            observers: [
+                'projectStudyObtained(project, study)'
+            ],
             ready: function () {
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
                     this.prefix = "transcript" + Utils.randomString(6);
+                }
+            },
+            projectStudyObtained: function (project, study) {
+                if (typeof this.project !== "undefined" && this.project.alias != "" && typeof this.study !== "undefined" && this.study.alias != "") {
+                    this.hashFragmentCredentials = {
+                        project: this.project.alias,
+                        study: this.study.alias
+                    }
                 }
             },
             transcriptChanged: function () {

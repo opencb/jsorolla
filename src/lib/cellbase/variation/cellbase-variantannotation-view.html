@@ -58,7 +58,7 @@
                     </div>
                     <!--Consequence types Tab-->
                     <div role="tabpanel" class="tab-pane" id="{{prefix}}VariantAnnotationConsequenceTypes">
-                        <cellbase-annotation-consequencetype-grid data="{{variantAnnotation.consequenceTypes}}" prefix="{{prefix}}annotationView"
+                        <cellbase-annotation-consequencetype-grid data="{{variantAnnotation.consequenceTypes}}" prefix="{{prefix}}annotationView" hash-fragment-credentials="{{hashFragmentCredentials}}"
                                                                   consequence-types="{{consequenceTypes}}"></cellbase-annotation-consequencetype-grid>
                     </div>
                     <!--Population frequency Tab-->
@@ -177,13 +177,17 @@
                 proteinSubstitutionScores: {
                     type: Object
                 },
-                prefix: {
-                    type: String
-                },
                 mode: {
                     type: String,
                     value: "horizontal"
+                },
+                hashFragmentCredentials: {
+                    type: Object
+                },
+                prefix: {
+                    type: String
                 }
+
             },
             ready: function () {
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
