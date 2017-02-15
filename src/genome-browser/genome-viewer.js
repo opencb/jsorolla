@@ -501,36 +501,29 @@ GenomeViewer.prototype = {
 
     _createOverviewTrackListPanel: function (target) {
         var _this = this;
-        var trackListPanel = new TrackListPanel({
-            title: 'Region overview',
-            height: 20,
-            visibleRegionSize: 200,
 
-            renderer: new SequenceRenderer(),
-            dataAdapter: new CellBaseAdapter(_this.client, "genomic", "region", "sequence", {}, { chunkSize: 1000})
+        var trackListPanel = new TrackListPanel({
+            cellBaseHost: this.cellBaseHost,
+            cellBaseVersion: this.cellBaseVersion,
+            target: target,
+            autoRender: true,
+            width: this.width - this.sidePanelWidth,
+            zoomMultiplier: this.overviewZoomMultiplier,
+            title: 'Region overview',
+            showRegionOverviewBox: true,
+            collapsible: this.regionPanelConfig.collapsible,
+            region: this.region,
+            species: this.species,
+            handlers: {
+                'region:change': function (event) {
+                    event.sender = undefined;
+                    _this._regionChangeHandler(event);
+                },
+                'region:move': function (event) {
+                    _this._regionMoveHandler(event);
+                }
+            }
         });
-        // var trackListPanel = new TrackListPanel({
-        //     cellBaseHost: this.cellBaseHost,
-        //     cellBaseVersion: this.cellBaseVersion,
-        //     target: target,
-        //     autoRender: true,
-        //     width: this.width - this.sidePanelWidth,
-        //     zoomMultiplier: this.overviewZoomMultiplier,
-        //     title: 'Region overview',
-        //     showRegionOverviewBox: true,
-        //     collapsible: this.regionPanelConfig.collapsible,
-        //     region: this.region,
-        //     species: this.species,
-        //     handlers: {
-        //         'region:change': function (event) {
-        //             event.sender = undefined;
-        //             _this._regionChangeHandler(event);
-        //         },
-        //         'region:move': function (event) {
-        //             _this._regionMoveHandler(event);
-        //         }
-        //     }
-        // });
 
         this.on('region:change', function (event) {
             if (event.sender != trackListPanel) {

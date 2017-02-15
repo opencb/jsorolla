@@ -237,7 +237,7 @@
     }
 
     var genomeViewer;
-    var region = new Region({chromosome: "1", start: 14500, end: 15500});
+    var region = new Region({chromosome: "1", start: 14373, end: 14521});
     //        var region = new Region({chromosome: "X", start: 139865187, end: 139865193});
 
 
@@ -322,7 +322,7 @@
             visibleRegionSize: 200,
 
             renderer: new SequenceRenderer(),
-            dataAdapter: new CellBaseAdapter(cellbaseClient, "genomic", "region", "sequence", {}, { chunkSize: 1000})
+            dataAdapter: new CellBaseAdapter(cellbaseClient, "genomic", "region", "sequence", {}, { chunkSize: 100})
         });
         tracks.push(this.sequence);
 
@@ -365,100 +365,23 @@
                     })
         });
         tracks.push(alignment);
-        /*
-        * var adapter = new OpencgaAdapter({
-         category: "alignments",
-         host: host,
-         resource: object,
-         species: this.genomeViewer.species,
-         params: {
-         sid: Cookies('bioinfo_sid')
-         },
-         cacheConfig: {
-         chunkSize: 5000,
-         cacheId: Cookies('bioinfo_sid') + 'opencga' + object.id,
-         }
-         });
-         var renderer = new AlignmentRenderer(FEATURE_TYPES.alignment);
-         track = new AlignmentTrack({
-         title: trackTitle,
-         closable: true,
-         //minHistogramRegionSize: 12000,
-         //maxLabelRegionSize: 3000,
-         //visibleRegionSize: 9000,
-         height: 150,
-         renderer: renderer,
-         dataAdapter: adapter
-         });
-         this.genomeViewer.addTrack(track);
-        * */
 
-//        var renderer = new FeatureRenderer(FEATURE_TYPES.gene);
-//        renderer.on({
-//            'feature:click': function(event) {
-//                // feature click event example
-//                console.log(event)
-//            }
-//        });
-//        var gene = new FeatureTrack({
-////        title: 'Gene overview',
-//            minHistogramRegionSize: 20000000,
-//            maxLabelRegionSize: 10000000,
-//            height: 100,
-//
-//            renderer: renderer,
-//
-//            dataAdapter: new CellBaseAdapter(cellbaseClient, "genomic", "region", "gene",
-//                    {
-//                        exclude: 'transcripts,chunkIds'
-//                    }, {
-//                        chunkSize: 100000
-//                    })
-//        });
-//
-//        genomeViewer.addOverviewTrack(gene);
+        let gene = new FeatureTrack({
+            minHistogramRegionSize: 20000000,
+            maxLabelRegionSize: 10000000,
+            height: 100,
 
-//        this.snp = new FeatureTrack({
-//            title: 'Variation',
-//            featureType: 'SNP',
-//            minHistogramRegionSize: 12000,
-//            maxLabelRegionSize: 3000,
-//            height: 120,
-//
-//            renderer: new FeatureRenderer(FEATURE_TYPES.snp),
-//
-//            dataAdapter: new CellBaseAdapter(cellbaseClient, "genomic", "region", "snp",
-//                    {
-//                        exclude: 'annotation.populationFrequencies,annotation.additionalAttributes,transcriptVariations,xrefs,samples'
-//                    }, {
-//                        chunkSize: 10000
-//                    })
-//        });
-//
-//        tracks.push(this.snp);
+            renderer: new FeatureRenderer(FEATURE_TYPES.gene),
 
-/*************************/
-//        var customTrack = new FeatureTrack({
-//            title: 'custom track',
-//            minHistogramRegionSize: 12000,
-//            maxLabelRegionSize: 3000,
-//            height: 120,
-//
-//            renderer: new FeatureRenderer(),
-//
-//            dataAdapter: new FeatureTemplateAdapter({
-//              multiRegions: true,
-//              histogramMultiRegions: false,
-//              uriTemplate: 'https://dcc.icgc.org/api/browser/gene?segment={region}&resource=gene',
-//              cacheConfig: {
-//                chunkSize: 100000
-//              }
-//            })
-//        });
-//        tracks.push(customTrack);
-/*************************/
+            dataAdapter: new CellBaseAdapter(cellbaseClient, "genomic", "region", "gene",
+                    {
+                        exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence'
+                    }, {
+                        chunkSize: 100000
+                    })
+        });
 
-
+        genomeViewer.addOverviewTrack(gene);
         genomeViewer.addTrack(tracks);
 
         genomeViewer.draw();
