@@ -102,141 +102,103 @@ class OpencgaAdapter {
         let groupedRegions = this._groupQueries(regions);
         args.regions = groupedRegions;
 
-        let chunks = [];
-        for (let i = 0; i < groupedRegions.length; i++) {
-            args.webServiceCallCount++;
-            let alignments = this.client.alignments().query(fileId,
-                {
-                    region: groupedRegions[i],
-                    study: study
-                })
-                .then(function (response) {
-                    return _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
+        if (dataType === "features") {
+            let chunks = [];
+            for (let i = 0; i < groupedRegions.length; i++) {
+                args.webServiceCallCount++;
+
+                let alignments = this.client.alignments().query(fileId,
+                    {
+                        region: groupedRegions[i],
+                        study: study
+                    })
+                    .then(function (response) {
+                        return _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
+                    });
+
+
+                let coverage = this.client.alignments().coverage(fileId,
+                    {
+                        region: groupedRegions[i],
+                        study: study
+                    })
+                    .then(function (response) {
+                        let aux = _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
+                        // We fix a little the object
+                        for (let i = 0; i < aux.length; i++) {
+                            aux[i].windowSize = aux[i].value[0].windowSize;
+                            aux[i].value = aux[i].value[0].values;
+                        }
+                        return aux;
+                    });
+
+                Promise.all([alignments, coverage]).then(function (response) {
+                    args.webServiceCallCount--;
+                    let auxArray = [];
+                    // The array of alignments and coverage should be the same size
+                    for (let i = 0; i < response[0].length; i++) {
+                        if (response[0][i].chunkKey === response[1][i].chunkKey) {
+                            let auxObject = {
+                                region: response[0][i].region,
+                                chunkKey: response[0][i].chunkKey,
+                                alignments: response[0][i].value,
+                                coverage: {
+                                    windowSize: response[1][i].windowSize,
+                                    value: response[1][i].value
+                                }
+                            };
+                            auxArray.push(auxObject);
+                        } else {
+                            console.log("Unexpected behaviour when retrieving alignments and coverage. Something went wrong.");
+                            console.log("Alignment chunk key: " + response[0][i].chunkKey + ". Coverage chunk key: "
+                                + response[1][i].chunkKey);
+                            return;
+                        }
+                    }
+                    chunks = chunks.concat(auxArray);
+
+                    if (args.webServiceCallCount === 0) {
+                        args.done({
+                            items: chunks, dataType: dataType, chunkSize: chunkSize, sender: _this
+                        });
+                    }
                 });
-
-
-            let coverage = this.client.alignments().coverage(fileId,
+            }
+        } else { // histogram
+            this.client.alignments().coverage(fileId,
                 {
-                    region: groupedRegions[i],
-                    study: study
+                    region: `chr${region.chromosome}:${start}-${end - 1}`,
+                    study: study,
+                    windowSize: Math.round((end - start)/500)
                 })
                 .then(function (response) {
                     let aux = _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
-                    // We fix a little the object
+                    let auxArray = [];
+
                     for (let i = 0; i < aux.length; i++) {
-                        aux[i].windowSize = aux[i].value[0].windowSize;
-                        aux[i].value = aux[i].value[0].values;
-                    }
-                    return aux;
-                });
+                        let windowSize = aux[i].value[0].windowSize;
+                        let start = aux[i].region.start;
 
-            Promise.all([alignments, coverage]).then(function(response) {
-                args.webServiceCallCount--;
-                let auxArray = [];
-                // The array of alignments and coverage should be the same size
-                for (let i = 0; i < response[0].length; i++) {
-                    if (response[0][i].chunkKey === response[1][i].chunkKey) {
-                        let auxObject = {
-                            region: response[0][i].region,
-                            chunkKey: response[0][i].chunkKey,
-                            alignments: response[0][i].value,
-                            coverage: {
-                                windowSize: response[1][i].windowSize,
-                                value: response[1][i].value
-                            }
-                        };
-                        auxArray.push(auxObject);
-                    } else {
-                        console.log("Unexpected behaviour when retrieving alignments and coverage. Something went wrong.");
-                        console.log("Alignment chunk key: " + response[0][i].chunkKey + ". Coverage chunk key: "
-                            + response[1][i].chunkKey);
-                        return;
-                    }
-                }
-                chunks = chunks.concat(auxArray);
+                        for (let j = 0; j < aux[i].value[0].values.length; j++) {
+                            auxArray.push({
+                                value: {
+                                    start: start,
+                                    end: start + windowSize - 1,
+                                    features_count: aux[i].value[0].values[j]
+                                }
+                            });
 
-                if (args.webServiceCallCount === 0) {
+                            start += windowSize;
+                        }
+                    }
+
                     args.done({
-                        items: chunks, dataType: dataType, chunkSize: chunkSize, sender: _this
+                        items: auxArray, dataType: dataType, chunkSize: chunkSize, sender: _this
                     });
-                }
-            });
 
 
-            // this.client.alignments().query(fileId,
-            //     {
-            //         region: groupedRegions[i],
-            //         study: study
-            //     })
-            //     .then(function (response) {
-            //         var responseChunks = _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
-            //         args.webServiceCallCount--;
-            //         chunks = chunks.concat(responseChunks);
-            //         if (args.webServiceCallCount === 0) {
-            //             args.done({
-            //                 items: chunks, dataType: dataType, chunkSize: chunkSize, sender: _this
-            //             });
-            //         }
-            //     });
+                });
         }
-
-        // /**
-        //  * Get the uncached regions (uncachedRegions) and cached chunks (cachedChunks).
-        //  * Uncached regions will be used to query OpenCGA. The response data will be converted in chunks
-        //  * by the Cache TODO????
-        //  * Cached chunks will be returned by the args.dataReady Callback.
-        //  */
-        // this.cache.get(region, categories, dataType, chunkSize, function (cachedChunks, uncachedRegions) {
-        //     var category = categories[0];
-        //     var categoriesName = "";
-        //     for (var j = 0; j < categories.length; j++) {
-        //         categoriesName += "," + categories[j];
-        //     }
-        //     categoriesName = categoriesName.slice(1);   // to remove first ','
-        //
-        //     var chunks = cachedChunks[category];
-        //     // TODO check if OpenCGA allows multiple regions
-        //     var queriesList = _this._groupQueries(uncachedRegions[category]);
-        //
-        //     /** Uncached regions found **/
-        //     if (queriesList.length > 0) {
-        //         args.webServiceCallCount = 0;
-        //
-        //         // TODO check how to manage multiple regions and multiple files ids
-        //         for (var i = 0; i < queriesList.length; i++) {
-        //             args.webServiceCallCount++;
-        //             var queryRegion = queriesList[i];
-        //
-        //             params['region'] = queryRegion.toString();
-        //             // params['interval'] = chunkSize;
-        //             // params['histogram'] = (dataType == 'histogram');
-        //             // params['process_differences'] = false;
-        //
-        //             this.client.alignments().query(fileIds, params)
-        //                 .then(function (response) {
-        //                     var responseChunks = _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
-        //                     args.webServiceCallCount--;
-        //                     chunks = chunks.concat(responseChunks);
-        //                     if (args.webServiceCallCount === 0) {
-        //                         args.done({
-        //                             items: chunks, dataType: dataType, chunkSize: chunkSize, sender: _this
-        //                         });
-        //                     }
-        //                 })
-        //                 .catch(function () {
-        //                     console.log('Server error');
-        //                     args.done();
-        //                 });
-        //         }
-        //
-        //     }
-        //     /** All regions are cached **/
-        //     else {
-        //         args.done({
-        //             items: chunks, dataType: dataType, chunkSize: chunkSize, sender: _this
-        //         });
-        //     }
-        // });
     }
 
     _opencgaSuccess(data, categories, dataType, chunkSize, args) {

@@ -54,7 +54,7 @@ function NavigationBar(args) {
         compactButton: true,
         searchControl: true
     };
-    this.zoom = 100;
+    this.zoom = 50;
 
     this.quickSearchDisplayKey = 'name';
 

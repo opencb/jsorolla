@@ -114,8 +114,8 @@ AlignmentRenderer.prototype.render = function (response, args) {
             let previousCoverage = -1;
             let previousPosition = -1;
 
-            let xx = args.pixelPosition + middle - ((args.position - (start)) * args.pixelBase);
-            histogram.push(xx + "," + covHeight);
+            let startPoint = args.pixelPosition + middle - ((args.position - start) * args.pixelBase);
+            histogram.push(startPoint + "," + covHeight);
             for (let i = 0; i < length; i++) {
                 if (coverageList[i] !== previousCoverage) {
                     previousCoverage = coverageList[i];
@@ -136,19 +136,20 @@ AlignmentRenderer.prototype.render = function (response, args) {
                 }
             }
 
-            let x = args.pixelPosition + middle - ((args.position - (start + (length - 1))) * args.pixelBase);
+            let x = args.pixelPosition + middle - ((args.position - (start + length)) * args.pixelBase);
             let y = covHeight - (coverageList[length - 1] * maxValueRatio);
             histogram.push(x + "," + y);
             histogram.push(x + "," + covHeight);
             points = histogram.join(" ");
         } else {
             let x1 = args.pixelPosition + middle - ((args.position - (start)) * args.pixelBase);
-            let x2 = args.pixelPosition + middle - ((args.position - (start + (length - 1))) * args.pixelBase);
+            let x2 = args.pixelPosition + middle - ((args.position - (start + length)) * args.pixelBase);
             points = x1 + "," + covHeight + " " + x2 + "," + covHeight;
         }
 
         var dummyRect = SVG.addChild(bamCoverGroup, "polyline", {
             "points": points,
+            "stroke": 'lightgrey',
             "fill": 'lightgrey',
             "width": pixelWidth,
             "height": covHeight,
@@ -166,6 +167,9 @@ AlignmentRenderer.prototype.render = function (response, args) {
 
         args.trackListPanel.on('mousePosition:change', function (e) {
             var pos = e.mousePos - parseInt(start);
+            if (pos < 0 || pos >= coverageList.length) {
+                return;
+            }
             //if(coverageList[pos]!=null){
             // var str = 'depth: <span class="ssel">' + coverageList[pos] + '</span><br>' +
             //     '<span style="color:green">A</span>: <span class="ssel">' + chunk.coverage.a[pos] + '</span><br>' +
