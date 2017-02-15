@@ -197,6 +197,7 @@
     console.log("CellBase Host: " + CELLBASE_HOST, " - CellBase Version: " + CELLBASE_VERSION)
 
     var cellBaseClientConfig = new CellBaseClientConfig(hosts = CELLBASE_HOST, version = CELLBASE_VERSION);
+    cellBaseClientConfig.cache.active = false;
     var cellbaseClient = new CellBaseClient(cellBaseClientConfig);
 
     // We parse the URL to check (and overwrite) the OPENCGA parameters as well
@@ -352,9 +353,9 @@
         let alignment = new AlignmentTrack({
             title: "Alignment",
             closable: true,
-            //minHistogramRegionSize: 12000,
-            //maxLabelRegionSize: 3000,
-            //visibleRegionSize: 9000,
+            minHistogramRegionSize: 5000,
+            maxLabelRegionSize: 3000,
+            visibleRegionSize: 100000000,
             height: 300,
             renderer: new AlignmentRenderer(FEATURE_TYPES.alignment),
             dataAdapter: new OpencgaAdapter(opencgaClient, "analysis/alignment", undefined, "query",

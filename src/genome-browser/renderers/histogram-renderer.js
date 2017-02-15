@@ -75,6 +75,7 @@ HistogramRenderer.prototype.updateScale = function (args) {
 };
 
 HistogramRenderer.prototype.render = function (features, args) {
+    debugger
     features.sort(function (a, b) {
         return a.value.start - b.value.start;
     });

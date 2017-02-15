@@ -298,7 +298,6 @@ GenomeViewer.prototype = {
                     }
                 });
         }
-        // return chromosomes;
     },
     /**/
     /*Components*/
@@ -309,10 +308,11 @@ GenomeViewer.prototype = {
 
         if (!$.isFunction(this.quickSearchResultFn)) {
             this.quickSearchResultFn = function (query) {
-                return _this.client.get('feature', 'id', query, 'starts_with', { limit: 10 })
-                    // .then(function (data) {
-                    //     results = data.response[0].result;
-                    // });
+                _this.client.get('feature', 'id', query, 'starts_with', { limit: 10 })
+                    .then(function (data) {
+                        _this.setNavigationBar(data.response[0].result);
+                        // results = data.response[0].result;
+                    });
             };
         }
 
@@ -502,27 +502,35 @@ GenomeViewer.prototype = {
     _createOverviewTrackListPanel: function (target) {
         var _this = this;
         var trackListPanel = new TrackListPanel({
-            cellBaseHost: this.cellBaseHost,
-            cellBaseVersion: this.cellBaseVersion,
-            target: target,
-            autoRender: true,
-            width: this.width - this.sidePanelWidth,
-            zoomMultiplier: this.overviewZoomMultiplier,
             title: 'Region overview',
-            showRegionOverviewBox: true,
-            collapsible: this.regionPanelConfig.collapsible,
-            region: this.region,
-            species: this.species,
-            handlers: {
-                'region:change': function (event) {
-                    event.sender = undefined;
-                    _this._regionChangeHandler(event);
-                },
-                'region:move': function (event) {
-                    _this._regionMoveHandler(event);
-                }
-            }
+            height: 20,
+            visibleRegionSize: 200,
+
+            renderer: new SequenceRenderer(),
+            dataAdapter: new CellBaseAdapter(_this.client, "genomic", "region", "sequence", {}, { chunkSize: 1000})
         });
+        // var trackListPanel = new TrackListPanel({
+        //     cellBaseHost: this.cellBaseHost,
+        //     cellBaseVersion: this.cellBaseVersion,
+        //     target: target,
+        //     autoRender: true,
+        //     width: this.width - this.sidePanelWidth,
+        //     zoomMultiplier: this.overviewZoomMultiplier,
+        //     title: 'Region overview',
+        //     showRegionOverviewBox: true,
+        //     collapsible: this.regionPanelConfig.collapsible,
+        //     region: this.region,
+        //     species: this.species,
+        //     handlers: {
+        //         'region:change': function (event) {
+        //             event.sender = undefined;
+        //             _this._regionChangeHandler(event);
+        //         },
+        //         'region:move': function (event) {
+        //             _this._regionMoveHandler(event);
+        //         }
+        //     }
+        // });
 
         this.on('region:change', function (event) {
             if (event.sender != trackListPanel) {
@@ -669,18 +677,15 @@ GenomeViewer.prototype = {
         var minNtPixels = 10; // 10 is the minimum pixels per nt
         var minRegionLength = this.getSVGCanvasWidth() / minNtPixels;
 
-        var zoomLevelMultiplier = 1;
-        if (this.chromosomes.length > 0) {
+        var zoomLevelMultiplier = 0.01;
+        if (this.chromosomes !== undefined && Object.keys(this.chromosomes).length > 0) {
             var chr = this.chromosomes[region.chromosome];
             zoomLevelMultiplier = Math.pow(chr.size / minRegionLength, 0.01); // 0.01 = 1/100  100 zoom levels
         }
         var regionLength = region.length();
 
 //      zoom = Math.log(REGIONLENGTH/mrl) / Math.log(zlm);
-        var zoom = 0;
-        if (zoomLevelMultiplier !== 1) {
-            zoom = Math.log(regionLength / minRegionLength) / Math.log(zoomLevelMultiplier);
-        }
+        var zoom = Math.log(regionLength / minRegionLength) / Math.log(zoomLevelMultiplier);
         return 100 - Math.round(zoom);
     },
     /*****************/
@@ -805,7 +810,7 @@ GenomeViewer.prototype = {
         this.trigger('species:change', event);
         this._updateSpecies(event.species);
 
-
+        // TODO: Change this call
         var firstGeneRegion;
         CellBaseManager.get({
             host: this.cellBaseHost,
