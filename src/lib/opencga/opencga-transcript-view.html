@@ -58,6 +58,11 @@
 
                 <!--</div>-->
             </div>
+
+            <!--SVG-->
+            <div id="{{prefix}}TranscriptSvg">
+                <h3>Exons</h3>
+            </div><br>
         </div>
 
         <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
@@ -161,6 +166,13 @@
                 }
             },
             transcriptChanged: function () {
+                // Remove the previously added SVG
+                let svg = Polymer.dom(this.root).querySelector("svg");
+                if (svg != null) {
+                    let proteinSvgDiv = Polymer.dom(this.root).querySelector("#" + this.prefix + "TranscriptSvg");
+                    proteinSvgDiv.removeChild(svg);
+                }
+
                 let query = {};
                 let _this= this;
                 if (typeof this.transcript !== "undefined" && this.transcript != "") {
@@ -168,6 +180,9 @@
                     _this.cellbaseClient.getTranscriptClient(this.transcript, 'info', {}, {})
                         .then(function (response) {
                             _this.transcriptObj = response.response[0].result[0];
+                            let svg = _this._createSvgTranscript(_this.transcriptObj);
+                            let querySelector = Polymer.dom(_this.root).querySelector("#" + _this.prefix + "TranscriptSvg");
+                            querySelector.appendChild(svg);
                         });
                     _this.query = query;
                 }
@@ -202,6 +217,60 @@
                 this.variant = e.detail.id;
 //                this.V = e.detail.variant;
 //                this.display3D();
+            },
+            _createSvgTranscript: function (transcriptObject) {
+                let length = transcriptObject.end - transcriptObject.start;
+                let svg = SVG.create('svg', {
+                    width: length + 20,
+                    height: 140,
+                    viewBox: "0 0 " + (length + 20) + " " + 140,
+                    style: "fill: white"
+                });
+                SVG.addChild(svg, 'rect', {width: length + 20, height: 140, style: "fill: white;stroke: black"});
+
+                let center = (140) / 2;
+                SVG.addChild(svg, 'line', {
+                    x1: 20,
+                    y1: center,
+                    x2: length,
+                    y2: center,
+                    style: "stroke: red"
+                });
+
+                let exons = transcriptObject.exons;
+                let gExons = SVG.create('g', {});
+                for (let i = 0; i < exons.length; i++) {
+                    let exon = SVG.addChild(gExons, 'rect', {
+                        x: 20 + (exons[i].start - transcriptObject.start),
+                        y: center - 7,
+                        rx: 2,
+                        ry: 2,
+                        width: exons[i].end - exons[i].start,
+                        height: 15,
+                        style: "fill: lightblue"
+                    });
+                    $(exon).qtip({
+                        content: {
+                            title: exons[i].id,
+                            text: "<b>ID</b>: " + exons[i].id + "<br>"
+                            + "<b>Chromosome</b>: " + exons[i].chromosome + "<br>"
+                            + "<b>Start</b>: " + exons[i].start + "<br>"
+                            + "<b>End</b>: " + exons[i].end + "<br>"
+                            + "<b>Strand</b>: " + exons[i].strand
+                        },
+                        position: {viewport: $(window), target: "mouse", adjust: {x: 25, y: 15}},
+                        style: {width: true, classes: ' ui-tooltip ui-tooltip-shadow'},
+                        show: {delay: 250},
+                        hide: {delay: 200}
+                    })
+                }
+                svg.appendChild(gExons);
+
+                let lollipop = new Lollipop();
+                let ruleSVG = lollipop._createSvgRuleBar(length, {ratio: 1});
+                svg.appendChild(ruleSVG);
+
+                return svg;
             }
         });
     </script>

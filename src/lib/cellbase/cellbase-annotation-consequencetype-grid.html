@@ -154,9 +154,10 @@
             seqOntologyFormatter: function (value, row, index) {
                 let soTerm = row.sequenceOntologyTerms[0];
                 if (typeof this.field.context.consequenceTypeToColor !== "undefined" && typeof this.field.context.consequenceTypeToColor[soTerm.name] !== "undefined") {
-                    return '<span style="color: ' + this.field.context.consequenceTypeToColor[soTerm.name] + '">' + soTerm.name + '</span>' + '(' + soTerm.accession + ')';
+                    return '<span style="color: ' + this.field.context.consequenceTypeToColor[soTerm.name] + '">' + soTerm.name + '</span>&nbsp;'
+                        + '(<a target="_blank" href="http://www.sequenceontology.org/browser/current_svn/term/' + soTerm.accession + '">' + soTerm.accession + '</a>)';
                 } else {
-                    return soTerm.name + '(' + soTerm.accession + ')';
+                    return soTerm.name + '&nbsp;(<a target="_blank" href="http://www.sequenceontology.org/browser/current_svn/term/' + soTerm.accession + '">' + soTerm.accession + '</a>)';
                 }
             },
             proteinAlleleFormatter: function (value, row, index) {

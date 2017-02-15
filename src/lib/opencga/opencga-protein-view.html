@@ -101,7 +101,8 @@
             </div>
 
             <!--SVG-->
-            <div id="{{prefix}}ProteinSvgDiv"></div>
+            <div id="{{prefix}}ProteinSvgDiv">
+            </div>
         </div><br>
 
         <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
@@ -206,6 +207,13 @@
                 }
             },
             _proteinChanged: function () {
+                // Remove the previously added SVG
+                let svg = Polymer.dom(this.root).querySelector("svg");
+                if (svg != null) {
+                    let proteinSvgDiv = Polymer.dom(this.root).querySelector("#" + this.prefix + "ProteinSvgDiv");
+                    proteinSvgDiv.removeChild(svg);
+                }
+
                 let query = {};
                 let _this = this;
                 if (this.cellbaseClient instanceof CellBaseClient && typeof this.protein !== "undefined" && this.protein != "") {
@@ -218,7 +226,7 @@
                                 let params = {
 //                                    "annot-xref": _this.protein,
                                     // TODO remove below gene and give proper query param
-                                    gene: "TUBA3C",
+                                    gene: _this.proteinObj.gene[0].name[0].value,
                                     "annot-ct": "missense_variant,transcript_ablation,splice_acceptor_variant,splice_donor_variant,stop_gained,frameshift_variant,stop_lost,start_lost," +
                                     "transcript_amplification,inframe_insertion,inframe_deletion",
                                     studies: _this.project.alias + ":" + _this.study.alias, returnedStudies: _this.project.alias + ":" + _this.study.alias,
