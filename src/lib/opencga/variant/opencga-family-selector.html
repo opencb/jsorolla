@@ -1,0 +1,263 @@
+<!--
+  ~ Copyright 2015-2016 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<dom-module id="opencga-family-selector">
+    <template>
+        <style is="custom-style" include="jso-styles"></style>
+
+
+            <h3 style="margin: 10px 5px 15px 25px"><i class="fa fa-search" aria-hidden="true"></i>&nbsp;{{title}}</h3>
+
+        <div class="col-md-2">
+            <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true">
+                <!--Sample name-->
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="{{prefix}}SampleGeneralFilterHeading">
+                        <h4 class="panel-title">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
+                               href="#{{prefix}}General" aria-expanded="true" aria-controls="{{prefix}}General">
+                                General
+                                <div style="float: right" class="tooltip-div">
+                                    <a data-toggle="tooltip" title="Generic sample filters">
+                                        <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                    </a>
+                                </div>
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="{{prefix}}SampleGeneralFilter" class="panel-collapse" role="tabpanel"
+                         aria-labelledby="{{prefix}}SampleGeneralFilterHeading">
+                        <div class="form-group has-feedback panel-body">
+                            Sample name:
+                            <textarea id="{{prefix}}NameTextarea" class="form-control clearable" rows="3"
+                                      placeholder="HG01879, HG01880, HG01881..."
+                                      name="name" on-keyup="calculateFilters"></textarea>
+
+                            <br> Individual name:
+                            <textarea id="{{prefix}}IndividualTextarea" class="form-control clearable" rows="3"
+                                      placeholder="Smith, Grant ..."
+                                      name="individual" on-keyup="calculateFilters"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-md-10">
+            <table id="samplestable" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
+                   data-checkbox-header="false" data-maintain-selected="true" style="cursor: pointer;">
+                <thead style="background-color: #eee"></thead>
+            </table>
+
+        </div>
+
+
+    </template>
+    <script>
+        Polymer({
+            is: 'opencga-family-selector',
+            properties: {
+                opencgaClient: {
+                    type: Object
+                },
+                studyId: {
+                    type: Number
+                },
+                prefix: {
+                    type: String
+                },
+                filters: {
+                    type: Object,
+                    notify: true,
+                    observer: "onFilterUpdate"
+                },
+                search: {
+                    type: Object,
+                    notify: true
+                }
+//                update: {
+//                    type: Object,
+//                    value: {},
+//                    observer: "updateFilter"
+//                }
+            },
+            observers: [
+                'calculateFilters(filteredVariables.variables.*)'
+            ],
+
+            ready: function() {
+                if (typeof this.prefix === "undefined" || this.prefix == "") {
+                    this.prefix = "sample" + Utils.randomString(6);
+                }
+                // Columns that will be represented
+                this._columns = [
+                    [
+                        {
+                            title: 'Name',
+                            field: 'name',
+                            sortable: true
+                        },
+                        {
+                            title: 'Proband',
+                            field: 'proband'
+                        },
+                        {
+                            title: 'Sex',
+                            field: 'sex'
+                        },
+                        {
+                            title: 'Father',
+                            field: 'father'
+                        },
+                        {
+                            title: 'Mother',
+                            field: 'mother'
+                        },
+                        {
+                            title: 'Child',
+                            field: 'child'
+                        }
+                    ]
+                ];
+            },
+
+
+
+            /**
+             * If filters have been removed, clean the values from the forms.
+             */
+            onFilterUpdate: function () {
+                this.updateForms(this.filters);
+            },
+
+            updateForms: function(filters) {
+                // This is just to avoid entering here when it has just been initialized
+                if (this.prefix === undefined) {
+                    return;
+                }
+
+                let sampleName = this.$$("#" + this.prefix + "NameTextarea").value;
+                if (!filters.hasOwnProperty("name") && sampleName !== undefined && sampleName.length > 0) {
+                    this.$$("#" + this.prefix + "NameTextarea").value = "";
+                }
+
+                let individual = this.$$("#" + this.prefix + "IndividualTextarea").value;
+                if (!filters.hasOwnProperty("individual.id") && individual !== undefined && individual.length > 0) {
+                    this.$$("#" + this.prefix + "IndividualTextarea").value = "";
+                }
+
+                if (this.filteredVariables.variables.length > 0) {
+                    if (!filters.hasOwnProperty("annotation")) {
+                        // Remove the filter variableSetId as it won't make more sense.
+//                        delete filters.variableSetId;
+                        this.set("filteredVariables.variables", []);
+
+                    } else if (filters.annotation.length < this.filteredVariables.variables.length) {
+                        debugger
+                        let tmpVariables = [];
+                        filters.annotation.forEach(function(variable) {
+                            tmpVariables.push(variable);
+                        });
+
+                        this.set("filteredVariables.variables", tmpVariables);
+                    }
+//                    } else if (!filters.hasOwnProperty("variableSetId")) {
+//                        // They have removed the variableSetId so all the annotations should be out
+//                        delete filters.variables;
+//                        this.filteredVariables.variables = [];
+//                    }
+                }
+
+            },
+
+            /**
+             * Read from the values in the forms, and sets the filters.
+             */
+            calculateFilters: function() {
+                let filters = {};
+                let sampleName = "";
+                let individual = "";
+
+                if (this.$$("#" + this.prefix + "NameTextarea") !== null) {
+                    sampleName = this.$$("#" + this.prefix + "NameTextarea").value;
+                }
+                if (this.$$("#" + this.prefix + "IndividualTextarea") !== null) {
+                    individual = this.$$("#" + this.prefix + "IndividualTextarea").value;
+                }
+
+                if (sampleName !== undefined && sampleName.length > 0) {
+                    filters["name"] = "~" + sampleName;
+                }
+
+                if (individual !== undefined && individual.length > 0) {
+                    filters["individual.id"] = "~" + individual;
+                }
+
+                if (this.filteredVariables.variables !== undefined && this.filteredVariables.variables.length > 0) {
+//                    filters["variableSetId"] = this.filteredVariables.variableSet;
+                    let annotations = [];
+                    this.filteredVariables.variables.forEach(function(variable) {
+                        annotations.push(variable);
+                    });
+                    filters["annotation"] = annotations;
+                }
+                this.filters = filters;
+            },
+
+            onSearch: function () {
+                // Convert the filters to an objectParam that can be directly send to the sample search
+                let filterParams = {};
+
+                let keys = Object.keys(this.filters);
+                for (let i = 0; i < keys.length; i++) {
+                    // Some filters can come as an array of things.
+                    // annotation = [{name: name, value: Smith}, {name: age, value: >5}]
+                    if (Array.isArray(this.filters[keys[i]])) {
+                        let myArray = this.filters[keys[i]];
+
+                        let myArrayFilter = [];
+
+                        // The elements in the array can be either an object
+                        if (Object.getPrototypeOf(myArray[0]) === Object.prototype) {
+                            let myArray = this.filters[keys[i]];
+                            for (let j = 0; j < myArray.length; j++) {
+                                // TODO: We have to check if the value already has an operand
+                                myArrayFilter.push(myArray[j].name + "=" + myArray[j].value);
+                            }
+                        } else {
+                            // Or an array of strings or numbers
+                            myArrayFilter = this.filters[keys[i]];
+                        }
+
+                        filterParams[keys[i]] = myArrayFilter.join(";");
+                    } else {
+                        filterParams[keys[i]] = this.filters[keys[i]];
+                    }
+                }
+
+                if (this.filters.hasOwnProperty("annotation")) {
+                    // Add the variable set whose annotations will be queried
+                    filterParams["variableSetId"] = this.filteredVariables.variableSet;
+                }
+
+                this.search = filterParams;
+            }
+        });
+
+
+    </script>
+</dom-module>
