@@ -127,6 +127,18 @@ AlignmentTrack.prototype.getDataHandler = function (event) {
     } else {
         this.renderer = this.defaultRenderer;
         features = event;
+
+        // If we have paired-end data, we will render them as pairs
+        // for (let i = 0; i < features.items.length; i++) {
+        //     if (features.items[i].alignments.length > 0) {
+        //         if (typeof features.items[i].alignments[0].nextMatePosition !== "undefined") {
+        //             features["params"] = {
+        //                 view_as_pairs: true
+        //             };
+        //         }
+        //         break;
+        //     }
+        // }
         // features = this._removeDisplayedChunks(event);
     }
     this.renderer.render(features, {
