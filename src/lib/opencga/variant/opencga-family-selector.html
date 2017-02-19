@@ -18,53 +18,51 @@
     <template>
         <style is="custom-style" include="jso-styles"></style>
 
+        <!--<h3><i class="fa fa-sitemap" aria-hidden="true"></i>&nbsp;Family Selector</h3>-->
 
-            <h3 style="margin: 10px 5px 15px 25px"><i class="fa fa-search" aria-hidden="true"></i>&nbsp;{{title}}</h3>
+        <div class="panel">
+            <div class="col-md-2">
+                <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true">
+                    <!--Sample name-->
+                    <div class="panel panel-default">
+                        <div class="panel-heading" role="tab" id="{{prefix}}SampleGeneralFilterHeading">
+                            <h4 class="panel-title">
+                                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
+                                   href="#{{prefix}}General" aria-expanded="true" aria-controls="{{prefix}}General">
+                                    General
+                                    <div style="float: right" class="tooltip-div">
+                                        <a data-toggle="tooltip" title="Generic sample filters">
+                                            <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                        </a>
+                                    </div>
+                                </a>
+                            </h4>
+                        </div>
+                        <div id="{{prefix}}SampleGeneralFilter" class="panel-collapse" role="tabpanel"
+                             aria-labelledby="{{prefix}}SampleGeneralFilterHeading">
+                            <div class="form-group has-feedback panel-body">
+                                Sample name:
+                                <textarea id="{{prefix}}NameTextarea" class="form-control clearable" rows="3"
+                                          placeholder="HG01879, HG01880, HG01881..."
+                                          name="name" on-keyup="calculateFilters"></textarea>
 
-        <div class="col-md-2">
-            <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true">
-                <!--Sample name-->
-                <div class="panel panel-default">
-                    <div class="panel-heading" role="tab" id="{{prefix}}SampleGeneralFilterHeading">
-                        <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                               href="#{{prefix}}General" aria-expanded="true" aria-controls="{{prefix}}General">
-                                General
-                                <div style="float: right" class="tooltip-div">
-                                    <a data-toggle="tooltip" title="Generic sample filters">
-                                        <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                    </a>
-                                </div>
-                            </a>
-                        </h4>
-                    </div>
-                    <div id="{{prefix}}SampleGeneralFilter" class="panel-collapse" role="tabpanel"
-                         aria-labelledby="{{prefix}}SampleGeneralFilterHeading">
-                        <div class="form-group has-feedback panel-body">
-                            Sample name:
-                            <textarea id="{{prefix}}NameTextarea" class="form-control clearable" rows="3"
-                                      placeholder="HG01879, HG01880, HG01881..."
-                                      name="name" on-keyup="calculateFilters"></textarea>
-
-                            <br> Individual name:
-                            <textarea id="{{prefix}}IndividualTextarea" class="form-control clearable" rows="3"
-                                      placeholder="Smith, Grant ..."
-                                      name="individual" on-keyup="calculateFilters"></textarea>
+                                <br> Individual name:
+                                <textarea id="{{prefix}}IndividualTextarea" class="form-control clearable" rows="3"
+                                          placeholder="Smith, Grant ..."
+                                          name="individual" on-keyup="calculateFilters"></textarea>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
+            <div class="col-md-10">
+                <table id="{{prefix}}FamilySelector" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
+                       data-checkbox-header="false" data-maintain-selected="true" style="cursor: pointer;">
+                    <thead style="background-color: #eee"></thead>
+                </table>
+            </div>
         </div>
-
-        <div class="col-md-10">
-            <table id="samplestable" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
-                   data-checkbox-header="false" data-maintain-selected="true" style="cursor: pointer;">
-                <thead style="background-color: #eee"></thead>
-            </table>
-
-        </div>
-
 
     </template>
     <script>
@@ -75,7 +73,8 @@
                     type: Object
                 },
                 studyId: {
-                    type: Number
+                    type: Number,
+                    observer: 'renderFromServer'
                 },
                 prefix: {
                     type: String
@@ -103,6 +102,7 @@
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
                     this.prefix = "sample" + Utils.randomString(6);
                 }
+
                 // Columns that will be represented
                 this._columns = [
                     [
@@ -113,11 +113,12 @@
                         },
                         {
                             title: 'Proband',
-                            field: 'proband'
+                            field: 'proband',
+                            formatter: this.probandFormatter
                         },
                         {
-                            title: 'Sex',
-                            field: 'sex'
+                            title: 'Gender',
+                            field: 'gender'
                         },
                         {
                             title: 'Father',
@@ -126,16 +127,128 @@
                         {
                             title: 'Mother',
                             field: 'mother'
-                        },
-                        {
-                            title: 'Child',
-                            field: 'child'
                         }
                     ]
                 ];
+
+                this.renderFromServer();
             },
+            renderFromServer: function () {
+                let filters = this.search;
 
+//                console.log(this.opencgaClient)
+//                console.log(this.studyId)
+//debugger
+                this._samples = [];
+                let _this = this;
+                if (typeof this.opencgaClient != "undefined" && this.opencgaClient instanceof OpenCGAClient && this.studyId > 0) {
 
+                    if (this.opencgaClient.getConfig().host.startsWith("https://")) {
+                        this._url = this.opencgaClient.getConfig().host;
+                    } else {
+                        this._url = 'http://' + this.opencgaClient.getConfig().host;
+                    }
+
+                    this._url = this._url + '/webservices/rest/v1/samples/search';
+                    $('#' + this.prefix + "FamilySelector").bootstrapTable('destroy');
+                    $('#' + this.prefix + "FamilySelector").bootstrapTable({
+                        url: this._url,
+                        sidePagination: 'server',
+                        queryParams: function (params) {
+                            let auxParams = {
+                                studyId: _this.studyId,
+                                sid: Cookies.get(_this.opencgaClient.getConfig().cookieSessionId),
+                                order: params.order,
+                                sort: params.sort,
+                                limit: params.limit,
+                                skip: params.offset
+                            };
+//                            if (params.search !== undefined && params.search.length > 0) {
+//                                auxParams["name"] = "~" + params.search;
+//                            }
+                            return $.extend({}, filters, auxParams);
+                        },
+                        responseHandler: function (response) {
+                            if (!_this.hasOwnProperty("numTotalResults")) {
+                                _this.numTotalResults = 0;
+                            }
+                            if (_this.numTotalResults !== response.response[0].numTotalResults
+                                && response.response[0].numTotalResults > response.queryOptions.limit) {
+                                _this.numTotalResults = response.response[0].numTotalResults;
+                            }
+
+                            return {
+                                total: _this.numTotalResults,
+                                rows: response.response[0].result
+                            }
+                        },
+                        columns: this._columns,
+
+                        onClickRow: function (row, element) {
+                            let index = element[0].getAttribute("data-index");
+                            if (row.state) {
+                                $('#samplestable').bootstrapTable('uncheck', index);
+                            } else {
+                                $('#samplestable').bootstrapTable('check', index);
+                            }
+                        },
+
+                        onCheck: function (row, elem) {
+                            _this.push("_samples", row);
+                            _this.set('samples', _this._samples.slice());
+
+                            // Map each sample to its associated individual
+                            if (typeof row.individual !== "undefined" && typeof row.individual.id !== "undefined"
+                                && row.individual.id != "-1") {
+                                if (typeof _this.individuals[row.individual.id] === "undefined") {
+                                    _this.individuals[row.individual.id] = [row];
+                                } else {
+                                    _this.individuals[row.individual.id].push(row);
+                                }
+                            }
+                        },
+
+                        onUncheck: function (row, elem) {
+                            let sampleToDeleteIdx;
+                            for (let sampleIdx in _this.samples) {
+                                if (row.name == _this.samples[sampleIdx].name) {
+                                    sampleToDeleteIdx = sampleIdx;
+                                    break;
+                                }
+                            }
+                            if (typeof row.individual !== "undefined" && typeof row.individual.id !== "undefined"
+                                && row.individual.id != "-1") {
+                                if (row.individual.id in  _this.individuals) {
+                                    let samples = _this.individuals[row.individual.id];
+                                    for (let i in samples) {
+                                        if (row.name == samples[i].name) {
+                                            samples.splice(i, 1);
+                                            break;
+                                        }
+                                    }
+                                    _this.individuals[row.individual.id] = samples;
+                                }
+                            }
+
+                            _this.splice('_samples', sampleToDeleteIdx, 1);
+                            _this.set('samples', _this.samples.slice());
+                        }
+                    });
+
+                    this.opencgaClient.studies().info(this.studyId).then(function (response) {
+                        _this.variableSets = response.response[0].result[0].variableSets;
+                    }).catch(function () {
+                        console.log("Could not obtain the variable sets of the study " + _this.studyId);
+                    });
+                } else {
+                    // Delete table
+                    $('#fileTable').bootstrapTable('destroy');
+                    this.numTotalResults = 0;
+                }
+            },
+            probandFormatter: function () {
+                return '<input type="checkbox">';
+            },
 
             /**
              * If filters have been removed, clean the values from the forms.
