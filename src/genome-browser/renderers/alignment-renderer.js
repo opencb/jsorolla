@@ -350,7 +350,7 @@ AlignmentRenderer.prototype.render = function (response, args) {
             if (polyDrawing[rowY] == null) {
                 polyDrawing[rowY] = [];
             }
-            var enc = args.renderedArea[rowY].add({start: x, end: x + maxWidth - 1});
+            var enc = args.renderedArea[rowY].add({start: x, end: x + maxWidth - 1, feature: feature});
             if (enc) {
                 // var featureGroup = SVG.addChild(bamReadGroup, "g", {'feature_id': feature.name});
                 // var points = {
@@ -889,13 +889,47 @@ AlignmentRenderer.prototype.render = function (response, args) {
     // var featureGroup = SVG.addChild(bamReadGroup, "g", {'feature_id': "caca"});
     let keys = Object.keys(polyDrawing);
     for (let i = 0; i < keys.length; i++) {
-        SVG.addChild(bamReadGroup, "path", {
+        let features = args.renderedArea[keys[i]];
+
+        let svgChild = SVG.addChild(bamReadGroup, "path", {
             "d": polyDrawing[keys[i]].join(" "),
             "stroke": "black",
             "stroke-width": 0.5,
             "fill": "lightgrey",
             "cursor": "pointer"
         });
+
+        $(svgChild).qtip({
+            content: {
+                title: "",
+                text: ""
+            },
+            position: {target: "mouse", adjust: {x: 25, y: 15}},
+            style: {width: 300, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
+            hide: {
+                event: 'mousedown mouseup mouseleave',
+                delay: 30,
+                fixed: true
+            }
+            // show: {
+            //     event: 'click',
+            //     solo: true
+            // },
+            // hide: 'unfocus'
+        });
+
+        svgChild.onmouseover = function (event) {
+            let position = _this.getFeatureX(args.trackListPanel.mousePosition, args);
+            let read = features.get({start: position, end: position}).value.feature;
+            $(svgChild).qtip('option', 'content.text', _this.tooltipText(read));
+            $(svgChild).qtip('option', 'content.title', _this.tooltipTitle(read));
+        };
+
+        // args.trackListPanel.on('mousePosition:change', function (e) {
+        //     debugger
+        //     $(svgChild).qtip('option', 'content.text', "CACA");
+        //     let x = features.id
+        // });
     }
 
     console.timeEnd("BamRender " + response.params.resource);
