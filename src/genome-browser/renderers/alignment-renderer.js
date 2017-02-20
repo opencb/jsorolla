@@ -182,7 +182,7 @@ AlignmentRenderer.prototype.render = function (response, args) {
         });
     };
 
-    var addSingleRead = function (feature, renderedArea, polyDrawing) {
+    var addSingleRead = function (feature, polyDrawing) {
         //var start = feature.start;
         //var end = feature.end;
         var differences = [];
@@ -344,13 +344,13 @@ AlignmentRenderer.prototype.render = function (response, args) {
         var rowY = 70;
 //		var textY = 12+settings.height;
         while (true) {
-            if (renderedArea[rowY] == null) {
-                renderedArea[rowY] = new FeatureBinarySearchTree();
+            if (args.renderedArea[rowY] == null) {
+                args.renderedArea[rowY] = new FeatureBinarySearchTree();
             }
             if (polyDrawing[rowY] == null) {
                 polyDrawing[rowY] = [];
             }
-            var enc = renderedArea[rowY].add({start: x, end: x + maxWidth - 1});
+            var enc = args.renderedArea[rowY].add({start: x, end: x + maxWidth - 1});
             if (enc) {
                 // var featureGroup = SVG.addChild(bamReadGroup, "g", {'feature_id': feature.name});
                 // var points = {
@@ -847,7 +847,7 @@ AlignmentRenderer.prototype.render = function (response, args) {
         }
     };
 
-    var addChunks = function (chunk, areaRendered, polyDrawing) {
+    var addChunks = function (chunk, polyDrawing) {
         drawCoverage(chunk);
 
         var alignments = chunk.alignments;
@@ -864,29 +864,27 @@ AlignmentRenderer.prototype.render = function (response, args) {
             }
         } else {
             for (let i = 0; i < alignments.length; i++) {
-                addSingleRead(alignments[i], areaRendered, polyDrawing);
+                addSingleRead(alignments[i], polyDrawing);
             }
         }
     };
 
-    // This object will contain the different binary trees of alignments
-    var areaRendered = {};
     // This other object will contain the strings needed to build the whole polyline to draw the different rows of reads
     var polyDrawing = {};
 
     //process features
     if (chunkList.length > 0) {
         for (var i = 0, li = chunkList.length; i < li; i++) {
-            addChunks(chunkList[i], areaRendered, polyDrawing);
+            addChunks(chunkList[i], polyDrawing);
             // drawChunk(chunkList[i]);
         }
     }
 
     // Remove old SVGs
-    // if (args.svgCanvasFeatures.childElementCount > 2) {
-    //     args.svgCanvasFeatures.removeChild(args.svgCanvasFeatures.firstChild);
-    //     args.svgCanvasFeatures.removeChild(args.svgCanvasFeatures.firstChild);
-    // }
+    if (args.svgCanvasFeatures.childElementCount > 2) {
+        args.svgCanvasFeatures.removeChild(args.svgCanvasFeatures.firstChild);
+        args.svgCanvasFeatures.removeChild(args.svgCanvasFeatures.firstChild);
+    }
 
     // var featureGroup = SVG.addChild(bamReadGroup, "g", {'feature_id': "caca"});
     let keys = Object.keys(polyDrawing);
@@ -899,8 +897,6 @@ AlignmentRenderer.prototype.render = function (response, args) {
             "cursor": "pointer"
         });
     }
-
-    args.renderedArea = areaRendered;
 
     console.timeEnd("BamRender " + response.params.resource);
 };
