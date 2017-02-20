@@ -15,6 +15,7 @@
   -->
 
 <link rel="import" href="../../../../../../src/components/opencga-sample-browser.html">
+<link rel="import" href="opencga-family-selector.html">
 
 <dom-module id="variant-browser-filter">
     <template>
@@ -581,11 +582,10 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title" id="{{prefix}}SampleBrowserLabel">Sample Browser</h4>
+                        <h4 class="modal-title" id="{{prefix}}SampleBrowserLabel">Family Selector</h4>
                     </div>
-                    <div class="modal-body">
-                        Yet to work on it!
-                        <!--<opencga-sample-browser opencga-client="{{opencgaClient}}" study="{{study.id}}" samples="{{samples}}" prefix="{{prefix}}"></opencga-sample-browser>-->
+                    <div class="modal-body" style="height: 500px">
+                        <opencga-family-selector opencga-client="{{opencgaClient}}" study-id="{{study.id}}" samples="{{samples}}" prefix="{{prefix}}"></opencga-family-selector>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
