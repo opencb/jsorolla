@@ -348,8 +348,12 @@ AlignmentRenderer.prototype.render = function (response, args) {
                 args.renderedArea[rowY] = new FeatureBinarySearchTree();
             }
             if (polyDrawing[rowY] == null) {
-                polyDrawing[rowY] = [];
+                polyDrawing[rowY] = {
+                    reads: [],
+                    differences: []
+                }
             }
+
             var enc = args.renderedArea[rowY].add({start: x, end: x + maxWidth - 1, feature: feature});
             if (enc) {
                 // var featureGroup = SVG.addChild(bamReadGroup, "g", {'feature_id': feature.name});
@@ -362,40 +366,13 @@ AlignmentRenderer.prototype.render = function (response, args) {
                     "Forward": `M${x} ${rowY} H${x + width - 5} L${x + width} ${rowY + (height / 2)} L${x + width - 5} ${rowY + height} H${x} V${rowY} `
                 };
 
-                polyDrawing[rowY].push(points[strand]);
-                // $(featureGroup).qtip({
-                //     content: {text: tooltipText, title: tooltipTitle},
-                //     // position: {target: "mouse", adjust: {x: 25, y: 15}},
-                //     style: {width: 300, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
-                //     show: {
-                //         event: 'click',
-                //         solo: true
-                //     },
-                //     // hide: {
-                //     //     event: 'mousedown mouseup mouseleave',
-                //     //     delay: 300,
-                //     //     fixed: true
-                //     // }
-                //     hide: 'unfocus'
-                // });
-                //
-                // featureGroup.addEventListener('click', function (event) {
-                //     console.log(feature);
-                //     _this.trigger('feature:click', {
-                //         query: feature[infoWidgetId],
-                //         feature: feature,
-                //         featureType: feature.featureType,
-                //         clickEvent: event
-                //     })
-                // });
+                polyDrawing[rowY]["reads"].push(points[strand]);
 
                 //PROCESS differences
-                // if (differences != null && args.regionSize < 400) {
-                // if (args.regionSize < 400) {
-                //     featureGroup.appendChild(AlignmentRenderer.drawBamDifferences(differences,
-                //         args.pixelBase, x, rowY + height));
-                // }
-
+                if (differences != null && args.regionSize < 400) {
+                    polyDrawing[rowY]["differences"].push(AlignmentRenderer.drawBamDifferences(differences,
+                        args.pixelBase, x, rowY + height));
+                }
                 break;
             }
             rowY += rowHeight;
@@ -892,7 +869,7 @@ AlignmentRenderer.prototype.render = function (response, args) {
         let features = args.renderedArea[keys[i]];
 
         let svgChild = SVG.addChild(bamReadGroup, "path", {
-            "d": polyDrawing[keys[i]].join(" "),
+            "d": polyDrawing[keys[i]]["reads"].join(" "),
             "stroke": "black",
             "stroke-width": 0.5,
             "fill": "lightgrey",
@@ -911,19 +888,19 @@ AlignmentRenderer.prototype.render = function (response, args) {
                 delay: 30,
                 fixed: true
             }
-            // show: {
-            //     event: 'click',
-            //     solo: true
-            // },
-            // hide: 'unfocus'
         });
 
-        svgChild.onmouseover = function (event) {
+        svgChild.onmouseover = function () {
             let position = _this.getFeatureX(args.trackListPanel.mousePosition, args);
             let read = features.get({start: position, end: position}).value.feature;
             $(svgChild).qtip('option', 'content.text', _this.tooltipText(read));
             $(svgChild).qtip('option', 'content.title', _this.tooltipTitle(read));
         };
+
+        for (let j = 0; j < polyDrawing[keys[i]]["differences"].length; j++) {
+            let differences = polyDrawing[keys[i]]["differences"][j];
+            bamReadGroup.appendChild(differences);
+        }
 
         // args.trackListPanel.on('mousePosition:change', function (e) {
         //     debugger
@@ -1072,7 +1049,7 @@ AlignmentRenderer.genBamVariants = function (differences, size, mainX, y) {
 AlignmentRenderer.drawBamDifferences = function (differences, size, mainX, y) {
     var text = SVG.create("text", {
         "x": mainX,
-        "y": y - 2,
+        "y": y,
         "class": 'ocb-font-ubuntumono ocb-font-size-15'
     });
     for (var i = 0; i < differences.length; i++) {

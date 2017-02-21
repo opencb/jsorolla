@@ -327,6 +327,10 @@ AlignmentTrack.prototype._removeDisplayedChunks = function (response) {
 };
 
 AlignmentTrack.prototype.storeRetrievedAlignments = function (event) {
+    if (event.dataType === "histogram") {
+        return;
+    }
+
     this.retrievedAlignments = event;
 
     // Update real left and right limits
@@ -342,6 +346,10 @@ AlignmentTrack.prototype.storeRetrievedAlignments = function (event) {
 
 
 AlignmentTrack.prototype.addNewAlignments = function (event, position) {
+    if (event.dataType === "histogram") {
+        return;
+    }
+
     if (position === "right") {
         for (let i = 0; i < event.items.length; i++) {
             if (this.retrievedChunkIds.has(event.items[i].chunkKey)) {
