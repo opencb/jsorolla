@@ -802,7 +802,7 @@ TrackListPanel.prototype = {
             if ('attrValue' in event) {
                 event.attrValue = ($.isArray(event.attrValue)) ? event.attrValue : [event.attrValue];
                 for (var key in event.attrValue) {
-                    var queryStr = attrName + '~=' + event.attrValue[key];
+                    var queryStr = attrName + '~="' + event.attrValue[key]+'"';
                     var group = $(track.div).find('g[' + queryStr + ']')
                     $(group).each(function() {
                         var animation = $(this).find('animate');
