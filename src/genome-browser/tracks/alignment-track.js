@@ -27,6 +27,8 @@ function AlignmentTrack(args) {
     _.extend(this, Backbone.Events);
 
     //set default args
+    this.retrievedAlignments = null;
+    this.retrievedChunkIds = new Set();
 
     //save default render reference;
     this.defaultRenderer = this.renderer;
@@ -127,8 +129,21 @@ AlignmentTrack.prototype.getDataHandler = function (event) {
     } else {
         this.renderer = this.defaultRenderer;
         features = event;
+
+        // If we have paired-end data, we will render them as pairs
+        // for (let i = 0; i < features.items.length; i++) {
+        //     if (features.items[i].alignments.length > 0) {
+        //         if (typeof features.items[i].alignments[0].nextMatePosition !== "undefined") {
+        //             features["params"] = {
+        //                 view_as_pairs: true
+        //             };
+        //         }
+        //         break;
+        //     }
+        // }
         // features = this._removeDisplayedChunks(event);
     }
+    this.renderedArea = {};
     this.renderer.render(features, {
         cacheItems: event.items,
         svgCanvasFeatures: this.svgCanvasFeatures,
@@ -177,6 +192,7 @@ AlignmentTrack.prototype.draw = function () {
                 interval: this.interval
             },
             done: function (event) {
+                _this.storeRetrievedAlignments(event);
                 _this.getDataHandler(event);
                 _this.setLoading(false);
             }
@@ -210,12 +226,13 @@ AlignmentTrack.prototype.move = function (disp) {
     if (typeof this.visibleRegionSize === 'undefined' || this.region.length() < this.visibleRegionSize) {
 
         if (disp > 0 && virtualStart < this.svgCanvasLeftLimit) {
+            _this.setLoading(true);
             this.dataAdapter.getData({
                 dataType: this.dataType,
                 region: new Region({
                     chromosome: _this.region.chromosome,
-                    start: parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset),
-                    end: this.svgCanvasLeftLimit
+                    start: parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset - 1),
+                    end: this.svgCanvasLeftLimit - 1
                 }),
                 params: {
                     histogram: this.histogram,
@@ -224,19 +241,22 @@ AlignmentTrack.prototype.move = function (disp) {
                     interval: this.interval
                 },
                 done: function (event) {
-                    _this.getDataHandler(event);
+                    _this.addNewAlignments(event, "left");
+                    _this.getDataHandler(_this.retrievedAlignments);
+                    _this.setLoading(false);
                 }
             });
             this.svgCanvasLeftLimit = parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset);
         }
 
         if (disp < 0 && virtualEnd > this.svgCanvasRightLimit) {
+            _this.setLoading(true);
             this.dataAdapter.getData({
                 dataType: this.dataType,
                 region: new Region({
                     chromosome: _this.region.chromosome,
-                    start: this.svgCanvasRightLimit,
-                    end: parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset)
+                    start: this.svgCanvasRightLimit + 1,
+                    end: parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset + 1)
                 }),
                 params: {
                     histogram: this.histogram,
@@ -245,7 +265,9 @@ AlignmentTrack.prototype.move = function (disp) {
                     interval: this.interval
                 },
                 done: function (event) {
-                    _this.getDataHandler(event);
+                    _this.addNewAlignments(event, "right");
+                    _this.getDataHandler(_this.retrievedAlignments);
+                    _this.setLoading(false);
                 }
             });
             this.svgCanvasRightLimit = parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset);
@@ -302,4 +324,74 @@ AlignmentTrack.prototype._removeDisplayedChunks = function (response) {
     }
     response.items = newChunks;
     return response;
+};
+
+AlignmentTrack.prototype.storeRetrievedAlignments = function (event) {
+    if (event.dataType === "histogram") {
+        return;
+    }
+
+    this.retrievedAlignments = event;
+
+    // Update real left and right limits
+    this.svgCanvasLeftLimit = event.items[0].region.start;
+    this.svgCanvasRightLimit = event.items[event.items.length - 1].region.end;
+
+    this.retrievedChunkIds = new Set();
+    for (let i = 0; i < event.items.length; i++) {
+        this.retrievedChunkIds.add(event.items[i].chunkKey);
+    }
+};
+
+
+
+AlignmentTrack.prototype.addNewAlignments = function (event, position) {
+    if (event.dataType === "histogram") {
+        return;
+    }
+
+    if (position === "right") {
+        for (let i = 0; i < event.items.length; i++) {
+            if (this.retrievedChunkIds.has(event.items[i].chunkKey)) {
+                // We should not call several times to the webservices asking for regions we already have
+                debugger
+            } else {
+                this.retrievedChunkIds.add(event.items[i].chunkKey);
+                this.retrievedAlignments.items.push(event.items[i]);
+            }
+        }
+
+        // Dispose of far away items from the left
+        while (this.retrievedAlignments.items[0].region.end < this.region.start - this.svgCanvasOffset) {
+            let chunkKey = this.retrievedAlignments.items[0].chunkKey;
+            console.log("Dispose region " + chunkKey);
+            this.retrievedChunkIds.delete(chunkKey);
+            this.retrievedAlignments.items.splice(0, 1);
+        }
+    } else { // left
+        // this.retrievedAlignments.items.unshift(event.items);
+        for (let i = event.items.length - 1; i >= 0; i--) {
+            if (this.retrievedChunkIds.has(event.items[i].chunkKey)) {
+                // We should not call several times to the webservices asking for regions we already have
+                debugger
+            } else {
+                this.retrievedChunkIds.add(event.items[i].chunkKey);
+                this.retrievedAlignments.items.unshift(event.items[i]);
+            }
+        }
+
+        // Dispose of far away items from the right
+        while (this.retrievedAlignments.items[this.retrievedAlignments.items.length - 1].region.start >
+            this.region.end + this.svgCanvasOffset) {
+            let chunkKey = this.retrievedAlignments.items[this.retrievedAlignments.items.length - 1].chunkKey;
+            console.log("Dispose region " + chunkKey);
+            this.retrievedChunkIds.delete(chunkKey);
+            this.retrievedAlignments.items.splice(this.retrievedAlignments.items.length - 1, 1);
+        }
+
+    }
+
+    // Update canvas limits
+    this.svgCanvasLeftLimit = this.retrievedAlignments.items[0].region.start;
+    this.svgCanvasRightLimit = this.retrievedAlignments.items[this.retrievedAlignments.items.length - 1].region.end;
 };

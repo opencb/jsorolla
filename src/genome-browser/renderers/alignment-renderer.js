@@ -65,7 +65,7 @@ AlignmentRenderer.prototype.render = function (response, args) {
 
     //Prevent browser context menu
     $(args.svgCanvasFeatures).contextmenu(function (e) {
-        console.log("click derecho")
+        console.log("right click")
         //e.preventDefault();
     });
 
@@ -182,14 +182,14 @@ AlignmentRenderer.prototype.render = function (response, args) {
         });
     };
 
-    var drawSingleRead = function (feature) {
+    var addSingleRead = function (feature, polyDrawing) {
         //var start = feature.start;
         //var end = feature.end;
         var differences = [];
         var start = feature.alignment.position.position;
-        let length = 0;
+        // let length = 0;
         let cigar = "";
-        let position = 0;
+        let relativePosition = 0;
         let insertions = [];
 
         let myLength;
@@ -201,8 +201,8 @@ AlignmentRenderer.prototype.render = function (response, args) {
                     break;
                 case "ALIGNMENT_MATCH":
                     cigar += "M";
-                    length += feature.alignment.cigar[i].operationLength;
-                    position += parseInt(feature.alignment.cigar[i].operationLength);
+                    // length += parseInt(feature.alignment.cigar[i].operationLength);
+                    relativePosition += parseInt(feature.alignment.cigar[i].operationLength);
                     break;
                 case "INSERT":
                     cigar += "I";
@@ -210,13 +210,13 @@ AlignmentRenderer.prototype.render = function (response, args) {
 
                     // We put this here because it will be read to calculate the position of the mismatches
                     insertions.push({
-                        pos: position,
+                        pos: relativePosition,
                         length: myLength
                     });
 
                     differences.push({
-                        pos: position,
-                        seq: feature.alignedSequence.slice(position, myLength),
+                        pos: relativePosition,
+                        seq: feature.alignedSequence.slice(relativePosition, myLength),
                         op: "I",
                         length: myLength
                     });
@@ -225,17 +225,17 @@ AlignmentRenderer.prototype.render = function (response, args) {
                     cigar += "D";
                     myLength = parseInt(feature.alignment.cigar[i].operationLength);
                     differences.push({
-                        pos: position,
-                        seq: feature.alignedSequence.slice(position, myLength),
+                        pos: relativePosition,
+                        seq: feature.alignedSequence.slice(relativePosition, myLength),
                         op: "D",
                         length: myLength
                     });
-                    position += myLength;
-                    length += feature.alignment.cigar[i].operationLength;
+                    relativePosition += myLength;
+                    // length += myLength;
                     break;
                 case "SKIP":
                     cigar += "N";
-                    position += parseInt(feature.alignment.cigar[i].operationLength);
+                    relativePosition += parseInt(feature.alignment.cigar[i].operationLength);
                     break;
                 default:
                     debugger;
@@ -243,8 +243,8 @@ AlignmentRenderer.prototype.render = function (response, args) {
         }
         feature.cigar = cigar;
 
-        var end = start + length - 1;
-
+        var end = start + relativePosition - 1;
+        let length = relativePosition;
 
         feature.start = start;
         feature.end = end;
@@ -302,8 +302,6 @@ AlignmentRenderer.prototype.render = function (response, args) {
 
                 }
             }
-
-
         }
 
         //get feature render configuration
@@ -339,7 +337,206 @@ AlignmentRenderer.prototype.render = function (response, args) {
         //if(length <0){
         //    debugger
         //}
-        console.log(length + ' in px: ' + width);
+        // console.log(length + ' in px: ' + width);
+
+
+        var rowHeight = 15;
+        var rowY = 70;
+//		var textY = 12+settings.height;
+        while (true) {
+            if (args.renderedArea[rowY] == null) {
+                args.renderedArea[rowY] = new FeatureBinarySearchTree();
+            }
+            if (polyDrawing[rowY] == null) {
+                polyDrawing[rowY] = {
+                    reads: [],
+                    differences: []
+                }
+            }
+
+            var enc = args.renderedArea[rowY].add({start: x, end: x + maxWidth - 1, feature: feature});
+            if (enc) {
+                // var featureGroup = SVG.addChild(bamReadGroup, "g", {'feature_id': feature.name});
+                // var points = {
+                //     "Reverse": x + "," + (rowY + (height / 2)) + " " + (x + 5) + "," + rowY + " " + (x + width) + "," + rowY + " " + (x + width) + "," + (rowY + height) + " " + (x + 5) + "," + (rowY + height) + " " + x + "," + (rowY + (height / 2)),
+                //     "Forward": (x - 1) + "," + rowY + " " + (x + width - 5) + "," + rowY + " " + (x + width) + "," + (rowY + (height / 2)) + " " + (x + width - 5) + "," + (rowY + height) + " " + (x - 1) + "," + (rowY + height) + " " + (x - 1) + "," + rowY
+                // };
+                var points = {
+                    "Reverse": `M${x} ${rowY + (height / 2)} L${x + 5} ${rowY} H${x + width} V${rowY + height} H${x + 5} L${x} ${rowY + (height / 2)} `,
+                    "Forward": `M${x} ${rowY} H${x + width - 5} L${x + width} ${rowY + (height / 2)} L${x + width - 5} ${rowY + height} H${x} V${rowY} `
+                };
+
+                polyDrawing[rowY]["reads"].push(points[strand]);
+
+                //PROCESS differences
+                if (differences != null && args.regionSize < 400) {
+                    polyDrawing[rowY]["differences"].push(AlignmentRenderer.drawBamDifferences(differences,
+                        args.pixelBase, x, rowY + height));
+                }
+                break;
+            }
+            rowY += rowHeight;
+//			textY += rowHeight;
+        }
+    };
+
+
+    var drawSingleRead = function (feature) {
+        //var start = feature.start;
+        //var end = feature.end;
+        var differences = [];
+        var start = feature.alignment.position.position;
+        // let length = 0;
+        let cigar = "";
+        let relativePosition = 0;
+        let insertions = [];
+
+        let myLength;
+        for (let i in feature.alignment.cigar) {
+            cigar += feature.alignment.cigar[i].operationLength;
+            switch (feature.alignment.cigar[i].operation) {
+                case "CLIP_SOFT":
+                    cigar += "S";
+                    break;
+                case "ALIGNMENT_MATCH":
+                    cigar += "M";
+                    // length += parseInt(feature.alignment.cigar[i].operationLength);
+                    relativePosition += parseInt(feature.alignment.cigar[i].operationLength);
+                    break;
+                case "INSERT":
+                    cigar += "I";
+                    myLength = parseInt(feature.alignment.cigar[i].operationLength);
+
+                    // We put this here because it will be read to calculate the position of the mismatches
+                    insertions.push({
+                        pos: relativePosition,
+                        length: myLength
+                    });
+
+                    differences.push({
+                        pos: relativePosition,
+                        seq: feature.alignedSequence.slice(relativePosition, myLength),
+                        op: "I",
+                        length: myLength
+                    });
+                    break;
+                case "DELETE":
+                    cigar += "D";
+                    myLength = parseInt(feature.alignment.cigar[i].operationLength);
+                    differences.push({
+                        pos: relativePosition,
+                        seq: feature.alignedSequence.slice(relativePosition, myLength),
+                        op: "D",
+                        length: myLength
+                    });
+                    relativePosition += myLength;
+                    // length += myLength;
+                    break;
+                case "SKIP":
+                    cigar += "N";
+                    relativePosition += parseInt(feature.alignment.cigar[i].operationLength);
+                    break;
+                default:
+                    debugger;
+            }
+        }
+        feature.cigar = cigar;
+
+        var end = start + relativePosition - 1;
+        let length = relativePosition;
+
+        feature.start = start;
+        feature.end = end;
+
+        if (feature.info.hasOwnProperty("MD")) {
+            let md = feature.info.MD[1];
+            let matches = md.match(/([0-9]+)|([^0-9]+)/g);
+            let position = 0;
+
+            if (feature.alignment.cigar[0].operation === "CLIP_SOFT") {
+                position = parseInt(feature.alignment.cigar[0].operationLength);
+            }
+
+            // This variable will contain the offset between the insertion and the position where the mismatch is
+            // Imagine we have this sequence ACTGCT, and we have an insertion in position 3 and a mismatch in position 5
+            // The mismatch will be in position 5 of the sequence, but located in position 4 when showed relative to the
+            // reference genome.
+            let offset = position;
+            for (let i = 0; i < matches.length; i++) {
+                if (i % 2 === 0) {
+                    // Number
+                    position += parseInt(matches[i]);
+                } else {
+                    if (insertions.length > 0) {
+                        for (let j = 0; j < insertions.length; j++) {
+                            if (insertions[j].pos < position) {
+                                position += insertions[j].length;
+                                offset += insertions[j].length;
+                                insertions[j].pos = Infinity;
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+
+                    // Not deletion
+                    if (matches[i][0] !== "^") {
+                        // Reference nucleotide
+                        if (matches[i] === feature.alignedSequence[position]) {
+                            debugger;
+                        }
+
+                        differences.push({
+                            pos: position - offset,
+                            seq: feature.alignedSequence[position],
+                            op: "M",
+                            length: 1
+                        });
+
+                        position += 1;
+                    } else {
+                        // -1 because we should not count the ^
+                        offset -= matches[i].length - 1;
+                    }
+
+                }
+            }
+        }
+
+        //get feature render configuration
+        var color = _.isFunction(_this.color) ? _this.color(feature, args.region.chromosome) : _this.color;
+        var strokeColor = _.isFunction(_this.strokeColor) ? _this.strokeColor(feature, args.region.chromosome) : _this.strokeColor;
+        var label = _.isFunction(_this.label) ? _this.label(feature) : _this.label;
+        var height = _.isFunction(_this.height) ? _this.height(feature) : _this.height;
+        var tooltipTitle = _.isFunction(_this.tooltipTitle) ? _this.tooltipTitle(feature) : _this.tooltipTitle;
+        var tooltipText = _.isFunction(_this.tooltipText) ? _this.tooltipText(feature) : _this.tooltipText;
+        var strand = _.isFunction(_this.strand) ? _this.strand(feature) : _this.strand;
+        var mateUnmappedFlag = _.isFunction(_this.mateUnmappedFlag) ? _this.mateUnmappedFlag(feature) : _this.mateUnmappedFlag;
+        var infoWidgetId = _.isFunction(_this.infoWidgetId) ? _this.infoWidgetId(feature) : _this.infoWidgetId;
+
+        if (insertSizeMin != 0 && insertSizeMax != 0 && !mateUnmappedFlag) {
+            if (Math.abs(feature.inferredInsertSize) > insertSizeMax) {
+                color = 'maroon';
+            }
+            if (Math.abs(feature.inferredInsertSize) < insertSizeMin) {
+                color = 'navy';
+            }
+        }
+
+        //transform to pixel position
+        var width = length * args.pixelBase;
+        //calculate x to draw svg rect
+        var x = _this.getFeatureX(start, args);
+//		try{
+//			var maxWidth = Math.max(width, /*settings.getLabel(feature).length*8*/0); //XXX cuidado : text.getComputedTextLength()
+//		}catch(e){
+//			var maxWidth = 72;
+//		}
+        maxWidth = width;
+        //if(length <0){
+        //    debugger
+        //}
+        // console.log(length + ' in px: ' + width);
 
 
         var rowHeight = 16;
@@ -427,26 +624,34 @@ AlignmentRenderer.prototype.render = function (response, args) {
     };
 
     var drawPairedReads = function (read, mate) {
-        var readStart = read.unclippedStart;
-        var readEnd = read.unclippedEnd;
-        var mateStart = mate.unclippedStart;
-        var mateEnd = mate.unclippedEnd;
+        var middle = args.width / 2;
+        // var readStart = read.unclippedStart;
+        // var readEnd = read.unclippedEnd;
+        // var mateStart = mate.unclippedStart;
+        // var mateEnd = mate.unclippedEnd;
+        // TODO: Change taking into account clipped sequences
+        var readStart = read.alignment.position.position;
+        var readEnd = readStart + read.alignedQuality.length;
+        var mateStart = mate.alignment.position.position;
+        var mateEnd = mateStart + mate.alignedQuality.length;
         var readDiff = read.diff;
         var mateDiff = mate.diff;
         /*get type settings object*/
-        var readSettings = _this.types[read.featureType];
-        var mateSettings = _this.types[mate.featureType];
-        var readColor = readSettings.getColor(read, _this.region.chromosome);
-        var mateColor = mateSettings.getColor(mate, _this.region.chromosome);
-        var readStrand = readSettings.getStrand(read);
-        var matestrand = mateSettings.getStrand(mate);
+        var readSettings = FEATURE_TYPES.alignment;
+        var mateSettings = FEATURE_TYPES.alignment;
+        var readColor = readSettings.color(read, read.alignment.position.referenceName);
+        var mateColor = mateSettings.color(mate, mate.alignment.position.referenceName);
+        var readStrand = read.alignment.position.strand === "POS_STRAND" ? "Forward" : "Reverse";
+        var mateStrand = mate.alignment.position.strand === "POS_STRAND" ? "Forward" : "Reverse";
+        // var readStrand = readSettings.getStrand(read);
+        // var matestrand = mateSettings.getStrand(mate);
 
         if (insertSizeMin != 0 && insertSizeMax != 0) {
-            if (Math.abs(read.inferredInsertSize) > insertSizeMax) {
+            if (Math.abs(read.fragmentLength) > insertSizeMax) {
                 readColor = 'maroon';
                 mateColor = 'maroon';
             }
-            if (Math.abs(read.inferredInsertSize) < insertSizeMin) {
+            if (Math.abs(read.fragmentLength) < insertSizeMin) {
                 readColor = 'navy';
                 mateColor = 'navy';
             }
@@ -462,14 +667,14 @@ AlignmentRenderer.prototype.render = function (response, args) {
         }
 
         /*transform to pixel position*/
-        var pairWidth = ((pairEnd - pairStart) + 1) * _this.pixelBase;
-        var pairX = _this.pixelPosition + middle - ((_this.position - pairStart) * _this.pixelBase);
+        var pairWidth = ((pairEnd - pairStart) + 1) * args.pixelBase;
+        var pairX = args.pixelPosition + middle - ((args.position - pairStart) * args.pixelBase);
 
-        var readWidth = ((readEnd - readStart) + 1) * _this.pixelBase;
-        var readX = _this.pixelPosition + middle - ((_this.position - readStart) * _this.pixelBase);
+        var readWidth = ((readEnd - readStart) + 1) * args.pixelBase;
+        var readX = args.pixelPosition + middle - ((args.position - readStart) * args.pixelBase);
 
-        var mateWidth = ((mateEnd - mateStart) + 1) * _this.pixelBase;
-        var mateX = _this.pixelPosition + middle - ((_this.position - mateStart) * _this.pixelBase);
+        var mateWidth = ((mateEnd - mateStart) + 1) * args.pixelBase;
+        var mateX = args.pixelPosition + middle - ((args.position - mateStart) * args.pixelBase);
 
         var rowHeight = 12;
         var rowY = 70;
@@ -486,10 +691,10 @@ AlignmentRenderer.prototype.render = function (response, args) {
                 var readPoints = {
                     "Reverse": readX + "," + (rowY + (readSettings.height / 2)) + " " + (readX + 5) + "," + rowY + " " + (readX + readWidth - 5) + "," + rowY + " " + (readX + readWidth - 5) + "," + (rowY + readSettings.height) + " " + (readX + 5) + "," + (rowY + readSettings.height),
                     "Forward": readX + "," + rowY + " " + (readX + readWidth - 5) + "," + rowY + " " + (readX + readWidth) + "," + (rowY + (readSettings.height / 2)) + " " + (readX + readWidth - 5) + "," + (rowY + readSettings.height) + " " + readX + "," + (rowY + readSettings.height)
-                }
+                };
                 var readPoly = SVG.addChild(bamReadGroup, "polygon", {
                     "points": readPoints[readStrand],
-                    "stroke": readSettings.getStrokeColor(read),
+                    "stroke": readSettings.strokeColor(read),
                     "stroke-width": 1,
                     "fill": readColor,
                     "cursor": "pointer"
@@ -498,10 +703,10 @@ AlignmentRenderer.prototype.render = function (response, args) {
                 var matePoints = {
                     "Reverse": mateX + "," + (rowY + (mateSettings.height / 2)) + " " + (mateX + 5) + "," + rowY + " " + (mateX + mateWidth - 5) + "," + rowY + " " + (mateX + mateWidth - 5) + "," + (rowY + mateSettings.height) + " " + (mateX + 5) + "," + (rowY + mateSettings.height),
                     "Forward": mateX + "," + rowY + " " + (mateX + mateWidth - 5) + "," + rowY + " " + (mateX + mateWidth) + "," + (rowY + (mateSettings.height / 2)) + " " + (mateX + mateWidth - 5) + "," + (rowY + mateSettings.height) + " " + mateX + "," + (rowY + mateSettings.height)
-                }
+                };
                 var matePoly = SVG.addChild(bamReadGroup, "polygon", {
-                    "points": matePoints[matestrand],
-                    "stroke": mateSettings.getStrokeColor(mate),
+                    "points": matePoints[mateStrand],
+                    "stroke": mateSettings.strokeColor(mate),
                     "stroke-width": 1,
                     "fill": mateColor,
                     "cursor": "pointer"
@@ -522,14 +727,14 @@ AlignmentRenderer.prototype.render = function (response, args) {
                 if (args.regionSize < 400) {
                     if (readDiff != null) {
                         var readPath = SVG.addChild(bamReadGroup, "path", {
-                            "d": Utils.genBamVariants(readDiff, _this.pixelBase, readX, rowY),
+                            "d": Utils.genBamVariants(readDiff, args.pixelBase, readX, rowY),
                             "fill": variantColor
                         });
                         readEls.push(readPath);
                     }
                     if (mateDiff != null) {
                         var matePath = SVG.addChild(bamReadGroup, "path", {
-                            "d": Utils.genBamVariants(mateDiff, _this.pixelBase, mateX, rowY),
+                            "d": Utils.genBamVariants(mateDiff, args.pixelBase, mateX, rowY),
                             "fill": variantColor
                         });
                         mateEls.push(matePath);
@@ -537,7 +742,7 @@ AlignmentRenderer.prototype.render = function (response, args) {
                 }
 
                 $(readEls).qtip({
-                    content: {text: readSettings.getTipText(read), title: readSettings.getTipTitle(read)},
+                    content: {text: readSettings.tooltipText(read), title: readSettings.tooltipTitle(read)},
                     position: {target: "mouse", adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
                     style: {width: 280, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
                     show: 'click',
@@ -553,7 +758,7 @@ AlignmentRenderer.prototype.render = function (response, args) {
                     });
                 });
                 $(mateEls).qtip({
-                    content: {text: mateSettings.getTipText(mate), title: mateSettings.getTipTitle(mate)},
+                    content: {text: mateSettings.tooltipText(mate), title: mateSettings.tooltipTitle(mate)},
                     position: {target: "mouse", adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
                     style: {width: 280, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
                     show: 'click',
@@ -575,39 +780,135 @@ AlignmentRenderer.prototype.render = function (response, args) {
         }
     };
 
+    /**
+     * Taking an array of alignments as an input that can have any possible order, it will return an object of the form
+     * {
+     *  alignmentId: [read, mate] (or just [read] where no mate was found)
+     * }
+     * @param alignments
+     */
+    var pairReads = function(alignments) {
+
+        let alignmentHash = {};
+        // We build a temporal structure for faster retrieval of alignments
+        for (let i = 0; i < alignments.length; i++) {
+            let id = alignments[i].id;
+            if (typeof alignmentHash[id] === "undefined") {
+                alignmentHash[id] = [];
+            }
+            alignmentHash[id].push(alignments[i]);
+        }
+
+        return alignmentHash;
+    };
+
     var drawChunk = function (chunk) {
         drawCoverage(chunk);
+
         var alignments = chunk.alignments;
-        for (var i = 0, li = alignments.length; i < li; i++) {
-            var alignment = alignments[i];
-            if (viewAsPairs) {
-                var nextRead = alignments[i + 1];
-                if (nextRead != null) {
-                    if (alignment.name == nextRead.name) {
-                        drawPairedReads(alignment, nextRead);
-                        i++;
-                    } else {
-                        drawSingleRead(alignment);
-                    }
+        if (viewAsPairs) {
+            let alignmentHash = pairReads(alignments);
+            let ids = Object.keys(alignmentHash);
+            for (let i = 0; i < ids.length; i++) {
+                let id = ids[i];
+                if (alignmentHash[id].length === 2) {
+                    drawPairedReads(alignmentHash[id][0], alignmentHash[id][1]);
+                } else {
+                    drawSingleRead(alignmentHash[id][0]);
                 }
-            } else {
-                drawSingleRead(alignment);
+            }
+        } else {
+            for (let i = 0; i < alignments.length; i++) {
+                drawSingleRead(alignments[i]);
             }
         }
     };
 
+    var addChunks = function (chunk, polyDrawing) {
+        drawCoverage(chunk);
+
+        var alignments = chunk.alignments;
+        if (viewAsPairs) {
+            let alignmentHash = pairReads(alignments);
+            let ids = Object.keys(alignmentHash);
+            for (let i = 0; i < ids.length; i++) {
+                let id = ids[i];
+                if (alignmentHash[id].length === 2) {
+                    drawPairedReads(alignmentHash[id][0], alignmentHash[id][1]);
+                } else {
+                    drawSingleRead(alignmentHash[id][0]);
+                }
+            }
+        } else {
+            for (let i = 0; i < alignments.length; i++) {
+                addSingleRead(alignments[i], polyDrawing);
+            }
+        }
+    };
+
+    // This other object will contain the strings needed to build the whole polyline to draw the different rows of reads
+    var polyDrawing = {};
+
     //process features
     if (chunkList.length > 0) {
         for (var i = 0, li = chunkList.length; i < li; i++) {
-            drawChunk(chunkList[i]);
+            addChunks(chunkList[i], polyDrawing);
+            // drawChunk(chunkList[i]);
         }
-//        var newHeight = Object.keys(this.renderedArea).length * 24;
-//        if (newHeight > 0) {
-//            this.setHeight(newHeight + /*margen entre tracks*/10 + 70);
-//        }
-        //TEST
-//        this.setHeight(200);
     }
+
+    // Remove old SVGs
+    if (args.svgCanvasFeatures.childElementCount > 2) {
+        args.svgCanvasFeatures.removeChild(args.svgCanvasFeatures.firstChild);
+        args.svgCanvasFeatures.removeChild(args.svgCanvasFeatures.firstChild);
+    }
+
+    // var featureGroup = SVG.addChild(bamReadGroup, "g", {'feature_id': "caca"});
+    let keys = Object.keys(polyDrawing);
+    for (let i = 0; i < keys.length; i++) {
+        let features = args.renderedArea[keys[i]];
+
+        let svgChild = SVG.addChild(bamReadGroup, "path", {
+            "d": polyDrawing[keys[i]]["reads"].join(" "),
+            "stroke": "black",
+            "stroke-width": 0.5,
+            "fill": "lightgrey",
+            "cursor": "pointer"
+        });
+
+        $(svgChild).qtip({
+            content: {
+                title: "",
+                text: ""
+            },
+            position: {target: "mouse", adjust: {x: 25, y: 15}},
+            style: {width: 300, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
+            hide: {
+                event: 'mousedown mouseup mouseleave',
+                delay: 30,
+                fixed: true
+            }
+        });
+
+        svgChild.onmouseover = function () {
+            let position = _this.getFeatureX(args.trackListPanel.mousePosition, args);
+            let read = features.get({start: position, end: position}).value.feature;
+            $(svgChild).qtip('option', 'content.text', _this.tooltipText(read));
+            $(svgChild).qtip('option', 'content.title', _this.tooltipTitle(read));
+        };
+
+        for (let j = 0; j < polyDrawing[keys[i]]["differences"].length; j++) {
+            let differences = polyDrawing[keys[i]]["differences"][j];
+            bamReadGroup.appendChild(differences);
+        }
+
+        // args.trackListPanel.on('mousePosition:change', function (e) {
+        //     debugger
+        //     $(svgChild).qtip('option', 'content.text', "CACA");
+        //     let x = features.id
+        // });
+    }
+
     console.timeEnd("BamRender " + response.params.resource);
 };
 
@@ -748,7 +1049,7 @@ AlignmentRenderer.genBamVariants = function (differences, size, mainX, y) {
 AlignmentRenderer.drawBamDifferences = function (differences, size, mainX, y) {
     var text = SVG.create("text", {
         "x": mainX,
-        "y": y - 2,
+        "y": y,
         "class": 'ocb-font-ubuntumono ocb-font-size-15'
     });
     for (var i = 0; i < differences.length; i++) {

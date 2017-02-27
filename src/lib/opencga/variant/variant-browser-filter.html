@@ -15,6 +15,7 @@
   -->
 
 <link rel="import" href="../../../../../../src/components/opencga-sample-browser.html">
+<link rel="import" href="opencga-family-selector.html">
 
 <dom-module id="variant-browser-filter">
     <template>
@@ -106,44 +107,56 @@
 
                 <!--Exclusive for Prioritization-->
                 <template is="dom-if" if="{{isPrioritization}}">
-                    <!-- Family: Sample and Segregation -->
-                    <template is="dom-if" if="{{isFamilyMode}}">
-                        <div class="panel panel-default">
-                            <div class="panel-heading" role="tab" id="{{prefix}}SampleFilterHeading">
-                                <h4 class="panel-title">
-                                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}SampleFilter"
-                                       aria-expanded="true" aria-controls="{{prefix}}SampleFilter">
-                                        Samples and Segregation
-                                    </a>
-                                </h4>
-                            </div>
-                            <div id="{{prefix}}SampleFilter" class="panel-collapse collapse in" role="tabpanel"
-                                 aria-labelledby="{{prefix}}SampleFilterHeading">
-                                <div class="panel-body">
+
+
+
+
+                    <div class="panel panel-default">
+                        <div class="panel-heading" role="tab" id="{{prefix}}SampleFilterHeading">
+                            <h4 class="panel-title">
+                                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}SampleFilter"
+                                   aria-expanded="true" aria-controls="{{prefix}}SampleFilter">
+                                    Analysis
+                                </a>
+                            </h4>
+                        </div>
+                        <div id="{{prefix}}SampleFilter" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}SampleFilterHeading">
+                            <div class="panel-body">
+
+                                <form>
+                                    <label>Select Analysis: </label>
+                                    <br>
+                                    <input type="radio" name="analysisRadioButtons" id="familyRadio" value="family" class$="{{prefix}}FilterRadio" checked on-change="selectAnalysisType" style="padding-left: 20px"> Family<br>
+                                    <input type="radio" name="analysisRadioButtons" id="cancerRadio" value="cancer" class$="{{prefix}}FilterRadio" on-change="selectAnalysisType" style="padding-left: 20px"> Cancer<br>
+                                </form>
+                                <br>
+
+                                <template is="dom-if" if="{{isFamilyAnalysis}}">
+                                    <label><i class="fa fa-sitemap" aria-hidden="true"></i> Family Analysis</label>
+                                    <br>
                                     <span>Select samples: &nbsp;
-                                            <button data-toggle="modal" role="button" data-placement="bottom" data-target$="#{{prefix}}SampleBrowser" on-click="refreshSegregationTable">
-                                                Browse...
-                                            </button>
+                                        <button data-toggle="modal" role="button" data-placement="bottom" data-target$="#{{prefix}}SampleBrowser" on-click="refreshSegregationTable">
+                                            Browse...
+                                        </button>
                                     </span>
                                     <br>
-                                    <br>
                                     <div class="dropdown">
-                                        <button class="btn btn-default dropdown-toggle" type="button" id="segregationDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                        <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="segregationDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                                             {{segregation}}
                                             <span class="caret"></span>
                                         </button>
                                         <ul class="dropdown-menu" aria-labelledby="segregationDropdown" on-click="selectSegregation">
-                          <!--                  <li><a>Autosomal Dominant</a></li>
-                                            <li><a>Autosomal Recessive</a></li>
-                                            <li><a>Compound Heterozygotous</a></li>
-                                            <li><a>Recessive X-linked</a></li>-->
+                                            <!--                  <li><a>Autosomal Dominant</a></li>
+                                                              <li><a>Autosomal Recessive</a></li>
+                                                              <li><a>Compound Heterozygotous</a></li>
+                                                              <li><a>Recessive X-linked</a></li>-->
                                             <template is="dom-repeat" items="{{config.segregation}}">
                                                 <li><a>{{item}}</a></li>
                                             </template>
                                         </ul>
                                     </div>
 
-                                    <h5>Family segregation:</h5>
+                                    <h5>Sample Genotypes:</h5>
                                     <table class="table table-hover" id="segregationTable">
                                         <thead>
                                         <tr>
@@ -166,33 +179,21 @@
                                         </template>
                                         </tbody>
                                     </table>
-                                </div>
-                            </div>
+                                </template>
 
-                        </div>
-                    </template>
-
-                    <!-- Cancer filter-->
-                    <template is="dom-if" if="{{isCancerMode}}">
-                        <div class="panel panel-default">
-                            <div class="panel-heading" role="tab" id="{{prefix}}somaticFilterHeading">
-                                <h4 class="panel-title">
-                                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}SomaticFilter"
-                                       aria-expanded="false" aria-controls="{{prefix}}somaticFilter">
-                                        Somatic Filter
-                                    </a>
-                                </h4>
-                            </div>
-                            <div id="{{prefix}}SomaticFilter" class="panel-collapse collapse" role="tabpanel"
-                                 aria-labelledby="{{prefix}}somaticFilterHeading">
-                                <div class="panel-body">
-                                    <template is="dom-repeat" items="{{somaticValues}}">
-                                        <input type="radio" name="study" value="{{item}}"> {{item}}
-                                    </template>
-                                </div>
+                                <template is="dom-if" if="{{isCancerAnalysis}}">
+                                    <label><i class="fa fa-user-times" aria-hidden="true"></i> Cancer Analysis</label>
+                                    <br>
+                                    Not ready yet.
+                                </template>
                             </div>
                         </div>
-                    </template>
+                    </div>
+
+
+
+
+
                 </template>
 
                 <!-- Studies filter -->
@@ -522,14 +523,14 @@
                                                         {{category.name}} (<a href="http://www.sequenceontology.org/browser/current_svn/term/{{category.id}}" target="_blank">{{category.id}}</a>)</span>
                                                 </template>
                                             </template>
-                                    <ul>
-                                        <template is="dom-repeat" items="{{category.terms}}">
-                                            <li><input type="checkbox" data-id="{{item.name}}" on-change="updateConsequenceTypeFilter" class$="soTermCheckBox {{prefix}}FilterCheckBox">
-                                                <span title="{{item.description}}">
+                                            <ul>
+                                                <template is="dom-repeat" items="{{category.terms}}">
+                                                    <li><input type="checkbox" data-id="{{item.name}}" on-change="updateConsequenceTypeFilter" class$="soTermCheckBox {{prefix}}FilterCheckBox">
+                                                        <span title="{{item.description}}">
                                                     {{item.name}} (<a href="http://www.sequenceontology.org/browser/current_svn/term/{{item.id}}" target="_blank">{{item.id}}</a>)</span></li>
-                                        </template>
-                                    </ul>
-                                    </li>
+                                                </template>
+                                            </ul>
+                                        </li>
                                     </template>
                                 </ul>
                             </div>
@@ -581,11 +582,10 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title" id="{{prefix}}SampleBrowserLabel">Sample Browser</h4>
+                        <h4 class="modal-title" id="{{prefix}}SampleBrowserLabel">Family Selector</h4>
                     </div>
-                    <div class="modal-body">
-                        Yet to work on it!
-                        <!--<opencga-sample-browser opencga-client="{{opencgaClient}}" study="{{study.id}}" samples="{{samples}}" prefix="{{prefix}}"></opencga-sample-browser>-->
+                    <div class="modal-body" style="height: 500px">
+                        <opencga-family-selector opencga-client="{{opencgaClient}}" study-id="{{study.id}}" samples="{{samples}}" prefix="{{prefix}}"></opencga-family-selector>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
@@ -659,6 +659,8 @@
 
                 this.sampleGenotypesObj = {};
                 this.query = {};
+
+                this.isFamilyAnalysis = true;
             },
             onSearch: function () {
                 this.search = this.query;
@@ -1082,6 +1084,16 @@
             // Exclusive for prioritization
             refreshSegregationTable: function () {
                 this.samples = [];
+            },
+            selectAnalysisType: function (e) {
+                e.preventDefault();
+                this.analysisType = e.target.value;
+                this.isFamilyAnalysis = this.isCancerAnalysis = false;
+                if (this.analysisType === "family") {
+                    this.isFamilyAnalysis = true;
+                } else {
+                    this.isCancerAnalysis = true;
+                }
             },
             selectSegregation: function (e) {
                 e.preventDefault();
