@@ -16,31 +16,63 @@
 
 <link rel="import" href="variant-analysis-upload.html">
 <link rel="import" href="variant-analysis-samples.html">
-<link rel="import" href="variant-prioritization.html">
+<link rel="import" href="variant-browser-filter.html">
+<link rel="import" href="variant-prioritization-view.html">
+<link rel="import" href="opencga-family-selector.html">
 <link rel="import" href="variant-analysis-report.html">
 
 <dom-module id="variant-analysis">
 
     <template>
         <style is="custom-style" include="jso-styles"></style>
-        <style>
-            .center {
-                margin: auto;
-                text-align: justify;
-                font-size: 18px;
-                color: #797979;
-            }
-        </style>
 
         <!-- This is where main application is rendered -->
-        <div class="center">
-            <br>
-            <!--<span style="font-size:50px">BierTool 0.0.1</span>-->
+        <div class="panel">
 
-            <h2>Variant analysis component</h2>
-            <br>
+            <h3 style="margin: 10px 5px 15px 25px"><i class="fa fa-sitemap" aria-hidden="true"></i>&nbsp;{{title}}</h3>
 
+            <div class="col-md-12">
+                <div class="col-md-4" style="float: none;margin: auto;padding-top: 10px">
+                    <button id="{{prefix}}UploadButton" type="button" class="btn btn-success btn-lg" on-click="changeTool">
+                        <i class="fa fa-upload" aria-hidden="true"></i> Upload
+                    </button>
+                    <button id="{{prefix}}SamplesButton" type="button" class="btn btn-success btn-lg" on-click="changeTool">
+                        <i class="fa fa-sitemap" aria-hidden="true"></i> Samples
+                    </button>
+                    <button id="{{prefix}}FilterButton" type="button" class="btn btn-success btn-lg" on-click="changeTool">
+                        <i class="fa fa-filter" aria-hidden="true"></i> Filter
+                    </button>
+                    <button id="{{prefix}}ReportButton" type="button" class="btn btn-success btn-lg" on-click="changeTool">
+                        <i class="fa fa-file-text" aria-hidden="true"></i> Report
+                    </button>
+                </div>
+            </div>
 
+            <div class="col-md-12">
+                <div class="analysis-content" id="{{prefix}}UploadButtonDiv" style="display: inline">
+                    <variant-analysis-upload></variant-analysis-upload>
+                </div>
+                <div class="analysis-content" id="{{prefix}}SamplesButtonDiv" style="display: none">
+                    <opencga-family-selector opencga-client="{{opencgaClient}}" study="{{study.id}}" samples="{{samples}}" prefix="{{prefix}}"></opencga-family-selector>
+                </div>
+                <div class="analysis-content" id="{{prefix}}FilterButtonDiv" style="display: none">
+                    <div class="col-md-2" hidden$="{{checkProject(project)}}">
+                        <variant-browser-filter prefix="{{prefix}}" mode="{{mode}}" study="{{study}}" project="{{project}}" samples="{{samples}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"
+                                                population-frequencies="{{populationFrequencies}}" consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}" style="font-size: 12px">
+                        </variant-browser-filter>
+                    </div>
+
+                    <div class="col-md-10" hidden$="{{checkProject(project)}}">
+                        <variant-prioritization-view prefix="{{prefix}}" mode="{{mode}}" title="{{title}}" project="{{project}}" study="{{study}}" samples="{{samples}}"
+                                                     opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}"
+                                                     protein-substitution-scores="{{proteinSubstitutionScores}}" consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}" on-propagate="propagateGeneEvent">
+                        </variant-prioritization-view>
+                    </div>
+                </div>
+                <div class="analysis-content" id="{{prefix}}ReportButtonDiv" style="display: none">
+                    <variant-analysis-report></variant-analysis-report>
+                </div>
+            </div>
         </div>
     </template>
 
@@ -82,9 +114,22 @@
                 },
                 proteinSubstitutionScores: {
                     type: Object
+                },
+                prefix: {
+                    type: String
                 }
             },
-
+            ready: function () {
+                if (typeof this.prefix === "undefined" || this.prefix == "") {
+                    this.prefix = Utils.randomString(6);
+                }
+            },
+            changeTool: function (e) {
+                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+                $('.analysis-content').hide(); // hides all content divs
+                $("#" + e.target.id + "Div").show();
+            }
         });
+
     </script>
 </dom-module>
