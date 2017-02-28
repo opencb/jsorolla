@@ -16,6 +16,7 @@
 <dom-module id="variant-analysis-upload">
 
     <template>
+        <hr/>
         <style is="custom-style" include="jso-styles"></style>
         <style>
             .center {
@@ -27,37 +28,191 @@
         </style>
 
         <!-- This is where main application is rendered -->
+        <div class="center">
+            <h2>Upload sample</h2>
+            <br>
+        </div>
         <br>
-        <div class="col-md-4">
+        <div class="col-md-5">
             <form class="form-horizontal">
+                <div class="form-group">
+                    <label for="hospital" class="col-sm-3 control-label">Hospital</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" id="hospital" placeholder="Virgen del Rocio">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="physician" class="col-sm-3 control-label">Physician</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" id="physician" placeholder="Dr Jesús Florido">
+                    </div>
+                </div>
                 <div class="form-group">
                     <label for="sampleId" class="col-sm-3 control-label">Sample ID</label>
                     <div class="col-sm-9">
-                        <input type="email" class="form-control" id="sampleId" placeholder="ID">
+                        <input type="text" class="form-control" id="sampleId" placeholder="ID">
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="chromosomalSexId" class="col-sm-3 control-label">Chromosomal Sex</label>
                     <div class="col-sm-9">
-                        <input type="password" class="form-control" id="chromosomalSexId" placeholder="Password">
+                        <select class="form-control" id="chromosomalSexId">
+                            <option selected>Choose...</option>
+                            <option>46,XX</option>
+                            <option>46,XY</option>
+                            <option>Other</option>
+                            <option>NE</option>
+                        </select>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="yearOfBirthId" class="col-sm-3 control-label">Year of Birth</label>
                     <div class="col-sm-9">
-                        <input type="password" class="form-control" id="yearOfBirthId" placeholder="year">
+                        <input type="text" class="form-control" id="yearOfBirthId" placeholder="2017">
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="yearOfTestId" class="col-sm-3 control-label">Year of Test</label>
                     <div class="col-sm-9">
-                        <input type="password" class="form-control" id="yearOfTestId" placeholder="year">
+                        <input type="text" class="form-control" id="yearOfTestId" placeholder="2017">
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="ageId" class="col-sm-3 control-label">Age</label>
                     <div class="col-sm-9">
-                        <input type="password" class="form-control" id="ageId" placeholder="Password">
+                        <input type="text" class="form-control" id="ageId" placeholder="years">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="ethnicity" class="col-sm-3 control-label">Ethnicity</label>
+                    <div class="col-sm-9">
+                        <select class="form-control" id="ethnicity">
+                            <option selected>Choose...</option>
+                            <option>white mediterranean</option>
+                            <option>white caucasian</option>
+                            <option>black</option>
+                            <option>asiatic</option>
+                            <option>amerindian</option>
+                            <option>gipsy</option>
+                            <option>arabic</option>
+                            <option>hindu</option>
+                            <option>australian native</option>
+                            <option>askenazi jew</option>
+                            <option>sefardi jew</option>
+                            <option>NE/unkown</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-inline">
+                    <label class="col-sm-3 control-label">Parental Consanguinity</label>
+                    <div class="col-sm-9">
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label">
+                                <input class="form-check-input" type="radio" name="parentalConsanguinityOptions" id="parentalConsanguinityYes"> yes
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label">
+                                <input class="form-check-input" type="radio" name="parentalConsanguinityOptions" id="parentalConsanguinityNo"> no
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <!-- See http://js.nicdn.de/bootstrap/formhelpers/docs/country.html -->
+                    <!-- https://github.com/benkeen/country-region-selector -->
+                    <label for="birthPlaceCountry" class="col-sm-3 control-label">Birth place country</label>
+                    <div class="col-sm-4">
+                        <select class="form-control bfh-countries" data-country="Spain" id="birthPlaceCountry"></select>
+                    </div>
+                    <label for="birthPlace" class="col-sm-2 control-label">Birth place</label>
+                    <div class="col-sm-3">
+                        <select class="form-control bfh-countries" data-country="Spain" id="birthPlace"></select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="status" class="col-sm-3 control-label">Status</label>
+                    <div class="col-sm-9">
+                        <select class="form-control" id="status">
+                            <option selected>Choose...</option>
+                            <option>affected</option>
+                            <option>parent</option>
+                            <option>obligate carrier chr X</option>
+                            <option>obligate carrier chr 1-22</option>
+                            <option>relative (of an affected individual and different parents)</option>
+                            <option>healthy control</option>
+                            <option>unknown</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="sampleType" class="col-sm-3 control-label">Type of sample</label>
+                    <div class="col-sm-9">
+                        <select class="form-control" id="sampleType">
+                            <option selected>Choose...</option>
+                            <option>blood</option>
+                            <option>amniotic fluid</option>
+                            <option>chorionic villi</option>
+                            <option>circulating fetal</option>
+                            <option>circulating tumor</option>
+                            <option>tissue (fresh)</option>
+                            <option>other fluids</option>
+                            <option>NE/Unknown</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="cellLine" class="col-sm-3 control-label">Cell line</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" id="cellLine" placeholder="Patient's cell line">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="diagnosis" class="col-sm-3 control-label">Diagnosis</label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" id="diagnosis" placeholder="disease" readonly>
+                    </div>
+                    <div class="col-sm-1">
+                        <a style="cursor: pointer">
+                            <span class="fa fa-search" aria-hidden="true"></span>
+                        </a>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="hpo" class="col-sm-3 control-label">HPO</label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" id="hpo" placeholder="hpo terms" readonly>
+                    </div>
+                    <div class="col-sm-1">
+                        <a style="cursor: pointer">
+                            <span class="fa fa-search" aria-hidden="true"></span>
+                        </a>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputFile" class="col-sm-3 control-label">VCF or gVCF file</label>
+                    <div class="col-sm-9">
+                        <input type="file" class="file" id="FileToUpload">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="inputFile">
+                            <span class="input-group-btn">
+                                    <button class="browse btn btn-primary" type="button">...</button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="ngsPlatform" class="col-sm-3 control-label">Technical data (NGS platform, etc)</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" id="ngsPlatform" placeholder="Illumina">
+                    </div>
+                </div>
+                <div class="form-group" style="float: right;">
+                    <div class="offset-sm-2 col-sm-10">
+                        <button type="submit" class="btn btn-primary">Upload and check sample</button>
                     </div>
                 </div>
             </form>
@@ -70,5 +225,6 @@
             is: 'variant-analysis-upload'
 
         });
+
     </script>
 </dom-module>
