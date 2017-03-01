@@ -32,17 +32,17 @@
             <h3 style="margin: 10px 5px 15px 25px"><i class="fa fa-sitemap" aria-hidden="true"></i>&nbsp;{{title}}</h3>
 
             <div class="col-md-12">
-                <div class="col-md-4" style="float: none;margin: auto;padding-top: 10px">
-                    <button id="{{prefix}}UploadButton" type="button" class="btn btn-success btn-lg" on-click="changeTool">
+                <div class="col-md-5" style="float: none;margin: auto;padding-top: 10px">
+                    <button id="{{prefix}}UploadButton" type="button" class="btn btn-success btn-lg" on-click="changeTool" data-toggle="tooltip" data-placement="top" title="Upload sample">
                         <i class="fa fa-upload" aria-hidden="true"></i> Upload
                     </button>
-                    <button id="{{prefix}}SamplesButton" type="button" class="btn btn-success btn-lg" on-click="changeTool">
-                        <i class="fa fa-sitemap" aria-hidden="true"></i> Samples
+                    <button id="{{prefix}}SamplesButton" type="button" class="btn btn-success btn-lg" on-click="changeTool" data-toggle="tooltip" data-placement="top" title="Connect, link & choose analysis of samples">
+                        <i class="fa fa-sitemap" aria-hidden="true"></i> Analysis
                     </button>
-                    <button id="{{prefix}}FilterButton" type="button" class="btn btn-success btn-lg" on-click="changeTool">
-                        <i class="fa fa-filter" aria-hidden="true"></i> Filter
+                    <button id="{{prefix}}FilterButton" type="button" class="btn btn-success btn-lg" on-click="changeTool" data-toggle="tooltip" data-placement="top" title="Filter & Prioritization">
+                        <i class="fa fa-filter" aria-hidden="true"></i> Prioritization
                     </button>
-                    <button id="{{prefix}}ReportButton" type="button" class="btn btn-success btn-lg" on-click="changeTool">
+                    <button id="{{prefix}}ReportButton" type="button" class="btn btn-success btn-lg" on-click="changeTool" data-toggle="tooltip" data-placement="top" title="Generate report">
                         <i class="fa fa-file-text" aria-hidden="true"></i> Report
                     </button>
                 </div>
@@ -71,7 +71,7 @@
                     </div>
                 </div>
                 <div class="analysis-content" id="{{prefix}}ReportButtonDiv" style="display: none">
-                    <!--<variant-analysis-report></variant-analysis-report>-->
+                    <variant-analysis-report></variant-analysis-report>
                     <!--<opencga-family-selector opencga-client="{{opencgaClient}}" study="{{study.id}}" samples="{{samples}}" prefix="{{prefix}}"></opencga-family-selector>-->
                 </div>
             </div>

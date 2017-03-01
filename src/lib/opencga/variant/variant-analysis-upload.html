@@ -161,9 +161,18 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="cellLine" class="col-sm-3 control-label">Cell line</label>
+                    <label class="col-sm-3 control-label">Cell line</label>
                     <div class="col-sm-9">
-                        <input type="text" class="form-control" id="cellLine" placeholder="Patient's cell line">
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label">
+                                <input class="form-check-input" type="radio" name="cellLineOptions" id="germline"> Constitutive (germline)
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label">
+                                <input class="form-check-input" type="radio" name="cellLineOptions" id="somatic"> Somatic
+                            </label>
+                        </div>
                     </div>
                 </div>
                 <div class="form-group">

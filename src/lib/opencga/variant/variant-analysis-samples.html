@@ -13,6 +13,8 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+<link rel="import" href="opencga-family-selector.html">
+
 <dom-module id="variant-analysis-samples">
     <template>
         <style is="custom-style" include="jso-styles">
@@ -25,11 +27,41 @@
 
         <div>
             <div class="col-md-12">
-                <h3>Create Analysis</h3>
+                <h3>Connect, link & choose analysis of samples</h3>
                 <br>
             </div>
-            <div class="col-md-2">
+
+            <div class="col-md-3">
                 <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" role="tab" id="{{prefix}}SampleSelectionHeading">
+                            <h4 class="panel-title">
+                                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
+                                   href="#{{prefix}}Sample aria-expanded="true" aria-controls="{{prefix}}Sample">
+                                Sample Selection
+                                <div style="float: right" class="tooltip-div">
+                                    <a data-toggle="tooltip" title="Sample selection">
+                                        <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                    </a>
+                                </div>
+                                </a>
+                            </h4>
+                        </div>
+                        <div id="{{prefix}}SampleSelection" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}SampleSelectionHeading">
+                            <div class="panel-body">
+                                <form>
+                                    <label>Select samples: </label>
+                                    <br>
+                                    <input type="radio" name="selectionButtons" id="recentlyRadio" value="recently" class$="{{prefix}}FilterRadio" checked on-change="selectSamples" style="padding-left: 20px"> Recently Uploaded<br>
+                                    <input type="radio" name="selectionButtons" id="allRadio" value="all" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> All<br>
+                                    <hr>
+                                    <input type="checkbox" name="selectionButtons" id="controls" value="controls" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Controls<br>
+                                </form>
+                                <br>
+                            </div>
+                        </div>
+                    </div>
+
                     <!--Sample name-->
                     <div class="panel panel-default">
                         <div class="panel-heading" role="tab" id="{{prefix}}SampleGeneralFilterHeading">
@@ -48,25 +80,103 @@
                         <div id="{{prefix}}SampleGeneralFilter" class="panel-collapse" role="tabpanel" aria-labelledby="{{prefix}}SampleGeneralFilterHeading">
                             <div class="form-group has-feedback panel-body">
                                 <label>Hospital:</label>
-                                <input type="text" class="form-control" placeholder="Username" aria-describedby="basic-addon1">
+                                <input type="text" id="{{prefix}}hospital" class="form-control" placeholder="Virgen del Rocio" aria-describedby="basic-addon1">
 
-                                <label class="top-space">Sample name:</label>
-                                <textarea id="{{prefix}}NameTextarea" class="form-control clearable" rows="3"
+                                <label>Physician:</label>
+                                <input type="text" id="{{prefix}}physician" class="form-control" placeholder="Dr. Jesus Florido" aria-describedby="basic-addon1">
+
+
+                                <label class="top-space">Sample ID:</label>
+                                <textarea id="{{prefix}}sampleId" class="form-control clearable" rows="3"
                                           placeholder="HG01879, HG01880, HG01881..."
-                                          name="name" on-keyup="calculateFilters"></textarea>
+                                          name="sampleId" on-keyup="calculateFilters"></textarea>
 
-                                <label class="top-space">Clinical record number:</label>
-                                <textarea id="{{prefix}}IndividualTextarea" class="form-control clearable" rows="3"
-                                          placeholder="Smith, Grant ..."
-                                          name="individual" on-keyup="calculateFilters"></textarea>
+                                <label class="top-space">Chromosomal Sex:</label>
+                                <select class="form-control" id="{{prefix}}chromosomalSexId">
+                                    <option selected>Choose...</option>
+                                    <option>46,XX</option>
+                                    <option>46,XY</option>
+                                    <option>Other</option>
+                                    <option>NE</option>
+                                </select>
+                                <label class="top-space">Year of Birth:</label>
+                                <input type="text" class="form-control" id="{{prefix}}yearOfBirthId" placeholder="2017">
+
+                                <label class="top-space">Year of Test:</label>
+                                <input type="text" class="form-control" id="{{prefix}}yearOfTestId" placeholder="2017">
+
+                                <label class="top-space">Age:</label>
+                                <input type="text" class="form-control" id="{{prefix}}age" placeholder="2017">
+
+                                <label class="top-space">Ethnicity:</label>
+                                <select class="form-control" id="{{prefix}}ethnicity">
+                                    <option selected>Choose...</option>
+                                    <option>white mediterranean</option>
+                                    <option>white caucasian</option>
+                                    <option>black</option>
+                                    <option>asiatic</option>
+                                    <option>amerindian</option>
+                                    <option>gipsy</option>
+                                    <option>arabic</option>
+                                    <option>hindu</option>
+                                    <option>australian native</option>
+                                    <option>askenazi jew</option>
+                                    <option>sefardi jew</option>
+                                    <option>NE/unkown</option>
+                                </select>
+
+                                <label class="top-space">Parental Consanguinity:</label>
+                                <br>
+                                <input type="radio" name="parentalButtons" id="{{prefix}}yesParentalRadio" value="yes" class$="{{prefix}}FilterRadio" checked on-change="selectSamples" style="padding-left: 20px"> yes<br>
+                                <input type="radio" name="parentalButtons" id="{{prefix}}noParentalRadio" value="no" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> no<br>
+
+                                <label class="top-space">Birth place country:</label>
+                                <select class="form-control bfh-countries" data-country="Spain" id="{{prefix}}birthPlaceCountry"></select>
+
+                                <label class="top-space">Birth place:</label>
+                                <select class="form-control bfh-countries" data-country="Spain" id="{{prefix}}birthPlace"></select>
+
+                                <label class="top-space">Status:</label>
+                                <select class="form-control" id="{{prefix}}status">
+                                    <option selected>Choose...</option>
+                                    <option>affected</option>
+                                    <option>parent</option>
+                                    <option>obligate carrier chr X</option>
+                                    <option>obligate carrier chr 1-22</option>
+                                    <option>relative (of an affected individual and different parents)</option>
+                                    <option>healthy control</option>
+                                    <option>unknown</option>
+                                </select>
+
+                                <label class="top-space">Cell line:</label>
+                                <br>
+                                <input type="radio" name="cellLineButtons" id="{{prefix}}germlineRadio" value="germline" class$="{{prefix}}FilterRadio" checked on-change="selectSamples" style="padding-left: 20px">Constitutive<br>
+                                <input type="radio" name="cellLineButtons" id="{{prefix}}somaticRadio" value="somatic" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px">Somatic<br>
+
+                                <label class="top-space">Type of sample:</label>
+                                <select class="form-control" id="{{prefix}}sampleType">
+                                    <option selected>Choose...</option>
+                                    <option>blood</option>
+                                    <option>amniotic fluid</option>
+                                    <option>chorionic villi</option>
+                                    <option>circulating fetal</option>
+                                    <option>circulating tumor</option>
+                                    <option>tissue (fresh)</option>
+                                    <option>other fluids</option>
+                                    <option>NE/Unknown</option>
+                                </select>
+
+                                <label class="top-space">NGS platform:</label>
+                                <input type="text" class="form-control" id="{{prefix}}ngsPlatform" placeholder="Illumina">
+
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-md-10">
-                <div id="{{prefix}}toolbar">
+            <div class="col-md-9">
+                <!--<div id="{{prefix}}toolbar">
                     <button type="button" class="btn btn-warning" data-toggle="popover" data-placement="bottom" on-click="_shareLink">
                         <i class="fa fa-upload" aria-hidden="true"></i> Recently uploaded
                     </button>
@@ -78,15 +188,119 @@
                     <button type="button" class="btn btn-warning" data-toggle="popover" data-placement="bottom" on-click="_shareLink">
                         <i class="fa fa-users" aria-hidden="true"></i> Controls
                     </button>
-                </div>
-
+                </div>-->
                 <table id="{{prefix}}SampleSelector" data-search="true" data-show-columns="true" data-pagination="true" data-page-size="5" data-page-list="[5, 10, 25]"
                        data-checkbox-header="false" data-maintain-selected="true" style="cursor: pointer;">
                     <thead style="background-color: #eee"></thead>
                 </table>
+                <br>
+                <div id="{{prefix}}toolbar">
+                    <div class="btn-group" data-toggle="buttons">
+                        <label class="btn btn-primary active">
+                            <input type="radio" name="options" id="{{prefix}}familyAnalysis" autocomplete="off"> Family Analysis
+                        </label>
+                        <label class="btn btn-primary">
+                            <input type="radio" name="options" id="{{prefix}}trioAnalysis" autocomplete="off" onclick="showTable"> Trio Analysis
+                        </label>
+                        <label class="btn btn-primary">
+                            <input type="radio" name="options" id="{{prefix}}duoAnalysis" autocomplete="off"> Duo Analysis
+                        </label>
+                        <label class="btn btn-primary">
+                            <input type="radio" name="options" id="{{prefix}}singleAnalysis" autocomplete="off"> Single Analysis
+                        </label>
+                        <label class="btn btn-primary">
+                            <input type="radio" name="options" id="{{prefix}}autoComparativeAnalysis" autocomplete="off"> Auto Comparative
+                        </label>
+                        <label class="btn btn-primary">
+                            <input type="radio" name="options" id="{{prefix}}multisampleAnalysis" autocomplete="off"> Multisample
+                        </label>
+                    </div>
+
+                </div>
+                <br>
+                <div class="analysis-list" id="{{prefix}}analysisListDiv" style="display: inline">
+                    <table class="table hover">
+                        <thead>
+                        <tr class="active">
+                            <th>Analysis ID</th>
+                            <th>Patients</th>
+                            <th>Analysis</th>
+                            <th>Date</th>
+                            <th>Filter</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>AN-28</td>
+                            <td>HG00096, HG00097, HG00099</td>
+                            <td>Trio</td>
+                            <td>01/02/2017</td>
+                            <td>NO</td>
+                            <td><button type="button" class="btn btn-danger">Remove
+                                <i class="fa fa-times" aria-hidden="true"></i></button>
+                                <button data-toggle="modal" role="button" type="button" class="btn btn-success" data-target="#{{prefix}}Editor" onclick="showEditor">Edit
+                                    <i class="fa fa-cog" aria-hidden="true"></i></button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
+
+        <!-- Modal dialog for family editor-->
+        <div class="modal fade" id="{{prefix}}Editor" tabindex="-1" role="dialog"
+             aria-labelledby="sampleBrowserLabel">
+            <div class="modal-dialog modal-lg" role="document" style="width: 1024px;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="{{prefix}}SampleBrowserLabel">Family Editor</h4>
+                    </div>
+                    <div class="modal-body" style="height: 500px">
+                        <table class="table hover">
+                            <thead>
+                            <tr class="active">
+                                <th>Sample ID</th>
+                                <th>Affected</th>
+                                <th>Gender</th>
+                                <th>Father</th>
+                                <th>Mother</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>HG00096</td>
+                                <td><input type="checkbox"></td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                            </tr>
+                            <tr>
+                                <td>HG00097</td>
+                                <td><input type="checkbox"></td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                            </tr>
+                            <tr>
+                                <td>HG00098</td>
+                                <td><input type="checkbox"></td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </template>
 
     <script>
@@ -112,36 +326,41 @@
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
                     this.prefix = Utils.randomString(6);
                 }
-
+                $('.analysis-list').hide(); // hides all content divs
                 // Columns that will be represented
                 this._columns = [
                     [
                         {
-                            title: 'Name',
+                            title: 'Select',
+                            field: 'select',
+                            formatter: this.selectFormatter
+                        },
+                        {
+                            title: 'Date',
+                            field: 'date',
+                        },
+                        {
+                            title: 'SampleID',
                             field: 'name',
                             sortable: true
                         },
                         {
-                            title: 'Proband',
-                            field: 'proband',
-                            formatter: this.probandFormatter
+                            title: 'Status',
+                            field: 'sampleStatus'
                         },
                         {
                             title: 'Gender',
                             field: 'gender'
                         },
                         {
-                            title: 'Father',
-                            field: 'father'
-                        },
-                        {
-                            title: 'Mother',
-                            field: 'mother'
+                            title: 'Presumptive diagnosis',
+                            field: 'diagnosis'
                         }
                     ]
                 ];
 
                 this.renderFromServer();
+
             },
             renderFromServer: function () {
                 let filters = this.search;
@@ -227,7 +446,7 @@
                                 }
                             }
                             if (typeof row.individual !== "undefined" && typeof row.individual.id !== "undefined"
-                                && row.individual.id != "-1") {
+                                && row.individual.id != "-1") {  $('.analysis-content').hide(); // hides all content divs
                                 if (row.individual.id in  _this.individuals) {
                                     let samples = _this.individuals[row.individual.id];
                                     for (let i in samples) {
@@ -258,9 +477,19 @@
                     this.numTotalResults = 0;
                 }
             },
-            probandFormatter: function () {
+            selectFormatter: function () {
                 return '<input type="checkbox">';
             },
+            showTable: function(e) {
+                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+                $('.analysis-list').show();
+            },
+            showEditor: function(e){
+                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+                $("#"+"{{prefix}}Editor").show();
+
+            }
+
         });
     </script>
 </dom-module>
