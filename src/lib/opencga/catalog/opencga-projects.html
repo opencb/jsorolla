@@ -95,6 +95,7 @@
                                     .then(function (response) {
                                         // We add the id to the summary
                                         response.response[0].result[0].id = this.studyId;
+                                        response.response[0].result[0].acl = study.acl;
                                         return response;
                                     }.bind({studyId: study.id}));
                                 studyPromises.push(studyPromise);
