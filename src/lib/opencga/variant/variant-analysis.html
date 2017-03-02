@@ -32,7 +32,7 @@
             <h3 style="margin: 10px 5px 15px 25px"><i class="fa fa-sitemap" aria-hidden="true"></i>&nbsp;{{title}}</h3>
 
             <div class="col-md-12">
-                <div class="col-md-5" style="float: none;margin: auto;padding-top: 10px">
+                <div class="col-md-6" style="float: none;margin: auto;padding-top: 10px">
                     <button id="{{prefix}}UploadButton" type="button" class="btn btn-success btn-lg" on-click="changeTool" data-toggle="tooltip" data-placement="top" title="Upload sample">
                         <i class="fa fa-upload" aria-hidden="true"></i> Upload
                     </button>
@@ -119,6 +119,10 @@
                 },
                 prefix: {
                     type: String
+                },
+                mode: {
+                    type: String,
+                    value: "prioritizationAnalysis"
                 }
             },
             ready: function () {

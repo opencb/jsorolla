@@ -37,7 +37,7 @@
                         <div class="panel-heading" role="tab" id="{{prefix}}SampleSelectionHeading">
                             <h4 class="panel-title">
                                 <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                                   href="#{{prefix}}Sample aria-expanded="true" aria-controls="{{prefix}}Sample">
+                                   href="#{{prefix}}SampleSelection" aria-expanded="true" aria-controls="{{prefix}}SampleSelection">
                                 Sample Selection
                                 <div style="float: right" class="tooltip-div">
                                     <a data-toggle="tooltip" title="Sample selection">
@@ -62,12 +62,12 @@
                         </div>
                     </div>
 
-                    <!--Sample name-->
+                    <!--Sample characteristics-->
                     <div class="panel panel-default">
                         <div class="panel-heading" role="tab" id="{{prefix}}SampleGeneralFilterHeading">
                             <h4 class="panel-title">
                                 <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                                   href="#{{prefix}}General" aria-expanded="true" aria-controls="{{prefix}}General">
+                                   href="#{{prefix}}SampleGeneralFilter" aria-expanded="true" aria-controls="{{prefix}}SampleGeneralFilter">
                                     Sample Characteristics
                                     <div style="float: right" class="tooltip-div">
                                         <a data-toggle="tooltip" title="Generic sample filters">
@@ -176,49 +176,26 @@
             </div>
 
             <div class="col-md-9">
-                <!--<div id="{{prefix}}toolbar">
-                    <button type="button" class="btn btn-warning" data-toggle="popover" data-placement="bottom" on-click="_shareLink">
-                        <i class="fa fa-upload" aria-hidden="true"></i> Recently uploaded
-                    </button>
-
-                    <button type="button" class="btn btn-warning" data-toggle="popover" data-placement="bottom" on-click="_shareLink">
-                        <i class="fa fa-users" aria-hidden="true"></i> All Samples
-                    </button>
-
-                    <button type="button" class="btn btn-warning" data-toggle="popover" data-placement="bottom" on-click="_shareLink">
-                        <i class="fa fa-users" aria-hidden="true"></i> Controls
-                    </button>
-                </div>-->
                 <table id="{{prefix}}SampleSelector" data-search="true" data-show-columns="true" data-pagination="true" data-page-size="5" data-page-list="[5, 10, 25]"
                        data-checkbox-header="false" data-maintain-selected="true" style="cursor: pointer;">
                     <thead style="background-color: #eee"></thead>
                 </table>
                 <br>
-                <div id="{{prefix}}toolbar">
-                    <div class="btn-group" data-toggle="buttons">
-                        <label class="btn btn-primary active">
-                            <input type="radio" name="options" id="{{prefix}}familyAnalysis" autocomplete="off"> Family Analysis
-                        </label>
-                        <label class="btn btn-primary">
-                            <input type="radio" name="options" id="{{prefix}}trioAnalysis" autocomplete="off" onclick="showTable"> Trio Analysis
-                        </label>
-                        <label class="btn btn-primary">
-                            <input type="radio" name="options" id="{{prefix}}duoAnalysis" autocomplete="off"> Duo Analysis
-                        </label>
-                        <label class="btn btn-primary">
-                            <input type="radio" name="options" id="{{prefix}}singleAnalysis" autocomplete="off"> Single Analysis
-                        </label>
-                        <label class="btn btn-primary">
-                            <input type="radio" name="options" id="{{prefix}}autoComparativeAnalysis" autocomplete="off"> Auto Comparative
-                        </label>
-                        <label class="btn btn-primary">
-                            <input type="radio" name="options" id="{{prefix}}multisampleAnalysis" autocomplete="off"> Multisample
-                        </label>
-                    </div>
 
+                <div id="{{prefix}}toolbar">
+                    <div class="btn-group btn-group-sm">
+                        <button type="button" class="btn btn-primary">Family Analysis</button>
+                        <button type="button" class="btn btn-primary" on-click="showTable">Trio Analysis</button>
+                        <button type="button" class="btn btn-primary">Duo Analysis</button>
+                        <button type="button" class="btn btn-primary">Single Analysis</button>
+                        <button type="button" class="btn btn-primary">Auto Comparative</button>
+                        <button type="button" class="btn btn-primary">Multisample</button>
+                    </div>
                 </div>
+
                 <br>
-                <div class="analysis-list" id="{{prefix}}analysisListDiv" style="display: inline">
+                <!--  -->
+                <div class="analysis-list" id="analysisListDiv" style="display:none">
                     <table class="table hover">
                         <thead>
                         <tr class="active">
@@ -237,10 +214,11 @@
                             <td>Trio</td>
                             <td>01/02/2017</td>
                             <td>NO</td>
-                            <td><button type="button" class="btn btn-danger">Remove
+                            <td><button type="button" class="btn btn-danger" on-click="hideTable">Remove
                                 <i class="fa fa-times" aria-hidden="true"></i></button>
-                                <button data-toggle="modal" role="button" type="button" class="btn btn-success" data-target="#{{prefix}}Editor" onclick="showEditor">Edit
+                                <button data-toggle="modal" role="button" type="button" class="btn btn-success" data-target$="#{{prefix}}Editor">Edit
                                     <i class="fa fa-cog" aria-hidden="true"></i></button>
+
                             </td>
                         </tr>
                         </tbody>
@@ -250,7 +228,7 @@
         </div>
 
 
-        <!-- Modal dialog for family editor-->
+        <!-- Modal dialog for family editor : has to be designed as a web component-->
         <div class="modal fade" id="{{prefix}}Editor" tabindex="-1" role="dialog"
              aria-labelledby="sampleBrowserLabel">
             <div class="modal-dialog modal-lg" role="document" style="width: 1024px;">
@@ -273,27 +251,87 @@
                             <tbody>
                             <tr>
                                 <td>HG00096</td>
-                                <td><input type="checkbox"></td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
+                                <td><input type="checkbox" disabled></td>
+                                <td>Male</td>
+                                <td>
+                                    <div class="dropdown">
+                                        <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="fatherDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                            {{father_2}}
+                                            <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu" aria-labelledby="segregationDropdown" on-click="selectFather_2">
+                                            <li><a>HG00098</a></li>
+                                        </ul>
+                                    </div>
+
+                                </td>
+                                <td>
+
+                                    <div class="dropdown">
+                                        <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="motherDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                            {{mother_2}}
+                                            <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu" aria-labelledby="segregationDropdown" on-click="selectMother_2">
+                                            <li><a>HG00097</a></li>
+                                        </ul>
+                                    </div>
+
+
+                                </td>
                             </tr>
                             <tr>
                                 <td>HG00097</td>
-                                <td><input type="checkbox"></td>
-                                <td>-</td>
-                                <td>-</td>
+                                <td><input type="checkbox" disabled></td>
+                                <td>Female</td>
+                                <td>
+                                    <div class="dropdown">
+                                        <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="fatherDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                            {{father_3}}
+                                            <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu" aria-labelledby="segregationDropdown" on-click="selectFather_3">
+                                            <li><a>HG00096</a></li>
+                                            <li><a>HG00098</a></li>
+                                        </ul>
+                                    </div>
+
+
+                                </td>
                                 <td>-</td>
                             </tr>
                             <tr>
                                 <td>HG00098</td>
-                                <td><input type="checkbox"></td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
+                                <td><input type="checkbox" checked="checked"></td>
+                                <td>Male</td>
+                                <td>
+                                    <div class="dropdown">
+                                        <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="fatherDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                            {{father_1}}
+                                            <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu" aria-labelledby="segregationDropdown" on-click="selectFather_1">
+                                                              <li><a>HG00096</a></li>
+                                        </ul>
+                                    </div>
+                                </td>
+                                <td>
+
+                                    <div class="dropdown">
+                                        <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="motherDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                            {{mother_1}}
+                                            <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu" aria-labelledby="segregationDropdown" on-click="selectMother_1">
+                                            <li><a>HG00097</a></li>
+                                        </ul>
+                                    </div>
+
+                                </td>
                             </tr>
                             </tbody>
                         </table>
+                        <h2>Pedigree will be shown here...</h2>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
@@ -320,13 +358,32 @@
                 },
                 prefix: {
                     type: String
-                }
+                },
+                father_1: {
+                    type: String,
+                    value: "Select Parent"
+                },
+                father_2: {
+                    type: String,
+                    value: "Select Parent"
+                },
+                father_3: {
+                    type: String,
+                    value: "Select Parent"
+                },
+                mother_1: {
+                    type: String,
+                    value: "Select Parent"
+                },
+                mother_2: {
+                    type: String,
+                    value: "Select Parent"
+                },
             },
             ready: function() {
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
                     this.prefix = Utils.randomString(6);
                 }
-                $('.analysis-list').hide(); // hides all content divs
                 // Columns that will be represented
                 this._columns = [
                     [
@@ -482,14 +539,32 @@
             },
             showTable: function(e) {
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-                $('.analysis-list').show();
+                $("#analysisListDiv").show();
             },
-            showEditor: function(e){
+            hideTable: function(e) {
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-                $("#"+"{{prefix}}Editor").show();
-
-            }
-
+                $("#analysisListDiv").hide();
+            },
+            selectFather_1: function (e) {
+                e.preventDefault();
+                this.father_1 = e.target.innerHTML;
+            },
+            selectFather_2: function (e) {
+                e.preventDefault();
+                this.father_2 = e.target.innerHTML;
+            },
+            selectFather_3: function (e) {
+                e.preventDefault();
+                this.father_3 = e.target.innerHTML;
+            },
+            selectMother_1: function (e) {
+                e.preventDefault();
+                this.mother_1 = e.target.innerHTML;
+            },
+            selectMother_2: function (e) {
+                e.preventDefault();
+                this.mother_2 = e.target.innerHTML;
+            },
         });
     </script>
 </dom-module>
