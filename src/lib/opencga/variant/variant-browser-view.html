@@ -48,7 +48,7 @@
             <variant-browser-grid study="{{study}}" project="{{project}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
                                   population-frequencies="{{populationFrequencies}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
                                   consequence-types="{{consequenceTypes}}" query="[[query]]" search="[[search]]" variant="{{variant}}" on-selected="selectedGene"
-                                  on-selectvariant="onSelectVariant" style="font-size: 12px">
+                                  on-selectvariant="onSelectVariant" style="font-size: 12px" config="{{config}}" summary="{{summary}}">
             </variant-browser-grid>
 
             <div hidden$="{{checkVariant(variant)}}">
@@ -205,9 +205,12 @@
                 prefix: {
                     type: String
                 },
+                summary: {
+                    type: Boolean
+                },
                 config: {
                     type: Object
-                },
+                }
             },
             observers: [
                 'projectStudyObtained(project, study)'

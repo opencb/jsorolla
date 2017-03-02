@@ -128,6 +128,12 @@
                 queryCellbase: {
                     type: Boolean,
                     value: false
+                },
+                summary: {
+                    type: Boolean
+                },
+                config: {
+                    type: Object
                 }
             },
             _test: function () {
@@ -206,7 +212,8 @@
                         },
                         responseHandler: function (res) {
                             if (_numTotal == -1) {
-                                if (typeof _this.query !== 'undefined' && typeof _this.query.gene !== 'undefined' && _this.query.gene != "") {
+                                if (_this.summary
+                                    || (typeof _this.query !== 'undefined' && typeof _this.query.gene !== 'undefined' && _this.query.gene != "")) {
                                     _numTotal = res.response[0].numTotalResults;
 //                                    _numTotal = 1150;
                                 } else {
@@ -256,6 +263,7 @@
                         queryParams: function (params) {
                             queryParams.limit = params.limit;
                             queryParams.skip = params.offset;
+//                            queryParams.summary = true;
                             return queryParams;
                         },
                         responseHandler: function (res) {
@@ -301,7 +309,8 @@
 
                 let queryParams = {
                     sid: this.opencgaClient._config.sessionId,
-                    timeout: 60000
+                    timeout: 60000,
+                    summary: true
                 };
 
                 Object.assign(queryParams, this.query); // Important : Adding the query object contents to queryParams

@@ -37,7 +37,7 @@
                 <variant-browser-view title="{{title}}" project="{{project}}" study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
                                       cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
                                       consequence-types="{{consequenceTypes}}" beacon-hosts="{{beaconHosts}}" query="{{query}}" search="[[search]]"
-                                      on-propagate="propagateGeneEvent" config="{{config}}"  on-clear="onClear" on-filterchange="onFilterChange">
+                                      on-propagate="propagateGeneEvent" config="{{config}}"  on-clear="onClear" on-filterchange="onFilterChange" summary="{{summary}}">
                 </variant-browser-view>
             </div>
 
@@ -93,6 +93,9 @@
                 search: {
                     type: Object,
                     observer: 'renderHashQueryParams'
+                },
+                summary: {
+                    type: Boolean
                 },
                 prefix: {
                     type: String
