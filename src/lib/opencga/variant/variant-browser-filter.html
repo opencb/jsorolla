@@ -106,7 +106,7 @@
 
             <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true">
 
-                <template is="dom-if" if="{{isPrioritizationAnalysis}}">
+                <template is="dom-if" if="{{isAnalysisMode}}">
                     <div class="panel panel-default">
                         <div class="panel-heading" role="tab" id="{{prefix}}SampleAnalysisHeading">
                             <h4 class="panel-title">
@@ -127,7 +127,6 @@
                                 <div id="analysisSelectedDiv" style="display:none">
                                     <label>Analysis selected:</label>
                                     <input type="text" class$="custom-sized-input {{prefix}}FilterTextInput" placeholder="AN-28" aria-describedby="basic-addon1" disabled>
-
                                 </div>
 
                                 <div class="dropdown" id="segregationDropdownDiv" style="display: none">
@@ -144,18 +143,12 @@
 
                             </div>
                         </div>
-
                     </div>
-
                 </template>
 
 
                 <!--Exclusive for Prioritization-->
-                <template is="dom-if" if="{{isPrioritization}}">
-
-
-
-
+                <template is="dom-if" if="{{isPrioritizationMode}}">
                     <div class="panel panel-default">
                         <div class="panel-heading" role="tab" id="{{prefix}}SampleFilterHeading">
                             <h4 class="panel-title">
@@ -234,43 +227,41 @@
                             </div>
                         </div>
                     </div>
-
-
-
-
-
                 </template>
 
                 <!-- Studies filter -->
-                <template is="dom-if" if="{{moreStudiesPresent(studies)}}">
-                    <div class="panel panel-default">
-                        <div class="panel-heading" role="tab" id="{{prefix}}StudiesHeading">
-                            <h4 class="panel-title">
-                                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                                   href="#{{prefix}}Studies" aria-expanded="true" aria-controls="{{prefix}}Studies">
-                                    Studies
-                                    <div style="float: right" class="tooltip-div">
-                                        <a data-toggle="tooltip" title="Use this filter to find variants which are: 1) also present in all of the selected studies below, 2) not present in any of the studies selected below or 3) present in at least one of the studies selected below"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                <template is="dom-if" if="{{isBrowserMode}}">
+                    <template is="dom-if" if="{{moreStudiesPresent(studies)}}">
+                        <div class="panel panel-default">
+                            <div class="panel-heading" role="tab" id="{{prefix}}StudiesHeading">
+                                <h4 class="panel-title">
+                                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
+                                       href="#{{prefix}}Studies" aria-expanded="true" aria-controls="{{prefix}}Studies">
+                                        Studies
+                                        <div style="float: right" class="tooltip-div">
+                                            <a data-toggle="tooltip" title="Use this filter to find variants which are: 1) also present in all of the selected studies below, 2) not present in any of the studies selected below or 3) present in at least one of the studies selected below"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                        </div>
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="{{prefix}}Studies" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}StudiesHeading">
+                                <div class="panel-body">
+                                    <select class$="form-control {{prefix}}FilterSelect" id="includeOtherStudy" style="width: 50%;" on-change="updateQueryFilters">
+                                        <option value="in" selected>In</option>
+                                        <option value="not in">Not In</option>
+                                        <option value="atleast">At least</option>
+                                    </select>
+                                    <div id="differentStudies">
+                                        <template is="dom-repeat" items="{{differentStudies}}">
+                                            <input type="checkbox" value="{{item.alias}}" data-id="{{item.id}}" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> {{item.alias}}<br>
+                                        </template>
                                     </div>
-                                </a>
-                            </h4>
-                        </div>
-                        <div id="{{prefix}}Studies" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}StudiesHeading">
-                            <div class="panel-body">
-                                <select class$="form-control {{prefix}}FilterSelect" id="includeOtherStudy" style="width: 50%;" on-change="updateQueryFilters">
-                                    <option value="in" selected>In</option>
-                                    <option value="not in">Not In</option>
-                                    <option value="atleast">At least</option>
-                                </select>
-                                <div id="differentStudies">
-                                    <template is="dom-repeat" items="{{differentStudies}}">
-                                        <input type="checkbox" value="{{item.alias}}" data-id="{{item.id}}" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> {{item.alias}}<br>
-                                    </template>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </template>
                 </template>
+
 
                 <!-- Region filter -->
                 <div class="panel panel-default">
@@ -278,7 +269,7 @@
                         <h4 class="panel-title">
                             <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
                                href="#{{prefix}}Position" aria-expanded="true" aria-controls="{{prefix}}Position">
-                                Location
+                                Genomic
                                 <div style="float: right" class="tooltip-div">
                                     <a data-toggle="tooltip" title="Introduce a region interval and/or gene/variant ids. The filter will allow variants which fall within provided genomic intervals OR match the ids provided"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
                                 </div>
@@ -691,6 +682,7 @@
                 },
                 mode: {
                     type: String,
+                    value: "browser",
                     observer: '_updateMode'
                 },
                 query: {
@@ -1292,23 +1284,19 @@
                 $("." + this.prefix + "FilterRadio").filter('[value="or"]').prop('checked', true);
                 $("." + this.prefix + "FilterRadio").prop("disabled", true);
             },
-            _updateMode: function () { // Hay que cambiar estos modos
-                this.isPrioritization = true;
+            _updateMode: function () {
                 switch (this.mode) {
-                    case "family":
-                        this.isFamilyMode = true;
+                    case "browser":
+                        this.isBrowserMode = true;
                         break;
-                    case "cancer":
-                        this.isCancerMode = true;
+                    case "prioritization":
+                        this.isPrioritizationMode = true;
                         break;
-                    case "caseControl":
-                        this.isCaseControlMode = true;
-                        break;
-                    case "prioritizationAnalysis":
-                        this.isPrioritizationAnalysis = true;
-                        this.isPrioritization = false; // Ojo, cambiar esto, ya que siempre que mode tiene valor isPrioritization=true
+                    case "analysis":
+                        this.isAnalysisMode = true;
                         break;
                     default:
+                        this.isBrowserMode = true;
                         break;
                 }
             },

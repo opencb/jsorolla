@@ -310,7 +310,7 @@
                 let queryParams = {
                     sid: this.opencgaClient._config.sessionId,
                     timeout: 60000,
-                    summary: true
+                    summary: this.summary
                 };
 
                 Object.assign(queryParams, this.query); // Important : Adding the query object contents to queryParams
