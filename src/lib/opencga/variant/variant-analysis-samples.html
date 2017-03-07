@@ -306,6 +306,7 @@
 
                 this.renderFromServer();
 
+//                this.samples = [{name: "name1"}, {name: "name2"}, {name: "name3"}];
             },
             renderFromServer: function () {
                 let filters = this.search;
@@ -405,7 +406,7 @@
                             }
 
                             _this.splice('_samples', sampleToDeleteIdx, 1);
-                            _this.set('samples', _this.samples.slice());
+                            _this.set('samples', _this._samples.slice());
                         }
                     });
 

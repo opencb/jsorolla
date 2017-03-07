@@ -30,86 +30,39 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr>
-                    <td>HG00096</td>
-                    <td><input type="checkbox" disabled></td>
-                    <td>Male</td>
-                    <td>
-                        <div class="dropdown">
-                            <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="fatherDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                {{father_2}}
-                                <span class="caret"></span>
+                <template is="dom-repeat" items="{{samples}}" as="sample">
+                    <tr>
+                        <td>{{sample.name}}</td>
+                        <td><input type="checkbox" disabled></td>
+                        <td>{{sample.gender}}</td>
+                        <td>
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Select... <span class="caret"></span>
                             </button>
-                            <ul class="dropdown-menu" aria-labelledby="segregationDropdown" on-click="selectFather_2">
-                                <li><a>HG00099</a></li>
+                            <ul class="dropdown-menu">
+                                <template is="dom-repeat" items="{{samples}}">
+                                    <template is="dom-if" if="[[show(sample, item)]]">
+                                        <li on-click="changeTool">{{item.name}}</a></li>
+                                    </template>
+                                </template>
                             </ul>
-                        </div>
-
-                    </td>
-                    <td>
-
-                        <div class="dropdown">
-                            <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="motherDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                {{mother_2}}
-                                <span class="caret"></span>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Select... <span class="caret"></span>
                             </button>
-                            <ul class="dropdown-menu" aria-labelledby="segregationDropdown" on-click="selectMother_2">
-                                <li><a>HG00097</a></li>
+                            <ul class="dropdown-menu">
+                                <template is="dom-repeat" items="{{samples}}" filter="_isMotherFilter">
+                                    <li on-click="changeTool">{{item.name}}</a></li>
+                                </template>
                             </ul>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>HG00097</td>
-                    <td><input type="checkbox" disabled></td>
-                    <td>Female</td>
-                    <td>
-                        <div class="dropdown">
-                            <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="fatherDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                {{father_3}}
-                                <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="segregationDropdown" on-click="selectFather_3">
-                                <li><a>HG00096</a></li>
-                                <li><a>HG00099</a></li>
-                            </ul>
-                        </div>
-
-
-                    </td>
-                    <td>-</td>
-                </tr>
-                <tr>
-                    <td>HG00099</td>
-                    <td><input type="checkbox" checked="checked"></td>
-                    <td>Male</td>
-                    <td>
-                        <div class="dropdown">
-                            <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="fatherDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                {{father_1}}
-                                <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="segregationDropdown" on-click="selectFather_1">
-                                <li><a>HG00096</a></li>
-                            </ul>
-                        </div>
-                    </td>
-                    <td>
-
-                        <div class="dropdown">
-                            <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="motherDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                {{mother_1}}
-                                <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="segregationDropdown" on-click="selectMother_1">
-                                <li><a>HG00097</a></li>
-                            </ul>
-                        </div>
-
-                    </td>
-                </tr>
+                        </td>
+                    </tr>
+                </template>
                 </tbody>
             </table>
+
+
             <h3>Pedigree will be shown here...</h3>
         </div>
 
@@ -128,7 +81,8 @@
                 },
                 samples: {
                     type: Array,
-                    notify: true
+                    notify: true,
+                    observer: '_updateSamples'
                 },
                 prefix: {
                     type: String
@@ -154,33 +108,60 @@
                     value: "Select Parent"
                 },
             },
-
-
             ready: function() {
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
                     this.prefix = "sample" + Utils.randomString(6);
                 }
+
+                console.log(this.samples)
+//                debugger
             },
-            selectFather_1: function (e) {
-                e.preventDefault();
-                this.father_1 = e.target.innerHTML;
+            show: function(sample, item) {
+                return sample.name != item.name;
             },
-            selectFather_2: function (e) {
-                e.preventDefault();
-                this.father_2 = e.target.innerHTML;
+            _updateSamples: function () {
+                if (typeof this.samples != "undefined" && this.samples != null) {
+                    this.sampleRelativeMap = {};
+                    for (let sampleIdx in this.samples) {
+                        this.sampleRelativeMap[this.samples[sampleIdx].name] = [];
+                        for (let relativeIdx in this.samples) {
+                            if (sampleIdx != relativeIdx) {
+                                this.sampleRelativeMap[this.samples[sampleIdx].name].push(this.samples[relativeIdx].name);
+                            }
+                        }
+                    }
+                }
             },
-            selectFather_3: function (e) {
-                e.preventDefault();
-                this.father_3 = e.target.innerHTML;
+            _isFatherFilter: function (item) {
+                let relatives = this.sampleRelativeMap[item.name];
+debugger
+                return relatives.includes(item.name);
             },
-            selectMother_1: function (e) {
-                e.preventDefault();
-                this.mother_1 = e.target.innerHTML;
-            },
-            selectMother_2: function (e) {
-                e.preventDefault();
-                this.mother_2 = e.target.innerHTML;
-            },
+            _isMotherFilter: function (item) {
+                let relatives = this.sampleRelativeMap[item.name];
+
+                return relatives.includes(item.name);
+            }
+//            selectFather_1: function (e) {
+//                e.preventDefault();
+//                this.father_1 = e.target.innerHTML;
+//            },
+//            selectFather_2: function (e) {
+//                e.preventDefault();
+//                this.father_2 = e.target.innerHTML;
+//            },
+//            selectFather_3: function (e) {
+//                e.preventDefault();
+//                this.father_3 = e.target.innerHTML;
+//            },
+//            selectMother_1: function (e) {
+//                e.preventDefault();
+//                this.mother_1 = e.target.innerHTML;
+//            },
+//            selectMother_2: function (e) {
+//                e.preventDefault();
+//                this.mother_2 = e.target.innerHTML;
+//            }
 
         });
 
