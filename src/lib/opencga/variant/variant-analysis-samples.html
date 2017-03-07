@@ -14,6 +14,7 @@
   ~ limitations under the License.
   -->
 <link rel="import" href="opencga-family-selector.html">
+<link rel="import" href="opencga-family-editor.html">
 
 <dom-module id="variant-analysis-samples">
     <template>
@@ -216,7 +217,7 @@
                             <td>NO</td>
                             <td><button type="button" class="btn btn-danger" on-click="hideTable">Remove
                                 <i class="fa fa-times" aria-hidden="true"></i></button>
-                                <button data-toggle="modal" role="button" type="button" class="btn btn-success" data-target$="#{{prefix}}Editor">Edit
+                                <button data-toggle="modal" role="button" type="button" class="btn btn-success" data-target$="#{{prefix}}FamilyEditor">Edit
                                     <i class="fa fa-cog" aria-hidden="true"></i></button>
 
                             </td>
@@ -229,109 +230,16 @@
 
 
         <!-- Modal dialog for family editor : has to be designed as a web component-->
-        <div class="modal fade" id="{{prefix}}Editor" tabindex="-1" role="dialog"
+        <div class="modal fade" id="{{prefix}}FamilyEditor" tabindex="-1" role="dialog"
              aria-labelledby="sampleBrowserLabel">
             <div class="modal-dialog modal-lg" role="document" style="width: 1024px;">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title" id="{{prefix}}SampleBrowserLabel">Family Editor</h4>
+                        <h4 class="modal-title" id="{{prefix}}FamilyEditorLabel">Family Editor</h4>
                     </div>
                     <div class="modal-body" style="height: 500px">
-                        <table class="table hover">
-                            <thead>
-                            <tr class="active">
-                                <th>Sample ID</th>
-                                <th>Affected</th>
-                                <th>Gender</th>
-                                <th>Father</th>
-                                <th>Mother</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr>
-                                <td>HG00096</td>
-                                <td><input type="checkbox" disabled></td>
-                                <td>Male</td>
-                                <td>
-                                    <div class="dropdown">
-                                        <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="fatherDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                            {{father_2}}
-                                            <span class="caret"></span>
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="segregationDropdown" on-click="selectFather_2">
-                                            <li><a>HG00099</a></li>
-                                        </ul>
-                                    </div>
-
-                                </td>
-                                <td>
-
-                                    <div class="dropdown">
-                                        <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="motherDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                            {{mother_2}}
-                                            <span class="caret"></span>
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="segregationDropdown" on-click="selectMother_2">
-                                            <li><a>HG00097</a></li>
-                                        </ul>
-                                    </div>
-
-
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>HG00097</td>
-                                <td><input type="checkbox" disabled></td>
-                                <td>Female</td>
-                                <td>
-                                    <div class="dropdown">
-                                        <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="fatherDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                            {{father_3}}
-                                            <span class="caret"></span>
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="segregationDropdown" on-click="selectFather_3">
-                                            <li><a>HG00096</a></li>
-                                            <li><a>HG00099</a></li>
-                                        </ul>
-                                    </div>
-
-
-                                </td>
-                                <td>-</td>
-                            </tr>
-                            <tr>
-                                <td>HG00099</td>
-                                <td><input type="checkbox" checked="checked"></td>
-                                <td>Male</td>
-                                <td>
-                                    <div class="dropdown">
-                                        <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="fatherDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                            {{father_1}}
-                                            <span class="caret"></span>
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="segregationDropdown" on-click="selectFather_1">
-                                                              <li><a>HG00096</a></li>
-                                        </ul>
-                                    </div>
-                                </td>
-                                <td>
-
-                                    <div class="dropdown">
-                                        <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="motherDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                            {{mother_1}}
-                                            <span class="caret"></span>
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="segregationDropdown" on-click="selectMother_1">
-                                            <li><a>HG00097</a></li>
-                                        </ul>
-                                    </div>
-
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
-                        <h2>Pedigree will be shown here...</h2>
+                        <opencga-family-editor opencga-client="{{opencgaClient}}" study-id="{{study.id}}" samples="{{samples}}" prefix="{{prefix}}"></opencga-family-editor>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
@@ -358,26 +266,6 @@
                 },
                 prefix: {
                     type: String
-                },
-                father_1: {
-                    type: String,
-                    value: "Select Parent"
-                },
-                father_2: {
-                    type: String,
-                    value: "Select Parent"
-                },
-                father_3: {
-                    type: String,
-                    value: "Select Parent"
-                },
-                mother_1: {
-                    type: String,
-                    value: "Select Parent"
-                },
-                mother_2: {
-                    type: String,
-                    value: "Select Parent"
                 },
             },
             ready: function() {
@@ -544,26 +432,6 @@
             hideTable: function(e) {
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
                 $("#analysisListDiv").hide();
-            },
-            selectFather_1: function (e) {
-                e.preventDefault();
-                this.father_1 = e.target.innerHTML;
-            },
-            selectFather_2: function (e) {
-                e.preventDefault();
-                this.father_2 = e.target.innerHTML;
-            },
-            selectFather_3: function (e) {
-                e.preventDefault();
-                this.father_3 = e.target.innerHTML;
-            },
-            selectMother_1: function (e) {
-                e.preventDefault();
-                this.mother_1 = e.target.innerHTML;
-            },
-            selectMother_2: function (e) {
-                e.preventDefault();
-                this.mother_2 = e.target.innerHTML;
             },
         });
     </script>

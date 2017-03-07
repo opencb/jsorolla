@@ -1,0 +1,188 @@
+<!--
+  ~ Copyright 2015 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<dom-module id="opencga-family-editor">
+
+    <template>
+        <style is="custom-style" include="jso-styles"></style>
+
+        <div class="panel">
+            <table class="table hover">
+                <thead>
+                <tr class="active">
+                    <th>Sample ID</th>
+                    <th>Affected</th>
+                    <th>Gender</th>
+                    <th>Father</th>
+                    <th>Mother</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>HG00096</td>
+                    <td><input type="checkbox" disabled></td>
+                    <td>Male</td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="fatherDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                {{father_2}}
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="segregationDropdown" on-click="selectFather_2">
+                                <li><a>HG00099</a></li>
+                            </ul>
+                        </div>
+
+                    </td>
+                    <td>
+
+                        <div class="dropdown">
+                            <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="motherDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                {{mother_2}}
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="segregationDropdown" on-click="selectMother_2">
+                                <li><a>HG00097</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>HG00097</td>
+                    <td><input type="checkbox" disabled></td>
+                    <td>Female</td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="fatherDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                {{father_3}}
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="segregationDropdown" on-click="selectFather_3">
+                                <li><a>HG00096</a></li>
+                                <li><a>HG00099</a></li>
+                            </ul>
+                        </div>
+
+
+                    </td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>HG00099</td>
+                    <td><input type="checkbox" checked="checked"></td>
+                    <td>Male</td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="fatherDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                {{father_1}}
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="segregationDropdown" on-click="selectFather_1">
+                                <li><a>HG00096</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                    <td>
+
+                        <div class="dropdown">
+                            <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="motherDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                {{mother_1}}
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="segregationDropdown" on-click="selectMother_1">
+                                <li><a>HG00097</a></li>
+                            </ul>
+                        </div>
+
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <h3>Pedigree will be shown here...</h3>
+        </div>
+
+    </template>
+
+    <script>
+        Polymer({
+            is: 'opencga-family-editor',
+            properties: {
+                opencgaClient: {
+                    type: Object
+                },
+                studyId: {
+                    type: Object,
+                    observer: 'renderFromServer'
+                },
+                samples: {
+                    type: Array,
+                    notify: true
+                },
+                prefix: {
+                    type: String
+                },
+                father_1: {
+                    type: String,
+                    value: "Select Parent"
+                },
+                father_2: {
+                    type: String,
+                    value: "Select Parent"
+                },
+                father_3: {
+                    type: String,
+                    value: "Select Parent"
+                },
+                mother_1: {
+                    type: String,
+                    value: "Select Parent"
+                },
+                mother_2: {
+                    type: String,
+                    value: "Select Parent"
+                },
+            },
+
+
+            ready: function() {
+                if (typeof this.prefix === "undefined" || this.prefix == "") {
+                    this.prefix = "sample" + Utils.randomString(6);
+                }
+            },
+            selectFather_1: function (e) {
+                e.preventDefault();
+                this.father_1 = e.target.innerHTML;
+            },
+            selectFather_2: function (e) {
+                e.preventDefault();
+                this.father_2 = e.target.innerHTML;
+            },
+            selectFather_3: function (e) {
+                e.preventDefault();
+                this.father_3 = e.target.innerHTML;
+            },
+            selectMother_1: function (e) {
+                e.preventDefault();
+                this.mother_1 = e.target.innerHTML;
+            },
+            selectMother_2: function (e) {
+                e.preventDefault();
+                this.mother_2 = e.target.innerHTML;
+            },
+
+        });
+
+    </script>
+</dom-module>
