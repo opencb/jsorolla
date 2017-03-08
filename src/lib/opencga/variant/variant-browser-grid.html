@@ -44,13 +44,13 @@
                 <i class="fa fa-floppy-o" aria-hidden="true"></i> Save
             </button>
             <!--<button type="button" class="btn btn-default btn-sm" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample" on-click="_test">-->
-                <!--<i class="fa fa-share-alt" aria-hidden="true"></i> Share-->
+            <!--<i class="fa fa-share-alt" aria-hidden="true"></i> Share-->
             <!--</button>-->
             <!--<div class="collapse" id="collapseExample" style="padding-top: 5px">-->
-                <!--<div class="well" style="background-color: #FAFAFA">-->
-                    <!--URL:<br>-->
-                    <!--{{_test()}}-->
-                <!--</div>-->
+            <!--<div class="well" style="background-color: #FAFAFA">-->
+            <!--URL:<br>-->
+            <!--{{_test()}}-->
+            <!--</div>-->
             <!--</div>-->
         </div>
 
@@ -499,14 +499,12 @@
             caddScaledFormatter:  function (value, row, index) {
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined" && typeof row.annotation.functionalScore !== "undefined") {
                     for (let i = 0; i < row.annotation.functionalScore.length; i++) {
-                        if (typeof row.annotation.functionalScore[i] !== "undefined") {
+                        if (typeof row.annotation.functionalScore[i] !== "undefined" && row.annotation.functionalScore[i].source == "cadd_scaled" && row.type != "INDEL") {
                             let value = Number(row.annotation.functionalScore[i].score).toFixed(2);
-                            if (row.annotation.functionalScore[i].source == "cadd_scaled") {
-                                if (value < 15) {
-                                    return value;
-                                } else {
-                                    return '<span style="color: red">' + value + '</span>';
-                                }
+                            if (value < 15) {
+                                return value;
+                            } else {
+                                return '<span style="color: red">' + value + '</span>';
                             }
                         }
                     }
