@@ -122,7 +122,7 @@
                 <variant-browser-grid project="{{project}}" study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
                                       population-frequencies="{{populationFrequencies}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
                                       consequence-types="{{consequenceTypes}}" search="{{query}}" query="{{query}}" variant="{{variant}}"
-                                      on-selectvariant="onSelectVariant" style="font-size: 12px">
+                                      on-selectvariant="onSelectVariant" style="font-size: 12px" summary="{{summary}}">
                 </variant-browser-grid>
 
                 <div hidden$="{{checkVariant(variant)}}">
@@ -178,6 +178,9 @@
                 },
                 config: {
                     type: Object
+                },
+                summary: {
+                    type: Boolean
                 }
             },
             observers: [
@@ -230,6 +233,7 @@
                                     "annot-ct": "missense_variant,transcript_ablation,splice_acceptor_variant,splice_donor_variant,stop_gained,frameshift_variant,stop_lost,start_lost," +
                                     "transcript_amplification,inframe_insertion,inframe_deletion",
                                     studies: _this.project.alias + ":" + _this.study.alias, returnedStudies: _this.project.alias + ":" + _this.study.alias,
+                                    summary: _this.summary,
                                     exclude: "studies.samplesData,studies.files"};
                                 _this.opencgaClient.variants().query(params)
                                     .then(function (variants) {

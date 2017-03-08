@@ -120,7 +120,7 @@
                 <variant-browser-grid project="{{project}}" study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
                                       population-frequencies="{{populationFrequencies}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
                                       consequence-types="{{consequenceTypes}}" search="{{query}}" query="{{query}}" variant="{{variant}}"
-                                      on-selectvariant="onSelectVariant" style="font-size: 12px">
+                                      on-selectvariant="onSelectVariant" style="font-size: 12px" summary="{{summary}}">
                 </variant-browser-grid>
 
                 <div hidden$="{{checkVariant(variant)}}">
@@ -139,7 +139,8 @@
 
             <div role="tabpanel" class="tab-pane" id="{{prefix}}Protein">
                 <variant-protein-view opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" project="{{project}}" study="{{study}}"
-                                      gene="{{gene}}" config="{{config.protein}}"></variant-protein-view>
+                                      gene="{{gene}}" config="{{config.protein}}" summary="{{summary}}">
+                </variant-protein-view>
             </div>
 
         </div>
@@ -181,6 +182,9 @@
                 },
                 config: {
                     type: Object
+                },
+                summary: {
+                    type: Boolean
                 }
             },
             observers: [
