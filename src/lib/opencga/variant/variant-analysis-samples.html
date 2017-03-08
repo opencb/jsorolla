@@ -185,19 +185,25 @@
 
                 <div id="{{prefix}}toolbar">
                     <div class="btn-group btn-group-sm">
-                        <button class="button"><img src="images/analysis_family_button.png" height="75"></button>
-                        <button class="button" on-click="showTable"><img src="images/analysis_trio_button.png" height="75"></button>
-                        <button class="button"><img src="images/analysis_duo_button.png" height="75"></button>
-                        <button class="button"><img src="images/analysis_single_button.png" height="75"></button>
-                        <button class="button"><img src="images/analysis_auto_button.png" height="75"></button>
-                        <button class="button"><img src="images/analysis_multi_button.png" height="75"></button>
+                        <button id="familyButton" class="button" on-click="addAnalysis"><img src="images/analysis_family_button.png" height="75"></button>
+                        <button id="trioButton" class="button" on-click="addAnalysis"><img src="images/analysis_trio_button.png" height="75"></button>
+                        <button id="duoButton" class="button" on-click="addAnalysis"><img src="images/analysis_duo_button.png" height="75"></button>
+                        <button id="singleButton" class="button" on-click="addAnalysis"><img src="images/analysis_single_button.png" height="75"></button>
+                        <button id="autoButton" class="button" on-click="addAnalysis"><img src="images/analysis_auto_button.png" height="75"></button>
+                        <button id="multiButton" class="button" on-click="addAnalysis"><img src="images/analysis_multi_button.png" height="75"></button>
                     </div>
                 </div>
 
                 <br>
                 <!--  -->
-                <div class="analysis-list" id="analysisListDiv" style="display:none">
-                    <table class="table hover">
+
+
+
+
+
+                <!--<div class="analysis-list" id="analysisListDiv" style="display:none">-->
+                <div class="analysis-list" id="analysisListDiv">
+                    <table id="analysisTable" class="table hover">
                         <thead>
                         <tr class="active">
                             <th>Analysis ID</th>
@@ -430,6 +436,56 @@
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
                 $("#analysisListDiv").show();
             },
+            addAnalysis: function(e) {
+                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+                //$("#analysisListDiv").show();
+                let analysisId= Math.floor(Math.random() * 100) + 1;
+                // Get the type of analysisId
+                let analysisType="";
+
+                switch (e.currentTarget.id) {
+                    case "familyButton":
+                        analysisType = "Family";
+                        break;
+                    case "trioButton":
+                        analysisType = "Trio";
+                        break;
+                    case "duoButton":
+                        analysisType = "Duo";
+                        break;
+                    case "singleButton":
+                        analysisType = "Single";
+                        break;
+                    case "autoButton":
+                        analysisType = "Auto comparative";
+                        break;
+                    case "multiButton":
+                        analysisType = "Multisample";
+                        break;
+                    default:
+                        analysisType = "Family";
+                        break;
+                }
+                let fullDate = new Date()
+                let twoDigitMonth = ((fullDate.getMonth().length+1) === 1)? (fullDate.getMonth()+1) : '0' + (fullDate.getMonth()+1);
+                let currentDate = fullDate.getDate() + "/" + twoDigitMonth + "/" + fullDate.getFullYear();
+
+                let samplesToShow="";
+                //console.log(e)
+                //debugger
+/*                for (let sampleIdx in _this.samples) {
+                        samplesToShow=samplesToShow+","+ _this.samples[sampleIdx].name;
+
+
+                }*/
+
+
+
+                let my_tr="<tr><td>AN-"+analysisId+"</td><td>HG00096</td><td>"+analysisType+"</td><td>"+currentDate+"</td><td>NO</td><td>Nuevo</td></tr>"
+
+                $('#analysisTable').append(my_tr)
+            },
+
             hideTable: function(e) {
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
                 $("#analysisListDiv").hide();

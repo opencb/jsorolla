@@ -33,29 +33,37 @@
                 <template is="dom-repeat" items="{{samples}}" as="sample">
                     <tr>
                         <td>{{sample.name}}</td>
-                        <td><input type="checkbox" disabled></td>
+                        <td><input type="checkbox"></td>
                         <td>{{sample.gender}}</td>
                         <td>
-                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Select... <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu">
-                                <template is="dom-repeat" items="{{samples}}">
-                                    <template is="dom-if" if="[[show(sample, item)]]">
-                                        <li on-click="changeTool">{{item.name}}</a></li>
+                            <div class="dropdown">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <span id="{{sample.name}}fatherButton" class="selection">Select...</span> <span class="caret"></span>
+                                </button>
+                                <ul id="{{sample.name}}father" class="dropdown-menu" on-click="selectSample">
+                                    <template is="dom-repeat" items="{{samples}}">
+                                        <template is="dom-if" if="[[showParent(sample, item,'male')]]">
+                                            <li><a>{{item.name}}</a></li>
+                                        </template>
                                     </template>
-                                </template>
-                            </ul>
+                                </ul>
+                            </div>
                         </td>
                         <td>
-                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Select... <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu">
-                                <template is="dom-repeat" items="{{samples}}" filter="_isMotherFilter">
-                                    <li on-click="changeTool">{{item.name}}</a></li>
-                                </template>
-                            </ul>
+                            <div class="dropdown">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <span id="{{sample.name}}motherButton" class="selection">Select...</span> <span class="caret"></span>
+                                </button>
+                                <ul id="{{sample.name}}mother" class="dropdown-menu" on-click="selectSample">
+                                    <template is="dom-repeat" items="{{samples}}">
+                                        <template is="dom-if" if="[[showParent(sample, item,'female')]]">
+                                            <li><a>{{item.name}}</a></li>
+                                        </template>
+                                    </template>
+                                </ul>
+                            </div>
+
+
                         </td>
                     </tr>
                 </template>
@@ -87,26 +95,6 @@
                 prefix: {
                     type: String
                 },
-                father_1: {
-                    type: String,
-                    value: "Select Parent"
-                },
-                father_2: {
-                    type: String,
-                    value: "Select Parent"
-                },
-                father_3: {
-                    type: String,
-                    value: "Select Parent"
-                },
-                mother_1: {
-                    type: String,
-                    value: "Select Parent"
-                },
-                mother_2: {
-                    type: String,
-                    value: "Select Parent"
-                },
             },
             ready: function() {
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
@@ -116,9 +104,19 @@
                 console.log(this.samples)
 //                debugger
             },
-            show: function(sample, item) {
+            showParent: function(sample, item, gender) { // Show only those samples whose gender is given by the argument
                 return sample.name != item.name;
+                // return (sample.name != item.name) && item.gender == gender
             },
+
+            selectSample: function (e) {
+                e.preventDefault();
+                $("#"+e.currentTarget.id+"Button").text(e.target.innerHTML);
+
+
+
+            },
+
             _updateSamples: function () {
                 if (typeof this.samples != "undefined" && this.samples != null) {
                     this.sampleRelativeMap = {};
@@ -134,7 +132,7 @@
             },
             _isFatherFilter: function (item) {
                 let relatives = this.sampleRelativeMap[item.name];
-debugger
+                debugger
                 return relatives.includes(item.name);
             },
             _isMotherFilter: function (item) {
@@ -142,26 +140,6 @@ debugger
 
                 return relatives.includes(item.name);
             }
-//            selectFather_1: function (e) {
-//                e.preventDefault();
-//                this.father_1 = e.target.innerHTML;
-//            },
-//            selectFather_2: function (e) {
-//                e.preventDefault();
-//                this.father_2 = e.target.innerHTML;
-//            },
-//            selectFather_3: function (e) {
-//                e.preventDefault();
-//                this.father_3 = e.target.innerHTML;
-//            },
-//            selectMother_1: function (e) {
-//                e.preventDefault();
-//                this.mother_1 = e.target.innerHTML;
-//            },
-//            selectMother_2: function (e) {
-//                e.preventDefault();
-//                this.mother_2 = e.target.innerHTML;
-//            }
 
         });
 
