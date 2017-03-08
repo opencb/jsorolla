@@ -247,6 +247,28 @@
                             </div>
                             <div id="{{prefix}}Studies" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}StudiesHeading">
                                 <div class="panel-body">
+                                    <template is="dom-if" if="{{cohorts}}">
+                                        <span class="subsection">Cohort stats filter (MAF)</span>
+                                        <template is="dom-repeat" items="{{cohorts}}" as="cohort">
+                                            <div class="horizontal layout" style="padding: 4px 0px 4px 0px">
+                                                <span>{{cohort}}</span>
+                                                <span>
+                                                <select name="{{cohort}}Operator" id="{{prefix}}{{study.id}}{{cohort}}Operator" on-change="updateQueryFilters"  class$="{{prefix}}FilterSelect">
+                                                    <option value="<" selected><</option>
+                                                    <option value="<="><=</option>
+                                                    <option value=">">></option>
+                                                    <option value=">=">>=</option>
+                                                </select>
+                                            </span>
+                                                <span>
+                                                <input type="text" value="" class$="custom-sized-input {{prefix}}FilterTextInput" name="{{study.id}}_{{cohort}}" id="{{prefix}}{{study.id}}{{cohort}}" on-keyup="updateQueryFilters">
+                                            </span>
+                                            </div>
+                                        </template>
+                                        <br>
+                                    </template>
+
+                                    <span class="subsection">Study filter</span>
                                     <select class$="form-control {{prefix}}FilterSelect" id="includeOtherStudy" style="width: 50%;" on-change="updateQueryFilters">
                                         <option value="in" selected>In</option>
                                         <option value="not in">Not In</option>
@@ -736,6 +758,7 @@
                 this.query = {};
 
                 this.isFamilyAnalysis = true;
+
             },
             onSearch: function () {
                 this.search = this.query;
@@ -777,6 +800,11 @@
                         }
                     }
                     this.differentStudies = differentStudies;
+
+                    // Update cohorts from config, this updates the Cohort filter MAF
+                    if (typeof this.config.cohorts !== "undefined") {
+                        this.cohorts = this.config.cohorts[this.study.alias];
+                    }
                 }
             },
             updateConsequenceTypeFilter: function(e) {
@@ -982,6 +1010,23 @@
                 // Adding sample genotypes filter
                 if (typeof this.sampleGenotypes !== "undefined" && this.sampleGenotypes != "") {
                     _filters.genotype = this.sampleGenotypes;
+                }
+
+                // Add Cohort stats MAF filter: [{study.alias}]{cohort}:[<|>|<=|>=]{number}
+                let cohortFreq = [];
+                if (typeof this.cohorts !== "undefined" && this.cohorts.length > 0) {
+                    for (let i = 0; i < this.cohorts.length; i++) {
+                        let cohort = this.cohorts[i];
+                            if (this.$$("#" + this.prefix + this.study.id + cohort).value != "" || this.$$("#" + this.prefix + this.study.id + cohort + "Operator").value != "<") {
+                                let operator = this.$$("#" + this.prefix + this.study.id + cohort + "Operator").value;
+                                let pf = this.study.alias + ":" + cohort + operator + this.$$("#" + this.prefix + this.study.id + cohort).value;
+                                cohortFreq.push(pf);
+                            }
+//                        }
+                    }
+                }
+                if (cohortFreq.length > 0) {
+                    _filters["maf"] = cohortFreq.join(';');
                 }
 
                 // Studies
