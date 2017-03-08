@@ -609,6 +609,24 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Human Phenotype Ontology filter-->
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="{{prefix}}TraitsHeading">
+                        <h4 class="panel-title">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}Traits" aria-expanded="false"
+                               aria-controls="{{prefix}}HumanPhenotypeOntology">
+                                Traits (New!)
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="{{prefix}}Traits" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}TraitsHeading">
+                        <div class="panel-body">
+                            <textarea id="{{prefix}}TraitsTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="3"
+                                      name="traits" placeholder="Full text search, e.g. *melanoma*" on-keyup="updateQueryFilters"></textarea>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1117,6 +1135,9 @@
                 }
                 if (this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value != "") {
                     _filters["annot-hpo"] = this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value;
+                }
+                if (this.$$("#" + this.prefix + "TraitsTextarea").value != "") {
+                    _filters["traits"] = this.$$("#" + this.prefix + "TraitsTextarea").value;
                 }
 
                 // Cadd scores
