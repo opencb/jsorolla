@@ -14,6 +14,7 @@
   ~ limitations under the License.
   -->
 
+<link rel="import" href="opencga-family-editor.html">
 <dom-module id="opencga-family-selector">
     <template>
         <style is="custom-style" include="jso-styles"></style>
@@ -63,7 +64,8 @@
                 </table>
 
                 <div>
-                    <h3>Family editor will be shown here...</h3>
+                    <h4>Family editor (Work in progess)</h4>
+                    <opencga-family-editor samples="{{samples}}" opencga-client="{{opencgaClient}}"></opencga-family-editor>
                 </div>
             </div>
         </div>
@@ -356,7 +358,7 @@
                         this.set("filteredVariables.variables", []);
 
                     } else if (filters.annotation.length < this.filteredVariables.variables.length) {
-                        debugger
+//                        debugger
                         let tmpVariables = [];
                         filters.annotation.forEach(function(variable) {
                             tmpVariables.push(variable);

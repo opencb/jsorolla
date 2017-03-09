@@ -179,7 +179,9 @@
                                         </button>
                                     </span>
                                     <br>
+                                    <br>
                                     <div class="dropdown">
+                                        <span>Inheritance mode: &nbsp;
                                         <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="segregationDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                                             {{segregation}}
                                             <span class="caret"></span>
@@ -193,9 +195,10 @@
                                                 <li><a>{{item}}</a></li>
                                             </template>
                                         </ul>
+                                        </span>
                                     </div>
 
-                                    <h5>Sample Genotypes:</h5>
+                                    <!--<span>Sample Genotypes:</span>-->
                                     <table class="table table-hover" id="segregationTable">
                                         <thead>
                                         <tr>
@@ -232,13 +235,13 @@
 
                 <!-- Studies filter -->
                 <template is="dom-if" if="{{isBrowserMode}}">
-                    <template is="dom-if" if="{{moreStudiesPresent(studies)}}">
+                    <template is="dom-if" if="{{moreStudiesPresent(studies) && cohorts}}">
                         <div class="panel panel-default">
                             <div class="panel-heading" role="tab" id="{{prefix}}StudiesHeading">
                                 <h4 class="panel-title">
                                     <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
                                        href="#{{prefix}}Studies" aria-expanded="true" aria-controls="{{prefix}}Studies">
-                                        Studies
+                                        Study
                                         <div style="float: right" class="tooltip-div">
                                             <a data-toggle="tooltip" title="Use this filter to find variants which are: 1) also present in all of the selected studies below, 2) not present in any of the studies selected below or 3) present in at least one of the studies selected below"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
                                         </div>
@@ -247,16 +250,40 @@
                             </div>
                             <div id="{{prefix}}Studies" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}StudiesHeading">
                                 <div class="panel-body">
-                                    <select class$="form-control {{prefix}}FilterSelect" id="includeOtherStudy" style="width: 50%;" on-change="updateQueryFilters">
-                                        <option value="in" selected>In</option>
-                                        <option value="not in">Not In</option>
-                                        <option value="atleast">At least</option>
-                                    </select>
-                                    <div id="differentStudies">
-                                        <template is="dom-repeat" items="{{differentStudies}}">
-                                            <input type="checkbox" value="{{item.alias}}" data-id="{{item.id}}" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> {{item.alias}}<br>
+                                    <template is="dom-if" if="{{cohorts}}">
+                                        <span class="subsection">Cohort MAF filter</span>
+                                        <template is="dom-repeat" items="{{cohorts}}" as="cohort">
+                                            <div class="horizontal layout" style="padding: 4px 0px 4px 0px">
+                                                <span>{{cohort}}</span>
+                                                <span>
+                                                <select name="{{cohort}}Operator" id="{{prefix}}{{study.id}}{{cohort}}Operator" on-change="updateQueryFilters"  class$="{{prefix}}FilterSelect">
+                                                    <option value="<" selected><</option>
+                                                    <option value="<="><=</option>
+                                                    <option value=">">></option>
+                                                    <option value=">=">>=</option>
+                                                </select>
+                                            </span>
+                                                <span>
+                                                <input type="text" value="" class$="custom-sized-input {{prefix}}FilterTextInput" name="{{study.id}}_{{cohort}}" id="{{prefix}}{{study.id}}{{cohort}}" on-keyup="updateQueryFilters">
+                                            </span>
+                                            </div>
                                         </template>
-                                    </div>
+                                        <br>
+                                    </template>
+
+                                    <template is="dom-if" if="{{moreStudiesPresent(studies)}}">
+                                        <span class="subsection">Studies filter</span>
+                                        <select class$="form-control {{prefix}}FilterSelect" id="includeOtherStudy" style="width: 50%;" on-change="updateQueryFilters">
+                                            <option value="in" selected>In</option>
+                                            <option value="not in">Not In</option>
+                                            <option value="atleast">At least</option>
+                                        </select>
+                                        <div id="differentStudies">
+                                            <template is="dom-repeat" items="{{differentStudies}}">
+                                                <input type="checkbox" value="{{item.alias}}" data-id="{{item.id}}" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> {{item.alias}}<br>
+                                            </template>
+                                        </div>
+                                    </template>
                                 </div>
                             </div>
                         </div>
@@ -736,6 +763,7 @@
                 this.query = {};
 
                 this.isFamilyAnalysis = true;
+
             },
             onSearch: function () {
                 this.search = this.query;
@@ -777,6 +805,11 @@
                         }
                     }
                     this.differentStudies = differentStudies;
+
+                    // Update cohorts from config, this updates the Cohort filter MAF
+                    if (typeof this.config.cohorts !== "undefined") {
+                        this.cohorts = this.config.cohorts[this.study.alias];
+                    }
                 }
             },
             updateConsequenceTypeFilter: function(e) {
@@ -984,6 +1017,28 @@
                     _filters.genotype = this.sampleGenotypes;
                 }
 
+                // Add Cohort stats MAF filter: [{study.alias}]{cohort}:[<|>|<=|>=]{number}
+                let cohortFreq = [];
+                if (typeof this.cohorts !== "undefined" && this.cohorts.length > 0) {
+                    for (let i = 0; i < this.cohorts.length; i++) {
+                        let cohort = this.cohorts[i];
+                        if (this.$$("#" + this.prefix + this.study.id + cohort).value != "" || this.$$("#" + this.prefix + this.study.id + cohort + "Operator").value != "<") {
+                            let operator = this.$$("#" + this.prefix + this.study.id + cohort + "Operator").value;
+                            let study = this.study.alias;
+                            // to be removed!!
+                            if (study == "BRIDGE") {
+                                study = "bridge";
+                            }
+                            let pf = study + ":" + cohort + operator + this.$$("#" + this.prefix + this.study.id + cohort).value;
+                            cohortFreq.push(pf);
+                        }
+//                        }
+                    }
+                }
+                if (cohortFreq.length > 0) {
+                    _filters["maf"] = cohortFreq.join(';');
+                }
+
                 // Studies
                 let studies = [];
                 if (typeof this.$$("#includeOtherStudy") !== "undefined" && this.$$("#includeOtherStudy") != null) {
@@ -1189,6 +1244,7 @@
 //                        return result;
 //                    }, {});
 //                }
+
                 if (typeof e !== "undefined") {
                     if (typeof this.sampleGenotypesObj[e.target.dataId] === "undefined") {
                         this.sampleGenotypesObj[e.target.dataId] = {};
@@ -1214,6 +1270,7 @@
                         delete this._filters.genoType;
                     }
                     this._filtersCount = Object.keys(this._filters).length;
+//                    debugger
                 }
             },
             sampleChanged: function () {
