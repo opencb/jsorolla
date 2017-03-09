@@ -179,7 +179,9 @@
                                         </button>
                                     </span>
                                     <br>
+                                    <br>
                                     <div class="dropdown">
+                                        <span>Inheritance mode: &nbsp;
                                         <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="segregationDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                                             {{segregation}}
                                             <span class="caret"></span>
@@ -193,9 +195,10 @@
                                                 <li><a>{{item}}</a></li>
                                             </template>
                                         </ul>
+                                        </span>
                                     </div>
 
-                                    <h5>Sample Genotypes:</h5>
+                                    <!--<span>Sample Genotypes:</span>-->
                                     <table class="table table-hover" id="segregationTable">
                                         <thead>
                                         <tr>
@@ -1019,16 +1022,16 @@
                 if (typeof this.cohorts !== "undefined" && this.cohorts.length > 0) {
                     for (let i = 0; i < this.cohorts.length; i++) {
                         let cohort = this.cohorts[i];
-                            if (this.$$("#" + this.prefix + this.study.id + cohort).value != "" || this.$$("#" + this.prefix + this.study.id + cohort + "Operator").value != "<") {
-                                let operator = this.$$("#" + this.prefix + this.study.id + cohort + "Operator").value;
-                                let study = this.study.alias;
-                                // to be removed!!
-                                if (study == "BRIDGE") {
-                                    study = "bridge";
-                                }
-                                let pf = study + ":" + cohort + operator + this.$$("#" + this.prefix + this.study.id + cohort).value;
-                                cohortFreq.push(pf);
+                        if (this.$$("#" + this.prefix + this.study.id + cohort).value != "" || this.$$("#" + this.prefix + this.study.id + cohort + "Operator").value != "<") {
+                            let operator = this.$$("#" + this.prefix + this.study.id + cohort + "Operator").value;
+                            let study = this.study.alias;
+                            // to be removed!!
+                            if (study == "BRIDGE") {
+                                study = "bridge";
                             }
+                            let pf = study + ":" + cohort + operator + this.$$("#" + this.prefix + this.study.id + cohort).value;
+                            cohortFreq.push(pf);
+                        }
 //                        }
                     }
                 }
@@ -1241,6 +1244,7 @@
 //                        return result;
 //                    }, {});
 //                }
+
                 if (typeof e !== "undefined") {
                     if (typeof this.sampleGenotypesObj[e.target.dataId] === "undefined") {
                         this.sampleGenotypesObj[e.target.dataId] = {};
@@ -1266,6 +1270,7 @@
                         delete this._filters.genoType;
                     }
                     this._filtersCount = Object.keys(this._filters).length;
+//                    debugger
                 }
             },
             sampleChanged: function () {

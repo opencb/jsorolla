@@ -148,6 +148,7 @@
                     this.prefix = "table" + Utils.randomString(6);
                 }
 
+                this.analysisMode = "family";
             },
             attached: function() {
                 this.table = $('#' + this.prefix + 'VariantBrowserGrid');
@@ -678,7 +679,7 @@
                 }
 
                 if (typeof this.cols !== "undefined" && typeof this.samples !== "undefined" && this.samples.length > 0) {
-                    switch(this.mode) {
+                    switch(this.analysisMode) {
                         case "family":
                             // if type is 'family' we expected few samples to be provided in property 'samples'
                             this.cols[0].splice(4, 0, {
