@@ -20,6 +20,7 @@
 <link rel="import" href="variant-prioritization-view.html">
 <link rel="import" href="opencga-family-selector.html">
 <link rel="import" href="variant-analysis-report.html">
+<link rel="import" href="variant-analysis-filter.html">
 
 <dom-module id="variant-analysis">
 
@@ -121,9 +122,9 @@
                 </div>
                 <div class="analysis-content" id="{{prefix}}FilterButtonDiv" style="display: none">
                     <div class="col-md-2">
-                        <variant-browser-filter prefix="{{prefix}}" mode="{{mode}}" study="{{study}}" project="{{project}}" samples="{{samples}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"
+                        <variant-analysis-filter prefix="{{prefix}}" mode="{{mode}}" study="{{study}}" project="{{project}}" samples="{{samples}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"
                                                 population-frequencies="{{populationFrequencies}}" consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}" style="font-size: 12px">
-                        </variant-browser-filter>
+                        </variant-analysis-filter>
                     </div>
 
                     <div class="col-md-10">

@@ -39,12 +39,12 @@
                             <h4 class="panel-title">
                                 <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
                                    href="#{{prefix}}SampleSelection" aria-expanded="true" aria-controls="{{prefix}}SampleSelection">
-                                Sample Selection
-                                <div style="float: right" class="tooltip-div">
-                                    <a data-toggle="tooltip" title="Sample selection">
-                                        <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                    </a>
-                                </div>
+                                    Sample Selection
+                                    <div style="float: right" class="tooltip-div">
+                                        <a data-toggle="tooltip" title="Sample selection">
+                                            <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                        </a>
+                                    </div>
                                 </a>
                             </h4>
                         </div>
@@ -471,22 +471,33 @@
                 let currentDate = fullDate.getDate() + "/" + twoDigitMonth + "/" + fullDate.getFullYear();
 
                 let samplesToShow="";
+
+                /*                for (let sampleIdx in _this.samples) {
+                 samplesToShow=samplesToShow+","+ _this.samples[sampleIdx].name;
+
+
+                 }*/
+
+                let buttonRemoveText="<button type=\"button\" class=\"btn btn-danger\" on-click=\"hideTable\">Remove<i class=\"fa fa-times\" aria-hidden=\"true\"></i></button>";
+                let buttonEditText="<button data-toggle=\"modal\" role=\"button\" type=\"button\" class=\"btn btn-success\" data-target=\"#"+this.prefix+"FamilyEditor\">Edit<i class=\"fa fa-cog\" aria-hidden=\"true\"></i></button>";
+
+                let tdAnalysisId="<td>AN-"+analysisId+"</td>";
+                let tdSamples="<td>HG00096</td>";
+                let tdAnalysisType="<td>"+analysisType+"</td>";
+                let tdCurrentDate="<td>"+currentDate+"</td>";
+                let tdFilter="<td>NO</td>";
+                let tdButtons="<td>"+buttonRemoveText+" "+buttonEditText+"</td>";
+                let my_tr="<tr>"+tdAnalysisId+tdSamples+tdAnalysisType+tdCurrentDate+tdFilter+tdButtons+"</tr>";
+
                 //console.log(e)
                 //debugger
-/*                for (let sampleIdx in _this.samples) {
-                        samplesToShow=samplesToShow+","+ _this.samples[sampleIdx].name;
-
-
-                }*/
-
-
-
-                let my_tr="<tr><td>AN-"+analysisId+"</td><td>HG00096</td><td>"+analysisType+"</td><td>"+currentDate+"</td><td>NO</td><td>Nuevo</td></tr>"
 
                 $('#analysisTable').append(my_tr)
             },
 
             hideTable: function(e) {
+                console.log(e)
+                debugger
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
                 $("#analysisListDiv").hide();
             },
