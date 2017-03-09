@@ -215,7 +215,7 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr>
+<!--                        <tr>
                             <td>AN-28</td>
                             <td>HG00096, HG00097, HG00099</td>
                             <td>Trio</td>
@@ -227,7 +227,7 @@
                                     <i class="fa fa-cog" aria-hidden="true"></i></button>
 
                             </td>
-                        </tr>
+                        </tr>-->
                         </tbody>
                     </table>
                 </div>
@@ -496,10 +496,9 @@
             },
 
             hideTable: function(e) {
-                console.log(e)
-                debugger
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-                $("#analysisListDiv").hide();
+                //$("#analysisListDiv").hide();
+                $('#analysisTable').closest('tr').remove();
             },
         });
     </script>

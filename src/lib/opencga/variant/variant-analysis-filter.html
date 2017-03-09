@@ -857,7 +857,8 @@
         },
         updateQueryFilters: function () {
             let _filters = {};
-
+            console.log(this)
+            debugger
             // Adding sample genotypes filter
             if (typeof this.sampleGenotypes !== "undefined" && this.sampleGenotypes != "") {
                 _filters.genotype = this.sampleGenotypes;
