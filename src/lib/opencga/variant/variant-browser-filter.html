@@ -1021,7 +1021,12 @@
                         let cohort = this.cohorts[i];
                             if (this.$$("#" + this.prefix + this.study.id + cohort).value != "" || this.$$("#" + this.prefix + this.study.id + cohort + "Operator").value != "<") {
                                 let operator = this.$$("#" + this.prefix + this.study.id + cohort + "Operator").value;
-                                let pf = this.study.alias + ":" + cohort + operator + this.$$("#" + this.prefix + this.study.id + cohort).value;
+                                let study = this.study.alias;
+                                // to be removed!!
+                                if (study == "BRIDGE") {
+                                    study = "bridge";
+                                }
+                                let pf = study + ":" + cohort + operator + this.$$("#" + this.prefix + this.study.id + cohort).value;
                                 cohortFreq.push(pf);
                             }
 //                        }
