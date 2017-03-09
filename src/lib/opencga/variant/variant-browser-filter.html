@@ -232,13 +232,13 @@
 
                 <!-- Studies filter -->
                 <template is="dom-if" if="{{isBrowserMode}}">
-                    <template is="dom-if" if="{{moreStudiesPresent(studies)}}">
+                    <template is="dom-if" if="{{moreStudiesPresent(studies) && cohorts}}">
                         <div class="panel panel-default">
                             <div class="panel-heading" role="tab" id="{{prefix}}StudiesHeading">
                                 <h4 class="panel-title">
                                     <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
                                        href="#{{prefix}}Studies" aria-expanded="true" aria-controls="{{prefix}}Studies">
-                                        Studies
+                                        Study
                                         <div style="float: right" class="tooltip-div">
                                             <a data-toggle="tooltip" title="Use this filter to find variants which are: 1) also present in all of the selected studies below, 2) not present in any of the studies selected below or 3) present in at least one of the studies selected below"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
                                         </div>
@@ -248,7 +248,7 @@
                             <div id="{{prefix}}Studies" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}StudiesHeading">
                                 <div class="panel-body">
                                     <template is="dom-if" if="{{cohorts}}">
-                                        <span class="subsection">Cohort stats filter (MAF)</span>
+                                        <span class="subsection">Cohort MAF filter</span>
                                         <template is="dom-repeat" items="{{cohorts}}" as="cohort">
                                             <div class="horizontal layout" style="padding: 4px 0px 4px 0px">
                                                 <span>{{cohort}}</span>
@@ -268,17 +268,19 @@
                                         <br>
                                     </template>
 
-                                    <span class="subsection">Study filter</span>
-                                    <select class$="form-control {{prefix}}FilterSelect" id="includeOtherStudy" style="width: 50%;" on-change="updateQueryFilters">
-                                        <option value="in" selected>In</option>
-                                        <option value="not in">Not In</option>
-                                        <option value="atleast">At least</option>
-                                    </select>
-                                    <div id="differentStudies">
-                                        <template is="dom-repeat" items="{{differentStudies}}">
-                                            <input type="checkbox" value="{{item.alias}}" data-id="{{item.id}}" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> {{item.alias}}<br>
-                                        </template>
-                                    </div>
+                                    <template is="dom-if" if="{{moreStudiesPresent(studies)}}">
+                                        <span class="subsection">Studies filter</span>
+                                        <select class$="form-control {{prefix}}FilterSelect" id="includeOtherStudy" style="width: 50%;" on-change="updateQueryFilters">
+                                            <option value="in" selected>In</option>
+                                            <option value="not in">Not In</option>
+                                            <option value="atleast">At least</option>
+                                        </select>
+                                        <div id="differentStudies">
+                                            <template is="dom-repeat" items="{{differentStudies}}">
+                                                <input type="checkbox" value="{{item.alias}}" data-id="{{item.id}}" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> {{item.alias}}<br>
+                                            </template>
+                                        </div>
+                                    </template>
                                 </div>
                             </div>
                         </div>
