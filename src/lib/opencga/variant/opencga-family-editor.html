@@ -38,9 +38,9 @@
                         <td>
                             <div class="dropdown">
                                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <span id="{{sample.name}}fatherButton" class="selection">Select...</span> <span class="caret"></span>
+                                    <span id="{{prefix}}{{sample.name}}fatherButton" class="selection">Select...</span> <span class="caret"></span>
                                 </button>
-                                <ul id="{{sample.name}}father" class="dropdown-menu" on-click="selectSample">
+                                <ul id="{{prefix}}{{sample.name}}father" class="dropdown-menu" on-click="selectSample">
                                     <template is="dom-repeat" items="{{samples}}">
                                         <template is="dom-if" if="[[showParent(sample, item,'male')]]">
                                             <li><a>{{item.name}}</a></li>
@@ -52,9 +52,9 @@
                         <td>
                             <div class="dropdown">
                                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <span id="{{sample.name}}motherButton" class="selection">Select...</span> <span class="caret"></span>
+                                    <span id="{{prefix}}{{sample.name}}motherButton" class="selection">Select...</span> <span class="caret"></span>
                                 </button>
-                                <ul id="{{sample.name}}mother" class="dropdown-menu" on-click="selectSample">
+                                <ul id="{{prefix}}{{sample.name}}mother" class="dropdown-menu" on-click="selectSample">
                                     <template is="dom-repeat" items="{{samples}}">
                                         <template is="dom-if" if="[[showParent(sample, item,'female')]]">
                                             <li><a>{{item.name}}</a></li>
@@ -101,8 +101,8 @@
                     this.prefix = "sample" + Utils.randomString(6);
                 }
 
-                console.log(this.samples)
-//                debugger
+
+
             },
             showParent: function(sample, item, gender) { // Show only those samples whose gender is given by the argument
                 return sample.name != item.name;
@@ -110,6 +110,8 @@
             },
 
             selectSample: function (e) {
+                console.log(e);
+                debugger;
                 e.preventDefault();
                 $("#"+e.currentTarget.id+"Button").text(e.target.innerHTML);
 
@@ -140,6 +142,7 @@
 
                 return relatives.includes(item.name);
             }
+
 
         });
 
