@@ -274,44 +274,46 @@
                     let _this = this;
                     this.opencgaClient.variants().query(params)
                         .then(function (response) {
-                            let _variantStudies = response.response[0].result[0].studies;
-                            for (let i = 0; i < _variantStudies.length; i++) {
-                                let study = _variantStudies[i].studyId.split(':')[1];
-                                let statsObject = _variantStudies[i].stats;
-                                let statsArray = [];
-                                Object.keys(statsObject).map(key => {
-                                    statsObject[key].maf = _this._freqFormatter(statsObject[key].maf || 0);
-                                    statsObject[key].mafAllele = statsObject[key].mafAllele || '-';
+                            if (typeof response.response[0].result[0] !== "undefined") {
+                                let _variantStudies = response.response[0].result[0].studies;
+                                for (let i = 0; i < _variantStudies.length; i++) {
+                                    let study = _variantStudies[i].studyId.split(':')[1];
+                                    let statsObject = _variantStudies[i].stats;
+                                    let statsArray = [];
+                                    Object.keys(statsObject).map(key => {
+                                        statsObject[key].maf = _this._freqFormatter(statsObject[key].maf || 0);
+                                        statsObject[key].mafAllele = statsObject[key].mafAllele || '-';
 
-                                    statsObject[key].refAlleleFreq = _this._freqFormatter(statsObject[key].refAlleleFreq || 0);
-                                    statsObject[key].altAlleleFreq = _this._freqFormatter(statsObject[key].altAlleleFreq || 0);
+                                        statsObject[key].refAlleleFreq = _this._freqFormatter(statsObject[key].refAlleleFreq || 0);
+                                        statsObject[key].altAlleleFreq = _this._freqFormatter(statsObject[key].altAlleleFreq || 0);
 
-                                    statsObject[key].genotypesFreq.homref = _this._freqFormatter(statsObject[key].genotypesFreq["0/0"] || statsObject[key].genotypesFreq["0|0"] || 0);
-                                    statsObject[key].genotypesFreq.het = _this._freqFormatter(statsObject[key].genotypesFreq["0/1"] || statsObject[key].genotypesFreq["0|1"] || 0);
-                                    statsObject[key].genotypesFreq.homalt = _this._freqFormatter(statsObject[key].genotypesFreq["1/1"] || statsObject[key].genotypesFreq["1|1"] || 0);
+                                        statsObject[key].genotypesFreq.homref = _this._freqFormatter(statsObject[key].genotypesFreq["0/0"] || statsObject[key].genotypesFreq["0|0"] || 0);
+                                        statsObject[key].genotypesFreq.het = _this._freqFormatter(statsObject[key].genotypesFreq["0/1"] || statsObject[key].genotypesFreq["0|1"] || 0);
+                                        statsObject[key].genotypesFreq.homalt = _this._freqFormatter(statsObject[key].genotypesFreq["1/1"] || statsObject[key].genotypesFreq["1|1"] || 0);
 
-                                    statsObject[key].genotypesCount.homref = statsObject[key].genotypesCount["0/0"] || statsObject[key].genotypesCount["0|0"] || 0;
-                                    statsObject[key].genotypesCount.het = statsObject[key].genotypesCount["0/1"] || statsObject[key].genotypesCount["0|1"] || 0;
-                                    statsObject[key].genotypesCount.homalt = statsObject[key].genotypesCount["1/1"] || statsObject[key].genotypesCount["1|1"] || 0;
+                                        statsObject[key].genotypesCount.homref = statsObject[key].genotypesCount["0/0"] || statsObject[key].genotypesCount["0|0"] || 0;
+                                        statsObject[key].genotypesCount.het = statsObject[key].genotypesCount["0/1"] || statsObject[key].genotypesCount["0|1"] || 0;
+                                        statsObject[key].genotypesCount.homalt = statsObject[key].genotypesCount["1/1"] || statsObject[key].genotypesCount["1|1"] || 0;
 
 
-                                    if (key === "ALL") {
-                                        statsArray.unshift({
-                                            name: key,
-                                            value: statsObject[key],
-                                            study: study
-                                        })
-                                    } else {
-                                        statsArray.push({
-                                            name: key,
-                                            value: statsObject[key],
-                                            study: study
-                                        })
-                                    }
-                                });
-                                _variantStudies[i].stats = statsArray;
+                                        if (key === "ALL") {
+                                            statsArray.unshift({
+                                                name: key,
+                                                value: statsObject[key],
+                                                study: study
+                                            })
+                                        } else {
+                                            statsArray.push({
+                                                name: key,
+                                                value: statsObject[key],
+                                                study: study
+                                            })
+                                        }
+                                    });
+                                    _variantStudies[i].stats = statsArray;
+                                }
+                                _this.variantStudies = _variantStudies;
                             }
-                            _this.variantStudies = _variantStudies;
                         });
                 }
             },

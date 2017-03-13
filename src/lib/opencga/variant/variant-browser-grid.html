@@ -300,7 +300,7 @@
                     if (typeof this.query === "undefined") {
                         this.query = {};
                     }
-                    if (typeof this.query.studies === "undefined" || this.query.studies == "" || this.query.studies.split(';').length == 1) {
+                    if (typeof this.query.studies === "undefined" || this.query.studies == "" || this.query.studies.split(new RegExp("[,;]")).length == 1) {
                         this.query.studies = this.project.alias + ":" + this.study.alias;
                     }
                     host += '/webservices/rest/v1/analysis/variant/query';
