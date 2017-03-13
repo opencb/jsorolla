@@ -201,24 +201,24 @@
                                     <!--<span>Sample Genotypes:</span>-->
                                     <table class="table table-hover" id="segregationTable">
                                         <thead>
-                                            <tr>
-                                                <th>Sample</th>
-                                                <th>0/0</th>
-                                                <th>0/1</th>
-                                                <th>1/1</th>
-                                                <th>./.</th>
-                                            </tr>
+                                        <tr>
+                                            <th>Sample</th>
+                                            <th>0/0</th>
+                                            <th>0/1</th>
+                                            <th>1/1</th>
+                                            <th>./.</th>
+                                        </tr>
                                         </thead>
                                         <tbody>
-                                            <template is="dom-repeat" items="{{samples}}" as="sample">
-                                                <tr id="{{item.name}}" on-click="sampleGenotypeSelected">
-                                                    <td class$="{{item.status}}">{{sample.name}}&nbsp;({{sample.memberCode}})</td>
-                                                    <td><input type="checkbox" value="0/0" data-id="{{sample.name}}Genotype" on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
-                                                    <td><input type="checkbox" value="0/1" data-id="{{sample.name}}Genotype" on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
-                                                    <td><input type="checkbox" value="1/1" data-id="{{sample.name}}Genotype" on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
-                                                    <td><input type="checkbox" value="./." data-id="{{sample.name}}Genotype" on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
-                                                </tr>
-                                            </template>
+                                        <template is="dom-repeat" items="{{samples}}" as="sample">
+                                            <tr id="{{item.name}}" on-click="sampleGenotypeSelected">
+                                                <td class$="{{item.status}}">{{sample.name}}&nbsp;({{sample.memberCode}})</td>
+                                                <td><input type="checkbox" value="0/0" data-id="{{sample.name}}" on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
+                                                <td><input type="checkbox" value="0/1" data-id="{{sample.name}}" on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
+                                                <td><input type="checkbox" value="1/1" data-id="{{sample.name}}" on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
+                                                <td><input type="checkbox" value="./." data-id="{{sample.name}}" on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
+                                            </tr>
+                                        </template>
                                         </tbody>
                                     </table>
                                 </template>
@@ -290,7 +290,7 @@
                     </template>
                 </template>
 
-
+                <br>
                 <!-- Region filter -->
                 <div class="panel panel-default">
                     <div class="panel-heading" role="tab" id="{{prefix}}PositionHeading">
@@ -299,34 +299,33 @@
                                href="#{{prefix}}Position" aria-expanded="true" aria-controls="{{prefix}}Position">
                                 Genomic
                                 <div style="float: right" class="tooltip-div">
-                                    <a data-toggle="tooltip" title="Introduce a region interval and/or gene/variant ids. The filter will allow variants which fall within provided genomic intervals OR match the ids provided"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                    <a data-toggle="tooltip" title="Introduce a region interval and/or gene/variant ids.
+                                    The filter will allow variants which fall within provided genomic intervals OR match the ids provided">
+                                        <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                    </a>
                                 </div>
                             </a>
                         </h4>
                     </div>
                     <div id="{{prefix}}Position" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}PositionHeading">
                         <div class="panel-body">
-                            <span class="subsection">Chromosomal location</span>
-                            <textarea id="{{prefix}}LocationTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="3" placeholder="3:444-55555, 1:1-100000"
-                                      name="location" on-keyup="updateQueryFilters"></textarea>
+                            <span class="subsection">Location</span>
+                            <textarea id="{{prefix}}LocationTextarea" class$="form-control clearable {{prefix}}FilterTextInput"
+                                      rows="3" placeholder="2, 12:27916206, 1:100-1000000" name="location" on-keyup="updateQueryFilters"></textarea>
 
                             <br>
-                            <span class="subsection">Feature IDs (gene, transcript, SNP IDs)</span>
-                            <!--<span class="subsection">Feature IDs (gene, protein, SNP, ClinVar, ...)</span>-->
+                            <span class="subsection">Feature IDs (gene, SNP, ClinVar, ...)</span>
+                            <textarea id="{{prefix}}FeatureTextarea" class$="form-control clearable {{prefix}}FilterTextInput"
+                                      rows="3" placeholder="BRCA2, ENSG00000139618, ENST00000544455, rs28897700" name="geneSnp" on-keyup="updateQueryFilters"></textarea>
 
-                            <textarea id="{{prefix}}FeatureTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="5" placeholder="BRCA2, ENSG00000139618, ENST00000544455, rs28897700"
-                                      name="geneSnp" on-keyup="updateQueryFilters"></textarea>
-
-                            <!--TODO: Update when server side starts to support all xrefs and with/without rs ids-->
-                            <!--<textarea id="{{prefix}}FeatureTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="5" placeholder="BRCA2, ENSG00000139618, ENST00000544455, P51587, 13:19748038:C:T, rs28897700, VAR_020705, RCV000162901, COSM3468368"-->
-                            <!--name="geneSnp" on-keyup="updateQueryFilters"></textarea>-->
-
+                            <!--<br>-->
+                            <!--<span class="subsection">Gene Panels</span>-->
                             <!--<input type="checkbox" value="" class$="{{prefix}}FilterCheckBox"> With / Without dbSNP rs IDs<br>-->
                         </div>
                     </div>
                 </div>
 
-                <!-- Variant Type filter -->
+                <!--Variant Type filter-->
                 <div class="panel panel-default">
                     <div class="panel-heading" role="tab" id="{{prefix}}TypeHeading">
                         <h4 class="panel-title">
@@ -1372,6 +1371,7 @@
                         this.isPrioritizationMode = true;
                         break;
                     case "analysis":
+                    case "clinical":
                         this.isAnalysisMode = true;
                         break;
                     default:
