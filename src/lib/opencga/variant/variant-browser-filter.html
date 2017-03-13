@@ -618,38 +618,32 @@
                     </div>
                 </div>
 
-                <!-- Human Phenotype Ontology filter-->
-                <div class="panel panel-default">
-                    <div class="panel-heading" role="tab" id="{{prefix}}HumanPhenotypeOntologyHeading">
-                        <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}HumanPhenotypeOntology" aria-expanded="false"
-                               aria-controls="{{prefix}}HumanPhenotypeOntology">
-                                Human Phenotype Ontology
-                            </a>
-                        </h4>
-                    </div>
-                    <div id="{{prefix}}HumanPhenotypeOntology" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}HumanPhenotypeOntologyHeading">
-                        <div class="panel-body">
-                            <textarea id="{{prefix}}HumanPhenotypeOntologyTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="3"
-                                      name="hpo" placeholder="HP:0000001, HP:3000079" on-keyup="updateQueryFilters"></textarea>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Human Phenotype Ontology filter-->
+                <!-- Phenotype-Disease filter -->
                 <div class="panel panel-default">
                     <div class="panel-heading" role="tab" id="{{prefix}}TraitsHeading">
                         <h4 class="panel-title">
                             <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}Traits" aria-expanded="false"
                                aria-controls="{{prefix}}HumanPhenotypeOntology">
-                                Traits (New!)
+                                Phenotype-Disease (New!)
                             </a>
                         </h4>
                     </div>
                     <div id="{{prefix}}Traits" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}TraitsHeading">
                         <div class="panel-body">
-                            <textarea id="{{prefix}}TraitsTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="3"
-                                      name="traits" placeholder="Full text search, e.g. *melanoma*" on-keyup="updateQueryFilters"></textarea>
+                            <span class="subsection">HPO accession IDs</span>
+                            <textarea id="{{prefix}}HumanPhenotypeOntologyTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="3"
+                                      name="hpo" placeholder="HP:0000001, HP:3000079" on-keyup="updateQueryFilters"></textarea>
+
+                            <br>
+                            <span class="subsection">ClinVar accession IDs</span>
+                            <textarea id="{{prefix}}ClinVarTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="3"
+                                      name="clinvar" placeholder="RCV000058226" on-keyup="updateQueryFilters"></textarea>
+
+                            <br>
+                            <span class="subsection">Full-text search on HPO, ClinVar, protein domains or keywords.
+                                Some OMIM and Orphanet IDs are also supported (<span style="color: red">New!</span>)</span>
+                            <textarea id="{{prefix}}TraitsTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="5"
+                                      name="traits" placeholder="Full-text search, e.g. *melanoma*" on-keyup="updateQueryFilters"></textarea>
                         </div>
                     </div>
                 </div>
