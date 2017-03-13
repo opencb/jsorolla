@@ -614,7 +614,7 @@
                     <div id="{{prefix}}GeneOntology" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}GeneOntologyHeading">
                         <div class="panel-body">
                             <textarea id="{{prefix}}GeneOntologyTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="3"
-                                      name="geneOntology" placeholder="GO:0000001, GO:0001177" on-keyup="updateQueryFilters"></textarea>
+                                      name="geneOntology" placeholder="GO:0000139" on-keyup="updateQueryFilters"></textarea>
                         </div>
                     </div>
                 </div>
@@ -851,8 +851,8 @@
                 if (typeof this.query.studies !== "undefined") {
                     if (this.$$("#includeOtherStudy") != null && this.$$("#differentStudies") != null) {
                         let studies = this.query.studies.split(new RegExp("[,;]"));
-                        if (studies.length > 1) { // Checking if other studies apart from the current study are present
-                            let checkBoxes = this.$$("#differentStudies").querySelectorAll("input:checked");
+                        if (studies.length > 1) {
+                            let checkBoxes = this.$$("#differentStudies").querySelectorAll("input");
                             for (let i = 0; i < studies.length; i++) {
                                 let study = studies[i].split(':')[1];
                                 for (let j = 0; j < checkBoxes.length; j++) {
@@ -1044,8 +1044,6 @@
                 if (typeof this.$$("#includeOtherStudy") !== "undefined" && this.$$("#includeOtherStudy") != null) {
                     let selectedStudies = this.$$("#differentStudies").querySelectorAll("input:checked");
                     if (selectedStudies.length > 0) {
-                        // Always add the study that we are browsing currently
-                        studies.push(this.project.alias + ':' + this.study.alias);
                         for (let i = 0; i < selectedStudies.length; i++) {
                             studies.push(this.project.alias + ':' + selectedStudies[i].value);
                         }
@@ -1053,9 +1051,12 @@
 
                     switch (this.$$("#includeOtherStudy").value) {
                         case "in":
+                            // Always add the study that we are browsing currently
+                            studies.push(this.project.alias + ':' + this.study.alias);
                             _filters.studies = studies.join(';');
                             break;
-                        case "atleast":
+                        case "atleast":// Always add the study that we are browsing currently
+                            studies.push(this.project.alias + ':' + this.study.alias);
                             _filters.studies = studies.join(',');
                             break;
                         case "not in":
@@ -1063,6 +1064,8 @@
                             for (let j = 0; j < studies.length; j++) {
                                 notInStudies.push("!" + studies[j]);
                             }
+                            // Always add the study that we are browsing currently
+                            notInStudies.push(this.project.alias + ':' + this.study.alias);
                             _filters.studies = notInStudies.join(";");
                             break;
                     }
