@@ -182,11 +182,11 @@
                                     <br>
                                     <div class="dropdown">
                                         <span>Inheritance mode: &nbsp;
-                                        <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="segregationDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                        <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="segregationPrioritizationDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                                             {{segregation}}
                                             <span class="caret"></span>
                                         </button>
-                                        <ul class="dropdown-menu" aria-labelledby="segregationDropdown" on-click="selectSegregation">
+                                        <ul class="dropdown-menu" aria-labelledby="segregationPrioritizationDropdown" on-click="selectSegregation">
                                             <!--                  <li><a>Autosomal Dominant</a></li>
                                                               <li><a>Autosomal Recessive</a></li>
                                                               <li><a>Compound Heterozygotous</a></li>
@@ -210,13 +210,13 @@
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        <template is="dom-repeat" items="{{samples}}">
+                                        <template is="dom-repeat" items="{{samples}}" as="sample">
                                             <tr id="{{item.name}}" on-click="sampleGenotypeSelected">
-                                                <td class$="{{item.status}}">{{item.name}}&nbsp;({{item.memberCode}})</td>
-                                                <td><input type="checkbox" value="0/0" data-id="{{item.name}}" class="genotypes"></td>
-                                                <td><input type="checkbox" value="0/1" data-id="{{item.name}}" class="genotypes"></td>
-                                                <td><input type="checkbox" value="1/1" data-id="{{item.name}}" class="genotypes"></td>
-                                                <td><input type="checkbox" value="./." data-id="{{item.name}}" class="genotypes"></td>
+                                                <td class$="{{item.status}}">{{sample.name}}&nbsp;({{sample.memberCode}})</td>
+                                                <td><input type="checkbox" value="0/0" data-id="{{sample.name}}" on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
+                                                <td><input type="checkbox" value="0/1" data-id="{{sample.name}}" on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
+                                                <td><input type="checkbox" value="1/1" data-id="{{sample.name}}" on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
+                                                <td><input type="checkbox" value="./." data-id="{{sample.name}}" on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
                                             </tr>
                                         </template>
                                         </tbody>
@@ -290,7 +290,7 @@
                     </template>
                 </template>
 
-
+                <br>
                 <!-- Region filter -->
                 <div class="panel panel-default">
                     <div class="panel-heading" role="tab" id="{{prefix}}PositionHeading">
@@ -299,7 +299,10 @@
                                href="#{{prefix}}Position" aria-expanded="true" aria-controls="{{prefix}}Position">
                                 Genomic
                                 <div style="float: right" class="tooltip-div">
-                                    <a data-toggle="tooltip" title="Introduce a region interval and/or gene/variant ids. The filter will allow variants which fall within provided genomic intervals OR match the ids provided"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                    <a data-toggle="tooltip" title="Introduce a region interval and/or gene/variant ids.
+                                    The filter will allow variants which fall within provided genomic intervals OR match the ids provided">
+                                        <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                    </a>
                                 </div>
                             </a>
                         </h4>
@@ -320,8 +323,10 @@
                             <!--TODO: Update when server side starts to support all xrefs and with/without rs ids-->
                             <!--<textarea id="{{prefix}}FeatureTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="5" placeholder="BRCA2, ENSG00000139618, ENST00000544455, P51587, 13:19748038:C:T, rs28897700, VAR_020705, RCV000162901, COSM3468368"-->
                             <!--name="geneSnp" on-keyup="updateQueryFilters"></textarea>-->
-
+                            <!--<br>-->
+                            <!--<span class="subsection">Gene Panels</span>-->
                             <!--<input type="checkbox" value="" class$="{{prefix}}FilterCheckBox"> With / Without dbSNP rs IDs<br>-->
+
 
                             <span class="subsection">Gene Biotype</span>
                             <div class="form-group">
@@ -344,28 +349,6 @@
                         </div>
                     </div>
                 </div>
-
-                <!--&lt;!&ndash; Variant Type filter &ndash;&gt;-->
-                <!--<div class="panel panel-default">-->
-                    <!--<div class="panel-heading" role="tab" id="{{prefix}}TypeHeading">-->
-                        <!--<h4 class="panel-title">-->
-                            <!--<a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}Type" aria-expanded="false" aria-controls="{{prefix}}Type">-->
-                                <!--Type-->
-                            <!--</a>-->
-                        <!--</h4>-->
-                    <!--</div>-->
-                    <!--<div id="{{prefix}}Type" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}TypeHeading">-->
-                        <!--<div class="panel-body">-->
-                            <!--<div>-->
-                                <!--<input type="checkbox" value="SNV,SNP" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> SNV<br>-->
-                                <!--<input type="checkbox" value="MNV" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> MNV<br>-->
-                                <!--<input type="checkbox" value="CNV" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> CNV<br>-->
-                                <!--<input type="checkbox" value="SV" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> SV<br>-->
-                                <!--<input type="checkbox" value="INDEL" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> INDEL-->
-                            <!--</div>-->
-                        <!--</div>-->
-                    <!--</div>-->
-                <!--</div>-->
 
                 <!--Population Frequency filter-->
                 <div class="panel panel-default">
@@ -638,38 +621,32 @@
                     </div>
                 </div>
 
-                <!-- Human Phenotype Ontology filter-->
-                <div class="panel panel-default">
-                    <div class="panel-heading" role="tab" id="{{prefix}}HumanPhenotypeOntologyHeading">
-                        <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}HumanPhenotypeOntology" aria-expanded="false"
-                               aria-controls="{{prefix}}HumanPhenotypeOntology">
-                                Human Phenotype Ontology
-                            </a>
-                        </h4>
-                    </div>
-                    <div id="{{prefix}}HumanPhenotypeOntology" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}HumanPhenotypeOntologyHeading">
-                        <div class="panel-body">
-                            <textarea id="{{prefix}}HumanPhenotypeOntologyTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="3"
-                                      name="hpo" placeholder="HP:0000001, HP:3000079" on-keyup="updateQueryFilters"></textarea>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Human Phenotype Ontology filter-->
+                <!-- Phenotype-Disease filter -->
                 <div class="panel panel-default">
                     <div class="panel-heading" role="tab" id="{{prefix}}TraitsHeading">
                         <h4 class="panel-title">
                             <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}Traits" aria-expanded="false"
                                aria-controls="{{prefix}}HumanPhenotypeOntology">
-                                Traits (New!)
+                                Phenotype-Disease (New!)
                             </a>
                         </h4>
                     </div>
                     <div id="{{prefix}}Traits" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}TraitsHeading">
                         <div class="panel-body">
-                            <textarea id="{{prefix}}TraitsTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="3"
-                                      name="traits" placeholder="Full text search, e.g. *melanoma*" on-keyup="updateQueryFilters"></textarea>
+                            <span class="subsection">HPO accession IDs</span>
+                            <textarea id="{{prefix}}HumanPhenotypeOntologyTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="3"
+                                      name="hpo" placeholder="HP:0000001, HP:3000079" on-keyup="updateQueryFilters"></textarea>
+
+                            <br>
+                            <span class="subsection">ClinVar accession IDs</span>
+                            <textarea id="{{prefix}}ClinVarTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="3"
+                                      name="clinvar" placeholder="RCV000058226" on-keyup="updateQueryFilters"></textarea>
+
+                            <br>
+                            <span class="subsection">Full-text search on HPO, ClinVar, protein domains or keywords.
+                                Some OMIM and Orphanet IDs are also supported (<span style="color: red">New!</span>)</span>
+                            <textarea id="{{prefix}}TraitsTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="5"
+                                      name="traits" placeholder="Full-text search, e.g. *melanoma*" on-keyup="updateQueryFilters"></textarea>
                         </div>
                     </div>
                 </div>
@@ -1414,6 +1391,7 @@
                         this.isPrioritizationMode = true;
                         break;
                     case "analysis":
+                    case "clinical":
                         this.isAnalysisMode = true;
                         break;
                     default:

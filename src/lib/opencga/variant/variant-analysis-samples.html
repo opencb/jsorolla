@@ -231,7 +231,10 @@
                         </tbody>
                     </table>
 
-                    <table id="tableAnalysis"></table>
+                    <table id="tableAnalysis" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
+                           data-checkbox-header="false" data-maintain-selected="true" style="cursor: pointer;">
+                        <thead style="background-color: #eee"></thead>
+                    </table>
                 </div>
             </div>
         </div>
@@ -312,36 +315,18 @@
                     ]
                 ];
 
+
                 this.renderFromServer();
 
 
-                $('#tableAnalysis').bootstrapTable({
-                    columns: [{
-                        field: 'id',
-                        title: 'Item ID'
-                    }, {
-                        field: 'name',
-                        title: 'Item Name'
-                    }, {
-                        field: 'price',
-                        title: 'Item Price'
-                    }],
-                    data: [{
-                        id: 1,
-                        name: 'Item 1',
-                        price: '$1'
-                    }, {
-                        id: 2,
-                        name: 'Item 2',
-                        price: '$2'
-                    }]
-                });
+
 
 
 //                this.samples = [{name: "name1"}, {name: "name2"}, {name: "name3"}];
             },
             renderFromServer: function () {
                 let filters = this.search;
+
 
 //                console.log(this.opencgaClient)
 //                console.log(this.studyId)
@@ -357,6 +342,43 @@
                     }
 
                     this._url = this._url + '/webservices/rest/v1/samples/search';
+
+
+                    $('#tableAnalysis').bootstrapTable('destroy');
+                    $('#tableAnalysis').bootstrapTable({
+                        columns: [
+                            {
+                                field: 'analysisID',
+                                title: 'Analysis ID'
+                            },
+                            {
+                                field: 'analysisSamples',
+                                title: 'Samples'
+                            },
+                            {
+                                field: 'analysisType',
+                                title: 'Analysis'
+                            },
+                            {
+                                field: 'analysisDate',
+                                title: 'Date'
+                            },
+                            {
+                                field: 'analysisFilter',
+                                title: 'Filter'
+                            },
+                            {
+                                field: 'analysisAction',
+                                title: 'Action',
+                                formatter: this.actionFormatter,
+                                events: this.operateEvents
+                            },
+
+
+                        ],
+
+                    });
+
                     $('#' + this.prefix + "SampleSelector").bootstrapTable('destroy');
                     $('#' + this.prefix + "SampleSelector").bootstrapTable({
                         url: this._url,
@@ -458,6 +480,14 @@
             selectFormatter: function () {
                 return '<input type="checkbox">';
             },
+            actionFormatter: function() {
+              return [
+                '<button id="petete" type="button" class="btn btn-danger" on-click="removeAnalysis">Remove<i class="fa fa-times" aria-hidden="true"></i></button> ' ,
+                '<button data-toggle="modal" role="button" type="button" class="btn btn-success" data-target="#'+this.prefix+'FamilyEditor">Edit<i class="fa fa-cog" aria-hidden="true"></i></button>'
+                ].join('');
+
+            },
+
             showTable: function(e) {
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
                 $("#analysisListDiv").show();
@@ -504,7 +534,7 @@
 
                  }*/
 
-                let buttonRemoveText="<button type=\"button\" class=\"btn btn-danger\" on-click=\"hideTable\">Remove<i class=\"fa fa-times\" aria-hidden=\"true\"></i></button>";
+                let buttonRemoveText="<button type=\"button\" class=\"btn btn-danger\" on-click=\"removeAnalysis\">Remove<i class=\"fa fa-times\" aria-hidden=\"true\"></i></button>";
                 let buttonEditText="<button data-toggle=\"modal\" role=\"button\" type=\"button\" class=\"btn btn-success\" data-target=\"#"+this.prefix+"FamilyEditor\">Edit<i class=\"fa fa-cog\" aria-hidden=\"true\"></i></button>";
 
                 let tdAnalysisId="<td>AN-"+analysisId+"</td>";
@@ -519,18 +549,37 @@
                 //debugger
 
                 $('#analysisTable').append(my_tr)
+
+                $('#tableAnalysis').bootstrapTable('insertRow',{index:1 , row: {
+                    analysisID : "AN-"+analysisId,
+                    analysisSamples : "HG00096",
+                    analysisType : analysisType,
+                    analysisDate : currentDate,
+                    analysisFilter : "NO"
+
+
+                }
+
+                });
+
+
+
+
             },
 
-            hideTable: function(e) {
+            removeAnalysis: function(e) {
+                console.log(e);
+                debugger;
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-                //$("#analysisListDiv").hide();
-                $('#analysisTable').closest('tr').remove();
+                var ids = $.map($('#tableAnalysis').bootstrapTable('getSelections'), function (row) {
+                    return row.id;
+                });
+
+                $('#tableAnalysis').bootstrapTable('remove',{
+                    field: 'analysisID',
+                    values: dis
+                });
             },
-
-
-
-
-
 
 
         });
