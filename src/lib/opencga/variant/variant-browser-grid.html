@@ -300,7 +300,7 @@
                     if (typeof this.query === "undefined") {
                         this.query = {};
                     }
-                    if (typeof this.query.studies === "undefined" || this.query.studies == "" || this.query.studies.split(';').length == 1) {
+                    if (typeof this.query.studies === "undefined" || this.query.studies == "" || this.query.studies.split(new RegExp("[,;]")).length == 1) {
                         this.query.studies = this.project.alias + ":" + this.study.alias;
                     }
                     host += '/webservices/rest/v1/analysis/variant/query';
@@ -603,8 +603,12 @@
             sampleFormatter: function (value, row, index) {
                 if (typeof row !== "undefined" && typeof row.studies !== "undefined" && row.studies.length > 0) {
                     // NOTE: There are always 4 columns before the samples
-                    if (typeof row.studies[0].samplesData[this.fieldIndex - 4] !== "undefined") {
-                        return row.studies[0].samplesData[this.fieldIndex - 4][0];
+                    for (let studyIdx in row.studies) {
+                        if (row.studies[studyIdx].samplesData.length > 0) {
+                            if (typeof row.studies[studyIdx].samplesData[this.fieldIndex - 4] !== "undefined") {
+                                return row.studies[studyIdx].samplesData[this.fieldIndex - 4][0];
+                            }
+                        }
                     }
                 }
                 return '-';
@@ -1107,6 +1111,7 @@
 
                         let data = new Blob([dataString.join('\n')], {type: 'application/json'});
                         let file = window.URL.createObjectURL(data);
+                        let a = document.createElement("a");
                         let a = document.createElement("a");
                         a.href = file;
                         a.download = _this.study.alias + ".json";
