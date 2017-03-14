@@ -147,9 +147,9 @@
                                     <template is="dom-if" if="{{moreStudiesPresent(studies)}}">
                                         <span class="subsection">Studies Filter</span>
                                         <select class$="form-control {{prefix}}FilterSelect" id="includeOtherStudy" style="width: 50%;" on-change="updateQueryFilters">
-                                            <option value="in" selected>In</option>
-                                            <option value="not in">Not In</option>
-                                            <option value="atleast">At least</option>
+                                            <option value="in" selected>In (AND)</option>
+                                            <!--<option value="not in">Not In</option>-->
+                                            <option value="atleast">At least (OR)</option>
                                         </select>
                                         <div id="differentStudies">
                                             <template is="dom-repeat" items="{{differentStudies}}">
@@ -619,7 +619,7 @@
                             <span class="subsection">GO Accessions</span>
                             <div class="form-group">
                                 <textarea id="{{prefix}}GeneOntologyTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="3"
-                                          name="geneOntology" placeholder="GO:0000139" on-keyup="updateQueryFilters"></textarea>
+                                          name="geneOntology" placeholder="GO:0000145" on-keyup="updateQueryFilters"></textarea>
                             </div>
                         </div>
                     </div>
@@ -1029,6 +1029,9 @@
                 if (typeof this.query["annot-hpo"] !== "undefined") {
                     this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value = this.query["annot-hpo"];
                 }
+                if (typeof this.query["clinvar"] !== "undefined") {
+                    this.$$("#" + this.prefix + "ClinVarTextarea").value = this.query["clinvar"];
+                }
             },
             updateQueryFilters: function () {
                 let _filters = {};
@@ -1219,6 +1222,9 @@
                 }
                 if (this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value != "") {
                     _filters["annot-hpo"] = this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value;
+                }
+                if (this.$$("#" + this.prefix + "ClinVarTextarea").value != "") {
+                    _filters["clinvar"] = this.$$("#" + this.prefix + "ClinVarTextarea").value;
                 }
                 if (this.$$("#" + this.prefix + "TraitsTextarea").value != "") {
                     _filters["traits"] = this.$$("#" + this.prefix + "TraitsTextarea").value;
