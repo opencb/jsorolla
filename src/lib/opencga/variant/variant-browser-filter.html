@@ -56,7 +56,7 @@
             }
 
             .ct-tree-view {
-                font-size: 14px;
+                /*font-size: 14px;*/
             }
 
             .ct-tree-view input[type="checkbox"] {
@@ -73,10 +73,10 @@
             }
 
             div.block label {
-                width:80px;
-                display:block;
-                float:left;
-                text-align:left;
+                width: 80px;
+                display: block;
+                float: left;
+                text-align: left;
                 font-weight: normal;
             }
 
@@ -106,49 +106,64 @@
 
             <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true">
 
-                <template is="dom-if" if="{{isAnalysisMode}}">
-
-                    <div class="panel panel-default">
-                        <div class="panel-heading" role="tab" id="{{prefix}}SampleAnalysisHeading">
-                            <h4 class="panel-title">
-                                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}AnalysisSelector"
-                                   aria-expanded="true" aria-controls="{{prefix}}AnalysisSelector">
-                                    Analysis
-                                </a>
-                            </h4>
-                        </div>
-
-                        <div id="{{prefix}}AnalysisSelector" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}SampleFilterHeading">
-                            <div class="panel-body">
-                                <label><i class="fa fa-sitemap" aria-hidden="true"></i>Select analysis:</label>
-                                <br>
-                                <button data-toggle="modal" role="button" data-placement="bottom" data-target$="#{{prefix}}AnalysisBrowser">
-                                    Browse...
-                                </button>
-                                <div id="analysisSelectedDiv" style="display:none">
-                                    <label>Analysis selected:</label>
-                                    <input type="text" class$="custom-sized-input {{prefix}}FilterTextInput" placeholder="AN-28" aria-describedby="basic-addon1" disabled>
-                                </div>
-
-                                <div class="dropdown" id="segregationDropdownDiv" style="display: none">
-                                    <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="segregationDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                        {{segregation}}
-                                        <span class="caret"></span>
-                                    </button>
-                                    <ul class="dropdown-menu" aria-labelledby="segregationDropdown" on-click="selectSegregation">
-                                        <template is="dom-repeat" items="{{config.segregation}}">
-                                            <li><a>{{item}}</a></li>
+                <!-- STUDY filters -->
+                <template is="dom-if" if="{{isBrowserMode}}">
+                    <template is="dom-if" if="{{moreStudiesPresent(studies) && cohorts}}">
+                        <div class="panel panel-default">
+                            <div class="panel-heading" role="tab" id="{{prefix}}StudiesHeading">
+                                <h4 class="panel-title">
+                                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
+                                       href="#{{prefix}}Studies" aria-expanded="true" aria-controls="{{prefix}}Studies">
+                                        Study
+                                        <div style="float: right" class="tooltip-div">
+                                            <a data-toggle="tooltip" title="Use this filter to find variants which are: 1) also present in all of the selected studies below, 2) not present in any of the studies selected below or 3) present in at least one of the studies selected below"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                        </div>
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="{{prefix}}Studies" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}StudiesHeading">
+                                <div class="panel-body">
+                                    <template is="dom-if" if="{{cohorts}}">
+                                        <span class="subsection">Cohort MAF filter</span>
+                                        <template is="dom-repeat" items="{{cohorts}}" as="cohort">
+                                            <div class="horizontal layout" style="padding: 4px 0px 4px 0px">
+                                                <span>{{cohort}}</span>
+                                                <span>
+                                                <select name="{{cohort}}Operator" id="{{prefix}}{{study.id}}{{cohort}}Operator" on-change="updateQueryFilters"  class$="{{prefix}}FilterSelect">
+                                                    <option value="<" selected><</option>
+                                                    <option value="<="><=</option>
+                                                    <option value=">">></option>
+                                                    <option value=">=">>=</option>
+                                                </select>
+                                            </span>
+                                                <span>
+                                                <input type="text" value="" class$="custom-sized-input {{prefix}}FilterTextInput" name="{{study.id}}_{{cohort}}" id="{{prefix}}{{study.id}}{{cohort}}" on-keyup="updateQueryFilters">
+                                            </span>
+                                            </div>
                                         </template>
-                                    </ul>
-                                </div>
+                                        <br>
+                                    </template>
 
+                                    <template is="dom-if" if="{{moreStudiesPresent(studies)}}">
+                                        <span class="subsection">Studies Filter</span>
+                                        <select class$="form-control {{prefix}}FilterSelect" id="includeOtherStudy" style="width: 50%;" on-change="updateQueryFilters">
+                                            <option value="in" selected>In</option>
+                                            <option value="not in">Not In</option>
+                                            <option value="atleast">At least</option>
+                                        </select>
+                                        <div id="differentStudies">
+                                            <template is="dom-repeat" items="{{differentStudies}}">
+                                                <input type="checkbox" value="{{item.alias}}" data-id="{{item.id}}" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> {{item.alias}}<br>
+                                            </template>
+                                        </div>
+                                    </template>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </template>
                 </template>
 
-
-                <!--Exclusive for Prioritization-->
+                <!-- PRIORITIZATION filters -->
                 <template is="dom-if" if="{{isPrioritizationMode}}">
                     <div class="panel panel-default">
                         <div class="panel-heading" role="tab" id="{{prefix}}SampleFilterHeading">
@@ -233,61 +248,45 @@
                     </div>
                 </template>
 
-                <!-- Studies filter -->
-                <template is="dom-if" if="{{isBrowserMode}}">
-                    <template is="dom-if" if="{{moreStudiesPresent(studies) && cohorts}}">
-                        <div class="panel panel-default">
-                            <div class="panel-heading" role="tab" id="{{prefix}}StudiesHeading">
-                                <h4 class="panel-title">
-                                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                                       href="#{{prefix}}Studies" aria-expanded="true" aria-controls="{{prefix}}Studies">
-                                        Study
-                                        <div style="float: right" class="tooltip-div">
-                                            <a data-toggle="tooltip" title="Use this filter to find variants which are: 1) also present in all of the selected studies below, 2) not present in any of the studies selected below or 3) present in at least one of the studies selected below"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
-                                        </div>
-                                    </a>
-                                </h4>
-                            </div>
-                            <div id="{{prefix}}Studies" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}StudiesHeading">
-                                <div class="panel-body">
-                                    <template is="dom-if" if="{{cohorts}}">
-                                        <span class="subsection">Cohort MAF filter</span>
-                                        <template is="dom-repeat" items="{{cohorts}}" as="cohort">
-                                            <div class="horizontal layout" style="padding: 4px 0px 4px 0px">
-                                                <span>{{cohort}}</span>
-                                                <span>
-                                                <select name="{{cohort}}Operator" id="{{prefix}}{{study.id}}{{cohort}}Operator" on-change="updateQueryFilters"  class$="{{prefix}}FilterSelect">
-                                                    <option value="<" selected><</option>
-                                                    <option value="<="><=</option>
-                                                    <option value=">">></option>
-                                                    <option value=">=">>=</option>
-                                                </select>
-                                            </span>
-                                                <span>
-                                                <input type="text" value="" class$="custom-sized-input {{prefix}}FilterTextInput" name="{{study.id}}_{{cohort}}" id="{{prefix}}{{study.id}}{{cohort}}" on-keyup="updateQueryFilters">
-                                            </span>
-                                            </div>
-                                        </template>
-                                        <br>
-                                    </template>
+                <!-- ANALYSIS filters -->
+                <template is="dom-if" if="{{isAnalysisMode}}">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" role="tab" id="{{prefix}}SampleAnalysisHeading">
+                            <h4 class="panel-title">
+                                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}AnalysisSelector"
+                                   aria-expanded="true" aria-controls="{{prefix}}AnalysisSelector">
+                                    Analysis
+                                </a>
+                            </h4>
+                        </div>
 
-                                    <template is="dom-if" if="{{moreStudiesPresent(studies)}}">
-                                        <span class="subsection">Studies filter</span>
-                                        <select class$="form-control {{prefix}}FilterSelect" id="includeOtherStudy" style="width: 50%;" on-change="updateQueryFilters">
-                                            <option value="in" selected>In</option>
-                                            <option value="not in">Not In</option>
-                                            <option value="atleast">At least</option>
-                                        </select>
-                                        <div id="differentStudies">
-                                            <template is="dom-repeat" items="{{differentStudies}}">
-                                                <input type="checkbox" value="{{item.alias}}" data-id="{{item.id}}" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> {{item.alias}}<br>
-                                            </template>
-                                        </div>
-                                    </template>
+                        <div id="{{prefix}}AnalysisSelector" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}SampleFilterHeading">
+                            <div class="panel-body">
+                                <label><i class="fa fa-sitemap" aria-hidden="true"></i>Select analysis:</label>
+                                <br>
+                                <button data-toggle="modal" role="button" data-placement="bottom" data-target$="#{{prefix}}AnalysisBrowser">
+                                    Browse...
+                                </button>
+                                <div id="analysisSelectedDiv" style="display:none">
+                                    <label>Analysis selected:</label>
+                                    <input type="text" class$="custom-sized-input {{prefix}}FilterTextInput" placeholder="AN-28" aria-describedby="basic-addon1" disabled>
                                 </div>
+
+                                <div class="dropdown" id="segregationDropdownDiv" style="display: none">
+                                    <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="segregationDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                        {{segregation}}
+                                        <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="segregationDropdown" on-click="selectSegregation">
+                                        <template is="dom-repeat" items="{{config.segregation}}">
+                                            <li><a>{{item}}</a></li>
+                                        </template>
+                                    </ul>
+                                </div>
+
                             </div>
                         </div>
-                    </template>
+                    </div>
                 </template>
 
                 <br>
@@ -309,16 +308,17 @@
                     </div>
                     <div id="{{prefix}}Position" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}PositionHeading">
                         <div class="panel-body">
-                            <span class="subsection">Chromosomal location</span>
-                            <textarea id="{{prefix}}LocationTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="3" placeholder="3:444-55555, 1:1-100000"
-                                      name="location" on-keyup="updateQueryFilters"></textarea>
-                            <br>
-                            <span class="subsection">Feature IDs (gene, transcript, SNP IDs)</span>
-                            <!--<span class="subsection">Feature IDs (gene, protein, SNP, ClinVar, ...)</span>-->
+                            <div class="form-group">
+                                <span class="subsection">Chromosomal Location</span>
+                                <textarea id="{{prefix}}LocationTextarea" name="location" class$="form-control clearable {{prefix}}FilterTextInput"
+                                          rows="3" placeholder="3:444-55555, 1:1-100000" on-keyup="updateQueryFilters"></textarea>
+                            </div>
 
-                            <textarea id="{{prefix}}FeatureTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="5" placeholder="BRCA2, ENSG00000139618, ENST00000544455, rs28897700"
-                                      name="geneSnp" on-keyup="updateQueryFilters"></textarea>
-                            <br>
+                            <div class="form-group">
+                                <span class="subsection">Feature IDs (gene, transcript, SNP, ...)</span>
+                                <textarea id="{{prefix}}FeatureTextarea" name="geneSnp" class$="form-control clearable {{prefix}}FilterTextInput"
+                                          rows="3" placeholder="BRCA2, ENSG00000139618, ENST00000544455, rs28897700" on-keyup="updateQueryFilters"></textarea>
+                            </div>
 
                             <!--TODO: Update when server side starts to support all xrefs and with/without rs ids-->
                             <!--<textarea id="{{prefix}}FeatureTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="5" placeholder="BRCA2, ENSG00000139618, ENST00000544455, P51587, 13:19748038:C:T, rs28897700, VAR_020705, RCV000162901, COSM3468368"-->
@@ -327,18 +327,17 @@
                             <!--<span class="subsection">Gene Panels</span>-->
                             <!--<input type="checkbox" value="" class$="{{prefix}}FilterCheckBox"> With / Without dbSNP rs IDs<br>-->
 
-
-                            <span class="subsection">Gene Biotype</span>
                             <div class="form-group">
+                                <span class="subsection">Gene Biotype</span>
                                 <select class$="form-control {{prefix}}FilterSelect" id="{{prefix}}GeneBiotypes" on-change="updateQueryFilters">
-                                    <option value="none">Select a biotype</option>
+                                    <option value="none">Select a biotype...</option>
                                     <template is="dom-repeat" items="{{biotypes}}">
                                         <option value="{{item}}">{{item}}</option>
                                     </template>
                                 </select>
                             </div>
 
-                            <span class="subsection">Type</span>
+                            <span class="subsection">Variant Type</span>
                             <div id="{{prefix}}Type">
                                 <input type="checkbox" value="SNV,SNP" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> SNV<br>
                                 <input type="checkbox" value="MNV" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> MNV<br>
@@ -366,8 +365,10 @@
 
                             <!-- This code create the population frequencies menu filter form populationFrequencies from config.js -->
                             <template is="dom-repeat" items="{{populationFrequencies.studies}}" as="study">
-                                <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}{{study.id}}" style="cursor: pointer;"></i>&nbsp;{{study.title}}</label>
-
+                                <label style="font-weight: bold;">
+                                    <i id="{{prefix}}{{study.id}}Icon" data-id="{{prefix}}{{study.id}}" on-click="handleCollapseAction" class="fa fa-plus" style="cursor: pointer;"></i>
+                                    &nbsp;{{study.title}}
+                                </label>
                                 <!-- If there is not submenu we just display a button -->
                                 <template is="dom-if" if="{{study.populations}}">
                                     <div id="{{prefix}}{{study.id}}" hidden>
@@ -615,8 +616,11 @@
                     </div>
                     <div id="{{prefix}}GeneOntology" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}GeneOntologyHeading">
                         <div class="panel-body">
-                            <textarea id="{{prefix}}GeneOntologyTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="3"
-                                      name="geneOntology" placeholder="GO:0000139" on-keyup="updateQueryFilters"></textarea>
+                            <span class="subsection">GO Accessions</span>
+                            <div class="form-group">
+                                <textarea id="{{prefix}}GeneOntologyTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="3"
+                                          name="geneOntology" placeholder="GO:0000139" on-keyup="updateQueryFilters"></textarea>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -627,26 +631,32 @@
                         <h4 class="panel-title">
                             <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}Traits" aria-expanded="false"
                                aria-controls="{{prefix}}HumanPhenotypeOntology">
-                                Phenotype-Disease (New!)
+                                Phenotype-Disease (<span style="color: red">New!</span>)
                             </a>
                         </h4>
                     </div>
                     <div id="{{prefix}}Traits" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}TraitsHeading">
                         <div class="panel-body">
-                            <span class="subsection">HPO accession IDs</span>
-                            <textarea id="{{prefix}}HumanPhenotypeOntologyTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="3"
-                                      name="hpo" placeholder="HP:0000001, HP:3000079" on-keyup="updateQueryFilters"></textarea>
+                            <div class="form-group">
+                                <span class="subsection">HPO Accessions</span>
+                                <textarea id="{{prefix}}HumanPhenotypeOntologyTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="3"
+                                          name="hpo" placeholder="HP:0000001, HP:3000079" on-keyup="updateQueryFilters"></textarea>
+                            </div>
 
-                            <br>
-                            <span class="subsection">ClinVar accession IDs</span>
-                            <textarea id="{{prefix}}ClinVarTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="3"
-                                      name="clinvar" placeholder="RCV000058226" on-keyup="updateQueryFilters"></textarea>
+                            <!--<br>-->
+                            <div class="form-group">
+                                <span class="subsection">ClinVar Accessions</span>
+                                <textarea id="{{prefix}}ClinVarTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="3"
+                                          name="clinvar" placeholder="RCV000058226" on-keyup="updateQueryFilters"></textarea>
+                            </div>
 
-                            <br>
-                            <span class="subsection">Full-text search on HPO, ClinVar, protein domains or keywords.
-                                Some OMIM and Orphanet IDs are also supported (<span style="color: red">New!</span>)</span>
-                            <textarea id="{{prefix}}TraitsTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="5"
-                                      name="traits" placeholder="Full-text search, e.g. *melanoma*" on-keyup="updateQueryFilters"></textarea>
+                            <div class="form-group">
+                                <span class="subsection">Full-text search on HPO, ClinVar, protein domains or keywords.
+                                    Some OMIM and Orphanet IDs are also supported (<span style="color: red">New!</span>)
+                                </span>
+                                <textarea id="{{prefix}}TraitsTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="5"
+                                          name="traits" placeholder="Full-text search, e.g. *melanoma*" on-keyup="updateQueryFilters"></textarea>
+                            </div>
                         </div>
                     </div>
                 </div>
