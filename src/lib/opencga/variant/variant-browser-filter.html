@@ -309,35 +309,32 @@
                             <span class="subsection">Chromosomal location</span>
                             <textarea id="{{prefix}}LocationTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="3" placeholder="3:444-55555, 1:1-100000"
                                       name="location" on-keyup="updateQueryFilters"></textarea>
-
                             <br>
                             <span class="subsection">Feature IDs (gene, transcript, SNP IDs)</span>
                             <!--<span class="subsection">Feature IDs (gene, protein, SNP, ClinVar, ...)</span>-->
 
                             <textarea id="{{prefix}}FeatureTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="5" placeholder="BRCA2, ENSG00000139618, ENST00000544455, rs28897700"
                                       name="geneSnp" on-keyup="updateQueryFilters"></textarea>
+                            <br>
 
                             <!--TODO: Update when server side starts to support all xrefs and with/without rs ids-->
                             <!--<textarea id="{{prefix}}FeatureTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="5" placeholder="BRCA2, ENSG00000139618, ENST00000544455, P51587, 13:19748038:C:T, rs28897700, VAR_020705, RCV000162901, COSM3468368"-->
                             <!--name="geneSnp" on-keyup="updateQueryFilters"></textarea>-->
 
                             <!--<input type="checkbox" value="" class$="{{prefix}}FilterCheckBox"> With / Without dbSNP rs IDs<br>-->
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Variant Type filter -->
-                <div class="panel panel-default">
-                    <div class="panel-heading" role="tab" id="{{prefix}}TypeHeading">
-                        <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}Type" aria-expanded="false" aria-controls="{{prefix}}Type">
-                                Type
-                            </a>
-                        </h4>
-                    </div>
-                    <div id="{{prefix}}Type" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}TypeHeading">
-                        <div class="panel-body">
-                            <div>
+                            <span class="subsection">Gene Biotype</span>
+                            <div class="form-group">
+                                <select class$="form-control {{prefix}}FilterSelect" id="{{prefix}}GeneBiotypes" on-change="updateQueryFilters">
+                                    <option value="none">Select a biotype</option>
+                                    <template is="dom-repeat" items="{{biotypes}}">
+                                        <option value="{{item}}">{{item}}</option>
+                                    </template>
+                                </select>
+                            </div>
+
+                            <span class="subsection">Type</span>
+                            <div id="{{prefix}}Type">
                                 <input type="checkbox" value="SNV,SNP" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> SNV<br>
                                 <input type="checkbox" value="MNV" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> MNV<br>
                                 <input type="checkbox" value="CNV" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> CNV<br>
@@ -347,6 +344,28 @@
                         </div>
                     </div>
                 </div>
+
+                <!--&lt;!&ndash; Variant Type filter &ndash;&gt;-->
+                <!--<div class="panel panel-default">-->
+                    <!--<div class="panel-heading" role="tab" id="{{prefix}}TypeHeading">-->
+                        <!--<h4 class="panel-title">-->
+                            <!--<a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}Type" aria-expanded="false" aria-controls="{{prefix}}Type">-->
+                                <!--Type-->
+                            <!--</a>-->
+                        <!--</h4>-->
+                    <!--</div>-->
+                    <!--<div id="{{prefix}}Type" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}TypeHeading">-->
+                        <!--<div class="panel-body">-->
+                            <!--<div>-->
+                                <!--<input type="checkbox" value="SNV,SNP" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> SNV<br>-->
+                                <!--<input type="checkbox" value="MNV" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> MNV<br>-->
+                                <!--<input type="checkbox" value="CNV" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> CNV<br>-->
+                                <!--<input type="checkbox" value="SV" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> SV<br>-->
+                                <!--<input type="checkbox" value="INDEL" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> INDEL-->
+                            <!--</div>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                <!--</div>-->
 
                 <!--Population Frequency filter-->
                 <div class="panel panel-default">
@@ -715,7 +734,8 @@
                     type: Object
                 },
                 cellbaseClient: {
-                    type: Object
+                    type: Object,
+                    observer: 'cellbaseClientObtained'
                 },
                 config: {
                     type: Object
@@ -794,6 +814,15 @@
                     return studies.length > 1;
                 } else {
                     return false;
+                }
+            },
+            cellbaseClientObtained: function () {
+                if (this.cellbaseClient instanceof CellBaseClient && typeof this.biotypes === "undefined") {
+                    let _this = this;
+                    this.cellbaseClient.getGeneClient(null, "biotype", {}, {})
+                        .then(function (response) {
+                            _this.biotypes = response.response[0].result;
+                        });
                 }
             },
             updateDifferentStudies: function () {
@@ -877,6 +906,11 @@
                     this.$$("#" + this.prefix + "FeatureTextarea").value = this.query.gene;
                 } else if (typeof this.query.ids !== "undefined") {
                     this.$$("#" + this.prefix + "FeatureTextarea").value = this.query.ids;
+                }
+
+                // Biotype
+                if (typeof this.query["annot-biotype"] !== "undefined") {
+                    this.$$("#" + this.prefix + "GeneBiotypes").value = this.query["annot-biotype"];
                 }
 
                 // Type
@@ -1084,6 +1118,11 @@
 //                        _filters.gene = this.$$("#" + this.prefix + "FeatureTextarea").value;
 //                    }
                     _filters["annot-xref"] = this.$$("#" + this.prefix + "FeatureTextarea").value;
+                }
+
+                // Biotype
+                if (this.$$("#" + this.prefix + "GeneBiotypes").value != "none") {
+                    _filters["annot-biotype"] = this.$$("#" + this.prefix + "GeneBiotypes").value;
                 }
 
                 // Type
