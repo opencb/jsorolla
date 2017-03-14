@@ -326,6 +326,18 @@
                     queryParams.exclude = "studies";
                 }
 
+                if (typeof this.config !== "undefined" && typeof this.config.missing !== "undefined" && this.config.missing) {
+                    let keys = Object.keys(queryParams);
+                    for (let i = 0; i < keys.length; i++) {
+                        let val = queryParams[keys[i]];
+                        if (typeof val == "string") {
+                            val = val.replace("<", "<<");
+                            val = val.replace(">", ">>");
+                            queryParams[keys[i]] = val;
+                        }
+                    }
+                }
+
                 let query = ["limit=1000"];
                 for (let key in queryParams) {
                     // Check sid has a proper value. For public projects sid is undefined. In that case, sid must be removed from the url
