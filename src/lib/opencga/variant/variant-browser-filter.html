@@ -152,6 +152,7 @@
                                             <option value="atleast">At least (OR)</option>
                                         </select>
                                         <div id="differentStudies">
+                                            <input type="checkbox" value="{{study.alias}}" data-id="{{study.id}}" checked disabled> {{study.alias}}<br>
                                             <template is="dom-repeat" items="{{differentStudies}}">
                                                 <input type="checkbox" value="{{item.alias}}" data-id="{{item.id}}" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> {{item.alias}}<br>
                                             </template>
@@ -226,12 +227,12 @@
                                         </thead>
                                         <tbody>
                                         <template is="dom-repeat" items="{{samples}}" as="sample">
-                                            <tr id="{{item.name}}" on-click="sampleGenotypeSelected">
-                                                <td class$="{{item.status}}">{{sample.name}}&nbsp;({{sample.memberCode}})</td>
-                                                <td><input type="checkbox" value="0/0" data-id="{{sample.name}}" on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
-                                                <td><input type="checkbox" value="0/1" data-id="{{sample.name}}" on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
-                                                <td><input type="checkbox" value="1/1" data-id="{{sample.name}}" on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
-                                                <td><input type="checkbox" value="./." data-id="{{sample.name}}" on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
+                                            <tr id="{{sample.name}}">
+                                                <td class$="{{sample.status}}">{{sample.name}}&nbsp;({{sample.memberCode}})</td>
+                                                <td><input type="checkbox" value="0|0" data-id="{{sample.name}}" on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
+                                                <td><input type="checkbox" value="0|1" data-id="{{sample.name}}" on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
+                                                <td><input type="checkbox" value="1|1" data-id="{{sample.name}}" on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
+                                                <td><input type="checkbox" value=".|." data-id="{{sample.name}}" on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
                                             </tr>
                                         </template>
                                         </tbody>
@@ -863,6 +864,23 @@
                 // Empty everything before rendering
                 this._clearHtmlDom();
 
+                // Sample Genotypes
+                if (typeof this.query.genotype !== "undefined") {
+                    let samplesWithGT = this.query.genotype.split(';');
+                    for (let i = 0; i < samplesWithGT.length; i++) {
+                        let [sample, gt] = samplesWithGT[i].split(':');
+                        let checkboxes = $('#' + sample + ' input:checkbox');
+                        let genotypes = gt.split(',');
+                        for (let j = 0; j < genotypes.length; j++) {
+                            for (let z = 0; z < checkboxes.length; z++) {
+                                if (genotypes[j] == checkboxes[z].defaultValue) {
+                                    checkboxes[z].checked = true;
+                                }
+                            }
+                        }
+                    }
+                }
+
                 // Studies
                 if (typeof this.query.studies !== "undefined") {
                     if (this.$$("#includeOtherStudy") != null && this.$$("#differentStudies") != null) {
@@ -1037,8 +1055,28 @@
                 let _filters = {};
 
                 // Adding sample genotypes filter
-                if (typeof this.sampleGenotypes !== "undefined" && this.sampleGenotypes != "") {
-                    _filters.genotype = this.sampleGenotypes;
+                let selectedGenotypes = $(".genotypes:checkbox:checked");
+                if (selectedGenotypes.length > 0) {
+                    let sampleGenotypesObj = {};
+                    for (let i = 0; i < selectedGenotypes.length; i++) {
+                        if (typeof sampleGenotypesObj[selectedGenotypes[i].dataId] === "undefined") {
+                            sampleGenotypesObj[selectedGenotypes[i].dataId] = {};
+                        }
+                        sampleGenotypesObj[selectedGenotypes[i].dataId][selectedGenotypes[i].defaultValue] = selectedGenotypes[i].checked;
+                    }
+                    let _genotypes = [];
+                    for (let sampleName in sampleGenotypesObj) {
+                        let gts = [];
+                        for (let sampleGT in sampleGenotypesObj[sampleName]) {
+                            if (sampleGenotypesObj[sampleName][sampleGT] == true) {
+                                gts.push(sampleGT.replace('/', '|'));
+                            }
+                        }
+                        if (gts.length > 0) {
+                            _genotypes.push(sampleName + ':' + gts.join(','));
+                        }
+                    }
+                    _filters.genotype = _genotypes.join(';');
                 }
 
                 // Add Cohort stats MAF filter: [{study.alias}]{cohort}:[<|>|<=|>=]{number}
@@ -1075,21 +1113,22 @@
 
                     switch (this.$$("#includeOtherStudy").value) {
                         case "in":
-                            // Always add the study that we are browsing currently
-                            studies.push(this.project.alias + ':' + this.study.alias);
                             _filters.studies = studies.join(';');
                             break;
-                        case "atleast":// Always add the study that we are browsing currently
-                            studies.push(this.project.alias + ':' + this.study.alias);
+                        case "atleast":
                             _filters.studies = studies.join(',');
                             break;
                         case "not in":
                             let notInStudies = [];
-                            for (let j = 0; j < studies.length; j++) {
-                                notInStudies.push("!" + studies[j]);
+                            let currentStudy = this.project.alias + ':' + this.study.alias;
+                                for (let j = 0; j < studies.length; j++) {
+                                if (currentStudy == studies[j]) {
+                                    // Always add the study that we are browsing currently
+                                    notInStudies.push(studies[j]);
+                                } else {
+                                    notInStudies.push("!" + studies[j]);
+                                }
                             }
-                            // Always add the study that we are browsing currently
-                            notInStudies.push(this.project.alias + ':' + this.study.alias);
                             _filters.studies = notInStudies.join(";");
                             break;
                     }
@@ -1266,47 +1305,6 @@
             selectSegregation: function (e) {
                 e.preventDefault();
                 this.segregation = e.target.innerHTML;
-            },
-            sampleGenotypeSelected: function (e) {
-                // TODO coordinate manual selection and event driven selection
-//                if (this.sampleGenotypes != "") {
-//                    let genotypes = this.sampleGenotypes.split(';');
-//                    this.sampleGenotypesObj = genotypes.reduce(function(result, item) {
-//                        debugger
-//                        let items = item.split(':');
-//                        result[items[0]] = {};
-//                        result[items[0]][items[1]] = true;
-//                        return result;
-//                    }, {});
-//                }
-
-                if (typeof e !== "undefined") {
-                    if (typeof this.sampleGenotypesObj[e.target.dataId] === "undefined") {
-                        this.sampleGenotypesObj[e.target.dataId] = {};
-                    }
-                    this.sampleGenotypesObj[e.target.dataId][e.target.defaultValue] = e.target.checked;
-
-                    let arr = [];
-                    for (let sampleName in this.sampleGenotypesObj) {
-                        let gts = [];
-                        for (let sampleGT in this.sampleGenotypesObj[sampleName]) {
-                            if (this.sampleGenotypesObj[sampleName][sampleGT] == true) {
-                                gts.push(sampleGT.replace('/', '|'));
-                            }
-                        }
-                        if (gts.length > 0) {
-                            arr.push(sampleName + ':' + gts.join(','));
-                        }
-                    }
-                    this.sampleGenotypes = arr.join(';');
-                    if (arr.length > 0) {
-                        this._filters.genoType = arr.join(';');
-                    } else {
-                        delete this._filters.genoType;
-                    }
-                    this._filtersCount = Object.keys(this._filters).length;
-//                    debugger
-                }
             },
             sampleChanged: function () {
                 this.segregation = "Select Segregation";
