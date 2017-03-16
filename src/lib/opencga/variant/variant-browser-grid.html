@@ -1125,7 +1125,6 @@
                         let data = new Blob([dataString.join('\n')], {type: 'application/json'});
                         let file = window.URL.createObjectURL(data);
                         let a = document.createElement("a");
-                        let a = document.createElement("a");
                         a.href = file;
                         a.download = _this.study.alias + ".json";
                         document.body.appendChild(a);
