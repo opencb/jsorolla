@@ -41,7 +41,7 @@
 
             <!--Save -->
             <!--<button type="button" class="btn btn-default btn-sm" data-toggle="popover" data-placement="bottom" on-click="_shareLink">-->
-                <!--<i class="fa fa-floppy-o" aria-hidden="true"></i> Save-->
+            <!--<i class="fa fa-floppy-o" aria-hidden="true"></i> Save-->
             <!--</button>-->
 
             <!--<button type="button" class="btn btn-default btn-sm" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample" on-click="_test">-->
@@ -92,6 +92,10 @@
                 samples: {
                     type: Array,
                     value: [],
+                    observer: '_refreshTableColumns'
+                },
+                cohorts: {
+                    type: Object,
                     observer: '_refreshTableColumns'
                 },
                 consequenceTypes: {
@@ -535,6 +539,45 @@
                 }
                 return '-';
             },
+            cohortFormatter: function (value, row, index) {
+                if (typeof this.field.cohorts !== "undefined" && this.field.cohorts.length > 0) {
+
+                    let data = new Map();
+                    for (let i in row.studies) {
+                        if (row.studies[i].studyId == this.field.study) {
+                            let cohortNames = Object.keys(row.studies[i].stats);
+                            for (let j in cohortNames) {
+                                data.set(cohortNames[j], Number(row.studies[i].stats[cohortNames[j]].maf).toFixed(4));
+                            }
+                            break;
+                        }
+                    }
+
+                    let tableSize = this.field.cohorts.length * 15;
+                    let htmlCohortsTable = "<table style='width: " + tableSize + "px'><tr>";
+                    for (let i = 0; i < this.field.cohorts.length; i++) {
+                        let popFreq = this.field.cohorts[i].id;
+                        if (typeof data.get(popFreq) !== "undefined") {
+                            let freq = data.get(this.field.cohorts[i].id);
+                            if (freq < 0.001) {
+                                htmlCohortsTable += "<td style='width: 15px; background: " + this.field.colors.veryRare + "' title='" + popFreq + ": " + freq + "'>&nbsp;</td>";
+                            } else if (freq < 0.005) {
+                                htmlCohortsTable += "<td style='width: 15px; background: " + this.field.colors.rare + "' title='" + popFreq + ": " + freq + "'>&nbsp;</td>";
+                            } else if (freq < 0.05) {
+                                htmlCohortsTable += "<td style='width: 15px; background: " + this.field.colors.average + "' title='" + popFreq + ": " + freq + "'>&nbsp;</td>";
+                            } else {
+                                htmlCohortsTable += "<td style='width: 15px; background: " + this.field.colors.common + "' title='" + popFreq + ": " + freq + "'>&nbsp;</td>";
+                            }
+                        } else  {
+                            htmlCohortsTable += "<td style='width: 15px; background: black;' title='" + popFreq + ": NA'>&nbsp;</td>";
+                        }
+                    }
+                    htmlCohortsTable += "</tr></table>";
+
+                    return htmlCohortsTable;
+                }
+                return '-';
+            },
             populationFrequenciesFormatter: function(value, row, index) {
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined" && typeof row.annotation.populationFrequencies !== "undefined") {
                     for (let popFreqIdx in row.annotation.populationFrequencies) {
@@ -629,11 +672,44 @@
             _refreshTableColumns: function() {
                 this.cols = this._createDefaultColumns();
 
+                if (typeof this.cols !== "undefined" && typeof this.cohorts !== "undefined" && Object.keys(this.cohorts).length > 0) {
+                    let cohortIdx = 6;
+                    let cohortStudies = Object.keys(this.cohorts);
+                    this.cols[0].splice(7, 0, {
+                        title: this.project.name,
+                        field: 'cohorts',
+                        rowspan: 1,
+                        colspan: cohortStudies.length,
+                        halign: 'center'
+                    });
+
+                    for(let i = 0; i < cohortStudies.length; i++) {
+                        this.cols[1].splice(i + cohortIdx, 0, {
+                            title: cohortStudies[i],
+                            field: {
+                                study: cohortStudies[i],
+                                cohorts: this.cohorts[cohortStudies[i]],
+                                colors: this.populationFrequencies.color
+                            },
+                            rowspan: 1,
+                            colspan: 1,
+                            formatter: this.cohortFormatter,
+                            halign: 'center'
+                        });
+                    }
+                }
+
                 if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.studies !== "undefined" && this.populationFrequencies.studies.length > 0) {
                     if (this.showPopFreqInColor) {
-                        let popIdx = 6;
+                        let popIdx = 7;
+                        let subPopIdx = 6;
+                        if (typeof this.cohorts !== "undefined" && Object.keys(this.cohorts).length > 0) {
+                            popIdx++;
+                            subPopIdx += Object.keys(this.cohorts).length;
+                        }
+
                         // Just one column called 'Population Frequencies'
-                        this.cols[0].splice(7, 0, {
+                        this.cols[0].splice(popIdx, 0, {
                             title: 'Population Frequencies <a data-toggle="tooltip" title="One coloured square is shown for each cohort, e.g. population. Frequencies are visualized as colours which classify values into very rare, rare, average, common or missing. Please, leave the cursor over each square to visualize the actual frequency value."><i class="fa fa-info-circle" aria-hidden="true"></i></a>',
                             field: '',
                             rowspan: 1,
@@ -649,7 +725,7 @@
                                 populationMap[this.populationFrequencies.studies[j].populations[pop].id] = true;
                             }
 
-                            this.cols[1].splice(j + popIdx, 0, {
+                            this.cols[1].splice(j + subPopIdx, 0, {
                                 title: this.populationFrequencies.studies[j].title,
                                 field: {
                                     study: this.populationFrequencies.studies[j].id,
@@ -769,6 +845,7 @@
                             break;
                     }
                 }
+
 
                 this.renderFromServer();
             },
