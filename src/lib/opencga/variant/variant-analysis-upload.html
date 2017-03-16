@@ -13,8 +13,8 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<dom-module id="variant-analysis-upload">
 
+<dom-module id="variant-analysis-upload">
     <template>
         <style is="custom-style" include="jso-styles"></style>
         <!--<style>-->
@@ -42,7 +42,8 @@
                 <div class="form-group">
                     <label for="physician" class="col-sm-3 control-label">Physician</label>
                     <div class="col-sm-9">
-                        <input type="text" class="form-control" id="physician" placeholder="Dr. Florido" pattern="^[_A-z]{1,}$" maxlength="75" required data-error="Name cannot include special characters">
+                        <input type="text" class="form-control" id="physician" placeholder="Dr. Florido" pattern="^[_A-z]{1,}$" maxlength="75"
+                               required data-error="Name cannot include special characters">
                     </div>
                     <span class="glyphicon form-control-feedback glyphicon-remove" aria-hidden="true"></span>
                     <div class="help-block with-errors"></div>
@@ -72,8 +73,8 @@
                         <!--<input type="text" class="form-control" id="yearOfBirthId" placeholder="2017">-->
                         <select class="form-control" id="yearOfBirthId">
                             <option selected>Choose...</option>
-                            <template is="dom-repeat" items="[[_arrayBirthTest]]">
-                                <option>[[item]]</option>
+                            <template is="dom-repeat" items="{{years}}">
+                                <option>{{item}}</option>
                             </template>
                         </select>
 
@@ -83,8 +84,8 @@
                         <!--<input type="text" class="form-control" id="yearOfTestId" placeholder="2017">-->
                         <select class="form-control" id="yearOfTestId">
                             <option selected>Choose...</option>
-                            <template is="dom-repeat" items="[[_arrayBirthTest]]">
-                                <option>[[item]]</option>
+                            <template is="dom-repeat" items="{{years}}">
+                                <option>{{item}}</option>
                             </template>
                         </select>
                     </div>
@@ -97,8 +98,8 @@
                         <!--<input type="number" class="form-control" id="ageId" placeholder="years" pattern="^[0-9]{1,3}$" maxlength="3" data-error="Error, chaval" required>-->
                         <select class="form-control" id="ageId">
                             <option selected>Choose...</option>
-                            <template is="dom-repeat" items="[[_arrayAge]]">
-                                <option>[[item]]</option>
+                            <template is="dom-repeat" items="{{age}}">
+                                <option>{{item}}</option>
                             </template>
                         </select>
                     </div>
@@ -260,41 +261,56 @@
                 },
                 minYear: {
                     type: Number,
-                    value: 1900
-                },
-                _arrayAge: {
-                    type: Array ,
-                    value: [],
-                    computed: '_numberToArray(maxAge,"age")'
-                },
-                _arrayBirthTest: {
-                    type: Array ,
-                    value: [],
-                    computed: '_numberToArray(minYear,"year")'
+                    value: 1920
                 }
+//                ,
+//                _arrayAge: {
+//                    type: Array ,
+//                    value: [],
+//                    computed: '_numberToArray(maxAge,"age")'
+//                },
+//                _arrayBirthTest: {
+//                    type: Array ,
+//                    value: [],
+//                    computed: '_numberToArray(minYear,"year")'
+//                }
             },
-            _numberToArray: function(number,type) {
-                //console.log(number);
-                //debugger;
+            ready: function () {
 
-                let array = [],i;
-                if (type == "age") { // Fill array with values related to age up to number
-                    array.push(0.2); // For less than 1 year: 0.2 or 0.8
-                    array.push(0.8);
-                    for (i = 1; i <= number; ++i) {
-                        array.push(i);
-                    }
-
+                let _age = [];
+                let _years = [];
+                for (let age = 0, year = this.minYear; age <= this.maxAge; age++, year++) {
+                    _age.push(age);
+                    _years.push(year);
                 }
-                else { // Fill array with values related to years starting at number up to current year
-                    let fullDate = new Date()
-                    for (i = number; i <= fullDate.getFullYear(); ++i) {
-                        array.push(i);
-                    }
+                // This change triggers the polymer dom-repeat
+                this.age = _age;
+                this.years = _years;
 
-                }
-                return array;
-            },
+            }
+//            ,
+//            _numberToArray: function(number,type) {
+//                //console.log(number);
+//                //debugger;
+//
+//                let array = [],i;
+//                if (type == "age") { // Fill array with values related to age up to number
+//                    array.push(0.2); // For less than 1 year: 0.2 or 0.8
+//                    array.push(0.8);
+//                    for (i = 1; i <= number; ++i) {
+//                        array.push(i);
+//                    }
+//
+//                }
+//                else { // Fill array with values related to years starting at number up to current year
+//                    let fullDate = new Date()
+//                    for (i = number; i <= fullDate.getFullYear(); ++i) {
+//                        array.push(i);
+//                    }
+//
+//                }
+//                return array;
+//            },
 
         });
 
