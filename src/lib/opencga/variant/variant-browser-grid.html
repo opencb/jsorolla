@@ -544,6 +544,10 @@
 
                     let data = new Map();
                     for (let i in row.studies) {
+                        // to be removed!!
+                        if (this.field.study == "BRIDGE") {
+                            this.field.study = "bridge";
+                        }
                         if (row.studies[i].studyId == this.field.study) {
                             let cohortNames = Object.keys(row.studies[i].stats);
                             for (let j in cohortNames) {
@@ -551,6 +555,7 @@
                             }
                             break;
                         }
+                            debugger
                     }
 
                     let tableSize = this.field.cohorts.length * 15;
