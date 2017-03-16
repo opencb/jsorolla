@@ -31,25 +31,31 @@
             <h3>Upload and check file</h3>
             <br>
 
-            <form class="form-horizontal" data-toggle="validator" role="form">
+            <!--<form class="form-horizontal" data-toggle="validator" role="form">-->
+            <form class="form-horizontal" data-toggle="validator" role="form" novalidate="true">
                 <div class="form-group has-feedback">
                     <label for="hospital" class="col-sm-3 control-label">Hospital</label>
                     <div class="col-sm-9">
                         <input type="text" class="form-control" id="hospital" placeholder="Virgen del Rocio" maxlength="75" required>
                     </div>
                 </div>
-                <div class="form-group" has-feedback>
+                <div class="form-group has-feedback">
                     <label for="physician" class="col-sm-3 control-label">Physician</label>
                     <div class="col-sm-9">
-                        <input type="text" class="form-control" id="physician" placeholder="Dr Jesús Florido" pattern="^[A-z]{1,}$" maxlength="75" required>
+                        <input type="text" class="form-control" id="physician" placeholder="Hola" pattern="^[_A-z]{1,}$" maxlength="75" required>
                     </div>
-                    <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
-                    <div class="help-block with-errors">Hey look, this one has feedback icons!</div>
+                    <span class="glyphicon form-control-feedback glyphicon-remove" aria-hidden="true"></span>
+                    <div class="help-block with-errors">
+                        <ul class="list-unstyled">
+                            <li>Please, match the requested format</li>
+                        </ul>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="sampleId" class="col-sm-3 control-label">Sample ID</label>
                     <div class="col-sm-9">
-                        <input type="text" class="form-control" id="sampleId" placeholder="ID">
+                        <input type="text" class="form-control" id="sampleId" placeholder="ID" data-error="Bruh, that email address is invalid" required>
+                        <div class="help-block with-errors"></div>
                     </div>
                 </div>
                 <div class="form-group">
