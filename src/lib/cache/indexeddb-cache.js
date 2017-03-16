@@ -80,7 +80,7 @@ class IndexedDBCache {
         };
 
         request.onupgradeneeded = function (event) {
-            console.log("onupgrade");
+            console.debug("onupgrade");
             // console.log(event)
             db = request.result;
             // var objectStore = data.createObjectStore(objectStoreName);
@@ -91,7 +91,7 @@ class IndexedDBCache {
 
         request.onerror = function (event) {
             // console.log(event)
-            console.log("DB Open Request Error in " + database);
+            console.error("DB Open Request Error in " + database);
         };
         this.request = request;
     }
@@ -171,7 +171,7 @@ class IndexedDBCache {
         this.open(os, function (db) {
             let transaction = _this._createTransaction(db, os, "readonly");
             transaction.oncomplete = function (event) {
-                console.log("Transaction has completed with: '" + event.type + "'");
+                console.debug("Transaction has completed with: '" + event.type + "'");
                 db.close();
                 db.close = true;
                 callback(results);

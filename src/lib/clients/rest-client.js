@@ -22,12 +22,12 @@ class RestClient {
                 }
 
                 // If the call is OK then we execute the success function from the user
-                console.log(options)
+                // console.log(options)
                 if (typeof options != "undefined" && typeof options.success === "function" && typeof options.cacheFn == "undefined") {
                     options.success(dataResponse);
                 }
                 console.timeEnd("AJAX call to CellBase");
-                console.log("Size: " + event.total + " Bytes");
+                console.log(options, "Size: " + event.total + " Bytes");
             } else {
                 console.log(this.response)
             }
@@ -63,7 +63,7 @@ class RestClient {
         }
 
         let dataResponse = null;
-        console.time("AJAX call to CellBase");
+        console.time("REST call to " + url);
 
         // Creating the promise
         return new Promise(function(resolve, reject) {
@@ -72,8 +72,7 @@ class RestClient {
 
             request.onload = function(event) {
                 if (request.status == 200) {
-                    console.log("REST call to URL succeed: '" + url +"'");
-                    var contentType = this.getResponseHeader('Content-Type');
+                    let contentType = this.getResponseHeader('Content-Type');
                     if (contentType === 'application/json') {
                         dataResponse = JSON.parse(this.response);
 
@@ -86,13 +85,14 @@ class RestClient {
                         if (typeof options != "undefined" && typeof options.success === "function" && typeof options.cacheFn == "undefined") {
                             options.success(dataResponse);
                         }
-                        console.timeEnd("AJAX call to CellBase");
-                        console.log("Size: " + event.total + " Bytes");
+                        console.timeEnd("REST call to " + url);
+                        console.debug("REST call query: ", options, ", Size: " + event.total + " Bytes");
                         resolve(dataResponse);
                     } else {
-                        console.log(this.response)
+                        console.log("Result is not JSON: " + this.response)
                     }
                 } else {
+                    console.error("REST call to URL failed: '" + url +"'");
                     reject(JSON.parse(request.response));
                 }
             };
@@ -133,9 +133,7 @@ class RestClient {
                     request.setRequestHeader("Content-type", "application/json");
                     request.send(JSON.stringify(options.data));
                 }
-
             } else {
-                console.log("Calling GET");
                 request.send();
             }
         });
