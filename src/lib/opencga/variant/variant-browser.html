@@ -26,7 +26,7 @@
             <h3 style="margin: 10px 5px 15px 25px"><i class="fa fa-search" aria-hidden="true"></i>&nbsp;{{title}}</h3>
 
             <div class="col-md-2" hidden$="{{checkProject(project)}}">
-                <variant-browser-filter study="{{study}}" project="{{project}}" studies="{{studies}}" config="{{config}}"
+                <variant-browser-filter study="{{study}}" project="{{project}}" studies="{{studies}}" cohorts="{{cohorts}}" config="{{config}}"
                                         samples="{{samples}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
                                         cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}"
                                         consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}" style="font-size: 12px">
@@ -34,7 +34,7 @@
             </div>
 
             <div class="col-md-10" hidden$="{{checkProject(project)}}">
-                <variant-browser-view title="{{title}}" project="{{project}}" study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
+                <variant-browser-view title="{{title}}" project="{{project}}" study="{{study}}" cohorts="{{cohorts}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
                                       cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
                                       consequence-types="{{consequenceTypes}}" beacon-hosts="{{beaconHosts}}" query="{{query}}" search="[[search]]"
                                       on-propagate="propagateGeneEvent" config="{{config}}"  on-clear="onClear" on-filterchange="onFilterChange" summary="{{summary}}">
@@ -57,7 +57,8 @@
                     type: Object
                 },
                 study: {
-                    type: Object
+                    type: Object,
+                    observer: "onStudyUpdate"
                 },
                 studies: {
                     type: Array
@@ -124,6 +125,12 @@
 //                    }
 //                    this._query = queryObject;
 //                }
+            },
+            onStudyUpdate: function () {
+                // Update cohorts from config, this updates the Cohort filter MAF
+                if (typeof this.config.cohorts !== "undefined" && Object.keys(this.config.cohorts).length > 0) {
+                    this.cohorts = this.config.cohorts;
+                }
             },
             checkProject: function (project) {
                 return Object.keys(project).length == 0;

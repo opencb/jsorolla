@@ -108,7 +108,7 @@
 
                 <!-- STUDY filters -->
                 <template is="dom-if" if="{{isBrowserMode}}">
-                    <template is="dom-if" if="{{moreStudiesPresent(studies)}}">
+                    <template is="dom-if" if="{{moreStudiesPresent(studies) && _cohorts}}">
                         <div class="panel panel-default">
                             <div class="panel-heading" role="tab" id="{{prefix}}StudiesHeading">
                                 <h4 class="panel-title">
@@ -123,13 +123,13 @@
                             </div>
                             <div id="{{prefix}}Studies" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}StudiesHeading">
                                 <div class="panel-body">
-                                    <template is="dom-if" if="{{cohorts}}">
+                                    <template is="dom-if" if="{{_cohorts}}">
                                         <span class="subsection">Cohort MAF filter</span>
-                                        <template is="dom-repeat" items="{{cohorts}}" as="cohort">
+                                        <template is="dom-repeat" items="{{_cohorts}}" as="cohort">
                                             <div class="horizontal layout" style="padding: 4px 0px 4px 0px">
-                                                <span>{{cohort}}</span>
+                                                <span>{{cohort.name}}</span>
                                                 <span>
-                                                <select name="{{cohort}}Operator" id="{{prefix}}{{study.id}}{{cohort}}Operator" on-change="updateQueryFilters"  class$="{{prefix}}FilterSelect">
+                                                <select name="{{cohort.id}}Operator" id="{{prefix}}{{study.id}}{{cohort.id}}Operator" on-change="updateQueryFilters"  class$="{{prefix}}FilterSelect">
                                                     <option value="<" selected><</option>
                                                     <option value="<="><=</option>
                                                     <option value=">">></option>
@@ -137,7 +137,7 @@
                                                 </select>
                                             </span>
                                                 <span>
-                                                <input type="text" value="" class$="custom-sized-input {{prefix}}FilterTextInput" name="{{study.id}}_{{cohort}}" id="{{prefix}}{{study.id}}{{cohort}}" on-keyup="updateQueryFilters">
+                                                <input type="text" value="" class$="custom-sized-input {{prefix}}FilterTextInput" name="{{study.id}}_{{cohort.id}}" id="{{prefix}}{{study.id}}{{cohort.id}}" on-keyup="updateQueryFilters">
                                             </span>
                                             </div>
                                         </template>
@@ -753,6 +753,9 @@
                     notify: true,
                     observer: "sampleChanged"
                 },
+                cohorts: {
+                    type: Object
+                },
                 segregation: {
                     type: String,
                     value: "Select Segregation",
@@ -825,7 +828,7 @@
 
                     // Update cohorts from config, this updates the Cohort filter MAF
                     if (typeof this.config.cohorts !== "undefined") {
-                        this.cohorts = this.config.cohorts[this.study.alias];
+                        this._cohorts = this.config.cohorts[this.study.alias];
                     }
                 }
             },
@@ -1081,9 +1084,9 @@
 
                 // Add Cohort stats MAF filter: [{study.alias}]{cohort}:[<|>|<=|>=]{number}
                 let cohortFreq = [];
-                if (typeof this.cohorts !== "undefined" && this.cohorts.length > 0) {
-                    for (let i = 0; i < this.cohorts.length; i++) {
-                        let cohort = this.cohorts[i];
+                if (typeof this._cohorts !== "undefined" && this._cohorts.length > 0) {
+                    for (let i = 0; i < this._cohorts.length; i++) {
+                        let cohort = this._cohorts[i].id;
                         if (this.$$("#" + this.prefix + this.study.id + cohort).value != "" || this.$$("#" + this.prefix + this.study.id + cohort + "Operator").value != "<") {
                             let operator = this.$$("#" + this.prefix + this.study.id + cohort + "Operator").value;
                             let study = this.study.alias;
@@ -1121,7 +1124,7 @@
                         case "not in":
                             let notInStudies = [];
                             let currentStudy = this.project.alias + ':' + this.study.alias;
-                                for (let j = 0; j < studies.length; j++) {
+                            for (let j = 0; j < studies.length; j++) {
                                 if (currentStudy == studies[j]) {
                                     // Always add the study that we are browsing currently
                                     notInStudies.push(studies[j]);
