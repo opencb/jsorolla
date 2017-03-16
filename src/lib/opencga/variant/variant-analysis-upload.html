@@ -27,22 +27,24 @@
         <!--</style>-->
 
         <!-- This is where main application is rendered -->
-        <div class="col-md-5">
+        <div class="col-md-4">
             <h3>Upload and check file</h3>
             <br>
 
-            <form class="form-horizontal">
-                <div class="form-group">
+            <form class="form-horizontal" data-toggle="validator" role="form">
+                <div class="form-group has-feedback">
                     <label for="hospital" class="col-sm-3 control-label">Hospital</label>
                     <div class="col-sm-9">
-                        <input type="text" class="form-control" id="hospital" placeholder="Virgen del Rocio">
+                        <input type="text" class="form-control" id="hospital" placeholder="Virgen del Rocio" maxlength="75" required>
                     </div>
                 </div>
-                <div class="form-group">
+                <div class="form-group" has-feedback>
                     <label for="physician" class="col-sm-3 control-label">Physician</label>
                     <div class="col-sm-9">
-                        <input type="text" class="form-control" id="physician" placeholder="Dr Jesús Florido">
+                        <input type="text" class="form-control" id="physician" placeholder="Dr Jesús Florido" pattern="^[A-z]{1,}$" maxlength="75" required>
                     </div>
+                    <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                    <div class="help-block with-errors">Hey look, this one has feedback icons!</div>
                 </div>
                 <div class="form-group">
                     <label for="sampleId" class="col-sm-3 control-label">Sample ID</label>
@@ -51,9 +53,9 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="chromosomalSexId" class="col-sm-3 control-label">Chromosomal Sex</label>
+                    <label for="chromosomalGenderId" class="col-sm-3 control-label">Chromosomal Gender</label>
                     <div class="col-sm-9">
-                        <select class="form-control" id="chromosomalSexId">
+                        <select class="form-control" id="chromosomalGenderId">
                             <option selected>Choose...</option>
                             <option>46,XX</option>
                             <option>46,XY</option>
@@ -64,22 +66,42 @@
                 </div>
                 <div class="form-group">
                     <label for="yearOfBirthId" class="col-sm-3 control-label">Year of Birth</label>
-                    <div class="col-sm-9">
-                        <input type="text" class="form-control" id="yearOfBirthId" placeholder="2017">
+                    <div class="col-sm-3">
+                        <!--<input type="text" class="form-control" id="yearOfBirthId" placeholder="2017">-->
+                        <select class="form-control" id="yearOfBirthId">
+                            <option selected>Choose...</option>
+                            <template is="dom-repeat" items="[[_arrayBirthTest]]">
+                                <option>[[item]]</option>
+                            </template>
+                        </select>
+
                     </div>
-                </div>
-                <div class="form-group">
                     <label for="yearOfTestId" class="col-sm-3 control-label">Year of Test</label>
-                    <div class="col-sm-9">
-                        <input type="text" class="form-control" id="yearOfTestId" placeholder="2017">
+                    <div class="col-sm-3">
+                        <!--<input type="text" class="form-control" id="yearOfTestId" placeholder="2017">-->
+                        <select class="form-control" id="yearOfTestId">
+                            <option selected>Choose...</option>
+                            <template is="dom-repeat" items="[[_arrayBirthTest]]">
+                                <option>[[item]]</option>
+                            </template>
+                        </select>
                     </div>
+
+
                 </div>
                 <div class="form-group">
                     <label for="ageId" class="col-sm-3 control-label">Age</label>
-                    <div class="col-sm-9">
-                        <input type="text" class="form-control" id="ageId" placeholder="years">
+                    <div class="col-sm-3">
+                        <!--<input type="number" class="form-control" id="ageId" placeholder="years" pattern="^[0-9]{1,3}$" maxlength="3" data-error="Error, chaval" required>-->
+                        <select class="form-control" id="ageId">
+                            <option selected>Choose...</option>
+                            <template is="dom-repeat" items="[[_arrayAge]]">
+                                <option>[[item]]</option>
+                            </template>
+                        </select>
                     </div>
                 </div>
+
                 <div class="form-group">
                     <label for="ethnicity" class="col-sm-3 control-label">Ethnicity</label>
                     <div class="col-sm-9">
@@ -211,9 +233,9 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="ngsPlatform" class="col-sm-3 control-label">Technical data (NGS platform, etc)</label>
+                    <label for="technicalData" class="col-sm-3 control-label">Technical data (NGS platform, etc)</label>
                     <div class="col-sm-9">
-                        <input type="text" class="form-control" id="ngsPlatform" placeholder="Illumina">
+                        <textarea class="form-control" rows="5" id="technicalData" placeholder="Illumina sequencing..." maxlength="500"></textarea>
                     </div>
                 </div>
                 <div class="form-group" style="float: right;">
@@ -228,7 +250,49 @@
 
     <script>
         Polymer({
-            is: 'variant-analysis-upload'
+            is: 'variant-analysis-upload',
+            properties: {
+                maxAge: {
+                    type: Number,
+                    value: 110
+                },
+                minYear: {
+                    type: Number,
+                    value: 1900
+                },
+                _arrayAge: {
+                    type: Array ,
+                    value: [],
+                    computed: '_numberToArray(maxAge,"age")'
+                },
+                _arrayBirthTest: {
+                    type: Array ,
+                    value: [],
+                    computed: '_numberToArray(minYear,"year")'
+                }
+            },
+            _numberToArray: function(number,type) {
+                //console.log(number);
+                //debugger;
+
+                let array = [],i;
+                if (type == "age") { // Fill array with values related to age up to number
+                    array.push(0.2); // For less than 1 year: 0.2 or 0.8
+                    array.push(0.8);
+                    for (i = 1; i <= number; ++i) {
+                        array.push(i);
+                    }
+
+                }
+                else { // Fill array with values related to years starting at number up to current year
+                    let fullDate = new Date()
+                    for (i = number; i <= fullDate.getFullYear(); ++i) {
+                        array.push(i);
+                    }
+
+                }
+                return array;
+            },
 
         });
 
