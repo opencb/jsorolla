@@ -108,7 +108,7 @@
 
                 <!-- STUDY filters -->
                 <template is="dom-if" if="{{isBrowserMode}}">
-                    <template is="dom-if" if="{{moreStudiesPresent(studies)}}">
+                    <template is="dom-if" if="{{moreStudiesPresent(studies) && _cohorts}}">
                         <div class="panel panel-default">
                             <div class="panel-heading" role="tab" id="{{prefix}}StudiesHeading">
                                 <h4 class="panel-title">
@@ -1084,9 +1084,9 @@
 
                 // Add Cohort stats MAF filter: [{study.alias}]{cohort}:[<|>|<=|>=]{number}
                 let cohortFreq = [];
-                if (typeof this.cohorts !== "undefined" && this.cohorts.length > 0) {
-                    for (let i = 0; i < this.cohorts.length; i++) {
-                        let cohort = this.cohorts[i].id;
+                if (typeof this._cohorts !== "undefined" && this._cohorts.length > 0) {
+                    for (let i = 0; i < this._cohorts.length; i++) {
+                        let cohort = this._cohorts[i].id;
                         if (this.$$("#" + this.prefix + this.study.id + cohort).value != "" || this.$$("#" + this.prefix + this.study.id + cohort + "Operator").value != "<") {
                             let operator = this.$$("#" + this.prefix + this.study.id + cohort + "Operator").value;
                             let study = this.study.alias;
