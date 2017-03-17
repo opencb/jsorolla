@@ -178,14 +178,16 @@
             },
             attached: function () {
                 let _this = this;
-                this.opencgaClient.files().getAllBioFormats()
+                if (typeof this.opencgaClient !== "undefined") {
+                    this.opencgaClient.files().getAllBioFormats()
                         .then(function (response) {
                             _this.bioformats = response.response[0].result;
                         });
-                this.opencgaClient.files().getAllFormats()
+                    this.opencgaClient.files().getAllFormats()
                         .then(function (response) {
                             _this.formats = response.response[0].result;
                         });
+                }
             },
             /**
              * If filters have been removed, clean the values from the forms.
