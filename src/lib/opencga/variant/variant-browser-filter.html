@@ -108,7 +108,8 @@
 
                 <!-- STUDY filters -->
                 <template is="dom-if" if="{{isBrowserMode}}">
-                    <template is="dom-if" if="{{moreStudiesPresent(studies) && _cohorts}}">
+                    <!--<template is="dom-if" if="{{moreStudiesPresent(studies) && _cohortsBoolean}}">-->
+                    <template is="dom-if" if="{{moreStudiesPresent(studies)}}">
                         <div class="panel panel-default">
                             <div class="panel-heading" role="tab" id="{{prefix}}StudiesHeading">
                                 <h4 class="panel-title">
@@ -829,6 +830,7 @@
                     // Update cohorts from config, this updates the Cohort filter MAF
                     if (typeof this.config.cohorts !== "undefined") {
                         this._cohorts = this.config.cohorts[this.study.alias];
+                        this._cohortsBoolean = typeof this._cohorts !== "undefined" && this._cohorts.length > 0;
                     }
                 }
             },
@@ -883,6 +885,19 @@
                         }
                     }
                 }
+
+                // Cohorts
+//                let cohortArray = [];
+//                if (typeof this.query.maf !== "undefined") {
+//                    cohortArray = this.query.maf.split(new RegExp("[,;]"));
+//                    for (let i = 0; i < cohortArray.length; i++) {
+//                        let [study, cohortFreq] = cohortArray[i].split(':');
+//                        let [cohort, freq] = cohortFreq.split(/[<=>]+/);
+//                        debugger
+//                        this.$$("#" + this.prefix + study + cohort).value = freq;
+//                        this.$$("#" + this.prefix + study + cohort + "Operator").value = "<";
+//                    }
+//                }
 
                 // Studies
                 if (typeof this.query.studies !== "undefined") {
@@ -1082,7 +1097,7 @@
                     _filters.genotype = _genotypes.join(';');
                 }
 
-                // Add Cohort stats MAF filter: [{study.alias}]{cohort}:[<|>|<=|>=]{number}
+                // Add Cohort stats MAF filter: [{study.alias}]:{cohort}[<|>|<=|>=]{number}
                 let cohortFreq = [];
                 if (typeof this._cohorts !== "undefined" && this._cohorts.length > 0) {
                     for (let i = 0; i < this._cohorts.length; i++) {
@@ -1097,7 +1112,6 @@
                             let pf = study + ":" + cohort + operator + this.$$("#" + this.prefix + this.study.id + cohort).value;
                             cohortFreq.push(pf);
                         }
-//                        }
                     }
                 }
                 if (cohortFreq.length > 0) {
