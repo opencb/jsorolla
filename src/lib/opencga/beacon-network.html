@@ -69,9 +69,12 @@
                                                 $("#" + _this.hosts[i]).html("" + response.charAt(0).toUpperCase() + response.slice(1));
                                                 if (response == "true") {
                                                     $("#" + _this.hosts[i]).css("color", "red"); // Highlighting the true response in the table
+                                                } else {
+                                                    $("#" + _this.hosts[i]).css("color", "black");
                                                 }
                                             } else {
                                                 $("#" + _this.hosts[i]).html("False");
+                                                $("#" + _this.hosts[i]).css("color", "black");
                                             }
                                         }
                                         $('#spinGif').hide();
