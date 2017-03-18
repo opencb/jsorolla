@@ -17,99 +17,96 @@
 <dom-module id="variant-analysis-upload">
     <template>
         <style is="custom-style" include="jso-styles"></style>
-        <!--<style>-->
-            <!--.center {-->
-                <!--margin: auto;-->
-                <!--text-align: justify;-->
-                <!--font-size: 18px;-->
-                <!--color: #797979;-->
-            <!--}-->
-        <!--</style>-->
 
         <!-- This is where main application is rendered -->
         <div class="col-md-4">
             <h3>Upload and check file</h3>
             <br>
 
-            <!--<form class="form-horizontal" data-toggle="validator" role="form">-->
-            <form class="form-horizontal" data-toggle="validator" role="form" novalidate="true">
+            <!-- REgular expressions: http://stackoverflow.com/questions/275160/regex-for-names -->
+            <form class="form-horizontal" data-toggle="validator" role="form">
                 <div class="form-group has-feedback">
                     <label for="hospital" class="col-sm-3 control-label">Hospital</label>
                     <div class="col-sm-9">
-                        <input type="text" class="form-control" id="hospital" placeholder="Virgen del Rocio" maxlength="75" required>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="physician" class="col-sm-3 control-label">Physician</label>
-                    <div class="col-sm-9">
-                        <input type="text" class="form-control" id="physician" placeholder="Dr. Florido" pattern="^[_A-z]{1,}$" maxlength="75"
-                               required data-error="Name cannot include special characters">
-                    </div>
-                    <span class="glyphicon form-control-feedback glyphicon-remove" aria-hidden="true"></span>
-                    <div class="help-block with-errors"></div>
-                </div>
-                <div class="form-group">
-                    <label for="sampleId" class="col-sm-3 control-label">Sample ID</label>
-                    <div class="col-sm-9">
-                        <input type="text" class="form-control" id="sampleId" placeholder="ID" required>
+                        <input type="text" class="form-control" id="hospital" placeholder="Name" pattern="^[A-Za-z]+((\s)?(('|-)?[A-Za-z])+)+$" maxlength="75" required required data-error="Mandatory hospital name. Only a-z, - or ' characters and spaces are allowed ">
+                        <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
                         <div class="help-block with-errors"></div>
                     </div>
                 </div>
-                <div class="form-group">
+                <div class="form-group has-feedback">
+                    <label for="physician" class="col-sm-3 control-label">Physician</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" id="physician" placeholder="Name Surname" pattern="^[A-Za-z]+((\s)(('|-)?[A-Za-z])+)+$" maxlength="75"
+                               required data-error="Mandatory name and surname. Only a-z, - or ' characters and spaces are allowed">
+                        <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                        <div class="help-block with-errors"></div>
+                    </div>
+
+                </div>
+                <div class="form-group has-feedback">
+                    <label for="sampleId" class="col-sm-3 control-label">Sample ID</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" id="sampleId" placeholder="ID or clinical record number" required>
+                        <div class="help-block with-errors"></div>
+                    </div>
+                </div>
+                <div class="form-group has-feedback">
                     <label for="chromosomalGenderId" class="col-sm-3 control-label">Chromosomal Gender</label>
                     <div class="col-sm-9">
-                        <select class="form-control" id="chromosomalGenderId">
-                            <option selected>Choose...</option>
-                            <option>46,XX</option>
-                            <option>46,XY</option>
-                            <option>Other</option>
-                            <option>NE</option>
+                        <select class="form-control" id="chromosomalGenderId" required>
+                            <option></option>
+                            <option value="xx_46">46,XX</option>
+                            <option value="xy_46">46,XY</option>
+                            <option value="other">Other</option>
+                            <option value="ne">NE</option>
                         </select>
+                        <div class="help-block with-errors"></div>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="yearOfBirthId" class="col-sm-3 control-label">Year of Birth</label>
-                    <div class="col-sm-3">
-                        <!--<input type="text" class="form-control" id="yearOfBirthId" placeholder="2017">-->
-                        <select class="form-control" id="yearOfBirthId">
-                            <option selected>Choose...</option>
-                            <template is="dom-repeat" items="{{years}}">
-                                <option>{{item}}</option>
-                            </template>
-                        </select>
-
+                <div>
+                    <div class="form-group has-feedback" class="col-sm-6">
+                        <label for="yearOfBirthId" class="col-sm-3 control-label">Year of Birth</label>
+                        <div class="col-sm-3">
+                            <select class="form-control" id="yearOfBirthId" required>
+                                <option></option>
+                                <template is="dom-repeat" items="{{years}}">
+                                    <option value="{{item}}">{{item}}</option>
+                                </template>
+                            </select>
+                            <div class="help-block with-errors"></div>
+                        </div>
                     </div>
-                    <label for="yearOfTestId" class="col-sm-3 control-label">Year of Test</label>
-                    <div class="col-sm-3">
-                        <!--<input type="text" class="form-control" id="yearOfTestId" placeholder="2017">-->
-                        <select class="form-control" id="yearOfTestId">
-                            <option selected>Choose...</option>
-                            <template is="dom-repeat" items="{{years}}">
-                                <option>{{item}}</option>
-                            </template>
-                        </select>
+                    <div class="form-group has-feedback" class="col-sm-6">
+                        <label for="yearOfTestId" class="col-sm-3 control-label">Year of Test</label>
+                        <div class="col-sm-3">
+                            <select class="form-control" id="yearOfTestId" required>
+                                <option></option>
+                                <template is="dom-repeat" items="{{years}}">
+                                    <option value="{{item}}">{{item}}</option>
+                                </template>
+                            </select>
+                            <div class="help-block with-errors"></div>
+                        </div>
                     </div>
-
-
                 </div>
-                <div class="form-group">
+                <div class="form-group has-feedback">
                     <label for="ageId" class="col-sm-3 control-label">Age</label>
                     <div class="col-sm-3">
-                        <!--<input type="number" class="form-control" id="ageId" placeholder="years" pattern="^[0-9]{1,3}$" maxlength="3" data-error="Error, chaval" required>-->
-                        <select class="form-control" id="ageId">
-                            <option selected>Choose...</option>
+                        <select class="form-control" id="ageId" required>
+                            <option></option>
                             <template is="dom-repeat" items="{{age}}">
-                                <option>{{item}}</option>
+                                <option value="{{item}}">{{item}}</option>
                             </template>
                         </select>
+                        <div class="help-block with-errors"></div>
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group has-feedback">
                     <label for="ethnicity" class="col-sm-3 control-label">Ethnicity</label>
                     <div class="col-sm-9">
-                        <select class="form-control" id="ethnicity">
-                            <option selected>Choose...</option>
+                        <select class="form-control" id="ethnicity" required>
+                            <option></option>
                             <option>white mediterranean</option>
                             <option>white caucasian</option>
                             <option>black</option>
@@ -123,21 +120,23 @@
                             <option>sefardi jew</option>
                             <option>NE/unkown</option>
                         </select>
+                        <div class="help-block with-errors"></div>
                     </div>
                 </div>
-                <div class="form-inline">
+                <div class="form-group has-feedback">
                     <label class="col-sm-3 control-label">Parental Consanguinity</label>
                     <div class="col-sm-9">
                         <div class="form-check form-check-inline">
                             <label class="form-check-label">
-                                <input class="form-check-input" type="radio" name="parentalConsanguinityOptions" id="parentalConsanguinityYes"> yes
+                                <input class="form-check-input" type="radio" name="parentalConsanguinityOptions" id="parentalConsanguinityYes" required> yes
                             </label>
                         </div>
                         <div class="form-check form-check-inline">
                             <label class="form-check-label">
-                                <input class="form-check-input" type="radio" name="parentalConsanguinityOptions" id="parentalConsanguinityNo"> no
+                                <input class="form-check-input" type="radio" name="parentalConsanguinityOptions" id="parentalConsanguinityNo" required> no
                             </label>
                         </div>
+                        <div class="help-block with-errors"></div>
                     </div>
                 </div>
 
@@ -149,55 +148,63 @@
                     <div class="col-sm-4">
                         <select class="form-control bfh-countries" data-country="Spain" id="birthPlaceCountry"></select>
                     </div>
-                    <label for="birthPlace" class="col-sm-2 control-label">Birth place</label>
-                    <div class="col-sm-3">
+
+                </div>
+
+                <div class="form-group">
+                    <label for="birthPlace" class="col-sm-3 control-label">Birth place</label>
+                    <div class="col-sm-4">
                         <select class="form-control bfh-countries" data-country="Spain" id="birthPlace"></select>
                     </div>
                 </div>
-                <div class="form-group">
+
+                <div class="form-group has-feedback">
                     <label for="status" class="col-sm-3 control-label">Status</label>
                     <div class="col-sm-9">
-                        <select class="form-control" id="status">
-                            <option selected>Choose...</option>
-                            <option>affected</option>
-                            <option>parent</option>
-                            <option>obligate carrier chr X</option>
-                            <option>obligate carrier chr 1-22</option>
-                            <option>relative (of an affected individual and different parents)</option>
-                            <option>healthy control</option>
-                            <option>unknown</option>
+                        <select class="form-control" id="status" required>
+                            <option></option>
+                            <option value="affected">affected</option>
+                            <option value="parent">parent</option>
+                            <option value="obligateCarrierX">obligate carrier chr X</option>
+                            <option value="obligateCarrierY">obligate carrier chr 1-22</option>
+                            <option value="relative">relative (of an affected individual and different parents)</option>
+                            <option value="healthy">healthy control</option>
+                            <option value="unknown">unknown</option>
                         </select>
+                        <div class="help-block with-errors"></div>
                     </div>
                 </div>
-                <div class="form-group">
+                <div class="form-group has-feedback">
                     <label for="sampleType" class="col-sm-3 control-label">Type of sample</label>
                     <div class="col-sm-9">
-                        <select class="form-control" id="sampleType">
-                            <option selected>Choose...</option>
-                            <option>blood</option>
-                            <option>amniotic fluid</option>
-                            <option>chorionic villi</option>
-                            <option>circulating fetal</option>
-                            <option>circulating tumor</option>
-                            <option>tissue (fresh)</option>
-                            <option>other fluids</option>
-                            <option>NE/Unknown</option>
+                        <select class="form-control" id="sampleType" required>
+                            <option></option>
+                            <option value="blood">blood</option>
+                            <option value="amnioticFluid">amniotic fluid</option>
+                            <option value="chorionicVilli">chorionic villi</option>
+                            <option value="circulatingFetal">circulating fetal</option>
+                            <option value="circulatingTumor">circulating tumor</option>
+                            <option value="tissue">tissue (fresh)</option>
+                            <option value="others">other fluids</option>
+                            <option value="unknown">NE/Unknown</option>
                         </select>
+                        <div class="help-block with-errors"></div>
                     </div>
                 </div>
-                <div class="form-group">
+                <div class="form-group has-feedback">
                     <label class="col-sm-3 control-label">Cell line</label>
                     <div class="col-sm-9">
                         <div class="form-check form-check-inline">
                             <label class="form-check-label">
-                                <input class="form-check-input" type="radio" name="cellLineOptions" id="germline"> Constitutive (germline)
+                                <input class="form-check-input" type="radio" name="cellLineOptions" id="germline" required> Constitutive (germline)
                             </label>
                         </div>
                         <div class="form-check form-check-inline">
                             <label class="form-check-label">
-                                <input class="form-check-input" type="radio" name="cellLineOptions" id="somatic"> Somatic
+                                <input class="form-check-input" type="radio" name="cellLineOptions" id="somatic" required> Somatic
                             </label>
                         </div>
+                        <div class="help-block with-errors"></div>
                     </div>
                 </div>
                 <div class="form-group">
@@ -263,54 +270,22 @@
                     type: Number,
                     value: 1920
                 }
-//                ,
-//                _arrayAge: {
-//                    type: Array ,
-//                    value: [],
-//                    computed: '_numberToArray(maxAge,"age")'
-//                },
-//                _arrayBirthTest: {
-//                    type: Array ,
-//                    value: [],
-//                    computed: '_numberToArray(minYear,"year")'
-//                }
             },
             ready: function () {
 
                 let _age = [];
                 let _years = [];
+                let fullDate = new Date()
                 for (let age = 0, year = this.minYear; age <= this.maxAge; age++, year++) {
                     _age.push(age);
-                    _years.push(year);
+                    if (year<=fullDate.getFullYear())
+                    {_years.push(year);}
                 }
                 // This change triggers the polymer dom-repeat
                 this.age = _age;
                 this.years = _years;
 
             }
-//            ,
-//            _numberToArray: function(number,type) {
-//                //console.log(number);
-//                //debugger;
-//
-//                let array = [],i;
-//                if (type == "age") { // Fill array with values related to age up to number
-//                    array.push(0.2); // For less than 1 year: 0.2 or 0.8
-//                    array.push(0.8);
-//                    for (i = 1; i <= number; ++i) {
-//                        array.push(i);
-//                    }
-//
-//                }
-//                else { // Fill array with values related to years starting at number up to current year
-//                    let fullDate = new Date()
-//                    for (i = number; i <= fullDate.getFullYear(); ++i) {
-//                        array.push(i);
-//                    }
-//
-//                }
-//                return array;
-//            },
 
         });
 
