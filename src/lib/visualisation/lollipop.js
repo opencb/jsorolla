@@ -38,17 +38,17 @@ class Lollipop {
         }
 
         let ratio = settings.length / settings.width;
-        let svgSWidth = settings.width * ratio;
+        let svgWidth = settings.width * ratio;
         let svgHeight = settings.height;
         settings.ratio = ratio;
 
         let svg = SVG.create('svg', {
-            width: svgSWidth,
+            width: svgWidth,
             height: svgHeight,
-            viewBox: "0 0 " + svgSWidth + " " + svgHeight,
+            viewBox: "0 0 " + svgWidth + " " + svgHeight,
             style: "fill: white"
         });
-        SVG.addChild(svg, 'rect', {width: svgSWidth, height: svgHeight, style: "fill: white;stroke: black"});
+        SVG.addChild(svg, 'rect', {width: svgWidth, height: svgHeight, style: "fill: white;stroke: black"});
 
         let center = (svgHeight - 20) / 2;
         SVG.addChild(svg, 'rect', {
@@ -56,7 +56,7 @@ class Lollipop {
             y: center + 5,
             rx: 2 * ratio,
             ry: 2,
-            width: svgSWidth,
+            width: svgWidth,
             height: 15,
             style: "fill: lightgrey"
         });
@@ -84,7 +84,7 @@ class Lollipop {
                         y1: center - 20 + verticalOffset,
                         x2: (20 + proteinVariantAnnotation.position) * ratio,
                         y2: center + 5,
-                        width: svgSWidth, height: 25, style: "stroke: grey;stroke-width: 2"
+                        width: svgWidth, height: 25, style: "stroke: grey;stroke-width: 2"
                     });
 
                     let stats = variants[i].studies[0].stats["ALL"];

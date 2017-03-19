@@ -222,12 +222,12 @@
             _createSvgTranscript: function (transcriptObject) {
                 let length = transcriptObject.end - transcriptObject.start;
                 let svg = SVG.create('svg', {
-                    width: length + 20,
+                    width: length + 40,
                     height: 140,
-                    viewBox: "0 0 " + (length + 20) + " " + 140,
+                    viewBox: "0 0 " + (length + 40) + " " + 140,
                     style: "fill: white"
                 });
-                SVG.addChild(svg, 'rect', {width: length + 20, height: 140, style: "fill: white;stroke: black"});
+                SVG.addChild(svg, 'rect', {width: length + 40, height: 140, style: "fill: white;stroke: black"});
 
                 let center = (140) / 2;
                 SVG.addChild(svg, 'line', {

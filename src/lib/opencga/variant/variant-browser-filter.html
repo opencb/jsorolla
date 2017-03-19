@@ -108,7 +108,7 @@
 
                 <!-- STUDY filters -->
                 <template is="dom-if" if="{{isBrowserMode}}">
-                    <template is="dom-if" if="{{moreStudiesPresent(studies) && _cohorts}}">
+                    <template is="dom-if" if="{{_studyCohortBoolean}}">
                         <div class="panel panel-default">
                             <div class="panel-heading" role="tab" id="{{prefix}}StudiesHeading">
                                 <h4 class="panel-title">
@@ -123,13 +123,13 @@
                             </div>
                             <div id="{{prefix}}Studies" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}StudiesHeading">
                                 <div class="panel-body">
-                                    <template is="dom-if" if="{{_cohorts}}">
+                                    <template is="dom-if" if="{{cohortsPresent(_cohorts)}}">
                                         <span class="subsection">Cohort MAF filter</span>
                                         <template is="dom-repeat" items="{{_cohorts}}" as="cohort">
                                             <div class="horizontal layout" style="padding: 4px 0px 4px 0px">
                                                 <span>{{cohort.name}}</span>
                                                 <span>
-                                                <select name="{{cohort.id}}Operator" id="{{prefix}}{{study.id}}{{cohort.id}}Operator" on-change="updateQueryFilters"  class$="{{prefix}}FilterSelect">
+                                                <select name="{{cohort.id}}Operator" id="{{prefix}}{{study.alias}}{{cohort.id}}CohortOperator" on-change="updateQueryFilters"  class$="{{prefix}}FilterSelect">
                                                     <option value="<" selected><</option>
                                                     <option value="<="><=</option>
                                                     <option value=">">></option>
@@ -137,7 +137,7 @@
                                                 </select>
                                             </span>
                                                 <span>
-                                                <input type="text" value="" class$="custom-sized-input {{prefix}}FilterTextInput" name="{{study.id}}_{{cohort.id}}" id="{{prefix}}{{study.id}}{{cohort.id}}" on-keyup="updateQueryFilters">
+                                                <input type="text" value="" class$="custom-sized-input {{prefix}}FilterTextInput" name="{{study.alias}}_{{cohort.id}}" id="{{prefix}}{{study.alias}}{{cohort.id}}Cohort" on-keyup="updateQueryFilters">
                                             </span>
                                             </div>
                                         </template>
@@ -807,6 +807,13 @@
                     return false;
                 }
             },
+            cohortsPresent: function (cohorts) {
+                if (typeof cohorts !== "undefined") {
+                    return cohorts.length > 0;
+                } else {
+                    return false;
+                }
+            },
             cellbaseClientObtained: function () {
                 if (this.cellbaseClient instanceof CellBaseClient && typeof this.biotypes === "undefined") {
                     let _this = this;
@@ -830,6 +837,8 @@
                     if (typeof this.config.cohorts !== "undefined") {
                         this._cohorts = this.config.cohorts[this.study.alias];
                     }
+
+                    this._studyCohortBoolean = differentStudies.length > 0 || (typeof this._cohorts !== "undefined" && this._cohorts.length > 0);
                 }
             },
             updateConsequenceTypeFilter: function(e) {
@@ -881,6 +890,19 @@
                                 }
                             }
                         }
+                    }
+                }
+
+                // Cohorts
+                let cohortArray = [];
+                if (typeof this.query.maf !== "undefined") {
+                    cohortArray = this.query.maf.split(new RegExp("[,;]"));
+                    for (let i = 0; i < cohortArray.length; i++) {
+                        let [study, cohortFreq] = cohortArray[i].split(':');
+                        let [cohort, freq] = cohortFreq.split(/[<=>]+/);
+                        let operator = cohortFreq.split(/[-A-Za-z0-9._:]+/)[1];
+                        this.$$("#" + this.prefix + study + cohort + "Cohort").value = freq;
+                        this.$$("#" + this.prefix + study + cohort + "CohortOperator").value = operator;
                     }
                 }
 
@@ -1082,22 +1104,21 @@
                     _filters.genotype = _genotypes.join(';');
                 }
 
-                // Add Cohort stats MAF filter: [{study.alias}]{cohort}:[<|>|<=|>=]{number}
+                // Add Cohort stats MAF filter: [{study.alias}]:{cohort}[<|>|<=|>=]{number}
                 let cohortFreq = [];
                 if (typeof this._cohorts !== "undefined" && this._cohorts.length > 0) {
                     for (let i = 0; i < this._cohorts.length; i++) {
                         let cohort = this._cohorts[i].id;
-                        if (this.$$("#" + this.prefix + this.study.id + cohort).value != "" || this.$$("#" + this.prefix + this.study.id + cohort + "Operator").value != "<") {
-                            let operator = this.$$("#" + this.prefix + this.study.id + cohort + "Operator").value;
+                        if (this.$$("#" + this.prefix + this.study.alias + cohort + "Cohort").value != "" || this.$$("#" + this.prefix + this.study.alias + cohort + "CohortOperator").value != "<") {
+                            let operator = this.$$("#" + this.prefix + this.study.alias + cohort + "CohortOperator").value;
                             let study = this.study.alias;
                             // to be removed!!
                             if (study == "BRIDGE") {
                                 study = "bridge";
                             }
-                            let pf = study + ":" + cohort + operator + this.$$("#" + this.prefix + this.study.id + cohort).value;
+                            let pf = study + ":" + cohort + operator + this.$$("#" + this.prefix + this.study.alias + cohort + "Cohort").value;
                             cohortFreq.push(pf);
                         }
-//                        }
                     }
                 }
                 if (cohortFreq.length > 0) {
