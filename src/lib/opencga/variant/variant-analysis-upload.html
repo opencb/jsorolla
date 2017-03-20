@@ -55,43 +55,44 @@
                     <div class="col-sm-9">
                         <select class="form-control" id="chromosomalGenderId" required>
                             <option></option>
-                            <option value="xx_46">46,XX</option>
-                            <option value="xy_46">46,XY</option>
-                            <option value="other">Other</option>
-                            <option value="ne">NE</option>
+                            <template is="dom-repeat" items="{{config.chromosomal_gender}}">
+                                <option value="{{item.id}}">{{item.title}}</option>
+                            </template>
                         </select>
                         <div class="help-block with-errors"></div>
                     </div>
                 </div>
-                <div>
-                    <div class="form-group has-feedback" class="col-sm-6">
-                        <label for="yearOfBirthId" class="col-sm-3 control-label">Year of Birth</label>
-                        <div class="col-sm-3">
-                            <select class="form-control" id="yearOfBirthId" required>
-                                <option></option>
-                                <template is="dom-repeat" items="{{years}}">
-                                    <option value="{{item}}">{{item}}</option>
-                                </template>
-                            </select>
-                            <div class="help-block with-errors"></div>
-                        </div>
-                    </div>
-                    <div class="form-group has-feedback" class="col-sm-6">
-                        <label for="yearOfTestId" class="col-sm-3 control-label">Year of Test</label>
-                        <div class="col-sm-3">
-                            <select class="form-control" id="yearOfTestId" required>
-                                <option></option>
-                                <template is="dom-repeat" items="{{years}}">
-                                    <option value="{{item}}">{{item}}</option>
-                                </template>
-                            </select>
-                            <div class="help-block with-errors"></div>
-                        </div>
+
+
+
+                <div class="form-group has-feedback">
+                    <label for="yearOfBirthId" class="col-sm-3 control-label">Year of Birth</label>
+                    <div class="col-sm-4">
+                        <select class="form-control" id="yearOfBirthId" required>
+                            <option></option>
+                            <template is="dom-repeat" items="{{years}}">
+                                <option value="{{item}}">{{item}}</option>
+                            </template>
+                        </select>
+                        <div class="help-block with-errors"></div>
                     </div>
                 </div>
                 <div class="form-group has-feedback">
+                    <label for="yearOfTestId" class="col-sm-3 control-label">Year of Test</label>
+                    <div class="col-sm-4">
+                        <select class="form-control" id="yearOfTestId" required>
+                            <option></option>
+                            <template is="dom-repeat" items="{{years}}">
+                                <option value="{{item}}">{{item}}</option>
+                            </template>
+                        </select>
+                        <div class="help-block with-errors"></div>
+                    </div>
+                </div>
+
+                <div class="form-group has-feedback">
                     <label for="ageId" class="col-sm-3 control-label">Age</label>
-                    <div class="col-sm-3">
+                    <div class="col-sm-4">
                         <select class="form-control" id="ageId" required>
                             <option></option>
                             <template is="dom-repeat" items="{{age}}">
@@ -107,18 +108,9 @@
                     <div class="col-sm-9">
                         <select class="form-control" id="ethnicity" required>
                             <option></option>
-                            <option>white mediterranean</option>
-                            <option>white caucasian</option>
-                            <option>black</option>
-                            <option>asiatic</option>
-                            <option>amerindian</option>
-                            <option>gipsy</option>
-                            <option>arabic</option>
-                            <option>hindu</option>
-                            <option>australian native</option>
-                            <option>askenazi jew</option>
-                            <option>sefardi jew</option>
-                            <option>NE/unkown</option>
+                            <template is="dom-repeat" items="{{config.ethnicity}}">
+                                <option value="{{item.id}}">{{item.title}}</option>
+                            </template>
                         </select>
                         <div class="help-block with-errors"></div>
                     </div>
@@ -163,13 +155,9 @@
                     <div class="col-sm-9">
                         <select class="form-control" id="status" required>
                             <option></option>
-                            <option value="affected">affected</option>
-                            <option value="parent">parent</option>
-                            <option value="obligateCarrierX">obligate carrier chr X</option>
-                            <option value="obligateCarrierY">obligate carrier chr 1-22</option>
-                            <option value="relative">relative (of an affected individual and different parents)</option>
-                            <option value="healthy">healthy control</option>
-                            <option value="unknown">unknown</option>
+                            <template is="dom-repeat" items="{{config.status}}">
+                                <option value="{{item.id}}">{{item.title}}</option>
+                            </template>
                         </select>
                         <div class="help-block with-errors"></div>
                     </div>
@@ -179,14 +167,9 @@
                     <div class="col-sm-9">
                         <select class="form-control" id="sampleType" required>
                             <option></option>
-                            <option value="blood">blood</option>
-                            <option value="amnioticFluid">amniotic fluid</option>
-                            <option value="chorionicVilli">chorionic villi</option>
-                            <option value="circulatingFetal">circulating fetal</option>
-                            <option value="circulatingTumor">circulating tumor</option>
-                            <option value="tissue">tissue (fresh)</option>
-                            <option value="others">other fluids</option>
-                            <option value="unknown">NE/Unknown</option>
+                            <template is="dom-repeat" items="{{config.sample_type}}">
+                                <option value="{{item.id}}">{{item.title}}</option>
+                            </template>
                         </select>
                         <div class="help-block with-errors"></div>
                     </div>
@@ -262,6 +245,9 @@
         Polymer({
             is: 'variant-analysis-upload',
             properties: {
+                config: {
+                    type: Object
+                },
                 maxAge: {
                     type: Number,
                     value: 110
