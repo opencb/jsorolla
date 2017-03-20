@@ -37,18 +37,19 @@ class Lollipop {
             settings.length = protein.sequence.length;
         }
 
-        let ratio = settings.length / settings.width;
-        let svgWidth = settings.width * ratio;
+        let ratio = settings.width / settings.length;
+        let svgWidth = settings.length * ratio;
         let svgHeight = settings.height;
         settings.ratio = ratio;
 
         let svg = SVG.create('svg', {
-            width: svgWidth,
+            width: svgWidth + (40 * ratio),
             height: svgHeight,
-            viewBox: "0 0 " + svgWidth + " " + svgHeight,
+            viewBox: "0 0 " + (svgWidth + 40 * ratio) + " " + svgHeight,
             style: "fill: white"
         });
-        SVG.addChild(svg, 'rect', {width: svgWidth, height: svgHeight, style: "fill: white;stroke: black"});
+        // SVG.addChild(svg, 'rect', {width: svgWidth, height: svgHeight, style: "fill: white;stroke: black"});
+        SVG.addChild(svg, 'rect', {width: svgWidth + (40 * ratio), height: svgHeight, style: "fill: white;stroke: black"});
 
         let center = (svgHeight - 20) / 2;
         SVG.addChild(svg, 'rect', {
@@ -220,7 +221,7 @@ class Lollipop {
 
     _getDefaultSetting() {
         let config = {
-            width: 1000,
+            width: 1500,
             height: 140,
             proteinPositioningInterval: 3
         };
