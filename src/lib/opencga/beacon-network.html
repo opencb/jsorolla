@@ -54,8 +54,9 @@
                     let _this = this;
                     for (let i = 0; i < this.hosts.length; i++) {
                         let xhr = new XMLHttpRequest();
+                        // Beacon network uses zero-based numbering hence (position-1) is used in the url.
                         let url = "https://beacon-network.org/api/responses?allele=" + alternate + "&beacon=[" + this.hosts[i] + "]&chrom=" + chromosome
-                            + "&pos=" + position + "&ref=GRCh37&referenceAllele=" + reference;
+                            + "&pos=" + (position - 1) + "&ref=GRCh37&referenceAllele=" + reference;
                         xhr.onload = function (event) {
                             if (xhr.readyState === xhr.DONE) {
                                 if (xhr.status === 200) {
@@ -68,9 +69,12 @@
                                                 $("#" + _this.hosts[i]).html("" + response.charAt(0).toUpperCase() + response.slice(1));
                                                 if (response == "true") {
                                                     $("#" + _this.hosts[i]).css("color", "red"); // Highlighting the true response in the table
+                                                } else {
+                                                    $("#" + _this.hosts[i]).css("color", "black");
                                                 }
                                             } else {
                                                 $("#" + _this.hosts[i]).html("False");
+                                                $("#" + _this.hosts[i]).css("color", "black");
                                             }
                                         }
                                         $('#spinGif').hide();
