@@ -290,6 +290,103 @@
                     </div>
                 </template>
 
+                <!-- DATA MINING filters -->
+                <template is="dom-if" if="{{isDataMiningMode}}">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" role="tab" id="{{prefix}}FacetFieldsHeading">
+                            <h4 class="panel-title">
+                                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}FacetFields"
+                                   aria-expanded="true" aria-controls="{{prefix}}FacetFields">
+                                    Facet Field
+                                    <div style="float: right" class="tooltip-div">
+                                        <a data-toggle="tooltip"
+                                           title="Use this filter to get the count of all facets in the given field. The fields can be nested as well."><i
+                                                class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                    </div>
+                                </a>
+                            </h4>
+                        </div>
+                        <div id="{{prefix}}FacetFields" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}FacetFieldsHeading">
+                            <div class="panel-body">
+                                <div style="float: right; padding-top: 10px">
+                                    <i class="fa fa-plus-square fa-lg" aria-hidden="true" on-click="updateQueryFilters"></i>
+                                </div>
+                                <select id="{{prefix}}FacetField" class$="form-control {{prefix}}FilterSelect" style="max-width: 160px;">
+                                    <option value="none" selected>Select a field...</option>
+                                    <template is="dom-repeat" items="{{config.facetFields}}">
+                                        <option value="{{item.value}}">{{item.name}}</option>
+                                    </template>
+                                </select>
+                                <br>
+                                <template is="dom-repeat" items="{{facetFieldsName}}">
+                                    <span style="font-size: 14px">
+                                        <i class="fa fa-times fa-lg" aria-hidden="true" on-click="removeFacetFields" data-id="{{item.value}}" data-field="field"
+                                           style="color: darkred;"></i>
+                                        &nbsp;{{item.name}}</span><br>
+                                </template>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading" role="tab" id="{{prefix}}FacetRangeHeading">
+                            <h4 class="panel-title">
+                                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}FacetRange"
+                                   aria-expanded="true" aria-controls="{{prefix}}FacetRange">
+                                    Facet Range
+                                    <div style="float: right" class="tooltip-div">
+                                        <a data-toggle="tooltip"
+                                           title="Use this filter to get the count of facets in the given field based on a range. Three fields - Start, End and Interval
+                                           must be specified"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                    </div>
+                                </a>
+                            </h4>
+                        </div>
+                        <div id="{{prefix}}FacetRange" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}FacetRangeHeading">
+                            <div class="panel-body">
+                                <div style="float: right; padding-top: 10px">
+                                    <i class="fa fa-plus-square fa-lg" aria-hidden="true" on-click="updateQueryFilters"></i>
+                                </div>
+                                <div class="form-group row">
+                                    <span class="subsection col-sm-2" style="padding: 5px 0px 5px 10px">Field</span>
+                                    <div class="col-sm-8">
+                                        <select id="{{prefix}}FacetRangeField" class$="form-control {{prefix}}FilterSelect" style="max-width: 140px;">
+                                            <option value="none" selected>Select a field...</option>
+                                            <template is="dom-repeat" items="{{config.facetRangeFields}}">
+                                                <option value="{{item}}">{{item}}</option>
+                                            </template>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <span class="subsection col-sm-2" style="padding: 5px 0px 5px 10px">Start</span>
+                                    <div class="col-sm-8">
+                                        <input type="text" class$="{{prefix}}FilterTextInput" id="{{prefix}}FacetRangeStart" style="max-width: 40px">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <span class="subsection col-sm-2" style="padding: 5px 0px 5px 10px">End</span>
+                                    <div class="col-sm-8">
+                                        <input type="text" class$="{{prefix}}FilterTextInput" id="{{prefix}}FacetRangeEnd" style="max-width: 40px">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <span class="subsection col-sm-2" style="padding: 5px 0px 5px 10px">Interval</span>
+                                    <div class="col-sm-8">
+                                        <input type="text" class$="{{prefix}}FilterTextInput" id="{{prefix}}FacetRangeGap" style="max-width: 40px">
+                                    </div>
+                                </div>
+                                <template is="dom-repeat" items="{{facetRangeFields}}">
+                                    <span style="font-size: 14px">
+                                        <i class="fa fa-times fa-lg" aria-hidden="true" on-click="removeFacetFields" data-id="{{item}}" data-field="range"
+                                           style="color: darkred;"></i>
+                                        &nbsp;{{item}}</span><br>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+
                 <br>
                 <!-- Region filter -->
                 <div class="panel panel-default">
@@ -771,6 +868,9 @@
                 }
 
                 this.sampleGenotypesObj = {};
+                this.facetFields = [];
+                this.facetFieldsName = [];
+                this.facetRangeFields = [];
                 this.query = {};
 
                 this.isFamilyAnalysis = true;
@@ -834,11 +934,26 @@
                     this.differentStudies = differentStudies;
 
                     // Update cohorts from config, this updates the Cohort filter MAF
-                    if (typeof this.config.cohorts !== "undefined") {
+                    if (typeof this.config!== "undefined" && typeof this.config.cohorts !== "undefined") {
                         this._cohorts = this.config.cohorts[this.study.alias];
                     }
 
                     this._studyCohortBoolean = differentStudies.length > 0 || (typeof this._cohorts !== "undefined" && this._cohorts.length > 0);
+                }
+            },
+            removeFacetFields: function (e) {
+                if (e.target.dataset.field == "field") {
+                    let index = this.facetFields.indexOf(e.target.dataId);
+                    this.splice('facetFields', index, 1);
+                    for (let i = 0; i < this.facetFieldsName.length; i++) {
+                        if (this.facetFieldsName[i].value == e.target.dataId) {
+                            this.splice('facetFieldsName', i, 1);
+                            break;
+                        }
+                    }
+                } else if (e.target.dataset.field == "range") {
+                    let index = this.facetRangeFields.indexOf(e.target.dataId);
+                    this.splice('facetRangeFields', index, 1);
                 }
             },
             updateConsequenceTypeFilter: function(e) {
@@ -1078,6 +1193,26 @@
             },
             updateQueryFilters: function () {
                 let _filters = {};
+                // Facets
+                if (this.$$("#" + this.prefix + "FacetField").value != "none" && this.facetFields.indexOf(this.$$("#" + this.prefix + "FacetField").value) == -1) {
+                    this.push('facetFieldsName', {name: $( "#" + this.prefix + "FacetField option:selected" ).text(), value: this.$$("#" + this.prefix + "FacetField").value});
+                    this.push('facetFields', this.$$("#" + this.prefix + "FacetField").value);
+                    this.$$("#" + this.prefix + "FacetField").value = "none";
+                    // TODO add this to query object [facet-field]
+                }
+
+                // Facets Range
+                if (this.$$("#" + this.prefix + "FacetRangeField").value != "none" && this.$$("#" + this.prefix + "FacetRangeStart").value != ""
+                && this.$$("#" + this.prefix + "FacetRangeEnd").value != "" && this.$$("#" + this.prefix + "FacetRangeGap").value != "") {
+                    let value = this.$$("#" + this.prefix + "FacetRangeField").value.charAt(0).toUpperCase() + this.$$("#" + this.prefix + "FacetRangeField").value.slice(1);
+                    this.push('facetRangeFields', value + "[" + this.$$("#" + this.prefix + "FacetRangeStart").value
+                    + "," + this.$$("#" + this.prefix + "FacetRangeEnd").value + "], Interval :" + this.$$("#" + this.prefix + "FacetRangeGap").value);
+                    this.$$("#" + this.prefix + "FacetRangeField").value = "none";
+                    this.$$("#" + this.prefix + "FacetRangeStart").value = "";
+                    this.$$("#" + this.prefix + "FacetRangeEnd").value = "";
+                    this.$$("#" + this.prefix + "FacetRangeGap").value = "";
+                    // TODO add this to query object [facet-range]
+                }
 
                 // Adding sample genotypes filter
                 let selectedGenotypes = $(".genotypes:checkbox:checked");
@@ -1431,6 +1566,9 @@
                     case "analysis":
                     case "clinical":
                         this.isAnalysisMode = true;
+                        break;
+                    case "dataMining":
+                        this.isDataMiningMode = true;
                         break;
                     default:
                         this.isBrowserMode = true;
