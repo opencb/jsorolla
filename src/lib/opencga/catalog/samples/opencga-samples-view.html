@@ -13,7 +13,8 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<link rel="import" href="../../variant/variant-active-filters.html">
+<!--<link rel="import" href="../../variant/variant-active-filters.html">-->
+<link rel="import" href="../../opencga-active-filters.html">
 <link rel="import" href="opencga-sample-comparator.html">
 <dom-module id="opencga-samples-view">
     <template>
@@ -29,7 +30,9 @@
             }
         </style>
         <br>
-        <variant-active-filters opencga-client="{{opencgaClient}}" query="{{filters}}" search="{{search}}"></variant-active-filters>
+        <!--<variant-active-filters opencga-client="{{opencgaClient}}" query="{{filters}}" search="{{search}}"></variant-active-filters>-->
+        <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{filters}}" filters="{{config.filters}}"></opencga-active-filters>
+
         <!--<div class="panel panel-default">-->
             <!--<div class="panel-body">-->
                 <!--<button type="button" class="btn btn-primary" on-click="clear"><i class="fa fa-refresh" aria-hidden="true" style="padding-right: 5px"></i>-->
