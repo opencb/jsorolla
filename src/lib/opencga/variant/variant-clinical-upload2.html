@@ -22,41 +22,73 @@
             <h3>Upload and check file v2</h3>
             <br>
 
-            <form class="form-horizontal">
+            <form class="form-horizontal" data-toggle="validator" role="form">
                 <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}" as="variable"
                           sort="_sortVariables">
-                    <div class="form-group">
-                        <template is="dom-if" if="{{checkVarType(variable, 'TEXT',0)}}">
-                                <!-- TEXT type: include an input text -->
-                            <label for="{{prefix}}{{variable.name}}" class="col-sm-3 control-label">{{variable.name}}</label>
+                    <div class="form-group has-feedback">
+
+                        <template is="dom-if" if="{{checkVarType(variable, 'TEXT', 0, 1)}}">
+                            <!-- TEXT type: include an input text and add suitable regular expression for text-->
+                            <label for="{{prefix}}{{variable.name}}" class="col-sm-3 control-label">{{variable.name}}-{{variable.type}}</label>
                             <div class="col-sm-9">
-                                <input type="text" class="form-control" id="{{prefix}}{{variable.name}}" placeholder="Name" pattern="^[A-Za-z]+((\s)?(('|-)?[A-Za-z])+)+$" maxlength="75" >
+                                <input type="text" class="form-control" id="{{prefix}}{{variable.name}}" placeholder="Name" pattern="^[A-Za-z]+((\s)?(('|-)?[A-Za-z])+)+$" maxlength="75" required data-error="Mandatory hospital name. Only a-z, - or ' characters and spaces are allowed ">
+                                <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                <div class="help-block with-errors"></div>
                             </div>
                         </template>
-                        <template is="dom-if" if="{{checkVarType(variable, 'CATEGORICAL',variable.allowedValues.length)}}">
-                            <!-- CATEGORICAL type: include radio buttonss two values are contained in variable.allowedValues -->
-                            <label class="col-sm-3 control-label">{{variable.name}}</label>
+
+                        <template is="dom-if" if="{{checkVarType(variable, 'NUMERIC', 0, 1)}}">
+                            <!-- NUMERIC type: include an input text and add suitable regular expression for numbers -->
+                            <label for="{{prefix}}{{variable.name}}" class="col-sm-3 control-label">{{variable.name}}-{{variable.type}}</label>
                             <div class="col-sm-9">
-                                <div class="form-check form-check-inline">
-                                    <label class="form-check-label">
-                                        <input class="form-check-input" type="radio" name="cellLineOptions" id="a{{variable.name}}"> {{variable.allowedValues}}
-                                    </label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <label class="form-check-label">
-                                        <input class="form-check-input" type="radio" name="cellLineOptions" id="b{{variable.name}}"> {{variable.allowedValues}}
-                                    </label>
-                                </div>
+                                <input type="text" class="form-control" id="{{prefix}}{{variable.name}}" placeholder="Number" pattern="^[0-9]+$" maxlength="75" required data-error="Mandatory field. Only numbers are allowed ">
+                                <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                <div class="help-block with-errors"></div>
+                            </div>
+                        </template>
+
+
+                        <template is="dom-if" if="{{checkVarType(variable, 'CATEGORICAL',2, 3)}}">
+                            <!-- CATEGORICAL type, 2 values: radio buttons for selection -->
+                            <label class="col-sm-3 control-label">{{variable.name}}-{{variable.type}}</label>
+                            <div class="col-sm-9">
+                                <template is="dom-repeat" items="{{variable.allowedValues}}" as="variable">
+                                    <div class="form-check form-check-inline">
+                                        <label class="form-check-label">
+                                            <template is="dom-if" if="{{checkType(variable,'0')}}">
+                                                <input class="form-check-input" type="radio" name="cellLineOptions" id="{{item}}"> No
+                                            </template>
+
+                                            <template is="dom-if" if="{{checkType(variable,'1')}}">
+                                                <input class="form-check-input" type="radio" name="cellLineOptions" id="{{item}}"> Yes
+                                            </template>
+                                        </label>
+                                    </div>
+                                </template>
                             </div>
 
                         </template>
-                        <template is="dom-if" if="{{checkVarType(variable, 'CATEGORICAL',variable.allowedValues.length)}}">
-                            <!-- CATEGORICAL type: include a check box when a single value is contained in in variable.allowedValues -->
-                            <label class="col-sm-3 control-label">{{variable.name}}</label>
+                        <template is="dom-if" if="{{checkVarType(variable, 'CATEGORICAL',1, 2)}}">
+                            <!-- CATEGORICAL type, single value: check box -->
+                            <label class="col-sm-3 control-label">{{variable.name}}-{{variable.type}}</label>
 
                             <div class="col-sm-9">
-                                <input type="checkbox" name="selectionButtons" id="{{prefix}}{{variable.name}}" style="padding-left: 20px"> {{variable.name}}<br>
+                                <input type="checkbox" name="selectionButtons" id="{{prefix}}{{variable.name}}" style="padding-left: 20px">
 
+                            </div>
+
+                        </template>
+                        <template is="dom-if" if="{{checkVarType(variable, 'CATEGORICAL', 3, 100)}}">
+                            <!-- CATEGORICAL type: dropdown: at least three elements in variable.allowedValues -->
+                            <label class="col-sm-3 control-label">{{variable.name}}-{{variable.type}}</label>
+
+                            <div class="col-sm-9">
+                                <select class="form-control" id="{{prefix}}{{variable.name}}">
+                                    <option></option>
+                                    <template is="dom-repeat" items="{{variable.allowedValues}}">
+                                        <option>{{item}}</option>
+                                    </template>
+                                </select>
                             </div>
 
                         </template>
@@ -136,24 +168,15 @@
                     this._areVariablesEmpty = false;
                 }
             },
-            checkVarType: function (myVar,type,numElements) {
-                console.log(this);
-                debugger;
+            checkVarType: function (myVar,type, lowerLimit, upperLimit) {
+                return (myVar.type == type && myVar.allowedValues.length >= lowerLimit && myVar.allowedValues.length < upperLimit);
 
-                if (myVar.type === type && myVar.allowedValues.length == numElements)
-                {
-                    return true;
-
-                } else if (myVar.type === type && myVar.allowedValues.length > numElements)
-                {
-                    return true;
-
-                } else if (myVar.type === type)
-                {
-                    return true;
-                }
 
             },
+            checkType: function(element,value){
+                return (element===value);
+            }
+
 
         });
 

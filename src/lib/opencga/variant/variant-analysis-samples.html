@@ -15,6 +15,7 @@
   -->
 <link rel="import" href="opencga-family-selector.html">
 <link rel="import" href="opencga-family-editor.html">
+<link rel="import" href="variant-samples-filter.html">
 
 <dom-module id="variant-analysis-samples">
     <template>
@@ -33,147 +34,8 @@
             </div>
 
             <div class="col-md-3">
-                <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true">
-                    <div class="panel panel-default">
-                        <div class="panel-heading" role="tab" id="{{prefix}}SampleSelectionHeading">
-                            <h4 class="panel-title">
-                                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                                   href="#{{prefix}}SampleSelection" aria-expanded="true" aria-controls="{{prefix}}SampleSelection">
-                                    Sample Selection
-                                    <div style="float: right" class="tooltip-div">
-                                        <a data-toggle="tooltip" title="Sample selection">
-                                            <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                        </a>
-                                    </div>
-                                </a>
-                            </h4>
-                        </div>
-                        <div id="{{prefix}}SampleSelection" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}SampleSelectionHeading">
-                            <div class="panel-body">
-                                <form>
-                                    <label>Select samples: </label>
-                                    <br>
-                                    <input type="radio" name="selectionButtons" id="recentlyRadio" value="recently" class$="{{prefix}}FilterRadio" checked on-change="selectSamples" style="padding-left: 20px"> Recently Uploaded<br>
-                                    <input type="radio" name="selectionButtons" id="allRadio" value="all" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> All<br>
-                                    <hr>
-                                    <input type="checkbox" name="selectionButtons" id="controls" value="controls" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Controls<br>
-                                </form>
-                                <br>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!--Sample characteristics-->
-                    <div class="panel panel-default">
-                        <div class="panel-heading" role="tab" id="{{prefix}}SampleGeneralFilterHeading">
-                            <h4 class="panel-title">
-                                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                                   href="#{{prefix}}SampleGeneralFilter" aria-expanded="true" aria-controls="{{prefix}}SampleGeneralFilter">
-                                    Sample Characteristics
-                                    <div style="float: right" class="tooltip-div">
-                                        <a data-toggle="tooltip" title="Generic sample filters">
-                                            <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                        </a>
-                                    </div>
-                                </a>
-                            </h4>
-                        </div>
-                        <div id="{{prefix}}SampleGeneralFilter" class="panel-collapse" role="tabpanel" aria-labelledby="{{prefix}}SampleGeneralFilterHeading">
-                            <div class="form-group has-feedback panel-body">
-                                <label>Hospital:</label>
-                                <input type="text" id="{{prefix}}hospital" class="form-control" placeholder="Virgen del Rocio" aria-describedby="basic-addon1">
-
-                                <label>Physician:</label>
-                                <input type="text" id="{{prefix}}physician" class="form-control" placeholder="Dr. Jesus Florido" aria-describedby="basic-addon1">
-
-
-                                <label class="top-space">Sample ID:</label>
-                                <textarea id="{{prefix}}sampleId" class="form-control clearable" rows="3"
-                                          placeholder="HG01879, HG01880, HG01881..."
-                                          name="sampleId" on-keyup="calculateFilters"></textarea>
-
-                                <label class="top-space">Chromosomal Sex:</label>
-                                <select class="form-control" id="{{prefix}}chromosomalSexId">
-                                    <option selected>Choose...</option>
-                                    <option>46,XX</option>
-                                    <option>46,XY</option>
-                                    <option>Other</option>
-                                    <option>NE</option>
-                                </select>
-                                <label class="top-space">Year of Birth:</label>
-                                <input type="text" class="form-control" id="{{prefix}}yearOfBirthId" placeholder="2017">
-
-                                <label class="top-space">Year of Test:</label>
-                                <input type="text" class="form-control" id="{{prefix}}yearOfTestId" placeholder="2017">
-
-                                <label class="top-space">Age:</label>
-                                <input type="text" class="form-control" id="{{prefix}}age" placeholder="2017">
-
-                                <label class="top-space">Ethnicity:</label>
-                                <select class="form-control" id="{{prefix}}ethnicity">
-                                    <option selected>Choose...</option>
-                                    <option>white mediterranean</option>
-                                    <option>white caucasian</option>
-                                    <option>black</option>
-                                    <option>asiatic</option>
-                                    <option>amerindian</option>
-                                    <option>gipsy</option>
-                                    <option>arabic</option>
-                                    <option>hindu</option>
-                                    <option>australian native</option>
-                                    <option>askenazi jew</option>
-                                    <option>sefardi jew</option>
-                                    <option>NE/unkown</option>
-                                </select>
-
-                                <label class="top-space">Parental Consanguinity:</label>
-                                <br>
-                                <input type="radio" name="parentalButtons" id="{{prefix}}yesParentalRadio" value="yes" class$="{{prefix}}FilterRadio" checked on-change="selectSamples" style="padding-left: 20px"> yes<br>
-                                <input type="radio" name="parentalButtons" id="{{prefix}}noParentalRadio" value="no" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> no<br>
-
-                                <label class="top-space">Birth place country:</label>
-                                <select class="form-control bfh-countries" data-country="Spain" id="{{prefix}}birthPlaceCountry"></select>
-
-                                <label class="top-space">Birth place:</label>
-                                <select class="form-control bfh-countries" data-country="Spain" id="{{prefix}}birthPlace"></select>
-
-                                <label class="top-space">Status:</label>
-                                <select class="form-control" id="{{prefix}}status">
-                                    <option selected>Choose...</option>
-                                    <option>affected</option>
-                                    <option>parent</option>
-                                    <option>obligate carrier chr X</option>
-                                    <option>obligate carrier chr 1-22</option>
-                                    <option>relative (of an affected individual and different parents)</option>
-                                    <option>healthy control</option>
-                                    <option>unknown</option>
-                                </select>
-
-                                <label class="top-space">Cell line:</label>
-                                <br>
-                                <input type="radio" name="cellLineButtons" id="{{prefix}}germlineRadio" value="germline" class$="{{prefix}}FilterRadio" checked on-change="selectSamples" style="padding-left: 20px">Constitutive<br>
-                                <input type="radio" name="cellLineButtons" id="{{prefix}}somaticRadio" value="somatic" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px">Somatic<br>
-
-                                <label class="top-space">Type of sample:</label>
-                                <select class="form-control" id="{{prefix}}sampleType">
-                                    <option selected>Choose...</option>
-                                    <option>blood</option>
-                                    <option>amniotic fluid</option>
-                                    <option>chorionic villi</option>
-                                    <option>circulating fetal</option>
-                                    <option>circulating tumor</option>
-                                    <option>tissue (fresh)</option>
-                                    <option>other fluids</option>
-                                    <option>NE/Unknown</option>
-                                </select>
-
-                                <label class="top-space">NGS platform:</label>
-                                <input type="text" class="form-control" id="{{prefix}}ngsPlatform" placeholder="Illumina">
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <variant-samples-filter study="{{study}}" config="{{config}}" samples="{{samples}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
+                                        query="{{query}}" search="{{search}}" style="font-size: 12px"></variant-samples-filter>
             </div>
 
             <div class="col-md-9">
@@ -278,6 +140,16 @@
                 prefix: {
                     type: String
                 },
+                query: {
+                    type: Object
+                },
+                config: {
+                    type: Object
+                },
+                search: {
+                    type: Object,
+                    observer: 'renderHashQueryParams'
+                },
             },
             ready: function() {
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
@@ -323,6 +195,30 @@
 
 
 //                this.samples = [{name: "name1"}, {name: "name2"}, {name: "name3"}];
+            },
+            renderHashQueryParams: function () {
+                let hashFrag = window.location.hash.split('?')[0];
+                if (typeof this.query !== "undefined" && Object.keys(this.query).length > 0) {
+                    let qArray = [];
+                    for (let key in this.query) {
+                        if (key != "studies") {
+                            qArray.push(key + "=" + this.query[key]);
+                        }
+                    }
+                    hashFrag += "?" + qArray.join('&');
+                }
+                window.location.hash = hashFrag;
+
+                // for reading from the url,
+//                if (typeof query !== "undefined") {
+//                    let params = query.split('&');
+//                    let queryObject = {};
+//                    for (let i = 0; i < params.length; i++) {
+//                        let [key, value] = params[i].split('=');
+//                        queryObject[key] = value;
+//                    }
+//                    this._query = queryObject;
+//                }
             },
             renderFromServer: function () {
                 let filters = this.search;

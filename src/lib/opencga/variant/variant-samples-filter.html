@@ -1,0 +1,209 @@
+<!--
+  ~ Copyright 2015 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+
+<dom-module id="variant-samples-filter">
+    <template>
+        <style is="custom-style" include="jso-styles">
+            .top-space {
+                padding-top: 12px;
+            }
+        </style>
+
+
+        <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true">
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="{{prefix}}SampleSelectionHeading">
+                    <h4 class="panel-title">
+                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
+                           href="#{{prefix}}SampleSelection" aria-expanded="true" aria-controls="{{prefix}}SampleSelection">
+                            Sample Selection
+                            <div style="float: right" class="tooltip-div">
+                                <a data-toggle="tooltip" title="Sample selection">
+                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        </a>
+                    </h4>
+                </div>
+                <div id="{{prefix}}SampleSelection" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}SampleSelectionHeading">
+                    <div class="panel-body">
+                        <form>
+                            <label>Select samples: </label>
+                            <br>
+                            <input type="radio" name="selectionButtons" id="recentlyRadio" value="recently" class$="{{prefix}}FilterRadio" checked on-change="selectSamples" style="padding-left: 20px"> Recently Uploaded<br>
+                            <input type="radio" name="selectionButtons" id="allRadio" value="all" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> All<br>
+                            <hr>
+                            <input type="checkbox" name="selectionButtons" id="controls" value="controls" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Controls<br>
+                        </form>
+                        <br>
+                    </div>
+                </div>
+            </div>
+
+            <!--Sample characteristics-->
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="{{prefix}}SampleGeneralFilterHeading">
+                    <h4 class="panel-title">
+                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
+                           href="#{{prefix}}SampleGeneralFilter" aria-expanded="true" aria-controls="{{prefix}}SampleGeneralFilter">
+                            Sample Characteristics
+                            <div style="float: right" class="tooltip-div">
+                                <a data-toggle="tooltip" title="Generic sample filters">
+                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        </a>
+                    </h4>
+                </div>
+                <div id="{{prefix}}SampleGeneralFilter" class="panel-collapse" role="tabpanel" aria-labelledby="{{prefix}}SampleGeneralFilterHeading">
+                    <div class="form-group has-feedback panel-body">
+                        <label>Hospital:</label>
+                        <input type="text" id="{{prefix}}hospital" class="form-control" placeholder="Virgen del Rocio" aria-describedby="basic-addon1">
+
+                        <label>Physician:</label>
+                        <input type="text" id="{{prefix}}physician" class="form-control" placeholder="Dr. Jesus Florido" aria-describedby="basic-addon1">
+
+
+                        <label class="top-space">Sample ID:</label>
+                        <textarea id="{{prefix}}sampleId" class="form-control clearable" rows="3"
+                                  placeholder="HG01879, HG01880, HG01881..."
+                                  name="sampleId" on-keyup="calculateFilters"></textarea>
+
+                        <label class="top-space">Chromosomal Sex:</label>
+                        <select class="form-control" id="{{prefix}}chromosomalSexId">
+                            <option selected>Choose...</option>
+                            <option>46,XX</option>
+                            <option>46,XY</option>
+                            <option>Other</option>
+                            <option>NE</option>
+                        </select>
+                        <label class="top-space">Year of Birth:</label>
+                        <input type="text" class="form-control" id="{{prefix}}yearOfBirthId" placeholder="2017">
+
+                        <label class="top-space">Year of Test:</label>
+                        <input type="text" class="form-control" id="{{prefix}}yearOfTestId" placeholder="2017">
+
+                        <label class="top-space">Age:</label>
+                        <input type="text" class="form-control" id="{{prefix}}age" placeholder="2017">
+
+                        <label class="top-space">Ethnicity:</label>
+                        <select class="form-control" id="{{prefix}}ethnicity">
+                            <option selected>Choose...</option>
+                            <option>white mediterranean</option>
+                            <option>white caucasian</option>
+                            <option>black</option>
+                            <option>asiatic</option>
+                            <option>amerindian</option>
+                            <option>gipsy</option>
+                            <option>arabic</option>
+                            <option>hindu</option>
+                            <option>australian native</option>
+                            <option>askenazi jew</option>
+                            <option>sefardi jew</option>
+                            <option>NE/unkown</option>
+                        </select>
+
+                        <label class="top-space">Parental Consanguinity:</label>
+                        <br>
+                        <input type="radio" name="parentalButtons" id="{{prefix}}yesParentalRadio" value="yes" class$="{{prefix}}FilterRadio" checked on-change="selectSamples" style="padding-left: 20px"> yes<br>
+                        <input type="radio" name="parentalButtons" id="{{prefix}}noParentalRadio" value="no" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> no<br>
+
+                        <label class="top-space">Birth place country:</label>
+                        <select class="form-control bfh-countries" data-country="Spain" id="{{prefix}}birthPlaceCountry"></select>
+
+                        <label class="top-space">Birth place:</label>
+                        <select class="form-control bfh-countries" data-country="Spain" id="{{prefix}}birthPlace"></select>
+
+                        <label class="top-space">Status:</label>
+                        <select class="form-control" id="{{prefix}}status">
+                            <option selected>Choose...</option>
+                            <option>affected</option>
+                            <option>parent</option>
+                            <option>obligate carrier chr X</option>
+                            <option>obligate carrier chr 1-22</option>
+                            <option>relative (of an affected individual and different parents)</option>
+                            <option>healthy control</option>
+                            <option>unknown</option>
+                        </select>
+
+                        <label class="top-space">Cell line:</label>
+                        <br>
+                        <input type="radio" name="cellLineButtons" id="{{prefix}}germlineRadio" value="germline" class$="{{prefix}}FilterRadio" checked on-change="selectSamples" style="padding-left: 20px">Constitutive<br>
+                        <input type="radio" name="cellLineButtons" id="{{prefix}}somaticRadio" value="somatic" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px">Somatic<br>
+
+                        <label class="top-space">Type of sample:</label>
+                        <select class="form-control" id="{{prefix}}sampleType">
+                            <option selected>Choose...</option>
+                            <option>blood</option>
+                            <option>amniotic fluid</option>
+                            <option>chorionic villi</option>
+                            <option>circulating fetal</option>
+                            <option>circulating tumor</option>
+                            <option>tissue (fresh)</option>
+                            <option>other fluids</option>
+                            <option>NE/Unknown</option>
+                        </select>
+
+                        <label class="top-space">NGS platform:</label>
+                        <input type="text" class="form-control" id="{{prefix}}ngsPlatform" placeholder="Illumina">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </template>
+
+    <script>
+        Polymer({
+            is: 'variant-samples-filter',
+            properties: {
+                opencgaClient: {
+                    type: Object
+                },
+                study: {
+                    type: Object,
+                    observer: 'renderFromServer'
+                },
+                samples: {
+                    type: Array,
+                    notify: true
+                },
+                prefix: {
+                    type: String
+                },
+                query: {
+                    type: Object
+                },
+                config: {
+                    type: Object
+                },
+                search: {
+                    type: Object,
+                    observer: 'renderHashQueryParams'
+                },
+            },
+            ready: function() {
+                if (typeof this.prefix === "undefined" || this.prefix == "") {
+                    this.prefix = Utils.randomString(6);
+                }
+            }
+
+
+        });
+    </script>
+</dom-module>
