@@ -1,0 +1,170 @@
+<!--
+  ~ Copyright 2015 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<dom-module id="variant-clinical-upload2">
+    <template>
+        <style is="custom-style" include="jso-styles"></style>
+
+        <div class="col-md-4">
+            <h3>Upload and check file v2</h3>
+            <br>
+
+            <form class="form-horizontal" data-toggle="validator" role="form">
+                <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}" as="variable" sort="_sortVariables">
+                    <div class="form-group has-feedback">
+
+                        <label for="{{prefix}}{{variable.name}}" class="col-sm-3 control-label">{{variable.name}}</label>
+
+                        <template is="dom-if" if="{{checkVarType(variable, 'TEXT', 0, 1)}}">
+                            <!-- TEXT type: include an input text and add suitable regular expression for text-->
+                            <!--<label for="{{prefix}}{{variable.name}}" class="col-sm-3 control-label">{{variable.name}}-{{variable.type}}</label>-->
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="{{prefix}}{{variable.name}}"
+                                       placeholder="Name" pattern="^[A-Za-z]+((\s)?(('|-)?[A-Za-z])+)+$" maxlength="75"
+                                       required data-error="Mandatory hospital name. Only a-z, - or ' characters and spaces are allowed ">
+                                <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                <div class="help-block with-errors"></div>
+                            </div>
+                        </template>
+
+                        <template is="dom-if" if="{{checkVarType(variable, 'NUMERIC', 0, 1)}}">
+                            <!-- NUMERIC type: include an input text and add suitable regular expression for numbers -->
+                            <!--<label for="{{prefix}}{{variable.name}}" class="col-sm-3 control-label">{{variable.name}}-{{variable.type}}</label>-->
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="{{prefix}}{{variable.name}}" placeholder="Number"
+                                       pattern="^[0-9]+$" maxlength="75" required data-error="Mandatory field. Only numbers are allowed ">
+                                <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                <div class="help-block with-errors"></div>
+                            </div>
+                        </template>
+
+                        <template is="dom-if" if="{{checkVarType(variable, 'CATEGORICAL', 1, 2)}}">
+                            <!-- CATEGORICAL type, single value: check box -->
+                            <!--<label class="col-sm-3 control-label">{{variable.name}}-{{variable.type}}</label>-->
+                            <div class="col-sm-9">
+                                <input type="checkbox" name="selectionButtons" id="{{prefix}}{{variable.name}}" style="padding-left: 20px">
+                            </div>
+                        </template>
+
+                        <template is="dom-if" if="{{checkVarType(variable, 'CATEGORICAL', 2, 3)}}">
+                            <!-- CATEGORICAL type, 2 values: radio buttons for selection -->
+                            <!--<label class="col-sm-3 control-label">{{variable.name}}-{{variable.type}}</label>-->
+                            <div class="col-sm-9">
+                                <template is="dom-repeat" items="{{variable.allowedValues}}" as="value">
+                                    <div class="form-check form-check-inline">
+                                        <label class="form-check-label">
+                                            <template is="dom-if" if="{{checkType(value, '0')}}">
+                                                <input id="{{value}}" class="form-check-input" type="radio" name="{{variable.name}}Options"> No
+                                            </template>
+
+                                            <template is="dom-if" if="{{checkType(value, '1')}}">
+                                                <input id="{{value}}" class="form-check-input" type="radio" name="{{variable.name}}Options"> Yes
+                                            </template>
+                                        </label>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+
+                        <template is="dom-if" if="{{checkVarType(variable, 'CATEGORICAL', 3, 100)}}">
+                            <!-- CATEGORICAL type: dropdown: at least three elements in variable.allowedValues -->
+                            <!--<label class="col-sm-3 control-label">{{variable.name}}-{{variable.type}}</label>-->
+
+                            <div class="col-sm-9">
+                                <select class="form-control" id="{{prefix}}{{variable.name}}">
+                                    <option></option>
+                                    <template is="dom-repeat" items="{{variable.allowedValues}}">
+                                        <option>{{item}}</option>
+                                    </template>
+                                </select>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+
+            </form>
+        </div>
+
+    </template>
+
+    <script>
+        Polymer({
+            is: 'variant-clinical-upload2',
+            properties: {
+                opencgaClient: {
+                    type: Object
+                },
+                study: {
+                    type: Number,
+                    observer: 'updateVariableSets'
+                },
+                config: {
+                    type: Object
+                },
+                prefix: {
+                    type: String
+                },
+                variableSets: {
+                    type: Array
+                },
+                variables: {
+                    type: Array,
+                    observer: 'variablesChanged'
+                }
+            },
+            ready: function () {
+                if (typeof this.prefix === "undefined" || this.prefix === "") {
+                    this.prefix = Utils.randomString(6);
+                }
+            },
+            updateVariableSets: function () {
+                this.variables = [];
+                let _this = this;
+                this.opencgaClient.studies().info(this.study.id, {include: "variableSets"})
+                    .then(function (response) {
+                        _this.variableSets = response.response[0].result[0].variableSets;
+                        if (_this.variableSets.length > 0) {
+                            _this.variables = _this.variableSets[0].variables; // setting first one by default
+                            _this.filteredVariables = {
+                                variableSet: _this.variableSets[0].id,
+                                variables: []
+                            };
+                        } else {
+                            _this.variableSets = [{name : "none"}];
+                        }
+                    })
+                    .catch(function () {
+                        console.log("Could not obtain the variable sets of the study " + _this.study);
+                    });
+            },
+            _sortVariables: function (a, b) {
+                if (a.rank < b.rank) {
+                    return -1;
+                }
+                return 1;
+            },
+            variablesChanged: function () {
+                this._areVariablesEmpty = (this.variables.length === 0);
+            },
+            checkVarType: function (myVar, type, lowerLimit, upperLimit) {
+                return (myVar.type === type && myVar.allowedValues.length >= lowerLimit && myVar.allowedValues.length < upperLimit);
+            },
+            checkType: function (element, value) {
+                return (element === value);
+            }
+        });
+    </script>
+</dom-module>
