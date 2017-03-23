@@ -15,7 +15,7 @@
   -->
 
 <link rel="import" href="variant-browser-filter.html">
-<!--<link rel="import" href="variant-facet-view.html">-->
+<link rel="import" href="variant-facet-view.html">
 
 <dom-module id="variant-facet">
     <template>
@@ -26,23 +26,20 @@
             <h3 style="margin: 10px 5px 15px 25px"><i class="fa fa-bar-chart" aria-hidden="true"></i>&nbsp;{{title}}</h3>
 
             <div class="col-md-2" hidden$="{{checkProject(project)}}">
-                <variant-browser-filter mode="dataMining" study="{{study}}" project="{{project}}" studies="{{studies}}" config="{{config}}" opencga-client="{{opencgaClient}}"
-                                        cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}" consequence-types="{{consequenceTypes}}"
+                <variant-browser-filter study="{{study}}" project="{{project}}" studies="{{studies}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+                                        population-frequencies="{{populationFrequencies}}" consequence-types="{{consequenceTypes}}"
                                         query="{{query}}" search="{{search}}" style="font-size: 12px">
                 </variant-browser-filter>
             </div>
 
-            <!--<div class="col-md-10" hidden$="{{checkProject(project)}}">-->
-                <!--<variant-browser-view title="{{title}}" project="{{project}}" study="{{study}}" cohorts="{{cohorts}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"-->
-                                      <!--cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}" protein-substitution-scores="{{proteinSubstitutionScores}}"-->
-                                      <!--consequence-types="{{consequenceTypes}}" beacon-hosts="{{beaconHosts}}" query="{{query}}" search="[[search]]"-->
-                                      <!--on-propagate="propagateGeneEvent" config="{{config}}"  on-clear="onClear" on-filterchange="onFilterChange" summary="{{summary}}">-->
-                <!--</variant-browser-view>-->
-            <!--</div>-->
+            <div class="col-md-10" hidden$="{{checkProject(project)}}">
+                <variant-facet-view study="{{study}}" project="{{project}}" config="{{config}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+                                    query="{{query}}" search="{{search}}" on-clear="onClear" on-filterchange="onFilterChange"></variant-facet-view>
+            </div>
 
-            <!--<template is="dom-if" if="{{checkProject(project)}}">-->
-                <!--<span style="text-align: center"><h3>No public projects available to browse. Please login to continue</h3></span>-->
-            <!--</template>-->
+            <template is="dom-if" if="{{checkProject(project)}}">
+                <span style="text-align: center"><h3>No public projects available to browse. Please login to continue</h3></span>
+            </template>
         </div>
     </template>
     <script>
@@ -90,15 +87,14 @@
             checkProject: function (project) {
                 return Object.keys(project).length == 0;
             },
-//            onClear: function() {
-//                this.query = {};
-//                this.search = {};
-//            },
-//            onFilterChange: function(e) {
-//                this.query = e.detail;
-////                Object.assign(this.query, e.detail)
-//                this.search = e.detail;
-//            }
+            onClear: function() {
+                this.query = {};
+                this.search = {};
+            },
+            onFilterChange: function(e) {
+                this.query = e.detail;
+                this.search = e.detail;
+            }
         });
     </script>
 </dom-module>
