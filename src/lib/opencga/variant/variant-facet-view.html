@@ -170,9 +170,9 @@
                         if (this.facetFields.indexOf(this.$$("#" + this.prefix + "FacetField").value + ":" + this.$$("#" + this.prefix + "FacetFieldNested").value) == -1) {
                             this.push('facetFieldsName', {
                                 name: $( "#" + this.prefix + "FacetField option:selected" ).text() + " >> " + $( "#" + this.prefix + "FacetFieldNested option:selected" ).text(),
-                                value: this.$$("#" + this.prefix + "FacetField").value + ":" + this.$$("#" + this.prefix + "FacetFieldNested").value
+                                value: this.$$("#" + this.prefix + "FacetField").value + ">>" + this.$$("#" + this.prefix + "FacetFieldNested").value
                             });
-                            this.push('facetFields', this.$$("#" + this.prefix + "FacetField").value + ":" + this.$$("#" + this.prefix + "FacetFieldNested").value);
+                            this.push('facetFields', this.$$("#" + this.prefix + "FacetField").value + ">>" + this.$$("#" + this.prefix + "FacetFieldNested").value);
                         }
                     } else {
                         this.push('facetFieldsName', {name: $( "#" + this.prefix + "FacetField option:selected" ).text(), value: this.$$("#" + this.prefix + "FacetField").value});
@@ -243,83 +243,129 @@
             },
             loadPlots: function () {
                 // TODO call to facet query
-                let _results = [];
+                let queryParams = {
+                    studies: this.project.alias + ":" + this.study.alias
+                };
+
+                if (this.facetFields.length > 0) {
+                    queryParams["facet"] = this.facetFields.join(";");
+                }
+                if (this.facetRanges.length > 0) {
+                    queryParams["facetRange"] = this.facetRanges.join(";");
+                }
+
                 let _this = this;
-                $.getJSON("facetAllTogether.json", function(response) {
-                    debugger
-                    if (typeof response.fields !== "undefined" && response.fields.length > 0) {
-                        for (let i in response.fields) {
-                            _results.push(response.fields[i]);
+                this.opencgaClient.variants().facet(queryParams, {})
+                    .then(function (queryResponse) {
+                        let response = queryResponse.response[0].result[0].result;
+                        let _results = [];
+
+                        let facetMap = new Map();
+
+                        // Facet fields
+                        for (let field of response.fields) {
+                            let obj = {
+                                name: field.name,
+                                data: [],
+                                categories: []
+                            };
+                            for (let countObj of field.counts) {
+                                obj.categories.push(countObj.value);
+                                obj.data.push(countObj.count);
+//                            if (typeof countObj.field !== "undefined") {
+//
+//                            }
+                            }
+                            facetMap.set(field.name, obj);
+                            _results.push(obj);
                         }
-                    }
-                    if (typeof response.ranges !== "undefined" && response.ranges.length > 0) {
-                        for (let i in response.ranges) {
-                            _results.push(response.ranges[i]);
+
+                        // Facet Ranges
+                        for (let range of response.ranges) {
+                            let obj = {
+                                name: range.name,
+                                data: [],
+                                categories: []
+                            };
+                            let start = Number(range.start);
+                            for (let rangeCount of range.counts) {
+                                if(Math.round(start) !== start) {
+                                    start = Number(start.toFixed(1));
+                                }
+                                let end = Number(start + range.gap);
+                                if(Math.round(end) !== end) {
+                                    end = Number(end.toFixed(1));
+                                }
+                                obj.categories.push(start + "-" + end);
+                                obj.data.push(rangeCount);
+                                start = end;
+                            }
+                            facetMap.set(range.name, obj);
+                            _results.push(obj);
                         }
-                    }
-                    _this.results = _results;
-                    _this.$.resultsDiv.render();
-                });
+
+                        _this.results = _results;
+                        _this.$.resultsDiv.render();
+                        for (let result of _this.results) {
+                            _this.renderPlots("#" + _this.prefix + result.name + "Plot", facetMap.get(result.name));
+                        }
+                    });
             },
-            renderPlots: function (id, title) {
+            renderPlots: function (id, params) {
                 $(id).highcharts({
                     credits: {enabled: false},
-//                    chart: {
-//                        type: 'column'
-//                    },
-//                    title: {
-//                        text: title
-//                    },
-//                    xAxis: {
-//                        categories: ['Apples', 'Oranges', 'Pears', 'Grapes', 'Bananas']
-//                    },
-//                    yAxis: {
-//                        min: 0,
-//                        title: {
-//                            text: 'Total fruit consumption'
-//                        },
-//                        stackLabels: {
-//                            enabled: true,
-//                            style: {
-//                                fontWeight: 'bold',
-//                                color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
-//                            }
-//                        }
-//                    },
-//                    legend: {
-//                        align: 'right',
-//                        x: -30,
-//                        verticalAlign: 'top',
-//                        y: 25,
-//                        floating: true,
-//                        backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || 'white',
-//                        borderColor: '#CCC',
-//                        borderWidth: 1,
-//                        shadow: false
-//                    },
-//                    tooltip: {
-//                        headerFormat: '<b>{point.x}</b><br/>',
-//                        pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
-//                    },
-//                    plotOptions: {
-//                        column: {
-//                            stacking: 'normal',
-//                            dataLabels: {
-//                                enabled: true,
-//                                color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white'
-//                            }
-//                        }
-//                    },
-//                    series: [{
-//                        name: 'John',
-//                        data: [5, 3, 4, 7, 2]
-//                    }, {
-//                        name: 'Jane',
-//                        data: [2, 2, 3, 2, 1]
-//                    }, {
-//                        name: 'Joe',
-//                        data: [3, 4, 4, 2, 5]
-//                    }]
+                    chart: {
+                        type: 'column'
+                    },
+                    title: {
+                        text: params.name
+                    },
+                    xAxis: {
+                        categories: params.categories
+                    },
+                    yAxis: {
+                        min: 0,
+                        title: {
+                            text: 'Total number of Variants'
+                        },
+                        stackLabels: {
+                            enabled: true,
+                            style: {
+                                fontWeight: 'bold',
+                                color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+                            }
+                        }
+                    },
+                    legend: {
+                        align: 'right',
+                        x: -30,
+                        verticalAlign: 'top',
+                        y: 25,
+                        floating: true,
+                        backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || 'white',
+                        borderColor: '#CCC',
+                        borderWidth: 1,
+                        shadow: false
+                    },
+                    tooltip: {
+                        headerFormat: '<b>{point.x}</b><br/>',
+                        pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
+                    },
+                    plotOptions: {
+                        column: {
+                            stacking: 'normal',
+                            dataLabels: {
+                                enabled: true,
+                                color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white'
+                            }
+                        }
+                    },
+                    series: [
+                        {
+                            name: params.name,
+                            data: params.data
+                        }
+                    ]
                 });
             }
         });
