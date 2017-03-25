@@ -34,7 +34,8 @@
 
             <div class="col-md-10" hidden$="{{checkProject(project)}}">
                 <variant-facet-view study="{{study}}" project="{{project}}" config="{{config}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
-                                    query="{{query}}" search="{{search}}" on-clear="onClear" on-filterchange="onFilterChange"></variant-facet-view>
+                                    query="{{query}}" search="{{search}}" on-clear="onClear" on-filterchange="onFilterChange">
+                </variant-facet-view>
             </div>
 
             <template is="dom-if" if="{{checkProject(project)}}">

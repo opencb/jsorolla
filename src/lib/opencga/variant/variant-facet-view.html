@@ -21,14 +21,11 @@
         <style is="custom-style" include="jso-styles"></style>
 
         <div>
-
             <br>
             <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" alias="{{activeFilterAlias}}"></opencga-active-filters>
 
-            <h4>Total Number of Variants : {{totalVariants}}</h4>
-
             <div class="panel panel-default col-sm-12">
-                <div class="panel-body col-sm-5">
+                <div class="panel-body col-sm-6">
                     <h4>Facet Field</h4>
                     <div class="form-group row">
                         <div class="col-sm-4">
@@ -41,29 +38,27 @@
                         </div>
                         <div class="col-sm-4">
                             <select id="{{prefix}}FacetFieldNested" class$="form-control {{prefix}}FilterSelect">
-                                <option value="none" selected>Select Nested field...</option>
+                                <option value="none" selected>Select nested field...</option>
                                 <template is="dom-repeat" items="{{config.facetFields}}">
                                     <option value="{{item.value}}">{{item.name}}</option>
                                 </template>
                             </select>
                         </div>
-                        <i class="fa fa-plus-square fa-lg" aria-hidden="true" on-click="addFacets" style="padding: 10px 0px 0px 10px"></i>
+                        <i class="fa fa-plus-square fa-lg" aria-hidden="true" on-click="addFacets" style="padding: 10px 0px 0px 10px;cursor: pointer"></i>
                     </div>
                     <template is="dom-repeat" items="{{facetFieldsName}}">
-                                    <span style="font-size: 14px">
-                                        <i class="fa fa-times fa-lg" aria-hidden="true" on-click="removeFacetFields" data-id="{{item.value}}" data-field="field"
-                                           style="color: darkred;"></i>
-                                        &nbsp;{{item.name}}</span><br>
+                        <span style="font-size: 14px">
+                            <i class="fa fa-times fa-lg" aria-hidden="true" on-click="removeFacetFields" data-id="{{item.value}}" data-field="field" style="color: darkred;cursor: pointer"></i>
+                            &nbsp;{{item.name}}
+                        </span>
+                        <br>
                     </template>
                 </div>
 
-                <div class="panel-body col-sm-7">
+                <div class="panel-body col-sm-6">
                     <h4>Facet Range</h4>
-                    <!--<div style="float: right;">-->
-                        <!--<i class="fa fa-plus-square fa-lg" aria-hidden="true" on-click="addFacets"></i>-->
-                    <!--</div>-->
                     <div class="form-group row">
-                        <div class="col-sm-3">
+                        <div class="col-sm-4">
                             <select id="{{prefix}}FacetRangeField" class$="form-control {{prefix}}FilterSelect">
                                 <option value="none" selected>Select a field...</option>
                                 <template is="dom-repeat" items="{{config.facetRangeFields}}">
@@ -71,42 +66,50 @@
                                 </template>
                             </select>
                         </div>
-                        <div class="col-sm-9">
-                            <input type="text" class$="{{prefix}}FilterTextInput" id="{{prefix}}FacetRangeStart" placeholder="Start">
-                            <input type="text" class$="{{prefix}}FilterTextInput" id="{{prefix}}FacetRangeEnd" placeholder="End">
-                            <input type="text" class$="{{prefix}}FilterTextInput" id="{{prefix}}FacetRangeGap" placeholder="Interval">
-                            <i class="fa fa-plus-square fa-lg" aria-hidden="true" on-click="addFacets" style="padding: 10px 0px 0px 10px"></i>
+                        <div class="col-sm-8">
+                            <input type="text" class$="{{prefix}}FilterTextInput" id="{{prefix}}FacetRangeStart" placeholder="Start" value="0" style="width: 80px">
+                            <input type="text" class$="{{prefix}}FilterTextInput" id="{{prefix}}FacetRangeEnd" placeholder="End" value="1" style="width: 80px">
+                            <input type="text" class$="{{prefix}}FilterTextInput" id="{{prefix}}FacetRangeGap" placeholder="Interval" value="0.1" style="width: 80px">
+                            <i class="fa fa-plus-square fa-lg" aria-hidden="true" on-click="addFacets" style="padding: 10px 0px 0px 10px;cursor: pointer"></i>
                         </div>
                     </div>
                     <template is="dom-repeat" items="{{facetRangeFields}}">
-                                    <span style="font-size: 14px">
-                                        <i class="fa fa-times fa-lg" aria-hidden="true" on-click="removeFacetFields" data-id="{{item}}" data-field="range"
-                                           style="color: darkred;"></i>
-                                        &nbsp;{{item}}</span><br>
+                        <span style="font-size: 14px">
+                            <i class="fa fa-times fa-lg" aria-hidden="true" on-click="removeFacetFields" data-id="{{item}}" data-field="range" style="color: darkred;cursor: pointer"></i>
+                            &nbsp;{{item}}</span><br>
                     </template>
                 </div>
+
                 <div style="float: right; padding: 0px 0px 5px 0px">
-                    <button type="button" class="btn btn-primary" on-click="loadPlots">OK</button>
+                    <button type="button" class="btn btn-primary btn-lg" on-click="loadPlots">Refresh</button>
                 </div>
             </div>
 
             <!-- Facet Plots -->
-            <h4>Results:</h4>
+            <h2>Results</h2>
+
+            <template is="dom-if" if="{{_loading}}">
+                <div id="{{prefix}}Loading">
+                    <h4>Loading...</h4>
+                </div>
+            </template>
+
+            <!--<h4>Total Number of Variants : {{totalVariants}}</h4>-->
             <template is="dom-repeat" items="{{results}}" id="resultsDiv">
-                <div class="btn-group">
+                <h3>{{item.title}}</h3>
+                <div class="btn-group" style="float: right">
                     <label class="btn btn-primary">
                         <i class="fa fa-bar-chart" style="padding-right: 5px" title="Bar Chart"></i>
                     </label>
-                    <label class="btn btn-primary">
+                    <label class="btn btn-primary" on-click="setPieChart">
                         <i class="fa fa-pie-chart" style="padding-right: 5px" title="Pie Chart"></i>
                     </label>
                     <label class="btn btn-primary">
                         <i class="fa fa-table" style="padding-right: 5px" title="Tabular View"></i>
                     </label>
                 </div>
-                <div id="{{prefix}}{{item.name}}Plot" style="min-width: 310px; height: 400px; margin: 0 auto">
-
-                </div>
+                <div id="{{prefix}}{{item.name}}Plot" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+                <br>
             </template>
 
         </div>
@@ -131,7 +134,8 @@
                     type: Object
                 },
                 query: {
-                    type: Object
+                    type: Object,
+                    observer: 'fetchVariants'
                 },
                 search: {
                     type: Object,
@@ -158,6 +162,10 @@
                 this.facetFieldsName = [];
                 this.facetRangeFields = [];
                 this.facetRanges = [];
+
+                this.results = [];
+                this._loading = false;
+                this.plotType = "column";
             },
             addFacets: function () {
                 // Facets
@@ -220,41 +228,60 @@
                 }
             },
             fetchVariants: function () {
-                let queryParams = {
-                    sid: this.opencgaClient._config.sessionId,
-                    timeout: 60000,
-                    summary: true,
-                    limit: 1
-                };
-                Object.assign(queryParams, this.query);
+                if (typeof this.opencgaClient !== "undefined") {
+                    let queryParams = {
+                        sid: this.opencgaClient._config.sessionId,
+                        timeout: 60000,
+                        summary: true,
+                        limit: 1
+                    };
+                    Object.assign(queryParams, this.query);
 
-                if (typeof queryParams.studies === "undefined" || queryParams.studies == "" || queryParams.studies.split(new RegExp("[,;]")).length == 1) {
-                    queryParams.studies = this.project.alias + ":" + this.study.alias;
+                    if (typeof queryParams.studies === "undefined" || queryParams.studies === "" || queryParams.studies.split(new RegExp("[,;]")).length == 1) {
+                        queryParams.studies = this.project.alias + ":" + this.study.alias;
+                    }
+
+                    let _this = this;
+                    this.opencgaClient.variants().query(queryParams, {})
+                        .then(function (response) {
+                            _this.totalVariants = response.response[0].numTotalResults;
+                        });
                 }
-
-                let _this = this;
-                this.opencgaClient.variants().query(queryParams, {})
-                    .then(function (response) {
-                         _this.totalVariants = response.response[0].numTotalResults;
-                    });
             },
             loadPlots: function () {
+                if (typeof this.opencgaClient === "undefined") {
+                    return;
+                }
+
+                if (this.facetFields.length === 0 && this.facetRangeFields.length === 0) {
+                    alert("Add some facet fields.");
+                    return;
+                }
+
+                this.clearPlots();
                 this.results = []; // Clear the previous divs
+                this._loading = true;
+
+                let fieldNamesMap = {};
+                for (let f of this.config.facetFields) {
+                    fieldNamesMap[f.value] = f.name;
+                }
+
                 let queryParams = {
                     sid: this.opencgaClient._config.sessionId,
                     timeout: 60000
                 };
                 Object.assign(queryParams, this.query);
 
-                if (typeof queryParams.studies === "undefined" || queryParams.studies == "" || queryParams.studies.split(new RegExp("[,;]")).length == 1) {
+                if (typeof queryParams.studies === "undefined" || queryParams.studies === "" || queryParams.studies.split(new RegExp("[,;]")).length == 1) {
                     queryParams.studies = this.project.alias + ":" + this.study.alias;
                 }
 
                 if (this.facetFields.length > 0) {
-                    queryParams["facet"] = this.facetFields.join(";");
+                    queryParams.facet = this.facetFields.join(";");
                 }
                 if (this.facetRanges.length > 0) {
-                    queryParams["facetRange"] = this.facetRanges.join(";");
+                    queryParams.facetRange = this.facetRanges.join(";");
                 }
 
                 let _this = this;
@@ -269,6 +296,7 @@
                         for (let field of response.fields) {
                             let obj = {
                                 name: field.name,
+                                title: fieldNamesMap[field.name],
                                 categories: [],
                                 series: []
                             };
@@ -329,6 +357,7 @@
                             facetMap.set(range.name, obj);
                             _results.push(obj);
                         }
+                        _this._loading = false;
 
                         _this.results = _results;
                         _this.$.resultsDiv.render();
@@ -337,14 +366,27 @@
                         }
                     });
             },
+            clearPlots: function () {
+                if (typeof this.results !== "undefined" && this.results.length > 0) {
+                    for (let result of this.results) {
+                        $("#" + this.prefix + result.name + "Plot").remove();
+                    }
+                    this.results = [];
+                }
+            },
+            setPieChart: function (e) {
+//                this.plotType = "pie";
+//                this.loadPlots();
+//              debugger
+            },
             renderPlots: function (id, params) {
                 $(id).highcharts({
                     credits: {enabled: false},
                     chart: {
-                        type: 'column'
+                        type: this.plotType
                     },
                     title: {
-                        text: params.name
+                        text: params.title || params.name
                     },
                     xAxis: {
                         categories: params.categories
