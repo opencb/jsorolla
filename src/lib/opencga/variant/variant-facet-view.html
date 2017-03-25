@@ -273,6 +273,10 @@
                 };
                 Object.assign(queryParams, this.query);
 
+                if (typeof queryParams.sid === "undefined" || queryParams.sid === "") {
+                    delete queryParams["sid"];
+                }
+
                 if (typeof queryParams.studies === "undefined" || queryParams.studies === "" || queryParams.studies.split(new RegExp("[,;]")).length == 1) {
                     queryParams.studies = this.project.alias + ":" + this.study.alias;
                 }
