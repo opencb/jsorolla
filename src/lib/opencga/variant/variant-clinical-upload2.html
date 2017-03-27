@@ -28,7 +28,7 @@
 
                         <label for="{{prefix}}{{variable.name}}" class="col-sm-3 control-label">{{variable.name}}</label>
 
-                        <template is="dom-if" if="{{checkVarType(variable, 'TEXT', 0, 1)}}">
+                        <template is="dom-if" if="{{checkVarType(variable, 'TEXT')}}">
                             <!-- TEXT type: include an input text and add suitable regular expression for text-->
                             <!--<label for="{{prefix}}{{variable.name}}" class="col-sm-3 control-label">{{variable.name}}-{{variable.type}}</label>-->
                             <div class="col-sm-9">
@@ -40,7 +40,7 @@
                             </div>
                         </template>
 
-                        <template is="dom-if" if="{{checkVarType(variable, 'NUMERIC', 0, 1)}}">
+                        <template is="dom-if" if="{{checkVarType(variable, 'NUMERIC')}}">
                             <!-- NUMERIC type: include an input text and add suitable regular expression for numbers -->
                             <!--<label for="{{prefix}}{{variable.name}}" class="col-sm-3 control-label">{{variable.name}}-{{variable.type}}</label>-->
                             <div class="col-sm-9">
@@ -51,7 +51,7 @@
                             </div>
                         </template>
 
-                        <template is="dom-if" if="{{checkVarType(variable, 'CATEGORICAL', 1, 2)}}">
+                        <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 1, 2)}}">
                             <!-- CATEGORICAL type, single value: check box -->
                             <!--<label class="col-sm-3 control-label">{{variable.name}}-{{variable.type}}</label>-->
                             <div class="col-sm-9">
@@ -59,7 +59,7 @@
                             </div>
                         </template>
 
-                        <template is="dom-if" if="{{checkVarType(variable, 'CATEGORICAL', 2, 3)}}">
+                        <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 2, 3)}}">
                             <!-- CATEGORICAL type, 2 values: radio buttons for selection -->
                             <!--<label class="col-sm-3 control-label">{{variable.name}}-{{variable.type}}</label>-->
                             <div class="col-sm-9">
@@ -79,7 +79,7 @@
                             </div>
                         </template>
 
-                        <template is="dom-if" if="{{checkVarType(variable, 'CATEGORICAL', 3, 100)}}">
+                        <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 3, 100)}}">
                             <!-- CATEGORICAL type: dropdown: at least three elements in variable.allowedValues -->
                             <!--<label class="col-sm-3 control-label">{{variable.name}}-{{variable.type}}</label>-->
 
@@ -159,8 +159,11 @@
             variablesChanged: function () {
                 this._areVariablesEmpty = (this.variables.length === 0);
             },
-            checkVarType: function (myVar, type, lowerLimit, upperLimit) {
+            checkCatType: function (myVar, type, lowerLimit, upperLimit) {
                 return (myVar.type === type && myVar.allowedValues.length >= lowerLimit && myVar.allowedValues.length < upperLimit);
+            },
+            checkVarType: function (myVar, type) {
+                return (myVar.type === type);
             },
             checkType: function (element, value) {
                 return (element === value);

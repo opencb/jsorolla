@@ -114,12 +114,12 @@
             </div>
 
             <div class="col-md-12">
-               <!-- <div class="analysis-content" id="{{prefix}}UploadButtonDiv" style="display: inline">
-                    <variant-analysis-upload config="{{config}}"></variant-analysis-upload>
-                </div>-->
                 <div class="analysis-content" id="{{prefix}}UploadButtonDiv" style="display: inline">
-                    <variant-clinical-upload2 opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}"></variant-clinical-upload2>
+                    <variant-analysis-upload config="{{config}}"></variant-analysis-upload>
                 </div>
+<!--                <div class="analysis-content" id="{{prefix}}UploadButtonDiv" style="display: inline">
+                    <variant-clinical-upload2 opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}"></variant-clinical-upload2>
+                </div>-->
                 <div class="analysis-content" id="{{prefix}}SamplesButtonDiv" style="display: none">
                     <variant-analysis-samples prefix="{{prefix}}" opencga-client="{{opencgaClient}}" study="{{study}}" samples="{{samples}}" query="{{query}}"></variant-analysis-samples>
                     <!--<opencga-family-selector opencga-client="{{opencgaClient}}" study="{{study.id}}" samples="{{samples}}" prefix="{{prefix}}"></opencga-family-selector>-->
