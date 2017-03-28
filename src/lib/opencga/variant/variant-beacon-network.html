@@ -1,4 +1,4 @@
-<dom-module id="beacon-network">
+<dom-module id="variant-beacon-network">
     <template>
         <style is="custom-style" include="jso-styles"></style>
 
@@ -26,21 +26,22 @@
 
     <script>
         Polymer({
-            is: 'beacon-network',
+            is: 'variant-beacon-network',
             properties: {
                 hosts: {
                     type: Array
                 },
-                search: {
+                variant: {
                     type: String,
                     observer: 'searchBeaconNetwork'
                 },
-                variant: {
+                clear: {
                     type: String,
-                    observer: 'variantChange'
+                    observer: 'clearResponse'
                 }
             },
-            variantChange: function () {
+            clearResponse: function () {
+                // Empty previous response
                 $(".beaconResponse").html("");
             },
             searchBeaconNetwork: function () {
