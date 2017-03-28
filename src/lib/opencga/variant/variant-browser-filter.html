@@ -329,6 +329,19 @@
                             <!--<input type="checkbox" value="" class$="{{prefix}}FilterCheckBox"> With / Without dbSNP rs IDs<br>-->
 
                             <div class="form-group">
+                                <span class="subsection">PanelApp</span>
+                                <select class$="form-control {{prefix}}FilterSelect" id="{{prefix}}PanelApps" on-change="updatePanel">
+                                    <option value="none">Select a panelApp...</option>
+                                    <template is="dom-repeat" items="{{panelList}}">
+                                        <option value="{{item.name}}">{{item.name}}</option>
+                                    </template>
+                                </select>
+                                </br>
+                                 <textarea id="{{prefix}}PanelAppsTextarea" name="panelAppsTextarea" class$="form-control clearable {{prefix}}FilterTextInput"
+                                           rows="3" placeholder="BRCA2" on-keyup="updateQueryFilters"></textarea>
+                            </div>
+
+                            <div class="form-group">
                                 <span class="subsection">Gene Biotype</span>
                                 <select class$="form-control {{prefix}}FilterSelect" id="{{prefix}}GeneBiotypes" on-change="updateQueryFilters">
                                     <option value="none">Select a biotype...</option>
@@ -774,6 +787,7 @@
                 this.query = {};
 
                 this.isFamilyAnalysis = true;
+                this.set('panelList', PANELS);
 
             },
             onSearch: function () {
@@ -943,6 +957,11 @@
                     this.$$("#" + this.prefix + "GeneBiotypes").value = this.query["annot-biotype"];
                 }
 
+                //Panel
+                if (typeof this.query["annot-panel"] !== "undefined") {
+                    this.$$("#" + this.prefix + "PanelAppsTexarea").value = this.query.gene;
+                }
+
                 // Type
                 if (typeof this.query.type !== "undefined") {
                     let types = this.query.type.split(",");
@@ -1076,6 +1095,17 @@
                     this.$$("#" + this.prefix + "ClinVarTextarea").value = this.query["clinvar"];
                 }
             },
+            updatePanel: function(){
+                let panelname = this.$$("#" + this.prefix + "PanelApps").value;
+                for(var i = 0; i < this.panelList.length ; i++){
+                    if(this.panelList[i].name == panelname){
+                        let panel = this.panelList[i];
+                        this.$$("#" + this.prefix + "PanelAppsTextarea").value = panel.genes;
+                        break;
+                    }
+                }
+                this.updateQueryFilters();
+            },
             updateQueryFilters: function () {
                 let _filters = {};
 
@@ -1176,6 +1206,11 @@
                 // Biotype
                 if (this.$$("#" + this.prefix + "GeneBiotypes").value != "none") {
                     _filters["annot-biotype"] = this.$$("#" + this.prefix + "GeneBiotypes").value;
+                }
+
+                // Panel
+                if (this.$$("#" + this.prefix + "PanelApps").value != "none") {
+                    _filters["annot-panel"] = this.$$("#" + this.prefix + "PanelAppsTextarea").value;
                 }
 
                 // Type
