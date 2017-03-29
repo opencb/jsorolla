@@ -152,18 +152,50 @@
                     </div>
                 </div>
             </div>
-            <div style="float: right; padding: 0px 0px 5px 0px">
+
+            <!-- Chromosome -->
+            <div class="panel panel-default col-sm-12">
+                <div class="col-sm-8" style="margin-left: 10px">
+                    <h4>Chromosome</h4>
+                    <div class="form-group row">
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" id="{{prefix}}ChromosomeInput" placeholder="1,2,3...21,X,Y,MT">
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <span class="input-group-addon">Interval</span>
+                                <select id="{{prefix}}ChromosomeRangeGap" class$="form-control {{prefix}}FilterSelect">
+                                    <option value="1000000" selected>1000000</option>
+                                    <option value="2000000">2000000</option>
+                                    <option value="5000000">5000000</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-primary" on-click="addFacets" style="cursor: pointer">Add
+                        </button>
+                    </div>
+                </div>
+                <div class="panel-body col-sm-4">
+
+                </div>
+            </div>
+
+            <div style="float: right; padding: 0px 0px 5px 5px">
                 <button type="button" class="btn btn-primary btn-lg" on-click="loadPlots">Refresh</button>
+            </div>
+
+            <div style="float: right; padding: 0px 0px 5px 0px">
+                <button type="button" class="btn btn-primary btn-lg" on-click="clearAll">Clear</button>
             </div>
 
             <!-- Facet Plots -->
             <h2>Results</h2>
 
-            <template is="dom-if" if="{{_loading}}">
-                <div id="{{prefix}}Loading">
+            <!--<template is="dom-if" if="{{_loading}}">-->
+                <div id="{{prefix}}Loading" hidden="{{!_loading}}">
                     <h4>Loading...</h4>
                 </div>
-            </template>
+            <!--</template>-->
 
             <!--<h4>Total Number of Variants : {{totalVariants}}</h4>-->
             <template is="dom-repeat" items="{{results}}" id="resultsDiv">
@@ -329,6 +361,13 @@
                     this.$$("#" + this.prefix + "PopFreqRangeEnd").value = "1";
                     this.$$("#" + this.prefix + "PopFreqRangeGap").value = "0.1";
                 }
+
+//                // Chromosome
+//                if (this.$$("#" + this.prefix + "ChromosomeInput").value !== "") {
+//                    this.chromosome = this.$$("#" + this.prefix + "ChromosomeInput").value;
+//                    this.push("facetRanges", "start:" + chromosomes)
+//                }
+
             },
             removeFacetFields: function (e) {
                 if (e.target.dataset.field == "field") {
@@ -506,6 +545,13 @@
                     }
                     this.results = [];
                 }
+            },
+            clearAll: function () {
+                this.clearPlots();
+                this.facetFields = [];
+                this.facetFieldsName = [];
+                this.facetRangeFields = [];
+                this.facetRanges = [];
             },
             setPieChart: function (e) {
 //                this.plotType = "pie";
