@@ -1,8 +1,11 @@
+
+<link rel="import" href="variant-beacon-network.html">
+
 <dom-module id="variant-beacon">
     <template>
         <style is="custom-style" include="jso-styles"></style>
 
-        <div class="panel">
+        <div class="col-xs-12">
             <h3 style="margin: 10px 5px 15px 25px">Beacon</h3>
             <div style="width: 60%; margin-left: 50px">
                 <a on-click="loadExample">Click to load example</a>
@@ -48,6 +51,14 @@
                 </div>
             </div>
         </div>
+        <br>
+        <div class="col-xs-12">
+            <h3 style="margin: 10px 5px 15px 25px">Beacon Network</h3>
+            <div style="width: 60%; margin-left: 50px">
+                <a>Click to search in beacon network</a><br><br>
+                <variant-beacon-network hosts="{{hosts}}" variant=""></variant-beacon-network>
+            </div>
+        </div>
     </template>
 
     <script>
@@ -60,6 +71,9 @@
                 studies: {
                     type: Array,
                     value: []
+                },
+                hosts: {
+                    type: Array
                 }
             },
             clearFields: function(e) {

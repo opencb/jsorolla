@@ -329,6 +329,20 @@
                             <!--<input type="checkbox" value="" class$="{{prefix}}FilterCheckBox"> With / Without dbSNP rs IDs<br>-->
 
                             <div class="form-group">
+                                <span class="subsection">Gene Disease Panels</span>
+                                <select class$="form-control {{prefix}}FilterSelect" id="{{prefix}}PanelApps" on-change="updatePanel">
+                                    <option value="none">Select a panel...</option>
+                                    <template is="dom-repeat" items="{{panelList}}" sort="sortPanelApp">
+                                        <option value="{{item.name}}">{{item.title}} ({{item.genes.length}})</option>
+                                    </template>
+                                </select>
+                                </br>
+                                <span>Panel genes:</span>
+                                <textarea id="{{prefix}}PanelAppsTextarea" name="panelAppsTextarea" class$="form-control clearable {{prefix}}FilterTextInput"
+                                          rows="3" placeholder="No panel selected" on-keyup="updateQueryFilters"></textarea>
+                            </div>
+
+                            <div class="form-group">
                                 <span class="subsection">Gene Biotype</span>
                                 <select class$="form-control {{prefix}}FilterSelect" id="{{prefix}}GeneBiotypes" on-change="updateQueryFilters">
                                     <option value="none">Select a biotype...</option>
@@ -338,13 +352,15 @@
                                 </select>
                             </div>
 
-                            <span class="subsection">Variant Type</span>
-                            <div id="{{prefix}}Type">
-                                <input type="checkbox" value="SNV,SNP" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> SNV<br>
-                                <input type="checkbox" value="MNV" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> MNV<br>
-                                <input type="checkbox" value="CNV" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> CNV<br>
-                                <input type="checkbox" value="SV" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> SV<br>
-                                <input type="checkbox" value="INDEL" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> INDEL
+                            <div class="form-group">
+                                <span class="subsection">Variant Type</span>
+                                <div id="{{prefix}}Type">
+                                    <input type="checkbox" value="SNV,SNP" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> SNV<br>
+                                    <input type="checkbox" value="MNV" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> MNV<br>
+                                    <input type="checkbox" value="CNV" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> CNV<br>
+                                    <input type="checkbox" value="SV" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> SV<br>
+                                    <input type="checkbox" value="INDEL" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> INDEL
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -774,6 +790,7 @@
                 this.query = {};
 
                 this.isFamilyAnalysis = true;
+                this.set('panelList', PANELS);
 
             },
             onSearch: function () {
@@ -943,6 +960,11 @@
                     this.$$("#" + this.prefix + "GeneBiotypes").value = this.query["annot-biotype"];
                 }
 
+                //Panel - annot-panel
+                if (typeof this.query["gene"] !== "undefined") {
+                    this.$$("#" + this.prefix + "PanelAppsTexarea").value = this.query.gene;
+                }
+
                 // Type
                 if (typeof this.query.type !== "undefined") {
                     let types = this.query.type.split(",");
@@ -1076,6 +1098,23 @@
                     this.$$("#" + this.prefix + "ClinVarTextarea").value = this.query["clinvar"];
                 }
             },
+            updatePanel: function(){
+                let panelname = this.$$("#" + this.prefix + "PanelApps").value;
+                for(var i = 0; i < this.panelList.length ; i++){
+                    if(this.panelList[i].name == panelname){
+                        let panel = this.panelList[i];
+                        this.$$("#" + this.prefix + "PanelAppsTextarea").value = panel.genes;
+                        break;
+                    }
+                }
+                this.updateQueryFilters();
+            },
+            sortPanelApp: function(a, b) {
+                if (a.title === b.title) {
+                    return 0;
+                }
+                return a.title < b.title ? -1 : 1;
+            },
             updateQueryFilters: function () {
                 let _filters = {};
 
@@ -1176,6 +1215,11 @@
                 // Biotype
                 if (this.$$("#" + this.prefix + "GeneBiotypes").value != "none") {
                     _filters["annot-biotype"] = this.$$("#" + this.prefix + "GeneBiotypes").value;
+                }
+
+                // Panel - annot-panel
+                if (this.$$("#" + this.prefix + "PanelApps").value != "none") {
+                    _filters["gene"] = this.$$("#" + this.prefix + "PanelAppsTextarea").value;
                 }
 
                 // Type

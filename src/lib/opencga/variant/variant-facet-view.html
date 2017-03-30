@@ -23,76 +23,179 @@
         <div>
             <br>
             <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" alias="{{activeFilterAlias}}"></opencga-active-filters>
-
             <div class="panel panel-default col-sm-12">
-                <div class="panel-body col-sm-6">
-                    <h4>Facet Field</h4>
-                    <div class="form-group row">
-                        <div class="col-sm-4">
-                            <select id="{{prefix}}FacetField" class$="form-control {{prefix}}FilterSelect">
-                                <option value="none" selected>Select a field...</option>
-                                <template is="dom-repeat" items="{{config.facetFields}}">
-                                    <option value="{{item.value}}">{{item.name}}</option>
-                                </template>
-                            </select>
+                <!-- Facet Fields -->
+                <div class="col-sm-12">
+                    <div class="col-sm-8">
+                        <h4>Fields</h4>
+                        <div class="form-group row">
+                            <div class="col-sm-3">
+                                <select id="{{prefix}}FacetField" class$="form-control {{prefix}}FilterSelect">
+                                    <option value="none" selected>Select a field...</option>
+                                    <template is="dom-repeat" items="{{config.facetFields}}">
+                                        <option value="{{item.value}}">{{item.name}}</option>
+                                    </template>
+                                </select>
+                            </div>
+                            <div class="col-sm-3">
+                                <textarea class="form-control" rows="1" id="{{prefix}}IncludesTextarea" placeholder="Include valid values"></textarea>
+                            </div>
+                            <div class="col-sm-3">
+                                <select id="{{prefix}}FacetFieldNested" class$="form-control {{prefix}}FilterSelect">
+                                    <option value="none" selected>Nest within...</option>
+                                    <template is="dom-repeat" items="{{config.facetFields}}">
+                                        <option value="{{item.value}}">{{item.name}}</option>
+                                    </template>
+                                    <template is="dom-repeat" items="{{facetFieldsName}}" filter="_isValidField">
+                                        <option value="{{item.value}}">{{item.name}}</option>
+                                    </template>
+                                </select>
+                            </div>
+                            <button type="button" class="btn btn-primary" on-click="addFacets" style="cursor: pointer">Add</button>
                         </div>
-                        <div class="col-sm-4">
-                            <select id="{{prefix}}FacetFieldNested" class$="form-control {{prefix}}FilterSelect">
-                                <option value="none" selected>Select nested field...</option>
-                                <template is="dom-repeat" items="{{config.facetFields}}">
-                                    <option value="{{item.value}}">{{item.name}}</option>
-                                </template>
-                            </select>
-                        </div>
-                        <i class="fa fa-plus-square fa-lg" aria-hidden="true" on-click="addFacets" style="padding: 10px 0px 0px 10px;cursor: pointer"></i>
                     </div>
-                    <template is="dom-repeat" items="{{facetFieldsName}}">
+
+                    <div class="panel-body col-sm-4">
+                        <template is="dom-repeat" items="{{facetFieldsName}}">
                         <span style="font-size: 14px">
-                            <i class="fa fa-times fa-lg" aria-hidden="true" on-click="removeFacetFields" data-id="{{item.value}}" data-field="field" style="color: darkred;cursor: pointer"></i>
-                            &nbsp;{{item.name}}
+                            <span title="Remove field">
+                                <i class="fa fa-times fa-lg" aria-hidden="true" on-click="removeFacetFields" data-id="{{item.value}}" data-field="field" style="color: darkred;cursor: pointer"></i>
+                            </span>&nbsp;{{item.name}}
                         </span>
-                        <br>
-                    </template>
-                </div>
-
-                <div class="panel-body col-sm-6">
-                    <h4>Facet Range</h4>
-                    <div class="form-group row">
-                        <div class="col-sm-4">
-                            <select id="{{prefix}}FacetRangeField" class$="form-control {{prefix}}FilterSelect">
-                                <option value="none" selected>Select a field...</option>
-                                <template is="dom-repeat" items="{{config.facetRangeFields}}">
-                                    <option value="{{item}}">{{item}}</option>
-                                </template>
-                            </select>
-                        </div>
-                        <div class="col-sm-8">
-                            <input type="text" class$="{{prefix}}FilterTextInput" id="{{prefix}}FacetRangeStart" placeholder="Start" value="0" style="width: 80px">
-                            <input type="text" class$="{{prefix}}FilterTextInput" id="{{prefix}}FacetRangeEnd" placeholder="End" value="1" style="width: 80px">
-                            <input type="text" class$="{{prefix}}FilterTextInput" id="{{prefix}}FacetRangeGap" placeholder="Interval" value="0.1" style="width: 80px">
-                            <i class="fa fa-plus-square fa-lg" aria-hidden="true" on-click="addFacets" style="padding: 10px 0px 0px 10px;cursor: pointer"></i>
-                        </div>
+                            <br>
+                        </template>
                     </div>
-                    <template is="dom-repeat" items="{{facetRangeFields}}">
-                        <span style="font-size: 14px">
-                            <i class="fa fa-times fa-lg" aria-hidden="true" on-click="removeFacetFields" data-id="{{item}}" data-field="range" style="color: darkred;cursor: pointer"></i>
-                            &nbsp;{{item}}</span><br>
-                    </template>
                 </div>
 
-                <div style="float: right; padding: 0px 0px 5px 0px">
-                    <button type="button" class="btn btn-primary btn-lg" on-click="loadPlots">Refresh</button>
+                <!-- Facet Range -->
+                <div class="col-sm-12">
+                    <div class="col-sm-8">
+                        <h4>Ranges</h4>
+                        <!-- Conservation & Deleteriousness -->
+                        <h5><b><i class="fa fa-angle-double-right" aria-hidden="true"></i>&nbsp; Conservation & Deleteriousness</b></h5>
+                        <div class="form-group row">
+                            <div class="col-sm-3">
+                                <select id="{{prefix}}FacetRangeField" class$="form-control {{prefix}}FilterSelect">
+                                    <option value="none" selected>Select a field...</option>
+                                    <template is="dom-repeat" items="{{config.facetRangeFields}}">
+                                        <option value="{{item}}">{{item}}</option>
+                                    </template>
+                                </select>
+                            </div>
+                            <div class="col-sm-2">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Start</span>
+                                    <input type="text" class="form-control" id="{{prefix}}FacetRangeStart" value="0">
+                                </div>
+                            </div>
+                            <div class="col-sm-2">
+                                <div class="input-group">
+                                    <span class="input-group-addon">End</span>
+                                    <input type="text" class="form-control" id="{{prefix}}FacetRangeEnd" value="1">
+                                </div>
+                            </div>
+                            <div class="col-sm-2">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Interval</span>
+                                    <input type="text" class="form-control" id="{{prefix}}FacetRangeGap" value="0.1">
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-primary" on-click="addFacets" style="cursor: pointer">Add
+                            </button>
+                        </div>
+
+                        <!-- Population frequency -->
+                        <h5><b><i class="fa fa-angle-double-right" aria-hidden="true"></i>&nbsp; Population frequency</b></h5>
+                        <div class="form-group row">
+                            <div class="col-sm-3">
+                                <select id="{{prefix}}PopFreqRangeField" class$="form-control {{prefix}}FilterSelect">
+                                    <option value="none" selected>Select a population...</option>
+                                    <template is="dom-repeat" items="{{populationFrequencies.studies}}" as="study">
+                                        <template is="dom-repeat" items="{{study.populations}}" as="population">
+                                            <option value="{{study.id}}_{{population.id}}">{{study.id}}_{{population.id}}</option>
+                                        </template>
+                                    </template>
+                                </select>
+                            </div>
+                            <div class="col-sm-2">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Start</span>
+                                    <input type="text" class="form-control" id="{{prefix}}PopFreqRangeStart" value="0">
+                                </div>
+                            </div>
+                            <div class="col-sm-2">
+                                <div class="input-group">
+                                    <span class="input-group-addon">End</span>
+                                    <input type="text" class="form-control" id="{{prefix}}PopFreqRangeEnd" value="1">
+                                </div>
+                            </div>
+                            <div class="col-sm-2">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Interval</span>
+                                    <input type="text" class="form-control" id="{{prefix}}PopFreqRangeGap" value="0.1">
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-primary" on-click="addFacets" style="cursor: pointer">Add
+                            </button>
+                        </div>
+
+                    </div>
+                    <div class="panel-body col-sm-4">
+                        <template is="dom-repeat" items="{{facetRangeFields}}">
+                        <span style="font-size: 14px">
+                            <span title="Remove field">
+                              <i class="fa fa-times fa-lg" aria-hidden="true" on-click="removeFacetFields"
+                                 data-id="{{item}}" data-field="range" style="color: darkred;cursor: pointer"></i>
+                            </span>&nbsp;{{item}}
+                        </span><br>
+                        </template>
+                    </div>
                 </div>
+            </div>
+
+            <!-- Chromosome -->
+            <div class="panel panel-default col-sm-12">
+                <div class="col-sm-8" style="margin-left: 10px">
+                    <h4>Chromosome</h4>
+                    <div class="form-group row">
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" id="{{prefix}}ChromosomeInput" placeholder="1,2,3...21,X,Y,MT">
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <span class="input-group-addon">Interval</span>
+                                <select id="{{prefix}}ChromosomeRangeGap" class$="form-control {{prefix}}FilterSelect">
+                                    <option value="1000000" selected>1000000</option>
+                                    <option value="2000000">2000000</option>
+                                    <option value="5000000">5000000</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-primary" on-click="addFacets" style="cursor: pointer">Add
+                        </button>
+                    </div>
+                </div>
+                <div class="panel-body col-sm-4">
+
+                </div>
+            </div>
+
+            <div style="float: right; padding: 0px 0px 5px 5px">
+                <button type="button" class="btn btn-primary btn-lg" on-click="loadPlots">Refresh</button>
+            </div>
+
+            <div style="float: right; padding: 0px 0px 5px 0px">
+                <button type="button" class="btn btn-primary btn-lg" on-click="clearAll">Clear</button>
             </div>
 
             <!-- Facet Plots -->
             <h2>Results</h2>
 
-            <template is="dom-if" if="{{_loading}}">
-                <div id="{{prefix}}Loading">
-                    <h4>Loading...</h4>
-                </div>
-            </template>
+            <!--<template is="dom-if" if="{{_loading}}">-->
+            <div id="{{prefix}}Loading" hidden="{{!_loading}}">
+                <h4>Loading...</h4>
+            </div>
+            <!--</template>-->
 
             <!--<h4>Total Number of Variants : {{totalVariants}}</h4>-->
             <template is="dom-repeat" items="{{results}}" id="resultsDiv">
@@ -133,9 +236,11 @@
                 cellbaseClient: {
                     type: Object
                 },
+                populationFrequencies: {
+                    type: Object
+                },
                 query: {
-                    type: Object,
-                    observer: 'fetchVariants'
+                    type: Object
                 },
                 search: {
                     type: Object,
@@ -165,7 +270,7 @@
 
                 this.results = [];
                 this._loading = false;
-                this.plotType = "column";
+//                this.plotType = "column";
             },
             addFacets: function () {
                 // Facets
@@ -175,23 +280,46 @@
                         && this.$$("#" + this.prefix + "FacetFieldNested").value != this.$$("#" + this.prefix + "FacetField").value) {
                         // Take it into account only if it is not present already in the selected values
                         if (this.facetFields.indexOf(this.$$("#" + this.prefix + "FacetField").value + ":" + this.$$("#" + this.prefix + "FacetFieldNested").value) == -1) {
-                            this.push('facetFieldsName', {
-                                name: $( "#" + this.prefix + "FacetField option:selected" ).text() + " >> " + $( "#" + this.prefix + "FacetFieldNested option:selected" ).text(),
-                                value: this.$$("#" + this.prefix + "FacetField").value + ">>" + this.$$("#" + this.prefix + "FacetFieldNested").value
-                            });
-                            this.push('facetFields', this.$$("#" + this.prefix + "FacetField").value + ">>" + this.$$("#" + this.prefix + "FacetFieldNested").value);
+                            // Check if 'includes' is present
+                            if (this.$$("#" + this.prefix + "IncludesTextarea").value != "") {
+                                this.push('facetFieldsName', {
+                                    name: $("#" + this.prefix + "FacetFieldNested option:selected").text() + " >> " + $("#" + this.prefix + "FacetField option:selected").text()
+                                    + " [ " + this.$$("#" + this.prefix + "IncludesTextarea").value + " ] ",
+                                    value: this.$$("#" + this.prefix + "FacetFieldNested").value + ">>" + this.$$("#" + this.prefix + "FacetField").value + "["
+                                    + this.$$("#" + this.prefix + "IncludesTextarea").value + "]"
+                                });
+                                this.push('facetFields', this.$$("#" + this.prefix + "FacetFieldNested").value + ">>" + this.$$("#" + this.prefix + "FacetField").value
+                                    + "[" + this.$$("#" + this.prefix + "IncludesTextarea").value + "]");
+                            } else {
+                                this.push('facetFieldsName', {
+                                    name: $("#" + this.prefix + "FacetFieldNested option:selected").text() + " >> " + $("#" + this.prefix + "FacetField option:selected").text(),
+                                    value: this.$$("#" + this.prefix + "FacetFieldNested").value + ">>" + this.$$("#" + this.prefix + "FacetField").value
+                                });
+                                this.push('facetFields', this.$$("#" + this.prefix + "FacetFieldNested").value + ">>" + this.$$("#" + this.prefix + "FacetField").value);
+                            }
                         }
                     } else {
-                        this.push('facetFieldsName', {name: $( "#" + this.prefix + "FacetField option:selected" ).text(), value: this.$$("#" + this.prefix + "FacetField").value});
-                        this.push('facetFields', this.$$("#" + this.prefix + "FacetField").value);
+                        if (this.$$("#" + this.prefix + "IncludesTextarea").value !== "") {
+                            this.push('facetFieldsName', {
+                                name: $("#" + this.prefix + "FacetField option:selected").text() + " [ " + this.$$("#" + this.prefix + "IncludesTextarea").value + " ] ",
+                                value: this.$$("#" + this.prefix + "FacetField").value + "[" + this.$$("#" + this.prefix + "IncludesTextarea").value + "]"
+                            });
+                            this.push('facetFields', this.$$("#" + this.prefix + "FacetField").value + "[" + this.$$("#" + this.prefix + "IncludesTextarea").value + "]");
+                        } else {
+                            this.push('facetFieldsName', {name: $("#" + this.prefix + "FacetField option:selected").text(), value: this.$$("#" + this.prefix + "FacetField").value});
+                            this.push('facetFields', this.$$("#" + this.prefix + "FacetField").value);
+                        }
                     }
                     this.$$("#" + this.prefix + "FacetField").value = "none";
                     this.$$("#" + this.prefix + "FacetFieldNested").value = "none";
+                    this.$$("#" + this.prefix + "IncludesTextarea").value = ""
                 }
 
                 // Facets Range
-                if (this.$$("#" + this.prefix + "FacetRangeField").value != "none" && this.$$("#" + this.prefix + "FacetRangeStart").value != ""
-                    && this.$$("#" + this.prefix + "FacetRangeEnd").value != "" && this.$$("#" + this.prefix + "FacetRangeGap").value != "") {
+                if (this.$$("#" + this.prefix + "FacetRangeField").value !== "none" && this.$$("#" + this.prefix + "FacetRangeStart").value !== ""
+                    && this.$$("#" + this.prefix + "FacetRangeEnd").value !== "" && this.$$("#" + this.prefix + "FacetRangeGap").value !== ""
+                    && !isNaN(this.$$("#" + this.prefix + "FacetRangeStart").value) && !isNaN(this.$$("#" + this.prefix + "FacetRangeEnd").value)
+                    && !isNaN(this.$$("#" + this.prefix + "FacetRangeGap").value)) {
                     // if any of the field is already selected, remove the old value before pushing
                     for (let i = 0; i < this.facetRanges.length; i++) {
                         if (this.facetRanges[i].startsWith(this.$$("#" + this.prefix + "FacetRangeField").value)) {
@@ -206,10 +334,39 @@
                     this.push('facetRanges', this.$$("#" + this.prefix + "FacetRangeField").value + ":" + this.$$("#" + this.prefix + "FacetRangeStart").value
                         + ":" + this.$$("#" + this.prefix + "FacetRangeEnd").value + ":" + this.$$("#" + this.prefix + "FacetRangeGap").value);
                     this.$$("#" + this.prefix + "FacetRangeField").value = "none";
-                    this.$$("#" + this.prefix + "FacetRangeStart").value = "";
-                    this.$$("#" + this.prefix + "FacetRangeEnd").value = "";
-                    this.$$("#" + this.prefix + "FacetRangeGap").value = "";
+                    this.$$("#" + this.prefix + "FacetRangeStart").value = "0";
+                    this.$$("#" + this.prefix + "FacetRangeEnd").value = "1";
+                    this.$$("#" + this.prefix + "FacetRangeGap").value = "0.1";
                 }
+
+                // Population Frequency Range
+                if (this.$$("#" + this.prefix + "PopFreqRangeField").value !== "none" && this.$$("#" + this.prefix + "PopFreqRangeStart").value !== ""
+                    && this.$$("#" + this.prefix + "PopFreqRangeEnd").value !== "" && this.$$("#" + this.prefix + "PopFreqRangeGap").value !== ""
+                    && !isNaN(this.$$("#" + this.prefix + "PopFreqRangeStart").value) && !isNaN(this.$$("#" + this.prefix + "PopFreqRangeEnd").value)
+                    && !isNaN(this.$$("#" + this.prefix + "PopFreqRangeGap").value)) {
+                    // if any of the field is already selected, remove the old value before pushing
+                    for (let i = 0; i < this.facetRanges.length; i++) {
+                        if (this.facetRanges[i].startsWith(this.$$("#" + this.prefix + "PopFreqRangeField").value)) {
+                            this.splice('facetRanges', i, 1);
+                            this.splice('facetRangeFields', i, 1);
+                            break;
+                        }
+                    }
+                    this.push('facetRangeFields', this.$$("#" + this.prefix + "PopFreqRangeField").value + "[" + this.$$("#" + this.prefix + "PopFreqRangeStart").value
+                        + "," + this.$$("#" + this.prefix + "PopFreqRangeEnd").value + "], Interval :" + this.$$("#" + this.prefix + "PopFreqRangeGap").value);
+                    this.push('facetRanges', "popFreq_" + this.$$("#" + this.prefix + "PopFreqRangeField").value + ":" + this.$$("#" + this.prefix + "PopFreqRangeStart").value
+                        + ":" + this.$$("#" + this.prefix + "PopFreqRangeEnd").value + ":" + this.$$("#" + this.prefix + "PopFreqRangeGap").value);
+                    this.$$("#" + this.prefix + "PopFreqRangeField").value = "none";
+                    this.$$("#" + this.prefix + "PopFreqRangeStart").value = "0";
+                    this.$$("#" + this.prefix + "PopFreqRangeEnd").value = "1";
+                    this.$$("#" + this.prefix + "PopFreqRangeGap").value = "0.1";
+                }
+
+//                // Chromosome
+//                if (this.$$("#" + this.prefix + "ChromosomeInput").value !== "") {
+//                    this.chromosome = this.$$("#" + this.prefix + "ChromosomeInput").value;
+//                    this.push("facetRanges", "start:" + chromosomes)
+//                }
 
             },
             removeFacetFields: function (e) {
@@ -225,6 +382,7 @@
                 } else if (e.target.dataset.field == "range") {
                     let index = this.facetRangeFields.indexOf(e.target.dataId);
                     this.splice('facetRangeFields', index, 1);
+                    this.splice('facetRanges', index, 1);
                 }
             },
             fetchVariants: function () {
@@ -306,7 +464,8 @@
                             };
                             let series = {};
                             let data = [];
-                            for (let countObj of field.counts) {
+                            for (let i = 0; i < field.counts.length; i++) {
+                                let countObj = field.counts[i];
                                 obj.categories.push(countObj.value);
                                 if (typeof countObj.field !== "undefined") {
                                     obj.nestedField = countObj.field.name;
@@ -314,8 +473,8 @@
                                         if (typeof series[nestedCountObj.value] === "undefined") {
                                             series[nestedCountObj.value] = [];
                                         }
-                                        // TODO set '0' for missing fields
-                                        series[nestedCountObj.value].push(nestedCountObj.count);
+                                        // It is important to push 'index' as we need to take care of the missing values
+                                        series[nestedCountObj.value].push({index: i, count: nestedCountObj.count});
                                     }
                                 } else {
                                     data.push(countObj.count);
@@ -324,7 +483,16 @@
 
                             if (Object.keys(series).length > 0) {
                                 for (let key in series) {
-                                    obj.series.push({name: key, data: series[key]});
+                                    let data = [];
+                                    for (let countIndex of series[key]) {
+                                        data[countIndex.index] = countIndex.count;
+                                    }
+                                    for (let i = 0; i < data.length; i++) {
+                                        if (typeof data[i] === "undefined") {
+                                            data[i] = 0; // Setting '0' for missing fields
+                                        }
+                                    }
+                                    obj.series.push({name: key, data: data});
                                 }
                             } else {
                                 obj.series.push({name: field.name, data: data});
@@ -366,7 +534,7 @@
                         _this.results = _results;
                         _this.$.resultsDiv.render();
                         for (let result of _this.results) {
-                            _this.renderPlots("#" + _this.prefix + result.name + "Plot", facetMap.get(result.name));
+                            _this.renderHistogramChart("#" + _this.prefix + result.name + "Plot", facetMap.get(result.name));
                         }
                     });
             },
@@ -378,16 +546,23 @@
                     this.results = [];
                 }
             },
+            clearAll: function () {
+                this.clearPlots();
+                this.facetFields = [];
+                this.facetFieldsName = [];
+                this.facetRangeFields = [];
+                this.facetRanges = [];
+            },
             setPieChart: function (e) {
 //                this.plotType = "pie";
 //                this.loadPlots();
 //              debugger
             },
-            renderPlots: function (id, params) {
+            renderHistogramChart: function (id, params) {
                 $(id).highcharts({
                     credits: {enabled: false},
                     chart: {
-                        type: this.plotType
+                        type: "column"
                     },
                     title: {
                         text: params.title || params.name
@@ -417,6 +592,49 @@
                     },
                     series: params.series
                 });
+            },
+            renderPieChart: function (id, params) {
+                $(id).highcharts({
+                    credits: {enabled: false},
+                    chart: {
+                        type: "pie"
+                    },
+                    title: {
+                        text: params.title || params.name
+                    },
+                    xAxis: {
+                        categories: params.categories
+                    },
+                    yAxis: {
+                        min: 0,
+                        title: {
+                            text: 'Total number of Variants'
+                        }
+                    },
+                    tooltip: {
+                        headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                        '<td style="padding:0"><b>{point.y:.1f} </b></td></tr>',
+                        footerFormat: '</table>',
+                        shared: true,
+                        useHTML: true
+                    },
+                    plotOptions: {
+                        column: {
+                            pointPadding: 0.2,
+                            borderWidth: 0
+                        }
+                    },
+                    series: params.series
+                });
+            },
+            _isValidField: function (item) {
+                for (let field of this.config.facetFields) {
+                    if (field.value == item.value) {
+                        return false;
+                    }
+                }
+                return true;
             }
         });
     </script>
