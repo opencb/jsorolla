@@ -29,27 +29,30 @@
                     <div class="col-sm-8">
                         <h4>Fields</h4>
                         <div class="form-group row">
-                            <div class="col-sm-3">
+                            <div class="col-sm-2">
                                 <select id="{{prefix}}FacetField" class$="form-control {{prefix}}FilterSelect">
                                     <option value="none" selected>Select a field...</option>
-                                    <template is="dom-repeat" items="{{config.facetFields}}">
+                                    <template is="dom-repeat" items="{{config.fields}}">
                                         <option value="{{item.value}}">{{item.name}}</option>
                                     </template>
                                 </select>
                             </div>
-                            <div class="col-sm-3">
-                                <textarea class="form-control" rows="1" id="{{prefix}}IncludesTextarea" placeholder="Include valid values"></textarea>
+                            <div class="col-sm-2">
+                                <textarea class="form-control" rows="1" id="{{prefix}}FieldIncludes" placeholder="Include values"></textarea>
                             </div>
-                            <div class="col-sm-3">
+                            <div class="col-sm-2">
                                 <select id="{{prefix}}FacetFieldNested" class$="form-control {{prefix}}FilterSelect">
                                     <option value="none" selected>Nest within...</option>
-                                    <template is="dom-repeat" items="{{config.facetFields}}">
+                                    <template is="dom-repeat" items="{{config.fields}}">
                                         <option value="{{item.value}}">{{item.name}}</option>
                                     </template>
                                     <template is="dom-repeat" items="{{facetFieldsName}}" filter="_isValidField">
                                         <option value="{{item.value}}">{{item.name}}</option>
                                     </template>
                                 </select>
+                            </div>
+                            <div class="col-sm-2">
+                                <textarea class="form-control" rows="1" id="{{prefix}}NestedFieldIncludes" placeholder="Include values"></textarea>
                             </div>
                             <button type="button" class="btn btn-primary" on-click="addFacets" style="cursor: pointer">Add</button>
                         </div>
@@ -74,11 +77,11 @@
                         <!-- Conservation & Deleteriousness -->
                         <h5><b><i class="fa fa-angle-double-right" aria-hidden="true"></i>&nbsp; Conservation & Deleteriousness</b></h5>
                         <div class="form-group row">
-                            <div class="col-sm-3">
+                            <div class="col-sm-2">
                                 <select id="{{prefix}}FacetRangeField" class$="form-control {{prefix}}FilterSelect">
                                     <option value="none" selected>Select a field...</option>
-                                    <template is="dom-repeat" items="{{config.facetRangeFields}}">
-                                        <option value="{{item}}">{{item}}</option>
+                                    <template is="dom-repeat" items="{{config.ranges}}">
+                                        <option value="{{item.value}}">{{item.name}}</option>
                                     </template>
                                 </select>
                             </div>
@@ -107,7 +110,7 @@
                         <!-- Population frequency -->
                         <h5><b><i class="fa fa-angle-double-right" aria-hidden="true"></i>&nbsp; Population frequency</b></h5>
                         <div class="form-group row">
-                            <div class="col-sm-3">
+                            <div class="col-sm-2">
                                 <select id="{{prefix}}PopFreqRangeField" class$="form-control {{prefix}}FilterSelect">
                                     <option value="none" selected>Select a population...</option>
                                     <template is="dom-repeat" items="{{populationFrequencies.studies}}" as="study">
@@ -138,7 +141,6 @@
                             <button type="button" class="btn btn-primary" on-click="addFacets" style="cursor: pointer">Add
                             </button>
                         </div>
-
                     </div>
                     <div class="panel-body col-sm-4">
                         <template is="dom-repeat" items="{{facetRangeFields}}">
@@ -151,32 +153,28 @@
                         </template>
                     </div>
                 </div>
-            </div>
 
-            <!-- Chromosome -->
-            <div class="panel panel-default col-sm-12">
-                <div class="col-sm-8" style="margin-left: 10px">
-                    <h4>Chromosome</h4>
-                    <div class="form-group row">
-                        <div class="col-sm-3">
-                            <input type="text" class="form-control" id="{{prefix}}ChromosomeInput" placeholder="1,2,3...21,X,Y,MT">
-                        </div>
-                        <div class="col-sm-3">
-                            <div class="input-group">
-                                <span class="input-group-addon">Interval</span>
-                                <select id="{{prefix}}ChromosomeRangeGap" class$="form-control {{prefix}}FilterSelect">
-                                    <option value="1000000" selected>1000000</option>
-                                    <option value="2000000">2000000</option>
-                                    <option value="5000000">5000000</option>
-                                </select>
+                <div class="col-sm-12">
+                    <div class="col-sm-8">
+                        <h4>Chromosome</h4>
+                        <div class="form-group row">
+                            <div class="col-sm-2">
+                                <input type="text" class="form-control" id="{{prefix}}ChromosomeInput" placeholder="1,2,3...21,X,Y,MT">
                             </div>
+                            <div class="col-sm-3">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Interval</span>
+                                    <select id="{{prefix}}ChromosomeRangeGap" class$="form-control {{prefix}}FilterSelect">
+                                        <option value="1000000" selected>1000000</option>
+                                        <option value="2000000">2000000</option>
+                                        <option value="5000000">5000000</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-primary" on-click="addFacets" style="cursor: pointer">Add
+                            </button>
                         </div>
-                        <button type="button" class="btn btn-primary" on-click="addFacets" style="cursor: pointer">Add
-                        </button>
                     </div>
-                </div>
-                <div class="panel-body col-sm-4">
-
                 </div>
             </div>
 
@@ -275,44 +273,48 @@
             addFacets: function () {
                 // Facets
                 if (this.$$("#" + this.prefix + "FacetField").value != "none") {
+                    let field = {
+                        name: $("#" + this.prefix + "FacetField option:selected").text(),
+                        value: this.$$("#" + this.prefix + "FacetField").value
+                    };
+                    // Includes for facet field
+                    if (this.$$("#" + this.prefix + "FieldIncludes").value != "") {
+                        field.name += "[" + this.$$("#" + this.prefix + "FieldIncludes").value + "]";
+                        field.value += "[" + this.$$("#" + this.prefix + "FieldIncludes").value + "]";
+                    }
+
                     // Check if the nested field is a valid value
                     if (this.$$("#" + this.prefix + "FacetFieldNested").value != "none"
                         && this.$$("#" + this.prefix + "FacetFieldNested").value != this.$$("#" + this.prefix + "FacetField").value) {
                         // Take it into account only if it is not present already in the selected values
-                        if (this.facetFields.indexOf(this.$$("#" + this.prefix + "FacetField").value + ":" + this.$$("#" + this.prefix + "FacetFieldNested").value) == -1) {
-                            // Check if 'includes' is present
-                            if (this.$$("#" + this.prefix + "IncludesTextarea").value != "") {
-                                this.push('facetFieldsName', {
-                                    name: $("#" + this.prefix + "FacetFieldNested option:selected").text() + " >> " + $("#" + this.prefix + "FacetField option:selected").text()
-                                    + " [ " + this.$$("#" + this.prefix + "IncludesTextarea").value + " ] ",
-                                    value: this.$$("#" + this.prefix + "FacetFieldNested").value + ">>" + this.$$("#" + this.prefix + "FacetField").value + "["
-                                    + this.$$("#" + this.prefix + "IncludesTextarea").value + "]"
-                                });
-                                this.push('facetFields', this.$$("#" + this.prefix + "FacetFieldNested").value + ">>" + this.$$("#" + this.prefix + "FacetField").value
-                                + "[" + this.$$("#" + this.prefix + "IncludesTextarea").value + "]");
-                            } else {
-                                this.push('facetFieldsName', {
-                                    name: $("#" + this.prefix + "FacetFieldNested option:selected").text() + " >> " + $("#" + this.prefix + "FacetField option:selected").text(),
-                                    value: this.$$("#" + this.prefix + "FacetFieldNested").value + ">>" + this.$$("#" + this.prefix + "FacetField").value
-                                });
-                                this.push('facetFields', this.$$("#" + this.prefix + "FacetFieldNested").value + ">>" + this.$$("#" + this.prefix + "FacetField").value);
+                        if (this.facetFields.indexOf(this.$$("#" + this.prefix + "FacetField").value + ">>" + this.$$("#" + this.prefix + "FacetFieldNested").value) == -1) {
+                            let nestedField = {
+                                name: $("#" + this.prefix + "FacetFieldNested option:selected").text(),
+                                value: this.$$("#" + this.prefix + "FacetFieldNested").value
+                            };
+                            // Includes for nested facet field
+                            if (this.$$("#" + this.prefix + "NestedFieldIncludes").value != "") {
+                                nestedField.name += "[" + this.$$("#" + this.prefix + "NestedFieldIncludes").value + "]";
+                                nestedField.value += "[" + this.$$("#" + this.prefix + "NestedFieldIncludes").value + "]";
                             }
+
+                            this.push('facetFieldsName', {
+                                name: nestedField.name + " >> " + field.name,
+                                value: nestedField.value + ">>" + field.value
+                            });
+                            this.push('facetFields', nestedField.value + ">>" + field.value);
                         }
                     } else {
-                        if (this.$$("#" + this.prefix + "IncludesTextarea").value !== "") {
-                            this.push('facetFieldsName', {
-                                name: $("#" + this.prefix + "FacetField option:selected").text() + " [ " + this.$$("#" + this.prefix + "IncludesTextarea").value + " ] ",
-                                value: this.$$("#" + this.prefix + "FacetField").value + "[" + this.$$("#" + this.prefix + "IncludesTextarea").value + "]"
-                            });
-                            this.push('facetFields', this.$$("#" + this.prefix + "FacetField").value + "[" + this.$$("#" + this.prefix + "IncludesTextarea").value + "]");
-                        } else {
-                            this.push('facetFieldsName', {name: $("#" + this.prefix + "FacetField option:selected").text(), value: this.$$("#" + this.prefix + "FacetField").value});
-                            this.push('facetFields', this.$$("#" + this.prefix + "FacetField").value);
-                        }
+                        this.push('facetFieldsName', {
+                            name: field.name,
+                            value: field.value
+                        });
+                        this.push('facetFields', field.value);
                     }
                     this.$$("#" + this.prefix + "FacetField").value = "none";
                     this.$$("#" + this.prefix + "FacetFieldNested").value = "none";
-                    this.$$("#" + this.prefix + "IncludesTextarea").value = ""
+                    this.$$("#" + this.prefix + "FieldIncludes").value = "";
+                    this.$$("#" + this.prefix + "NestedFieldIncludes").value = "";
                 }
 
                 // Facets Range
@@ -328,8 +330,7 @@
                             break;
                         }
                     }
-                    let value = this.$$("#" + this.prefix + "FacetRangeField").value.charAt(0).toUpperCase() + this.$$("#" + this.prefix + "FacetRangeField").value.slice(1);
-                    this.push('facetRangeFields', value + "[" + this.$$("#" + this.prefix + "FacetRangeStart").value
+                    this.push('facetRangeFields', $("#" + this.prefix + "FacetRangeField option:selected").text() + "[" + this.$$("#" + this.prefix + "FacetRangeStart").value
                         + "," + this.$$("#" + this.prefix + "FacetRangeEnd").value + "], Interval :" + this.$$("#" + this.prefix + "FacetRangeGap").value);
                     this.push('facetRanges', this.$$("#" + this.prefix + "FacetRangeField").value + ":" + this.$$("#" + this.prefix + "FacetRangeStart").value
                         + ":" + this.$$("#" + this.prefix + "FacetRangeEnd").value + ":" + this.$$("#" + this.prefix + "FacetRangeGap").value);
@@ -353,7 +354,7 @@
                         }
                     }
                     this.push('facetRangeFields', this.$$("#" + this.prefix + "PopFreqRangeField").value + "[" + this.$$("#" + this.prefix + "PopFreqRangeStart").value
-                        + "," + this.$$("#" + this.prefix + "PopFreqRangeEnd").value + "], Interval :" + this.$$("#" + this.prefix + "PopFreqRangeGap").value);
+                        + "," + this.$$("#" + this.prefix + "PopFreqRangeEnd").value + "], Interval: " + this.$$("#" + this.prefix + "PopFreqRangeGap").value);
                     this.push('facetRanges', "popFreq_" + this.$$("#" + this.prefix + "PopFreqRangeField").value + ":" + this.$$("#" + this.prefix + "PopFreqRangeStart").value
                         + ":" + this.$$("#" + this.prefix + "PopFreqRangeEnd").value + ":" + this.$$("#" + this.prefix + "PopFreqRangeGap").value);
                     this.$$("#" + this.prefix + "PopFreqRangeField").value = "none";
@@ -362,11 +363,23 @@
                     this.$$("#" + this.prefix + "PopFreqRangeGap").value = "0.1";
                 }
 
-//                // Chromosome
-//                if (this.$$("#" + this.prefix + "ChromosomeInput").value !== "") {
-//                    this.chromosome = this.$$("#" + this.prefix + "ChromosomeInput").value;
-//                    this.push("facetRanges", "start:" + chromosomes)
-//                }
+                // Chromosome
+                if (this.$$("#" + this.prefix + "ChromosomeInput").value !== "") {
+                    this.chromosome = this.$$("#" + this.prefix + "ChromosomeInput").value;
+                    let _this = this;
+                    if (typeof this.cellbaseClient !== "undefined" && this.cellbaseClient instanceof CellBaseClient) {
+                        this.cellbaseClient.get("genomic", "chromosome", this.chromosome, "info", {})
+                            .then(function (response) {
+                                let chromosome = response.response[0].result[0].chromosomes[0];
+                                _this.push("facetRanges", "start:" + chromosome.start + ":" + chromosome.size + ":"
+                                    + _this.$$("#" + _this.prefix + "ChromosomeRangeGap").value);
+                                _this.push("facetRangeFields", chromosome.name + "[" + chromosome.start + "," + chromosome.size + "], Interval: "
+                                    + _this.$$("#" + _this.prefix + "ChromosomeRangeGap").value);
+                                _this.$$("#" + _this.prefix + "ChromosomeInput").value = "";
+                                _this.$$("#" + _this.prefix + "ChromosomeRangeGap").value = "1000000";
+                            });
+                    }
+                }
 
             },
             removeFacetFields: function (e) {
@@ -421,7 +434,7 @@
                 this._loading = true;
 
                 let fieldNamesMap = {};
-                for (let f of this.config.facetFields) {
+                for (let f of this.config.fields) {
                     fieldNamesMap[f.value] = f.name;
                 }
 
@@ -529,13 +542,13 @@
                             facetMap.set(range.name, obj);
                             _results.push(obj);
                         }
-                        _this._loading = false;
 
                         _this.results = _results;
                         _this.$.resultsDiv.render();
                         for (let result of _this.results) {
                             _this.renderPlots("#" + _this.prefix + result.name + "Plot", facetMap.get(result.name));
                         }
+                        _this._loading = false;
                     });
             },
             clearPlots: function () {
@@ -552,6 +565,10 @@
                 this.facetFieldsName = [];
                 this.facetRangeFields = [];
                 this.facetRanges = [];
+                $("." + this.prefix + "FilterSelect").prop('selectedIndex', 0);
+                this.$$("#" + this.prefix + "FieldIncludes").value = "";
+                this.$$("#" + this.prefix + "NestedFieldIncludes").value = "";
+                this.$$("#" + this.prefix + "ChromosomeInput").value = "";
             },
             setPieChart: function (e) {
 //                this.plotType = "pie";
@@ -594,7 +611,7 @@
                 });
             },
             _isValidField: function (item) {
-                for (let field of this.config.facetFields) {
+                for (let field of this.config.fields) {
                     if (field.value == item.value) {
                         return false;
                     }
