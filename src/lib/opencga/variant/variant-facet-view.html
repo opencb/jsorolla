@@ -23,167 +23,167 @@
         <div>
             <br>
             <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" alias="{{activeFilterAlias}}"></opencga-active-filters>
+
             <div class="panel panel-default col-sm-12">
                 <!-- Facet Fields -->
-                <div class="col-sm-12">
-                    <div class="col-sm-8">
-                        <h4>Fields</h4>
-                        <div class="form-group row">
-                            <div class="col-sm-2">
-                                <select id="{{prefix}}FacetField" class$="form-control {{prefix}}FilterSelect">
-                                    <option value="none" selected>Select a field...</option>
-                                    <template is="dom-repeat" items="{{config.fields}}">
-                                        <option value="{{item.value}}">{{item.name}}</option>
-                                    </template>
-                                </select>
-                            </div>
-                            <div class="col-sm-2">
-                                <textarea class="form-control" rows="1" id="{{prefix}}FieldIncludes" placeholder="Include values"></textarea>
-                            </div>
-                            <div class="col-sm-2">
-                                <select id="{{prefix}}FacetFieldNested" class$="form-control {{prefix}}FilterSelect">
-                                    <option value="none" selected>Nest within...</option>
-                                    <template is="dom-repeat" items="{{config.fields}}">
-                                        <option value="{{item.value}}">{{item.name}}</option>
-                                    </template>
-                                    <template is="dom-repeat" items="{{facetFieldsName}}" filter="_isValidField">
-                                        <option value="{{item.value}}">{{item.name}}</option>
-                                    </template>
-                                </select>
-                            </div>
-                            <div class="col-sm-2">
-                                <textarea class="form-control" rows="1" id="{{prefix}}NestedFieldIncludes" placeholder="Include values"></textarea>
-                            </div>
-                            <button type="button" class="btn btn-primary" on-click="addFacets" style="cursor: pointer">Add</button>
+                <div class="col-sm-10">
+                    <h3>Fields</h3>
+                    <div class="form-group row">
+                        <div class="col-sm-2">
+                            <select id="{{prefix}}FacetField" class$="form-control {{prefix}}FilterSelect">
+                                <option value="none" selected>Select a field...</option>
+                                <template is="dom-repeat" items="{{config.fields}}">
+                                    <option value="{{item.value}}">{{item.name}}</option>
+                                </template>
+                            </select>
                         </div>
+                        <div class="col-sm-2">
+                            <textarea class="form-control" rows="1" id="{{prefix}}FieldIncludes" placeholder="Include values"></textarea>
+                        </div>
+                        <div class="col-sm-2">
+                            <select id="{{prefix}}FacetFieldNested" class$="form-control {{prefix}}FilterSelect">
+                                <option value="none" selected>Nest within...</option>
+                                <template is="dom-repeat" items="{{config.fields}}">
+                                    <option value="{{item.value}}">{{item.name}}</option>
+                                </template>
+                                <template is="dom-repeat" items="{{facetFieldsName}}" filter="_isValidField">
+                                    <option value="{{item.value}}">{{item.name}}</option>
+                                </template>
+                            </select>
+                        </div>
+                        <div class="col-sm-2">
+                            <textarea class="form-control" rows="1" id="{{prefix}}NestedFieldIncludes" placeholder="Include values"></textarea>
+                        </div>
+                        <button type="button" class="btn btn-primary" on-click="addFacets" style="cursor: pointer">Add</button>
                     </div>
 
-                    <div class="panel-body col-sm-4">
-                        <template is="dom-repeat" items="{{facetFieldsName}}">
+                    <template is="dom-repeat" items="{{facetFieldsName}}">
                         <span style="font-size: 14px">
-                            <span title="Remove field">
+                            <span title="Remove field" style="padding: 0px 0px 20px 20px">
                                 <i class="fa fa-times fa-lg" aria-hidden="true" on-click="removeFacetFields" data-id="{{item.value}}" data-field="field" style="color: darkred;cursor: pointer"></i>
                             </span>&nbsp;{{item.name}}
                         </span>
-                            <br>
-                        </template>
-                    </div>
+                    </template>
                 </div>
 
                 <!-- Facet Range -->
-                <div class="col-sm-12">
-                    <div class="col-sm-8">
-                        <h4>Ranges</h4>
-                        <!-- Conservation & Deleteriousness -->
-                        <h5><b><i class="fa fa-angle-double-right" aria-hidden="true"></i>&nbsp; Conservation & Deleteriousness</b></h5>
-                        <div class="form-group row">
-                            <div class="col-sm-2">
-                                <select id="{{prefix}}FacetRangeField" class$="form-control {{prefix}}FilterSelect">
-                                    <option value="none" selected>Select a field...</option>
-                                    <template is="dom-repeat" items="{{config.ranges}}">
-                                        <option value="{{item.value}}">{{item.name}}</option>
-                                    </template>
-                                </select>
-                            </div>
-                            <div class="col-sm-2">
-                                <div class="input-group">
-                                    <span class="input-group-addon">Start</span>
-                                    <input type="text" class="form-control" id="{{prefix}}FacetRangeStart" value="0">
-                                </div>
-                            </div>
-                            <div class="col-sm-2">
-                                <div class="input-group">
-                                    <span class="input-group-addon">End</span>
-                                    <input type="text" class="form-control" id="{{prefix}}FacetRangeEnd" value="1">
-                                </div>
-                            </div>
-                            <div class="col-sm-2">
-                                <div class="input-group">
-                                    <span class="input-group-addon">Interval</span>
-                                    <input type="text" class="form-control" id="{{prefix}}FacetRangeGap" value="0.1">
-                                </div>
-                            </div>
-                            <button type="button" class="btn btn-primary" on-click="addFacets" style="cursor: pointer">Add
-                            </button>
+                <div class="col-sm-10">
+                    <h3>Ranges</h3>
+
+                    <!-- Chromosomes -->
+                    <h5><b><i class="fa fa-angle-double-right" aria-hidden="true"></i>&nbsp; Chromosome</b></h5>
+                    <div class="form-group row">
+                        <div class="col-sm-2">
+                            <input type="text" class="form-control" id="{{prefix}}ChromosomeInput" placeholder="1">
                         </div>
 
-                        <!-- Population frequency -->
-                        <h5><b><i class="fa fa-angle-double-right" aria-hidden="true"></i>&nbsp; Population frequency</b></h5>
-                        <div class="form-group row">
-                            <div class="col-sm-2">
-                                <select id="{{prefix}}PopFreqRangeField" class$="form-control {{prefix}}FilterSelect">
-                                    <option value="none" selected>Select a population...</option>
-                                    <template is="dom-repeat" items="{{populationFrequencies.studies}}" as="study">
-                                        <template is="dom-repeat" items="{{study.populations}}" as="population">
-                                            <option value="{{study.id}}_{{population.id}}">{{study.id}}_{{population.id}}</option>
-                                        </template>
-                                    </template>
+                        <div class="col-sm-2">
+                            <div class="input-group">
+                                <span class="input-group-addon">Interval</span>
+                                <select id="{{prefix}}ChromosomeRangeGap" class$="form-control {{prefix}}FilterSelect">
+                                    <option value="1000000" selected>1 Mb</option>
+                                    <option value="2000000">2 Mb</option>
+                                    <option value="5000000">5 Mb</option>
+                                    <option value="10000000">10 Mb</option>
                                 </select>
                             </div>
-                            <div class="col-sm-2">
-                                <div class="input-group">
-                                    <span class="input-group-addon">Start</span>
-                                    <input type="text" class="form-control" id="{{prefix}}PopFreqRangeStart" value="0">
-                                </div>
-                            </div>
-                            <div class="col-sm-2">
-                                <div class="input-group">
-                                    <span class="input-group-addon">End</span>
-                                    <input type="text" class="form-control" id="{{prefix}}PopFreqRangeEnd" value="1">
-                                </div>
-                            </div>
-                            <div class="col-sm-2">
-                                <div class="input-group">
-                                    <span class="input-group-addon">Interval</span>
-                                    <input type="text" class="form-control" id="{{prefix}}PopFreqRangeGap" value="0.1">
-                                </div>
-                            </div>
-                            <button type="button" class="btn btn-primary" on-click="addFacets" style="cursor: pointer">Add
-                            </button>
                         </div>
+
+                        <button type="button" class="btn btn-primary" on-click="addFacets" style="cursor: pointer">Add</button>
                     </div>
-                    <div class="panel-body col-sm-4">
-                        <template is="dom-repeat" items="{{facetRangeFields}}">
+
+                    <!-- Conservation & Deleteriousness -->
+                    <h5><b><i class="fa fa-angle-double-right" aria-hidden="true"></i>&nbsp; Conservation & Deleteriousness</b></h5>
+                    <div class="form-group row">
+                        <div class="col-sm-2">
+                            <select id="{{prefix}}FacetRangeField" class$="form-control {{prefix}}FilterSelect">
+                                <option value="none" selected>Select a field...</option>
+                                <template is="dom-repeat" items="{{config.ranges}}">
+                                    <option value="{{item.value}}">{{item.name}}</option>
+                                </template>
+                            </select>
+                        </div>
+
+                        <div class="col-sm-2">
+                            <div class="input-group">
+                                <span class="input-group-addon">Start</span>
+                                <input type="text" class="form-control" id="{{prefix}}FacetRangeStart" value="0">
+                            </div>
+                        </div>
+
+                        <div class="col-sm-2">
+                            <div class="input-group">
+                                <span class="input-group-addon">End</span>
+                                <input type="text" class="form-control" id="{{prefix}}FacetRangeEnd" value="1">
+                            </div>
+                        </div>
+
+                        <div class="col-sm-2">
+                            <div class="input-group">
+                                <span class="input-group-addon">Interval</span>
+                                <input type="text" class="form-control" id="{{prefix}}FacetRangeGap" value="0.1">
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn btn-primary" on-click="addFacets" style="cursor: pointer">Add</button>
+                    </div>
+
+                    <!-- Population frequency -->
+                    <h5><b><i class="fa fa-angle-double-right" aria-hidden="true"></i>&nbsp; Population frequency</b></h5>
+                    <div class="form-group row">
+                        <div class="col-sm-2">
+                            <select id="{{prefix}}PopFreqRangeField" class$="form-control {{prefix}}FilterSelect">
+                                <option value="none" selected>Select a population...</option>
+                                <template is="dom-repeat" items="{{populationFrequencies.studies}}" as="study">
+                                    <template is="dom-repeat" items="{{study.populations}}" as="population">
+                                        <option value="{{study.id}}_{{population.id}}">{{study.id}}_{{population.id}}</option>
+                                    </template>
+                                </template>
+                            </select>
+                        </div>
+
+                        <div class="col-sm-2">
+                            <div class="input-group">
+                                <span class="input-group-addon">Start</span>
+                                <input type="text" class="form-control" id="{{prefix}}PopFreqRangeStart" value="0">
+                            </div>
+                        </div>
+
+                        <div class="col-sm-2">
+                            <div class="input-group">
+                                <span class="input-group-addon">End</span>
+                                <input type="text" class="form-control" id="{{prefix}}PopFreqRangeEnd" value="1">
+                            </div>
+                        </div>
+
+                        <div class="col-sm-2">
+                            <div class="input-group">
+                                <span class="input-group-addon">Interval</span>
+                                <input type="text" class="form-control" id="{{prefix}}PopFreqRangeGap" value="0.1">
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn btn-primary" on-click="addFacets" style="cursor: pointer">Add</button>
+                    </div>
+
+                    <template is="dom-repeat" items="{{facetRangeFields}}">
                         <span style="font-size: 14px">
-                            <span title="Remove field">
-                              <i class="fa fa-times fa-lg" aria-hidden="true" on-click="removeFacetFields"
-                                 data-id="{{item}}" data-field="range" style="color: darkred;cursor: pointer"></i>
+                            <span title="Remove field" style="padding: 0px 0px 20px 20px">
+                                <i class="fa fa-times fa-lg" aria-hidden="true" on-click="removeFacetFields" data-id="{{item}}" data-field="range" style="color: darkred;cursor: pointer"></i>
                             </span>&nbsp;{{item}}
-                        </span><br>
-                        </template>
-                    </div>
+                        </span>
+                    </template>
                 </div>
 
                 <div class="col-sm-12">
-                    <div class="col-sm-8">
-                        <h4>Chromosome</h4>
-                        <div class="form-group row">
-                            <div class="col-sm-2">
-                                <input type="text" class="form-control" id="{{prefix}}ChromosomeInput" placeholder="1,2,3...21,X,Y,MT">
-                            </div>
-                            <div class="col-sm-3">
-                                <div class="input-group">
-                                    <span class="input-group-addon">Interval</span>
-                                    <select id="{{prefix}}ChromosomeRangeGap" class$="form-control {{prefix}}FilterSelect">
-                                        <option value="1000000" selected>1000000</option>
-                                        <option value="2000000">2000000</option>
-                                        <option value="5000000">5000000</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <button type="button" class="btn btn-primary" on-click="addFacets" style="cursor: pointer">Add
-                            </button>
-                        </div>
+                    <div style="float: right; padding: 0px 0px 10px 5px">
+                        <button type="button" class="btn btn-primary btn-lg" on-click="loadPlots">Refresh</button>
+                    </div>
+
+                    <div style="float: right; padding: 0px 0px 10px 0px">
+                        <button type="button" class="btn btn-primary btn-lg" on-click="clearAll">Clear</button>
                     </div>
                 </div>
-            </div>
-
-            <div style="float: right; padding: 0px 0px 5px 5px">
-                <button type="button" class="btn btn-primary btn-lg" on-click="loadPlots">Refresh</button>
-            </div>
-
-            <div style="float: right; padding: 0px 0px 5px 0px">
-                <button type="button" class="btn btn-primary btn-lg" on-click="clearAll">Clear</button>
             </div>
 
             <!-- Facet Plots -->
