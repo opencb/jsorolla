@@ -192,9 +192,9 @@
             <h2>Results</h2>
 
             <!--<template is="dom-if" if="{{_loading}}">-->
-                <div id="{{prefix}}Loading" hidden="{{!_loading}}">
-                    <h4>Loading...</h4>
-                </div>
+            <div id="{{prefix}}Loading" hidden="{{!_loading}}">
+                <h4>Loading...</h4>
+            </div>
             <!--</template>-->
 
             <!--<h4>Total Number of Variants : {{totalVariants}}</h4>-->
@@ -270,7 +270,7 @@
 
                 this.results = [];
                 this._loading = false;
-                this.plotType = "column";
+//                this.plotType = "column";
             },
             addFacets: function () {
                 // Facets
@@ -289,7 +289,7 @@
                                     + this.$$("#" + this.prefix + "IncludesTextarea").value + "]"
                                 });
                                 this.push('facetFields', this.$$("#" + this.prefix + "FacetFieldNested").value + ">>" + this.$$("#" + this.prefix + "FacetField").value
-                                + "[" + this.$$("#" + this.prefix + "IncludesTextarea").value + "]");
+                                    + "[" + this.$$("#" + this.prefix + "IncludesTextarea").value + "]");
                             } else {
                                 this.push('facetFieldsName', {
                                     name: $("#" + this.prefix + "FacetFieldNested option:selected").text() + " >> " + $("#" + this.prefix + "FacetField option:selected").text(),
@@ -534,7 +534,7 @@
                         _this.results = _results;
                         _this.$.resultsDiv.render();
                         for (let result of _this.results) {
-                            _this.renderPlots("#" + _this.prefix + result.name + "Plot", facetMap.get(result.name));
+                            _this.renderHistogramChart("#" + _this.prefix + result.name + "Plot", facetMap.get(result.name));
                         }
                     });
             },
@@ -558,11 +558,46 @@
 //                this.loadPlots();
 //              debugger
             },
-            renderPlots: function (id, params) {
+            renderHistogramChart: function (id, params) {
                 $(id).highcharts({
                     credits: {enabled: false},
                     chart: {
-                        type: this.plotType
+                        type: "column"
+                    },
+                    title: {
+                        text: params.title || params.name
+                    },
+                    xAxis: {
+                        categories: params.categories
+                    },
+                    yAxis: {
+                        min: 0,
+                        title: {
+                            text: 'Total number of Variants'
+                        }
+                    },
+                    tooltip: {
+                        headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                        '<td style="padding:0"><b>{point.y:.1f} </b></td></tr>',
+                        footerFormat: '</table>',
+                        shared: true,
+                        useHTML: true
+                    },
+                    plotOptions: {
+                        column: {
+                            pointPadding: 0.2,
+                            borderWidth: 0
+                        }
+                    },
+                    series: params.series
+                });
+            },
+            renderPieChart: function (id, params) {
+                $(id).highcharts({
+                    credits: {enabled: false},
+                    chart: {
+                        type: "pie"
                     },
                     title: {
                         text: params.title || params.name
