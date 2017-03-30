@@ -14,8 +14,10 @@
   ~ limitations under the License.
   -->
 
+<link rel="import" href="variant-sample-grid.html">
 <link rel="import" href="opencga-family-editor.html">
-<dom-module id="opencga-family-selector">
+
+<dom-module id="variant-sample-selector">
     <template>
         <style is="custom-style" include="jso-styles"></style>
 
@@ -58,10 +60,11 @@
             </div>
 
             <div class="col-md-10">
-                <table id="{{prefix}}FamilySelector" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
-                       data-checkbox-header="false" style="cursor: pointer;">
-                    <thead style="background-color: #eee"></thead>
-                </table>
+                <!--<table id="{{prefix}}FamilySelector" data-search="true" data-show-columns="true" data-page-size="5" data-pagination="true" data-page-list="[10, 25, 50]"-->
+                       <!--data-checkbox-header="false" style="cursor: pointer;">-->
+                    <!--<thead style="background-color: #eee"></thead>-->
+                <!--</table>-->
+                <variant-sample-grid opencga-client="{{opencgaClient}}" study-id="{{study.id}}" samples="{{samples}}" prefix="{{prefix}}"></variant-sample-grid>
 
                 <div>
                     <h4>Family editor (Work in progess)</h4>
@@ -73,7 +76,7 @@
     </template>
     <script>
         Polymer({
-            is: 'opencga-family-selector',
+            is: 'variant-sample-selector',
             properties: {
                 opencgaClient: {
                     type: Object
