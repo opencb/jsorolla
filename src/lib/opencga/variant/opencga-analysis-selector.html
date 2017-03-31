@@ -13,6 +13,8 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+
+<link rel="import" href="variant-samples-filter.html">
 <dom-module id="opencga-analysis-selector">
 
     <template>
@@ -29,30 +31,31 @@
         <!-- This is where main application is rendered -->
         <div class="panel">
             <div class="col-md-3">
-                <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true">
+                <!--<div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true">-->
                     <!--Sample name-->
-                    <div class="panel panel-default">
-                        <div class="panel-heading" role="tab" id="{{prefix}}SampleGeneralFilterHeading">
-                            <h4 class="panel-title">
-                                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                                   href="#{{prefix}}General" aria-expanded="true">
-                                    Analysis filters
-                                </a>
-                            </h4>
-                        </div>
-                        <div id="{{prefix}}SampleGeneralFilter" class="panel-collapse" role="tabpanel"
-                             aria-labelledby="{{prefix}}SampleGeneralFilterHeading">
-                            <div class="form-group has-feedback panel-body">
-                                Analysis ID:
-                                <textarea id="{{prefix}}NameTextarea" class="form-control clearable" rows="3"></textarea>
+                    <!--<div class="panel panel-default">-->
+                        <!--<div class="panel-heading" role="tab" id="{{prefix}}SampleGeneralFilterHeading">-->
+                            <!--<h4 class="panel-title">-->
+                                <!--<a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"-->
+                                   <!--href="#{{prefix}}General" aria-expanded="true">-->
+                                    <!--Analysis filters-->
+                                <!--</a>-->
+                            <!--</h4>-->
+                        <!--</div>-->
+                        <!--<div id="{{prefix}}SampleGeneralFilter" class="panel-collapse" role="tabpanel"-->
+                             <!--aria-labelledby="{{prefix}}SampleGeneralFilterHeading">-->
+                            <!--<div class="form-group has-feedback panel-body">-->
+                                <!--Analysis ID:-->
+                                <!--<textarea id="{{prefix}}NameTextarea" class="form-control clearable" rows="3"></textarea>-->
 
-                                <br>Sample data:
-                                <textarea id="{{prefix}}IndividualTextarea" class="form-control clearable" rows="3"
-                                          placeholder="Hospital ..."></textarea>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                                <!--<br>Sample data:-->
+                                <!--<textarea id="{{prefix}}IndividualTextarea" class="form-control clearable" rows="3"-->
+                                          <!--placeholder="Hospital ..."></textarea>-->
+                            <!--</div>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                <!--</div>-->
+                    <variant-samples-filter opencga-client="{{opencgaClient}}"></variant-samples-filter>
             </div>
 
             <div class="col-md-9">

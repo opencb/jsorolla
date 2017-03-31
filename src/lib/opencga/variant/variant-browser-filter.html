@@ -95,7 +95,10 @@
             }
         </style>
 
-        <div>
+        <div><table id="{{prefix}}SampleSelector" data-search="true" data-show-columns="true" data-pagination="true" data-page-size="5" data-page-list="[5, 10, 25]"
+                       data-checkbox-header="false" data-maintain-selected="true" style="cursor: pointer;">
+                    <thead style="background-color: #eee"></thead>
+                </tab
             <br>
             <div style="width: 60%;margin: 0 auto">
                 <button type="button" class="btn btn-primary" style="width: 100%" on-click="onSearch">
@@ -684,13 +687,13 @@
         <!-- Modal dialog for Sample Browser in prioritization-->
         <div class="modal fade" id="{{prefix}}SampleBrowser" tabindex="-1" role="dialog"
              aria-labelledby="sampleBrowserLabel">
-            <div class="modal-dialog modal-lg" role="document" style="width: 1024px;">
+            <div class="modal-dialog modal-lg" role="document" style="width: 1440px;">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                         <h4 class="modal-title" id="{{prefix}}SampleBrowserLabel">Family Selector</h4>
                     </div>
-                    <div class="modal-body" style="height: 500px">
+                    <div class="modal-body" style="height: 600px">
                         <!--<opencga-family-selector opencga-client="{{opencgaClient}}" study-id="{{study.id}}" samples="{{samples}}" prefix="{{prefix}}"></opencga-family-selector>-->
                         <variant-sample-selector opencga-client="{{opencgaClient}}" study-id="{{study.id}}" samples="{{samples}}" prefix="{{prefix}}"></variant-sample-selector>
                     </div>
@@ -704,13 +707,13 @@
         <!-- Modal dialog for Analysis Browser-->
         <div class="modal fade" id="{{prefix}}AnalysisBrowser" tabindex="-1" role="dialog"
              aria-labelledby="sampleBrowserLabel">
-            <div class="modal-dialog modal-lg" role="document" style="width: 1024px;">
+            <div class="modal-dialog modal-lg" role="document" style="width: 1280px;">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                         <h4 class="modal-title" id="{{prefix}}AnalysisBrowserLabel">Analysis Selector</h4>
                     </div>
-                    <div class="modal-body" style="height: 500px">
+                    <div class="modal-body" style="height: 780px">
                         <opencga-analysis-selector></opencga-analysis-selector>
                     </div>
                     <div class="modal-footer">

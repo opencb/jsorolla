@@ -16,6 +16,7 @@
 
 <link rel="import" href="variant-sample-grid.html">
 <link rel="import" href="opencga-family-editor.html">
+<link rel="import" href="variant-samples-filter.html">
 
 <dom-module id="variant-sample-selector">
     <template>
@@ -24,42 +25,44 @@
         <!--<h3><i class="fa fa-sitemap" aria-hidden="true"></i>&nbsp;Family Selector</h3>-->
 
         <div class="panel">
-            <div class="col-md-2">
-                <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true">
-                    <!--Sample name-->
-                    <div class="panel panel-default">
-                        <div class="panel-heading" role="tab" id="{{prefix}}SampleGeneralFilterHeading">
-                            <h4 class="panel-title">
-                                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                                   href="#{{prefix}}General" aria-expanded="true" aria-controls="{{prefix}}General">
-                                    General
-                                    <div style="float: right" class="tooltip-div">
-                                        <a data-toggle="tooltip" title="Generic sample filters">
-                                            <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                        </a>
-                                    </div>
-                                </a>
-                            </h4>
-                        </div>
-                        <div id="{{prefix}}SampleGeneralFilter" class="panel-collapse" role="tabpanel"
-                             aria-labelledby="{{prefix}}SampleGeneralFilterHeading">
-                            <div class="form-group has-feedback panel-body">
-                                Sample name:
-                                <textarea id="{{prefix}}NameTextarea" class="form-control clearable" rows="3"
-                                          placeholder="HG01879, HG01880, HG01881..."
-                                          name="name" on-keyup="calculateFilters"></textarea>
+            <div class="col-md-3">
+                <!--<div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true">-->
+                    <!--&lt;!&ndash;Sample name&ndash;&gt;-->
+                    <!--<div class="panel panel-default">-->
+                        <!--<div class="panel-heading" role="tab" id="{{prefix}}SampleGeneralFilterHeading">-->
+                            <!--<h4 class="panel-title">-->
+                                <!--<a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"-->
+                                   <!--href="#{{prefix}}General" aria-expanded="true" aria-controls="{{prefix}}General">-->
+                                    <!--General-->
+                                    <!--<div style="float: right" class="tooltip-div">-->
+                                        <!--<a data-toggle="tooltip" title="Generic sample filters">-->
+                                            <!--<i class="fa fa-info-circle" aria-hidden="true"></i>-->
+                                        <!--</a>-->
+                                    <!--</div>-->
+                                <!--</a>-->
+                            <!--</h4>-->
+                        <!--</div>-->
+                        <!--<div id="{{prefix}}SampleGeneralFilter" class="panel-collapse" role="tabpanel"-->
+                             <!--aria-labelledby="{{prefix}}SampleGeneralFilterHeading">-->
+                            <!--<div class="form-group has-feedback panel-body">-->
+                                <!--Sample name:-->
+                                <!--<textarea id="{{prefix}}NameTextarea" class="form-control clearable" rows="3"-->
+                                          <!--placeholder="HG01879, HG01880, HG01881..."-->
+                                          <!--name="name" on-keyup="calculateFilters"></textarea>-->
 
-                                <br> Individual name:
-                                <textarea id="{{prefix}}IndividualTextarea" class="form-control clearable" rows="3"
-                                          placeholder="Smith, Grant ..."
-                                          name="individual" on-keyup="calculateFilters"></textarea>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                                <!--<br> Individual name:-->
+                                <!--<textarea id="{{prefix}}IndividualTextarea" class="form-control clearable" rows="3"-->
+                                          <!--placeholder="Smith, Grant ..."-->
+                                          <!--name="individual" on-keyup="calculateFilters"></textarea>-->
+                            <!--</div>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                <!--</div>-->
+
+                <variant-samples-filter opencga-client="{{opencgaClient}}"></variant-samples-filter>
             </div>
 
-            <div class="col-md-10">
+            <div class="col-md-9">
                 <!--<table id="{{prefix}}FamilySelector" data-search="true" data-show-columns="true" data-page-size="5" data-pagination="true" data-page-list="[10, 25, 50]"-->
                        <!--data-checkbox-header="false" style="cursor: pointer;">-->
                     <!--<thead style="background-color: #eee"></thead>-->
