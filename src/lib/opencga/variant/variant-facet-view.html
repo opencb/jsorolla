@@ -60,7 +60,7 @@
                     <template is="dom-repeat" items="{{facetFieldsName}}">
                         <span style="font-size: 14px">
                             <span title="Remove field" style="padding: 0px 0px 20px 20px">
-                                <i class="fa fa-times fa-lg" aria-hidden="true" on-click="removeFacetFields" data-id="{{item.value}}" data-field="field" style="color: darkred;cursor: pointer"></i>
+                                <i class="fa fa-times fa-lg" aria-hidden="true" on-click="removeFacetField" data-id="{{item.value}}" data-field="field" style="color: darkred;cursor: pointer"></i>
                             </span>&nbsp;{{item.name}}
                         </span>
                     </template>
@@ -169,7 +169,7 @@
                     <template is="dom-repeat" items="{{facetRangeFields}}">
                         <span style="font-size: 14px">
                             <span title="Remove field" style="padding: 0px 0px 20px 20px">
-                                <i class="fa fa-times fa-lg" aria-hidden="true" on-click="removeFacetFields" data-id="{{item}}" data-field="range" style="color: darkred;cursor: pointer"></i>
+                                <i class="fa fa-times fa-lg" aria-hidden="true" on-click="removeFacetField" data-id="{{item}}" data-field="range" style="color: darkred;cursor: pointer"></i>
                             </span>&nbsp;{{item}}
                         </span>
                     </template>
@@ -177,7 +177,7 @@
 
                 <div class="col-sm-12">
                     <div style="float: right; padding: 0px 0px 10px 5px">
-                        <button type="button" class="btn btn-primary btn-lg" on-click="loadPlots">Refresh</button>
+                        <button type="button" class="btn btn-primary btn-lg" on-click="render">Refresh</button>
                     </div>
 
                     <div style="float: right; padding: 0px 0px 10px 0px">
@@ -186,7 +186,8 @@
                 </div>
             </div>
 
-            <!-- Facet Plots -->
+
+            <!-- Results - Facet Plots -->
             <h2>Results</h2>
 
             <!--<template is="dom-if" if="{{_loading}}">-->
@@ -202,9 +203,11 @@
                     <label class="btn btn-primary">
                         <i class="fa fa-bar-chart" style="padding-right: 5px" title="Bar Chart"></i>
                     </label>
-                    <label class="btn btn-primary" on-click="setPieChart">
-                        <i class="fa fa-pie-chart" style="padding-right: 5px" title="Pie Chart"></i>
-                    </label>
+                    <template is="dom-if" if="{{item.renderPieChart}}">
+                        <label class="btn btn-primary" data-id={{item.name}} on-click="onPieChart">
+                            <i class="fa fa-pie-chart" style="padding-right: 5px" title="Pie Chart"></i>
+                        </label>
+                    </template>
                     <label class="btn btn-primary">
                         <i class="fa fa-table" style="padding-right: 5px" title="Tabular View"></i>
                     </label>
@@ -261,10 +264,12 @@
                     "annot-hpo": "HPO"
                 };
 
+                // These are for making the queries to server
                 this.facetFields = [];
+                this.facetRanges = [];
+
                 this.facetFieldsName = [];
                 this.facetRangeFields = [];
-                this.facetRanges = [];
 
                 this.results = [];
                 this._loading = false;
@@ -382,44 +387,23 @@
                 }
 
             },
-            removeFacetFields: function (e) {
-                if (e.target.dataset.field == "field") {
+            removeFacetField: function (e) {
+                if (e.target.dataset.field === "field") {
                     let index = this.facetFields.indexOf(e.target.dataId);
                     this.splice('facetFields', index, 1);
                     for (let i = 0; i < this.facetFieldsName.length; i++) {
-                        if (this.facetFieldsName[i].value == e.target.dataId) {
+                        if (this.facetFieldsName[i].value === e.target.dataId) {
                             this.splice('facetFieldsName', i, 1);
                             break;
                         }
                     }
-                } else if (e.target.dataset.field == "range") {
+                } else if (e.target.dataset.field === "range") {
                     let index = this.facetRangeFields.indexOf(e.target.dataId);
                     this.splice('facetRangeFields', index, 1);
                     this.splice('facetRanges', index, 1);
                 }
             },
-            fetchVariants: function () {
-                if (typeof this.opencgaClient !== "undefined") {
-                    let queryParams = {
-                        sid: this.opencgaClient._config.sessionId,
-                        timeout: 60000,
-                        summary: true,
-                        limit: 1
-                    };
-                    Object.assign(queryParams, this.query);
-
-                    if (typeof queryParams.studies === "undefined" || queryParams.studies === "" || queryParams.studies.split(new RegExp("[,;]")).length == 1) {
-                        queryParams.studies = this.project.alias + ":" + this.study.alias;
-                    }
-
-                    let _this = this;
-                    this.opencgaClient.variants().query(queryParams, {})
-                        .then(function (response) {
-                            _this.totalVariants = response.response[0].numTotalResults;
-                        });
-                }
-            },
-            loadPlots: function () {
+            render: function () {
                 if (typeof this.opencgaClient === "undefined") {
                     return;
                 }
@@ -433,10 +417,11 @@
                 this.results = []; // Clear the previous divs
                 this._loading = true;
 
-                let fieldNamesMap = {};
+                let _fieldNamesMap = {};
                 for (let f of this.config.fields) {
-                    fieldNamesMap[f.value] = f.name;
+                    _fieldNamesMap[f.value] = f.name;
                 }
+                this.fieldNamesMap = _fieldNamesMap;
 
                 let queryParams = {
                     sid: this.opencgaClient._config.sessionId,
@@ -463,90 +448,41 @@
                 this.opencgaClient.variants().facet(queryParams, {})
                     .then(function (queryResponse) {
                         let response = queryResponse.response[0].result[0].result;
-                        let _results = [];
 
-                        let facetMap = new Map();
+                        let _facetResults = {};
+                        let _results = [];
 
                         // Facet fields
                         for (let field of response.fields) {
-                            let obj = {
-                                name: field.name,
-                                title: fieldNamesMap[field.name],
-                                categories: [],
-                                series: []
-                            };
-                            let series = {};
-                            let data = [];
-                            for (let i = 0; i < field.counts.length; i++) {
-                                let countObj = field.counts[i];
-                                obj.categories.push(countObj.value);
-                                if (typeof countObj.field !== "undefined") {
-                                    obj.nestedField = countObj.field.name;
-                                    for (let nestedCountObj of countObj.field.counts) {
-                                        if (typeof series[nestedCountObj.value] === "undefined") {
-                                            series[nestedCountObj.value] = [];
-                                        }
-                                        // It is important to push 'index' as we need to take care of the missing values
-                                        series[nestedCountObj.value].push({index: i, count: nestedCountObj.count});
-                                    }
-                                } else {
-                                    data.push(countObj.count);
-                                }
-                            }
-
-                            if (Object.keys(series).length > 0) {
-                                for (let key in series) {
-                                    let data = [];
-                                    for (let countIndex of series[key]) {
-                                        data[countIndex.index] = countIndex.count;
-                                    }
-                                    for (let i = 0; i < data.length; i++) {
-                                        if (typeof data[i] === "undefined") {
-                                            data[i] = 0; // Setting '0' for missing fields
-                                        }
-                                    }
-                                    obj.series.push({name: key, data: data});
-                                }
+                            let _name ;
+                            if (typeof field.counts[0].field === "undefined") {
+                                _name = field.name;
                             } else {
-                                obj.series.push({name: field.name, data: data});
+                                _name = field.name + "-" + field.counts[0].field.name;
                             }
-
-                            facetMap.set(field.name, obj);
-                            _results.push(obj);
+                            _facetResults[_name] = field;
+                            _facetResults[_name].name = _name;
+                            _facetResults[_name].renderHistogramChart = true;
+                            _facetResults[_name].renderPieChart = true;
+                            _facetResults[_name].category = "field";
+                            _results.push(_facetResults[field.name]);
                         }
 
                         // Facet Ranges
                         for (let range of response.ranges) {
-                            let obj = {
-                                name: range.name,
-                                categories: [],
-                                series: [],
-                            };
-                            let data = [];
-                            let start = Number(range.start);
-                            for (let rangeCount of range.counts) {
-                                if(Math.round(start) !== start) {
-                                    start = Number(start.toFixed(1));
-                                }
-                                let end = Number(start + range.gap);
-                                if(Math.round(end) !== end) {
-                                    end = Number(end.toFixed(1));
-                                }
-                                obj.categories.push(start + "-" + end);
-                                data.push(rangeCount);
-                                start = end;
-                            }
-
-                            obj.series.push({name: range.name, data: data});
-
-                            facetMap.set(range.name, obj);
-                            _results.push(obj);
+                            _facetResults[range.name] = range;
+                            _facetResults[range.name].renderHistogramChart = true;
+                            _facetResults[range.name].renderPieChart = false;
+                            _facetResults[range.name].category = "range";
+                            _results.push(_facetResults[range.name]);
                         }
 
+                        _this.facetResults = Object.assign({}, _facetResults);
                         _this.results = _results;
+
                         _this.$.resultsDiv.render();
                         for (let result of _this.results) {
-                            _this.renderHistogramChart("#" + _this.prefix + result.name + "Plot", facetMap.get(result.name));
+                            _this.renderHistogramChart("#" + _this.prefix + result.name + "Plot", result.name);
                         }
                         _this._loading = false;
                     });
@@ -570,13 +506,17 @@
                 this.$$("#" + this.prefix + "NestedFieldIncludes").value = "";
                 this.$$("#" + this.prefix + "ChromosomeInput").value = "";
             },
-            setPieChart: function (e) {
+            onPieChart: function (e) {
 //                this.plotType = "pie";
-//                this.loadPlots();
+//                this.render();
 //              debugger
+                let id = e.target.dataId;
+                this.renderPieChart("#" + this.prefix + id + "Plot", id);
             },
-            renderHistogramChart: function (id, params) {
-                $(id).highcharts({
+            renderHistogramChart: function (div, id) {
+                let params = this._getHistogramData(id);
+
+                $(div).highcharts({
                     credits: {enabled: false},
                     chart: {
                         type: "column"
@@ -610,8 +550,10 @@
                     series: params.series
                 });
             },
-            renderPieChart: function (id, params) {
-                $(id).highcharts({
+            renderPieChart: function (div, id) {
+                let params = this._getPieData(id);
+
+                $(div).highcharts({
                     credits: {enabled: false},
                     chart: {
                         type: "pie"
@@ -644,6 +586,105 @@
                     },
                     series: params.series
                 });
+            },
+            _getHistogramData: function (id) {
+                let params;
+                if (this.facetResults[id].category === "field") {
+                    let field = this.facetResults[id];
+                    let obj = {
+                        name: field.name,
+                        title: this.fieldNamesMap[field.name] || field.name,
+                        categories: [],
+                        series: []
+                    };
+                    let series = {};
+                    let data = [];
+                    for (let i = 0; i < field.counts.length; i++) {
+                        let countObj = field.counts[i];
+                        obj.categories.push(countObj.value);
+                        if (typeof countObj.field !== "undefined") {
+                            obj.nestedField = countObj.field.name;
+                            for (let nestedCountObj of countObj.field.counts) {
+                                if (typeof series[nestedCountObj.value] === "undefined") {
+                                    series[nestedCountObj.value] = [];
+                                }
+                                // It is important to push 'index' as we need to take care of the missing values
+                                series[nestedCountObj.value].push({index: i, count: nestedCountObj.count});
+                            }
+                        } else {
+                            data.push(countObj.count);
+                        }
+                    }
+
+                    if (Object.keys(series).length > 0) {
+                        for (let key in series) {
+                            let data = [];
+                            for (let countIndex of series[key]) {
+                                data[countIndex.index] = countIndex.count;
+                            }
+                            for (let i = 0; i < data.length; i++) {
+                                if (typeof data[i] === "undefined") {
+                                    data[i] = 0; // Setting '0' for missing fields
+                                }
+                            }
+                            obj.series.push({name: key, data: data});
+                        }
+                    } else {
+                        obj.series.push({name: field.name, data: data});
+                    }
+                    params = obj;
+                } else if (this.facetResults[id].category === "range") {
+                    let range = this.facetResults[id];
+                    let obj = {
+                        name: range.name,
+                        categories: [],
+                        series: [],
+                    };
+                    let data = [];
+                    let start = Number(range.start);
+                    for (let rangeCount of range.counts) {
+                        if (Math.round(start) !== start) {
+                            start = Number(start.toFixed(1));
+                        }
+                        let end = Number(start + range.gap);
+                        if (Math.round(end) !== end) {
+                            end = Number(end.toFixed(1));
+                        }
+                        obj.categories.push(start + "-" + end);
+                        data.push(rangeCount);
+                        start = end;
+                    }
+                    obj.series.push({name: range.name, data: data});
+                    params = obj;
+                }
+                return params;
+            },
+            _getPieData: function () {
+
+            },
+            _getDonutData: function () {
+
+            },
+            fetchVariants: function () {
+                if (typeof this.opencgaClient !== "undefined") {
+                    let queryParams = {
+                        sid: this.opencgaClient._config.sessionId,
+                        timeout: 60000,
+                        summary: true,
+                        limit: 1
+                    };
+                    Object.assign(queryParams, this.query);
+
+                    if (typeof queryParams.studies === "undefined" || queryParams.studies === "" || queryParams.studies.split(new RegExp("[,;]")).length == 1) {
+                        queryParams.studies = this.project.alias + ":" + this.study.alias;
+                    }
+
+                    let _this = this;
+                    this.opencgaClient.variants().query(queryParams, {})
+                        .then(function (response) {
+                            _this.totalVariants = response.response[0].numTotalResults;
+                        });
+                }
             },
             _isValidField: function (item) {
                 for (let field of this.config.fields) {
