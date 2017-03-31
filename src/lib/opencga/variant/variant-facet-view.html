@@ -35,6 +35,9 @@
                                 <template is="dom-repeat" items="{{config.fields}}">
                                     <option value="{{item.value}}">{{item.name}}</option>
                                 </template>
+                                <template is="dom-repeat" items="{{facetFieldsName}}" filter="_isValidField">
+                                    <option value="{{item.value}}">{{item.name}}</option>
+                                </template>
                             </select>
                         </div>
                         <div class="col-sm-2">
@@ -42,11 +45,8 @@
                         </div>
                         <div class="col-sm-2">
                             <select id="{{prefix}}FacetFieldNested" class$="form-control {{prefix}}FilterSelect">
-                                <option value="none" selected>Nest within...</option>
+                                <option value="none" selected>Nested Field</option>
                                 <template is="dom-repeat" items="{{config.fields}}">
-                                    <option value="{{item.value}}">{{item.name}}</option>
-                                </template>
-                                <template is="dom-repeat" items="{{facetFieldsName}}" filter="_isValidField">
                                     <option value="{{item.value}}">{{item.name}}</option>
                                 </template>
                             </select>
@@ -89,7 +89,7 @@
                             </div>
                         </div>
 
-                        <button type="button" class="btn btn-primary" on-click="addFacets" style="cursor: pointer">Add</button>
+                        <button type="button" class="btn btn-primary" id="{{prefix}}ChromosomeAdd" on-click="addFacets" style="cursor: pointer">Add</button>
                     </div>
 
                     <!-- Conservation & Deleteriousness -->
@@ -200,12 +200,12 @@
             <template is="dom-repeat" items="{{results}}" id="resultsDiv">
                 <h3>{{item.title}}</h3>
                 <div class="btn-group" style="float: right">
-                    <label class="btn btn-primary">
-                        <i class="fa fa-bar-chart" style="padding-right: 5px" title="Bar Chart"></i>
+                    <label class="btn btn-primary" on-click="onHistogram">
+                        <i class="fa fa-bar-chart" style="padding-right: 5px" title="Bar Chart" data-id="{{item.name}}"></i>
                     </label>
                     <template is="dom-if" if="{{item.renderPieChart}}">
-                        <label class="btn btn-primary" data-id={{item.name}} on-click="onPieChart">
-                            <i class="fa fa-pie-chart" style="padding-right: 5px" title="Pie Chart"></i>
+                        <label class="btn btn-primary" on-click="onPieChart">
+                            <i class="fa fa-pie-chart" style="padding-right: 5px" title="Pie Chart" data-id="{{item.name}}"></i>
                         </label>
                     </template>
                     <label class="btn btn-primary">
@@ -304,10 +304,10 @@
                             }
 
                             this.push('facetFieldsName', {
-                                name: nestedField.name + " >> " + field.name,
-                                value: nestedField.value + ">>" + field.value
+                                name: field.name + " >> " + nestedField.name,
+                                value: field.value + ">>" + nestedField.value
                             });
-                            this.push('facetFields', nestedField.value + ">>" + field.value);
+                            this.push('facetFields', field.value + ">>" + nestedField.value);
                         }
                     } else {
                         this.push('facetFieldsName', {
@@ -382,6 +382,7 @@
                                     + _this.$$("#" + _this.prefix + "ChromosomeRangeGap").value);
                                 _this.$$("#" + _this.prefix + "ChromosomeInput").value = "";
                                 _this.$$("#" + _this.prefix + "ChromosomeRangeGap").value = "1000000";
+                                $("#" + _this.prefix + "ChromosomeAdd").prop("disabled", true);
                             });
                     }
                 }
@@ -399,6 +400,9 @@
                     }
                 } else if (e.target.dataset.field === "range") {
                     let index = this.facetRangeFields.indexOf(e.target.dataId);
+                    if (this.facetRanges[index].startsWith("start")) {
+                        $("#" + this.prefix + "ChromosomeAdd").prop("disabled", false);
+                    }
                     this.splice('facetRangeFields', index, 1);
                     this.splice('facetRanges', index, 1);
                 }
@@ -437,6 +441,9 @@
                     queryParams.studies = this.project.alias + ":" + this.study.alias;
                 }
 
+                if (typeof this.chromosome !== "undefined" && this.chromosome != "") {
+                    queryParams.region = this.chromosome;
+                }
                 if (this.facetFields.length > 0) {
                     queryParams.facet = this.facetFields.join(";");
                 }
@@ -497,19 +504,23 @@
             },
             clearAll: function () {
                 this.clearPlots();
+                this.chromosome = "";
                 this.facetFields = [];
+                this.facetRanges = [];
                 this.facetFieldsName = [];
                 this.facetRangeFields = [];
-                this.facetRanges = [];
                 $("." + this.prefix + "FilterSelect").prop('selectedIndex', 0);
                 this.$$("#" + this.prefix + "FieldIncludes").value = "";
                 this.$$("#" + this.prefix + "NestedFieldIncludes").value = "";
                 this.$$("#" + this.prefix + "ChromosomeInput").value = "";
+                $("#" + this.prefix + "ChromosomeAdd").prop("disabled", false);
+            },
+            onHistogram: function (e) {
+                let id = e.target.dataId;
+                this.renderHistogramChart("#" + this.prefix + id + "Plot", id);
             },
             onPieChart: function (e) {
-//                this.plotType = "pie";
-//                this.render();
-//              debugger
+                debugger
                 let id = e.target.dataId;
                 this.renderPieChart("#" + this.prefix + id + "Plot", id);
             },
@@ -556,32 +567,25 @@
                 $(div).highcharts({
                     credits: {enabled: false},
                     chart: {
-                        type: "pie"
+                        plotBackgroundColor: null,
+                        plotBorderWidth: null,
+                        plotShadow: false,
+                        type: 'pie'
                     },
                     title: {
-                        text: params.title || params.name
-                    },
-                    xAxis: {
-                        categories: params.categories
-                    },
-                    yAxis: {
-                        min: 0,
-                        title: {
-                            text: 'Total number of Variants'
-                        }
+                        text: params.title
                     },
                     tooltip: {
-                        headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-                        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-                        '<td style="padding:0"><b>{point.y:.1f} </b></td></tr>',
-                        footerFormat: '</table>',
-                        shared: true,
-                        useHTML: true
+                        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
                     },
                     plotOptions: {
-                        column: {
-                            pointPadding: 0.2,
-                            borderWidth: 0
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: {
+                                enabled: false
+                            },
+                            showInLegend: true
                         }
                     },
                     series: params.series
@@ -659,8 +663,23 @@
                 }
                 return params;
             },
-            _getPieData: function () {
+            _getPieData: function (id) {
+                let field = this.facetResults[id];
+                let pieData = {
+                    title: field.name,
+                    series: []
+                };
+                let data = [];
+                for (let countObj of field.counts) {
+                    data.push({name: countObj.value, y: countObj.count});
+                }
+                pieData.series.push({
+                    name: field.name,
+                    colorByPoint: true,
+                    data: data
+                });
 
+                return pieData;
             },
             _getDonutData: function () {
 
