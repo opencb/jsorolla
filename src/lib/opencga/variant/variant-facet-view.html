@@ -440,6 +440,9 @@
                 for (let f of this.config.fields) {
                     _fieldNamesMap[f.value] = f.name;
                 }
+                for (let f of this.config.ranges) {
+                    _fieldNamesMap[f.value] = f.name;
+                }
                 this.fieldNamesMap = _fieldNamesMap;
 
                 let queryParams = {
@@ -509,6 +512,12 @@
                                 _this.renderHistogramChart("#" + _this.prefix + result.name + "Plot", result.name);
                             }
 
+                            // Remove loading modal
+                            $("#" + _this.prefix + "LoadingModal").modal("hide");
+                            _this._showInitMessage = false;
+                        })
+                        .catch(function (e) {
+                            console.log(e);
                             // Remove loading modal
                             $("#" + _this.prefix + "LoadingModal").modal("hide");
                             _this._showInitMessage = false;
@@ -662,6 +671,7 @@
                     let range = this.facetResults[id];
                     let obj = {
                         name: range.name,
+                        title: this.fieldNamesMap[range.name] || range.name,
                         categories: [],
                         series: [],
                     };
