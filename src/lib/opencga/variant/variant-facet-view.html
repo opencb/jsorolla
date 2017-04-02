@@ -45,7 +45,7 @@
                         </div>
                         <div class="col-sm-2">
                             <select id="{{prefix}}FacetFieldNested" class$="form-control {{prefix}}FilterSelect">
-                                <option value="none" selected>Nested Field</option>
+                                <option value="none" selected>Nested field...</option>
                                 <template is="dom-repeat" items="{{config.fields}}">
                                     <option value="{{item.value}}">{{item.name}}</option>
                                 </template>
@@ -71,7 +71,7 @@
                     <h3>Ranges</h3>
 
                     <!-- Chromosomes -->
-                    <h5><b><i class="fa fa-angle-double-right" aria-hidden="true"></i>&nbsp; Chromosome</b></h5>
+                    <label>Chromosome</label>
                     <div class="form-group row">
                         <div class="col-sm-2">
                             <input type="text" class="form-control" id="{{prefix}}ChromosomeInput" placeholder="1">
@@ -79,7 +79,7 @@
 
                         <div class="col-sm-2">
                             <div class="input-group">
-                                <span class="input-group-addon">Interval</span>
+                                <span class="input-group-addon">Chunk</span>
                                 <select id="{{prefix}}ChromosomeRangeGap" class$="form-control {{prefix}}FilterSelect">
                                     <option value="1000000" selected>1 Mb</option>
                                     <option value="2000000">2 Mb</option>
@@ -93,7 +93,7 @@
                     </div>
 
                     <!-- Conservation & Deleteriousness -->
-                    <h5><b><i class="fa fa-angle-double-right" aria-hidden="true"></i>&nbsp; Conservation & Deleteriousness</b></h5>
+                    <label>Conservation & Deleteriousness</label>
                     <div class="form-group row">
                         <div class="col-sm-2">
                             <select id="{{prefix}}FacetRangeField" class$="form-control {{prefix}}FilterSelect">
@@ -129,7 +129,7 @@
                     </div>
 
                     <!-- Population frequency -->
-                    <h5><b><i class="fa fa-angle-double-right" aria-hidden="true"></i>&nbsp; Population frequency</b></h5>
+                    <label>Population frequency</label>
                     <div class="form-group row">
                         <div class="col-sm-2">
                             <select id="{{prefix}}PopFreqRangeField" class$="form-control {{prefix}}FilterSelect">
@@ -187,36 +187,50 @@
             </div>
 
 
-            <!-- Results - Facet Plots -->
+            <!-- RESULTS - Facet Plots -->
             <h2>Results</h2>
 
-            <!--<template is="dom-if" if="{{_loading}}">-->
-            <div id="{{prefix}}Loading" hidden="{{!_loading}}">
-                <h4>Loading...</h4>
-            </div>
-            <!--</template>-->
+            <template is="dom-if" if="{{_showInitMessage}}">
+                <h3>No facet filters selected</h3>
+            </template>
 
             <!--<h4>Total Number of Variants : {{totalVariants}}</h4>-->
             <template is="dom-repeat" items="{{results}}" id="resultsDiv">
                 <h3>{{item.title}}</h3>
                 <div class="btn-group" style="float: right">
-                    <label class="btn btn-primary" on-click="onHistogram">
+                    <span class="btn btn-primary" on-click="onHistogramChart">
                         <i class="fa fa-bar-chart" style="padding-right: 5px" title="Bar Chart" data-id="{{item.name}}"></i>
-                    </label>
+                    </span>
                     <template is="dom-if" if="{{item.renderPieChart}}">
-                        <label class="btn btn-primary" on-click="onPieChart">
+                        <span class="btn btn-primary" on-click="onPieChart">
                             <i class="fa fa-pie-chart" style="padding-right: 5px" title="Pie Chart" data-id="{{item.name}}"></i>
-                        </label>
+                        </span>
                     </template>
-                    <label class="btn btn-primary">
+                    <span class="btn btn-primary">
                         <i class="fa fa-table" style="padding-right: 5px" title="Tabular View"></i>
-                    </label>
+                    </span>
                 </div>
                 <div id="{{prefix}}{{item.name}}Plot" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
                 <br>
             </template>
-
         </div>
+
+        <div class="modal fade" id="{{prefix}}LoadingModal" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog"
+             aria-hidden="true" style="padding-top:15%; overflow-y:visible;">
+            <div class="modal-dialog modal-m">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Loading...</h3>
+                    </div>
+                    <div class="modal-body">
+                        <div class="progress progress-striped active">
+                            <div class="progress-bar progress-bar-success" style="width: 100%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </template>
     <script>
         Polymer({
@@ -272,7 +286,7 @@
                 this.facetRangeFields = [];
 
                 this.results = [];
-                this._loading = false;
+                this._showInitMessage = true;
             },
             addFacets: function () {
                 // Facets
@@ -418,8 +432,9 @@
                 }
 
                 this.clearPlots();
-                this.results = []; // Clear the previous divs
-                this._loading = true;
+
+                // Shows loading modal
+                $("#" + this.prefix + "LoadingModal").modal("show");
 
                 let _fieldNamesMap = {};
                 for (let f of this.config.fields) {
@@ -452,55 +467,61 @@
                 }
 
                 let _this = this;
-                this.opencgaClient.variants().facet(queryParams, {})
-                    .then(function (queryResponse) {
-                        let response = queryResponse.response[0].result[0].result;
+                // Promise needs to be executed in a setTimeout to give time the browser to update the DOM and show the loading modal
+                setTimeout(_ => {
+                    this.opencgaClient.variants().facet(queryParams, {})
+                        .then(function (queryResponse) {
+                            let response = queryResponse.response[0].result[0].result;
 
-                        let _facetResults = {};
-                        let _results = [];
+                            let _facetResults = {};
+                            let _results = [];
 
-                        // Facet fields
-                        for (let field of response.fields) {
-                            let _name ;
-                            if (typeof field.counts[0].field === "undefined") {
-                                _name = field.name;
-                            } else {
-                                _name = field.name + "-" + field.counts[0].field.name;
+                            // Facet fields
+                            for (let field of response.fields) {
+                                let _name ;
+                                if (typeof field.counts[0].field === "undefined") {
+                                    _name = field.name;
+                                } else {
+                                    _name = field.name + "-" + field.counts[0].field.name;
+                                }
+                                _facetResults[_name] = field;
+                                _facetResults[_name].name = _name;
+                                _facetResults[_name].renderHistogramChart = true;
+                                _facetResults[_name].renderPieChart = true;
+                                _facetResults[_name].category = "field";
+                                _results.push(_facetResults[field.name]);
                             }
-                            _facetResults[_name] = field;
-                            _facetResults[_name].name = _name;
-                            _facetResults[_name].renderHistogramChart = true;
-                            _facetResults[_name].renderPieChart = true;
-                            _facetResults[_name].category = "field";
-                            _results.push(_facetResults[field.name]);
-                        }
 
-                        // Facet Ranges
-                        for (let range of response.ranges) {
-                            _facetResults[range.name] = range;
-                            _facetResults[range.name].renderHistogramChart = true;
-                            _facetResults[range.name].renderPieChart = false;
-                            _facetResults[range.name].category = "range";
-                            _results.push(_facetResults[range.name]);
-                        }
+                            // Facet Ranges
+                            for (let range of response.ranges) {
+                                _facetResults[range.name] = range;
+                                _facetResults[range.name].renderHistogramChart = true;
+                                _facetResults[range.name].renderPieChart = false;
+                                _facetResults[range.name].category = "range";
+                                _results.push(_facetResults[range.name]);
+                            }
 
-                        _this.facetResults = Object.assign({}, _facetResults);
-                        _this.results = _results;
+                            _this.facetResults = Object.assign({}, _facetResults);
+                            _this.results = _results;
 
-                        _this.$.resultsDiv.render();
-                        for (let result of _this.results) {
-                            _this.renderHistogramChart("#" + _this.prefix + result.name + "Plot", result.name);
-                        }
-                        _this._loading = false;
-                    });
+                            _this.$.resultsDiv.render();
+                            for (let result of _this.results) {
+                                _this.renderHistogramChart("#" + _this.prefix + result.name + "Plot", result.name);
+                            }
+
+                            // Remove loading modal
+                            $("#" + _this.prefix + "LoadingModal").modal("hide");
+                            _this._showInitMessage = false;
+                        });
+                }, 250);
             },
             clearPlots: function () {
                 if (typeof this.results !== "undefined" && this.results.length > 0) {
                     for (let result of this.results) {
                         $("#" + this.prefix + result.name + "Plot").remove();
                     }
-                    this.results = [];
                 }
+                this.results = [];
             },
             clearAll: function () {
                 this.clearPlots();
@@ -509,18 +530,18 @@
                 this.facetRanges = [];
                 this.facetFieldsName = [];
                 this.facetRangeFields = [];
+                this._showInitMessage = true;
                 $("." + this.prefix + "FilterSelect").prop('selectedIndex', 0);
                 this.$$("#" + this.prefix + "FieldIncludes").value = "";
                 this.$$("#" + this.prefix + "NestedFieldIncludes").value = "";
                 this.$$("#" + this.prefix + "ChromosomeInput").value = "";
                 $("#" + this.prefix + "ChromosomeAdd").prop("disabled", false);
             },
-            onHistogram: function (e) {
+            onHistogramChart: function (e) {
                 let id = e.target.dataId;
                 this.renderHistogramChart("#" + this.prefix + id + "Plot", id);
             },
             onPieChart: function (e) {
-                debugger
                 let id = e.target.dataId;
                 this.renderPieChart("#" + this.prefix + id + "Plot", id);
             },
