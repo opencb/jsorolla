@@ -592,34 +592,60 @@
                 });
             },
             renderPieChart: function (div, id) {
-                let params = this._getPieData(id);
+                let params;
+                let renderDonut = false;
+                if (typeof this.facetResults[id] !== "undefined" && typeof this.facetResults[id].counts[0].field !== "undefined") {
+                    params = this._getDonutData(id);
+                    renderDonut = true;
+                } else {
+                    params = this._getPieData(id);
+                }
 
-                $(div).highcharts({
-                    credits: {enabled: false},
-                    chart: {
-                        plotBackgroundColor: null,
-                        plotBorderWidth: null,
-                        plotShadow: false,
-                        type: 'pie'
-                    },
-                    title: {
-                        text: params.title
-                    },
-                    tooltip: {
-                        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-                    },
-                    plotOptions: {
-                        pie: {
-                            allowPointSelect: true,
-                            cursor: 'pointer',
-                            dataLabels: {
-                                enabled: false
-                            },
-                            showInLegend: true
-                        }
-                    },
-                    series: params.series
-                });
+                if (renderDonut) {
+                    $(div).highcharts({
+                        credits: {enabled: false},
+                        chart: {
+                            type: 'pie'
+                        },
+                        title: {
+                            text: params.title
+                        },
+                        plotOptions: {
+                            pie: {
+                                shadow: false,
+                                center: ['50%', '50%']
+                            }
+                        },
+                        series: params.series
+                    });
+                } else {
+                    $(div).highcharts({
+                        credits: {enabled: false},
+                        chart: {
+                            plotBackgroundColor: null,
+                            plotBorderWidth: null,
+                            plotShadow: false,
+                            type: 'pie'
+                        },
+                        title: {
+                            text: params.title
+                        },
+                        tooltip: {
+                            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                        },
+                        plotOptions: {
+                            pie: {
+                                allowPointSelect: true,
+                                cursor: 'pointer',
+                                dataLabels: {
+                                    enabled: false
+                                },
+                                showInLegend: true
+                            }
+                        },
+                        series: params.series
+                    });
+                }
             },
             _getHistogramData: function (id) {
                 let params;
@@ -712,8 +738,87 @@
 
                 return pieData;
             },
-            _getDonutData: function () {
+            _getDonutData: function (id) {
+                let field = this.facetResults[id];
+                let donutData = {
+                    title : field.name,
+                    series : []
+                };
 
+                let colors = Highcharts.getOptions().colors;
+                let categories = [];
+                let data = [];
+                for (let i = 0; i < field.counts.length; i++) {
+                    let fieldObj = field.counts[i];
+                    categories.push(fieldObj.value);
+                    let subField = fieldObj.field;
+                    let subCategories = [];
+                    let subData = [];
+                    for (let countObj of subField.counts) {
+                        subCategories.push(countObj.value);
+                        subData.push(countObj.count);
+                    }
+                    data.push({
+                        y: fieldObj.count,
+                        color: colors[i],
+                        drilldown: {
+                            name: subField.name,
+                            categories: subCategories,
+                            data: subData,
+                            color: colors[i]
+                        }
+                    });
+                }
+                let levelOneData = [];
+                let levelTwoData = [];
+
+                // Build the data arrays
+                for (let i = 0; i < data.length; i++) {
+                    // add level one data
+                    levelOneData.push({
+                        name: categories[i],
+                        y: data[i].y,
+                        color: data[i].color
+                    });
+
+                    // add level two data
+                    let drillDataLen = data[i].drilldown.data.length;
+                    for (let j = 0; j < drillDataLen; j++) {
+                        let brightness = 0.2 - (j / drillDataLen) / 5;
+                        levelTwoData.push({
+                            name: data[i].drilldown.categories[j],
+                            y: data[i].drilldown.data[j],
+                            color: Highcharts.Color(data[i].color).brighten(brightness).get()
+                        });
+                    }
+                }
+
+                let [levelOneField, levelTwoField] = field.name.split("-");
+                donutData.series.push({
+                    name: levelOneField,
+                    data: levelOneData,
+                    size: '60%',
+                    dataLabels: {
+                        formatter: function () {
+                            return this.y > 5 ? this.point.name : null;
+                        },
+                        color: '#ffffff',
+                        distance: -30
+                    }
+                });
+                donutData.series.push({
+                    name: levelTwoField,
+                    data: levelTwoData,
+                    size: '80%',
+                    innerSize: '60%',
+                    dataLabels: {
+                        formatter: function () {
+                            // display only if larger than 1
+                            return this.y > 1 ? '<b>' + this.point.name + ':</b> ' + this.y + '%' : null;
+                        }
+                    }
+                });
+                return donutData;
             },
             fetchVariants: function () {
                 if (typeof this.opencgaClient !== "undefined") {
