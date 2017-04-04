@@ -119,7 +119,7 @@
 
                 <br>
                 <br>
-                <variant-browser-grid project="{{project}}" study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
+                <variant-browser-grid project="{{project}}" study="{{study}}" opencga-client="{{opencgaClient}}"
                                       population-frequencies="{{populationFrequencies}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
                                       consequence-types="{{consequenceTypes}}" search="{{query}}" query="{{query}}" variant="{{variant}}"
                                       on-selectvariant="onSelectVariant" style="font-size: 12px" summary="{{summary}}">
@@ -187,12 +187,12 @@
                 'projectStudyObtained(project, study)'
             ],
             ready: function () {
-                if (typeof this.prefix === "undefined" || this.prefix == "") {
+                if (typeof this.prefix === "undefined" || this.prefix === "") {
                     this.prefix = "protein" + Utils.randomString(6);
                 }
             },
             projectStudyObtained: function (project, study) {
-                if (typeof this.project !== "undefined" && this.project.alias != "" && typeof this.study !== "undefined" && this.study.alias != "") {
+                if (typeof this.project !== "undefined" && this.project.alias !== "" && typeof this.study !== "undefined" && this.study.alias !== "") {
                     this.hashFragmentCredentials = {
                         project: this.project.alias,
                         study: this.study.alias
@@ -212,15 +212,15 @@
             _proteinChanged: function () {
                 // Remove the previously added SVG
                 let svg = Polymer.dom(this.root).querySelector("svg");
-                if (svg != null) {
+                if (svg !== null) {
                     let proteinSvgDiv = Polymer.dom(this.root).querySelector("#" + this.prefix + "ProteinSvgDiv");
                     proteinSvgDiv.removeChild(svg);
                 }
 
                 let query = {};
                 let _this = this;
-                if (this.cellbaseClient instanceof CellBaseClient && typeof this.protein !== "undefined" && this.protein != "") {
-                    query["annot-xref"] = this.protein;
+                if (this.cellbaseClient instanceof CellBaseClient && typeof this.protein !== "undefined" && this.protein !== "") {
+                    query["annot-xref"] = this.protein; // Query object that is passed to Variant browser grid
                     _this.cellbaseClient.getProteinClient(this.protein, 'info', {}, {})
                         .then(function (response) {
                             _this.proteinObj = response.response[0].result[0];
