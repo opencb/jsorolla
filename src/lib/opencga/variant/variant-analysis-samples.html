@@ -13,9 +13,10 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<link rel="import" href="opencga-family-selector.html">
+<link rel="import" href="variant-sample-grid.html">
 <link rel="import" href="opencga-family-editor.html">
 <link rel="import" href="variant-samples-filter.html">
+<link rel="import" href="../opencga-active-filters.html">
 
 <dom-module id="variant-analysis-samples">
     <template>
@@ -28,17 +29,23 @@
         <!-- This is where main application is rendered -->
 
         <div>
-            <div class="col-md-12">
-                <h3>Connect, link & choose analysis of samples</h3>
-                <br>
-            </div>
+            <!--<div class="col-md-12">-->
+                <!--<h3>Connect, link & choose analysis of samples</h3>-->
+                <!--<br>-->
+            <!--</div>-->
 
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <variant-samples-filter study="{{study}}" config="{{config}}" samples="{{samples}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
-                                        query="{{query}}" search="{{search}}" style="font-size: 12px"></variant-samples-filter>
+                                        query="{{query}}" search="{{search}}">
+                </variant-samples-filter>
             </div>
 
-            <div class="col-md-9">
+            <div class="col-md-10">
+
+                <br>
+                <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" filters="{{config.filters}}" alias="{{activeFilterAlias}}"></opencga-active-filters>
+
+
                 <table id="{{prefix}}SampleSelector" data-search="true" data-show-columns="true" data-pagination="true" data-page-size="5" data-page-list="[5, 10, 25]"
                        data-checkbox-header="false" data-maintain-selected="true" style="cursor: pointer;">
                     <thead style="background-color: #eee"></thead>
