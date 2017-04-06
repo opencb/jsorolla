@@ -715,12 +715,13 @@
                         // Just one column called 'Population Frequencies'
                         this.cols[0].splice(popIdx, 0, {
                             title: 'Population Frequencies <a data-toggle="tooltip" title="One coloured square is shown for each cohort, e.g. population. ' +
-                            'Frequencies are visualized as colours which classify values into very rare, rare, average, common or missing. Please, leave ' +
+                            'Frequencies are visualized as colours which classify values into very rare, rare, average, common or missing, see http://www.dialogues-cns.com/wp-content/uploads/2015/03/DialoguesClinNeurosci-17-69-g001.jpg. Please, leave ' +
                             'the cursor over each square to visualize the actual frequency value."><i class="fa fa-info-circle" aria-hidden="true"></i></a>' +
-                            '<div><div style="float: left; width: 10px;height: 10px;margin: 5px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.veryRare + '"></div><div style="float: left">Very rare</div>' +
-                            '<div style="float: left; width: 10px;height: 10px;margin: 5px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.rare + '"></div><div style="float: left">Rare</div>' +
-                            '<div style="float: left; width: 10px;height: 10px;margin: 5px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.average + '"></div><div style="float: left">Average</div>' +
-                            '<div style="float: left; width: 10px;height: 10px;margin: 5px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.common + '"></div><div style="float: left">Common</div>' +
+                            '<div style="width: 60%;margin: auto"><div style="float: left">Legend:&nbsp;&nbsp;</div>' +
+                            '<div style="float: left; width: 12px;height: 12px;margin: 4px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.veryRare + '" title="Very rare:  freq < 0.001"></div>' +
+                            '<div style="float: left; width: 12px;height: 12px;margin: 4px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.rare + '" title="Rare:  freq < 0.005"></div>' +
+                            '<div style="float: left; width: 12px;height: 12px;margin: 4px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.average + '" title="Average:  freq < 0.05"></div>' +
+                            '<div style="float: left; width: 12px;height: 12px;margin: 4px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.common + '" title="Common:  freq >= 0.05"></div>' +
                             '</div>',
                             field: '',
                             rowspan: 1,
@@ -905,7 +906,12 @@
                             halign: 'center'
                         },
                         {
-                            title: 'Deleteriousness <a data-toggle="tooltip" title="SIFT scores are classified into tolerated and deleterious. Polyphen scores are classified into benign, possibly damaging, probably damaging and possibly & probably damaging. Please, leave the cursor over each tag to visualize the actual score value. SIFT score takes values in the range [0, infinite[, the lower the values, the more damaging the prediction. Polyphen score takes values in the range [0, 1[, the closer to 2, the more damaging the prediction."><i class="fa fa-info-circle" aria-hidden="true"></i></a>',
+                            title: 'Deleteriousness <a data-toggle="tooltip" title="SIFT scores are classified into tolerated and deleterious. ' +
+                            'Polyphen scores are classified into benign, possibly damaging, probably damaging and possibly & probably damaging. ' +
+                            'Please, leave the cursor over each tag to visualize the actual score value. ' +
+                            'SIFT score takes values in the range [0, infinite[, the lower the values, the more damaging the prediction. ' +
+                            'Polyphen score takes values in the range [0, 1[, the closer to 2, the more damaging the prediction.">' +
+                            '<i class="fa fa-info-circle" aria-hidden="true"></i></a>',
 //                            field: 'Protein Substitution',
                             colspan: 3,
                             rowspan: 1,
