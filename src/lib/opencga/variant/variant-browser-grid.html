@@ -149,7 +149,7 @@
                 // TO BE REMOVED!
                 this._refreshTableColumns();
 
-                if (typeof this.prefix === "undefined" || this.prefix == "") {
+                if (typeof this.prefix === "undefined" || this.prefix === "") {
                     this.prefix = "table" + Utils.randomString(6);
                 }
 
@@ -714,7 +714,14 @@
 
                         // Just one column called 'Population Frequencies'
                         this.cols[0].splice(popIdx, 0, {
-                            title: 'Population Frequencies <a data-toggle="tooltip" title="One coloured square is shown for each cohort, e.g. population. Frequencies are visualized as colours which classify values into very rare, rare, average, common or missing. Please, leave the cursor over each square to visualize the actual frequency value."><i class="fa fa-info-circle" aria-hidden="true"></i></a>',
+                            title: 'Population Frequencies <a data-toggle="tooltip" title="One coloured square is shown for each cohort, e.g. population. ' +
+                            'Frequencies are visualized as colours which classify values into very rare, rare, average, common or missing. Please, leave ' +
+                            'the cursor over each square to visualize the actual frequency value."><i class="fa fa-info-circle" aria-hidden="true"></i></a>' +
+                            '<div><div style="float: left; width: 10px;height: 10px;margin: 5px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.veryRare + '"></div><div style="float: left">Very rare</div>' +
+                            '<div style="float: left; width: 10px;height: 10px;margin: 5px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.rare + '"></div><div style="float: left">Rare</div>' +
+                            '<div style="float: left; width: 10px;height: 10px;margin: 5px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.average + '"></div><div style="float: left">Average</div>' +
+                            '<div style="float: left; width: 10px;height: 10px;margin: 5px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.common + '"></div><div style="float: left">Common</div>' +
+                            '</div>',
                             field: '',
                             rowspan: 1,
                             colspan: this.populationFrequencies.studies.length,
