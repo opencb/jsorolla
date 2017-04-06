@@ -220,7 +220,22 @@
                 let query = {};
                 let _this = this;
                 if (this.cellbaseClient instanceof CellBaseClient && typeof this.protein !== "undefined" && this.protein !== "") {
-                    query["annot-xref"] = this.protein; // Query object that is passed to Variant browser grid
+                    // FIXME Below line should work as soon as the proteins are annotated
+//                    query["annot-xref"] = this.protein; // Query object that is passed to Variant browser grid
+
+                    // FIXME Below is a patch that needs to be removed
+                    _this.cellbaseClient.get("feature", "id", this.protein, "xref", {dbname: "ensembl_transcript", "Output format": "json"})
+                        .then(function (response) {
+                            let transcripts = [];
+                           let results = response.response[0].result;
+                           for (let result of results) {
+                               transcripts.push(result.id);
+                           }
+                           query["annot-xref"] = transcripts.join(",");
+                           _this.query = query;
+                        });
+
+
                     _this.cellbaseClient.getProteinClient(this.protein, 'info', {}, {})
                         .then(function (response) {
                             _this.proteinObj = response.response[0].result[0];
@@ -252,7 +267,7 @@
                                 });
                             }
                         });
-                    _this.query = query;
+//                    _this.query = query;
                 }
             },
             updateQuery: function (e) {

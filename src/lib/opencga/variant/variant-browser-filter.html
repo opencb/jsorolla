@@ -321,8 +321,26 @@
 
                             <div class="form-group">
                                 <span class="subsection">Feature IDs (gene, transcript, SNP, ...)</span>
-                                <textarea id="{{prefix}}FeatureTextarea" name="geneSnp" class$="form-control clearable {{prefix}}FilterTextInput"
-                                          rows="3" placeholder="BRCA2, ENSG00000139618, ENST00000544455, rs28897700" on-keyup="updateQueryFilters"></textarea>
+                                <div class="form-row">
+                                    <div class="col-sm-10" style="padding: 0px 0px 0px 0px">
+                                        <input id="{{prefix}}FeatureIdText" type="text" class="form-control" list="datalist" placeholder="Search for Gene Symbols" value=""
+                                               on-keyup="callAutocomplete">
+                                        <datalist id="datalist">
+                                            <template is="dom-repeat" items="{{autocompleteData}}">
+                                                <option value="{{item.name}}">
+                                            </template>
+                                        </datalist>
+                                    </div>
+                                    <div class="col-sm-2" style="padding: 0px 0px 0px 5px">
+                                        <button type="button" class="btn btn-default btn-sm form-control" on-click="addFeatureId">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div style="padding-top: 45px">
+                                    <textarea id="{{prefix}}FeatureTextarea" name="geneSnp" class$="form-control clearable {{prefix}}FilterTextInput"
+                                              rows="3" placeholder="BRCA2, ENSG00000139618, ENST00000544455, rs28897700" on-keyup="updateQueryFilters"></textarea>
+                                </div>
                             </div>
 
                             <!--TODO: Update when server side starts to support all xrefs and with/without rs ids-->
@@ -787,7 +805,7 @@
                 }
             },
             ready: function() {
-                if (typeof this.prefix === "undefined" || this.prefix == "") {
+                if (typeof this.prefix === "undefined" || this.prefix === "") {
                     this.prefix = "browser" + Utils.randomString(6);
                 }
 
@@ -820,7 +838,7 @@
                 }
             },
             checkTitle: function(consequenceType) {
-                return typeof consequenceType.title !== "undefined" && consequenceType.title != null;
+                return typeof consequenceType.title !== "undefined" && consequenceType.title !== null;
             },
             moreStudiesPresent: function (studies) {
                 if (typeof studies !== "undefined") {
@@ -849,7 +867,7 @@
                 let differentStudies = [];
                 if (typeof this.study !== "undefined" && typeof this.studies !== "undefined") {
                     for (let i = 0; i < this.studies.length; i++) {
-                        if (this.study.alias != this.studies[i].alias) {
+                        if (this.study.alias !== this.studies[i].alias) {
                             differentStudies.push(this.studies[i]);
                         }
                     }
@@ -865,7 +883,7 @@
             },
             updateConsequenceTypeFilter: function(e) {
                 let soTerms = [];
-                if (e.target.parentNode.id != "") {
+                if (e.target.parentNode.id !== "") {
                     $("#" + e.target.parentNode.id).children('ul').children('li').children('input').prop("checked", e.target.checked);
                 }
                 let selected = $('.soTermCheckBox:checked');
@@ -876,7 +894,7 @@
                 this.updateQueryFilters();
             },
             checkScore: function (e) {
-                if (e.target.value == "score") {
+                if (e.target.value === "score") {
                     $("#" + this.prefix + e.target.name +"Input").prop("disabled", false);
                     $("#" + this.prefix + e.target.name +"Operator").prop("disabled", false);
                 } else {
@@ -907,7 +925,7 @@
                         let genotypes = gt.split(',');
                         for (let j = 0; j < genotypes.length; j++) {
                             for (let z = 0; z < checkboxes.length; z++) {
-                                if (genotypes[j] == checkboxes[z].defaultValue) {
+                                if (genotypes[j] === checkboxes[z].defaultValue) {
                                     checkboxes[z].checked = true;
                                 }
                             }
@@ -930,14 +948,14 @@
 
                 // Studies
                 if (typeof this.query.studies !== "undefined") {
-                    if (this.$$("#includeOtherStudy") != null && this.$$("#differentStudies") != null) {
+                    if (this.$$("#includeOtherStudy") !== null && this.$$("#differentStudies") !== null) {
                         let studies = this.query.studies.split(new RegExp("[,;]"));
                         if (studies.length > 1) {
                             let checkBoxes = this.$$("#differentStudies").querySelectorAll("input");
                             for (let i = 0; i < studies.length; i++) {
                                 let study = studies[i].split(':')[1];
                                 for (let j = 0; j < checkBoxes.length; j++) {
-                                    if (checkBoxes[j].value == study) {
+                                    if (checkBoxes[j].value === study) {
                                         checkBoxes[j].checked = true;
                                     }
                                 }
@@ -976,7 +994,7 @@
                     let checkBoxes = this.$$("#" + this.prefix + "Type").querySelectorAll("input");
                     for (let i = 0; i < types.length; i++) {
                         for (let j = 0; j < checkBoxes.length; j++) {
-                            if (checkBoxes[j].value == types[i]) {
+                            if (checkBoxes[j].value === types[i]) {
                                 checkBoxes[j].checked = true;
                             }
                         }
@@ -1083,7 +1101,7 @@
                     let checkBoxes = this.$$("#consequenceTypeFilter").querySelectorAll("li input");
                     for (let i = 0; i < types.length; i++) {
                         for (let j = 0; j < checkBoxes.length; j++) {
-                            if (checkBoxes[j].dataId == types[i]) {
+                            if (checkBoxes[j].dataId === types[i]) {
                                 checkBoxes[j].checked = true;
                             }
                         }
@@ -1106,7 +1124,7 @@
             updatePanel: function(){
                 let panelname = this.$$("#" + this.prefix + "PanelApps").value;
                 for(var i = 0; i < this.panelList.length ; i++){
-                    if(this.panelList[i].name == panelname){
+                    if(this.panelList[i].name === panelname){
                         let panel = this.panelList[i];
                         this.$$("#" + this.prefix + "PanelAppsTextarea").value = panel.genes;
                         break;
@@ -1137,7 +1155,7 @@
                     for (let sampleName in sampleGenotypesObj) {
                         let gts = [];
                         for (let sampleGT in sampleGenotypesObj[sampleName]) {
-                            if (sampleGenotypesObj[sampleName][sampleGT] == true) {
+                            if (sampleGenotypesObj[sampleName][sampleGT] === true) {
                                 gts.push(sampleGT.replace('/', '|'));
                             }
                         }
@@ -1153,11 +1171,11 @@
                 if (typeof this._cohorts !== "undefined" && this._cohorts.length > 0) {
                     for (let i = 0; i < this._cohorts.length; i++) {
                         let cohort = this._cohorts[i].id;
-                        if (this.$$("#" + this.prefix + this.study.alias + cohort + "Cohort").value != "" || this.$$("#" + this.prefix + this.study.alias + cohort + "CohortOperator").value != "<") {
+                        if (this.$$("#" + this.prefix + this.study.alias + cohort + "Cohort").value !== "" || this.$$("#" + this.prefix + this.study.alias + cohort + "CohortOperator").value !== "<") {
                             let operator = this.$$("#" + this.prefix + this.study.alias + cohort + "CohortOperator").value;
                             let study = this.study.alias;
                             // to be removed!!
-                            if (study == "BRIDGE") {
+                            if (study === "BRIDGE") {
                                 study = "bridge";
                             }
                             let pf = study + ":" + cohort + operator + this.$$("#" + this.prefix + this.study.alias + cohort + "Cohort").value;
@@ -1171,7 +1189,7 @@
 
                 // Studies
                 let studies = [];
-                if (typeof this.$$("#includeOtherStudy") !== "undefined" && this.$$("#includeOtherStudy") != null) {
+                if (typeof this.$$("#includeOtherStudy") !== "undefined" && this.$$("#includeOtherStudy") !== null) {
                     let selectedStudies = this.$$("#differentStudies").querySelectorAll("input:checked");
                     if (selectedStudies.length > 0) {
                         for (let i = 0; i < selectedStudies.length; i++) {
@@ -1190,7 +1208,7 @@
                             let notInStudies = [];
                             let currentStudy = this.project.alias + ':' + this.study.alias;
                             for (let j = 0; j < studies.length; j++) {
-                                if (currentStudy == studies[j]) {
+                                if (currentStudy === studies[j]) {
                                     // Always add the study that we are browsing currently
                                     notInStudies.push(studies[j]);
                                 } else {
@@ -1203,27 +1221,31 @@
                 }
 
                 // Regions
-                if (this.$$("#" + this.prefix + "LocationTextarea").value != "") {
+                if (this.$$("#" + this.prefix + "LocationTextarea").value !== "") {
                     _filters.region = this.$$("#" + this.prefix + "LocationTextarea").value;
                 }
 
                 // Features: Gene, SNP ID
-                if (this.$$("#" + this.prefix + "FeatureTextarea").value != "") {
+                if (this.$$("#" + this.prefix + "FeatureTextarea").value !== "") {
 //                    if (this.$$("#" + this.prefix + "FeatureTextarea").value.startsWith("rs") || this.$$("#" + this.prefix + "FeatureTextarea").value.split(':').length > 2) {
 //                        _filters.ids = this.$$("#" + this.prefix + "FeatureTextarea").value;
 //                    } else {
 //                        _filters.gene = this.$$("#" + this.prefix + "FeatureTextarea").value;
 //                    }
-                    _filters["annot-xref"] = this.$$("#" + this.prefix + "FeatureTextarea").value;
+                    if (this.$$("#" + this.prefix + "FeatureTextarea").value.startsWith("rs") || this.$$("#" + this.prefix + "FeatureTextarea").value.split(':').length > 2) {
+                        _filters["annot-xref"] = this.$$("#" + this.prefix + "FeatureTextarea").value;
+                    } else {
+                        _filters["annot-xref"] = this.$$("#" + this.prefix + "FeatureTextarea").value.toUpperCase();
+                    }
                 }
 
                 // Biotype
-                if (this.$$("#" + this.prefix + "GeneBiotypes").value != "none") {
+                if (this.$$("#" + this.prefix + "GeneBiotypes").value !== "none") {
                     _filters["annot-biotype"] = this.$$("#" + this.prefix + "GeneBiotypes").value;
                 }
 
                 // Panel - annot-panel
-                if (this.$$("#" + this.prefix + "PanelApps").value != "none") {
+                if (this.$$("#" + this.prefix + "PanelApps").value !== "none") {
                     _filters["gene"] = this.$$("#" + this.prefix + "PanelAppsTextarea").value;
                 }
 
@@ -1245,7 +1267,7 @@
                         let study = this.populationFrequencies.studies[i].id;
                         for (let j = 0; j < this.populationFrequencies.studies[i].populations.length; j++) {
                             let population = this.populationFrequencies.studies[i].populations[j].id;
-                            if (this.$$("#" + this.prefix + study + population).value != "" || this.$$("#" + this.prefix + study + population + "Operator").value != "<") {
+                            if (this.$$("#" + this.prefix + study + population).value !== "" || this.$$("#" + this.prefix + study + population + "Operator").value !== "<") {
                                 let operator = this.$$("#" + this.prefix + study + population + "Operator").value;
                                 let pf = study + ":" + population + operator + this.$$("#" + this.prefix + study + population).value;
                                 popFreq.push(pf);
@@ -1260,18 +1282,18 @@
                 // Protein Substitution scores
                 let pss = [];
                 let sift = "";
-                if (this.$$("#" + this.prefix + "SiftValues").value == "score" && this.$$("#" + this.prefix + "SiftInput").value != "" || this.$$("#" + this.prefix + "SiftOperator").value != "<") {
+                if (this.$$("#" + this.prefix + "SiftValues").value === "score" && this.$$("#" + this.prefix + "SiftInput").value !== "" || this.$$("#" + this.prefix + "SiftOperator").value !== "<") {
                     sift = "sift" + this.$$("#" + this.prefix + "SiftOperator").value + this.$$("#" + this.prefix + "SiftInput").value;
                     pss.push(sift);
-                } else if (this.$$("#" + this.prefix + "SiftValues").value != "score") {
+                } else if (this.$$("#" + this.prefix + "SiftValues").value !== "score") {
                     sift = "sift" + "==" + this.$$("#" + this.prefix + "SiftValues").value;
                     pss.push(sift);
                 }
                 let polyphen = "";
-                if (this.$$("#" + this.prefix + "PolyphenValues").value == "score" && this.$$("#" + this.prefix + "PolyphenInput").value != "" || this.$$("#" + this.prefix + "PolyphenOperator").value != "<") {
+                if (this.$$("#" + this.prefix + "PolyphenValues").value === "score" && this.$$("#" + this.prefix + "PolyphenInput").value !== "" || this.$$("#" + this.prefix + "PolyphenOperator").value !== "<") {
                     polyphen = "polyphen" + this.$$("#" + this.prefix + "PolyphenOperator").value + this.$$("#" + this.prefix + "PolyphenInput").value;
                     pss.push(polyphen);
-                } else if (this.$$("#" + this.prefix + "PolyphenValues").value != "score") {
+                } else if (this.$$("#" + this.prefix + "PolyphenValues").value !== "score") {
                     let value = this.$$("#" + this.prefix + "PolyphenValues").value;
                     let polyphenValues = value.split(',');
                     for (let i = 0; i < polyphenValues.length; i++) {
@@ -1279,15 +1301,15 @@
                         pss.push(polyphen);
                     }
                 }
-                if ((this.$$("#" + this.prefix + "SiftInput").value != "" && this.$$("#" + this.prefix + "PolyphenInput").value != "") ||
-                    (this.$$("#" + this.prefix + "SiftValues").value != "score" && this.$$("#" + this.prefix + "PolyphenInput").value != "") ||
-                    ((this.$$("#" + this.prefix + "SiftInput").value) != "" && this.$$("#" + this.prefix + "PolyphenValues").value != "score") ||
-                    (this.$$("#" + this.prefix + "SiftValues").value != "score" && this.$$("#" + this.prefix + "PolyphenValues").value != "score")) {
+                if ((this.$$("#" + this.prefix + "SiftInput").value !== "" && this.$$("#" + this.prefix + "PolyphenInput").value !== "") ||
+                    (this.$$("#" + this.prefix + "SiftValues").value !== "score" && this.$$("#" + this.prefix + "PolyphenInput").value !== "") ||
+                    ((this.$$("#" + this.prefix + "SiftInput").value) !== "" && this.$$("#" + this.prefix + "PolyphenValues").value !== "score") ||
+                    (this.$$("#" + this.prefix + "SiftValues").value !== "score" && this.$$("#" + this.prefix + "PolyphenValues").value !== "score")) {
                     $("input:radio[name=pss]").attr('disabled', false);
                 }
                 if (pss.length > 0) {
                     let filter = $('input:radio[name=pss]:checked').val();
-                    if (filter == "and") {
+                    if (filter === "and") {
                         _filters.protein_substitution = pss.join(';');
                     } else {
                         _filters.protein_substitution = pss.join(',');
@@ -1296,21 +1318,21 @@
 
                 // Conservation
                 let conserArr = [];
-                if (this.$$("#" + this.prefix + "PhylopInput").value != "" || this.$$("#" + this.prefix + "PhylopOperator").value != "<") {
+                if (this.$$("#" + this.prefix + "PhylopInput").value !== "" || this.$$("#" + this.prefix + "PhylopOperator").value !== "<") {
                     let phylop = "phylop" + this.$$("#" + this.prefix + "PhylopOperator").value + this.$$("#" + this.prefix + "PhylopInput").value;
                     conserArr.push(phylop);
                 }
-                if (this.$$("#" + this.prefix + "PhastconsInput").value != "" || this.$$("#" + this.prefix + "PhastconsOperator").value != "<") {
+                if (this.$$("#" + this.prefix + "PhastconsInput").value !== "" || this.$$("#" + this.prefix + "PhastconsOperator").value !== "<") {
                     let phastCons = "phastCons" + this.$$("#" + this.prefix + "PhastconsOperator").value + this.$$("#" + this.prefix + "PhastconsInput").value;
                     conserArr.push(phastCons);
                 }
-                if (this.$$("#" + this.prefix + "GerpInput").value != "" || this.$$("#" + this.prefix + "GerpOperator").value != "<") {
+                if (this.$$("#" + this.prefix + "GerpInput").value !== "" || this.$$("#" + this.prefix + "GerpOperator").value !== "<") {
                     let gerp = "gerp" + this.$$("#" + this.prefix + "GerpOperator").value + this.$$("#" + this.prefix + "GerpInput").value;
                     conserArr.push(gerp);
                 }
-                if ((this.$$("#" + this.prefix + "PhylopInput").value != "" && this.$$("#" + this.prefix + "PhastconsInput").value != "") ||
-                    (this.$$("#" + this.prefix + "PhylopInput").value != "" && this.$$("#" + this.prefix + "GerpInput").value != "") ||
-                    (this.$$("#" + this.prefix + "PhastconsInput").value != "" && this.$$("#" + this.prefix + "GerpInput").value != "")) {
+                if ((this.$$("#" + this.prefix + "PhylopInput").value !== "" && this.$$("#" + this.prefix + "PhastconsInput").value !== "") ||
+                    (this.$$("#" + this.prefix + "PhylopInput").value !== "" && this.$$("#" + this.prefix + "GerpInput").value !== "") ||
+                    (this.$$("#" + this.prefix + "PhastconsInput").value !== "" && this.$$("#" + this.prefix + "GerpInput").value !== "")) {
                     $("input:radio[name=conservation]").attr('disabled', false);
                 }
 
@@ -1329,26 +1351,26 @@
                 }
 
                 // Gene Ontology and Human Phenotype Ontology
-                if (this.$$("#" + this.prefix + "GeneOntologyTextarea").value != "") {
+                if (this.$$("#" + this.prefix + "GeneOntologyTextarea").value !== "") {
                     _filters["annot-go"] = this.$$("#" + this.prefix + "GeneOntologyTextarea").value;
                 }
-                if (this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value != "") {
+                if (this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value !== "") {
                     _filters["annot-hpo"] = this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value;
                 }
-                if (this.$$("#" + this.prefix + "ClinVarTextarea").value != "") {
+                if (this.$$("#" + this.prefix + "ClinVarTextarea").value !== "") {
                     _filters["clinvar"] = this.$$("#" + this.prefix + "ClinVarTextarea").value;
                 }
-                if (this.$$("#" + this.prefix + "TraitsTextarea").value != "") {
+                if (this.$$("#" + this.prefix + "TraitsTextarea").value !== "") {
                     _filters["traits"] = this.$$("#" + this.prefix + "TraitsTextarea").value;
                 }
 
                 // Cadd scores
                 let cadd = [];
-                if (this.$$("#" + this.prefix + "CaddRawInput").value != "" || this.$$("#" + this.prefix + "CaddRawOperator").value != "<") {
+                if (this.$$("#" + this.prefix + "CaddRawInput").value !== "" || this.$$("#" + this.prefix + "CaddRawOperator").value !== "<") {
                     let raw = "cadd_raw" + this.$$("#" + this.prefix + "CaddRawOperator").value + this.$$("#" + this.prefix + "CaddRawInput").value;
                     cadd.push(raw);
                 }
-                if (this.$$("#" + this.prefix + "CaddScaledInput").value != "" || this.$$("#" + this.prefix + "CaddScaledOperator").value != "<") {
+                if (this.$$("#" + this.prefix + "CaddScaledInput").value !== "" || this.$$("#" + this.prefix + "CaddScaledOperator").value !== "<") {
                     let scaled = "cadd_scaled" + this.$$("#" + this.prefix + "CaddScaledOperator").value + this.$$("#" + this.prefix + "CaddScaledInput").value;
                     cadd.push(scaled);
                 }
@@ -1360,6 +1382,29 @@
                 this._reset = false;
                 this.query = _filters;
                 this._reset = true;
+            },
+            callAutocomplete: function(e) {
+                // Only gene symbols are going to be searched and not ensembl ids
+                if (this.$$("#" + this.prefix + "FeatureIdText").value.length > 2 && !this.$$("#" + this.prefix + "FeatureIdText").value.startsWith("ENS")) {
+                    let _this = this;
+                    _this.cellbaseClient.get('feature', 'id', this.$$("#" + this.prefix + "FeatureIdText").value.toUpperCase(), 'starts_with', {}, {})
+                        .then(function (response) {
+                            _this.autocompleteData = response.response[0].result;
+                        });
+                }
+            },
+            addFeatureId: function(e) {
+                let allIds = [];
+                if (this.$$("#" + this.prefix + "FeatureTextarea").value !== "") {
+                    allIds = this.$$("#" + this.prefix + "FeatureTextarea").value.split(',');
+                }
+                let temp = this.$$("#" + this.prefix + "FeatureIdText").value;
+                if (allIds.indexOf(temp) == -1){
+                    allIds.push(temp);
+                }
+                this.$$("#" + this.prefix + "FeatureIdText").value = '';
+                this.$$("#" + this.prefix + "FeatureTextarea").value = allIds;
+                this.updateQueryFilters();
             },
             // Exclusive for prioritization
             refreshSegregationTable: function () {
