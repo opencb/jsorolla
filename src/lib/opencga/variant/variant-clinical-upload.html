@@ -370,7 +370,8 @@
                 $("#" + this.prefix + "birthPlaceRegion").prop("disabled",true);
             },
             submitForm: function(e) {
-                //e.preventDefault();
+                e.preventDefault();
+
                 // Get values from form fields
                 let fields = $("#"+ this.prefix + "uploadForm").serializeArray();
                 let _variableSet = {};
@@ -378,9 +379,24 @@
                 $(fields).each(function(index, field){
                     _variableSet[field.name] = field.value;
                 });
+                console.log(this);
+                debugger;
+                if (this.opencgaClient instanceof OpenCGAClient) {
+                    let params = {
+                        sid: this.opencgaClient._config.sessionId,
+                        studyId: this.study.id,
+                        file: _variableSet.inputFile,
+                        fileFormat: 'VCF',
+                        bioFormat: 'VARIANT',
+
+                    };
+                    this.opencgaClient.files().upload(params).then(function (response) {
+                        console.log(response)
+                    });
+                }
 
                 // Submit the form
-                 $("#" + this.prefix + "uploadForm").submit();
+                 //$("#" + this.prefix + "uploadForm").submit();
                 //console.log(this);
                 //debugger;
             }

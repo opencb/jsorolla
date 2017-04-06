@@ -71,7 +71,7 @@
 
 
                 <!--<div class="analysis-list" id="analysisListDiv" style="display:none">-->
-                <div class="analysis-list" id="analysisListDiv">
+<!--                <div class="analysis-list" id="analysisListDiv">
                     <table id="analysisTable" class="table hover">
                         <thead>
                         <tr class="active">
@@ -84,7 +84,7 @@
                         </tr>
                         </thead>
                         <tbody>
-<!--                        <tr>
+                        <tr>
                             <td>AN-28</td>
                             <td>HG00096, HG00097, HG00099</td>
                             <td>Trio</td>
@@ -96,9 +96,9 @@
                                     <i class="fa fa-cog" aria-hidden="true"></i></button>
 
                             </td>
-                        </tr>-->
+                        </tr>
                         </tbody>
-                    </table>
+                    </table>-->
 
                     <table id="tableAnalysis" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
                            data-checkbox-header="false" data-maintain-selected="true" style="cursor: pointer;">
@@ -451,7 +451,7 @@
                 //console.log(e)
                 //debugger
 
-                $('#analysisTable').append(my_tr)
+                //$('#analysisTable').append(my_tr)
 
                 $('#tableAnalysis').bootstrapTable('insertRow',{index:1 , row: {
                     analysisID : "AN-"+analysisId,

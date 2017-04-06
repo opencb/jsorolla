@@ -127,7 +127,7 @@
                                     <input type="text" class$="custom-sized-input {{prefix}}FilterTextInput" placeholder="AN-28" aria-describedby="basic-addon1" disabled>
                                 </div>
 
-                                <div class="dropdown" id="segregationDropdownDiv" style="display: none">
+<!--                                <div class="dropdown" id="segregationDropdownDiv" style="display: none">
                                     <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="segregationDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                                         {{segregation}}
                                         <span class="caret"></span>
@@ -137,7 +137,7 @@
                                             <li><a>{{item}}</a></li>
                                         </template>
                                     </ul>
-                                </div>
+                                </div>-->
 
                             </div>
                         </div>
@@ -159,30 +159,74 @@
                 </div>
                 <div id="{{prefix}}Position" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}PositionHeading">
                     <div class="panel-body">
-                        <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}LocationDiv" style="cursor: pointer;"></i>&nbsp;Location</label>
+                        <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}LocationDiv" style="cursor: pointer;"></i>&nbsp;Location (Chromosomal position, Genes, SNPs, Cytoband)</label>
                         <div id="{{prefix}}LocationDiv" hidden>
                             <textarea id="{{prefix}}LocationTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="3" placeholder="3:444-55555, 1:1-100000"
                                       name="location" on-keyup="updateQueryFilters"></textarea>
                         </div>
                         <br>
-                        <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}FeatureDiv" style="cursor: pointer;"></i>&nbsp;Feature IDs (gene, transcript, SNP IDs)</label>
+                        <!--<label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}FeatureDiv" style="cursor: pointer;"></i>&nbsp;Feature IDs (gene, transcript, SNP IDs)</label>
                         <div id="{{prefix}}FeatureDiv" hidden>
                             <textarea id="{{prefix}}FeatureTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="5" placeholder="BRCA2, ENSG00000139618, ENST00000544455, rs28897700"
                                       name="geneSnp" on-keyup="updateQueryFilters"></textarea>
                         </div>
+                        <br>-->
+
+                        <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}BiotypeDiv" style="cursor: pointer;"></i>&nbsp;Biotype</label>
+                        <div id="{{prefix}}BiotypeDiv" hidden>
+                            <select class$="form-control {{prefix}}FilterSelect" id="{{prefix}}GeneBiotypes" on-change="updateQueryFilters">
+                                <option value="none">Select a biotype...</option>
+                                <template is="dom-repeat" items="{{biotypes}}">
+                                    <option value="{{item}}">{{item}}</option>
+                                </template>
+                            </select>
+
+
+                        </div>
                         <br>
-                        <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}PanelsDiv" style="cursor: pointer;"></i>&nbsp;Panels</label>
-                        <div id="{{prefix}}PanelsDiv" hidden></div>
+                        <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}TissueExpressionDiv" style="cursor: pointer;"></i>&nbsp;Tissue Expression</label>
+                        <div id="{{prefix}}TissueExpressionDiv" hidden></div>
                         <br>
-                        <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}GeneTypeDiv" style="cursor: pointer;"></i>&nbsp;Type of Genes</label>
-                        <div id="{{prefix}}GeneTypeDiv" hidden></div>
+                        <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}DepthDiv" style="cursor: pointer;"></i>&nbsp;Depth</label>
+                        <div id="{{prefix}}DepthDiv" hidden>
+                            <div class="horizontal layout">
+                                <span>Depth</span>
+                                <span>
+                                    <select name="DepthOperator" id="{{prefix}}{{study.id}}DepthOperator" >
+                                        <option value="<" selected><</option>
+                                        <option value="<="><=</option>
+                                        <option value=">">></option>
+                                        <option value=">=">>=</option>
+                                    </select>
+                                </span>
+                                <span>
+                                    <input type="text" class$="custom-sized-input {{prefix}}FilterTextInput" value="" id="{{prefix}}{{study.id}}Depth">
+                                </span>
+                            </div>
+                        </div>
                         <br>
-                        <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}GeneCatDiv" style="cursor: pointer;"></i>&nbsp;Categories of genes</label>
-                        <div id="{{prefix}}GeneCatDiv" hidden></div>
-                        <br>
-                        <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}GeneRegionDiv" style="cursor: pointer;"></i>&nbsp;Gene regions</label>
-                        <div id="{{prefix}}GeneRegionDiv" hidden></div>
+                        <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}PanelAppDiv" style="cursor: pointer;"></i>&nbsp;PanelApp</label>
+                        <div id="{{prefix}}PanelAppDiv" hidden>
+                            <select class$="form-control {{prefix}}FilterSelect" id="{{prefix}}PanelApps" on-change="updatePanel">
+                                <option value="none">Select a panel...</option>
+                                <template is="dom-repeat" items="{{panelList}}" sort="sortPanelApp">
+                                    <option value="{{item.name}}">{{item.title}} ({{item.genes.length}})</option>
+                                </template>
+                            </select>
+                            </br>
+                            <span>Panel genes:</span>
+                            <textarea id="{{prefix}}PanelAppsTextarea" name="panelAppsTextarea" class$="form-control clearable {{prefix}}FilterTextInput"
+                                      rows="3" placeholder="No panel selected" on-keyup="updateQueryFilters"></textarea>
+                        </div>
                         <!--TODO: Update when server side starts to support all xrefs and with/without rs ids-->
+                        <br>
+                        <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}UserPanelDiv" style="cursor: pointer;"></i>&nbsp;User-defined panels</label>
+                        <div id="{{prefix}}UserPanelDiv" hidden>
+                            <textarea id="{{prefix}}UserPanelTextarea" name="UserPanelTextarea" class$="form-control clearable {{prefix}}FilterTextInput"
+                                      rows="3" placeholder="No custom panel defined" on-keyup="updateQueryFilters"></textarea>
+
+                        </div>
+
                         <!--<textarea id="{{prefix}}FeatureTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="5" placeholder="BRCA2, ENSG00000139618, ENST00000544455, P51587, 13:19748038:C:T, rs28897700, VAR_020705, RCV000162901, COSM3468368"-->
                         <!--name="geneSnp" on-keyup="updateQueryFilters"></textarea>-->
 
@@ -198,18 +242,52 @@
                     <h4 class="panel-title">
                         <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}Clinical" aria-expanded="false" aria-controls="{{prefix}}Clinical">
                             Clinical filters
+                            <div style="float: right" class="tooltip-div">
+                                <a data-toggle="tooltip" title="Clinical filters"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                            </div>
                         </a>
                     </h4>
                 </div>
                 <div id="{{prefix}}Clinical" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}ClinicalHeading">
                     <div class="panel-body">
-                        <div>
+                        <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}InheritanceDiv" style="cursor: pointer;"></i>&nbsp;Inheritance</label>
+                        <div id="{{prefix}}InheritanceDiv" hidden>
+                            <select id="{{prefix}}Inheritance" >
+                                <option>Select inheritance mode</option>
+                                <option>Autosomal dominant</option>
+                                <option>Autosomal recessive</option>
+                                <option>X-linked</option>
+                                <option>Y-linked</option>
+                                <option>Gene with imprinting/UPD</option>
+                                <option>Digenic</option>
+                                <option>Compound hetherozygote</option>
+                                <option>X-linked compound het.</option>
+                                <option>Mithocondrial</option>
+                                <option>De novo</option>
+                            </select>
+                        </div>
+                        <br>
+                        <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}GeneTypeDiv" style="cursor: pointer;"></i>&nbsp;Type of Genes</label>
+                        <div id="{{prefix}}GeneTypeDiv" hidden></div>
+                        <br>
+                        <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}HPODiv" style="cursor: pointer;"></i>&nbsp;HPO</label>
+                        <div id="{{prefix}}HPODiv" hidden>
+                             <textarea id="{{prefix}}HPOTextarea" rows="3" placeholder="HPO term"></textarea>
+                        </div>
+                        <br>
+                        <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}GODiv" style="cursor: pointer;"></i>&nbsp;Gene Ontology</label>
+                        <div id="{{prefix}}GODiv" hidden>
+                            <textarea id="{{prefix}}GOTextarea" rows="3" placeholder="GO:0000145"></textarea>
+                        </div>
+                        <br>
+
+                        <!-- <div>
                             <input type="checkbox" value="Benign" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> Benign<br>
                             <input type="checkbox" value="LikelyBenign" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> Likely Benign<br>
                             <input type="checkbox" value="VOUS" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> VOUS<br>
                             <input type="checkbox" value="LikelyPathogenic" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> Likely Pathogenic<br>
                             <input type="checkbox" value="Pathogenic" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> Pathogenic
-                        </div>
+                        </div>-->
                     </div>
                 </div>
             </div>
@@ -222,12 +300,35 @@
                         <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
                            href="#{{prefix}}PopulationFrequency" aria-expanded="false" aria-controls="{{prefix}}PopulationFrequency">
                             Population Frequency
+                            <div style="float: right" class="tooltip-div">
+                                <a data-toggle="tooltip" title="Population Frequency filters"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                            </div>
                         </a>
                     </h4>
                 </div>
                 <div id="{{prefix}}PopulationFrequency" class="panel-collapse collapse" role="tabpanel"
                      aria-labelledby="{{prefix}}PopulationFrequencyHeading">
                     <div class="panel-body">
+                        <!-- CSVS puesto a pelo... -->
+                        <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}CSVSdiv" style="cursor: pointer;"></i>&nbsp;CSVS</label>
+                        <div id="{{prefix}}CSVSdiv" hidden>
+                            <div class="horizontal layout">
+                                <span>MAF</span>
+                                <span>
+                                    <select name="{{popFreq.id}}Operator" id="{{prefix}}{{study.id}}CSVSOperator" >
+                                        <option value="<" selected><</option>
+                                        <option value="<="><=</option>
+                                        <option value=">">></option>
+                                        <option value=">=">>=</option>
+                                    </select>
+                                </span>
+                                <span>
+                                    <input type="text" class$="custom-sized-input {{prefix}}FilterTextInput" value="" id="{{prefix}}{{study.id}}CSVS">
+                                </span>
+                            </div>
+                        </div>
+                        <br>
+
 
                         <!-- This code create the population frequencies menu filter form populationFrequencies from config.js -->
                         <template is="dom-repeat" items="{{populationFrequencies.studies}}" as="study">
@@ -269,6 +370,9 @@
                         <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}ProteinSubstitutionScore"
                            aria-expanded="false" aria-controls="{{prefix}}ProteinSubstitutionScore">
                             Impact Filters
+                            <div style="float: right" class="tooltip-div">
+                                <a data-toggle="tooltip" title="Impact filters"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                            </div>
                         </a>
                     </h4>
                 </div>
@@ -369,7 +473,7 @@
                         </div>
                         <br>
 
-                        <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}MtasterDiv" style="cursor: pointer;"></i>&nbsp;Mutation Taster</label>
+<!--                        <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}MtasterDiv" style="cursor: pointer;"></i>&nbsp;Mutation Taster</label>
                         <div class="panel-body" id="{{prefix}}MtasterDiv" hidden>
                             <div>
                                 <input type="checkbox" value="DiseaseCausing" on-change="updateQueryFilters" class$="{{prefix}}MutationTasterCheckBox"> Disease causing<br>
@@ -378,7 +482,7 @@
                                 <input type="checkbox" value="PolymorphismAuto" on-change="updateQueryFilters" class$="{{prefix}}MutationTasterCheckBox"> Polymorphism automatic
                             </div>
                         </div>
-                        <br>
+                        <br>-->
 
                         <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}EffectDiv" style="cursor: pointer;"></i>&nbsp;Effect (SO)</label>
                         <div class="panel-body ct-scroll" id="{{prefix}}EffectDiv" hidden>
@@ -424,6 +528,13 @@
                                 </ul>
                             </div>
                         </div>
+                        <br>
+                        <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}MutPredDiv" style="cursor: pointer;"></i>&nbsp;Mutation prediction</label>
+                        <div id="{{prefix}}MutPredDiv" hidden>
+                            <input id="{{prefix}}MutationPredGain" class$="form-check-input {{prefix}}RadioInput" type="radio" name="mutationPrediction" value="Gain"> Gain of function <br>
+                            <input id="{{prefix}}MutationPredLoss" class$="form-check-input {{prefix}}RadioInput" type="radio" name="mutationPrediction" value="Loss"> Loss of function
+                        </div>
+
                     </div>
                 </div>
 
@@ -435,6 +546,9 @@
                     <h4 class="panel-title">
                         <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}ConservationFilter" aria-expanded="false" aria-controls="{{prefix}}ConservationFilter">
                             Conservation
+                            <div style="float: right" class="tooltip-div">
+                                <a data-toggle="tooltip" title="Conservation filters"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                            </div>
                         </a>
                     </h4>
                 </div>
@@ -495,6 +609,9 @@
                     <h4 class="panel-title">
                         <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}DisDB" aria-expanded="false" aria-controls="{{prefix}}DisDB">
                             Disease Databases
+                            <div style="float: right" class="tooltip-div">
+                                <a data-toggle="tooltip" title="Disease database filters"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                            </div>
                         </a>
                     </h4>
                 </div>
@@ -506,8 +623,8 @@
                         <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}ClinvarDiv" style="cursor: pointer;"></i>&nbsp;Clinvar</label>
                         <div class="panel-body" id="{{prefix}}ClinvarDiv" hidden></div>
                         <br>
-                        <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}GWASDiv" style="cursor: pointer;"></i>&nbsp;GWAS</label>
-                        <div class="panel-body" id="{{prefix}}GWASDiv" hidden></div>
+                        <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}OrphanetDiv" style="cursor: pointer;"></i>&nbsp;Orphanet</label>
+                        <div class="panel-body" id="{{prefix}}OrphanetDiv" hidden></div>
                         <br>
                         <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}HGMDDiv" style="cursor: pointer;"></i>&nbsp;HGMD</label>
                         <div class="panel-body" id="{{prefix}}HGMDDiv" hidden></div>
@@ -567,7 +684,8 @@
                 type: Object
             },
             cellbaseClient: {
-                type: Object
+                type: Object,
+                observer: 'cellbaseClientObtained'
             },
             config: {
                 type: Object
@@ -615,6 +733,7 @@
             this.query = {};
 
             this.isFamilyAnalysis = true;
+            this.set('panelList', PANELS);
         },
         onSearch: function () {
             this.search = this.query;
@@ -645,6 +764,15 @@
                 return studies.length > 1;
             } else {
                 return false;
+            }
+        },
+        cellbaseClientObtained: function () {
+            if (this.cellbaseClient instanceof CellBaseClient && typeof this.biotypes === "undefined") {
+                let _this = this;
+                this.cellbaseClient.getGeneClient(null, "biotype", {}, {})
+                    .then(function (response) {
+                        _this.biotypes = response.response[0].result;
+                    });
             }
         },
         updateDifferentStudies: function () {
@@ -855,6 +983,23 @@
                 this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value = this.query["annot-hpo"];
             }
         },
+        updatePanel: function(){
+            let panelname = this.$$("#" + this.prefix + "PanelApps").value;
+            for(var i = 0; i < this.panelList.length ; i++){
+                if(this.panelList[i].name == panelname){
+                    let panel = this.panelList[i];
+                    this.$$("#" + this.prefix + "PanelAppsTextarea").value = panel.genes;
+                    break;
+                }
+            }
+            this.updateQueryFilters();
+        },
+        sortPanelApp: function(a, b) {
+            if (a.title === b.title) {
+                return 0;
+            }
+            return a.title < b.title ? -1 : 1;
+        },
         updateQueryFilters: function () {
             let _filters = {};
             console.log(this)
@@ -907,6 +1052,17 @@
 //                    }
                 _filters["annot-xref"] = this.$$("#" + this.prefix + "FeatureTextarea").value;
             }
+
+            // Biotype
+            if (typeof this.query["annot-biotype"] !== "undefined") {
+                this.$$("#" + this.prefix + "GeneBiotypes").value = this.query["annot-biotype"];
+            }
+
+            //Panel - annot-panel
+            if (typeof this.query["gene"] !== "undefined") {
+                this.$$("#" + this.prefix + "PanelAppsTextarea").value = this.query.gene;
+            }
+
 
             // Type
             let types = this.$$("#" + this.prefix + "Type").querySelectorAll("input:checked");

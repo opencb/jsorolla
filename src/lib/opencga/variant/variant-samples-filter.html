@@ -153,9 +153,12 @@
                         </div>
                         <ul class="list-unstyled" style="max-height: 150px; overflow-y: auto; padding: 5px;">
                             <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}" as="variable" filter="_filterVariable" sort="_sortVariables">
-                                <li style="cursor: pointer;" data-toggle="modal" data-target="#{{prefix}}ModalFilters" on-click="variableSelected" data-variable="{{variable}}">
-                                    {{variable.name}}
-                                </li>
+
+                                <template is="dom-if" if="{{isVisible(variable,config)}}">
+                                    <li style="cursor: pointer;" data-toggle="modal" data-target="#{{prefix}}ModalFilters" on-click="variableSelected" data-variable="{{variable}}">
+                                        {{variable.title}}
+                                    </li>
+                                </template>
                             </template>
                         </ul>
                     </div>
@@ -164,72 +167,75 @@
                 <template is="dom-if" if="{{!compact}}">
                     <div class="form-group has-feedback panel-body">
                         <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}" as="variable" sort="_sortVariables">
-                            <br>
-                            <label for="{{prefix}}{{variable.name}}">{{variable.name}}:</label>
-                            <template is="dom-if" if="{{checkVarType(variable, 'TEXT')}}">
-                                <!-- TEXT type: include an input text and add suitable regular expression for text-->
-                                <!-- http://stackoverflow.com/questions/14237686/disabling-controls-in-bootstrap-->
-                                <input type="text" class="form-control" id="{{prefix}}{{variable.name}}" placeholder="{{variable.name}} name" pattern="{{variable.attributes.pattern}}" aria-describedby="basic-addon1">
-                            </template>
+                            <template is="dom-if" if="{{isVisible(variable,config)}}">
+                                <br>
+                                <label for="{{prefix}}{{variable.name}}">{{variable.title}}:</label>
+                                <template is="dom-if" if="{{checkVarType(variable, 'TEXT')}}">
+                                    <!-- TEXT type: include an input text and add suitable regular expression for text-->
+                                    <!-- http://stackoverflow.com/questions/14237686/disabling-controls-in-bootstrap-->
+                                    <input type="text" class="form-control" id="{{prefix}}{{variable.name}}" placeholder="{{variable.name}} name" pattern="{{variable.attributes.pattern}}" aria-describedby="basic-addon1">
+                                </template>
 
-                            <template is="dom-if" if="{{checkVarType(variable, 'NUMERIC')}}">
-                                <!-- NUMERIC type: include an input text and add suitable regular expression for numbers -->
-                                <input type="text" class="form-control" id="{{prefix}}{{variable.name}}" placeholder="{{variable.name}} number" pattern="^[0-9]+$">
-                            </template>
+                                <template is="dom-if" if="{{checkVarType(variable, 'NUMERIC')}}">
+                                    <!-- NUMERIC type: include an input text and add suitable regular expression for numbers -->
+                                    <input type="text" class="form-control" id="{{prefix}}{{variable.name}}" placeholder="{{variable.name}} number" pattern="^[0-9]+$">
+                                </template>
 
-                            <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 0, 1)}}">
-                                <!-- CATEGORICAL type, no value: values to be filled in this code -->
-                                <!-- Dropdown related to years : fill in with values contained in {{years}} -->
-                                <template is="dom-if" if="{{checkType(variable.name,'Year')}}">
-                                    <select class="form-control" id="{{prefix}}{{variable.name}}" on-change="checkYears">
+                                <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 0, 1)}}">
+                                    <!-- CATEGORICAL type, no value: values to be filled in this code -->
+                                    <!-- Dropdown related to years : fill in with values contained in {{years}} -->
+                                    <template is="dom-if" if="{{checkType(variable.name,'Year')}}">
+                                        <select class="form-control" id="{{prefix}}{{variable.name}}" on-change="checkYears">
+                                            <!--<option></option>-->
+                                            <template is="dom-repeat" items="{{years}}">
+                                                <option value="{{item}}">{{item}}</option>
+                                            </template>
+                                        </select>
+                                        <div class="help-block with-errors" id="{{prefix}}_errorDiv_{{variable.name}}"></div>
+                                    </template>
+
+                                </template>
+
+                                <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 1, 2)}}">
+                                    <!-- CATEGORICAL type, single value: check box -->
+                                    <div class="col-sm-9">
+                                        <input type="checkbox" id="{{prefix}}{{variable.name}}" style="padding-left: 20px">
+                                    </div>
+                                </template>
+
+                                <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 2, 3)}}">
+                                    <!-- CATEGORICAL type, 2 values: radio buttons for selection -->
+                                    <template is="dom-repeat" items="{{variable.allowedValues}}" as="value">
+                                        <div class="form-check form-check-inline">
+                                            <label class="form-check-label">
+                                                <input id="{{prefix}}{{variable.name}}{{value}}" class="form-check-input" type="radio" name="{{variable.name}}Options"> {{value}} <br>
+                                            </label>
+                                        </div>
+                                    </template>
+                                </template>
+
+                                <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 3, 500)}}">
+                                    <!-- CATEGORICAL type: dropdown: at least three elements in variable.allowedValues -->
+                                    <select class="form-control" id="{{prefix}}{{variable.name}}">
                                         <!--<option></option>-->
-                                        <template is="dom-repeat" items="{{years}}">
+                                        <template is="dom-repeat" items="{{variable.allowedValues}}">
                                             <option value="{{item}}">{{item}}</option>
                                         </template>
                                     </select>
-                                    <div class="help-block with-errors" id="{{prefix}}_errorDiv_{{variable.name}}"></div>
                                 </template>
 
-                            </template>
-
-                            <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 1, 2)}}">
-                                <!-- CATEGORICAL type, single value: check box -->
-                                <div class="col-sm-9">
-                                    <input type="checkbox" id="{{prefix}}{{variable.name}}" style="padding-left: 20px">
-                                </div>
-                            </template>
-
-                            <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 2, 3)}}">
-                                <!-- CATEGORICAL type, 2 values: radio buttons for selection -->
-                                <template is="dom-repeat" items="{{variable.allowedValues}}" as="value">
+                                <template is="dom-if" if="{{checkVarType(variable, 'BOOLEAN')}}">
+                                    <!-- BOOLEAN type, 2 values: radio buttons for selection: yes or no -->
                                     <div class="form-check form-check-inline">
                                         <label class="form-check-label">
-                                            <input id="{{prefix}}{{variable.name}}{{value}}" class="form-check-input" type="radio" name="{{variable.name}}Options"> {{value}} <br>
+                                            <input id="{{prefix}}{{variable.name}}yes" class="form-check-input" type="radio" name="{{variable.name}}Options"> yes <br>
+                                            <input id="{{prefix}}{{variable.name}}no" class="form-check-input" type="radio" name="{{variable.name}}Options"> no <br>
                                         </label>
                                     </div>
                                 </template>
+                                <!-- Close dom-if for visibility -->
                             </template>
-
-                            <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 3, 500)}}">
-                                <!-- CATEGORICAL type: dropdown: at least three elements in variable.allowedValues -->
-                                <select class="form-control" id="{{prefix}}{{variable.name}}">
-                                    <!--<option></option>-->
-                                    <template is="dom-repeat" items="{{variable.allowedValues}}">
-                                        <option value="{{item}}">{{item}}</option>
-                                    </template>
-                                </select>
-                            </template>
-
-                            <template is="dom-if" if="{{checkVarType(variable, 'BOOLEAN')}}">
-                                <!-- BOOLEAN type, 2 values: radio buttons for selection: yes or no -->
-                                <div class="form-check form-check-inline">
-                                    <label class="form-check-label">
-                                        <input id="{{prefix}}{{variable.name}}yes" class="form-check-input" type="radio" name="{{variable.name}}Options"> yes <br>
-                                        <input id="{{prefix}}{{variable.name}}no" class="form-check-input" type="radio" name="{{variable.name}}Options"> no <br>
-                                    </label>
-                                </div>
-                            </template>
-                            <!-- Close dom-repeat for variables -->
+                        <!-- Close dom-repeat for variables -->
                         </template>
                     </div>
                     <!-- Close dom-if for extended -->
@@ -503,7 +509,15 @@
             },
             _changeMode: function (e) {
                 this.compact = !this.compact;
-            }
+            },
+            isVisible: function (myVar,conf){
+                let excludeArray = conf.variableSet.exclude
+                for (let index in excludeArray) {
+                    if (excludeArray[index].webComponent == this.localName) {
+                        return (!($.inArray(myVar.name, excludeArray[index].variables) != -1));
+                    } else {return true;}
+                }
+            },
         });
     </script>
 </dom-module>
