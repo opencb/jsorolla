@@ -387,17 +387,14 @@
             },
             variableSelected: function(e) {
                 this.variable = e.target.dataVariable;
-
                 if (this.variable === undefined || Object.getOwnPropertyNames(this.variable).length === 0) {
                     return;
                 }
-
                 this._isCategorical = false;
                 this._isText = false;
                 this._isNumerical = false;
                 this._isBoolean = false;
                 this._isObject = false;
-
                 if (this.variable.type.toLowerCase() === "categorical") {
                     this._isCategorical = true;
                 } else if (this.variable.type.toLowerCase() === "text") {
@@ -409,21 +406,16 @@
                 } else if (this.variable.type.toLowerCase() === "object") {
                     this._isObject = true;
                 }
-
-
                 $(e.target.dataTarget).modal('show');
             },
             updateCompactFilter: function(e) {
                 let myFilter = {};
-
                 if (this.variable.type.toLowerCase() === "categorical") {
                     let allValues = [];
                     let selected = $("input[name='" + this.prefix + "Categorical']:checked");
-
                     for (let i = 0; i < selected.length; i++) {
                         allValues.push(selected[i].value);
                     }
-
                     myFilter = {
                         name: this.variable.name,
                         value: allValues.join()
@@ -447,10 +439,8 @@
                 } else if (this.variable.type.toLowerCase() === "object") {
                     this._isObject = true;
                 }
-
                 this.query[myFilter.name] = myFilter.value;
                 this.query = Object.assign({}, this.query);
-
                 this.fire('opencga-filter-added', myFilter);
             },
             variablesChanged: function () {
@@ -464,16 +454,13 @@
             },
             checkYears: function(e) {
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-
                 $("#" + this.prefix + "_errorDiv_birthYear").html("");
                 $("#" + this.prefix + "_errorDiv_testYear").html("");
-
                 let currentElement = $("#"+e.target.id);
                 let identifier = e.target.id;
                 let pairElement = '';
                 let divSuffix = '';
                 let message = '';
-
                 if(identifier.search('birthYear')!=-1) // Birth year element raises the event -> check Test year
                 {
                     pairElement = $("#" + this.prefix + "testYear");
@@ -486,7 +473,6 @@
                     divSuffix = "testYear";
                     message = "Year of Test must be posterior to year of Birth";
                 }
-
                 if(pairElement.find("option:selected")!='' && (parseInt(currentElement.find("option:selected").text())>parseInt(pairElement.find("option:selected").text())))
                 { // Year of birth cannot be lower than Year of test
                     $("#" + this.prefix + "_errorDiv_"+divSuffix).html(message);
@@ -497,7 +483,6 @@
                 {return true;}
                 else
                 {return false;}
-
             },
             _filterVariable: function(variable) {
                 for (let i = 0; i < this.filteredVariables.variables.length; i++) {
