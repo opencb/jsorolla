@@ -362,6 +362,22 @@ FEATURE_TYPES = {
             }
         }
     },
+    variant: {
+        label: function (f) {
+            return FEATURE_TYPES.getLabelCommons(f);
+        },
+        tooltipTitle: function (f) {
+            return FEATURE_TYPES.getTipTitleCommons(f);
+        },
+        tooltipText: function (f) {
+            return FEATURE_TYPES.getTipCommons(f) + FEATURE_TYPES._getSimpleKeys(f);
+        },
+        color: "#8BC34A",
+        strokeColor: "#555",
+        infoWidgetId: "id",
+        height: 10,
+        histogramColor: "#58f3f0"
+    },
     file: {
         getLabel: function (f) {
             var str = "";

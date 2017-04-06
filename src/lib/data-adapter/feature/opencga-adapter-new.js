@@ -46,7 +46,97 @@ class OpencgaAdapter {
     setSpecies(species) {
         // this.species = species;
     }
+    getVariant(args){
 
+        var _this = this;
+        var params = {};
+        var region = args.region;
+
+        _.extend(params, this.params);
+        _.extend(params, args.params);
+
+        /** 1 region check **/
+        var region = args.region;
+        if (region.start > 300000000 || region.end < 1) {
+            return;
+        }
+        region.start = (region.start < 1) ? 1 : region.start;
+        region.end = (region.end > 300000000) ? 300000000 : region.end;
+        /** 2 category check **/
+        var categories = this.resource.toString().split(',');   // in this adapter each category is each file
+
+        /** 3 dataType check **/
+        var dataType = args.dataType;
+        if (_.isUndefined(dataType)) {
+            console.log("dataType must be provided!!!");
+        }
+
+        /** 4 chunkSize check **/
+        var chunkSize = params.interval ? params.interval : this.options.chunkSize; // this.cache.defaultChunkSize should be the same
+        if (this.debug) {
+            console.log(chunkSize);
+        }
+        /** 5 studies check **/
+        var studies = params.studies;
+        if (studies === undefined) {
+            return;
+        }
+        // Create the chunks to be retrieved
+        let start = this._getStartChunkPosition(region.start);
+        let end = this._getStartChunkPosition(region.end);
+
+        let regions = [];
+        let myRegion = start;
+        args.webServiceCallCount = 0;
+
+        do {
+            regions.push(`chr${region.chromosome}:${myRegion}-${myRegion + this.options.chunkSize - 1}`);
+            myRegion += this.options.chunkSize;
+        } while(myRegion < end);
+        let groupedRegions = this._groupQueries(regions);
+        args.regions = groupedRegions;
+
+        if (dataType === "features") {
+            let chunks = [];
+            for (let i = 0; i < groupedRegions.length; i++) {
+                args.webServiceCallCount++;
+                //let variants = this.client.variants().query(studies,
+                //    {
+                //        region: groupedRegions[i],
+                //        exclude: "studies"
+                //        //study: study
+                //    })
+                //    .then(function (response) {
+                //        return _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
+                //    });
+                let variants = this.client.variants().query(
+                    {
+                        region: groupedRegions[i],
+                        studies: studies,
+                        exclude: "studies"
+                        //study: study
+                    })
+                    .then(function (response) {
+                        console.log("Correctoo")
+                        console.log(response)
+                        //return _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
+                        var responseChunks = _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
+                        args.webServiceCallCount--;
+
+                        chunks = chunks.concat(responseChunks);
+                        if (args.webServiceCallCount === 0) {
+                            args.done({
+                                items: chunks, dataType: dataType, chunkSize: chunkSize, sender: _this
+                            });
+                        }
+                    });
+            }
+        } else { // histogram
+
+        }
+
+
+    }
     getData(args) {
         var _this = this;
         var params = {};

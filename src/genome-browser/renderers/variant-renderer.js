@@ -64,6 +64,8 @@ VariantRenderer.prototype.render = function (features, args) {
 };
 
 VariantRenderer.prototype.draw = function (feature, args) {
+    debugger
+    console.log("hola q ase")
     var _this = this;
     //get feature render configuration
     var color = _.isFunction(_this.color) ? _this.color(feature) : _this.color;
