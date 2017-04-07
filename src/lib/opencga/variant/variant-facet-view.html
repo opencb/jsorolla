@@ -608,7 +608,7 @@
                             type: 'pie'
                         },
                         title: {
-                            text: params.title
+                            text: params.title || params.name
                         },
                         plotOptions: {
                             pie: {
@@ -651,9 +651,18 @@
                 let params;
                 if (this.facetResults[id].category === "field") {
                     let field = this.facetResults[id];
+                    let fields = field.name.split("-");
+                    let title = [];
+                    if (fields.length > 1) {
+                        for (let name of fields) {
+                           title.push(this.fieldNamesMap[name]);
+                        }
+                    } else {
+                        title.push(this.fieldNamesMap[field.name]);
+                    }
                     let obj = {
                         name: field.name,
-                        title: this.fieldNamesMap[field.name] || field.name,
+                        title: title.join(" - "),
                         categories: [],
                         series: []
                     };
@@ -723,7 +732,8 @@
             _getPieData: function (id) {
                 let field = this.facetResults[id];
                 let pieData = {
-                    title: field.name,
+                    name: field.name,
+                    title: this.fieldNamesMap[field.name],
                     series: []
                 };
                 let data = [];
@@ -740,8 +750,18 @@
             },
             _getDonutData: function (id) {
                 let field = this.facetResults[id];
+                let fields = field.name.split("-");
+                let title = [];
+                if (fields.length > 1) {
+                    for (let name of fields) {
+                        title.push(this.fieldNamesMap[name]);
+                    }
+                } else {
+                    title.push(this.fieldNamesMap[field.name]);
+                }
                 let donutData = {
-                    title : field.name,
+                    name: field.name,
+                    title : title.join(" - "),
                     series : []
                 };
 
