@@ -90,7 +90,8 @@ class OpencgaAdapter {
         args.webServiceCallCount = 0;
 
         do {
-            regions.push(`chr${region.chromosome}:${myRegion}-${myRegion + this.options.chunkSize - 1}`);
+            regions.push(`${region.chromosome}:${myRegion}-${myRegion + this.options.chunkSize - 1}`);
+            //regions.push(`chr${region.chromosome}:${myRegion}-${myRegion + this.options.chunkSize - 1}`);
             myRegion += this.options.chunkSize;
         } while(myRegion < end);
         let groupedRegions = this._groupQueries(regions);
@@ -112,8 +113,8 @@ class OpencgaAdapter {
                 let variants = this.client.variants().query(
                     {
                         region: groupedRegions[i],
-                        studies: studies,
-                        exclude: "studies"
+                        studies: studies
+                        //exclude: "studies"
                         //study: study
                     })
                     .then(function (response) {

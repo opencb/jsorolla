@@ -55,17 +55,21 @@ VariantRenderer.prototype.init = function (svgGroup, sample) {
 
 VariantRenderer.prototype.render = function (features, args) {
 
-    for (var i = 0, leni = features.length; i < leni; i++) {
-        for (var j = 0; j < features[i].length; j++) {
-            var feature = features[i][j];
+    //for (var i = 0, leni = features.length; i < leni; i++) {
+    //    for (var j = 0; j < features[i].length; j++) {
+    //        var feature = features[i][j];
+    //        this.draw(feature, args);
+    //    }
+    //}
+     for (var i = 0, leni = features.length; i < leni; i++) {
+
+            var feature = features[i];
             this.draw(feature, args);
-        }
+
     }
 };
 
 VariantRenderer.prototype.draw = function (feature, args) {
-    debugger
-    console.log("hola q ase")
     var _this = this;
     //get feature render configuration
     var color = _.isFunction(_this.color) ? _this.color(feature) : _this.color;
@@ -88,7 +92,6 @@ VariantRenderer.prototype.draw = function (feature, args) {
     var width = length * args.pixelBase;
 
     var svgLabelWidth = _this.getLabelWidth(label, args);
-
     //calculate x to draw svg rect
     var x = _this.getFeatureX(start, args);
 
@@ -124,14 +127,14 @@ VariantRenderer.prototype.draw = function (feature, args) {
 //    for (var i = 0, leni = feature.samples.length; i < leni; i++) {
     var samplesCount = 0;
 //    var indices = [];
-    for (var i in feature.files) {
-        for (var j in feature.files[i].samplesData) {
+    for (var i in feature.studies) {
+        for (var j in feature.studies[i].samplesData) {
 //            indices.push(j);
             args.renderedArea[ys] = new FeatureBinarySearchTree();
             args.renderedArea[ys].add({start: xs, end: xe});
 //            var genotype = Math.round(Math.random()) + "/" + Math.round(Math.random()); // FIXME put in real values
 
-            var genotype = feature.files[i].samplesData[j].GT;
+            var genotype = feature.studies[i].samplesData[j]["0"];
             switch (genotype) {
                 case '0|0':
                 case '0/0':
@@ -160,6 +163,7 @@ VariantRenderer.prototype.draw = function (feature, args) {
             ys += yi2;
         }
     }
+
     var featureGroup = SVG.addChild(args.svgCanvasFeatures, "g", {'feature_id': feature.id});
     var dummyRect = SVG.addChild(featureGroup, "rect", {
         'x': xs,
@@ -216,8 +220,8 @@ VariantRenderer.prototype.draw = function (feature, args) {
             samplesCount = 0;
             var sampleName = "";
             var found = false;
-            for (var i in feature.files) {
-                for (var j in feature.files[i].samplesData) {   // better search it up than storing it? memory could be an issue.
+            for (var i in feature.studies) {
+                for (var j in feature.studies[i].samplesData) {   // better search it up than storing it? memory could be an issue.
                     if (sampleIndex == samplesCount) {
                         found = true;
                         sampleName = j;
