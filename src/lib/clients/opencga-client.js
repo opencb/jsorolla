@@ -30,6 +30,7 @@ class OpenCGAClient {
         this._variables;
         this._alignments;
         this._variants;
+        this._ga4gh;
     }
 
     getConfig() {
@@ -124,6 +125,14 @@ class OpenCGAClient {
             this._variants = new Variant(this._config);
         }
         return this._variants;
+    }
+
+    // GA4GH
+    ga4gh() {
+        if (typeof this._ga4gh === "undefined") {
+            this._ga4gh = new Ga4gh(this._config);
+        }
+        return this._ga4gh;
     }
 }
 
@@ -860,5 +869,15 @@ class Variant extends OpenCGAParentClass {
 
     facet(params, options) {
         return this.get("analysis/variant", undefined, "facet", params, options);
+    }
+}
+
+class Ga4gh extends OpenCGAParentClass {
+    constructor(config) {
+        super(config);
+    }
+
+    beacon(params, options) {
+        return this.get("ga4gh", undefined, "responses", params, options);
     }
 }

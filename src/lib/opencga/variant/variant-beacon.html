@@ -15,7 +15,7 @@
                     <div class="col-xs-6">
                         <select class="form-control" name="dataset" id="datasetInput">
                             <template is="dom-repeat" items="{{studies}}">
-                                <option>{{item.name}}</option>
+                                <option value="{{item.alias}}">{{item.name}}</option>
                             </template>
                         </select>
                     </div>
@@ -38,16 +38,28 @@
                         <input class="form-control" type="text" value="" id="alleleInput">
                     </div>
                 </div>
-                <div class="form-group row">
-                    <label class="col-xs-2 col-form-label">Format Type</label>
-                    <div class="col-xs-3">
-                        <input class="form-check-input" type="checkbox" name="formatType" id="textType" value="text" checked> Text
-                        <input class="form-check-input" type="checkbox" name="formatType" id="jsonType" value="json"> JSON
-                    </div>
-                </div>
-                <div class="form-group row col-xs-2">
+                <!--<div class="form-group row">-->
+                    <!--<label class="col-xs-2 col-form-label">Format Type</label>-->
+                    <!--<div class="col-xs-3">-->
+                        <!--<input class="form-check-input" type="checkbox" name="formatType" id="textType" value="text" checked> Text-->
+                        <!--<input class="form-check-input" type="checkbox" name="formatType" id="jsonType" value="json"> JSON-->
+                    <!--</div>-->
+                <!--</div>-->
+                <div class="form-group row" style="padding-left: 14px">
                     <button type="reset" class="btn btn-default" on-click="clearFields">Reset</button>
                     <button type="submit" class="btn btn-default" on-click="execute">Submit</button>
+                </div>
+
+                <!-- Result -->
+                <div class="col-xs-4" style="padding-left: 0px">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Response</h3>
+                        </div>
+                        <div class="panel-body">
+                            <span id="BeaconResponse">{{result}}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -55,10 +67,10 @@
         <div class="col-xs-12">
             <h3 style="margin: 10px 5px 15px 25px">Beacon Network</h3>
             <div style="width: 60%; margin-left: 50px">
-                <button class="btn btn-primary" type="button" on-click="">Search Beacon Network</button>
+                <button class="btn btn-primary" type="button" on-click="triggerBeacon">Search Beacon Network</button>
                 <a data-toggle="tooltip" title="Beacon Network is a search engine across the world's public beacons. You can find it here - https://beacon-network.org/#/"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
                 <br><br>
-                <variant-beacon-network hosts="{{hosts}}" variant=""></variant-beacon-network>
+                <variant-beacon-network hosts="{{hosts}}" variant="{{variant}}" clear="{{clear}}" prefix="beacon"></variant-beacon-network>
             </div>
         </div>
     </template>
@@ -70,9 +82,11 @@
                 opencgaClient: {
                     type: Object
                 },
+                project: {
+                    type: Object
+                },
                 studies: {
-                    type: Array,
-                    value: []
+                    type: Array
                 },
                 hosts: {
                     type: Array
@@ -83,18 +97,37 @@
                 this.$.refNameInput.value = "";
                 this.$.startInput.value = "";
                 this.$.alleleInput.value = "";
-                this.$.textType.checked = false;
-                this.$.jsonType.checked = false;
+//                this.$.textType.checked = false;
+//                this.$.jsonType.checked = false;
+                this.result = "";
+                this.clear = Utils.randomString(4); // Clear beacon network response
             },
             loadExample: function() {
-                this.$.datasetInput.value = this.studies[0].name;
-                this.$.refNameInput.value = "11";
-                this.$.startInput.value = "110993";
-                this.$.alleleInput.value = "INDEL";
-                this.$.jsonType.checked = true;
+                this.$.datasetInput.value = this.studies[0].alias;
+                this.$.refNameInput.value = "21";
+                this.$.startInput.value = "46047686";
+                this.$.alleleInput.value = "T";
+//                this.$.jsonType.checked = true;
             },
             execute: function(e) {
-                console.log(this.opencgaClient)
+                this.clear = Utils.randomString(4); // Clear beacon network response
+                let queryParams = {
+                    chrom: this.$.refNameInput.value,
+                    pos: this.$.startInput.value,
+                    allele: this.$.alleleInput.value,
+                    beacon: this.project.alias + ":" + this.$.datasetInput.value,
+                };
+                let _this = this;
+                if (this.opencgaClient instanceof OpenCGAClient) {
+                    this.opencgaClient.ga4gh().beacon(queryParams, {})
+                        .then(function (response) {
+                            let exists = response[0].response.toString();
+                            _this.result = exists.charAt(0).toUpperCase() + exists.slice(1);
+                        })
+                }
+            },
+            triggerBeacon: function (e) {
+                this.variant = this.$.refNameInput.value + ":" + this.$.startInput.value + "::" + this.$.alleleInput.value;
             }
         });
     </script>
