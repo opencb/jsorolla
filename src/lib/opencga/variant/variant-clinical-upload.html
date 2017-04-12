@@ -18,11 +18,136 @@
     <template>
         <style is="custom-style" include="jso-styles"></style>
 
-        <div class="col-md-5">
-            <h3>Upload and check file v2</h3>
+        <div class="col-md-4">
+            <h3>Upload and check file</h3>
             <br>
 
             <form id="{{prefix}}uploadForm" class="form-horizontal" data-toggle="validator" role="form">
+
+
+
+                <!-- GENERAL INFORMATION -->
+                <h4>1. General information</h4>
+                <br>
+                <!-- SAMPLE ID -->
+                <div class="form-group has-feedback">
+                    <label for="{{prefix}}sampleID" class="col-sm-3 control-label">Sample ID</label>
+                    <div class="col-sm-9">
+                        <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}sampleID" name="sampleID" placeholder="ID or clinical record number" maxlength="75" required data-error="" pattern=".+">
+                        <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                        <div class="help-block with-errors"></div>
+                    </div>
+                </div>
+                <!-- CHROMOSOMAL GENDER -->
+                <div class="form-group has-feedback">
+                    <label for="{{prefix}}chromosomalGender" class="col-sm-3 control-label">Chromosomal Gender</label>
+                    <div class="col-sm-9">
+                        <select class$="form-control {{prefix}}SelectInput" id="{{prefix}}chromosomalGender"
+                                name="chromosomalGender" required>
+                            <option></option>
+                            <template is="dom-repeat" items="{{config.chromosomal_gender}}">
+                                <option value="{{item}}">{{item}}</option>
+                            </template>
+                        </select>
+                        <div class="help-block with-errors" id="{{prefix}}_errorDiv_chromosomalGender"></div>
+                    </div>
+                </div>
+                <!-- YEAR OF BIRTH -->
+                <div class="form-group has-feedback">
+                    <label for="{{prefix}}birthYear" class="col-sm-3 control-label">Year of Birth</label>
+                    <div class="col-sm-9">
+                        <select class$="form-control {{prefix}}SelectInput" id="{{prefix}}birthYear"
+                                name="birthYear" required on-change="checkYears">
+                            <option></option>
+                            <template is="dom-repeat" items="{{yearsBirth}}">
+                                <option value="{{item}}">{{item}}</option>
+                            </template>
+                        </select>
+                        <div class="help-block with-errors" id="{{prefix}}_errorDiv_birthYear"></div>
+                    </div>
+                </div>
+
+                <!-- ETHNICITY -->
+                <div class="form-group has-feedback">
+                    <label for="{{prefix}}ethnicity" class="col-sm-3 control-label">Ethnicity</label>
+                    <div class="col-sm-9">
+                        <select class$="form-control {{prefix}}SelectInput" id="{{prefix}}ethnicity"
+                                name="ethnicity" required>
+                            <option></option>
+                            <template is="dom-repeat" items="{{config.ethnicity}}">
+                                <option value="{{item.id}}">{{item.title}}</option>
+                            </template>
+                        </select>
+                        <div class="help-block with-errors" id="{{prefix}}_errorDiv_ethnicity"></div>
+                    </div>
+                </div>
+
+                <!-- BIRTH PLACE -->
+                <div class="form-group has-feedback">
+                    <label for="{{prefix}}birthPlace" class="col-sm-3 control-label">Birth Place</label>
+                    <div class="col-sm-9">
+                        <select class$="form-control {{prefix}}SelectInput" id="{{prefix}}birthPlace"
+                                name="birthPlace" required on-change="updateSelect">
+                            <option></option>
+                            <template is="dom-repeat" items="{{config.countries}}">
+                                <option value="{{item}}">{{item}}</option>
+                            </template>
+                        </select>
+                        <div class="help-block with-errors" id="{{prefix}}_errorDiv_birthPlace"></div>
+                    </div>
+                </div>
+
+                <!-- OTHER COUNTRY (TEXT INPUT if country selected is not in the list -->
+                <div class="form-group has-feedback" id="otherCountryDiv" style="display:none">
+                    <label for="{{prefix}}otherCountry" class="col-sm-3 control-label"></label>
+                    <div class="col-sm-9">
+                        <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}otherCountry" name="otherCountry" placeholder="Introduce country" maxlength="75" required data-error="Mandatory country. Only a-z characteres and spaces are allowed" pattern="^[A-Za-z]+((\\s)?([A-Za-z])+)+$">
+                        <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                        <div class="help-block with-errors"></div>
+                    </div>
+                </div>
+
+                <!-- BIRTH PLACE (PROVINCE) -->
+                <div class="form-group has-feedback">
+                    <label for="{{prefix}}birthPlaceRegion" class="col-sm-3 control-label">Birth Place (province)</label>
+                    <div class="col-sm-9">
+                        <select class$="form-control {{prefix}}SelectInput" id="{{prefix}}birthPlaceRegion"
+                                name="birthPlaceRegion" required>
+                            <option></option>
+                            <template is="dom-repeat" items="{{config.province}}">
+                                <option value="{{item}}">{{item}}</option>
+                            </template>
+
+                        </select>
+                        <div class="help-block with-errors" id="{{prefix}}_errorDiv_birthPlaceRegion"></div>
+                    </div>
+                </div>
+
+                <!-- HPO TERM (ONTOLOGY) -->
+                <div class="form-group has-feedback">
+                    <label for="{{prefix}}HPO" class="col-sm-3 control-label">HPO</label>
+                    <div class="col-sm-9">
+                        <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}HPO" name="HPO" placeholder="hpo term" maxlength="300" required data-error="An HPO term must be selected">
+                        <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                        <div class="help-block with-errors"></div>
+                    </div>
+                </div>
+
+                <!-- DIAGNOSIS (ONTOLOGY) -->
+
+                <div class="form-group has-feedback">
+                    <label for="{{prefix}}diagnosis" class="col-sm-3 control-label">Diagnosis</label>
+                    <div class="col-sm-9">
+                        <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}diagnosis" name="diagnosis" placeholder="diagnosis" maxlength="300" required data-error="A diagnosis term must be selected">
+                        <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                        <div class="help-block with-errors"></div>
+                    </div>
+                </div>
+
+                <h4>2. Test information</h4>
+                <br>
+
+                <!-- SPECIFIC FIELDS FROM VARIABLE SET -->
                 <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}" as="variable" sort="_sortVariables">
 
                     <template is="dom-if" if="{{isVisible(variable,config)}}">
@@ -76,7 +201,7 @@
                                     <div class="col-sm-9">
                                         <select class$="form-control {{prefix}}SelectInput" id="{{prefix}}{{variable.name}}" name="{{variable.name}}" required on-change="checkYears">
                                             <option></option>
-                                            <template is="dom-repeat" items="{{years}}">
+                                            <template is="dom-repeat" items="{{yearsTest}}">
                                                 <option value="{{item}}">{{item}}</option>
                                             </template>
                                         </select>
@@ -127,8 +252,8 @@
                                 <div class="col-sm-9">
                                     <div class="form-check form-check-inline">
                                         <label class="form-check-label">
-                                            <input id="{{prefix}}{{variable.name}}yes" class$="form-check-input {{prefix}}RadioInput" type="radio" name="{{variable.name}}" value="yes"> yes
-                                            <input id="{{prefix}}{{variable.name}}no" class$="form-check-input {{prefix}}RadioInput" type="radio" name="{{variable.name}}" value="no"> no
+                                            <input id="{{prefix}}{{variable.name}}yes" class$="form-check-input {{prefix}}RadioInput" type="radio" name="{{variable.name}}" value="true"> yes
+                                            <input id="{{prefix}}{{variable.name}}no" class$="form-check-input {{prefix}}RadioInput" type="radio" name="{{variable.name}}" value="false"> no
                                         </label>
                                     </div>
                                     <div class="help-block with-errors"></div>
@@ -183,9 +308,13 @@
                     type: Array,
                     observer: 'variablesChanged'
                 },
-                minYear: {
+                minYearBirth: {
                     type: Number,
                     value: 1920
+                },
+                minYearTest: {
+                    type: Number,
+                    value: 2005
                 }
             },
             ready: function () {
@@ -196,10 +325,16 @@
                 let _years = [];
                 let fullDate = new Date()
                 let limitYear = fullDate.getFullYear();
-                for (let year = this.minYear; year<=limitYear; year++)
+                for (let year = this.minYearBirth; year<=limitYear; year++)
                 {_years.push(year);}
                 // This change triggers the polymer dom-repeat
-                this.years = _years;
+                this.yearsBirth = _years;
+
+                _years = [];
+                for (year = this.minYearTest; year<=limitYear; year++)
+                {_years.push(year);}
+                // This change triggers the polymer dom-repeat
+                this.yearsTest = _years;
 
                 this._clearHtmlDom();
             },
@@ -325,17 +460,20 @@
             },
             updateSelect: function(e){
 
-                $("#" + this.prefix + "_errorDiv_age").html("");
+                $("#" + this.prefix + "_errorDiv_testAge").html("");
 
+
+                //console.log(this);
+                //debugger;
+                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
                 console.log(this);
                 debugger;
-                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-
                 let currentElementId = e.target.id;
                 let currentElement = $("#" +  e.target.id);
                 // Dropdown related to birthplace
                 if (currentElementId == (this.prefix + 'birthPlace')){
                     if (currentElement.val() == 'Spain'){
+                        $("#otherCountryDiv").hide();
                         $("#" + this.prefix + "birthPlaceRegion").prop("disabled",false);
                     }
                     else
@@ -343,18 +481,24 @@
                         $("#" + this.prefix + "birthPlaceRegion").prop("disabled",true);
                         $("#" + this.prefix + "birthPlaceRegion").prop("selectedIndex",0);
                         $("#" + this.prefix + "birthPlaceRegion").prop("value","unknown");
+                        if (currentElement.val() == 'Other')
+                        {// Display input text to introduce country
+                            $("#otherCountryDiv").show();
+                        }
+                        else{$("#otherCountryDiv").hide();}
                     }
 
 
-                } else if (currentElementId == (this.prefix + 'age')){
-                    // Dropdown related to age -> check hat year of birth is correct
+                } else if (currentElementId == (this.prefix + 'testAge')){
+                    // Dropdown related to age of Test -> check hat year of birth is correct
+
                     let pairElement = $("#" + this.prefix + "birthYear");
                     let valuePE = pairElement.find("option:selected").text();
                     if (valuePE !='') {
                         let birthYear = parseInt(valuePE);
                         let fullDate = new Date();
                         if (!(parseInt(currentElement.val()) >= (fullDate.getFullYear() - birthYear - 1) && parseInt(currentElement.val()) <= fullDate.getFullYear() - birthYear)) {
-                            $("#" + this.prefix + "_errorDiv_age").html("Age selected does not match year of Birth");
+                            $("#" + this.prefix + "_errorDiv_testAge").html("Age selected does not match year of Birth");
                         }
                     }
 
@@ -381,22 +525,81 @@
                 });
                 console.log(this);
                 debugger;
-                if (this.opencgaClient instanceof OpenCGAClient) {
-                    let params = {
-                        sid: this.opencgaClient._config.sessionId,
-                        studyId: this.study.id,
-                        file: _variableSet.inputFile,
-                        fileFormat: 'VCF',
-                        bioFormat: 'VARIANT',
 
+
+                if (this.opencgaClient instanceof OpenCGAClient) {
+                    // 1. Create individual
+                    let params = {
+                        study: this.study.alias,
+                        body: {
+                            "name": _variableSet.sampleID,
+                            "family": "",
+                            "fatherId": -1,
+                            "motherId": -1,
+                            "sex": "UNKNOWN",
+                            "ethnicity": _variableSet.ethnicity,
+                            "species": {
+                                "taxonomyCode": "9606",
+                                "scientificName": "Homo sapiens",
+                                "commonName": "Homo sapiens"
+                            },
+                            "population": {
+                                "name": _variableSet.birthPlace,
+                                "subpopulation": _variableSet.birthPlaceRegion,
+                                "description": ""
+                            },
+                            "karyotypicSex": _variableSet.chromosomalGender,
+                            "lifeStatus": "UNKNOWN",
+                            "affectationStatus": "UNKNOWN"
+                        }
+                    };
+                    this.opencgaClient.individuals().create(params, {"method": "POST"}).then(function (response) {
+                        console.log(response);
+                        individualId = response.result.id;
+                    });
+
+                    // 2. Upload VCF
+                    params = {
+                        study: this.study.alias,
+                        type: "FILE",
+                        file: $("#FileToUpload").prop('files')[0],
+                        fileFormat: "VCF",
+                        bioformat: "VARIANT",
+                        relativeFilePath: "."
                     };
                     this.opencgaClient.files().upload(params).then(function (response) {
-                        console.log(response)
+                        console.log(response);
+                        let sampleId = response.result.sampleIds[0];
                     });
+
+                    // 3. Create Annotation set using previously obtained sampleId
+
+                    // Create a JSON object with the variable set
+                    let jsonObj = [];
+                    let item = {};
+                    $(this.variableSets[0].variables).each(function(index, currentVariable){
+                        item[currentVariable.name] = _variableSet[currentVariable.name];
+                    });
+                    jsonObj.push(item);
+                    let jsonAnnotations = JSON.stringify(item);
+
+                    params = {
+                        study: this.study.alias,
+                        sample: sampleId,
+                        variableSetId: this.variableSets[0].id,
+                        body: {
+                            "name": "annotation_individual_"+ individualId,
+                            "annotations": jsonAnnotations
+                        }
+
+                    };
+
+
+
                 }
 
                 // Submit the form
-                 //$("#" + this.prefix + "uploadForm").submit();
+                //$("#" + this.prefix + "uploadForm").submit();
                 //console.log(this);
                 //debugger;
             }
