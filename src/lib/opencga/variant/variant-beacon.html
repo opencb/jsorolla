@@ -51,16 +51,18 @@
                 </div>
 
                 <!-- Result -->
-                <div class="col-xs-4" style="padding-left: 0px">
-                    <div class="panel panel-primary">
-                        <div class="panel-heading">
-                            <h3 class="panel-title">Response</h3>
-                        </div>
-                        <div class="panel-body">
-                            <span id="BeaconResponse">{{result}}</span>
+                <template is="dom-if" if="{{checkResult(result)}}">
+                    <div class="col-xs-3" style="padding-left: 0px">
+                        <div class="panel panel-primary">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">Response</h3>
+                            </div>
+                            <div class="panel-body">
+                                <span id="BeaconResponse">Exists: {{result}}</span>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </template>
             </div>
         </div>
         <br>
@@ -128,6 +130,9 @@
             },
             triggerBeacon: function (e) {
                 this.variant = this.$.refNameInput.value + ":" + this.$.startInput.value + "::" + this.$.alleleInput.value;
+            },
+            checkResult: function (result) {
+                return result !== "";
             }
         });
     </script>

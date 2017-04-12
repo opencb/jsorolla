@@ -206,18 +206,55 @@
                             <i class="fa fa-pie-chart" style="padding-right: 5px" title="Pie Chart" data-id="{{item.name}}"></i>
                         </span>
                     </template>
-                    <span class="btn btn-primary">
-                        <i class="fa fa-table" style="padding-right: 5px" title="Tabular View"></i>
+                    <span class="btn btn-primary" on-click="onTabularView">
+                        <i class="fa fa-table" style="padding-right: 5px" title="Tabular View" data-id="{{item.name}}"></i>
                     </span>
                 </div>
-                <div id="{{prefix}}{{item.name}}Plot" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+                <div id="{{prefix}}{{item.name}}Plot"></div>
+
+                <!--Table-->
+                <br>
+                <table class="table table-bordered" id="{{prefix}}{{item.name}}Table" style="display: none;">
+                    <thead class="table-header bg-primary">
+                    <tr>
+                        <th>{{item.name}}</th>
+                            <template is="dom-if" if="{{subFieldExists(item.subField)}}">
+                                <th>{{item.subField}}</th>
+                            </template>
+                        <th>Number of Variants</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <template is="dom-repeat" items="{{item.counts}}" as="count">
+                            <template is="dom-if" if="{{fieldExists(count)}}">
+                                <tr>
+                                    <td rowspan$="{{countSubFields(count)}}">{{count.value}}</td>
+                                </tr>
+
+                                <template is="dom-repeat" items="{{count.field.counts}}" as="subFieldCount">
+                                    <tr>
+                                        <td>{{subFieldCount.value}}</td>
+                                        <td>{{subFieldCount.count}}</td>
+                                    </tr>
+                                </template>
+                            </template>
+
+                            <template is="dom-if" if="{{!fieldExists(count)}}">
+                                <tr>
+                                    <td>{{count.value}}</td>
+                                    <td>{{count.count}}</td>
+                                </tr>
+                            </template>
+                    </template>
+                    </tbody>
+                </table>
                 <br>
             </template>
         </div>
 
         <div class="modal fade" id="{{prefix}}LoadingModal" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog"
              aria-hidden="true" style="padding-top:15%; overflow-y:visible;">
-            <div class="modal-dialog modal-m">
+            <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h3>Loading...</h3>
@@ -482,13 +519,16 @@
                             // Facet fields
                             for (let field of response.fields) {
                                 let _name ;
+                                let _subField = "";
                                 if (typeof field.counts[0].field === "undefined") {
                                     _name = field.name;
                                 } else {
                                     _name = field.name + "-" + field.counts[0].field.name;
+                                    _subField = field.counts[0].field.name;
                                 }
                                 _facetResults[_name] = field;
                                 _facetResults[_name].name = _name;
+                                _facetResults[_name].subField = _subField;
                                 _facetResults[_name].renderHistogramChart = true;
                                 _facetResults[_name].renderPieChart = true;
                                 _facetResults[_name].category = "field";
@@ -549,10 +589,17 @@
             onHistogramChart: function (e) {
                 let id = e.target.dataId;
                 this.renderHistogramChart("#" + this.prefix + id + "Plot", id);
+                $("#" + this.prefix + id + "Table").css("display", "none");
             },
             onPieChart: function (e) {
                 let id = e.target.dataId;
                 this.renderPieChart("#" + this.prefix + id + "Plot", id);
+                $("#" + this.prefix + id + "Table").css("display", "none");
+            },
+            onTabularView: function (e) {
+                let id = e.target.dataId;
+                $("#" + this.prefix + id + "Plot").html("");
+                $("#" + this.prefix + id + "Table").css("display", "table");
             },
             renderHistogramChart: function (div, id) {
                 let params = this._getHistogramData(id);
@@ -860,6 +907,15 @@
                             _this.totalVariants = response.response[0].numTotalResults;
                         });
                 }
+            },
+            subFieldExists: function (field) {
+                return field !== "";
+            },
+            fieldExists: function (countObj) {
+                return typeof countObj.field !== "undefined";
+            },
+            countSubFields: function (countObj) {
+                return countObj.field.counts.length + 1;
             },
             _isValidField: function (item) {
                 for (let field of this.config.fields) {
