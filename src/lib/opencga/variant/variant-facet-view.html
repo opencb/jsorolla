@@ -215,17 +215,20 @@
                 <!--Table-->
                 <br>
                 <table class="table table-bordered" id="{{prefix}}{{item.name}}Table" style="display: none;">
-                    <thead class="table-header bg-primary">
-                    <tr>
-                        <th>{{item.name}}</th>
+                    
+                    <!-- Facet Field Table -->
+                    <template is="dom-if" if="{{checkField(item.category)}}">
+                        <thead class="table-header bg-primary">
+                        <tr>
+                            <th>{{item.title}}</th>
                             <template is="dom-if" if="{{subFieldExists(item.subField)}}">
                                 <th>{{item.subField}}</th>
                             </template>
-                        <th>Number of Variants</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <template is="dom-repeat" items="{{item.counts}}" as="count">
+                            <th>Number of Variants</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <template is="dom-repeat" items="{{item.counts}}" as="count">
                             <template is="dom-if" if="{{fieldExists(count)}}">
                                 <tr>
                                     <td rowspan$="{{countSubFields(count)}}">{{count.value}}</td>
@@ -245,8 +248,27 @@
                                     <td>{{count.count}}</td>
                                 </tr>
                             </template>
+                        </template>
+                        </tbody>
                     </template>
-                    </tbody>
+
+                    <!-- Facet Range Table -->
+                    <template is="dom-if" if="{{!checkField(item.category)}}">
+                        <thead class="table-header bg-primary">
+                        <tr>
+                            <th>Range</th>
+                            <th>Number of Variants</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <template is="dom-repeat" items="{{item.data}}" as="data">
+                            <tr>
+                                <td>{{data.range}}</td>
+                                <td>{{data.count}}</td>
+                            </tr>
+                        </template>
+                        </tbody>
+                    </template>
                 </table>
                 <br>
             </template>
@@ -300,7 +322,7 @@
                 }
             },
             ready: function () {
-                if (typeof this.prefix === "undefined" || this.prefix == "") {
+                if (typeof this.prefix === "undefined" || this.prefix === "") {
                     this.prefix = "facet" + Utils.randomString(6);
                 }
 
@@ -480,6 +502,9 @@
                 for (let f of this.config.ranges) {
                     _fieldNamesMap[f.value] = f.name;
                 }
+                // Add chromosome to _fieldNamesMap
+                _fieldNamesMap["start"] = "Chromosome";
+
                 this.fieldNamesMap = _fieldNamesMap;
 
                 let queryParams = {
@@ -492,11 +517,11 @@
                     delete queryParams["sid"];
                 }
 
-                if (typeof queryParams.studies === "undefined" || queryParams.studies === "" || queryParams.studies.split(new RegExp("[,;]")).length == 1) {
+                if (typeof queryParams.studies === "undefined" || queryParams.studies === "" || queryParams.studies.split(new RegExp("[,;]")).length === 1) {
                     queryParams.studies = this.project.alias + ":" + this.study.alias;
                 }
 
-                if (typeof this.chromosome !== "undefined" && this.chromosome != "") {
+                if (typeof this.chromosome !== "undefined" && this.chromosome !== "") {
                     queryParams.region = this.chromosome;
                 }
                 if (this.facetFields.length > 0) {
@@ -527,8 +552,9 @@
                                     _subField = field.counts[0].field.name;
                                 }
                                 _facetResults[_name] = field;
+                                _facetResults[_name].title = _this.fieldNamesMap[field.name]; // Setting title before we modify name property
                                 _facetResults[_name].name = _name;
-                                _facetResults[_name].subField = _subField;
+                                _facetResults[_name].subField = _this.fieldNamesMap[_subField];
                                 _facetResults[_name].renderHistogramChart = true;
                                 _facetResults[_name].renderPieChart = true;
                                 _facetResults[_name].category = "field";
@@ -538,9 +564,30 @@
                             // Facet Ranges
                             for (let range of response.ranges) {
                                 _facetResults[range.name] = range;
+                                _facetResults[range.name].title = _this.fieldNamesMap[range.name];
                                 _facetResults[range.name].renderHistogramChart = true;
                                 _facetResults[range.name].renderPieChart = false;
                                 _facetResults[range.name].category = "range";
+
+                                // Preparing data for table
+                                let data = [];
+                                let start = Number(range.start);
+                                for (let rangeCount of range.counts) {
+                                    if (Math.round(start) !== start) {
+                                        start = Number(start.toFixed(1));
+                                    }
+                                    let end = Number(start + range.gap);
+                                    if (Math.round(end) !== end) {
+                                        end = Number(end.toFixed(1));
+                                    }
+                                    data.push({
+                                        range: start + "-" + end,
+                                        count: rangeCount
+                                    });
+                                    start = end;
+                                }
+                                _facetResults[range.name].data = data;
+
                                 _results.push(_facetResults[range.name]);
                             }
 
@@ -908,8 +955,11 @@
                         });
                 }
             },
+            checkField: function (category) {
+                return category === "field";
+            },
             subFieldExists: function (field) {
-                return field !== "";
+                return typeof field !== "undefined" && field !== "";
             },
             fieldExists: function (countObj) {
                 return typeof countObj.field !== "undefined";
