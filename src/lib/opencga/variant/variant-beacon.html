@@ -103,6 +103,7 @@
 //                this.$.jsonType.checked = false;
                 this.result = "";
                 this.clear = Utils.randomString(4); // Clear beacon network response
+                this.variant = "" // reset variant to empty
             },
             loadExample: function() {
                 this.$.datasetInput.value = this.studies[0].alias;
@@ -115,7 +116,7 @@
                 this.clear = Utils.randomString(4); // Clear beacon network response
                 let queryParams = {
                     chrom: this.$.refNameInput.value,
-                    pos: this.$.startInput.value,
+                    pos: Number(this.$.startInput.value) - 1,
                     allele: this.$.alleleInput.value,
                     beacon: this.project.alias + ":" + this.$.datasetInput.value,
                 };

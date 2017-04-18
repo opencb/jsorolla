@@ -198,15 +198,15 @@
             <template is="dom-repeat" items="{{results}}" id="resultsDiv">
                 <h3>{{item.title}}</h3>
                 <div class="btn-group" style="float: right">
-                    <span class="btn btn-primary" on-click="onHistogramChart">
+                    <span class="btn btn-primary plots active" on-click="onHistogramChart">
                         <i class="fa fa-bar-chart" style="padding-right: 5px" title="Bar Chart" data-id="{{item.name}}"></i>
                     </span>
                     <template is="dom-if" if="{{item.renderPieChart}}">
-                        <span class="btn btn-primary" on-click="onPieChart">
+                        <span class="btn btn-primary plots" on-click="onPieChart">
                             <i class="fa fa-pie-chart" style="padding-right: 5px" title="Pie Chart" data-id="{{item.name}}"></i>
                         </span>
                     </template>
-                    <span class="btn btn-primary" on-click="onTabularView">
+                    <span class="btn btn-primary plots" on-click="onTabularView">
                         <i class="fa fa-table" style="padding-right: 5px" title="Tabular View" data-id="{{item.name}}"></i>
                     </span>
                 </div>
@@ -634,19 +634,26 @@
                 $("#" + this.prefix + "ChromosomeAdd").prop("disabled", false);
             },
             onHistogramChart: function (e) {
+                this.highlightActivePlot(e.target.parentElement);
                 let id = e.target.dataId;
                 this.renderHistogramChart("#" + this.prefix + id + "Plot", id);
                 $("#" + this.prefix + id + "Table").css("display", "none");
             },
             onPieChart: function (e) {
+                this.highlightActivePlot(e.target.parentElement);
                 let id = e.target.dataId;
                 this.renderPieChart("#" + this.prefix + id + "Plot", id);
                 $("#" + this.prefix + id + "Table").css("display", "none");
             },
             onTabularView: function (e) {
+                this.highlightActivePlot(e.target.parentElement);
                 let id = e.target.dataId;
                 $("#" + this.prefix + id + "Plot").html("");
                 $("#" + this.prefix + id + "Table").css("display", "table");
+            },
+            highlightActivePlot: function (button) {
+                $('.plots').removeClass("active");
+                $(button).addClass("active");
             },
             renderHistogramChart: function (div, id) {
                 let params = this._getHistogramData(id);
