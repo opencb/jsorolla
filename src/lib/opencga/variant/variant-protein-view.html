@@ -95,7 +95,7 @@
                 }
             },
             ready: function () {
-                if (typeof this.prefix === "undefined" || this.prefix == "") {
+                if (typeof this.prefix === "undefined" || this.prefix === "") {
                     this.prefix = "protein" + Utils.randomString(6);
                 }
             },
@@ -107,12 +107,12 @@
                 if (typeof this.cellbaseClient !== "undefined" && typeof this.opencgaClient !== "undefined") {
                     let _this = this;
                     let queryParams = {};
-                    if (typeof this.gene !== "undefined" && this.gene != "") {
+                    if (typeof this.gene !== "undefined" && this.gene !== "") {
                         queryParams.gene = this.gene;
-                        if (typeof this.ids !== "undefined" && this.ids != "") {
+                        if (typeof this.ids !== "undefined" && this.ids !== "") {
                             queryParams.xrefs = this.ids;
                         }
-                    } else if (typeof this.ids !== "undefined" && this.ids != "") {
+                    } else if (typeof this.ids !== "undefined" && this.ids !== "") {
                         queryParams.xrefs = this.ids;
                     }
 
@@ -132,11 +132,16 @@
 
                             if (proteinObjects.length > 0 && typeof _this.project !== "undefined" && typeof _this.study !== "undefined" && typeof _this.study.alias !== "undefined") {
                                 let params = {
-                                    gene: _this.gene,
                                     "annot-ct": "missense_variant,transcript_ablation,splice_acceptor_variant,splice_donor_variant,stop_gained,frameshift_variant,stop_lost,start_lost," +
                                     "transcript_amplification,inframe_insertion,inframe_deletion",
                                     studies: _this.project.alias + ":" + _this.study.alias, returnedStudies: _this.project.alias + ":" + _this.study.alias,
                                     exclude: "studies.samplesData,studies.files"};
+
+                                if (typeof _this.gene !== "undefined" && _this.gene !== "") {
+                                    params.gene = _this.gene;
+                                } else if (typeof _this.ids !== "undefined" && _this.ids !== "") {
+                                    params["annot-xref"] = _this.ids;
+                                }
                                 _this.opencgaClient.variants().query(params)
                                     .then(function (variants) {
                                         let lollipop = new Lollipop();

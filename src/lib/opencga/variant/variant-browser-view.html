@@ -43,109 +43,123 @@
 
             <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" filters="{{config.filters}}" alias="{{activeFilterAlias}}"></opencga-active-filters>
 
-            <!-- Variant Browser Grid -->
-            <variant-browser-grid study="{{study}}" project="{{project}}" cohorts="{{cohorts}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
-                                  population-frequencies="{{populationFrequencies}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                  consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}" variant="{{variant}}" on-selected="selectedGene"
-                                  on-selectvariant="onSelectVariant" style="font-size: 12px" config="{{config}}" summary="{{summary}}">
-            </variant-browser-grid>
+            <ul class="nav nav-pills" style="padding-bottom: 15px">
+                <li role="presentation" class="active"><a href="#{{prefix}}VariantView" role="tab" data-toggle="tab">Variant View</a></li>
+                <li role="presentation"><a href="#{{prefix}}GeneView" role="tab" data-toggle="tab">Gene View</a></li>
+                <li role="presentation"><a href="#{{prefix}}GenomeBrowser" role="tab" data-toggle="tab">Genome Browser</a></li>
+                <li role="presentation"><a href="#{{prefix}}Summary" role="tab" data-toggle="tab">Summary</a></li>
+            </ul>
 
-            <div hidden$="{{checkVariant(variant)}}">
-                <br>
-                <h3>Please select a variant to view variant's detailed annotation</h3>
-            </div>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="{{prefix}}VariantView">
+                    <!-- Variant Browser Grid -->
+                    <variant-browser-grid study="{{study}}" project="{{project}}" cohorts="{{cohorts}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+                                          population-frequencies="{{populationFrequencies}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                          consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}" variant="{{variant}}" on-selected="selectedGene"
+                                          on-selectvariant="onSelectVariant" style="font-size: 12px" config="{{config}}" summary="{{summary}}">
+                    </variant-browser-grid>
 
-            <!-- Bottom tabs with specific variant information -->
-            <div style="padding-top: 20px" hidden$="{{!checkVariant(variant)}}">
-                <h3>Variant: {{variant}}</h3>
-                <div style="padding-top: 20px">
-                    <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
-                        <li role="presentation" class="active"><a href="#{{prefix}}Annotation" role="tab" data-toggle="tab" class="variant-tab-title">Advanced Annotation</a></li>
-                        <li role="presentation"><a href="#{{prefix}}Genotype" role="tab" data-toggle="tab" class="variant-tab-title">Genotype Stats</a></li>
-                        <li role="presentation"><a href="#{{prefix}}GenomeView" role="tab" data-toggle="tab" class="variant-tab-title">Genome Context</a></li>
-                        <li role="presentation"><a href="#{{prefix}}Beacon" role="tab" data-toggle="tab" class="variant-tab-title">Beacon Network</a></li>
-                    </ul>
+                    <div hidden$="{{checkVariant(variant)}}">
+                        <br>
+                        <h3>Please select a variant to view variant's detailed annotation</h3>
+                    </div>
 
-                    <div class="tab-content" style="height: 680px">
+                    <!-- Bottom tabs with specific variant information -->
+                    <div style="padding-top: 20px" hidden$="{{!checkVariant(variant)}}">
+                        <h3>Variant: {{variant}}</h3>
+                        <div style="padding-top: 20px">
+                            <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
+                                <li role="presentation" class="active"><a href="#{{prefix}}Annotation" role="tab" data-toggle="tab" class="variant-tab-title">Advanced Annotation</a></li>
+                                <li role="presentation"><a href="#{{prefix}}Genotype" role="tab" data-toggle="tab" class="variant-tab-title">Genotype Stats</a></li>
+                                <li role="presentation"><a href="#{{prefix}}GenomeView" role="tab" data-toggle="tab" class="variant-tab-title">Genome Context</a></li>
+                                <li role="presentation"><a href="#{{prefix}}Beacon" role="tab" data-toggle="tab" class="variant-tab-title">Beacon Network</a></li>
+                            </ul>
 
-                        <!--Annotation Tab-->
-                        <div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">
-                            <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-client="{{cellbaseClient}}" mode="vertical"
-                                                             hash-fragment-credentials="{{hashFragmentCredentials}}" consequence-types="{{consequenceTypes}}"
-                                                             protein-substitution-scores="{{proteinSubstitutionScores}}" style="font-size: 12px"></cellbase-variantannotation-view>
-                        </div>
+                            <div class="tab-content" style="height: 680px">
 
-                        <!--Genotypes & Files Tab-->
-                        <div role="tabpanel" class="tab-pane" id="{{prefix}}Genotype">
-                            <template is="dom-repeat" items="{{variantStudies}}" as="study" id="variantStudies">
-                                <div class="col-md-10" style="padding-top: 8px">
-                                    <h4 style="font-weight: bold;padding: 20px 0px 0px 0px">
-                                        <i class="fa fa-minus-circle" on-click="handleCollapseAction" data-id="{{getStudy(study.studyId)}}" style="cursor: pointer;"></i>&nbsp;{{getStudy(study.studyId)}}
-                                    </h4>
-
-                                    <div id="{{getStudy(study.studyId)}}">
-                                        <div hidden$="{{!checkStatsAvailable(study.stats)}}">
-                                            <table class="table table-bordered" style="width: 70%">
-                                                <thead style="background-color: #eee;">
-                                                <tr>
-                                                    <th scope="col" rowspan="2">Cohort</th>
-                                                    <th scope="col" rowspan="2">Reference</th>
-                                                    <th scope="col" rowspan="2">Alternate</th>
-                                                    <th scope="col" rowspan="2">MAF (allele)</th>
-                                                    <th colspan="2" scope="colgroup">Allele Frequencies</th>
-                                                    <th colspan="3" scope="colgroup">Genotype Frequencies</th>
-                                                </tr>
-                                                <tr>
-                                                    <th scope="col">Reference (count)</th>
-                                                    <th scope="col">Alternate (count)</th>
-                                                    <th scope="col">0/0 (count)</th>
-                                                    <th scope="col">0/1 (count)</th>
-                                                    <th scope="col">1/1 (count)</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                <template is="dom-repeat" items="{{study.stats}}" as="cohort">
-                                                    <tr>
-                                                        <td>{{cohort.name}}</td>
-                                                        <td>{{cohort.value.refAllele}}</td>
-                                                        <td>{{cohort.value.altAllele}}</td>
-                                                        <td>{{cohort.value.maf}} ({{cohort.value.mafAllele}})</td>
-                                                        <td>{{cohort.value.refAlleleFreq}} ({{cohort.value.refAlleleCount}})</td>
-                                                        <td>{{cohort.value.altAlleleFreq}} ({{cohort.value.altAlleleCount}})</td>
-                                                        <td>{{cohort.value.genotypesFreq.homref}} ({{cohort.value.genotypesCount.homref}})</td>
-                                                        <td>{{cohort.value.genotypesFreq.het}} ({{cohort.value.genotypesCount.het}})</td>
-                                                        <td>{{cohort.value.genotypesFreq.homalt}} ({{cohort.value.genotypesCount.homalt}})</td>
-                                                    </tr>
-                                                </template>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                        <div hidden$="{{checkStatsAvailable(study.stats)}}">
-                                            No Genotypes statistics available
-                                        </div>
-                                    </div>
-                                    <br>
+                                <!--Annotation Tab-->
+                                <div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">
+                                    <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-client="{{cellbaseClient}}" mode="vertical"
+                                                                     hash-fragment-credentials="{{hashFragmentCredentials}}" consequence-types="{{consequenceTypes}}"
+                                                                     protein-substitution-scores="{{proteinSubstitutionScores}}" style="font-size: 12px"></cellbase-variantannotation-view>
                                 </div>
-                            </template>
-                        </div>
 
-                        <!--Genome Context Tab-->
-                        <div role="tabpanel" class="tab-pane" id="{{prefix}}GenomeView">
-                            <!--<br>-->
-                            This will be available in the coming days, sorry for any inconvenience.
-                            <!--<genome-context></genome-context>-->
-                        </div>
+                                <!--Genotypes & Files Tab-->
+                                <div role="tabpanel" class="tab-pane" id="{{prefix}}Genotype">
+                                    <template is="dom-repeat" items="{{variantStudies}}" as="study" id="variantStudies">
+                                        <div class="col-md-10" style="padding-top: 8px">
+                                            <h4 style="font-weight: bold;padding: 20px 0px 0px 0px">
+                                                <i class="fa fa-minus-circle" on-click="handleCollapseAction" data-id="{{getStudy(study.studyId)}}" style="cursor: pointer;"></i>&nbsp;{{getStudy(study.studyId)}}
+                                            </h4>
 
-                        <!--Beacon network-->
-                        <div role="tabpanel" class="tab-pane" id="{{prefix}}Beacon">
-                            <br>
-                            <button class="btn btn-primary" type="button" on-click="triggerBeacon">Search Beacon Network</button>
-                            <a data-toggle="tooltip" title="Beacon Network is a search engine across the world's public beacons. You can find it here - https://beacon-network.org/#/"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
-                            <br><br>
-                            <variant-beacon-network hosts="{{beaconHosts}}" clear="{{variant}}" variant="{{variantToBeacon}}"></variant-beacon-network>
+                                            <div id="{{getStudy(study.studyId)}}">
+                                                <div hidden$="{{!checkStatsAvailable(study.stats)}}">
+                                                    <table class="table table-bordered" style="width: 70%">
+                                                        <thead style="background-color: #eee;">
+                                                        <tr>
+                                                            <th scope="col" rowspan="2">Cohort</th>
+                                                            <th scope="col" rowspan="2">Reference</th>
+                                                            <th scope="col" rowspan="2">Alternate</th>
+                                                            <th scope="col" rowspan="2">MAF (allele)</th>
+                                                            <th colspan="2" scope="colgroup">Allele Frequencies</th>
+                                                            <th colspan="3" scope="colgroup">Genotype Frequencies</th>
+                                                        </tr>
+                                                        <tr>
+                                                            <th scope="col">Reference (count)</th>
+                                                            <th scope="col">Alternate (count)</th>
+                                                            <th scope="col">0/0 (count)</th>
+                                                            <th scope="col">0/1 (count)</th>
+                                                            <th scope="col">1/1 (count)</th>
+                                                        </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        <template is="dom-repeat" items="{{study.stats}}" as="cohort">
+                                                            <tr>
+                                                                <td>{{cohort.name}}</td>
+                                                                <td>{{cohort.value.refAllele}}</td>
+                                                                <td>{{cohort.value.altAllele}}</td>
+                                                                <td>{{cohort.value.maf}} ({{cohort.value.mafAllele}})</td>
+                                                                <td>{{cohort.value.refAlleleFreq}} ({{cohort.value.refAlleleCount}})</td>
+                                                                <td>{{cohort.value.altAlleleFreq}} ({{cohort.value.altAlleleCount}})</td>
+                                                                <td>{{cohort.value.genotypesFreq.homref}} ({{cohort.value.genotypesCount.homref}})</td>
+                                                                <td>{{cohort.value.genotypesFreq.het}} ({{cohort.value.genotypesCount.het}})</td>
+                                                                <td>{{cohort.value.genotypesFreq.homalt}} ({{cohort.value.genotypesCount.homalt}})</td>
+                                                            </tr>
+                                                        </template>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <div hidden$="{{checkStatsAvailable(study.stats)}}">
+                                                    No Genotypes statistics available
+                                                </div>
+                                            </div>
+                                            <br>
+                                        </div>
+                                    </template>
+                                </div>
+
+                                <!--Genome Context Tab-->
+                                <div role="tabpanel" class="tab-pane" id="{{prefix}}GenomeView">
+                                    <!--<br>-->
+                                    This will be available in the coming days, sorry for any inconvenience.
+                                    <!--<genome-context></genome-context>-->
+                                </div>
+
+                                <!--Beacon network-->
+                                <div role="tabpanel" class="tab-pane" id="{{prefix}}Beacon">
+                                    <br>
+                                    <button class="btn btn-primary" type="button" on-click="triggerBeacon">Search Beacon Network</button>
+                                    <a data-toggle="tooltip" title="Beacon Network is a search engine across the world's public beacons. You can find it here - https://beacon-network.org/#/"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                    <br><br>
+                                    <variant-beacon-network hosts="{{beaconHosts}}" clear="{{variant}}" variant="{{variantToBeacon}}"></variant-beacon-network>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
+                <div role="tabpanel" class="tab-pane" id="{{prefix}}GeneView">Yet to implement!</div>
+                <div role="tabpanel" class="tab-pane" id="{{prefix}}GenomeBrowser">Yet to implement!</div>
+                <div role="tabpanel" class="tab-pane" id="{{prefix}}Summary">Yet to implement!</div>
             </div>
         </div>
     </template>
