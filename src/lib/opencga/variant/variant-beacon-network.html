@@ -3,7 +3,7 @@
         <style is="custom-style" include="jso-styles"></style>
 
         <div>
-            <i class="fa fa-spinner fa-spin" aria-hidden="true" id="spinGif" style="display:none"></i>
+            <i class="fa fa-spinner fa-spin" aria-hidden="true" id="{{prefix}}spinGif" style="display:none"></i>
             <table class="table table-bordered" style="width: 50%">
                 <thead style="background-color: #eee">
                 <tr>
@@ -56,7 +56,7 @@
                 if (this.variant.split(':').length > 2) {
                     let [chromosome, position, reference, alternate] = this.variant.split(':');
 
-                    $('#spinGif').show();
+                    $('#' + this.prefix + 'spinGif').show();
                     // url to search : https://beacon-network.org/api/responses?allele=C&beacon=[cosmic]&chrom=1&pos=99999&ref=GRCh37
                     // TODO: Assembly is hardcoded for now. It has to be taken care in the future
 
@@ -86,7 +86,7 @@
                                                 $("#" + _this.prefix + _this.hosts[i]).css("color", "black");
                                             }
                                         }
-                                        $('#spinGif').hide();
+                                        $('#' + _this.prefix + 'spinGif').hide();
                                     }
                                 } else {
                                     $("#" + _this.prefix + _this.hosts[i]).html("False (not 200)");

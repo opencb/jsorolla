@@ -110,9 +110,9 @@
         <div class="tab-content" style="height: 1024px">
             <div role="tabpanel" class="tab-pane active" id="{{prefix}}Variants">
                 <div class="btn-group btn-group" role="group" aria-label="..." style="padding: 15px;float: right">
-                    <button type="button" class="btn btn-default btn-warning" on-click="updateQuery">All</button>
-                    <button type="button" class="btn btn-default btn-warning" on-click="updateQuery">Missense</button>
-                    <button type="button" class="btn btn-default btn-warning" on-click="updateQuery">LoF</button>
+                    <button type="button" class="btn btn-default btn-warning gene-ct-buttons active" on-click="updateQuery">All</button>
+                    <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">Missense</button>
+                    <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">LoF</button>
                 </div>
 
                 <br>
@@ -216,6 +216,9 @@
                 }
             },
             updateQuery: function (e) {
+                $('.gene-ct-buttons').removeClass("active");
+                let button = e.target;
+                $(button).addClass("active");
                 let query = this.query;
                 switch (e.target.textContent) {
                     case "Missense":
