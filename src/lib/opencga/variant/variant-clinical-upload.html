@@ -360,6 +360,7 @@
                     });
 
 
+
                 for (let variable in this.variables)
                 {
                     if(variable.attributes.prearranged == true)
@@ -466,26 +467,34 @@
                 //console.log(this);
                 //debugger;
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-                console.log(this);
-                debugger;
+                //console.log(this);
+                //debugger;
                 let currentElementId = e.target.id;
                 let currentElement = $("#" +  e.target.id);
                 // Dropdown related to birthplace
                 if (currentElementId == (this.prefix + 'birthPlace')){
                     if (currentElement.val() == 'Spain'){
                         $("#otherCountryDiv").hide();
+                        $("#" + this.prefix + "otherCountry").prop("required",false);
                         $("#" + this.prefix + "birthPlaceRegion").prop("disabled",false);
+                        $("#" + this.prefix + "birthPlaceRegion").prop("required",true);
                     }
                     else
                     {
                         $("#" + this.prefix + "birthPlaceRegion").prop("disabled",true);
                         $("#" + this.prefix + "birthPlaceRegion").prop("selectedIndex",0);
                         $("#" + this.prefix + "birthPlaceRegion").prop("value","unknown");
+                        $("#" + this.prefix + "birthPlaceRegion").prop("required",false);
                         if (currentElement.val() == 'Other')
                         {// Display input text to introduce country
                             $("#otherCountryDiv").show();
+                            $("#" + this.prefix + "otherCountry").prop("required",true);
                         }
-                        else{$("#otherCountryDiv").hide();}
+                        else
+                        {
+                            $("#otherCountryDiv").hide();
+                            $("#" + this.prefix + "otherCountry").prop("required",false);
+                        }
                     }
 
 
@@ -516,19 +525,24 @@
             submitForm: function(e) {
                 e.preventDefault();
 
+                console.log(this);
+                debugger;
+
                 // Get values from form fields
                 let fields = $("#"+ this.prefix + "uploadForm").serializeArray();
+
                 let _variableSet = {};
+
                 // fill-in variable set
                 $(fields).each(function(index, field){
                     _variableSet[field.name] = field.value;
                 });
-                console.log(this);
-                debugger;
 
 
                 if (this.opencgaClient instanceof OpenCGAClient) {
+                    /////////////////////////////////
                     // 1. Create individual
+                    /////////////////////////////////
                     let params = {
                         study: this.study.alias,
                         body: {
@@ -553,12 +567,28 @@
                             "affectationStatus": "UNKNOWN"
                         }
                     };
-                    this.opencgaClient.individuals().create(params, {"method": "POST"}).then(function (response) {
-                        console.log(response);
-                        individualId = response.result.id;
-                    });
 
+
+                     let _this = this;
+
+                     this.opencgaClient.individuals().create(params, {"method": "POST"})
+                     .then(function (response) {
+                         console.log(response.response[0]);
+                         _this.individualId = response.response[0].result[0].id;
+                     })
+                     .catch(function () {
+                         console.log("Could not create individual for the study " + _this.study);
+                     });
+
+
+                    // Cannot see this.individualId from here
+
+
+                    /////////////////////////////////
                     // 2. Upload VCF
+                    /////////////////////////////////
+
+
                     params = {
                         study: this.study.alias,
                         type: "FILE",
@@ -567,36 +597,93 @@
                         bioformat: "VARIANT",
                         relativeFilePath: "."
                     };
-                    this.opencgaClient.files().upload(params).then(function (response) {
-                        console.log(response);
-                        let sampleId = response.result.sampleIds[0];
+
+                    this.opencgaClient.files().upload(params)
+                        .then(function (response) {
+                            console.log(response);
+                            _this.sampleId = response.response[0].result[0].sampleIds[0];
+                            _this.fileId = response.response[0].result[0].id;
+                    })
+                        .catch(function() {
+                            console.log("Could not upload VCF file for the study " + _this.study);
                     });
 
+                    // Cannot see this.sampleId from here
+
+                    /////////////////////////////////
                     // 3. Create Annotation set using previously obtained sampleId
+                    /////////////////////////////////
 
-                    // Create a JSON object with the variable set
+                    // Create a JSON object from variable set fields
 
-                    let item = {};
+                    let jsonAnnotation = {};
                     $(this.variableSets[0].variables).each(function(index, currentVariable){
-                        item[currentVariable.name] = _variableSet[currentVariable.name];
+                        jsonAnnotation[currentVariable.name] = _variableSet[currentVariable.name];
                     });
-                    jsonObj.push(item);
-                    let jsonAnnotations = JSON.stringify(item);
 
                     params = {
                         study: this.study.alias,
-                        sample: sampleId,
                         variableSetId: this.variableSets[0].id,
                         body: {
-                            "name": "annotation_individual_"+ individualId,
-                            "annotations": jsonAnnotations
+                            "name": "annotation_individual_89", // hardcoded
+                            "annotations": jsonAnnotation
                         }
 
                     };
+                    // Replace 91 by this.sampleId
+                    this.opencgaClient.samples().annotationsetsCreate(91, params, {"method": "POST"})
+                        .then(function (response) {
+                            console.log(response);
+                        })
+                        .catch(function() {
+                            console.log("Could not create annotation set for the sample " + _this.sampleId);
+                        });
+
+                    /////////////////////////////////
+                    // 4. Link sample and individual
+                    /////////////////////////////////
+
+                    params = {
+                        study: this.study.alias,
+                        body: {
+                            "individual.id": "89" // would be this.individualId
+                        }
+                    };
+                    // this.sampleId en lugar de 48
+                    this.opencgaClient.samples().update(91, params, {"method": "POST"})
+                        .then(function (response) {
+                            console.log(response);
+                        })
+                        .catch(function() {
+                            console.log("Could not link sample " + _this.sampleId + " and individual " + _this.individualId);
+                        });
 
 
+                    /////////////////////////////////
+                    // 5. Index and annotation VCF file
+                    /////////////////////////////////
+
+                    params = {
+                        //file: this.fileId,
+                        file: "101", // hardcoded
+                        study: this.study.alias,
+                        //outDir: this.fileId + "_annotation",
+                        outDir: "101_annotation", //hardcoded
+                        calculateStats: true,
+                        annotate: true
+                    };
+                    this.opencgaClient.variants().index(params)
+                        .then(function (response) {
+                            console.log(response);
+                        })
+                        .catch(function() {
+                            console.log("Could not index file " + _this.fileId);
+                        });
 
                 }
+
+
+
 
                 // Submit the form
                 //$("#" + this.prefix + "uploadForm").submit();

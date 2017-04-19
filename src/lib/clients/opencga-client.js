@@ -742,6 +742,10 @@ class Samples extends OpenCGAParentClass {
         return this.get("samples", id, "delete", params, options);
     }
 
+    annotationsetsCreate(id, params, options) {
+        return this.get("samples", id, "annotationsets/create", params, options);
+    }
+
 }
 
 class Variables extends OpenCGAParentClass {
@@ -869,6 +873,10 @@ class Variant extends OpenCGAParentClass {
 
     facet(params, options) {
         return this.get("analysis/variant", undefined, "facet", params, options);
+    }
+
+    index(params, options) {
+        return this.get("analysis/variant", undefined, "index", params, options);
     }
 }
 
