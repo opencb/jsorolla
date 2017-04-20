@@ -47,7 +47,7 @@
                 <li role="presentation" class="active"><a href="#{{prefix}}VariantView" role="tab" data-toggle="tab">Variant View</a></li>
                 <li role="presentation"><a href="#{{prefix}}GeneView" role="tab" data-toggle="tab">Gene View</a></li>
                 <li role="presentation"><a href="#{{prefix}}GenomeBrowser" role="tab" data-toggle="tab">Genome Browser</a></li>
-                <li role="presentation"><a href="#{{prefix}}Summary" role="tab" data-toggle="tab">Summary</a></li>
+                <li role="presentation"><a href="#{{prefix}}Summary" role="tab" data-toggle="tab" on-click="fetchFacets">Summary</a></li>
             </ul>
 
             <div class="tab-content">
@@ -159,7 +159,24 @@
                 </div>
                 <div role="tabpanel" class="tab-pane" id="{{prefix}}GeneView">Yet to implement!</div>
                 <div role="tabpanel" class="tab-pane" id="{{prefix}}GenomeBrowser">Yet to implement!</div>
-                <div role="tabpanel" class="tab-pane" id="{{prefix}}Summary">Yet to implement!</div>
+                <div role="tabpanel" class="tab-pane" id="{{prefix}}Summary">
+                    <div class="col-md-6">
+                        <h4>Consequence Type</h4>
+                        <div id="{{prefix}}soAcc"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <h4>Gene</h4>
+                        <div id="{{prefix}}genes"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <h4>Variant Type</h4>
+                        <div id="{{prefix}}type"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <h4>Studies</h4>
+                        <div id="{{prefix}}studies"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </template>
@@ -267,7 +284,7 @@
                     this.hashFragmentCredentials = {
                         project: this.project.alias,
                         study: this.study.alias
-                    }
+                    };
                 }
             },
             queryAltered: function () {
@@ -342,6 +359,79 @@
                             }
                         });
                 }
+            },
+            fetchFacets: function () {
+                let queryParams = {
+                    sid: this.opencgaClient._config.sessionId,
+                    studies: this.project.alias + ":" + this.study.alias,
+                    facet: "type;genes;soAcc;studies",
+                    timeout: 60000
+                };
+
+                if (typeof queryParams.sid === "undefined" || queryParams.sid === "") {
+                    delete queryParams["sid"];
+                }
+
+                let _this = this;
+//                setTimeout(_ => {
+//                    this.opencgaClient.variants().facet(queryParams, {})
+//                        .then(function (queryResponse) {
+//                            _this.facetResults = queryResponse.response[0].result[0].result.fields;
+//                        });
+//                }, 2000);
+
+                this.opencgaClient.variants().facet(queryParams, {})
+                    .then(function (queryResponse) {
+                        _this.facetResults = queryResponse.response[0].result[0].result.fields;
+                        for (let result of _this.facetResults) {
+                            let categories = [];
+                            let data =  [];
+
+                            for (let countObj of result.counts) {
+                                categories.push(countObj.value);
+                                data.push(countObj.count);
+                            }
+
+                            $("#" + _this.prefix + result.name).highcharts({
+                                credits: {enabled: false},
+                                chart: {
+                                    type: "column"
+                                },
+                                title: {
+                                    text: result.name
+                                },
+                                xAxis: {
+                                    categories: categories
+                                },
+                                yAxis: {
+                                    min: 0,
+                                    title: {
+                                        text: 'Total number of Variants'
+                                    }
+                                },
+                                tooltip: {
+                                    headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                                    pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                                    '<td style="padding:0"><b>{point.y:.1f} </b></td></tr>',
+                                    footerFormat: '</table>',
+                                    shared: true,
+                                    useHTML: true
+                                },
+                                plotOptions: {
+                                    column: {
+                                        pointPadding: 0.2,
+                                        borderWidth: 0
+                                    }
+                                },
+                                series: [{
+                                    name: result.name,
+                                    data: data
+                                }]
+                            });
+                        }
+                    });
+
+
             },
             _freqFormatter: function(value) {
                 if (value !== 0 && value !== 1) {
