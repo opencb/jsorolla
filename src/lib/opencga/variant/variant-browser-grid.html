@@ -55,8 +55,8 @@
             <!--</div>-->
         </div>
 
-        <div>
-            <table id="{{prefix}}VariantBrowserGrid" data-toolbar="#{{prefix}}toolbar" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
+        <div style="padding-top: 10px">
+            <table id="{{prefix}}VariantBrowserGrid" data-toolbar="#{{prefix}}toolbar" data-pagination="true" data-page-list="[10, 25, 50]"
                    data-show-export="true" data-id-field="variant">
                 <thead style="background-color: #eee"></thead>
             </table>
@@ -305,7 +305,7 @@
                     if (typeof this.query === "undefined") {
                         this.query = {};
                     }
-                    if (typeof this.query.studies === "undefined" || this.query.studies == "" || this.query.studies.split(new RegExp("[,;]")).length == 1) {
+                    if (typeof this.query.studies === "undefined" || this.query.studies === "" || this.query.studies.split(new RegExp("[,;]")).length === 1) {
                         this.query.studies = this.project.alias + ":" + this.study.alias;
                     }
                     host += '/webservices/rest/v1/analysis/variant/query';
