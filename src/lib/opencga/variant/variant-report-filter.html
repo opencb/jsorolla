@@ -1,0 +1,230 @@
+<!--
+  ~ Copyright 2015 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+
+<dom-module id="variant-report-filter">
+    <template>
+        <style is="custom-style" include="jso-styles">
+            label {
+                padding-top: 10px;
+            }
+        </style>
+
+
+        <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true">
+            <br>
+            <!-- Sample Selection -->
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="{{prefix}}SampleInformationHeading">
+                    <h4 class="panel-title">
+                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
+                           href="#{{prefix}}SampleInformation" aria-expanded="true" aria-controls="{{prefix}}SampleInformation">
+                            Sample Information
+                            <div style="float: right" class="tooltip-div">
+                                <a data-toggle="tooltip" title="Sample information">
+                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        </a>
+                    </h4>
+                </div>
+                <div id="{{prefix}}SampleInformation" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}SampleInformationHeading">
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <label>Select</label>
+                            <br>
+                            <input type="radio" name="sampleButtons" id="{{prefix}}AllRadio" value="all" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> All<br>
+                            <input type="radio" name="sampleButtons" id="{{prefix}}SubsetRadio" value="range" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Subset
+
+                            <div class="panel-body">
+                                <input type="checkbox" name="sampleButtons" id="{{prefix}}IndividualID" value="individualId" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Individual ID<br>
+                                <input type="checkbox" name="sampleButtons" id="{{prefix}}ChromosomalGender" value="chromosomalGender" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Chromosomal Gender<br>
+                                <input type="checkbox" name="sampleButtons" id="{{prefix}}YearBirth" value="yearBirth" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Year of Birth<br>
+                                <input type="checkbox" name="sampleButtons" id="{{prefix}}BirthPlace" value="birthPlace" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Birth place<br>
+                                <input type="checkbox" name="sampleButtons" id="{{prefix}}Ethnicity" value="ethnicity" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Ethnicity<br>
+                                <input type="checkbox" name="sampleButtons" id="{{prefix}}Hpo" value="hpo" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> HPO<br>
+                                <input type="checkbox" name="sampleButtons" id="{{prefix}}Diagnosis" value="diagnosis" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Diagnosis<br>
+
+                                <!-- SPECIFIC FIELDS FROM VARIABLE SET -->
+                                <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}" as="variable" sort="_sortVariables">
+                                    <input type="checkbox" name="sampleButtons" id="{{prefix}}{{variable.name}}" value="{{variable.name}}" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> {{variable.title}}<br>
+                                </template>
+
+                            </div>
+
+
+                            <div class="panel-body">
+                                <select multiple class="form-control" id="{{prefix}}FormFieldsMultiple">
+                                    <option value="{{prefix}}individualID">Individual ID</option>
+                                    <option value="{{prefix}}chromosomalGender">Chromosomal Gender</option>
+                                    <option value="{{prefix}}yearBirth">Year of Birth</option>
+                                    <option value="{{prefix}}birthPlace">Birth place</option>
+                                    <option value="{{prefix}}enthnicity">Ethnicity</option>
+                                    <option value="{{prefix}}HPO">HPO</option>
+                                    <option value="{{prefix}}diagnosis">Diagnosis</option>
+
+                                    <!-- SPECIFIC FIELDS FROM VARIABLE SET -->
+                                    <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}" as="variable" sort="_sortVariables">
+                                        <option value="{{prefix}}{{variable.name}}">{{variable.title}}</option>
+                                    </template>
+
+
+                                </select>
+
+
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prioritization information -->
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="{{prefix}}PrioritizationInformationHeading">
+                    <h4 class="panel-title">
+                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
+                           href="#{{prefix}}PrioritizationInformation" aria-expanded="true" aria-controls="{{prefix}}PrioritizationInformation">
+                            Prioritization Information
+                            <div style="float: right" class="tooltip-div">
+                                <a data-toggle="tooltip" title="Prioritization information">
+                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        </a>
+                    </h4>
+                </div>
+                <div id="{{prefix}}PrioritizationInformation" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}PrioritizationInformationHeading">
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <label>Select</label>
+                            <br>
+                            <input type="checkbox" name="prioritizationButtons" id="{{prefix}}GenericData" value="genericData" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Generic data<br>
+                            <input type="checkbox" name="prioritizationButtons" id="{{prefix}}VariantsTable" value="variantsTable" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Variants table<br>
+                            <input type="checkbox" name="prioritizationButtons" id="{{prefix}}AnalysisResume" value="analysisResume" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Analysis resume<br>
+                            <input type="checkbox" name="prioritizationButtons" id="{{prefix}}FilterResume" value="filterResume" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Filter resume<br>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Other information -->
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="{{prefix}}OtherInformationHeading">
+                    <h4 class="panel-title">
+                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
+                           href="#{{prefix}}OtherInformation" aria-expanded="true" aria-controls="{{prefix}}OtherInformation">
+                            Other Information
+                            <div style="float: right" class="tooltip-div">
+                                <a data-toggle="tooltip" title="Other information">
+                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        </a>
+                    </h4>
+                </div>
+                <div id="{{prefix}}OtherInformation" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}OtherInformationHeading">
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <label>Select</label>
+                            <br>
+                            <input type="checkbox" name="otherButtons" id="{{prefix}}Conclusions" value="conclusions" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Editable conclusions<br>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div style="width: 60%;margin: 0 auto">
+            <button type="button" class="btn btn-primary btn-md" style="width: 100%" on-click="onSave">
+                <i class="fa fa-floppy-o" aria-hidden="true" style="padding: 0px 5px 0px 5px"></i>
+                Save report
+            </button>
+        </div>
+        <br>
+        <div style="width: 60%;margin: 0 auto">
+            <button type="button" class="btn btn-primary btn-md" style="width: 100%" on-click="onExport">
+                <i class="fa fa-file-pdf-o" aria-hidden="true" style="padding: 0px 5px 0px 5px"></i>
+                Export report
+            </button>
+
+        </div>
+
+
+
+    </template>
+
+    <script>
+        Polymer({
+            is: 'variant-report-filter',
+            properties: {
+                opencgaClient: {
+                    type: Object
+                },
+                study: {
+                    type: Object,
+                    observer: 'updateVariableSets'
+                },
+                prefix: {
+                    type: String
+                },
+                config: {
+                    type: Object
+                },
+                selection: {
+                    type: Object
+                },
+                variableSets: {
+                    type: Array
+                }
+            },
+            ready: function() {
+                if (typeof this.prefix === "undefined" || this.prefix == "") {
+                    this.prefix = Utils.randomString(6);
+                }
+
+            },
+            updateVariableSets: function () {
+                this.variables = [];
+                let _this = this;
+                this.opencgaClient.studies().info(this.study.id, {include: "variableSets"})
+                    .then(function (response) {
+                        _this.variableSets = response.response[0].result[0].variableSets;
+                        if (_this.variableSets.length > 0) {
+                            _this.variables = _this.variableSets[0].variables; // setting first one by default
+                            _this.filteredVariables = {
+                                variableSet: _this.variableSets[0].id,
+                                variables: []
+                            };
+                        } else {
+                            _this.variableSets = [{name : "none"}];
+                        }
+                    })
+                    .catch(function () {
+                        console.log("Could not obtain the variable sets of the study " + _this.study);
+                    });
+
+            },
+            _sortVariables: function (a, b) {
+                if (a.rank < b.rank) {
+                    return -1;
+                }
+                return 1;
+            },
+        });
+    </script>
+</dom-module>

@@ -29,9 +29,9 @@
                 <!-- GENERAL INFORMATION -->
                 <h4>1. General information</h4>
                 <br>
-                <!-- SAMPLE ID -->
+                <!-- Individual ID -->
                 <div class="form-group has-feedback">
-                    <label for="{{prefix}}sampleID" class="col-sm-3 control-label">Sample ID</label>
+                    <label for="{{prefix}}sampleID" class="col-sm-3 control-label">Individual ID</label>
                     <div class="col-sm-9">
                         <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}sampleID" name="sampleID" placeholder="ID or clinical record number" maxlength="75" required data-error="" pattern=".+">
                         <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
@@ -64,21 +64,6 @@
                             </template>
                         </select>
                         <div class="help-block with-errors" id="{{prefix}}_errorDiv_birthYear"></div>
-                    </div>
-                </div>
-
-                <!-- ETHNICITY -->
-                <div class="form-group has-feedback">
-                    <label for="{{prefix}}ethnicity" class="col-sm-3 control-label">Ethnicity</label>
-                    <div class="col-sm-9">
-                        <select class$="form-control {{prefix}}SelectInput" id="{{prefix}}ethnicity"
-                                name="ethnicity" required>
-                            <option></option>
-                            <template is="dom-repeat" items="{{config.ethnicity}}">
-                                <option value="{{item.id}}">{{item.title}}</option>
-                            </template>
-                        </select>
-                        <div class="help-block with-errors" id="{{prefix}}_errorDiv_ethnicity"></div>
                     </div>
                 </div>
 
@@ -122,6 +107,22 @@
                         <div class="help-block with-errors" id="{{prefix}}_errorDiv_birthPlaceRegion"></div>
                     </div>
                 </div>
+
+                <!-- ETHNICITY -->
+                <div class="form-group has-feedback">
+                    <label for="{{prefix}}ethnicity" class="col-sm-3 control-label">Ethnicity</label>
+                    <div class="col-sm-9">
+                        <select class$="form-control {{prefix}}SelectInput" id="{{prefix}}ethnicity"
+                                name="ethnicity" required>
+                            <option></option>
+                            <template is="dom-repeat" items="{{config.ethnicity}}">
+                                <option value="{{item.id}}">{{item.title}}</option>
+                            </template>
+                        </select>
+                        <div class="help-block with-errors" id="{{prefix}}_errorDiv_ethnicity"></div>
+                    </div>
+                </div>
+
 
                 <!-- HPO TERM (ONTOLOGY) -->
                 <div class="form-group has-feedback">
@@ -279,6 +280,9 @@
                         <button type="submit" class="btn btn-primary" on-click="submitForm">Upload and check sample</button>
                     </div>
                 </div>
+
+                {{individualId}}
+
             </form>
         </div>
 
@@ -522,73 +526,81 @@
                 $("." + this.prefix + "RadioInput").prop("checked", false);
                 $("#" + this.prefix + "birthPlaceRegion").prop("disabled",true);
             },
-            submitForm: function(e) {
-                e.preventDefault();
 
-                console.log(this);
-                debugger;
 
-                // Get values from form fields
-                let fields = $("#"+ this.prefix + "uploadForm").serializeArray();
-
-                let _variableSet = {};
-
-                // fill-in variable set
-                $(fields).each(function(index, field){
-                    _variableSet[field.name] = field.value;
+            createAnnotationSet: function(sampleId, formFields){
+                // Create an annotation set in openCGA for a sample
+                let jsonAnnotation = {};
+                $(this.variableSets[0].variables).each(function(index, currentVariable){
+                    jsonAnnotation[currentVariable.name] = formFields[currentVariable.name];
                 });
 
+                let params = {
+                    study: this.study.alias,
+                    variableSetId: this.variableSets[0].id,
+                    body: {
+                        "name": "annotation_sample_" + sampleId, // hardcoded
+                        "annotations": jsonAnnotation
+                    }
 
+                };
+                let _this = this;
+                _this.sampleId = sampleId;
+                this.opencgaClient.samples().annotationsetsCreate(sampleId, params, {"method": "POST"})
+                    .then(function (response) {
+                        console.log(response);
+                    })
+                    .catch(function() {
+                        console.log("Could not create annotation set for the sample " + _this.sampleId);
+                    });
+
+
+
+            },
+
+            linkSampleIndividual: function(individualId, sampleId){
+                // Link a sample and an individual in openCGA
+                let params = {
+                    study: this.study.alias,
+                    body: {
+                        "individual.id": individualId
+                    }
+                };
+                let _this= this;
+                _this.individualId = individualId;
+                _this.sampleID = sampleId;
+                this.opencgaClient.samples().update(sampleId, params, {"method": "POST"})
+                    .then(function (response) {
+                        console.log(response);
+                    })
+                    .catch(function() {
+                        console.log("Could not link sample " + _this.sampleId + " and individual " + _this.individualId);
+                    });
+            },
+
+            indexVCF: function(fileId){
+                // Index and annotate a VCF file in openCGA
+                let params = {
+                    file: fileId,
+                    study: this.study.alias,
+                    outDir: fileId + "_index_annot",
+                    calculateStats: true,
+                    annotate: true
+                };
+                let _this = this;
+                _this.fileId = fileId;
+                this.opencgaClient.variants().index(params)
+                    .then(function (response) {
+                        console.log(response);
+                    })
+                    .catch(function() {
+                        console.log("Could not index file " + _this.fileId);
+                    });
+
+            },
+            uploadVCF: function(individualId, formFields) {
+                // Upload VCF file to openCGA
                 if (this.opencgaClient instanceof OpenCGAClient) {
-                    /////////////////////////////////
-                    // 1. Create individual
-                    /////////////////////////////////
-                    let params = {
-                        study: this.study.alias,
-                        body: {
-                            "name": _variableSet.sampleID,
-                            "family": "",
-                            "fatherId": -1,
-                            "motherId": -1,
-                            "sex": "UNKNOWN",
-                            "ethnicity": _variableSet.ethnicity,
-                            "species": {
-                                "taxonomyCode": "9606",
-                                "scientificName": "Homo sapiens",
-                                "commonName": "Homo sapiens"
-                            },
-                            "population": {
-                                "name": _variableSet.birthPlace,
-                                "subpopulation": _variableSet.birthPlaceRegion,
-                                "description": ""
-                            },
-                            "karyotypicSex": _variableSet.chromosomalGender,
-                            "lifeStatus": "UNKNOWN",
-                            "affectationStatus": "UNKNOWN"
-                        }
-                    };
-
-
-                     let _this = this;
-
-                     this.opencgaClient.individuals().create(params, {"method": "POST"})
-                     .then(function (response) {
-                         console.log(response.response[0]);
-                         _this.individualId = response.response[0].result[0].id;
-                     })
-                     .catch(function () {
-                         console.log("Could not create individual for the study " + _this.study);
-                     });
-
-
-                    // Cannot see this.individualId from here
-
-
-                    /////////////////////////////////
-                    // 2. Upload VCF
-                    /////////////////////////////////
-
-
                     params = {
                         study: this.study.alias,
                         type: "FILE",
@@ -598,90 +610,97 @@
                         relativeFilePath: "."
                     };
 
+                    let _this = this;
+                    _this.individualId = individualId;
+
                     this.opencgaClient.files().upload(params)
                         .then(function (response) {
                             console.log(response);
-                            _this.sampleId = response.response[0].result[0].sampleIds[0];
-                            _this.fileId = response.response[0].result[0].id;
-                    })
-                        .catch(function() {
+                            let _sampleId = response.response[0].result[0].sampleIds[0];
+                            let _fileId = response.response[0].result[0].id;
+                            // 3. Create an annotation set
+                            _this.createAnnotationSet(_sampleId, formFields);
+                            // 4. Link sample and individual
+                            _this.linkSampleIndividual(_this.individualId, _sampleId);
+                            // 5. Index and annotate VCF
+                            _this.indexVCF(_fileId);
+
+                        })
+                        .catch(function () {
                             console.log("Could not upload VCF file for the study " + _this.study);
-                    });
-
-                    // Cannot see this.sampleId from here
-
-                    /////////////////////////////////
-                    // 3. Create Annotation set using previously obtained sampleId
-                    /////////////////////////////////
-
-                    // Create a JSON object from variable set fields
-
-                    let jsonAnnotation = {};
-                    $(this.variableSets[0].variables).each(function(index, currentVariable){
-                        jsonAnnotation[currentVariable.name] = _variableSet[currentVariable.name];
-                    });
-
-                    params = {
-                        study: this.study.alias,
-                        variableSetId: this.variableSets[0].id,
-                        body: {
-                            "name": "annotation_individual_89", // hardcoded
-                            "annotations": jsonAnnotation
-                        }
-
-                    };
-                    // Replace 91 by this.sampleId
-                    this.opencgaClient.samples().annotationsetsCreate(91, params, {"method": "POST"})
-                        .then(function (response) {
-                            console.log(response);
-                        })
-                        .catch(function() {
-                            console.log("Could not create annotation set for the sample " + _this.sampleId);
                         });
+                }
+            },
+            openCGAsteps: function(formFields) {
+                 // The following steps are run to register the form in openCGA:
+                 // 1. Create the individual (returns an individualId)
+                 // 2. Upload VCF (returns a sampleId, since a Sample is created automatically and a fileId)
+                 // 3. Create an annotation set given the sampleId provided in step 2
+                 // 4. Link the sample (sampleId) and the individual (individualId)
+                 // 5. Index and annotate the VCF file (using fileId obtained in step 2)
 
-                    /////////////////////////////////
-                    // 4. Link sample and individual
-                    /////////////////////////////////
 
-                    params = {
+                if (this.opencgaClient instanceof OpenCGAClient) {
+                    // 1. Create individual
+                    let params = {
                         study: this.study.alias,
                         body: {
-                            "individual.id": "89" // would be this.individualId
+                            "name": formFields.sampleID,
+                            "family": "",
+                            "fatherId": -1,
+                            "motherId": -1,
+                            "sex": "UNKNOWN",
+                            "ethnicity": formFields.ethnicity,
+                            "species": {
+                                "taxonomyCode": "9606",
+                                "scientificName": "Homo sapiens",
+                                "commonName": "Homo sapiens"
+                            },
+                            "population": {
+                                "name": formFields.birthPlace,
+                                "subpopulation": formFields.birthPlaceRegion,
+                                "description": ""
+                            },
+                            "karyotypicSex": formFields.chromosomalGender,
+                            "lifeStatus": "UNKNOWN",
+                            "affectationStatus": "UNKNOWN"
                         }
                     };
-                    // this.sampleId en lugar de 48
-                    this.opencgaClient.samples().update(91, params, {"method": "POST"})
+
+
+
+                    let _this = this;
+                    this.opencgaClient.individuals().create(params, {"method": "POST"})
                         .then(function (response) {
-                            console.log(response);
+                            let individualId = response.response[0].result[0].id;
+                            // 2. Upload VCF
+                            _this.uploadVCF(individualId, formFields);
+
                         })
-                        .catch(function() {
-                            console.log("Could not link sample " + _this.sampleId + " and individual " + _this.individualId);
-                        });
-
-
-                    /////////////////////////////////
-                    // 5. Index and annotation VCF file
-                    /////////////////////////////////
-
-                    params = {
-                        //file: this.fileId,
-                        file: "101", // hardcoded
-                        study: this.study.alias,
-                        //outDir: this.fileId + "_annotation",
-                        outDir: "101_annotation", //hardcoded
-                        calculateStats: true,
-                        annotate: true
-                    };
-                    this.opencgaClient.variants().index(params)
-                        .then(function (response) {
-                            console.log(response);
-                        })
-                        .catch(function() {
-                            console.log("Could not index file " + _this.fileId);
+                        .catch(function () {
+                            console.log("Could not create individual for the study " + _this.study);
                         });
 
                 }
 
+            },
+
+            submitForm: function(e) {
+                e.preventDefault();
+
+
+                // Get values from form fields
+                let fields = $("#"+ this.prefix + "uploadForm").serializeArray();
+
+                let formFields = {};
+
+                // fill-in variable set
+                $(fields).each(function(index, field){
+                    formFields[field.name] = field.value;
+                });
+
+                // Register the form in openCGA through different steps
+                this.openCGAsteps(formFields);
 
 
 

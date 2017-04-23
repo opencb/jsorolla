@@ -13,31 +13,46 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+
+<link rel="import" href="variant-report-filter.html">
+
 <dom-module id="variant-analysis-report">
 
     <template>
         <style is="custom-style" include="jso-styles"></style>
-        <!--<style>-->
-        <!--.center {-->
-        <!--margin: auto;-->
-        <!--text-align: justify;-->
-        <!--font-size: 18px;-->
-        <!--color: #797979;-->
-        <!--}-->
-        <!--</style>-->
+
 
         <!-- This is where main application is rendered -->
-        <div class="col-md-5">
-            <h3>Generate report</h3>
-            <h4>Under construction...</h4>
-            <br>
+
+        <div class="col-md-2">
+            <variant-report-filter opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}" selection="{{selection}}"></variant-report-filter>
+        </div>
+
+        <div class="col-md-10">
+
+
 
         </div>
+
     </template>
 
     <script>
         Polymer({
-            is: 'variant-analysis-report'
+            is: 'variant-analysis-report',
+            properties: {
+                opencgaClient: {
+                    type: Object
+                },
+                study: {
+                    type: Object
+                },
+                config: {
+                    type: Object
+                },
+                selection: {
+                    type: Object
+                }
+            },
 
         });
 
