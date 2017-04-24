@@ -139,7 +139,7 @@
                 this.fire('gene', {gene: e.detail.gene});
             },
             onClear: function() {
-                this.query = {};
+                this.query = {studies: this.project.alias + ":" + this.study.alias};
                 this.search = {};
             },
             onFilterChange: function(e) {

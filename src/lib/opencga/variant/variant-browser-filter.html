@@ -879,6 +879,9 @@
                     }
 
                     this._studyCohortBoolean = differentStudies.length > 0 || (typeof this._cohorts !== "undefined" && this._cohorts.length > 0);
+
+                    // Setting mandatory field for variant query
+                    this.query = {studies: this.project.alias + ":" + this.study.alias};
                 }
             },
             updateConsequenceTypeFilter: function(e) {
@@ -1188,12 +1191,14 @@
                 }
 
                 // Studies
-                let studies = [];
+                let studies = [this.project.alias + ":" + this.study.alias];
                 if (typeof this.$$("#includeOtherStudy") !== "undefined" && this.$$("#includeOtherStudy") !== null) {
                     let selectedStudies = this.$$("#differentStudies").querySelectorAll("input:checked");
                     if (selectedStudies.length > 0) {
                         for (let i = 0; i < selectedStudies.length; i++) {
-                            studies.push(this.project.alias + ':' + selectedStudies[i].value);
+                            if (studies.indexOf(this.project.alias + ':' + selectedStudies[i].value) === -1) {
+                                studies.push(this.project.alias + ':' + selectedStudies[i].value);
+                            }
                         }
                     }
 

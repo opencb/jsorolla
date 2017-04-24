@@ -298,12 +298,17 @@
             },
             onQueryUpdate: function () {
                 let _queryList = [];
-                var keys = Object.keys(this.query);
-                for (var keyIdx in keys) {
+                let keys = Object.keys(this.query);
+                for (let keyIdx in keys) {
                     let key = keys[keyIdx];
                     if (typeof this.query[key] !== 'undefined' && this.query[key] !== "") {
-                        // Show warning when filters are altered
-                        $("#" + this.prefix + "Warning").css('display', 'inherit');
+                        if (keys.length === 1 && key === "studies" && this.query[key].split(new RegExp("[,;]")).length === 1) {
+                            // Show warning when filters are altered
+                            $("#" + this.prefix + "Warning").css('display', 'none');
+                        } else {
+                            // Show warning when filters are altered
+                            $("#" + this.prefix + "Warning").css('display', 'inherit');
+                        }
 
                         // We use the alias to rename the key
                         let title = key;
@@ -325,6 +330,9 @@
                                 }
                             } else {
                                 _queryList.push({name: key, text: title, items: filterFields});
+                                if (key === "studies") {
+                                    this.fixedFilters = [];
+                                }
                             }
                         }
                     }
