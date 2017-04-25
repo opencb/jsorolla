@@ -41,7 +41,7 @@
                     <!--<label>No filters selected</label>-->
                     <!--</template>-->
 
-                    <template is="dom-if" if="{{_checkForFixedFilters(fixedFilters)}}">
+                    <template is="dom-if" if="{{showFixedFilters}}">
                         <div class="btn-group">
                                 <button type="button" class="btn btn-warning btn-sm">Fixed Filters</button>
                                 <button type="button" class="btn btn-warning btn-sm dropdown-toggle"
@@ -58,12 +58,6 @@
                                 </ul>
                             </div>
                     </template>
-
-                    <!--<template is="dom-repeat" items="{{fixedFilterList}}">-->
-                        <!--<button type="button" class="btn btn-warning btn-sm" disabled>-->
-                            <!--{{item}}-->
-                        <!--</button>-->
-                    <!--</template>-->
 
                     <template is="dom-repeat" items="{{queryList}}">
                         <template is="dom-if" if="{{!_isMultiValued(item)}}">
@@ -96,59 +90,21 @@
                 <template is="dom-if" if="{{checkSid(opencgaClient._config)}}">
                     <span style="float: right">
                         <form class="form-inline">
-                            <!--<span class="form-group">-->
-                            <!--<label for="filtersList">Load filter &nbsp; </label>-->
-                            <!--<select class="form-control" name="filters" id="filtersList" on-change="onFilterChange">-->
-                            <!--<option value="none">Load Filter...</option>-->
-                            <!--<template is="dom-repeat" items="{{filters}}">-->
-                            <!--<option value="{{item.name}}">{{item.name}}</option>-->
-                            <!--</template>-->
-                            <!--</select>-->
-                            <!--</span>-->
-
-                            <!--<button type="button" class="btn btn-primary" on-click="save">-->
-                            <!--<i class="fa fa-floppy-o" aria-hidden="true" style="padding-right: 5px"></i>-->
-                            <!--Save...-->
-                            <!--</button>-->
-                            <!-- Button trigger modal -->
-
-                            <!--<button type="button" class="btn btn-primary" on-click="clear">-->
-                            <!--<i class="fa fa-refresh" aria-hidden="true" style="padding-right: 5px"></i>-->
-                            <!--Clear-->
-                            <!--</button>-->
-
-
                             <div class="btn-group">
                                 <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     <i class="fa fa-filter" aria-hidden="true" style="padding-right: 5px"></i>
                                     Filters... <span class="caret"></span>
                                 </button>
-                                <ul class="dropdown-menu">
+                                <ul class="dropdown-menu dropdown-menu-right">
                                     <li><a style="font-weight: bold">Select one filter</a></li>
-                                    <!--<li><a href="" on-click="onFilterChange">&nbsp;&nbsp;Example BRCA2</a></li>-->
-                                    <!--<li><a href="" on-click="onFilterChange">&nbsp;&nbsp;Example ORC2</a></li>-->
                                     <template is="dom-repeat" items="{{filters}}">
-                                        <li><a data-filter-name="{{item.name}}" style="cursor: pointer" on-click="onFilterChange">&nbsp;&nbsp;{{item.name}}</a></li>
+                                        <li><a data-filter-name="{{item.name}}" style="cursor: pointer" on-click="onFilterChange"
+                                        class="filtersLink">&nbsp;&nbsp;{{item.name}}</a></li>
                                     </template>
                                     <li role="separator" class="divider"></li>
                                     <li><a style="cursor: pointer" on-click="launchModal"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save...</a></li>
                                 </ul>
                             </div>
-
-                            <!--TO DELETE-->
-                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#{{prefix}}SaveModal" on-click="launchModal">
-                                <i class="fa fa-floppy-o" aria-hidden="true" style="padding-right: 5px"></i>
-                                Save...
-                            </button>
-
-                            <!--TO DELETE-->
-                            <select class="form-control" name="filters" id="filtersList" on-change="onFilterChange">
-                                    <option value="none">Load Filter...</option>
-                                    <template is="dom-repeat" items="{{filters}}">
-                                        <option value="{{item.name}}">{{item.name}}</option>
-                                    </template>
-                            </select>
-
                         </form>
                     </span>
                 </template>
@@ -218,7 +174,8 @@
                     type: Object,
                 },
                 fixedFilters: {
-                    type: Array
+                    type: Array,
+                    observer: "fixedFiltersObtained"
                 },
                 prefix: {
                     type: String
@@ -306,6 +263,8 @@
                     // We look for the filter name in the filters array
                     for (let f of this.filters) {
                         if (f.name === e.target.dataFilterName) {
+                            $(".filtersLink").css("color", "black");
+                            e.target.style.color = "green";
                             let _queryList = Object.assign({}, f.query);
                             this.fire("filterchange", _queryList);
                             break;
@@ -315,6 +274,9 @@
             },
             onQueryFilterDelete: function (e) {
                 let _queryList = this.query;
+                // Reset selected filters to none
+                $(".filtersLink").css("color", "black");
+
                 let name = e.target.dataFilterName;
                 let value = e.target.dataFilterValue;
 
@@ -366,19 +328,22 @@
                             _queryList.push({name: key, text: title});
                         } else {
                             if (filterFields.length === 1) {
-                                if (this.fixedFilters.indexOf(key) !== -1) {
-                                    if (this.fixedFilterList.indexOf(value) === -1) {
-                                        this.push("fixedFilterList", value);
+                                // Check if the filter is one among the fixed filters
+                                if (typeof this.fixedFilters !== "undefined" && this.fixedFilters.indexOf(key) !== -1) {
+                                    this.showFixedFilters = true;
+
+                                    // Push into Fixed filter list only if it is not present before
+                                    if (this.fixedFilterList.indexOf(key + " = " + value) === -1) {
+                                        this.push("fixedFilterList", key + " = " + value);
                                     }
                                 } else {
                                     _queryList.push({name: key, text: title + " = " + value});
                                 }
                             } else {
                                 _queryList.push({name: key, text: title, items: filterFields});
-//                                if (key === "studies") {
-//                                if (this.fixedFilters.indexOf(key) !== -1) {
-//                                    this.fixedFilterList = [];
-//                                }
+                                if (this.fixedFilters.indexOf(key) !== -1) {
+                                    this.showFixedFilters = false;
+                                }
                             }
                         }
                     }
@@ -390,8 +355,8 @@
             searchClicked: function () {
                 $("#" + this.prefix + "Warning").css('display', 'none');
             },
-            _checkForFixedFilters: function (filters) {
-                return filters.length > 0;
+            fixedFiltersObtained: function () {
+                this.showFixedFilters = true;
             },
             _isMultiValued: function(item) {
                 return typeof item.items !== 'undefined';
