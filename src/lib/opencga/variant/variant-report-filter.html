@@ -26,6 +26,33 @@
 
         <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true">
             <br>
+
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="{{prefix}}SampleAnalysisHeading">
+                    <h4 class="panel-title">
+                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}AnalysisSelector"
+                           aria-expanded="true" aria-controls="{{prefix}}AnalysisSelector">
+                            Analysis
+                        </a>
+                    </h4>
+                </div>
+
+                <div id="{{prefix}}AnalysisSelector" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}SampleFilterHeading">
+                    <div class="panel-body">
+                        <label><i class="fa fa-sitemap" aria-hidden="true"></i>Select analysis:</label>
+                        <br>
+                        <button data-toggle="modal" role="button" data-placement="bottom">
+                            Browse...
+                        </button>
+                        <br>
+                        <br>
+                        <input type="checkbox" name="analysisButtons" id="{{prefix}}AnalysisResume" value="analysisResume" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Analysis resume<br>
+                    </div>
+                </div>
+
+            </div>
+
+
             <!-- Sample Selection -->
             <div class="panel panel-default">
                 <div class="panel-heading" role="tab" id="{{prefix}}SampleInformationHeading">
@@ -48,15 +75,14 @@
                             <br>
                             <input type="radio" name="sampleButtons" id="{{prefix}}AllRadio" value="all" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> All<br>
                             <input type="radio" name="sampleButtons" id="{{prefix}}SubsetRadio" value="range" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Subset
-
-                            <div class="panel-body">
-                                <input type="checkbox" name="sampleButtons" id="{{prefix}}IndividualID" value="individualId" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Individual ID<br>
-                                <input type="checkbox" name="sampleButtons" id="{{prefix}}ChromosomalGender" value="chromosomalGender" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Chromosomal Gender<br>
-                                <input type="checkbox" name="sampleButtons" id="{{prefix}}YearBirth" value="yearBirth" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Year of Birth<br>
-                                <input type="checkbox" name="sampleButtons" id="{{prefix}}BirthPlace" value="birthPlace" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Birth place<br>
-                                <input type="checkbox" name="sampleButtons" id="{{prefix}}Ethnicity" value="ethnicity" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Ethnicity<br>
-                                <input type="checkbox" name="sampleButtons" id="{{prefix}}Hpo" value="hpo" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> HPO<br>
-                                <input type="checkbox" name="sampleButtons" id="{{prefix}}Diagnosis" value="diagnosis" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Diagnosis<br>
+                            <div id="{{prefix}}Sample" class="panel-body">
+                                <input type="checkbox" name="sampleButtons" id="{{prefix}}individualID" value="individualID" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Individual ID<br>
+                                <input type="checkbox" name="sampleButtons" id="{{prefix}}chromosomalGender" value="chromosomalGender" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Chromosomal Gender<br>
+                                <input type="checkbox" name="sampleButtons" id="{{prefix}}yearBirth" value="yearBirth" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Year of Birth<br>
+                                <input type="checkbox" name="sampleButtons" id="{{prefix}}birthPlace" value="birthPlace" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Birth place<br>
+                                <input type="checkbox" name="sampleButtons" id="{{prefix}}ethnicity" value="ethnicity" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Ethnicity<br>
+                                <input type="checkbox" name="sampleButtons" id="{{prefix}}HPO" value="HPO" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> HPO<br>
+                                <input type="checkbox" name="sampleButtons" id="{{prefix}}diagnosis" value="diagnosis" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Diagnosis<br>
 
                                 <!-- SPECIFIC FIELDS FROM VARIABLE SET -->
                                 <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}" as="variable" sort="_sortVariables">
@@ -66,26 +92,26 @@
                             </div>
 
 
-                            <div class="panel-body">
-                                <select multiple class="form-control" id="{{prefix}}FormFieldsMultiple">
-                                    <option value="{{prefix}}individualID">Individual ID</option>
-                                    <option value="{{prefix}}chromosomalGender">Chromosomal Gender</option>
-                                    <option value="{{prefix}}yearBirth">Year of Birth</option>
-                                    <option value="{{prefix}}birthPlace">Birth place</option>
-                                    <option value="{{prefix}}enthnicity">Ethnicity</option>
-                                    <option value="{{prefix}}HPO">HPO</option>
-                                    <option value="{{prefix}}diagnosis">Diagnosis</option>
+                            <!-- <div class="panel-body">
+                                 <select multiple class="form-control" id="{{prefix}}FormFieldsMultiple">
+                                     <option value="{{prefix}}individualID">Individual ID</option>
+                                     <option value="{{prefix}}chromosomalGender">Chromosomal Gender</option>
+                                     <option value="{{prefix}}yearBirth">Year of Birth</option>
+                                     <option value="{{prefix}}birthPlace">Birth place</option>
+                                     <option value="{{prefix}}enthnicity">Ethnicity</option>
+                                     <option value="{{prefix}}HPO">HPO</option>
+                                     <option value="{{prefix}}diagnosis">Diagnosis</option>
 
-                                    <!-- SPECIFIC FIELDS FROM VARIABLE SET -->
-                                    <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}" as="variable" sort="_sortVariables">
-                                        <option value="{{prefix}}{{variable.name}}">{{variable.title}}</option>
-                                    </template>
-
-
-                                </select>
+                                     &lt;!&ndash; SPECIFIC FIELDS FROM VARIABLE SET &ndash;&gt;
+                                     <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}" as="variable" sort="_sortVariables">
+                                         <option value="{{prefix}}{{variable.name}}">{{variable.title}}</option>
+                                     </template>
 
 
-                            </div>
+                                 </select>
+
+
+                             </div>-->
 
 
                         </div>
@@ -115,7 +141,6 @@
                             <br>
                             <input type="checkbox" name="prioritizationButtons" id="{{prefix}}GenericData" value="genericData" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Generic data<br>
                             <input type="checkbox" name="prioritizationButtons" id="{{prefix}}VariantsTable" value="variantsTable" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Variants table<br>
-                            <input type="checkbox" name="prioritizationButtons" id="{{prefix}}AnalysisResume" value="analysisResume" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Analysis resume<br>
                             <input type="checkbox" name="prioritizationButtons" id="{{prefix}}FilterResume" value="filterResume" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Filter resume<br>
                         </div>
                     </div>
@@ -186,7 +211,8 @@
                     type: Object
                 },
                 selection: {
-                    type: Object
+                    type: Array,
+                    notify: true
                 },
                 variableSets: {
                     type: Array
@@ -225,6 +251,25 @@
                 }
                 return 1;
             },
+            selectSamples: function () {
+                let _filters = {};
+
+                // Type
+                //let types = this.$$("#" + this.prefix + "Sample").querySelectorAll("input:checked");
+                let types = this.$$("#" + this.prefix + "Sample").querySelectorAll("input[type='checkbox']");
+                let typesAux = [];
+                if (types.length > 0) {
+                    for (let i = 0; i < types.length; i++) {
+                        //typesAux.push(types[i].value);
+                        typesAux.push({name: types[i].value , value: types[i].checked});
+                    }
+                    //_filters.sample = typesAux.join(',');
+                }
+
+                //this.selection = _filters;
+                this.selection = typesAux;
+
+            }
         });
     </script>
 </dom-module>

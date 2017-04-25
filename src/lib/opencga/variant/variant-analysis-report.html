@@ -15,6 +15,7 @@
   -->
 
 <link rel="import" href="variant-report-filter.html">
+<link rel="import" href="variant-report-view.html">
 
 <dom-module id="variant-analysis-report">
 
@@ -29,8 +30,7 @@
         </div>
 
         <div class="col-md-10">
-
-
+            <variant-report-view opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}" selection="{{selection}}" title="{{title}}"></variant-report-view>
 
         </div>
 
@@ -50,9 +50,13 @@
                     type: Object
                 },
                 selection: {
-                    type: Object
+                    type: Array
+                },
+                title: {
+                    type: String,
+                    value: ""
                 }
-            },
+            }
 
         });
 
