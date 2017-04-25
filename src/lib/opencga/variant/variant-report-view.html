@@ -1,0 +1,191 @@
+<!--
+  ~ Copyright 2015 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+
+<dom-module id="variant-report-view">
+    <template>
+        <style is="custom-style" include="jso-styles">
+            label {
+                padding-top: 10px;
+            }
+        </style>
+
+        <br>
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <h2 style="margin: 10px 5px 15px 25px">{{title}} Report</h2>
+                <div style="float: right; padding: 0px 0px 10px 5px">
+                    <span>{{requestDate}}</span>
+                </div>
+                <br>
+
+                <div style="margin: 10px 5px 15px 25px" class="analysis-information" id="analysisInformationDiv">
+                    <h4>Analysis Information</h4>
+                    <hr>
+                    Some information related to the analysis selected from left. A resume for the analysis can be included if selected.
+                    <br>
+                    <ul>
+                    </ul>
+                </div>
+
+                <div style="margin: 10px 5px 15px 25px" class="sample-information" id="sampleInformationDiv">
+                    <h4>Sample Information</h4>
+                    <hr>
+                    Some infromation related to the sample or samples. If the anlaysis is related to more than one sample (i.e. a family), then, all fields related to individual and variable
+                    set can be included from the case. For the rest of parents, sample IDs can be shown.
+                    <br>
+                    <ul>
+                        <div class="form-group row" id="{{prefix}}individualIDDiv">
+                            <label for="{{prefix}}IndividualID" class="col-sm-2 control-label">Individual ID</label>
+                            <div class="col-sm-2">
+                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}IndividualID" name="individualID" disabled value="NUS2344234">
+                            </div>
+                        </div>
+                        <div class="form-group row" id="{{prefix}}chromosomalGenderDiv">
+                            <label for="{{prefix}}ChromosomalGender" class="col-sm-2 control-label">Chromosomal Gender</label>
+                            <div class="col-sm-2">
+                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}ChromosomalGender" name="chromosomalGender" disabled value="XX">
+                            </div>
+                        </div>
+                        <div class="form-group row" id="{{prefix}}yearBirthDiv">
+                            <label for="{{prefix}}BirthYear" class="col-sm-2 control-label">Year of birth</label>
+                            <div class="col-sm-2">
+                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}BirthYear" name="birthYear" disabled value="1982">
+                            </div>
+                        </div>
+                        <div class="form-group row" id="{{prefix}}birthPlaceDiv" hidden>
+                            <label for="{{prefix}}BirthPlace" class="col-sm-2 control-label">Birth place</label>
+                            <div class="col-sm-2">
+                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}BirthPlace" name="birthPlace" disabled value="Spain">
+                            </div>
+                        </div>
+                        <div class="form-group row" id="{{prefix}}ethnicityDiv">
+                            <label for="{{prefix}}Ethnicity" class="col-sm-2 control-label">Ethnicity</label>
+                            <div class="col-sm-2">
+                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}Ethnicity" name="ethnicity" disabled value="white mediterranean">
+                            </div>
+                        </div>
+                        <div class="form-group row" id="{{prefix}}HPODiv">
+                            <label for="{{prefix}}HPO" class="col-sm-2 control-label">HPO</label>
+                            <div class="col-sm-2">
+                                <input type="text" class$="form-control {{prefix}}HPO" id="{{prefix}}HPO" name="HPO" disabled value="HPO:32432432">
+                            </div>
+                        </div>
+                        <div class="form-group row" id="{{prefix}}diagnosisDiv">
+                            <label for="{{prefix}}Diagnosis" class="col-sm-2 control-label">Diagnosis</label>
+                            <div class="col-sm-2">
+                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}Diagnosis" name="diagnosis" disabled value="Retinitis">
+                            </div>
+                        </div>
+                    </ul>
+                </div>
+
+                <div style="margin: 10px 5px 15px 25px" class="prioritization-information" id="prioritizationInformationDiv">
+                    <h4>Prioritization Information</h4>
+                    <hr>
+                    Information related to prioritization can be included according to left panel, including generic data (number of varaints), variants table and the filter used to
+                    generate the table
+                    <br>
+                    <ul>
+                    </ul>
+                </div>
+
+                <div style="margin: 10px 5px 15px 25px" class="other-information" id="otherInformationDiv">
+                    <h4>Other Information</h4>
+                    <hr>
+                    A text are can be included to write some conclusions or free text
+                    <br>
+                    <ul>
+                    </ul>
+                </div>
+
+
+            </div>
+        </div>
+
+
+    </template>
+
+    <script>
+        Polymer({
+            is: 'variant-report-view',
+            properties: {
+                opencgaClient: {
+                    type: Object
+                },
+                study: {
+                    type: Object
+                },
+                prefix: {
+                    type: String
+                },
+                config: {
+                    type: Object
+                },
+                selection: {
+                    type: Array,
+                    observer: 'fetchSelection'
+                },
+                title: {
+                    type: String,
+                    value: ""
+                }
+
+            },
+            ready: function() {
+                if (typeof this.prefix === "undefined" || this.prefix == "") {
+                    this.prefix = Utils.randomString(6);
+                }
+
+                let date = new Date();
+                this.requestDate = date.toLocaleString();
+
+            },
+            fetchSelection: function () {
+                console.log(this);
+                debugger;
+                let _a = this.selection;
+                let _b = 3;
+
+
+                /*                if (typeof this.selection.sample !== "undefined") {
+                 let types = this.selection.sample.split(",");
+                 for (let i = 0; i < types.length; i++) {
+                 let _a = types[i];
+                 $('#'+ this.prefix + types[i] + "Div")[0].hidden = !$('#'+ this.prefix + types[i] + "Div")[0].hidden;
+                 let _petete = 3;
+                 }
+                 }*/
+
+                if (typeof this.selection !== "undefined") {
+                    for (let i = 0; i < this.selection.length; i++) {
+                        let _a = this.selection[i];
+                        $('#'+ this.prefix + _a.name + "Div")[0].hidden = !_a.value;
+                        let _petete = 3;
+                    }
+                }
+
+
+
+                //$("#"+ this.prefix + "birthYearDiv").show();
+                //$('#'+this.prefix + 'birthPlaceDiv')[0].hidden = !$('#'+this.prefix + 'birthPlaceDiv')[0].hidden;
+
+                //this.$[divId].hidden = !this.$[divId].hidden;
+
+            }
+        });
+    </script>
+</dom-module>
