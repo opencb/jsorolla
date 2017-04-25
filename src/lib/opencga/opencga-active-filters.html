@@ -41,11 +41,29 @@
                     <!--<label>No filters selected</label>-->
                     <!--</template>-->
 
-                    <template is="dom-repeat" items="{{fixedFilters}}">
-                        <button type="button" class="btn btn-warning btn-sm" disabled>
-                            {{item}}
-                        </button>
+                    <template is="dom-if" if="{{_checkForFixedFilters(fixedFilters)}}">
+                        <div class="btn-group">
+                                <button type="button" class="btn btn-warning btn-sm">Fixed Filters</button>
+                                <button type="button" class="btn btn-warning btn-sm dropdown-toggle"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <span class="caret"></span>
+                                    <span class="sr-only">Toggle Dropdown</span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <template is="dom-repeat" items="{{fixedFilterList}}">
+                                        <li class="small">
+                                            <a>{{item}}</a>
+                                        </li>
+                                    </template>
+                                </ul>
+                            </div>
                     </template>
+
+                    <!--<template is="dom-repeat" items="{{fixedFilterList}}">-->
+                        <!--<button type="button" class="btn btn-warning btn-sm" disabled>-->
+                            <!--{{item}}-->
+                        <!--</button>-->
+                    <!--</template>-->
 
                     <template is="dom-repeat" items="{{queryList}}">
                         <template is="dom-if" if="{{!_isMultiValued(item)}}">
@@ -199,6 +217,9 @@
                 alias: {
                     type: Object,
                 },
+                fixedFilters: {
+                    type: Array
+                },
                 prefix: {
                     type: String
                 },
@@ -216,7 +237,7 @@
                 }
 
                 this.queryListEmpty = true;
-                this.fixedFilters = [];
+                this.fixedFilterList = [];
             },
             clear: function () {
                 if (typeof $('#filtersList') !== "undefined") {
@@ -281,12 +302,6 @@
                     });
             },
             onFilterChange: function (e) {
-//                if (e.target.selectedIndex == 0) {
-//                    this.clear();
-//                } else {
-//                    let _queryList = Object.assign({}, this.filters[e.target.selectedIndex - 1].query);
-//                    this.fire("filterchange", _queryList);
-//                }
                 if (typeof this.filters !== 'undefined' && this.filters !== null) {
                     // We look for the filter name in the filters array
                     for (let f of this.filters) {
@@ -351,16 +366,19 @@
                             _queryList.push({name: key, text: title});
                         } else {
                             if (filterFields.length === 1) {
-                                if (key !== "studies") {
-                                    _queryList.push({name: key, text: title + " = " + value});
+                                if (this.fixedFilters.indexOf(key) !== -1) {
+                                    if (this.fixedFilterList.indexOf(value) === -1) {
+                                        this.push("fixedFilterList", value);
+                                    }
                                 } else {
-                                    this.fixedFilters = [value];
+                                    _queryList.push({name: key, text: title + " = " + value});
                                 }
                             } else {
                                 _queryList.push({name: key, text: title, items: filterFields});
-                                if (key === "studies") {
-                                    this.fixedFilters = [];
-                                }
+//                                if (key === "studies") {
+//                                if (this.fixedFilters.indexOf(key) !== -1) {
+//                                    this.fixedFilterList = [];
+//                                }
                             }
                         }
                     }
@@ -371,6 +389,9 @@
             },
             searchClicked: function () {
                 $("#" + this.prefix + "Warning").css('display', 'none');
+            },
+            _checkForFixedFilters: function (filters) {
+                return filters.length > 0;
             },
             _isMultiValued: function(item) {
                 return typeof item.items !== 'undefined';
