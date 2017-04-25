@@ -41,8 +41,8 @@
                 <!--<strong>Warning!</strong> Filters altered. Please click on search to refresh the results.-->
             <!--</div>-->
 
-            <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" filters="{{config.filters}}" alias="{{activeFilterAlias}}"
-            refresh="{{search}}"></opencga-active-filters>
+            <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" filters="{{config.filters}}" fixed-filters="{{fixedFilters}}"
+                                    alias="{{activeFilterAlias}}" refresh="{{search}}"></opencga-active-filters>
 
             <ul class="nav nav-pills" style="padding-bottom: 15px">
                 <li role="presentation" class="active"><a href="#{{prefix}}VariantView" role="tab" data-toggle="tab">Variant View</a></li>
@@ -279,6 +279,8 @@
                     "annot-go": "GO",
                     "annot-hpo": "HPO"
                 };
+
+                this.fixedFilters = ["studies"];
             },
             projectStudyObtained: function (project, study) {
                 if (typeof this.project !== "undefined" && this.project.alias !== "" && typeof this.study !== "undefined" && this.study.alias !== "") {
@@ -368,18 +370,13 @@
                     facet: "type;genes;soAcc;studies",
                     timeout: 60000
                 };
+                Object.assign(queryParams, this.query);
 
                 if (typeof queryParams.sid === "undefined" || queryParams.sid === "") {
                     delete queryParams["sid"];
                 }
 
                 let _this = this;
-//                setTimeout(_ => {
-//                    this.opencgaClient.variants().facet(queryParams, {})
-//                        .then(function (queryResponse) {
-//                            _this.facetResults = queryResponse.response[0].result[0].result.fields;
-//                        });
-//                }, 2000);
 
                 this.opencgaClient.variants().facet(queryParams, {})
                     .then(function (queryResponse) {

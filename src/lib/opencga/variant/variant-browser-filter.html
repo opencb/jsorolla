@@ -95,17 +95,29 @@
             }
         </style>
 
-        <div><table id="{{prefix}}SampleSelector" data-search="true" data-show-columns="true" data-pagination="true" data-page-size="5" data-page-list="[5, 10, 25]"
-                       data-checkbox-header="false" data-maintain-selected="true" style="cursor: pointer;">
-                    <thead style="background-color: #eee"></thead>
-                </tab
+        <div>
+            <table id="{{prefix}}SampleSelector" data-search="true" data-show-columns="true" data-pagination="true" data-page-size="5" data-page-list="[5, 10, 25]"
+                   data-checkbox-header="false" data-maintain-selected="true" style="cursor: pointer;">
+                <thead style="background-color: #eee"></thead>
+            </table>
             <br>
-            <div style="width: 60%;margin: 0 auto">
-                <button type="button" class="btn btn-primary" style="width: 100%" on-click="onSearch">
-                    <i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px 0px 5px"></i>
+            <div style="width: 80%;margin: 0 auto">
+                <button type="button" class="btn btn-primary btn-lg" style="width: 100%" on-click="onSearch">
+                    <i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px"></i>
                     Search
                 </button>
             </div>
+
+            <!--<div style="width: 75%;margin: 5px auto">-->
+                <!--<button type="button" class="btn btn-primary" on-click="onSearch" style="width: 45%">-->
+                    <!--<i class="fa fa-save" aria-hidden="true" style="padding: 0px 5px"></i>-->
+                    <!--Save...-->
+                <!--</button>-->
+                <!--<button type="button" class="btn btn-primary" on-click="onSearch" style="width: 45%">-->
+                    <!--<i class="fa fa-refresh" aria-hidden="true" style="padding: 0px 5px"></i>-->
+                    <!--Clear-->
+                <!--</button>-->
+            <!--</div>-->
             <br>
 
             <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true">
@@ -359,7 +371,6 @@
                                     </template>
                                 </select>
                                 </br>
-                                <span>Panel genes:</span>
                                 <textarea id="{{prefix}}PanelAppsTextarea" name="panelAppsTextarea" class$="form-control clearable {{prefix}}FilterTextInput"
                                           rows="3" placeholder="No panel selected" on-keyup="updateQueryFilters"></textarea>
                             </div>
@@ -879,6 +890,9 @@
                     }
 
                     this._studyCohortBoolean = differentStudies.length > 0 || (typeof this._cohorts !== "undefined" && this._cohorts.length > 0);
+
+                    // Setting mandatory field for variant query
+                    this.query = {studies: this.project.alias + ":" + this.study.alias};
                 }
             },
             updateConsequenceTypeFilter: function(e) {
@@ -1188,12 +1202,14 @@
                 }
 
                 // Studies
-                let studies = [];
+                let studies = [this.project.alias + ":" + this.study.alias];
                 if (typeof this.$$("#includeOtherStudy") !== "undefined" && this.$$("#includeOtherStudy") !== null) {
                     let selectedStudies = this.$$("#differentStudies").querySelectorAll("input:checked");
                     if (selectedStudies.length > 0) {
                         for (let i = 0; i < selectedStudies.length; i++) {
-                            studies.push(this.project.alias + ':' + selectedStudies[i].value);
+                            if (studies.indexOf(this.project.alias + ':' + selectedStudies[i].value) === -1) {
+                                studies.push(this.project.alias + ':' + selectedStudies[i].value);
+                            }
                         }
                     }
 
