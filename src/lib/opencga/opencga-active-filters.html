@@ -26,16 +26,30 @@
 
         <div class="panel panel-default">
             <div class="panel-body">
+
+                <!--<h5><span class="label label-danger" style="display: none" title="Filters altered! Please click on search button to refresh the results"-->
+                      <!--id="{{prefix}}Warning"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Warning!-->
+                <!--</span></h5>-->
+
+                <!--<span style="color: #b4140c; display: none;" title="Filters altered! Please click on search button to refresh the results"-->
+                      <!--id="{{prefix}}Warning">-->
+                    <!--<i class="fa fa-exclamation-triangle fa-lg" aria-hidden="true"></i> Warning!-->
+                <!--</span>-->
+
+                <div class="alert alert-warning" role="alert" id="{{prefix}}Warning" style="display: none;">
+                    <strong>Warning!</strong> Filters altered. Please click on search to refresh the results.
+                </div>
+
                 <button type="button" class="btn btn-primary" on-click="clear">
                     <i class="fa fa-refresh" aria-hidden="true" style="padding-right: 5px"></i>
                     Clear
                 </button>
 
                 <span style="padding: 0px 25px 0px 25px">
-                    <span style="color: #b4140c; display: none;" title="Filters altered! Please click on search button to refresh the results"
-                          id="{{prefix}}Warning">
-                        <i class="fa fa-exclamation-triangle fa-lg" aria-hidden="true"></i>
-                    </span>
+                    <!--<span style="color: #b4140c; display: none;" title="Filters altered! Please click on search button to refresh the results"-->
+                          <!--id="{{prefix}}Warning">-->
+                        <!--<i class="fa fa-exclamation-triangle fa-lg" aria-hidden="true"></i>-->
+                    <!--</span>-->
 
                     <!--<template is="dom-if" if="{{queryListEmpty}}">-->
                     <!--<label>No filters selected</label>-->
@@ -217,7 +231,12 @@
                         .then(function(response) {
                             let result = response.response[0].result;
                             if (result.length > 0) {
-                                _this.filters = result;
+                                if (typeof _this.filters === "undefined") {
+                                    _this.filters = [];
+                                }
+                                for (let obj of result) {
+                                    _this.push("filters", obj);
+                                }
                             }
                         });
                     this.opencgaClient.files().getAllBioFormats()
@@ -284,13 +303,20 @@
                     delete _queryList[name];
                 } else {
                     let filterFields = _queryList[name].split(new RegExp("[,;]"));
-                    let indexOfValue = filterFields.indexOf(value);
-                    filterFields.splice(indexOfValue, 1);
-                    if (_queryList[name].indexOf(',') !== -1) {
-                        _queryList[name] = filterFields.join(",");
+                    // Check if the deleted value is one among the fixed filters
+                    if (this.fixedFilterList.indexOf(name + " = " + value) !== -1) {
+                        alert("This filter can't be removed as it is mandatory");
+                        return;
                     } else {
-                        _queryList[name] = filterFields.join(";");
+                        let indexOfValue = filterFields.indexOf(value);
+                        filterFields.splice(indexOfValue, 1);
+                        if (_queryList[name].indexOf(',') !== -1) {
+                            _queryList[name] = filterFields.join(",");
+                        } else {
+                            _queryList[name] = filterFields.join(";");
+                        }
                     }
+
                 }
 
                 // When you delete any query filter we are not longer using any known Filter
@@ -312,7 +338,8 @@
                             $("#" + this.prefix + "Warning").css('display', 'none');
                         } else {
                             // Show warning when filters are altered
-                            $("#" + this.prefix + "Warning").css('display', 'inherit');
+//                            $("#" + this.prefix + "Warning").css('display', 'inline-block');
+                            $("#" + this.prefix + "Warning").css('display', 'block');
                         }
 
                         // We use the alias to rename the key

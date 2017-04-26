@@ -22,7 +22,8 @@
 
         <div>
             <br>
-            <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" alias="{{activeFilterAlias}}"></opencga-active-filters>
+            <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" alias="{{activeFilterAlias}}" fixed-filters="{{fixedFilters}}"
+                                    refresh="{{search}}"></opencga-active-filters>
 
             <div class="panel panel-default col-sm-12">
                 <!-- Facet Fields -->
@@ -336,6 +337,8 @@
                     "annot-go": "GO",
                     "annot-hpo": "HPO"
                 };
+
+                this.fixedFilters = ["studies"];
 
                 // These are for making the queries to server
                 this.facetFields = [];
