@@ -24,54 +24,39 @@
             }
         </style>
 
+        <div class="alert alert-warning" role="alert" id="{{prefix}}Warning" style="display: none;">
+            <strong>Warning!</strong> Filters altered. Please click on search to refresh the results.
+        </div>
         <div class="panel panel-default">
             <div class="panel-body">
-
-                <!--<h5><span class="label label-danger" style="display: none" title="Filters altered! Please click on search button to refresh the results"-->
-                      <!--id="{{prefix}}Warning"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Warning!-->
-                <!--</span></h5>-->
-
-                <!--<span style="color: #b4140c; display: none;" title="Filters altered! Please click on search button to refresh the results"-->
-                      <!--id="{{prefix}}Warning">-->
-                    <!--<i class="fa fa-exclamation-triangle fa-lg" aria-hidden="true"></i> Warning!-->
-                <!--</span>-->
-
-                <div class="alert alert-warning" role="alert" id="{{prefix}}Warning" style="display: none;">
-                    <strong>Warning!</strong> Filters altered. Please click on search to refresh the results.
-                </div>
-
                 <button type="button" class="btn btn-primary" on-click="clear">
                     <i class="fa fa-refresh" aria-hidden="true" style="padding-right: 5px"></i>
                     Clear
                 </button>
 
                 <span style="padding: 0px 25px 0px 25px">
-                    <!--<span style="color: #b4140c; display: none;" title="Filters altered! Please click on search button to refresh the results"-->
-                          <!--id="{{prefix}}Warning">-->
-                        <!--<i class="fa fa-exclamation-triangle fa-lg" aria-hidden="true"></i>-->
-                    <!--</span>-->
-
                     <!--<template is="dom-if" if="{{queryListEmpty}}">-->
                     <!--<label>No filters selected</label>-->
                     <!--</template>-->
 
-                    <template is="dom-if" if="{{showFixedFilters}}">
-                        <div class="btn-group">
-                                <button type="button" class="btn btn-warning btn-sm">Fixed Filters</button>
-                                <button type="button" class="btn btn-warning btn-sm dropdown-toggle"
-                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <span class="caret"></span>
-                                    <span class="sr-only">Toggle Dropdown</span>
-                                </button>
-                                <ul class="dropdown-menu">
-                                    <template is="dom-repeat" items="{{fixedFilterList}}">
-                                        <li class="small">
-                                            <a>{{item}}</a>
-                                        </li>
-                                    </template>
-                                </ul>
-                            </div>
-                    </template>
+                    <!-- Fixed Filters -->
+                    <!--<template is="dom-if" if="{{showFixedFilters}}">-->
+                        <!--<div class="btn-group">-->
+                                <!--<button type="button" class="btn btn-warning btn-sm">Fixed</button>-->
+                                <!--<button type="button" class="btn btn-warning btn-sm dropdown-toggle"-->
+                                        <!--data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">-->
+                                    <!--<span class="caret"></span>-->
+                                    <!--<span class="sr-only">Toggle Dropdown</span>-->
+                                <!--</button>-->
+                                <!--<ul class="dropdown-menu">-->
+                                    <!--<template is="dom-repeat" items="{{fixedFilterList}}">-->
+                                        <!--<li class="small">-->
+                                            <!--<a>{{item}}</a>-->
+                                        <!--</li>-->
+                                    <!--</template>-->
+                                <!--</ul>-->
+                            <!--</div>-->
+                    <!--</template>-->
 
                     <template is="dom-repeat" items="{{queryList}}">
                         <template is="dom-if" if="{{!_isMultiValued(item)}}">
@@ -107,7 +92,7 @@
                             <div class="btn-group">
                                 <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     <i class="fa fa-filter" aria-hidden="true" style="padding-right: 5px"></i>
-                                    Filters... <span class="caret"></span>
+                                    Filters <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-right">
                                     <li><a style="font-weight: bold">Select one filter</a></li>
@@ -338,7 +323,6 @@
                             $("#" + this.prefix + "Warning").css('display', 'none');
                         } else {
                             // Show warning when filters are altered
-//                            $("#" + this.prefix + "Warning").css('display', 'inline-block');
                             $("#" + this.prefix + "Warning").css('display', 'block');
                         }
 
