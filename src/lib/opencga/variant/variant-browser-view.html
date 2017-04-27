@@ -18,7 +18,7 @@
 <link rel="import" href="../opencga-active-filters.html">
 <link rel="import" href="../../cellbase/variation/cellbase-variantannotation-view.html">
 <link rel="import" href="variant-beacon-network.html">
-<!--<link rel="import" href="../../cellbase/genome-context.html">-->
+<link rel="import" href="../../genome-browser/genome-browser-view.html">
 
 <dom-module id="variant-browser-view">
     <template>
@@ -141,8 +141,9 @@
 
                                 <!--Genome Context Tab-->
                                 <div role="tabpanel" class="tab-pane" id="{{prefix}}GenomeView">
-                                    <!--<br>-->
-                                    This will be available in the coming days, sorry for any inconvenience.
+                                    <br>
+                                    <genome-browser-view cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}" region="{{region}}"></genome-browser-view>
+                                    <!--This will be available in the coming days, sorry for any inconvenience.-->
                                     <!--<genome-context></genome-context>-->
                                 </div>
 
@@ -159,7 +160,9 @@
                     </div>
                 </div>
                 <div role="tabpanel" class="tab-pane" id="{{prefix}}GeneView">Yet to implement!</div>
-                <div role="tabpanel" class="tab-pane" id="{{prefix}}GenomeBrowser">Yet to implement!</div>
+                <div role="tabpanel" class="tab-pane" id="{{prefix}}GenomeBrowser">
+                    <genome-browser-view cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}" region="{{region}}"></genome-browser-view>
+                </div>
                 <div role="tabpanel" class="tab-pane" id="{{prefix}}Summary">
                     <div class="col-md-6">
                         <h4>Consequence Type</h4>
@@ -312,6 +315,8 @@
             },
             variantChanged: function (e) {
                 if (this.variant.split(':').length > 2) {
+                    let [chromosome, start, ref, alt] = this.variant.split(":");
+                    this.region = new Region(chromosome + ":" + start);
                     let params = {
                         ids: this.variant,
                         studies: this.project.alias + ":" + this.study.alias,
