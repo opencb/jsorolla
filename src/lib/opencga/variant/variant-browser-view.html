@@ -36,17 +36,12 @@
 
         <div>
             <br>
-
-            <!--<div class="alert alert-warning" role="alert" id="{{prefix}}Warning" style="display: none;">-->
-                <!--<strong>Warning!</strong> Filters altered. Please click on search to refresh the results.-->
-            <!--</div>-->
-
             <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" filters="{{config.filters}}" fixed-filters="{{fixedFilters}}"
                                     alias="{{activeFilterAlias}}" refresh="{{search}}"></opencga-active-filters>
 
             <ul class="nav nav-pills" style="padding-bottom: 15px">
                 <li role="presentation" class="active"><a href="#{{prefix}}VariantView" role="tab" data-toggle="tab">Variant View</a></li>
-                <li role="presentation"><a href="#{{prefix}}GeneView" role="tab" data-toggle="tab">Gene View</a></li>
+                <!--<li role="presentation"><a href="#{{prefix}}GeneView" role="tab" data-toggle="tab">Gene View</a></li>-->
                 <li role="presentation"><a href="#{{prefix}}GenomeBrowser" role="tab" data-toggle="tab">Genome Browser</a></li>
                 <li role="presentation"><a href="#{{prefix}}Summary" role="tab" data-toggle="tab" on-click="fetchFacets">Summary</a></li>
             </ul>
@@ -159,7 +154,7 @@
                         </div>
                     </div>
                 </div>
-                <div role="tabpanel" class="tab-pane" id="{{prefix}}GeneView">Yet to implement!</div>
+                <!--<div role="tabpanel" class="tab-pane" id="{{prefix}}GeneView">Yet to implement!</div>-->
                 <div role="tabpanel" class="tab-pane" id="{{prefix}}GenomeBrowser">
                     <genome-browser-view cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}" region="{{region}}"></genome-browser-view>
                 </div>
@@ -225,11 +220,9 @@
                 query: {
                     type: Object,
                     notify: true,
-//                    observer: "queryAltered"
                 },
                 search: {
                     type: Object,
-//                    observer: "searchClicked"
                 },
                 variant: {
                     type: String,
@@ -293,12 +286,6 @@
                     };
                 }
             },
-//            queryAltered: function () {
-//                $("#" + this.prefix + "Warning").css('display', 'block');
-//            },
-//            searchClicked: function () {
-//                $("#" + this.prefix + "Warning").css('display', 'none');
-//            },
             checkVariant: function(variant) {
                 return variant.split(':').length > 2;
             },
