@@ -16,17 +16,16 @@
 
 <dom-module id="opencga-active-filters">
     <template>
-        <style is="custom-style" include="jso-styles"></style>
-
-        <style>
+        <style is="custom-style" include="jso-styles">
             .filter-button:hover {
                 text-decoration: line-through;
             }
         </style>
 
         <div class="alert alert-warning" role="alert" id="{{prefix}}Warning" style="display: none;">
-            <strong>Warning!</strong> Filters altered. Please click on search to refresh the results.
+            <span style="font-weight: bold;font-size: 1.25em">Warning!</span>&nbsp;&nbsp;Filters altered. Please click on search to refresh the results.
         </div>
+
         <div class="panel panel-default">
             <div class="panel-body">
                 <button type="button" class="btn btn-primary" on-click="clear">
@@ -34,28 +33,28 @@
                     Clear
                 </button>
 
-                <span style="padding: 0px 25px 0px 25px">
-                    <!--<template is="dom-if" if="{{queryListEmpty}}">-->
-                    <!--<label>No filters selected</label>-->
-                    <!--</template>-->
+                <span style="padding: 0px 25px">
+                    <template is="dom-if" if="{{_isQueryListEmpty(queryList)}}">
+                        <label>No filters selected</label>
+                    </template>
 
                     <!-- Fixed Filters -->
                     <!--<template is="dom-if" if="{{showFixedFilters}}">-->
-                        <!--<div class="btn-group">-->
-                                <!--<button type="button" class="btn btn-warning btn-sm">Fixed</button>-->
-                                <!--<button type="button" class="btn btn-warning btn-sm dropdown-toggle"-->
-                                        <!--data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">-->
-                                    <!--<span class="caret"></span>-->
-                                    <!--<span class="sr-only">Toggle Dropdown</span>-->
-                                <!--</button>-->
-                                <!--<ul class="dropdown-menu">-->
-                                    <!--<template is="dom-repeat" items="{{fixedFilterList}}">-->
-                                        <!--<li class="small">-->
-                                            <!--<a>{{item}}</a>-->
-                                        <!--</li>-->
-                                    <!--</template>-->
-                                <!--</ul>-->
-                            <!--</div>-->
+                    <!--<div class="btn-group">-->
+                    <!--<button type="button" class="btn btn-warning btn-sm">Fixed</button>-->
+                    <!--<button type="button" class="btn btn-warning btn-sm dropdown-toggle"-->
+                    <!--data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">-->
+                    <!--<span class="caret"></span>-->
+                    <!--<span class="sr-only">Toggle Dropdown</span>-->
+                    <!--</button>-->
+                    <!--<ul class="dropdown-menu">-->
+                    <!--<template is="dom-repeat" items="{{fixedFilterList}}">-->
+                    <!--<li class="small">-->
+                    <!--<a>{{item}}</a>-->
+                    <!--</li>-->
+                    <!--</template>-->
+                    <!--</ul>-->
+                    <!--</div>-->
                     <!--</template>-->
 
                     <template is="dom-repeat" items="{{queryList}}">
@@ -86,26 +85,22 @@
                     </template>
                 </span>
 
+                <!-- TODO we probably need a new property for this -->
                 <template is="dom-if" if="{{checkSid(opencgaClient._config)}}">
-                    <span style="float: right">
-                        <form class="form-inline">
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <i class="fa fa-filter" aria-hidden="true" style="padding-right: 5px"></i>
-                                    Filters <span class="caret"></span>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-right">
-                                    <li><a style="font-weight: bold">Select one filter</a></li>
-                                    <template is="dom-repeat" items="{{filters}}">
-                                        <li><a data-filter-name="{{item.name}}" style="cursor: pointer" on-click="onFilterChange"
-                                        class="filtersLink">&nbsp;&nbsp;{{item.name}}</a></li>
-                                    </template>
-                                    <li role="separator" class="divider"></li>
-                                    <li><a style="cursor: pointer" on-click="launchModal"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save...</a></li>
-                                </ul>
-                            </div>
-                        </form>
-                    </span>
+                    <div class="btn-group" style="float: right">
+                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fa fa-filter" aria-hidden="true" style="padding-right: 5px"></i>
+                            Filters <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li><a style="font-weight: bold">Saved Filters</a></li>
+                            <template is="dom-repeat" items="{{filters}}">
+                                <li><a data-filter-name="{{item.name}}" style="cursor: pointer" on-click="onFilterChange" class="filtersLink">&nbsp;&nbsp;{{item.name}}</a></li>
+                            </template>
+                            <li role="separator" class="divider"></li>
+                            <li><a style="cursor: pointer" on-click="launchModal"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save...</a></li>
+                        </ul>
+                    </div>
                 </template>
             </div>
         </div>
@@ -172,16 +167,19 @@
                 alias: {
                     type: Object,
                 },
+                filterBioformat: {
+                    type: String,
+                },
                 fixedFilters: {
                     type: Array,
                     observer: "fixedFiltersObtained"
                 },
-                prefix: {
-                    type: String
-                },
                 refresh: {
                     type: Object,
                     observer: "searchClicked"
+                },
+                prefix: {
+                    type: String
                 }
             },
             observers: [
@@ -192,13 +190,13 @@
                     this.prefix = "activeFilter_" + Utils.randomString(6);
                 }
 
-                this.queryListEmpty = true;
                 this.fixedFilterList = [];
             },
             clear: function () {
-                if (typeof $('#filtersList') !== "undefined") {
-                    $("#filtersList option[value='none']").prop('selected', true);
-                }
+//                if (typeof $('#filtersList') !== "undefined") {
+//                    $("#filtersList option[value='none']").prop('selected', true);
+//                }
+                $(".filtersLink").css("color", "black");
 
                 // Trigger clear event
                 this.fire('clear', {});
@@ -348,7 +346,11 @@
                                         this.push("fixedFilterList", key + " = " + value);
                                     }
                                 } else {
-                                    _queryList.push({name: key, text: title + " = " + value});
+                                    if (value.indexOf(">") !== -1 || value.indexOf("<") !== -1 || value.indexOf("=") !== -1) {
+                                        _queryList.push({name: key, text: title + ": " + value});
+                                    } else {
+                                        _queryList.push({name: key, text: title + " = " + value});
+                                    }
                                 }
                             } else {
                                 _queryList.push({name: key, text: title, items: filterFields});
@@ -361,13 +363,16 @@
                 }
 
                 this.queryList = _queryList;
-                this.queryListEmpty = (this.queryList.length === 0);
             },
             searchClicked: function () {
                 $("#" + this.prefix + "Warning").css('display', 'none');
             },
             fixedFiltersObtained: function () {
                 this.showFixedFilters = true;
+            },
+            _isQueryListEmpty: function(item) {
+                // here item is this.queryList object
+                return item.length === 0
             },
             _isMultiValued: function(item) {
                 return typeof item.items !== 'undefined';
