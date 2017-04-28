@@ -18,11 +18,7 @@
     <template>
         <style is="custom-style" include="jso-styles"></style>
 
-        <div id="{{prefix}}toolbar">
-            <!--<button id="remove" class="btn btn-default btn-sm">-->
-            <!--<i class="fa fa-download" aria-hidden="true"></i> Download-->
-            <!--</button>-->
-
+        <div id="{{prefix}}toolbar" style="float: right;padding-bottom: 10px">
             <div class="btn-group">
                 <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i id="{{prefix}}DownloadRefresh" class="fa fa-refresh fa-spin" aria-hidden="true" style="font-size:14px;display: none"></i>
@@ -55,7 +51,7 @@
             <!--</div>-->
         </div>
 
-        <div style="padding-top: 10px">
+        <div id="{{prefix}}GridTableDiv" style="padding-top: 10px">
             <table id="{{prefix}}VariantBrowserGrid" data-toolbar="#{{prefix}}toolbar" data-pagination="true" data-page-list="[10, 25, 50]"
                    data-show-export="true" data-id-field="variant">
                 <thead style="background-color: #eee"></thead>
