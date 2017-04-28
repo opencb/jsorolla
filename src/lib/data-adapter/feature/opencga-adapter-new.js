@@ -50,8 +50,7 @@ class OpencgaAdapter {
 
         var _this = this;
         var params = {};
-        var region = args.region;
-
+debugger
         _.extend(params, this.params);
         _.extend(params, args.params);
 
@@ -62,8 +61,9 @@ class OpencgaAdapter {
         }
         region.start = (region.start < 1) ? 1 : region.start;
         region.end = (region.end > 300000000) ? 300000000 : region.end;
+
         /** 2 category check **/
-        var categories = this.resource.toString().split(',');   // in this adapter each category is each file
+        var categories = this.resource.toString().split(',');   // in this adapter
 
         /** 3 dataType check **/
         var dataType = args.dataType;
@@ -121,8 +121,9 @@ class OpencgaAdapter {
                         console.log("Correctoo")
                         console.log(response)
                         //return _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
-                        var responseChunks = _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
                         args.webServiceCallCount--;
+                        var responseChunks = _this._variantsuccess(response, categories, dataType, groupedRegions[i], region, chunkSize);
+
 
                         chunks = chunks.concat(responseChunks);
                         if (args.webServiceCallCount === 0) {
@@ -130,6 +131,7 @@ class OpencgaAdapter {
                                 items: chunks, dataType: dataType, chunkSize: chunkSize, sender: _this
                             });
                         }
+
                     });
             }
         } else { // histogram
@@ -317,6 +319,52 @@ class OpencgaAdapter {
 
         return responseItems;
 
+    }
+
+    _variantsuccess(response, categories, dataType, queryRegion, originalRegion, chunkSize) {
+    //var timeId = Utils.randomString(4) + this.resource + " save";
+    //console.time(timeId);
+        /** time log **/
+
+        var regions = [];
+        var chunks = [];
+        if (dataType !== 'histogram') {
+            if (typeof this.parse === 'function') {
+                chunks = this.parse(response, dataType);
+            } else {
+                chunks = response;
+            }
+            var regionSplit = queryRegion.split(',');
+            for (var i = 0; i < regionSplit.length; i++) {
+                var regionStr = regionSplit[i];
+                regions.push(new Region(regionStr));
+            }
+        } else {
+            if (typeof this.parseHistogram === 'function') {
+                chunks = this.parseHistogram(response);
+            } else {
+                chunks = response;
+            }
+            for (var i = 0; i < chunks.length; i++) {
+                var interval = chunks[i];
+                var region = new Region(interval);
+                region.chromosome = originalRegion.chromosome;
+                regions.push(region);
+            }
+        }
+        var responseItems = [];
+        responseItems.push({
+            chunkKey: data.response[i].id,
+            region: regions,
+            value: data.response[i].result,
+            dataType: dataType
+        });
+       // var items = this.cache.putByRegions(regions, chunks, categories, dataType, chunkSize);
+
+        /** time log **/
+        //console.timeEnd(timeId);
+
+        return responseItems;
     }
 
     _getStartChunkPosition (position) {

@@ -324,7 +324,7 @@ FeatureTemplateAdapter.prototype = {
     _computeLimitedRegion: function (chromosome) {
         var regionLimit = 300000000;
 
-        if (this.species != null && this.species.chromosomes[chromosome] != null) {
+        if (this.species != null && this.species.chromosomes != null && this.species.chromosomes[chromosome] != null) {
             regionLimit = this.species.chromosomes[chromosome].end;
         }
 

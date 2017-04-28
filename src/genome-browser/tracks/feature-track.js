@@ -31,6 +31,7 @@ function FeatureTrack(args) {
 
     //save default render reference;
     this.defaultRenderer = this.renderer;
+
     //    this.histogramRenderer = new FeatureClusterRenderer();
     this.histogramRenderer = new window[this.histogramRendererName](args);
 
@@ -115,6 +116,7 @@ FeatureTrack.prototype.initializeDom = function (targetId) {
         'width': this.svgCanvasWidth
     });
     this.updateHeight();
+    this.renderer.init();
 };
 
 FeatureTrack.prototype.render = function (targetId) {

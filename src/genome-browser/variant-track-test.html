@@ -238,7 +238,7 @@
     }
 
     var genomeViewer;
-    var region = new Region({chromosome: "21", start: 17378018, end: 17378166});
+    var region = new Region({chromosome: "21", start: 17299927, end: 17300073});
     //        var region = new Region({chromosome: "X", start: 139865187, end: 139865193});
 
     getSpecies(function(s) {
@@ -269,6 +269,8 @@
     function run() {
 
         var species = AVAILABLE_SPECIES.vertebrates[0];
+
+
 
         genomeViewer = new GenomeViewer({
             client: cellbaseClient,
@@ -340,20 +342,148 @@
         let variant = new VariantTrack({
             title: "Variant",
             closable: true,
-            minHistogramRegionSize: 5000,
-            maxLabelRegionSize: 3000,
+            minHistogramRegionSize: 20000000,
+            maxLabelRegionSize: 10000000,
+            minTranscriptRegionSize: 200000,
             visibleRegionSize: 100000000,
             height: 300,
             renderer: new VariantRenderer(FEATURE_TYPES.variant),
             dataAdapter: new OpencgaAdapter(opencgaClient, "analysis/variant", undefined, "query",
                     {
-                        studies:"reference_grch37:1kG_phase3",
-                        exclude: "studies"
+                        studies:"reference_grch37:1kG_phase3"
+//                        exclude: "studies"
                     }, {
                         chunkSize: 100000
                     })
         });
-        tracks.push(variant);
+        //tracks.push(variant);
+
+
+        /*******************/
+        /*******************/
+        /*******************/
+        var objectVariant ={sampleNames:[]};
+        _.extend(objectVariant, FEATURE_TYPES.variant);
+        var request = new XMLHttpRequest();
+
+        var url = "http://bioinfodev.hpc.cam.ac.uk/hgva-1.1.0-dev/webservices/rest/v1/analysis/variant/query?studies=reference_grch37:1kG_phase3&samplesMetadata=true&region=false";
+
+        request.onload = function () {
+            objectVariant.sampleNames = JSON.parse(this.response).response[0].samples;
+            console.log(objectVariant.sampleNames);
+
+            var t = new FeatureTrack({
+                title: 'Variant',
+                closable: true,
+                minHistogramRegionSize: 20000000,
+                maxLabelRegionSize: 10000000,
+                minTranscriptRegionSize: 200000,
+                histogramColor: '#92de47',
+                height: 100,
+
+//            renderer: new FeatureRenderer(),
+                renderer: new VariantRenderer(objectVariant),
+
+
+                dataAdapter: new FeatureTemplateAdapter({
+                    multiRegions: false,
+                    histogramMultiRegions: false,
+                    uriTemplate: "http://bioinfodev.hpc.cam.ac.uk/hgva-1.1.0-dev/webservices/rest/v1/analysis/variant/query?region={region}&studies={studies}",
+                    templateVariables: {
+                        studies: "reference_grch37:1kG_phase3"
+                    },
+                    species: genomeViewer.species,
+                    cacheConfig: {
+                        chunkSize: 100000
+                    },
+                    parse: function(response) {
+                        var chunks = [];
+                        for(var i = 0; i< response.response.length; i++){
+                            var res = response.response[i].result;
+//                        res._sampleNames = response.response[i].samples;
+//
+//
+//                        for(var j = 0; j < res.length; j++){
+//                            res[j]["samples"] = response.response[i].samples;
+//                        }
+                            chunks.push(res);
+
+                        }
+                        console.log("Los chunks son:");
+                        console.log(chunks);
+                        return chunks;
+                    }
+                })
+            });
+            tracks.push(t);
+        };
+        request.onerror = function () {
+            console.log('Server error');
+
+        };
+
+        request.open('GET', url, false);
+        console.log(url);
+        request.send();
+
+
+
+
+        var t = new FeatureTrack({
+            title: 'test',
+            closable: true,
+            minHistogramRegionSize: 20000000,
+            maxLabelRegionSize: 10000000,
+            minTranscriptRegionSize: 200000,
+            histogramColor: '#92de47',
+            height: 100,
+
+//            renderer: new FeatureRenderer(),
+            renderer: new VariantRenderer(objectVariant),
+
+
+            dataAdapter: new FeatureTemplateAdapter({
+                multiRegions: false,
+                histogramMultiRegions: false,
+                uriTemplate: "http://bioinfodev.hpc.cam.ac.uk/hgva-1.1.0-dev/webservices/rest/v1/analysis/variant/query?region={region}&studies={studies}",
+                templateVariables: {
+                    studies: "reference_grch37:1kG_phase3"
+                },
+                species: genomeViewer.species,
+                cacheConfig: {
+                    chunkSize: 100000
+                },
+                parse: function(response) {
+                    var chunks = [];
+                    for(var i = 0; i< response.response.length; i++){
+                        var res = response.response[i].result;
+//                        res._sampleNames = response.response[i].samples;
+//
+//
+//                        for(var j = 0; j < res.length; j++){
+//                            res[j]["samples"] = response.response[i].samples;
+//                        }
+                        chunks.push(res);
+
+                    }
+                    console.log("Los chunks son:");
+                    console.log(chunks);
+                    return chunks;
+                }
+            })
+        });
+        //tracks.push(t);
+
+
+
+
+        /*******************/
+        /*******************/
+
+
+
+
+
 
 //        let alignment = new AlignmentTrack({
 //            title: "Alignment",
