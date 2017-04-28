@@ -18,7 +18,7 @@
 <link rel="import" href="../opencga-active-filters.html">
 <link rel="import" href="../../cellbase/variation/cellbase-variantannotation-view.html">
 <link rel="import" href="variant-beacon-network.html">
-<link rel="import" href="../../genome-browser/genome-browser-view.html">
+<link rel="import" href="variant-genome-browser.html">
 
 <dom-module id="variant-browser-view">
     <template>
@@ -43,13 +43,13 @@
 
             <div id="{{prefix}}LeftToolbar" style="padding-bottom: 0px">
                 <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-success" data-view="TableResult" on-click="_changeView">
+                    <button type="button" class="btn btn-success variant-browser-view-buttons active" data-view="TableResult" on-click="_changeView">
                         <i class="fa fa-table" aria-hidden="true"></i> Table Result
                     </button>
-                    <button type="button" class="btn btn-success" data-view="Summary" on-click="_changeView">
+                    <button type="button" class="btn btn-success variant-browser-view-buttons" data-view="Summary" on-click="_changeView">
                         <i class="fa fa-line-chart" aria-hidden="true"></i> Summary
                     </button>
-                    <button type="button" class="btn btn-success" data-view="GenomeBrowser" on-click="_changeView">
+                    <button type="button" class="btn btn-success variant-browser-view-buttons" data-view="GenomeBrowser" on-click="_changeView">
                         <i class="fa fa-list-alt" aria-hidden="true"></i> Genome Browser
                     </button>
                 </div>
@@ -188,12 +188,13 @@
                 <div id="{{prefix}}GenomeBrowser" class="variant-browser-content" style="display: none">
                     <br>
                     <br>
-                    <div class="col-md-1">
-                        New table
-                    </div>
-                    <div class="col-md-11">
-                        <genome-browser-view cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}" region="{{region}}"></genome-browser-view>
-                    </div>
+                    <variant-genome-browser cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}" region="{{region}}"></variant-genome-browser>
+                    <!--<div class="col-md-1">-->
+                        <!--New table-->
+                    <!--</div>-->
+                    <!--<div class="col-md-11">-->
+                        <!--<genome-browser-view cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}" region="{{region}}"></genome-browser-view>-->
+                    <!--</div>-->
                 </div>
 
             </div>
@@ -498,6 +499,10 @@
                 if (typeof e.target !== "undefined" && typeof e.target.dataset.view !== "undefined") {
                     $("#" + this.prefix + e.target.dataset.view).show(); // get the href and use it find which div to show
                 }
+
+                // Show the active button
+                $('.variant-browser-view-buttons').removeClass("active");
+                $(e.target).addClass("active");
 
                 if (e.target.dataset.view === "Summary") {
                     this.fetchFacets();
