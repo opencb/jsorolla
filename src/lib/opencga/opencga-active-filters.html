@@ -128,16 +128,6 @@
                                 <input class="form-control" type="text" id="filterDescription">
                             </div>
                         </div>
-                        <div class="form-group row">
-                            <label for="bioformats" class="col-xs-2 col-form-label">Bioformat</label>
-                            <div class="col-xs-10">
-                                <select class="form-control" name="filters" id="bioformats">
-                                    <template is="dom-repeat" items="{{bioformats}}">
-                                        <option>{{item}}</option>
-                                    </template>
-                                </select>
-                            </div>
-                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="save">Save</button>
@@ -168,7 +158,7 @@
                     type: Object,
                 },
                 filterBioformat: {
-                    type: String,
+                    type: String
                 },
                 fixedFilters: {
                     type: Array,
@@ -193,9 +183,6 @@
                 this.fixedFilterList = [];
             },
             clear: function () {
-//                if (typeof $('#filtersList') !== "undefined") {
-//                    $("#filtersList option[value='none']").prop('selected', true);
-//                }
                 $(".filtersLink").css("color", "black");
 
                 // Trigger clear event
@@ -222,17 +209,13 @@
                                 }
                             }
                         });
-                    this.opencgaClient.files().getAllBioFormats()
-                        .then(function (response) {
-                            _this.bioformats = response.response[0].result;
-                        });
                 }
             },
             save: function () {
                 let params = {};
                 params.name = this.$.filterName.value;
                 params.description = this.$.filterDescription.value;
-                params.bioformat = this.$.bioformats.value;
+                params.bioformat = this.filterBioformat;
                 params.query = this.query;
                 params.options = {};
                 let _this = this;
