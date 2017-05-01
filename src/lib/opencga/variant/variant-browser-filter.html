@@ -370,9 +370,10 @@
                                         <option value="{{item.name}}">{{item.title}} ({{item.genes.length}})</option>
                                     </template>
                                 </select>
-                                </br>
-                                <textarea id="{{prefix}}PanelAppsTextarea" name="panelAppsTextarea" class$="form-control clearable {{prefix}}FilterTextInput"
-                                          rows="3" placeholder="No panel selected" on-keyup="updateQueryFilters"></textarea>
+                                <div style="padding-top: 10px">
+                                    <textarea id="{{prefix}}PanelAppsTextarea" name="panelAppsTextarea" class$="form-control clearable {{prefix}}FilterTextInput"
+                                              rows="3" placeholder="No panel selected" on-keyup="updateQueryFilters"></textarea>
+                                </div>
                             </div>
 
                             <div class="form-group">

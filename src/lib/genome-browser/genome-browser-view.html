@@ -1,0 +1,246 @@
+<!--
+  ~ Copyright 2016-2018 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<script src="../../genome-browser/gv-config.js"></script>
+
+<script type="text/javascript" src="../../lib/region.js"></script>
+<script type="text/javascript" src="../../lib/feature-binary-search-tree.js"></script>
+<script type="text/javascript" src="../../lib/ensembl-manager.js"></script>
+
+<script type="text/javascript" src="../../lib/cache/file-feature-cache.js"></script>
+<script type="text/javascript" src="../../lib/cache/feature-chunk-cache.js"></script>
+<script type="text/javascript" src="../../lib/cache/memory-store.js"></script>
+<script type="text/javascript" src="../../lib/cache/indexedDB-store.js"></script>
+<script type="text/javascript" src="../../lib/cache/bam-cache.js"></script>
+
+<script type="text/javascript" src="../../lib/data-adapter/feature/ensembl-adapter.js"></script>
+<script type="text/javascript" src="../../lib/data-adapter/feature/feature-template-adapter.js"></script>
+
+<script type="text/javascript" src="../../lib/data-adapter/feature/feature-data-adapter.js"></script>
+<script type="text/javascript" src="../../lib/data-adapter/feature/vcf-data-adapter.js"></script>
+<script type="text/javascript" src="../../lib/data-adapter/feature/gff2-data-adapter.js"></script>
+<script type="text/javascript" src="../../lib/data-adapter/feature/gff3-data-adapter.js"></script>
+<script type="text/javascript" src="../../lib/data-adapter/feature/bed-data-adapter.js"></script>
+
+<script type="text/javascript" src="../../lib/data-source/data-source.js"></script>
+<script type="text/javascript" src="../../lib/data-source/string-data-source.js"></script>
+<script type="text/javascript" src="../../lib/data-source/file-data-source.js"></script>
+
+<script type="text/javascript" src="../../lib/widgets/feature/info/info-widget.js"></script>
+<script type="text/javascript" src="../../lib/widgets/feature/info/gene-info-widget.js"></script>
+<script type="text/javascript" src="../../lib/widgets/feature/info/protein-info-widget.js"></script>
+<script type="text/javascript" src="../../lib/widgets/feature/info/snp-info-widget.js"></script>
+<script type="text/javascript" src="../../lib/widgets/feature/info/transcript-info-widget.js"></script>
+<script type="text/javascript" src="../../lib/widgets/feature/info/vcf-variant-info-widget.js"></script>
+
+<script type="text/javascript" src="../../lib/widgets/ux-window.js"></script>
+
+<script type="text/javascript" src="../../genome-browser/navigation-bar.js"></script>
+<script type="text/javascript" src="../../genome-browser/chromosome-panel.js"></script>
+<script type="text/javascript" src="../../genome-browser/karyotype-panel.js"></script>
+<script type="text/javascript" src="../../genome-browser/status-bar.js"></script>
+
+<script type="text/javascript" src="../../genome-browser/tracks/tracklist-panel.js"></script>
+<script type="text/javascript" src="../../genome-browser/tracks/track.js"></script>
+<script type="text/javascript" src="../../genome-browser/tracks/feature-track.js"></script>
+<script type="text/javascript" src="../../genome-browser/tracks/gene-track.js"></script>
+<script type="text/javascript" src="../../genome-browser/tracks/alignment-track.js"></script>
+
+<script type="text/javascript" src="../../genome-browser/renderers/renderer.js"></script>
+<script type="text/javascript" src="../../genome-browser/renderers/feature-renderer.js"></script>
+<script type="text/javascript" src="../../genome-browser/renderers/feature-cluster-renderer.js"></script>
+<script type="text/javascript" src="../../genome-browser/renderers/sequence-renderer.js"></script>
+<script type="text/javascript" src="../../genome-browser/renderers/histogram-renderer.js"></script>
+<script type="text/javascript" src="../../genome-browser/renderers/gene-renderer.js"></script>
+<script type="text/javascript" src="../../genome-browser/renderers/alignment-renderer.js"></script>
+<script type="text/javascript" src="../../genome-browser/renderers/variant-renderer.js"></script>
+
+<!-- ES6 -->
+<script type="text/javascript" src="../../lib/data-adapter/feature/cellbase-adapter-new.js"></script>
+<script type="text/javascript" src="../../lib/data-adapter/feature/opencga-adapter-new.js"></script>
+
+<dom-module id="genome-browser-view">
+    <template>
+        <!--<style is="custom-style" include="jso-styles"></style>-->
+
+        <div id="{{prefix}}GenomeBrowser"></div>
+    </template>
+    <script>
+        Polymer({
+            is: 'genome-browser-view',
+            properties: {
+                cellbaseClient: {
+                    type: Object,
+                    observer: "init"
+                },
+                opencgaClient: {
+                    type: Object
+                },
+                project: {
+                    type: Object
+                },
+                study: {
+                    type: Object
+                },
+                region: {
+                    type: Object,
+                    value: new Region({chromosome: "21", start: 22859462, end: 22859610}),
+                    observer: "changeRegion"
+                },
+                species: {
+                    type: Object
+                },
+                prefix: {
+                    type: String
+                },
+            },
+            ready: function () {
+                if (typeof this.prefix === "undefined" || this.prefix === "") {
+                    this.prefix = "gb_" + Utils.randomString(6);
+                }
+
+                this.init();
+            },
+            init: function() {
+                if (typeof this.cellbaseClient === "undefined" || typeof this.genomeViewer !== "undefined") {
+                    return;
+                }
+                let _this = this;
+                this.getSpecies().then(function (availableSpecies) {
+                    _this.species = availableSpecies.vertebrates[0];
+
+                    let width = document.querySelector("#" + _this.prefix + "GenomeBrowser").getBoundingClientRect().width;
+                    // TODO fix this width
+                    if (width < 40) {
+                        width = 1520;
+                    }
+
+                    _this.genomeViewer = new GenomeViewer({
+                        client: _this.cellbaseClient,
+//                    cellBaseHost: CELLBASE_HOST,
+//                    cellBaseVersion: CELLBASE_VERSION,
+                        target: _this.prefix + "GenomeBrowser",
+                        width: width,
+                        region: _this.region,
+                        availableSpecies: availableSpecies,
+                        species: _this.species,
+                        sidePanel: false,
+                        autoRender: true,
+                        resizable: true,
+                        karyotypePanelConfig: {
+                            collapsed: true,
+                            collapsible: true
+                        },
+                        chromosomePanelConfig: {
+                            collapsed: true,
+                            collapsible: true
+                        },
+                        navigationBarConfig: {
+                            componentsConfig: {
+                            }
+                        },
+                        handlers: {
+                            'region:change': function(e) {
+                                console.log(e)
+                            }
+                        }
+                    });
+
+                    let tracks = [];
+
+                    let sequence = new FeatureTrack({
+                        title: 'Sequence',
+                        height: 20,
+                        visibleRegionSize: 200,
+
+                        renderer: new SequenceRenderer(),
+                        dataAdapter: new CellBaseAdapter(_this.cellbaseClient, "genomic", "region", "sequence", {}, { chunkSize: 100})
+                    });
+                    tracks.push(sequence);
+
+                    let gene = new GeneTrack({
+                        title: 'Gene',
+                        minHistogramRegionSize: 20000000,
+                        maxLabelRegionSize: 10000000,
+                        minTranscriptRegionSize: 200000,
+                        height: 100,
+
+                        renderer: new GeneRenderer({
+                            handlers: {
+                                'feature:click': function(e) {
+                                    console.log(e)
+                                }
+                            }
+                        }),
+                        dataAdapter: new CellBaseAdapter(_this.cellbaseClient, "genomic", "region", "gene",
+                            {
+                                exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence'
+                            }, {
+                                chunkSize: 100000
+                            })
+                    });
+                    tracks.push(gene);
+
+                    let gene2 = new FeatureTrack({
+                        minHistogramRegionSize: 20000000,
+                        maxLabelRegionSize: 10000000,
+                        height: 100,
+
+                        renderer: new FeatureRenderer(FEATURE_TYPES.gene),
+
+                        dataAdapter: new CellBaseAdapter(_this.cellbaseClient, "genomic", "region", "gene",
+                            {
+                                exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence'
+                            }, {
+                                chunkSize: 100000
+                            })
+                    });
+
+                    _this.genomeViewer.addOverviewTrack(gene2);
+                    _this.genomeViewer.addTrack(tracks);
+
+                    _this.genomeViewer.draw();
+
+                });
+
+            },
+            getSpecies: function() {
+                return this.cellbaseClient.getMeta("species").then(function(r) {
+                    var taxonomies = r.response[0].result[0];
+                    for (var taxonomy in taxonomies) {
+                        var newSpecies = [];
+                        for (var i = 0; i < taxonomies[taxonomy].length; i++) {
+                            var species = taxonomies[taxonomy][i];
+                            for (var j = 0; j < species.assemblies.length; j++) {
+                                var s = Utils.clone(species)
+                                s.assembly = species.assemblies[j];
+                                delete s.assemblies;
+                                newSpecies.push(s)
+                            }
+                        }
+                        taxonomies[taxonomy] = newSpecies;
+                    }
+                    return taxonomies;
+                });
+            },
+            changeRegion: function(region) {
+                if (typeof this.genomeViewer !== "undefined") {
+                    this.genomeViewer.setRegion(region);
+                }
+            }
+        });
+    </script>
+</dom-module>

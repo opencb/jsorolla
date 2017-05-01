@@ -25,20 +25,22 @@
 
             <h3 style="margin: 10px 5px 15px 25px"><i class="fa fa-search" aria-hidden="true"></i>&nbsp;{{title}}</h3>
 
-            <div class="col-md-2" hidden$="{{checkProject(project)}}">
-                <variant-browser-filter study="{{study}}" project="{{project}}" studies="{{studies}}" cohorts="{{cohorts}}" config="{{config}}"
-                                        samples="{{samples}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
-                                        cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}"
-                                        consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}" style="font-size: 12px">
-                </variant-browser-filter>
-            </div>
+            <div class="row">
+                <div class="col-md-2" hidden$="{{checkProject(project)}}">
+                    <variant-browser-filter study="{{study}}" project="{{project}}" studies="{{studies}}" cohorts="{{cohorts}}" config="{{config}}"
+                                            samples="{{samples}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
+                                            cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}"
+                                            consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}" style="font-size: 12px">
+                    </variant-browser-filter>
+                </div>
 
-            <div class="col-md-10" hidden$="{{checkProject(project)}}">
-                <variant-browser-view title="{{title}}" project="{{project}}" study="{{study}}" cohorts="{{cohorts}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
-                                      cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                      consequence-types="{{consequenceTypes}}" beacon-hosts="{{beaconHosts}}" query="{{query}}" search="[[search]]"
-                                      on-propagate="propagateGeneEvent" config="{{config}}"  on-clear="onClear" on-filterchange="onFilterChange" summary="{{summary}}">
-                </variant-browser-view>
+                <div class="col-md-10" hidden$="{{checkProject(project)}}">
+                    <variant-browser-view title="{{title}}" project="{{project}}" study="{{study}}" cohorts="{{cohorts}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
+                                          cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                          consequence-types="{{consequenceTypes}}" beacon-hosts="{{beaconHosts}}" query="{{query}}" search="[[search]]"
+                                          on-propagate="propagateGeneEvent" config="{{config}}"  on-clear="onClear" on-filterchange="onFilterChange" summary="{{summary}}">
+                    </variant-browser-view>
+                </div>
             </div>
 
             <template is="dom-if" if="{{checkProject(project)}}">
@@ -133,7 +135,7 @@
                 }
             },
             checkProject: function (project) {
-                return Object.keys(project).length == 0;
+                return Object.keys(project).length === 0;
             },
             propagateGeneEvent: function (e) {
                 this.fire('gene', {gene: e.detail.gene});
