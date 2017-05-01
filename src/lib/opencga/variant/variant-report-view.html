@@ -24,7 +24,7 @@
         </style>
 
         <br>
-        <div class="panel panel-default">
+        <div id="{{prefix}}report" class="panel panel-default" style="overflow-y: auto; height:550px;">
             <div class="panel-body">
                 <h2 style="margin: 10px 5px 15px 25px">{{title}} Report</h2>
                 <div style="float: right; padding: 0px 0px 10px 5px">
@@ -41,7 +41,7 @@
                     </ul>
                 </div>
 
-                <div style="margin: 10px 5px 15px 25px" class="sample-information" id="sampleInformationDiv">
+                <div style="margin: 10px 5px 15px 25px" class="sample-information" id="{{prefix}}sampleInformationDiv">
                     <h4>Sample Information</h4>
                     <hr>
                     Some infromation related to the sample or samples. If the anlaysis is related to more than one sample (i.e. a family), then, all fields related to individual and variable
@@ -142,6 +142,10 @@
                 title: {
                     type: String,
                     value: ""
+                },
+                expReport: {
+                    type: Boolean,
+                    observer: 'handleExportPDF'
                 }
 
             },
@@ -155,8 +159,8 @@
 
             },
             fetchSelection: function () {
-                console.log(this);
-                debugger;
+                //console.log(this);
+                //debugger;
                 let _a = this.selection;
                 let _b = 3;
 
@@ -185,7 +189,46 @@
 
                 //this.$[divId].hidden = !this.$[divId].hidden;
 
+            },
+            print: function(data) {
+                console.log(this);
+                debugger;
+                var mywindow = window.open('', '', 'height=1000,width=1000');
+                mywindow.document.write('<html><head>');
+                /* var styles = document.getElementsByTagName('style');
+
+                 mywindow.document.write('<style>');
+                 for (var i = 0; i < styles.length; i++) {
+                 mywindow.document.write(styles[i].innerHTML);
+                 }
+                 mywindow.document.write('</style>');*/
+
+                mywindow.document.write('</head><body>');
+                mywindow.document.write(data);
+                mywindow.document.write('</body></html>');
+
+                mywindow.document.close(); // necessary for IE >= 10
+                mywindow.focus(); // necessary for IE >= 10
+                mywindow.print();
+                mywindow.close();
+
+            },
+            _getTextInfo: function() {
+                let elem =  this.$$("#" + this.prefix + "sampleInformationDiv").querySelectorAll("input");
+                let reportFields = [];
+                for (var i = 0; i < elem.length; i++) {
+                    reportFields.push({name: elem[i].name , value: elem[i].value});
+                }
+                this.reportFields = reportFields;
+
+            },
+            handleExportPDF: function(e) {
+                //this._getTextInfo();
+                this.print($('#' + this.prefix + "report")[0].innerHTML);
+                this.expReport = false;
+
             }
+
         });
     </script>
 </dom-module>
