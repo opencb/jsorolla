@@ -18,7 +18,10 @@
     <template>
         <style is="custom-style" include="jso-styles"></style>
 
-        <div id="{{prefix}}toolbar" style="float: right;padding-bottom: 10px">
+        <div id="{{prefix}}ToolbarLeft" style="float: left;margin: 20px 0px 0px 0px">
+            <span style="font-size: 14px">Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> variants</span>
+        </div>
+        <div id="{{prefix}}toolbar" style="float:right;margin: 10px 0px 10px 0px">
             <div class="btn-group">
                 <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i id="{{prefix}}DownloadRefresh" class="fa fa-refresh fa-spin" aria-hidden="true" style="font-size:14px;display: none"></i>
@@ -51,9 +54,8 @@
             <!--</div>-->
         </div>
 
-        <div id="{{prefix}}GridTableDiv" style="padding-top: 10px">
-            <table id="{{prefix}}VariantBrowserGrid" data-toolbar="#{{prefix}}toolbar" data-pagination="true" data-page-list="[10, 25, 50]"
-                   data-show-export="true" data-id-field="variant">
+        <div id="{{prefix}}GridTableDiv" style="margin-top: 10px">
+            <table id="{{prefix}}VariantBrowserGrid" data-pagination="true" data-page-list="[10, 25, 50]" data-show-export="true" data-id-field="variant">
                 <thead style="background-color: #eee"></thead>
             </table>
         </div>
@@ -190,6 +192,10 @@
             },
             renderFromServer: function () {
                 this.variant = ""; // Empty the variant every time the grid is loaded
+
+                this.from = 1;
+                this.to = 10;
+
                 let _this = this;
                 if (typeof this.opencgaClient !== "undefined" && this.opencgaClient instanceof OpenCGAClient && typeof
                         this.project !== "undefined" && typeof this.study !== "undefined" && typeof this.study.alias !== "undefined") {
@@ -200,7 +206,7 @@
                     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('destroy');
                     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable({
                         url: urlQueryParams.host,
-                        columns: this.cols,
+                        columns: _this.cols,
                         method: 'get',
                         sidePagination: 'server',
                         queryParams: function (params) {
@@ -222,6 +228,7 @@
                                     _numTotal = 1150;
                                 }
                             }
+                            _this.numTotalResultsText = _numTotal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
                             return {total: _numTotal, rows: res.response[0].result}
                         },
                         onClickRow: function (row, $element) {
@@ -234,6 +241,10 @@
                             // The first time we mark as selected the first row that is rows[2] since the first two rows are the header
                             Polymer.dom(_this.root).querySelector(_this.table.selector).rows[2].setAttribute('class', 'success');
                             _this._onSelectVariant(data.rows[0]);
+                        },
+                        onPageChange: function (page, size) {
+                            _this.from = (page - 1) * size + 1;
+                            _this.to = page * size;
                         }
                     });
                     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('showLoading');
