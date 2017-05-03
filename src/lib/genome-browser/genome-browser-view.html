@@ -132,7 +132,7 @@
                     let width = document.querySelector("#" + _this.prefix + "GenomeBrowser").getBoundingClientRect().width;
                     // TODO fix this width
                     if (width < 40) {
-                        width = 1520;
+                        width = 1440;
                     }
 
                     _this.genomeViewer = new GenomeViewer({
@@ -204,7 +204,7 @@
                     let gene2 = new FeatureTrack({
                         minHistogramRegionSize: 20000000,
                         maxLabelRegionSize: 10000000,
-                        height: 100,
+                        height: 120,
 
                         renderer: new FeatureRenderer(FEATURE_TYPES.gene),
 
