@@ -32,6 +32,8 @@
                 </div>
                 <br>
 
+                <!-- Analysis Information -->
+
                 <div style="margin: 10px 5px 15px 25px" class="analysis-information" id="analysisInformationDiv">
                     <h4>Analysis Information</h4>
                     <hr>
@@ -145,7 +147,8 @@
                 },
                 expReport: {
                     type: Boolean,
-                    observer: 'handleExportPDF'
+                    observer: 'handleExportPDF',
+                    notify: true
                 }
 
             },
@@ -159,27 +162,30 @@
 
             },
             fetchSelection: function () {
-                //console.log(this);
-                //debugger;
-                let _a = this.selection;
-                let _b = 3;
+                console.log(this);
+                debugger;
 
-
-                /*                if (typeof this.selection.sample !== "undefined") {
-                 let types = this.selection.sample.split(",");
-                 for (let i = 0; i < types.length; i++) {
-                 let _a = types[i];
-                 $('#'+ this.prefix + types[i] + "Div")[0].hidden = !$('#'+ this.prefix + types[i] + "Div")[0].hidden;
-                 let _petete = 3;
-                 }
-                 }*/
+                let _numFalseElements = 0;
 
                 if (typeof this.selection !== "undefined") {
                     for (let i = 0; i < this.selection.length; i++) {
-                        let _a = this.selection[i];
-                        $('#'+ this.prefix + _a.name + "Div")[0].hidden = !_a.value;
-                        let _petete = 3;
+                        this.$$("#" + this.prefix + this.selection[i].name + "Div").hidden = !this.selection[i].value;
+                        if (this.selection[i].value == false)
+                        {_numFalseElements++;}
+
                     }
+
+                    if (_numFalseElements == this.selection.length)
+                    {
+                        this.$$("#" + this.prefix + "sampleInformationDiv").hidden = true;
+                    }
+                    else
+                    {
+                        this.$$("#" + this.prefix + "sampleInformationDiv").hidden = false;
+                    }
+
+                    let _a = 2;
+
                 }
 
 
@@ -191,8 +197,7 @@
 
             },
             print: function(data) {
-                console.log(this);
-                debugger;
+
                 var mywindow = window.open('', '', 'height=1000,width=1000');
                 mywindow.document.write('<html><head>');
                 /* var styles = document.getElementsByTagName('style');
@@ -223,9 +228,12 @@
 
             },
             handleExportPDF: function(e) {
+                console.log(this);
+                debugger;
                 //this._getTextInfo();
-                this.print($('#' + this.prefix + "report")[0].innerHTML);
-                this.expReport = false;
+                //this.print($('#' + this.prefix + "report")[0].innerHTML);
+                this.print(this.$$('#' + this.prefix + "report").innerHTML);
+                this.expReport = false; // Reset export report button again
 
             }
 

@@ -27,6 +27,7 @@
         <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true">
             <br>
 
+            <!-- Analysis Information -->
             <div class="panel panel-default">
                 <div class="panel-heading" role="tab" id="{{prefix}}SampleAnalysisHeading">
                     <h4 class="panel-title">
@@ -53,7 +54,7 @@
             </div>
 
 
-            <!-- Sample Selection -->
+            <!-- Sample Information -->
             <div class="panel panel-default">
                 <div class="panel-heading" role="tab" id="{{prefix}}SampleInformationHeading">
                     <h4 class="panel-title">
@@ -73,20 +74,20 @@
                         <div class="form-group">
                             <label>Select</label>
                             <br>
-                            <input type="radio" name="sampleButtons" id="{{prefix}}AllRadio" value="all" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> All<br>
-                            <input type="radio" name="sampleButtons" id="{{prefix}}SubsetRadio" value="range" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Subset
-                            <div id="{{prefix}}Sample" class="panel-body">
-                                <input type="checkbox" name="sampleButtons" id="{{prefix}}individualID" value="individualID" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Individual ID<br>
-                                <input type="checkbox" name="sampleButtons" id="{{prefix}}chromosomalGender" value="chromosomalGender" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Chromosomal Gender<br>
-                                <input type="checkbox" name="sampleButtons" id="{{prefix}}yearBirth" value="yearBirth" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Year of Birth<br>
-                                <input type="checkbox" name="sampleButtons" id="{{prefix}}birthPlace" value="birthPlace" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Birth place<br>
-                                <input type="checkbox" name="sampleButtons" id="{{prefix}}ethnicity" value="ethnicity" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Ethnicity<br>
-                                <input type="checkbox" name="sampleButtons" id="{{prefix}}HPO" value="HPO" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> HPO<br>
-                                <input type="checkbox" name="sampleButtons" id="{{prefix}}diagnosis" value="diagnosis" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Diagnosis<br>
+                            <input type="radio" name="sampleButtons" id="{{prefix}}AllRadio" value="all" class$="{{prefix}}FilterRadio" on-change="sampleInfoAll" style="padding-left: 20px"> All<br>
+                            <input type="radio" name="sampleButtons" id="{{prefix}}SubsetRadio" value="range" class$="{{prefix}}FilterRadio" on-change="sampleInfoSubset" style="padding-left: 20px"> Subset
+                            <div id="{{prefix}}SampleFields" class="panel-body">
+                                <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}individualID" value="individualID" class$="{{prefix}}FilterRadio" on-change="sampleInfoField" style="padding-left: 20px"> Individual ID<br>
+                                <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}chromosomalGender" value="chromosomalGender" class$="{{prefix}}FilterRadio" on-change="sampleInfoField" style="padding-left: 20px"> Chromosomal Gender<br>
+                                <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}yearBirth" value="yearBirth" class$="{{prefix}}FilterRadio" on-change="sampleInfoField" style="padding-left: 20px"> Year of Birth<br>
+                                <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}birthPlace" value="birthPlace" class$="{{prefix}}FilterRadio" on-change="sampleInfoField" style="padding-left: 20px"> Birth place<br>
+                                <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}ethnicity" value="ethnicity" class$="{{prefix}}FilterRadio" on-change="sampleInfoField" style="padding-left: 20px"> Ethnicity<br>
+                                <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}HPO" value="HPO" class$="{{prefix}}FilterRadio" on-change="sampleInfoField" style="padding-left: 20px"> HPO<br>
+                                <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}diagnosis" value="diagnosis" class$="{{prefix}}FilterRadio" on-change="sampleInfoField" style="padding-left: 20px"> Diagnosis<br>
 
                                 <!-- SPECIFIC FIELDS FROM VARIABLE SET -->
                                 <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}" as="variable" sort="_sortVariables">
-                                    <input type="checkbox" name="sampleButtons" id="{{prefix}}{{variable.name}}" value="{{variable.name}}" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> {{variable.title}}<br>
+                                    <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}{{variable.name}}" value="{{variable.name}}" class$="{{prefix}}FilterRadio" on-change="sampleInfoField" style="padding-left: 20px"> {{variable.title}}<br>
                                 </template>
 
                             </div>
@@ -255,29 +256,40 @@
                 }
                 return 1;
             },
-            selectSamples: function () {
-                let _filters = {};
+            sampleInfoField: function () {
 
-                // Type
-                //let types = this.$$("#" + this.prefix + "Sample").querySelectorAll("input:checked");
-                let types = this.$$("#" + this.prefix + "Sample").querySelectorAll("input[type='checkbox']");
-                let typesAux = [];
-                if (types.length > 0) {
-                    for (let i = 0; i < types.length; i++) {
-                        //typesAux.push(types[i].value);
-                        typesAux.push({name: types[i].value , value: types[i].checked});
+                console.log(this);
+                debugger;
+                let fields = this.$$("#" + this.prefix + "SampleFields").querySelectorAll("input[type='checkbox']");
+                let fieldsAux = [];
+                if (fields.length > 0) {
+                    for (let i = 0; i < fields.length; i++) {
+                        fieldsAux.push({name: fields[i].value , value: fields[i].checked});
                     }
-                    //_filters.sample = typesAux.join(',');
                 }
+                this.selection = fieldsAux;
 
-                //this.selection = _filters;
-                this.selection = typesAux;
+
+            },
+            sampleInfoAll: function () {
+                let fields = this.$$("#" + this.prefix + "SampleFields").querySelectorAll("input[type='checkbox']");
+                for (let i = 0; i < fields.length; i++) {
+                    $("#" + fields[i].id).prop("checked", true);
+                    $("#" + fields[i].id).prop("disabled", true);
+                }
+                this.sampleInfoField();
+
+            },
+            sampleInfoSubset: function () {
+                let fields = this.$$("#" + this.prefix + "SampleFields").querySelectorAll("input[type='checkbox']");
+                for (let i = 0; i < fields.length; i++) {
+                    $("#" + fields[i].id).prop("disabled", false);
+
+                }
 
             },
             onExport: function () {
                 this.expReport = true;
-
-
             }
         });
     </script>
