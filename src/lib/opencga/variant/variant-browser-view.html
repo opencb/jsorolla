@@ -47,10 +47,10 @@
                         <i class="fa fa-table" aria-hidden="true"></i> Table Result
                     </button>
                     <button type="button" class="btn btn-success variant-browser-view-buttons" data-view="Summary" on-click="_changeView">
-                        <i class="fa fa-line-chart" aria-hidden="true"></i> Summary
+                        <i class="fa fa-line-chart" aria-hidden="true"></i> Summary (Beta)
                     </button>
                     <button type="button" class="btn btn-success variant-browser-view-buttons" data-view="GenomeBrowser" on-click="_changeView">
-                        <i class="fa fa-list-alt" aria-hidden="true"></i> Genome Browser
+                        <i class="fa fa-list-alt" aria-hidden="true"></i> Genome Browser (Beta)
                     </button>
                 </div>
             </div>
@@ -87,7 +87,8 @@
                                 <div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">
                                     <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-client="{{cellbaseClient}}" mode="vertical"
                                                                      hash-fragment-credentials="{{hashFragmentCredentials}}" consequence-types="{{consequenceTypes}}"
-                                                                     protein-substitution-scores="{{proteinSubstitutionScores}}" style="font-size: 12px"></cellbase-variantannotation-view>
+                                                                     protein-substitution-scores="{{proteinSubstitutionScores}}" style="font-size: 12px">
+                                    </cellbase-variantannotation-view>
                                 </div>
 
                                 <!--Genotypes & Files Tab-->
@@ -146,8 +147,8 @@
 
                                 <!--Genome Context Tab-->
                                 <!--<div role="tabpanel" class="tab-pane" id="{{prefix}}GenomeView">-->
-                                    <!--<br>-->
-                                    <!--<genome-browser-view cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}" region="{{region}}"></genome-browser-view>-->
+                                <!--<br>-->
+                                <!--<genome-browser-view cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}" region="{{region}}"></genome-browser-view>-->
                                 <!--</div>-->
 
                                 <!--Beacon network-->
@@ -188,15 +189,32 @@
                 <div id="{{prefix}}GenomeBrowser" class="variant-browser-content" style="display: none">
                     <br>
                     <br>
-                    <variant-genome-browser cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}" region="{{region}}"></variant-genome-browser>
+                    <variant-genome-browser project="{{project}}" study="{{study}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+                                            query={{query}} search={{search}} region="{{region}}"></variant-genome-browser>
                     <!--<div class="col-md-1">-->
-                        <!--New table-->
+                    <!--New table-->
                     <!--</div>-->
                     <!--<div class="col-md-11">-->
-                        <!--<genome-browser-view cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}" region="{{region}}"></genome-browser-view>-->
+                    <!--<genome-browser-view cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}" region="{{region}}"></genome-browser-view>-->
                     <!--</div>-->
                 </div>
 
+            </div>
+        </div>
+
+        <div class="modal fade" id="{{prefix}}LoadingModal" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog"
+             aria-hidden="true" style="padding-top:15%; overflow-y:visible;">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Loading...</h3>
+                    </div>
+                    <div class="modal-body">
+                        <div class="progress progress-striped active">
+                            <div class="progress-bar progress-bar-success" style="width: 100%"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </template>
@@ -391,56 +409,69 @@
 
                 let _this = this;
 
-                this.opencgaClient.variants().facet(queryParams, {})
-                    .then(function (queryResponse) {
-                        _this.facetResults = queryResponse.response[0].result[0].result.fields;
-                        for (let result of _this.facetResults) {
-                            let categories = [];
-                            let data =  [];
+                // Shows loading modal
+                $("#" + this.prefix + "LoadingModal").modal("show");
 
-                            for (let countObj of result.counts) {
-                                categories.push(countObj.value);
-                                data.push(countObj.count);
+                setTimeout(_ => {
+                    this.opencgaClient.variants().facet(queryParams, {})
+                        .then(function (queryResponse) {
+                            _this.facetResults = queryResponse.response[0].result[0].result.fields;
+                            for (let result of _this.facetResults) {
+                                let categories = [];
+                                let data =  [];
+
+                                for (let countObj of result.counts) {
+                                    categories.push(countObj.value);
+                                    data.push(countObj.count);
+                                }
+
+                                $("#" + _this.prefix + result.name).highcharts({
+                                    credits: {enabled: false},
+                                    chart: {
+                                        type: "column"
+                                    },
+                                    title: {
+                                        text: result.name
+                                    },
+                                    xAxis: {
+                                        categories: categories
+                                    },
+                                    yAxis: {
+                                        min: 0,
+                                        title: {
+                                            text: 'Total number of Variants'
+                                        }
+                                    },
+                                    tooltip: {
+                                        headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                                        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                                        '<td style="padding:0"><b>{point.y:.1f} </b></td></tr>',
+                                        footerFormat: '</table>',
+                                        shared: true,
+                                        useHTML: true
+                                    },
+                                    plotOptions: {
+                                        column: {
+                                            pointPadding: 0.2,
+                                            borderWidth: 0
+                                        }
+                                    },
+                                    series: [{
+                                        name: result.name,
+                                        data: data
+                                    }]
+                                });
                             }
 
-                            $("#" + _this.prefix + result.name).highcharts({
-                                credits: {enabled: false},
-                                chart: {
-                                    type: "column"
-                                },
-                                title: {
-                                    text: result.name
-                                },
-                                xAxis: {
-                                    categories: categories
-                                },
-                                yAxis: {
-                                    min: 0,
-                                    title: {
-                                        text: 'Total number of Variants'
-                                    }
-                                },
-                                tooltip: {
-                                    headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-                                    pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-                                    '<td style="padding:0"><b>{point.y:.1f} </b></td></tr>',
-                                    footerFormat: '</table>',
-                                    shared: true,
-                                    useHTML: true
-                                },
-                                plotOptions: {
-                                    column: {
-                                        pointPadding: 0.2,
-                                        borderWidth: 0
-                                    }
-                                },
-                                series: [{
-                                    name: result.name,
-                                    data: data
-                                }]
-                            });
-                        }
-                    });
+                            // Remove loading modal
+                            $("#" + _this.prefix + "LoadingModal").modal("hide");
+                        })
+                        .catch(function (e) {
+                            console.log(e);
+                            // Remove loading modal
+                            $("#" + _this.prefix + "LoadingModal").modal("hide");
+                        });
+                }, 250);
             },
             _freqFormatter: function(value) {
                 if (value !== 0 && value !== 1) {
@@ -506,6 +537,10 @@
 
                 if (e.target.dataset.view === "Summary") {
                     this.fetchFacets();
+                }
+
+                if (e.target.dataset.view === "GenomeBrowser") {
+//                    window.location.hash = "genomebrowser";
                 }
             },
             // This is the old Pie Chart implementation, not used right now

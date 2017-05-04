@@ -15,6 +15,10 @@ module.exports = function (grunt) {
                 src: ['Gruntfile-genome-viewer.js'],
                 tasks: ['no-dep']
             },
+            'genome-browser': {
+                src: ['Gruntfile-genome-browser.js'],
+                tasks: ['default']
+            },
 
 
             'circular-genome-viewer': {
@@ -58,6 +62,7 @@ module.exports = function (grunt) {
     ]);
 
     grunt.registerTask('gv', ['hub:genome-viewer']);
+    grunt.registerTask('gb', ['hub:genome-browser']);
     grunt.registerTask('cgv', ['hub:circular-genome-viewer']);
     grunt.registerTask('nv', ['hub:network-viewer']);
     grunt.registerTask('3dv', ['hub:threed-viewer']);
