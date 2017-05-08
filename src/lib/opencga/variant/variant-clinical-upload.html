@@ -128,7 +128,13 @@
                 <div class="form-group has-feedback">
                     <label for="{{prefix}}HPO" class="col-sm-3 control-label">HPO</label>
                     <div class="col-sm-9">
-                        <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}HPO" name="HPO" placeholder="hpo term" maxlength="300" required data-error="An HPO term must be selected">
+                        <div class="input-group">
+                            <textarea class$="form-control {{prefix}}TextInput" id="{{prefix}}HPO" name="HPO"
+                                      placeholder="hpo term" required data-error="An HPO term must be selected" readonly rows="2" style="resize:none"></textarea>
+                            <span class="input-group-addon btn btn-primary" data-toggle="modal" data-target$="#{{prefix}}hpo">
+                                <i class="fa fa-search" aria-hidden="true"></i>
+                            </span>
+                        </div>
                         <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
                         <div class="help-block with-errors"></div>
                     </div>
@@ -139,9 +145,16 @@
                 <div class="form-group has-feedback">
                     <label for="{{prefix}}diagnosis" class="col-sm-3 control-label">Diagnosis</label>
                     <div class="col-sm-9">
-                        <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}diagnosis" name="diagnosis" placeholder="diagnosis" maxlength="300" required data-error="A diagnosis term must be selected">
+                        <div class="input-group">
+                            <textarea class$="form-control {{prefix}}TextInput" id="{{prefix}}diagnosis" name="diagnosis"
+                                       placeholder="ICD-10 term" required data-error="A diagnosis term must be selected" readonly rows="2" style="resize:none"></textarea>
+                            <span class="input-group-addon btn btn-primary" data-toggle="modal" data-target$="#{{prefix}}icd" on-click="showICDEditor">
+                                <i class="fa fa-search" aria-hidden="true"></i>
+                            </span>
+                        </div>
                         <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
                         <div class="help-block with-errors"></div>
+
                     </div>
                 </div>
 
@@ -285,7 +298,39 @@
 
             </form>
         </div>
+        <!-- Modal dialog for family editor : has to be designed as a web component-->
+        <div class="modal fade" id="{{prefix}}icd" tabindex="-1" role="dialog"
+             aria-labelledby="icdLabel">
+            <div class="modal-dialog modal-sm" role="document" style="width: 1300px;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="{{prefix}}Icd10EditorLabel">Diagnosis selector (ICD-10 Terms)</h4>
+                    </div>
+                    <div class="modal-body" style="height: 500px">
+                        <div class="col-sm-12" >
+                            <label>Introduce an ICD-10 term or select it from tree</label>
+                        </div>
+                        <div class="col-sm-6" >
+                            <input id="{{prefix}}autoInput" list="icd_browser" class$="form-control {{prefix}}TextInput" placeholder="ICD-10 term" >
+                            <datalist id="icd_browser" >
+                                <template is="dom-repeat" items="{{icdTerms}}">
+                                    <option value="{{item}}">
+                                </template>
 
+                            </datalist>
+                        </div>
+
+                        <div class="col-sm-6" style="overflow-y: auto; height:400px;">
+                            <div id="{{prefix}}ICDtree"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="selectICD">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </template>
 
     <script>
@@ -327,7 +372,7 @@
                     this.prefix = Utils.randomString(6);
                 }
                 let _years = [];
-                let fullDate = new Date()
+                let fullDate = new Date();
                 let limitYear = fullDate.getFullYear();
                 for (let year = this.minYearBirth; year<=limitYear; year++)
                 {_years.push(year);}
@@ -341,6 +386,10 @@
                 this.yearsTest = _years;
 
                 this._clearHtmlDom();
+                //this.set('icd10Terms', ICD_10);
+
+
+
             },
 
             updateVariableSets: function () {
@@ -461,6 +510,54 @@
 
 
 
+
+            },
+            showICDEditor: function (e) {
+
+
+
+                this.icdTerms = ["I.Certain infectious and parasitic diseases", " A00-A09.Intestinal infectious diseases",
+                    "  A00.Cholera", "  A01.Typhoid and paratyphoid fevers", " A15-A19.Tuberculosis", "  A15.Respiratory tuberculosis, bacteriologically and histologically confirmed",
+                    "  A16.Respiratory tuberculosis, not confirmed bacteriologically or histologically", "II.Neoplasms", " C00-C97.Malignant neoplasms",
+                    "  C00. Malignant neoplasm of lip", "  C01. Malignant neoplasm of base of tongue", " D00-D09.In situ neoplasms",
+                    "  D00.Carcinoma in situ of oral cavity, oesophagus and stomach", "  D01.Carcinoma in situ of other and unspecified digestive organs"];
+
+                this.$$("#" + this.prefix + "autoInput").value="";
+
+                let _this = this;
+                $("#" + this.prefix +"ICDtree").treeview({
+                    data: ICD_10,
+                    onNodeSelected: function(event, node) {
+                        console.log(this);
+                        debugger;
+                        _this.$$("#" + _this.prefix + "autoInput").value=node.text;
+                        $("#" + _this.prefix + "autoInput").trigger("input"); // Necessary to avoid another matching nodes
+
+
+                    },
+
+                });
+                $("#" + this.prefix + "ICDtree").treeview('collapseAll', {silent: true});
+
+
+
+                $("#" + this.prefix + "autoInput").on("input", function(){
+                    $("#" + _this.prefix + "ICDtree").treeview('search', [ this.value, {
+                        ignoreCase: true,     // case insensitive
+                        exactMatch: false,    // like or equals
+                        revealResults: true,  // reveal matching nodes
+                    }]);
+                });
+
+            },
+            selectICD: function(e) {
+                e.preventDefault();
+
+                selectedTerm = this.$$("#" + this.prefix + "autoInput").value;
+                if (selectedTerm != "") {
+                    this.$$("#" + this.prefix + "diagnosis").value = selectedTerm;
+                }
+                else {this.$$("#" + this.prefix + "diagnosis").value = 'ICD-10 term';}
 
             },
             updateSelect: function(e){
@@ -632,12 +729,12 @@
                 }
             },
             openCGAsteps: function(formFields) {
-                 // The following steps are run to register the form in openCGA:
-                 // 1. Create the individual (returns an individualId)
-                 // 2. Upload VCF (returns a sampleId, since a Sample is created automatically and a fileId)
-                 // 3. Create an annotation set given the sampleId provided in step 2
-                 // 4. Link the sample (sampleId) and the individual (individualId)
-                 // 5. Index and annotate the VCF file (using fileId obtained in step 2)
+                // The following steps are run to register the form in openCGA:
+                // 1. Create the individual (returns an individualId)
+                // 2. Upload VCF (returns a sampleId, since a Sample is created automatically and a fileId)
+                // 3. Create an annotation set given the sampleId provided in step 2
+                // 4. Link the sample (sampleId) and the individual (individualId)
+                // 5. Index and annotate the VCF file (using fileId obtained in step 2)
 
 
                 if (this.opencgaClient instanceof OpenCGAClient) {
@@ -708,7 +805,55 @@
                 //$("#" + this.prefix + "uploadForm").submit();
                 //console.log(this);
                 //debugger;
-            }
+            },
+            /*updateLevel2: function(e) {
+                e.preventDefault();
+                this.icd10TermsLevel2 = this.icd10Terms[e.currentTarget.value].level2;
+            },
+            updateLevel3: function(e) {
+                e.preventDefault();
+                let indexArray = e.currentTarget.value.split(",");
+                this.icd10TermsLevel3 = this.icd10Terms[indexArray[0]].level2[indexArray[1]].level3;
+            },
+            selectICD: function(e) {
+                e.preventDefault();
+                // Up to three levels can be selected. From the more specific to the less specific level is checked
+                let selectElement = this.$$("#" + this.prefix + "icdLevel3");
+                let indexArray= [];
+                if (selectElement.value != "none")
+                {
+                    indexArray = selectElement.value.split(",");
+                    this.$$("#" + this.prefix + "diagnosis").value =  this.icd10Terms[indexArray[0]].level2[indexArray[1]].level3[indexArray[2]].name;
+
+                }
+                else
+                {
+                    let selectElement = this.$$("#" + this.prefix + "icdLevel2");
+                    if (selectElement.value != "none")
+                    {
+                        indexArray = selectElement.value.split(",");
+                        this.$$("#" + this.prefix + "diagnosis").value =  this.icd10Terms[indexArray[0]].level2[indexArray[1]].name;
+
+                    }
+                    else
+                    {
+                        let selectElement = this.$$("#" + this.prefix + "icdLevel1");
+                        if (selectElement.value != "none")
+                        {
+                            indexArray = selectElement.value.split(",");
+                            this.$$("#" + this.prefix + "diagnosis").value =  this.icd10Terms[indexArray[0]].name;
+
+                        }
+
+                    }
+
+                }
+
+
+
+
+            }*/
+
         });
     </script>
 </dom-module>
