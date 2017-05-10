@@ -130,8 +130,8 @@
                     <div class="col-sm-9">
                         <div class="input-group">
                             <textarea class$="form-control {{prefix}}TextInput" id="{{prefix}}HPO" name="HPO"
-                                      placeholder="hpo term" required data-error="An HPO term must be selected" readonly rows="2" style="resize:none"></textarea>
-                            <span class="input-group-addon btn btn-primary" data-toggle="modal" data-target$="#{{prefix}}hpo">
+                                      placeholder="HP:0000947" required data-error="An HPO term must be selected" rows="2" style="resize:none"></textarea>
+                            <span class="input-group-addon btn btn-primary" data-toggle="modal" data-target$="#{{prefix}}hpoModal">
                                 <i class="fa fa-search" aria-hidden="true"></i>
                             </span>
                         </div>
@@ -147,7 +147,7 @@
                     <div class="col-sm-9">
                         <div class="input-group">
                             <textarea class$="form-control {{prefix}}TextInput" id="{{prefix}}diagnosis" name="diagnosis"
-                                       placeholder="ICD-10 term" required data-error="A diagnosis term must be selected" readonly rows="2" style="resize:none"></textarea>
+                                      placeholder="ICD-10 term" required data-error="A diagnosis term must be selected" readonly rows="2" style="resize:none"></textarea>
                             <span class="input-group-addon btn btn-primary" data-toggle="modal" data-target$="#{{prefix}}icd" on-click="showICDEditor">
                                 <i class="fa fa-search" aria-hidden="true"></i>
                             </span>
@@ -276,7 +276,24 @@
                         </div>
                     </template>
                 </template>
+
                 <div class="form-group">
+                    <label for="uploadInputFileVCF" class="col-sm-3 control-label">VCF or gVCF file</label>
+                    <div class="col-sm-9">
+                        <div class="input-group">
+                            <input type="text" class$="form-control {{prefix}}TextInput" id="uploadInputFileVCF" name="inputFile" readonly>
+                            <span class="input-group-btn">
+                                <label class="btn btn-primary" for="{{prefix}}FileToUpload">
+                                    <input id="{{prefix}}FileToUpload" type="file" style="display:none;" onchange="$('#uploadInputFileVCF')[0].value=$(this).val().replace('C:\\fakepath\\','');">
+                                    ...
+                                </label>
+                            </span>
+                        </div>
+                    </div>
+                    <span class='label label-info' id="upload-file-info"></span>
+                </div>
+
+<!--                <div class="form-group">
                     <label for="{{prefix}}inputFile" class="col-sm-3 control-label">VCF or gVCF file</label>
                     <div class="col-sm-9">
                         <input type="file" class="file" id="FileToUpload">
@@ -287,7 +304,10 @@
                             </span>
                         </div>
                     </div>
-                </div>
+                </div>-->
+
+
+
                 <div class="form-group" style="float: right;">
                     <div class="offset-sm-2 col-sm-10">
                         <button type="submit" class="btn btn-primary" on-click="submitForm">Upload and check sample</button>
@@ -298,9 +318,33 @@
 
             </form>
         </div>
-        <!-- Modal dialog for family editor : has to be designed as a web component-->
+
+        <!-- Modal dialog for HPO terms-->
+        <div class="modal fade" id="{{prefix}}hpoModal" tabindex="-1" role="dialog"
+             aria-labelledby="hpoLabel" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-sm" role="document" style="width: 500px;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="{{prefix}}HPOEditorLabel">HPO terms selector</h4>
+                    </div>
+                    <div class="modal-body" style="height: 200px">
+                        <div class="col-sm-12" >
+                            <label>Under progress.</label>
+                            Introduce an HPO term (HP:0202564) in the upload form (HPO text input)
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal dialog for ICD-10 diagnosis selector-->
         <div class="modal fade" id="{{prefix}}icd" tabindex="-1" role="dialog"
-             aria-labelledby="icdLabel">
+             aria-labelledby="icdLabel" data-backdrop="static" data-keyboard="false">
             <div class="modal-dialog modal-sm" role="document" style="width: 1300px;">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -311,9 +355,9 @@
                         <div class="col-sm-12" >
                             <label>Introduce an ICD-10 term or select it from tree</label>
                         </div>
-                        <div class="col-sm-6" >
+                        <div class="col-sm-6" style="overflow-y: auto; height:400px;">
                             <input id="{{prefix}}autoInput" list="icd_browser" class$="form-control {{prefix}}TextInput" placeholder="ICD-10 term" >
-                            <datalist id="icd_browser" >
+                            <datalist id="icd_browser" style="height:auto; max-height:100px; overflow-x:hidden;">
                                 <template is="dom-repeat" items="{{icdTerms}}">
                                     <option value="{{item}}">
                                 </template>
@@ -324,9 +368,15 @@
                         <div class="col-sm-6" style="overflow-y: auto; height:400px;">
                             <div id="{{prefix}}ICDtree"></div>
                         </div>
+                        <div>
+                            <div class="col-sm-3"></div>
+                            <div class="col-sm-6" id="{{prefix}}errorTermDiv"><label></label></div>
+                            <div class="col-sm-3"></div>
+                        </div>
+
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="selectICD">OK</button>
+                        <button type="button" class="btn btn-primary" on-click="selectICD">OK</button>
                     </div>
                 </div>
             </div>
@@ -391,7 +441,6 @@
 
 
             },
-
             updateVariableSets: function () {
                 this.variables = [];
                 let _this = this;
@@ -514,34 +563,34 @@
             },
             showICDEditor: function (e) {
 
-
-
-                this.icdTerms = ["I.Certain infectious and parasitic diseases", " A00-A09.Intestinal infectious diseases",
-                    "  A00.Cholera", "  A01.Typhoid and paratyphoid fevers", " A15-A19.Tuberculosis", "  A15.Respiratory tuberculosis, bacteriologically and histologically confirmed",
-                    "  A16.Respiratory tuberculosis, not confirmed bacteriologically or histologically", "II.Neoplasms", " C00-C97.Malignant neoplasms",
-                    "  C00. Malignant neoplasm of lip", "  C01. Malignant neoplasm of base of tongue", " D00-D09.In situ neoplasms",
-                    "  D00.Carcinoma in situ of oral cavity, oesophagus and stomach", "  D01.Carcinoma in situ of other and unspecified digestive organs"];
-
+                $("#" + this.prefix + "errorTermDiv").html("");
                 this.$$("#" + this.prefix + "autoInput").value="";
+                this.icdTerms = this.getICDterms();
+
 
                 let _this = this;
                 $("#" + this.prefix +"ICDtree").treeview({
                     data: ICD_10,
                     onNodeSelected: function(event, node) {
-                        console.log(this);
-                        debugger;
                         _this.$$("#" + _this.prefix + "autoInput").value=node.text;
-                        $("#" + _this.prefix + "autoInput").trigger("input"); // Necessary to avoid another matching nodes
+                        //$("#" + _this.prefix + "autoInput").trigger("input"); // Necessary to avoid another matching nodes
+
+
+                    },
+                    onNodeUnselected: function(event, node) {
+                        _this.$$("#" + _this.prefix + "autoInput").value="";
 
 
                     },
 
+
                 });
+
                 $("#" + this.prefix + "ICDtree").treeview('collapseAll', {silent: true});
 
 
-
                 $("#" + this.prefix + "autoInput").on("input", function(){
+                    $("#" + _this.prefix + "ICDtree").treeview('collapseAll', {silent: true});
                     $("#" + _this.prefix + "ICDtree").treeview('search', [ this.value, {
                         ignoreCase: true,     // case insensitive
                         exactMatch: false,    // like or equals
@@ -550,14 +599,47 @@
                 });
 
             },
+
+            getICDterms: function(){
+                // In ICD_10 there are up to three nested levels
+
+                let _auxTerms = [];
+                for (let i=0; i < ICD_10.length; i++)
+                {
+                    _auxTerms.push(ICD_10[i].text);
+                    for (let j=0; j < ICD_10[i].nodes.length; j++)
+                    {
+                        _auxTerms.push('   ' + ICD_10[i].nodes[j].text);
+                        for (let k=0; k < ICD_10[i].nodes[j].nodes.length; k++)
+                        {
+                            _auxTerms.push('     ' + ICD_10[i].nodes[j].nodes[k].text);
+                        }
+                    }
+
+                }
+
+                return _auxTerms;
+
+            },
             selectICD: function(e) {
                 e.preventDefault();
 
-                selectedTerm = this.$$("#" + this.prefix + "autoInput").value;
-                if (selectedTerm != "") {
-                    this.$$("#" + this.prefix + "diagnosis").value = selectedTerm;
+                selectedTerm = this.$$("#" + this.prefix + "autoInput").value.replace(/^\s+/g, '');
+                if (selectedTerm != "") { // Check that the term is correct (one of the list)
+                    let _icdTermsNS = $.map(this.icdTerms, function(elem){return elem.replace(/^\s+/g, '')});
+                    if ($.inArray(selectedTerm, _icdTermsNS)!= -1) {
+                        this.$$("#" + this.prefix + "diagnosis").value = selectedTerm;
+                        $("#" + this.prefix + "icd").modal('hide');
+                    }
+                    else
+                    {
+                        $("#" + this.prefix + "errorTermDiv").html("A proper ICD-10 term must be selected from the list or tree");
+                    }
                 }
-                else {this.$$("#" + this.prefix + "diagnosis").value = 'ICD-10 term';}
+                else {
+                    this.$$("#" + this.prefix + "diagnosis").value = '';
+                    $("#" + this.prefix + "icd").modal('hide');
+                }
 
             },
             updateSelect: function(e){
@@ -701,7 +783,7 @@
                     params = {
                         study: this.study.alias,
                         type: "FILE",
-                        file: $("#FileToUpload").prop('files')[0],
+                        file: $("#" + this.prefix + "FileToUpload").prop('files')[0],
                         fileFormat: "VCF",
                         bioformat: "VARIANT",
                         relativeFilePath: "."
@@ -806,53 +888,7 @@
                 //console.log(this);
                 //debugger;
             },
-            /*updateLevel2: function(e) {
-                e.preventDefault();
-                this.icd10TermsLevel2 = this.icd10Terms[e.currentTarget.value].level2;
-            },
-            updateLevel3: function(e) {
-                e.preventDefault();
-                let indexArray = e.currentTarget.value.split(",");
-                this.icd10TermsLevel3 = this.icd10Terms[indexArray[0]].level2[indexArray[1]].level3;
-            },
-            selectICD: function(e) {
-                e.preventDefault();
-                // Up to three levels can be selected. From the more specific to the less specific level is checked
-                let selectElement = this.$$("#" + this.prefix + "icdLevel3");
-                let indexArray= [];
-                if (selectElement.value != "none")
-                {
-                    indexArray = selectElement.value.split(",");
-                    this.$$("#" + this.prefix + "diagnosis").value =  this.icd10Terms[indexArray[0]].level2[indexArray[1]].level3[indexArray[2]].name;
 
-                }
-                else
-                {
-                    let selectElement = this.$$("#" + this.prefix + "icdLevel2");
-                    if (selectElement.value != "none")
-                    {
-                        indexArray = selectElement.value.split(",");
-                        this.$$("#" + this.prefix + "diagnosis").value =  this.icd10Terms[indexArray[0]].level2[indexArray[1]].name;
-
-                    }
-                    else
-                    {
-                        let selectElement = this.$$("#" + this.prefix + "icdLevel1");
-                        if (selectElement.value != "none")
-                        {
-                            indexArray = selectElement.value.split(",");
-                            this.$$("#" + this.prefix + "diagnosis").value =  this.icd10Terms[indexArray[0]].name;
-
-                        }
-
-                    }
-
-                }
-
-
-
-
-            }*/
 
         });
     </script>
