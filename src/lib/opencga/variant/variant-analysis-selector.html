@@ -16,7 +16,7 @@
 
 <link rel="import" href="../catalog/samples/opencga-sample-filter.html">
 
-<dom-module id="opencga-analysis-selector">
+<dom-module id="variant-analysis-selector">
 
     <template>
         <style is="custom-style" include="jso-styles"></style>
@@ -105,15 +105,12 @@
 
     <script>
         Polymer({
-            is: 'opencga-analysis-selector',
+            is: 'variant-analysis-selector',
             ready: function() {
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
                     this.prefix = "sample" + Utils.randomString(6);
                 }
-
-
             }
-
         });
 
     </script>
