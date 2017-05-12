@@ -13,6 +13,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+
 <link rel="import" href="opencga-samples-filter.html">
 <link rel="import" href="opencga-samples-view.html">
 
@@ -23,12 +24,12 @@
         <div class="col-md-2">
             <br>
             <opencga-samples-filter opencga-client="{{opencgaClient}}" study-id="{{studyId}}" filters="{{filters}}"
-            search="{{search}}"></opencga-samples-filter>
+                                    search="{{search}}"></opencga-samples-filter>
         </div>
 
         <div class="col-md-10">
             <opencga-samples-view opencga-client="{{opencgaClient}}" study-id="{{studyId}}" filters="{{filters}}"
-            search="{{search}}" samples="{{samples}}"></opencga-samples-view>
+                                  search="{{search}}" samples="{{samples}}"></opencga-samples-view>
         </div>
 
     </template>

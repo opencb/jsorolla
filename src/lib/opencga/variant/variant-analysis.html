@@ -198,11 +198,8 @@
             },
             ready: function () {
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
-                    this.prefix = Utils.randomString(6);
+                    this.prefix = "clinical" + Utils.randomString(6);
                 }
-
-
-
             },
             changeTool: function (e) {
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
