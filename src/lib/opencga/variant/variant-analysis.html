@@ -93,57 +93,60 @@
 
         <!-- This is where main application is rendered -->
         <div class="panel">
+            <h3 style="margin: 10px 10px 10px 15px">
+                <i class="fa fa-sitemap" aria-hidden="true"></i>
+                &nbsp;{{title}}
+            </h3>
+        </div>
 
-            <h3 style="margin: 10px 5px 15px 25px"><i class="fa fa-sitemap" aria-hidden="true"></i>&nbsp;{{title}}</h3>
-
-            <div class="col-md-12">
-                <div class="col-md-6" style="float: none;margin: auto;padding-top: 10px">
-                    <button id="{{prefix}}UploadButton" type="button" class="analysis-button btn btn-primary btn-arrow-right" on-click="changeTool" data-toggle="tooltip" data-placement="top" title="Upload sample">
-                        <i class="fa fa-upload" aria-hidden="true"></i> Upload
-                    </button>
-                    <button id="{{prefix}}SamplesButton" type="button" class="analysis-button btn btn-success btn-arrow-right" on-click="changeTool" data-toggle="tooltip" data-placement="top" title="Connect, link & choose analysis of samples">
-                        <i class="fa fa-sitemap" aria-hidden="true"></i> Analysis
-                    </button>
-                    <button id="{{prefix}}FilterButton" type="button" class="analysis-button btn btn-success btn-arrow-right" on-click="changeTool" data-toggle="tooltip" data-placement="top" title="Filter & Prioritization">
-                        <i class="fa fa-filter" aria-hidden="true"></i> Prioritization
-                    </button>
-                    <button id="{{prefix}}ReportButton" type="button" class="analysis-button btn btn-success btn-arrow-right" on-click="changeTool" data-toggle="tooltip" data-placement="top" title="Generate report">
-                        <i class="fa fa-file-text" aria-hidden="true"></i> Report
-                    </button>
-                </div>
-            </div>
-
-            <div class="col-md-12">
-                <!--                <div class="analysis-content" id="{{prefix}}UploadButtonDiv" style="display: inline">
-                                    <variant-analysis-upload config="{{config}}"></variant-analysis-upload>
-                                </div>-->
-                <div class="analysis-content" id="{{prefix}}UploadButtonDiv" style="display: inline">
-                    <variant-clinical-upload opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}"></variant-clinical-upload>
-                </div>
-                <div class="analysis-content" id="{{prefix}}SamplesButtonDiv" style="display: none">
-                    <variant-analysis-samples prefix="{{prefix}}" opencga-client="{{opencgaClient}}" study="{{study}}" samples="{{samples}}"
-                                              config="{{config}}" query="{{query}}"></variant-analysis-samples>
-                    <!--<opencga-family-selector opencga-client="{{opencgaClient}}" study="{{study.id}}" samples="{{samples}}" prefix="{{prefix}}"></opencga-family-selector>-->
-                </div>
-                <div class="analysis-content" id="{{prefix}}FilterButtonDiv" style="display: none">
-                    <div class="col-md-2">
-                        <variant-analysis-filter prefix="{{prefix}}" mode="{{mode}}" study="{{study}}" project="{{project}}" samples="{{samples}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"
-                                                 population-frequencies="{{populationFrequencies}}" consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}" style="font-size: 12px">
-                        </variant-analysis-filter>
-                    </div>
-
-                    <div class="col-md-10">
-                        <variant-prioritization-view prefix="{{prefix}}" mode="{{mode}}" title="{{title}}" project="{{project}}" study="{{study}}" samples="{{samples}}"
-                                                     opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}"
-                                                     protein-substitution-scores="{{proteinSubstitutionScores}}" consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}" on-propagate="propagateGeneEvent">
-                        </variant-prioritization-view>
-                    </div>
-                </div>
-                <div class="analysis-content" id="{{prefix}}ReportButtonDiv" style="display: none">
-                    <variant-analysis-report opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}" title="{{title}}"></variant-analysis-report>
-                </div>
+        <div class="col-md-12">
+            <div class="col-md-6" style="float: none;margin: auto;padding-top: 10px">
+                <button id="{{prefix}}UploadButton" type="button" class="analysis-button btn btn-primary btn-arrow-right" on-click="changeTool" data-toggle="tooltip" data-placement="top" title="Upload sample">
+                    <i class="fa fa-upload" aria-hidden="true"></i> Upload
+                </button>
+                <button id="{{prefix}}SamplesButton" type="button" class="analysis-button btn btn-success btn-arrow-right" on-click="changeTool" data-toggle="tooltip" data-placement="top" title="Connect, link & choose analysis of samples">
+                    <i class="fa fa-sitemap" aria-hidden="true"></i> Analysis
+                </button>
+                <button id="{{prefix}}FilterButton" type="button" class="analysis-button btn btn-success btn-arrow-right" on-click="changeTool" data-toggle="tooltip" data-placement="top" title="Filter & Prioritization">
+                    <i class="fa fa-filter" aria-hidden="true"></i> Prioritization
+                </button>
+                <button id="{{prefix}}ReportButton" type="button" class="analysis-button btn btn-success btn-arrow-right" on-click="changeTool" data-toggle="tooltip" data-placement="top" title="Generate report">
+                    <i class="fa fa-file-text" aria-hidden="true"></i> Report
+                </button>
             </div>
         </div>
+
+        <div class="col-md-12">
+            <!--                <div class="analysis-content" id="{{prefix}}UploadButtonDiv" style="display: inline">
+                                <variant-analysis-upload config="{{config}}"></variant-analysis-upload>
+                            </div>-->
+            <div class="analysis-content" id="{{prefix}}UploadButtonDiv" style="display: inline">
+                <variant-clinical-upload opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}"></variant-clinical-upload>
+            </div>
+            <div class="analysis-content" id="{{prefix}}SamplesButtonDiv" style="display: none">
+                <variant-analysis-samples prefix="{{prefix}}" opencga-client="{{opencgaClient}}" study="{{study}}" samples="{{samples}}"
+                                          config="{{config}}" query="{{query}}"></variant-analysis-samples>
+                <!--<opencga-family-selector opencga-client="{{opencgaClient}}" study="{{study.id}}" samples="{{samples}}" prefix="{{prefix}}"></opencga-family-selector>-->
+            </div>
+            <div class="analysis-content" id="{{prefix}}FilterButtonDiv" style="display: none">
+                <div class="col-md-2">
+                    <variant-analysis-filter prefix="{{prefix}}" mode="{{mode}}" study="{{study}}" project="{{project}}" samples="{{samples}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"
+                                             population-frequencies="{{populationFrequencies}}" consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}" style="font-size: 12px">
+                    </variant-analysis-filter>
+                </div>
+
+                <div class="col-md-10">
+                    <variant-prioritization-view prefix="{{prefix}}" mode="{{mode}}" title="{{title}}" project="{{project}}" study="{{study}}" samples="{{samples}}"
+                                                 opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}"
+                                                 protein-substitution-scores="{{proteinSubstitutionScores}}" consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}" on-propagate="propagateGeneEvent">
+                    </variant-prioritization-view>
+                </div>
+            </div>
+            <div class="analysis-content" id="{{prefix}}ReportButtonDiv" style="display: none">
+                <variant-analysis-report opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}" title="{{title}}"></variant-analysis-report>
+            </div>
+        </div>
+
     </template>
 
     <script>
@@ -200,6 +203,8 @@
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
                     this.prefix = "clinical" + Utils.randomString(6);
                 }
+
+                this.mode = "analysis";
             },
             changeTool: function (e) {
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed

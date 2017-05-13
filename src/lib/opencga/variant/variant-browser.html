@@ -19,35 +19,44 @@
 
 <dom-module id="variant-browser">
     <template>
-        <style is="custom-style" include="jso-styles"></style>
+        <style is="custom-style" include="jso-styles">
+            .center {
+                margin: auto;
+                text-align: justify;
+                width: 95%;
+            }
+        </style>
 
         <div class="panel">
-
-            <h3 style="margin: 10px 5px 15px 25px"><i class="fa fa-search" aria-hidden="true"></i>&nbsp;{{title}}</h3>
-
-            <div class="row">
-                <div class="col-md-2" hidden$="{{checkProject(project)}}">
-                    <variant-browser-filter study="{{study}}" project="{{project}}" studies="{{studies}}" cohorts="{{cohorts}}" config="{{config}}"
-                                            samples="{{samples}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
-                                            cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}"
-                                            consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}" style="font-size: 12px">
-                    </variant-browser-filter>
-                </div>
-
-                <div class="col-md-10" hidden$="{{checkProject(project)}}">
-                    <variant-browser-view title="{{title}}" project="{{project}}" study="{{study}}" cohorts="{{cohorts}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
-                                          cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                          consequence-types="{{consequenceTypes}}" beacon-hosts="{{beaconHosts}}" query="{{query}}" search="[[search]]"
-                                          on-propagate="propagateGeneEvent" config="{{config}}"  on-clear="onClear" on-filterchange="onFilterChange" summary="{{summary}}">
-                    </variant-browser-view>
-                </div>
-            </div>
-
-            <template is="dom-if" if="{{checkProject(project)}}">
-                <span style="text-align: center"><h3>No public projects available to browse. Please login to continue</h3></span>
-            </template>
+            <h3 style="margin: 10px 10px 10px 15px">
+                <span on-click="onCollapse" style="cursor: pointer;margin: 0px 30px 0px 0px">
+                    <i class="fa fa-bars" aria-hidden="true"></i>
+                </span>
+                <i class="fa fa-search" aria-hidden="true"></i>&nbsp;{{title}}
+            </h3>
         </div>
+
+        <div id="{{prefix}}FilterMenu" class="col-md-2" hidden$="{{checkProject(project)}}">
+            <variant-browser-filter study="{{study}}" project="{{project}}" studies="{{studies}}" cohorts="{{cohorts}}" config="{{config}}"
+                                    samples="{{samples}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
+                                    cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}"
+                                    consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}" style="font-size: 12px">
+            </variant-browser-filter>
+        </div>
+
+        <div id="{{prefix}}MainWindow" class="col-md-10" hidden$="{{checkProject(project)}}">
+            <variant-browser-view title="{{title}}" project="{{project}}" study="{{study}}" cohorts="{{cohorts}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
+                                  cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                  consequence-types="{{consequenceTypes}}" beacon-hosts="{{beaconHosts}}" query="{{query}}" search="[[search]]"
+                                  on-propagate="propagateGeneEvent" config="{{config}}"  on-clear="onClear" on-filterchange="onFilterChange" summary="{{summary}}">
+            </variant-browser-view>
+        </div>
+
+        <template is="dom-if" if="{{checkProject(project)}}">
+            <span style="text-align: center"><h3>No public projects available to browse. Please login to continue</h3></span>
+        </template>
     </template>
+
     <script>
         Polymer({
             is: 'variant-browser',
@@ -104,6 +113,24 @@
                     type: String
                 }
             },
+            ready: function () {
+                if (typeof this.prefix === "undefined" || this.prefix === "") {
+                    this.prefix = "varbrowser" + Utils.randomString(6);
+                }
+
+                this._collapsed = false;
+            },
+            onCollapse: function () {
+                if (this._collapsed) {
+                    $("#" + this.prefix + "FilterMenu").css("display", "inline");
+                    $("#" + this.prefix + "MainWindow").removeClass("center").addClass("col-md-10");
+                } else {
+                    $("#" + this.prefix + "FilterMenu").css("display", "none");
+                    $("#" + this.prefix + "MainWindow").removeClass("col-md-10").addClass("center");
+                }
+
+                this._collapsed = !this._collapsed;
+            },
             renderHashQueryParams: function () {
                 let hashFrag = window.location.hash.split('?')[0];
                 if (typeof this.query !== "undefined" && Object.keys(this.query).length > 0) {
@@ -116,17 +143,6 @@
                     hashFrag += "?" + qArray.join('&');
                 }
                 window.location.hash = hashFrag;
-
-                // for reading from the url,
-//                if (typeof query !== "undefined") {
-//                    let params = query.split('&');
-//                    let queryObject = {};
-//                    for (let i = 0; i < params.length; i++) {
-//                        let [key, value] = params[i].split('=');
-//                        queryObject[key] = value;
-//                    }
-//                    this._query = queryObject;
-//                }
             },
             onStudyUpdate: function () {
                 // Update cohorts from config, this updates the Cohort filter MAF
@@ -146,7 +162,6 @@
             },
             onFilterChange: function(e) {
                 this.query = e.detail;
-//                Object.assign(this.query, e.detail)
                 this.search = e.detail;
             }
         });

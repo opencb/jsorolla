@@ -5,11 +5,22 @@
     <template>
         <style is="custom-style" include="jso-styles"></style>
 
-        <div class="col-xs-12">
-            <h3 style="margin: 10px 5px 15px 25px">Beacon</h3>
-            <div style="width: 60%; margin-left: 50px">
-                <a on-click="loadExample">Click to load example</a>
-                <br><br>
+        <div class="panel">
+            <h3 style="margin: 10px 10px 10px 15px">
+                <i class="fa fa-share-alt" aria-hidden="true"></i>
+                &nbsp;Beacon
+            </h3>
+        </div>
+
+        <div class="col-md-12">
+            <!--<h3 style="margin: 10px 5px 15px 25px">Beacon</h3>-->
+            <div style="width: 60%; margin: 0px 0px 0px 100px">
+                <span>
+                    <label>Example: </label>
+                    <a on-click="loadExample">Click to load example</a>
+                </span>
+                <br>
+                <br>
                 <div class="form-group row">
                     <label for="datasetInput" class="col-xs-2 col-form-label">Dataset</label>
                     <div class="col-xs-6">
@@ -65,10 +76,11 @@
                 </template>
             </div>
         </div>
+
         <br>
-        <div class="col-xs-12">
-            <h3 style="margin: 10px 5px 15px 25px">Beacon Network</h3>
-            <div style="width: 60%; margin-left: 50px">
+        <div  class="col-md-12">
+            <h3 style="margin: 10px 5px 15px 50px">Beacon Network</h3>
+            <div style="width: 60%; margin-left: 100px">
                 <button class="btn btn-primary" type="button" on-click="triggerBeacon">Search Beacon Network</button>
                 <a data-toggle="tooltip" title="Beacon Network is a search engine across the world's public beacons. You can find it here - https://beacon-network.org/#/"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
                 <br><br>

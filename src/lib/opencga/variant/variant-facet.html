@@ -22,27 +22,30 @@
         <style is="custom-style" include="jso-styles"></style>
 
         <div class="panel">
-
-            <h3 style="margin: 10px 5px 15px 25px"><i class="fa fa-bar-chart" aria-hidden="true"></i>&nbsp;{{title}}</h3>
-
-            <div class="col-md-2" hidden$="{{checkProject(project)}}">
-                <variant-browser-filter study="{{study}}" project="{{project}}" studies="{{studies}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
-                                        population-frequencies="{{populationFrequencies}}" consequence-types="{{consequenceTypes}}"
-                                        query="{{query}}" search="{{search}}" style="font-size: 12px">
-                </variant-browser-filter>
-            </div>
-
-            <div class="col-md-10" hidden$="{{checkProject(project)}}">
-                <variant-facet-view study="{{study}}" project="{{project}}" config="{{config}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
-                                    population-frequencies="{{populationFrequencies}}" query="{{query}}" search="{{search}}" on-clear="onClear"
-                                    on-filterchange="onFilterChange">
-                </variant-facet-view>
-            </div>
-
-            <template is="dom-if" if="{{checkProject(project)}}">
-                <span style="text-align: center"><h3>No public projects available to browse. Please login to continue</h3></span>
-            </template>
+            <h3 style="margin: 10px 10px 10px 15px">
+                <i class="fa fa-bar-chart" aria-hidden="true"></i>
+                &nbsp;{{title}}
+            </h3>
         </div>
+
+        <div class="col-md-2" hidden$="{{checkProject(project)}}">
+            <variant-browser-filter study="{{study}}" project="{{project}}" studies="{{studies}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+                                    population-frequencies="{{populationFrequencies}}" consequence-types="{{consequenceTypes}}"
+                                    query="{{query}}" search="{{search}}" style="font-size: 12px">
+            </variant-browser-filter>
+        </div>
+
+        <div class="col-md-10" hidden$="{{checkProject(project)}}">
+            <variant-facet-view study="{{study}}" project="{{project}}" config="{{config}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+                                population-frequencies="{{populationFrequencies}}" query="{{query}}" search="{{search}}" on-clear="onClear"
+                                on-filterchange="onFilterChange">
+            </variant-facet-view>
+        </div>
+
+        <template is="dom-if" if="{{checkProject(project)}}">
+            <span style="text-align: center"><h3>No public projects available to browse. Please login to continue</h3></span>
+        </template>
+
     </template>
     <script>
         Polymer({
