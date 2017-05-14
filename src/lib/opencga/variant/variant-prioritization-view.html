@@ -41,22 +41,11 @@
 
         <div>
             <br>
-            <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" filters="{{config.filters}}" alias="{{activeFilterAlias}}"></opencga-active-filters>
+            <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" filters="{{config.filters}}"
+                                    filter-bioformat="VARIANT" alias="{{activeFilterAlias}}">
+            </opencga-active-filters>
 
-            <div style="float: left" aria-label="...">
-                <!--<span>-->
-                <!--&lt;!&ndash;<i class="fa fa-area-chart"></i>&ndash;&gt;-->
-                <!--<i class="fa fa-credit-card"></i>-->
-                <!--<a id="{{prefix}}GenomeContext" class="variant-menu-link" on-click="_triggerChange">GENOME CONTEXT</a>-->
-                <!--</span>-->
-                <!--<span>&nbsp;</span>-->
-                <!--<span>-->
-                <!--<i class="fa fa-search-plus"></i>-->
-                <!--<a id="{{prefix}}Annotation" class="variant-menu-link" on-click="_triggerChange">ADVANCED ANNOTATION</a>-->
-                <!--</span>-->
-                <!--<span>&nbsp;</span>-->
-
-
+            <div style="float: left;padding-bottom: 0px" aria-label="...">
                 <span>
                     <i class="fa fa-file-text-o"></i>
                     <a id="{{prefix}}Files" class="variant-menu-link" on-click="_triggerChange">TABLE RESULT</a>
@@ -77,9 +66,7 @@
                     <a id="{{prefix}}Save" class="variant-menu-link" on-click="_triggerChange">SAVE</a>
                 </span>
             </div>
-
             <br>
-
 
             <template is="dom-if" if="{{!resultsViewActive}}">
                 <br>
@@ -101,7 +88,6 @@
             </div>
 
 
-
             <!-- Variant Browser Grid -->
             <template is="dom-if" if="{{resultsViewActive}}">
                 <variant-browser-grid mode="{{mode}}" study="{{study}}" project="{{project}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
@@ -121,8 +107,6 @@
                         <li role="presentation" class="active"><a href="#{{prefix}}GenomeView" role="tab" data-toggle="tab" class="variant-tab-title">Genome Context</a></li>
                     </ul>
 
-
-
                     <div class="tab-content" style="height: 680px">
                         <!--Genome Context Tab-->
                         <div role="tabpanel" class="tab-pane active" id="{{prefix}}GenomeView">
@@ -134,9 +118,9 @@
                         <div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">
                             <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-client="{{cellbaseClient}}" mode="vertical"
                                                              hash-fragment-credentials="{{hashFragmentCredentials}}" consequence-types="{{consequenceTypes}}"
-                                                             protein-substitution-scores="{{proteinSubstitutionScores}}" style="font-size: 12px"></cellbase-variantannotation-view>
+                                                             protein-substitution-scores="{{proteinSubstitutionScores}}" style="font-size: 12px">
+                            </cellbase-variantannotation-view>
                         </div>
-
 
                         <!--Genotypes & Files Tab-->
                         <div role="tabpanel" class="tab-pane" id="{{prefix}}Genotype">
@@ -146,8 +130,8 @@
                 </div>
             </template>
         </div>
-
     </template>
+
     <script>
         Polymer({
             is: 'variant-prioritization-view',
