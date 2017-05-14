@@ -90,7 +90,6 @@
             }
         </style>
 
-        <!-- This is where main application is rendered -->
         <div class="panel">
             <h3 style="margin: 10px 10px 10px 15px">
                 <i class="fa fa-sitemap" aria-hidden="true"></i>
@@ -99,7 +98,7 @@
         </div>
 
         <div class="col-md-12">
-            <div class="col-md-6" style="float: none;margin: auto;padding-top: 10px">
+            <div class="col-md-6" style="float: none;margin: auto">
                 <button id="{{prefix}}UploadButton" type="button" class="analysis-button btn btn-primary btn-arrow-right" on-click="changeTool" data-toggle="tooltip" data-placement="top" title="Upload sample">
                     <i class="fa fa-upload" aria-hidden="true"></i> Upload
                 </button>
@@ -134,7 +133,7 @@
                 </div>
 
                 <div class="col-md-10">
-                    <variant-prioritization-view prefix="{{prefix}}" mode="{{mode}}" title="{{title}}" project="{{project}}" study="{{study}}" samples="{{samples}}"
+                    <variant-prioritization-view prefix="{{prefix}}" mode="clinical" title="{{title}}" project="{{project}}" study="{{study}}" samples="{{samples}}"
                                                  opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}"
                                                  protein-substitution-scores="{{proteinSubstitutionScores}}" consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}" on-propagate="propagateGeneEvent">
                     </variant-prioritization-view>
@@ -189,10 +188,10 @@
                 prefix: {
                     type: String
                 },
-                mode: {
-                    type: String,
-                    value: "prioritizationAnalysis"
-                },
+//                mode: {
+//                    type: String,
+//                    value: "clinical"
+//                },
                 query: {
                     type: Object
                 }
@@ -202,7 +201,7 @@
                     this.prefix = "clinical" + Utils.randomString(6);
                 }
 
-                this.mode = "analysis";
+                this.mode = "clinical";
             },
             changeTool: function (e) {
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed

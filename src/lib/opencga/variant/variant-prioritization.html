@@ -45,7 +45,8 @@
         <div id="{{prefix}}MainWindow" class="col-md-10" hidden$="{{checkProject(project)}}">
             <variant-prioritization-view mode="{{mode}}" title="{{title}}" project="{{project}}" study="{{study}}" samples="{{samples}}" prefix="{{prefix}}"
                                          opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}"
-                                         protein-substitution-scores="{{proteinSubstitutionScores}}" consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}" on-propagate="propagateGeneEvent">
+                                         protein-substitution-scores="{{proteinSubstitutionScores}}" consequence-types="{{consequenceTypes}}"
+                                         beacon-hosts="{{beaconHosts}}" query="{{query}}" search="{{search}}" on-propagate="propagateGeneEvent">
             </variant-prioritization-view>
         </div>
 
@@ -83,6 +84,9 @@
                 },
                 cellbaseClient: {
                     type: Object
+                },
+                beaconHosts: {
+                    type: Array
                 },
                 query: {
                     type: Object

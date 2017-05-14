@@ -17,7 +17,8 @@
 <link rel="import" href="variant-browser-grid.html">
 <link rel="import" href="../opencga-active-filters.html">
 <link rel="import" href="../../cellbase/variation/cellbase-variantannotation-view.html">
-<!--<link rel="import" href="../../cellbase/genome-context.html">-->
+<link rel="import" href="variant-beacon-network.html">
+<link rel="import" href="variant-genome-browser.html">
 
 <dom-module id="variant-prioritization-view">
     <template>
@@ -45,90 +46,104 @@
                                     filter-bioformat="VARIANT" alias="{{activeFilterAlias}}">
             </opencga-active-filters>
 
-            <div style="float: left;padding-bottom: 0px" aria-label="...">
-                <span>
-                    <i class="fa fa-file-text-o"></i>
-                    <a id="{{prefix}}Files" class="variant-menu-link" on-click="_triggerChange">TABLE RESULT</a>
-                </span>
-                <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
-                <span>
-                    <i class="fa fa-user-md"></i>
-                    <a id="{{prefix}}Family" class="variant-menu-link" on-click="_triggerChange">CLINICAL DATA</a>
-                </span>
-                <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
-                <span>
-                    <i class="fa fa-list-alt"></i>
-                    <a id="{{prefix}}GenomeBrowser" class="variant-menu-link" on-click="_triggerChange">GENOME BROWSER (Beta)</a>
-                </span>
-                <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
-                <span>
-                    <i class="fa fa-save"></i>
-                    <a id="{{prefix}}Save" class="variant-menu-link" on-click="_triggerChange">SAVE</a>
-                </span>
-            </div>
-            <br>
 
-            <template is="dom-if" if="{{!resultsViewActive}}">
-                <br>
-                <div class="btn-group" role="group" aria-label="...">
-                    <button id="{{prefix}}Results" type="button" class="btn btn-primary" on-click="_triggerChange">Back to Results</button>
-                </div>
-            </template>
-
-            <!--Files Tab-->
-            <div class$="{{prefix}}Content" id="{{prefix}}FilesDiv" style="display: none">
-                <br>
-                Files
-            </div>
-
-            <!--Sample comparator-->
-            <div class$="{{prefix}}Content" id="{{prefix}}SampleComparatorDiv" style="display: none">
-                <br>
-                Sample Comparator
-            </div>
-
-
-            <!-- Variant Browser Grid -->
-            <template is="dom-if" if="{{resultsViewActive}}">
-                <variant-browser-grid mode="{{mode}}" study="{{study}}" project="{{project}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
-                                      cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}"
-                                      samples="{{samples}}" protein-substitution-scores="{{proteinSubstitutionScores}}" consequence-types="{{consequenceTypes}}"
-                                      query="[[query]]" search="[[search]]" variant="{{variant}}" on-selected="selectedGene" on-selectvariant="onSelectVariant" style="font-size: 12px">
-                </variant-browser-grid>
-            </template>
-
-            <!-- Bottom tabs with specific variant information -->
-            <template is="dom-if" if="{{resultsViewActive}}">
-                <h3>Variant: {{variant}}</h3>
-                <div style="padding-top: 20px">
-                    <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
-                        <li role="presentation"><a href="#{{prefix}}Annotation" role="tab" data-toggle="tab" class="variant-tab-title">Advanced Annotation</a></li>
-                        <li role="presentation"><a href="#{{prefix}}Genotype" role="tab" data-toggle="tab" class="variant-tab-title">Genotypes & Files</a></li>
-                        <li role="presentation" class="active"><a href="#{{prefix}}GenomeView" role="tab" data-toggle="tab" class="variant-tab-title">Genome Context</a></li>
-                    </ul>
-
-                    <div class="tab-content" style="height: 680px">
-                        <!--Genome Context Tab-->
-                        <div role="tabpanel" class="tab-pane active" id="{{prefix}}GenomeView">
-                            <br>
-                            <!--<genome-context></genome-context>-->
-                        </div>
-
-                        <!--Annotation Tab-->
-                        <div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">
-                            <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-client="{{cellbaseClient}}" mode="vertical"
-                                                             hash-fragment-credentials="{{hashFragmentCredentials}}" consequence-types="{{consequenceTypes}}"
-                                                             protein-substitution-scores="{{proteinSubstitutionScores}}" style="font-size: 12px">
-                            </cellbase-variantannotation-view>
-                        </div>
-
-                        <!--Genotypes & Files Tab-->
-                        <div role="tabpanel" class="tab-pane" id="{{prefix}}Genotype">
-                            Genotypes and files
-                        </div>
+            <template is="dom-if" if="{{_isPrioritizationMode}}">
+                <div id="{{prefix}}LeftToolbar" style="padding-bottom: 0px">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-success variant-prioritization-view-buttons active" data-view="TableResult" on-click="_changeView">
+                            <i class="fa fa-table" aria-hidden="true"></i> Table Result
+                        </button>
+                        <button type="button" class="btn btn-success variant-prioritization-view-buttons" data-view="ClinicalData" on-click="_changeView">
+                            <i class="fa fa-user-md" aria-hidden="true"></i> Clinical Data
+                        </button>
+                        <button type="button" class="btn btn-success variant-prioritization-view-buttons" data-view="GenomeBrowser" on-click="_changeView">
+                            <i class="fa fa-list-alt" aria-hidden="true"></i> Genome Browser (Beta)
+                        </button>
                     </div>
                 </div>
             </template>
+
+            <template is="dom-if" if="{{_isClinicalMode}}">
+                <div style="float: left;padding-bottom: 0px" aria-label="...">
+                    <span>
+                        <i class="fa fa-file-text-o"></i>
+                        <a id="{{prefix}}Files" class="variant-menu-link" data-view="TableResult" on-click="_changeView">TABLE RESULT</a>
+                    </span>
+                        <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
+                        <span>
+                        <i class="fa fa-user-md"></i>
+                        <a id="{{prefix}}Family" class="variant-menu-link" data-view="ClinicalData" on-click="_changeView">CLINICAL DATA</a>
+                    </span>
+                        <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
+                        <span>
+                        <i class="fa fa-list-alt"></i>
+                        <a id="{{prefix}}Browser" class="variant-menu-link" data-view="GenomeBrowser" on-click="_changeView">GENOME BROWSER (Beta)</a>
+                    </span>
+                        <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
+                        <span>
+                        <i class="fa fa-save"></i>
+                        <a id="{{prefix}}Save" class="variant-menu-link" on-click="_savePrioritization">SAVE</a>
+                    </span>
+                </div>
+            </template>
+            <br>
+
+            <div>
+                <!-- First TAB -->
+                <div id="{{prefix}}TableResult" class="variant-prioritization-content">
+                    <!-- Variant Browser Grid -->
+                    <variant-browser-grid mode="{{mode}}" study="{{study}}" project="{{project}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
+                                          cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}"
+                                          samples="{{samples}}" protein-substitution-scores="{{proteinSubstitutionScores}}" consequence-types="{{consequenceTypes}}"
+                                          query="[[query]]" search="[[search]]" variant="{{variant}}" on-selected="selectedGene" on-selectvariant="onSelectVariant" style="font-size: 12px">
+                    </variant-browser-grid>
+
+                    <!-- Bottom tabs with specific variant information -->
+                    <div style="padding-top: 20px" hidden$="{{!checkVariant(variant)}}">
+                        <h3>Variant: {{variant}}</h3>
+                        <div style="padding-top: 20px">
+                            <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
+                                <li role="presentation" class="active"><a href="#{{prefix}}Annotation" role="tab" data-toggle="tab" class="variant-tab-title">Advanced Annotation</a></li>
+                                <li role="presentation"><a href="#{{prefix}}Beacon" role="tab" data-toggle="tab" class="variant-tab-title">Beacon Network</a></li>
+                            </ul>
+
+                            <div class="tab-content" style="height: 680px">
+                                <!--Annotation Tab-->
+                                <div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">
+                                    <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-client="{{cellbaseClient}}" mode="vertical"
+                                                                     hash-fragment-credentials="{{hashFragmentCredentials}}" consequence-types="{{consequenceTypes}}"
+                                                                     protein-substitution-scores="{{proteinSubstitutionScores}}" style="font-size: 12px">
+                                    </cellbase-variantannotation-view>
+                                </div>
+
+                                <!--Beacon network-->
+                                <div role="tabpanel" class="tab-pane" id="{{prefix}}Beacon">
+                                    <br>
+                                    <button class="btn btn-primary" type="button" on-click="triggerBeacon">Search Beacon Network</button>
+                                    <a data-toggle="tooltip" title="Beacon Network is a search engine across the world's public beacons. You can find it here - https://beacon-network.org/#/"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                    <br><br>
+                                    <variant-beacon-network hosts="{{beaconHosts}}" clear="{{variant}}" variant="{{variantToBeacon}}"></variant-beacon-network>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Second TAB -->
+                <div id="{{prefix}}ClinicalData" class="variant-prioritization-content" style="display: none">
+                    <br>
+                    <opencga-sample-comparator opencga-client="{{opencgaClient}}" samples="{{samples}}" variable-sets="{{variableSets}}"></opencga-sample-comparator>
+                </div>
+
+                <!-- Third TAB -->
+                <div id="{{prefix}}GenomeBrowser" class="variant-prioritization-content" style="display: none">
+                    <br>
+                    <br>
+                    <variant-genome-browser project="{{project}}" study="{{study}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+                                            query={{query}} search={{search}} region="{{region}}">
+                    </variant-genome-browser>
+                </div>
+            </div>
         </div>
     </template>
 
@@ -170,6 +185,9 @@
                 consequenceTypes: {
                     type: Object
                 },
+                beaconHosts: {
+                    type: Array
+                },
                 query: {
                     type: Object,
                     notify: true
@@ -184,25 +202,12 @@
                     type: String,
                     value: "No variant selected"
                 }
-//                variantList: {
-//                    type: Array,
-//                    value: [],
-//                    notify: true
-//                },
-//                changeToDefault: {
-//                    type: String,
-//                    notify: true
-//                },
-//                changeVariantTab: {
-//                    type: String,
-//                    notify: true
-//                }
             },
             ready: function () {
 
                 // To allow more than 'prioritization instance in the same web application we add a prefix to all elements ID
-                if (typeof this.prefix === "undefined" || this.prefix == "") {
-                    this.prefix = "view" + Utils.randomString(6);
+                if (typeof this.prefix === "undefined" || this.prefix === "") {
+                    this.prefix = "priorview" + Utils.randomString(6);
                 }
 
                 this.resultsViewActive = true;
@@ -216,32 +221,40 @@
                     "protein_substitution": "Protein Substitution",
                     "annot-go": "GO",
                     "annot-hpo": "HPO"
-                }
+                };
+
+                this._isPrioritizationMode = this.mode === "prioritization";
+                this._isClinicalMode = this.mode === "clinical";
+            },
+            checkVariant: function(variant) {
+                return variant.split(':').length > 2;
             },
             onSelectVariant: function(e) {
                 this.variant = e.detail.id;
             },
-            _triggerChange: function (e) {
-                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-                $('.' + this.prefix + 'Content').hide(); // hides all content divs
-                if (typeof e.srcElement.id !== "undefined") {
-                    $('#' + e.srcElement.id + 'Div').show(); // get the href and use it find which div to show
-                }
-
-                // Set Results view button visible or hidden
-                this.resultsViewActive = (e.srcElement.id == this.prefix + "Results");
-
-                if (e.srcElement.id == (this.prefix + "Annotation")) {
-                    this.changeVariantTab = Utils.randomString(6);
-                } else {
-                    this.changeToDefault = Utils.randomString(6);
-                }
-            },
-            _triggerChangeVariantTab: function (e) {
-                this.changeVariantTab = Utils.randomString(6);
-            },
             selectedGene: function (e) {
                 this.fire('propagate', {gene: e.detail.gene});
+            },
+            _changeView: function(e) {
+                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+                $('.variant-prioritization-content').hide(); // hides all content divs
+                if (typeof e.target !== "undefined" && typeof e.target.dataset.view !== "undefined") {
+                    $("#" + this.prefix + e.target.dataset.view).show(); // get the href and use it find which div to show
+                }
+
+                // Show the active button
+                $('.variant-prioritization-view-buttons').removeClass("active");
+                $(e.target).addClass("active");
+
+                if (e.target.dataset.view === "GenomeBrowser") {
+//                    window.location.hash = "genomebrowser";
+                }
+            },
+            triggerBeacon: function (e) {
+                this.variantToBeacon = this.variant;
+            },
+            _savePrioritization: function () {
+                alert("Not implemented yet");
             }
         });
     </script>

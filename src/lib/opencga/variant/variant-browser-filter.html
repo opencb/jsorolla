@@ -265,8 +265,8 @@
                     </div>
                 </template>
 
-                <!-- ANALYSIS filters -->
-                <template is="dom-if" if="{{isAnalysisMode}}">
+                <!-- CLINICAL filters -->
+                <template is="dom-if" if="{{isClinicalMode}}">
                     <div class="panel panel-default">
                         <div class="panel-heading" role="tab" id="{{prefix}}SampleAnalysisHeading">
                             <h4 class="panel-title">
@@ -1541,7 +1541,7 @@
                         break;
                     case "analysis":
                     case "clinical":
-                        this.isAnalysisMode = true;
+                        this.isClinicalMode = true;
                         break;
                     default:
                         this.isBrowserMode = true;

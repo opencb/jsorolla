@@ -58,17 +58,17 @@
             <div>
                 <!-- First TAB -->
                 <div id="{{prefix}}TableResult" class="variant-browser-content">
-
+                    <!-- Variant Browser Grid -->
                     <variant-browser-grid study="{{study}}" project="{{project}}" cohorts="{{cohorts}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
                                           population-frequencies="{{populationFrequencies}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
                                           consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}" variant="{{variant}}" on-selected="selectedGene"
                                           on-selectvariant="onSelectVariant" style="font-size: 12px" config="{{config}}" summary="{{summary}}">
                     </variant-browser-grid>
 
-                    <div hidden$="{{checkVariant(variant)}}">
-                        <br>
-                        <h3>Please select a variant to view variant's detailed annotation</h3>
-                    </div>
+                    <!--<div hidden$="{{checkVariant(variant)}}">-->
+                        <!--<br>-->
+                        <!--<h3>Please select a variant to view variant's detailed annotation</h3>-->
+                    <!--</div>-->
 
                     <!-- Bottom tabs with specific variant information -->
                     <div style="padding-top: 20px" hidden$="{{!checkVariant(variant)}}">
@@ -82,7 +82,6 @@
                             </ul>
 
                             <div class="tab-content" style="height: 680px">
-
                                 <!--Annotation Tab-->
                                 <div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">
                                     <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-client="{{cellbaseClient}}" mode="vertical"
@@ -145,12 +144,6 @@
                                     </template>
                                 </div>
 
-                                <!--Genome Context Tab-->
-                                <!--<div role="tabpanel" class="tab-pane" id="{{prefix}}GenomeView">-->
-                                <!--<br>-->
-                                <!--<genome-browser-view cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}" region="{{region}}"></genome-browser-view>-->
-                                <!--</div>-->
-
                                 <!--Beacon network-->
                                 <div role="tabpanel" class="tab-pane" id="{{prefix}}Beacon">
                                     <br>
@@ -190,13 +183,8 @@
                     <br>
                     <br>
                     <variant-genome-browser project="{{project}}" study="{{study}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
-                                            query={{query}} search={{search}} region="{{region}}"></variant-genome-browser>
-                    <!--<div class="col-md-1">-->
-                    <!--New table-->
-                    <!--</div>-->
-                    <!--<div class="col-md-11">-->
-                    <!--<genome-browser-view cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}" region="{{region}}"></genome-browser-view>-->
-                    <!--</div>-->
+                                            query={{query}} search={{search}} region="{{region}}">
+                    </variant-genome-browser>
                 </div>
 
             </div>
@@ -218,6 +206,7 @@
             </div>
         </div>
     </template>
+
     <script>
         Polymer({
             is: 'variant-browser-view',
