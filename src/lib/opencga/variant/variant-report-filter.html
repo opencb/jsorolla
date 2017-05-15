@@ -14,6 +14,7 @@
   ~ limitations under the License.
   -->
 
+<link rel="import" href="variant-analysis-selector.html">
 
 <dom-module id="variant-report-filter">
     <template>
@@ -42,9 +43,13 @@
                     <div class="panel-body">
                         <label><i class="fa fa-sitemap" aria-hidden="true"></i>Select analysis:</label>
                         <br>
-                        <button data-toggle="modal" role="button" data-placement="bottom">
+                        <button data-toggle="modal" role="button" data-placement="bottom" data-target$="#{{prefix}}AnalysisBrowser">
                             Browse...
                         </button>
+                        <div id="{{prefix}}analysisSelectedDiv" style="display:none">
+                            <label>Analysis selected:</label>
+                            <input type="text" class$="custom-sized-input {{prefix}}FilterTextInput" placeholder="AN-28" aria-describedby="basic-addon1" disabled>
+                        </div>
                         <br>
                         <br>
                         <input type="checkbox" name="analysisButtons" id="{{prefix}}AnalysisResume" value="analysisResume" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Analysis resume<br>
@@ -55,11 +60,11 @@
 
 
             <!-- Sample Information -->
-            <div class="panel panel-default">
+            <div class="panel panel-default" id="{{prefix}}SampleInformationDiv" style="display:none">
                 <div class="panel-heading" role="tab" id="{{prefix}}SampleInformationHeading">
                     <h4 class="panel-title">
                         <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                           href="#{{prefix}}SampleInformation" aria-expanded="true" aria-controls="{{prefix}}SampleInformation">
+                           href="#{{prefix}}SampleInformationContent" aria-expanded="true" aria-controls="{{prefix}}SampleInformationContent">
                             Sample Information
                             <div style="float: right" class="tooltip-div">
                                 <a data-toggle="tooltip" title="Sample information">
@@ -69,63 +74,39 @@
                         </a>
                     </h4>
                 </div>
-                <div id="{{prefix}}SampleInformation" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}SampleInformationHeading">
+                <div id="{{prefix}}SampleInformationContent" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}SampleInformationHeading">
                     <div class="panel-body">
                         <div class="form-group">
                             <label>Select</label>
                             <br>
-                            <input type="radio" name="sampleButtons" id="{{prefix}}AllRadio" value="all" class$="{{prefix}}FilterRadio" on-change="sampleInfoAll" style="padding-left: 20px"> All<br>
+                            <input type="radio" name="sampleButtons" id="{{prefix}}AllRadio" value="all" class$="{{prefix}}FilterRadio" checked on-change="sampleInfoAll" style="padding-left: 20px"> All<br>
                             <input type="radio" name="sampleButtons" id="{{prefix}}SubsetRadio" value="range" class$="{{prefix}}FilterRadio" on-change="sampleInfoSubset" style="padding-left: 20px"> Subset
                             <div id="{{prefix}}SampleFields" class="panel-body">
-                                <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}individualID" value="individualID" class$="{{prefix}}FilterRadio" on-change="sampleInfoField" style="padding-left: 20px"> Individual ID<br>
-                                <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}chromosomalGender" value="chromosomalGender" class$="{{prefix}}FilterRadio" on-change="sampleInfoField" style="padding-left: 20px"> Chromosomal Gender<br>
-                                <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}yearBirth" value="yearBirth" class$="{{prefix}}FilterRadio" on-change="sampleInfoField" style="padding-left: 20px"> Year of Birth<br>
-                                <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}birthPlace" value="birthPlace" class$="{{prefix}}FilterRadio" on-change="sampleInfoField" style="padding-left: 20px"> Birth place<br>
-                                <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}ethnicity" value="ethnicity" class$="{{prefix}}FilterRadio" on-change="sampleInfoField" style="padding-left: 20px"> Ethnicity<br>
-                                <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}HPO" value="HPO" class$="{{prefix}}FilterRadio" on-change="sampleInfoField" style="padding-left: 20px"> HPO<br>
-                                <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}diagnosis" value="diagnosis" class$="{{prefix}}FilterRadio" on-change="sampleInfoField" style="padding-left: 20px"> Diagnosis<br>
+                                <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}individualID" value="individualID" class$="{{prefix}}FilterRadio" checked disabled on-change="sampleInfoField" style="padding-left: 20px"> Individual ID<br>
+                                <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}chromosomalGender" value="chromosomalGender" class$="{{prefix}}FilterRadio" checked disabled on-change="sampleInfoField" style="padding-left: 20px"> Chromosomal Gender<br>
+                                <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}yearBirth" value="yearBirth" class$="{{prefix}}FilterRadio" checked disabled on-change="sampleInfoField" style="padding-left: 20px"> Year of Birth<br>
+                                <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}birthPlace" value="birthPlace" class$="{{prefix}}FilterRadio" checked disabled on-change="sampleInfoField" style="padding-left: 20px"> Birth place<br>
+                                <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}ethnicity" value="ethnicity" class$="{{prefix}}FilterRadio" checked disabled on-change="sampleInfoField" style="padding-left: 20px"> Ethnicity<br>
+                                <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}HPO" value="HPO" class$="{{prefix}}FilterRadio" checked disabled on-change="sampleInfoField" style="padding-left: 20px"> HPO<br>
+                                <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}diagnosis" value="diagnosis" class$="{{prefix}}FilterRadio" checked disabled on-change="sampleInfoField" style="padding-left: 20px"> Diagnosis<br>
 
                                 <!-- SPECIFIC FIELDS FROM VARIABLE SET -->
                                 <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}" as="variable" sort="_sortVariables">
-                                    <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}{{variable.name}}" value="{{variable.name}}" class$="{{prefix}}FilterRadio" on-change="sampleInfoField" style="padding-left: 20px"> {{variable.title}}<br>
+                                    <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}{{variable.name}}" value="{{variable.name}}" class$="{{prefix}}FilterRadio" checked disabled on-change="sampleInfoField" style="padding-left: 20px"> {{variable.title}}<br>
                                 </template>
 
                             </div>
-
-
-                            <!-- <div class="panel-body">
-                                 <select multiple class="form-control" id="{{prefix}}FormFieldsMultiple">
-                                     <option value="{{prefix}}individualID">Individual ID</option>
-                                     <option value="{{prefix}}chromosomalGender">Chromosomal Gender</option>
-                                     <option value="{{prefix}}yearBirth">Year of Birth</option>
-                                     <option value="{{prefix}}birthPlace">Birth place</option>
-                                     <option value="{{prefix}}enthnicity">Ethnicity</option>
-                                     <option value="{{prefix}}HPO">HPO</option>
-                                     <option value="{{prefix}}diagnosis">Diagnosis</option>
-
-                                     &lt;!&ndash; SPECIFIC FIELDS FROM VARIABLE SET &ndash;&gt;
-                                     <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}" as="variable" sort="_sortVariables">
-                                         <option value="{{prefix}}{{variable.name}}">{{variable.title}}</option>
-                                     </template>
-
-
-                                 </select>
-
-
-                             </div>-->
-
-
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Prioritization information -->
-            <div class="panel panel-default">
+            <div class="panel panel-default" id="{{prefix}}PrioritizationInformationDiv" style="display:none">
                 <div class="panel-heading" role="tab" id="{{prefix}}PrioritizationInformationHeading">
                     <h4 class="panel-title">
                         <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                           href="#{{prefix}}PrioritizationInformation" aria-expanded="true" aria-controls="{{prefix}}PrioritizationInformation">
+                           href="#{{prefix}}PrioritizationInformationContent" aria-expanded="true" aria-controls="{{prefix}}PrioritizationInformationContent">
                             Prioritization Information
                             <div style="float: right" class="tooltip-div">
                                 <a data-toggle="tooltip" title="Prioritization information">
@@ -135,7 +116,7 @@
                         </a>
                     </h4>
                 </div>
-                <div id="{{prefix}}PrioritizationInformation" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}PrioritizationInformationHeading">
+                <div id="{{prefix}}PrioritizationInformationContent" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}PrioritizationInformationHeading">
                     <div class="panel-body">
                         <div class="form-group">
                             <label>Select</label>
@@ -148,11 +129,11 @@
                 </div>
             </div>
             <!-- Other information -->
-            <div class="panel panel-default">
+            <div class="panel panel-default" id="{{prefix}}OtherInformationDiv" style="display:none">
                 <div class="panel-heading" role="tab" id="{{prefix}}OtherInformationHeading">
                     <h4 class="panel-title">
                         <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                           href="#{{prefix}}OtherInformation" aria-expanded="true" aria-controls="{{prefix}}OtherInformation">
+                           href="#{{prefix}}OtherInformationContent" aria-expanded="true" aria-controls="{{prefix}}OtherInformationContent">
                             Other Information
                             <div style="float: right" class="tooltip-div">
                                 <a data-toggle="tooltip" title="Other information">
@@ -162,7 +143,7 @@
                         </a>
                     </h4>
                 </div>
-                <div id="{{prefix}}OtherInformation" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}OtherInformationHeading">
+                <div id="{{prefix}}OtherInformationContent" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}OtherInformationHeading">
                     <div class="panel-body">
                         <div class="form-group">
                             <label>Select</label>
@@ -174,6 +155,24 @@
             </div>
         </div>
 
+        <!-- Modal dialog for Analysis Browser-->
+        <div class="modal fade" id="{{prefix}}AnalysisBrowser" tabindex="-1" role="dialog"
+             aria-labelledby="sampleBrowserLabel">
+            <div class="modal-dialog modal-lg" role="document" style="width: 1024px;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="{{prefix}}AnalysisBrowserLabel">Analysis Selector</h4>
+                    </div>
+                    <div class="modal-body" style="height: 500px">
+                        <variant-analysis-selector></variant-analysis-selector>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="showReportOptions">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div style="width: 60%;margin: 0 auto">
             <button type="button" class="btn btn-primary btn-md" style="width: 100%" on-click="onSave">
@@ -212,14 +211,19 @@
                     type: Object
                 },
                 selection: {
+                    type: Object,
+                    notify: true
+                },
+                variables: {
                     type: Array,
                     notify: true
                 },
-                variableSets: {
-                    type: Array
-                },
                 expReport : {
                     type: Boolean,
+                    notify: true
+                },
+                analysisId : {
+                    type: String,
                     notify: true
                 }
             },
@@ -227,6 +231,7 @@
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
                     this.prefix = Utils.randomString(6);
                 }
+
 
             },
             updateVariableSets: function () {
@@ -258,8 +263,6 @@
             },
             sampleInfoField: function () {
 
-                console.log(this);
-                debugger;
                 let fields = this.$$("#" + this.prefix + "SampleFields").querySelectorAll("input[type='checkbox']");
                 let fieldsAux = [];
                 if (fields.length > 0) {
@@ -267,7 +270,7 @@
                         fieldsAux.push({name: fields[i].value , value: fields[i].checked});
                     }
                 }
-                this.selection = fieldsAux;
+                this.selection.sample = fieldsAux;
 
 
             },
@@ -290,6 +293,22 @@
             },
             onExport: function () {
                 this.expReport = true;
+            },
+            showReportOptions: function(e){
+                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+                $("#" + this.prefix + "analysisSelectedDiv").show();
+                $("#" + this.prefix + "SampleInformationDiv").show();
+                $("#" + this.prefix + "PrioritizationInformationDiv").show();
+                $("#" + this.prefix + "OtherInformationDiv").show();
+
+                console.log(this);
+                debugger;
+
+                this.analysisId = "AN-28" // hardcoded!!!
+                this.selection = {analysis: this.analysisId};
+
+
+
             }
         });
     </script>

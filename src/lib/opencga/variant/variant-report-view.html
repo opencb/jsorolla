@@ -24,7 +24,7 @@
         </style>
 
         <br>
-        <div id="{{prefix}}report" class="panel panel-default" style="overflow-y: auto; height:550px;">
+        <div id="{{prefix}}reportDiv" class="panel panel-default" style="overflow-y: auto; height:550px;">
             <div class="panel-body">
                 <h2 style="margin: 10px 5px 15px 25px">{{title}} Report</h2>
                 <div style="float: right; padding: 0px 0px 10px 5px">
@@ -34,13 +34,40 @@
 
                 <!-- Analysis Information -->
 
-                <div style="margin: 10px 5px 15px 25px" class="analysis-information" id="analysisInformationDiv">
+                <div style="margin: 10px 5px 15px 50px" class="analysis-information" id="{{prefix}}analysisInformationDiv">
                     <h4>Analysis Information</h4>
                     <hr>
-                    Some information related to the analysis selected from left. A resume for the analysis can be included if selected.
+                    <div style="margin: 10px 5px 15px 15px" class="analysis-information" id="{{prefix}}analysisInformationDiv">
+                        <ul>
+                            <div class="form-group row" id="{{prefix}}analysisInformationID">
+                                <label for="{{prefix}}analysisID" class="col-xs-2 col-form-label">Analysis ID</label>
+                                <div class="col-xs-2">
+                                    <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}analysisID" name="analysisID" readonly value="AN-28">
+                                </div>
+                            </div>
+                            <div class="form-group row" id="{{prefix}}analysisInformationResume">
+                                <label for="{{prefix}}samplesID" class="col-xs-2 col-form-label">Samples ID</label>
+                                <div class="col-xs-2">
+                                    <textarea type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}samplesID" name="samplesID" style="resize:none" readonly row="2">"HG00097, HG00098, HG00099"</textarea>
+                                </div>
+                                <label for="{{prefix}}typeAnalysis" class="col-xs-2 col-form-label">Type of analysis</label>
+                                <div class="col-xs-2">
+                                    <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}typeAnalysis" name="typeAnalysis" readonly value="Trio">
+                                </div>
+                                <label for="{{prefix}}dateAnalysis" class="col-xs2 col-form-label">Date</label>
+                                <div class="col-xs-2">
+                                    <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}dateAnalysis" name="dateAnalysis" readonly value="05/05/2017">
+                                </div>
+                            </div>
+
+                        </ul>
+
+
+
+
+                    </div>
                     <br>
-                    <ul>
-                    </ul>
+
                 </div>
 
                 <div style="margin: 10px 5px 15px 25px" class="sample-information" id="{{prefix}}sampleInformationDiv">
@@ -49,49 +76,68 @@
                     Some infromation related to the sample or samples. If the anlaysis is related to more than one sample (i.e. a family), then, all fields related to individual and variable
                     set can be included from the case. For the rest of parents, sample IDs can be shown.
                     <br>
+
+
+                    <!-- Sample information related to individual -->
+
                     <ul>
                         <div class="form-group row" id="{{prefix}}individualIDDiv">
-                            <label for="{{prefix}}IndividualID" class="col-sm-2 control-label">Individual ID</label>
+                            <label for="{{prefix}}IndividualID" class="col-sm-2 col-form-label">Individual ID</label>
                             <div class="col-sm-2">
-                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}IndividualID" name="individualID" disabled value="NUS2344234">
+                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}IndividualID" name="individualID" readonly value="NUS2344234">
                             </div>
                         </div>
                         <div class="form-group row" id="{{prefix}}chromosomalGenderDiv">
-                            <label for="{{prefix}}ChromosomalGender" class="col-sm-2 control-label">Chromosomal Gender</label>
+                            <label for="{{prefix}}ChromosomalGender" class="col-sm-2 col-form-label">Chromosomal Gender</label>
                             <div class="col-sm-2">
-                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}ChromosomalGender" name="chromosomalGender" disabled value="XX">
+                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}ChromosomalGender" name="chromosomalGender" readonly value="XX">
                             </div>
                         </div>
                         <div class="form-group row" id="{{prefix}}yearBirthDiv">
-                            <label for="{{prefix}}BirthYear" class="col-sm-2 control-label">Year of birth</label>
+                            <label for="{{prefix}}BirthYear" class="col-sm-2 col-form-label">Year of birth</label>
                             <div class="col-sm-2">
-                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}BirthYear" name="birthYear" disabled value="1982">
+                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}BirthYear" name="birthYear" readonly value="1982">
                             </div>
                         </div>
                         <div class="form-group row" id="{{prefix}}birthPlaceDiv" hidden>
-                            <label for="{{prefix}}BirthPlace" class="col-sm-2 control-label">Birth place</label>
+                            <label for="{{prefix}}BirthPlace" class="col-sm-2 col-form-label">Birth place</label>
                             <div class="col-sm-2">
-                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}BirthPlace" name="birthPlace" disabled value="Spain">
+                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}BirthPlace" name="birthPlace" readonly value="Spain">
                             </div>
                         </div>
                         <div class="form-group row" id="{{prefix}}ethnicityDiv">
-                            <label for="{{prefix}}Ethnicity" class="col-sm-2 control-label">Ethnicity</label>
+                            <label for="{{prefix}}Ethnicity" class="col-sm-2 col-form-label">Ethnicity</label>
                             <div class="col-sm-2">
-                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}Ethnicity" name="ethnicity" disabled value="white mediterranean">
+                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}Ethnicity" name="ethnicity" readonly value="white mediterranean">
                             </div>
                         </div>
                         <div class="form-group row" id="{{prefix}}HPODiv">
-                            <label for="{{prefix}}HPO" class="col-sm-2 control-label">HPO</label>
-                            <div class="col-sm-2">
-                                <input type="text" class$="form-control {{prefix}}HPO" id="{{prefix}}HPO" name="HPO" disabled value="HPO:32432432">
+                            <label for="{{prefix}}HPO" class="col-sm-2 col-form-label">HPO</label>
+                            <div class="col-sm-3">
+                                 <textarea class$="form-control {{prefix}}TextInput" id="{{prefix}}HPO" name="HPO"
+                                           readonly rows="2" style="resize:none">"HP:0000947"</textarea>
                             </div>
                         </div>
                         <div class="form-group row" id="{{prefix}}diagnosisDiv">
-                            <label for="{{prefix}}Diagnosis" class="col-sm-2 control-label">Diagnosis</label>
-                            <div class="col-sm-2">
-                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}Diagnosis" name="diagnosis" disabled value="Retinitis">
+                            <label for="{{prefix}}Diagnosis" class="col-sm-2 col-form-label">Diagnosis</label>
+                            <div class="col-sm-3">
+                                 <textarea class$="form-control {{prefix}}TextInput" id="{{prefix}}diagnosis" name="diagnosis"
+                                           readonly rows="2" style="resize:none">Disorders of thyroid gland (E00-E07)</textarea>
                             </div>
                         </div>
+
+
+                        <!-- Sample information related to variable set -->
+
+                        <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}" as="variable" sort="_sortVariables">
+                            <div class="form-group row" id="{{prefix}}{{variable.name}}Div">
+                                <label for="{{prefix}}{{variable.name}}" class="col-sm-2 col-form-label">{{variable.title}}</label>
+                                <div class="col-sm-3">
+                                    <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}{{variable.name}}" readonly name="{{variable.name}}">
+                                </div>
+                            </div>
+                        </template>
+
                     </ul>
                 </div>
 
@@ -149,6 +195,13 @@
                     type: Boolean,
                     observer: 'handleExportPDF',
                     notify: true
+                },
+                variables: {
+                    type: Array
+                },
+                analysisId: {
+                    type: Array,
+                    observer: 'loadAnalysis'
                 }
 
             },
@@ -161,9 +214,21 @@
                 this.requestDate = date.toLocaleString();
 
             },
-            fetchSelection: function () {
+            loadAnalysis: function() {
                 console.log(this);
                 debugger;
+
+                if (typeof this.analysisId !== "undefined") {
+
+                    let petete=3;
+
+                }
+
+                let date = new Date();
+                this.requestDate = date.toLocaleString();
+
+            },
+            fetchSelection: function () {
 
                 let _numFalseElements = 0;
 
@@ -232,10 +297,16 @@
                 debugger;
                 //this._getTextInfo();
                 //this.print($('#' + this.prefix + "report")[0].innerHTML);
-                this.print(this.$$('#' + this.prefix + "report").innerHTML);
+                this.print(this.$$('#' + this.prefix + "reportDiv").innerHTML);
                 this.expReport = false; // Reset export report button again
 
-            }
+            },
+            _sortVariables: function (a, b) {
+                if (a.rank < b.rank) {
+                    return -1;
+                }
+                return 1;
+            },
 
         });
     </script>

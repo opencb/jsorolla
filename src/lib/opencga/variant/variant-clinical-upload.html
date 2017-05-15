@@ -18,204 +18,235 @@
     <template>
         <style is="custom-style" include="jso-styles"></style>
 
-        <div class="col-md-4">
-            <h3>Upload and check file</h3>
-            <br>
+        <div class="col-md-12">
+            <h3 style="margin: 10px 5px 15px 40px">Upload and check file</h3>
 
-            <form id="{{prefix}}uploadForm" class="form-horizontal" data-toggle="validator" role="form">
+            <div style="width: 60%; margin: 0px 0px 0px 90px">
 
+                <form id="{{prefix}}uploadForm" class="form-horizontal" data-toggle="validator" role="form">
 
-
-                <!-- GENERAL INFORMATION -->
-                <h4>1. General information</h4>
-                <br>
-                <!-- Individual ID -->
-                <div class="form-group has-feedback">
-                    <label for="{{prefix}}sampleID" class="col-sm-3 control-label">Individual ID</label>
-                    <div class="col-sm-9">
-                        <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}sampleID" name="sampleID" placeholder="ID or clinical record number" maxlength="75" required data-error="" pattern=".+">
-                        <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
-                        <div class="help-block with-errors"></div>
-                    </div>
-                </div>
-                <!-- CHROMOSOMAL GENDER -->
-                <div class="form-group has-feedback">
-                    <label for="{{prefix}}chromosomalGender" class="col-sm-3 control-label">Chromosomal Gender</label>
-                    <div class="col-sm-9">
-                        <select class$="form-control {{prefix}}SelectInput" id="{{prefix}}chromosomalGender"
-                                name="chromosomalGender" required>
-                            <option></option>
-                            <template is="dom-repeat" items="{{config.chromosomal_gender}}">
-                                <option value="{{item}}">{{item}}</option>
-                            </template>
-                        </select>
-                        <div class="help-block with-errors" id="{{prefix}}_errorDiv_chromosomalGender"></div>
-                    </div>
-                </div>
-                <!-- YEAR OF BIRTH -->
-                <div class="form-group has-feedback">
-                    <label for="{{prefix}}birthYear" class="col-sm-3 control-label">Year of Birth</label>
-                    <div class="col-sm-9">
-                        <select class$="form-control {{prefix}}SelectInput" id="{{prefix}}birthYear"
-                                name="birthYear" required on-change="checkYears">
-                            <option></option>
-                            <template is="dom-repeat" items="{{yearsBirth}}">
-                                <option value="{{item}}">{{item}}</option>
-                            </template>
-                        </select>
-                        <div class="help-block with-errors" id="{{prefix}}_errorDiv_birthYear"></div>
-                    </div>
-                </div>
-
-                <!-- BIRTH PLACE -->
-                <div class="form-group has-feedback">
-                    <label for="{{prefix}}birthPlace" class="col-sm-3 control-label">Birth Place</label>
-                    <div class="col-sm-9">
-                        <select class$="form-control {{prefix}}SelectInput" id="{{prefix}}birthPlace"
-                                name="birthPlace" required on-change="updateSelect">
-                            <option></option>
-                            <template is="dom-repeat" items="{{config.countries}}">
-                                <option value="{{item}}">{{item}}</option>
-                            </template>
-                        </select>
-                        <div class="help-block with-errors" id="{{prefix}}_errorDiv_birthPlace"></div>
-                    </div>
-                </div>
-
-                <!-- OTHER COUNTRY (TEXT INPUT if country selected is not in the list -->
-                <div class="form-group has-feedback" id="otherCountryDiv" style="display:none">
-                    <label for="{{prefix}}otherCountry" class="col-sm-3 control-label"></label>
-                    <div class="col-sm-9">
-                        <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}otherCountry" name="otherCountry" placeholder="Introduce country" maxlength="75" required data-error="Mandatory country. Only a-z characteres and spaces are allowed" pattern="^[A-Za-z]+((\\s)?([A-Za-z])+)+$">
-                        <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
-                        <div class="help-block with-errors"></div>
-                    </div>
-                </div>
-
-                <!-- BIRTH PLACE (PROVINCE) -->
-                <div class="form-group has-feedback">
-                    <label for="{{prefix}}birthPlaceRegion" class="col-sm-3 control-label">Birth Place (province)</label>
-                    <div class="col-sm-9">
-                        <select class$="form-control {{prefix}}SelectInput" id="{{prefix}}birthPlaceRegion"
-                                name="birthPlaceRegion" required>
-                            <option></option>
-                            <template is="dom-repeat" items="{{config.province}}">
-                                <option value="{{item}}">{{item}}</option>
-                            </template>
-
-                        </select>
-                        <div class="help-block with-errors" id="{{prefix}}_errorDiv_birthPlaceRegion"></div>
-                    </div>
-                </div>
-
-                <!-- ETHNICITY -->
-                <div class="form-group has-feedback">
-                    <label for="{{prefix}}ethnicity" class="col-sm-3 control-label">Ethnicity</label>
-                    <div class="col-sm-9">
-                        <select class$="form-control {{prefix}}SelectInput" id="{{prefix}}ethnicity"
-                                name="ethnicity" required>
-                            <option></option>
-                            <template is="dom-repeat" items="{{config.ethnicity}}">
-                                <option value="{{item.id}}">{{item.title}}</option>
-                            </template>
-                        </select>
-                        <div class="help-block with-errors" id="{{prefix}}_errorDiv_ethnicity"></div>
-                    </div>
-                </div>
-
-
-                <!-- HPO TERM (ONTOLOGY) -->
-                <div class="form-group has-feedback">
-                    <label for="{{prefix}}HPO" class="col-sm-3 control-label">HPO</label>
-                    <div class="col-sm-9">
-                        <div class="input-group">
-                            <textarea class$="form-control {{prefix}}TextInput" id="{{prefix}}HPO" name="HPO"
-                                      placeholder="HP:0000947" required data-error="An HPO term must be selected" rows="2" style="resize:none"></textarea>
-                            <span class="input-group-addon btn btn-primary" data-toggle="modal" data-target$="#{{prefix}}hpoModal">
-                                <i class="fa fa-search" aria-hidden="true"></i>
-                            </span>
+                    <!-- GENERAL INFORMATION -->
+                    <!-- Individual ID -->
+                    <div class="form-group row has-feedback">
+                        <label for="{{prefix}}sampleID" class="col-xs-2 col-form-label">Individual ID</label>
+                        <div class="col-xs-6">
+                            <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}sampleID" name="sampleID" placeholder="ID or clinical record number" maxlength="75" required data-error="" pattern=".+">
+                            <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                            <div class="help-block with-errors"></div>
                         </div>
-                        <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
-                        <div class="help-block with-errors"></div>
                     </div>
-                </div>
-
-                <!-- DIAGNOSIS (ONTOLOGY) -->
-
-                <div class="form-group has-feedback">
-                    <label for="{{prefix}}diagnosis" class="col-sm-3 control-label">Diagnosis</label>
-                    <div class="col-sm-9">
-                        <div class="input-group">
-                            <textarea class$="form-control {{prefix}}TextInput" id="{{prefix}}diagnosis" name="diagnosis"
-                                      placeholder="ICD-10 term" required data-error="A diagnosis term must be selected" readonly rows="2" style="resize:none"></textarea>
-                            <span class="input-group-addon btn btn-primary" data-toggle="modal" data-target$="#{{prefix}}icd" on-click="showICDEditor">
-                                <i class="fa fa-search" aria-hidden="true"></i>
-                            </span>
+                    <!-- CHROMOSOMAL GENDER -->
+                    <div class="form-group row has-feedback">
+                        <label for="{{prefix}}chromosomalGender" class="col-xs-2 col-form-label">Chromosomal Gender</label>
+                        <div class="col-xs-3">
+                            <select class$="form-control {{prefix}}SelectInput" id="{{prefix}}chromosomalGender"
+                                    name="chromosomalGender" required>
+                                <option></option>
+                                <template is="dom-repeat" items="{{config.chromosomal_gender}}">
+                                    <option value="{{item}}">{{item}}</option>
+                                </template>
+                            </select>
+                            <div class="help-block with-errors" id="{{prefix}}_errorDiv_chromosomalGender"></div>
                         </div>
-                        <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
-                        <div class="help-block with-errors"></div>
-
                     </div>
-                </div>
+                    <!-- YEAR OF BIRTH -->
+                    <div class="form-group row has-feedback">
+                        <label for="{{prefix}}birthYear" class="col-xs-2 col-form-label">Year of Birth</label>
+                        <div class="col-xs-3">
+                            <select class$="form-control {{prefix}}SelectInput" id="{{prefix}}birthYear"
+                                    name="birthYear" required on-change="checkYears">
+                                <option></option>
+                                <template is="dom-repeat" items="{{yearsBirth}}">
+                                    <option value="{{item}}">{{item}}</option>
+                                </template>
+                            </select>
+                            <div class="help-block with-errors" id="{{prefix}}_errorDiv_birthYear"></div>
+                        </div>
+                    </div>
 
-                <h4>2. Test information</h4>
-                <br>
+                    <!-- BIRTH PLACE -->
+                    <div class="form-group row has-feedback">
+                        <label for="{{prefix}}birthPlace" class="col-xs-2 col-form-label">Birth Place</label>
+                        <div class="col-xs-3">
+                            <select class$="form-control {{prefix}}SelectInput" id="{{prefix}}birthPlace"
+                                    name="birthPlace" required on-change="updateSelect">
+                                <option></option>
+                                <template is="dom-repeat" items="{{config.countries}}">
+                                    <option value="{{item}}">{{item}}</option>
+                                </template>
+                            </select>
+                            <div class="help-block with-errors" id="{{prefix}}_errorDiv_birthPlace"></div>
+                        </div>
+                    </div>
 
-                <!-- SPECIFIC FIELDS FROM VARIABLE SET -->
-                <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}" as="variable" sort="_sortVariables">
+                    <!-- OTHER COUNTRY (TEXT INPUT if country selected is not in the list -->
+                    <div class="form-group row has-feedback" id="otherCountryDiv" style="display:none">
+                        <label for="{{prefix}}otherCountry" class="col-xs-2 col-form-label"></label>
+                        <div class="col-xs-3">
+                            <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}otherCountry" name="otherCountry" placeholder="Introduce country" maxlength="75" required data-error="Mandatory country. Only a-z characteres and spaces are allowed" pattern="^[A-Za-z]+((\\s)?([A-Za-z])+)+$">
+                            <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                            <div class="help-block with-errors"></div>
+                        </div>
+                    </div>
 
-                    <template is="dom-if" if="{{isVisible(variable,config)}}">
-                        <div class="form-group has-feedback">
+                    <!-- BIRTH PLACE (PROVINCE) -->
+                    <div class="form-group row has-feedback">
+                        <label for="{{prefix}}birthPlaceRegion" class="col-xs-2 col-form-label">Birth Place (province)</label>
+                        <div class="col-xs-3">
+                            <select class$="form-control {{prefix}}SelectInput" id="{{prefix}}birthPlaceRegion"
+                                    name="birthPlaceRegion" required>
+                                <option></option>
+                                <template is="dom-repeat" items="{{config.province}}">
+                                    <option value="{{item}}">{{item}}</option>
+                                </template>
 
-                            <label for="{{prefix}}{{variable.name}}" class="col-sm-3 control-label">{{variable.title}}</label>
+                            </select>
+                            <div class="help-block with-errors" id="{{prefix}}_errorDiv_birthPlaceRegion"></div>
+                        </div>
+                    </div>
 
-                            <template is="dom-if" if="{{checkVarType(variable, 'TEXT')}}">
-                                <!-- TEXT type: include an input text and add suitable regular expression for text-->
-                                <!-- http://stackoverflow.com/questions/14237686/disabling-controls-in-bootstrap-->
+                    <!-- ETHNICITY -->
+                    <div class="form-group row has-feedback">
+                        <label for="{{prefix}}ethnicity" class="col-xs-2 col-form-label">Ethnicity</label>
+                        <div class="col-xs-3">
+                            <select class$="form-control {{prefix}}SelectInput" id="{{prefix}}ethnicity"
+                                    name="ethnicity" required>
+                                <option></option>
+                                <template is="dom-repeat" items="{{config.ethnicity}}">
+                                    <option value="{{item.id}}">{{item.title}}</option>
+                                </template>
+                            </select>
+                            <div class="help-block with-errors" id="{{prefix}}_errorDiv_ethnicity"></div>
+                        </div>
+                    </div>
 
-                                <template is="dom-if" if="{{checkSubType(variable, 'STRING')}}">
-                                    <!-- String subtype: include an input text and add suitable regular expression for text-->
-                                    <div class="col-sm-9">
+
+                    <!-- HPO TERM (ONTOLOGY) -->
+                    <div class="form-group row has-feedback">
+                        <label for="{{prefix}}HPO" class="col-xs-2 col-form-label">HPO</label>
+                        <div class="col-xs-6">
+                            <div class="input-group">
+                                <textarea class$="form-control {{prefix}}TextInput" id="{{prefix}}HPO" name="HPO"
+                                          placeholder="HP:0000947" required data-error="An HPO term must be selected" rows="2" style="resize:none"></textarea>
+                                <span class="input-group-addon btn btn-primary" data-toggle="modal" data-target$="#{{prefix}}hpoModal">
+                                    <i class="fa fa-search" aria-hidden="true"></i>
+                                </span>
+                            </div>
+                            <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                            <div class="help-block with-errors"></div>
+                        </div>
+                    </div>
+
+                    <!-- DIAGNOSIS (ONTOLOGY) -->
+
+                    <div class="form-group row has-feedback">
+                        <label for="{{prefix}}diagnosis" class="col-xs-2 col-form-label">Diagnosis</label>
+                        <div class="col-xs-6">
+                            <div class="input-group">
+                                <textarea class$="form-control {{prefix}}TextInput" id="{{prefix}}diagnosis" name="diagnosis"
+                                          placeholder="ICD-10 term" required data-error="A diagnosis term must be selected" readonly rows="2" style="resize:none"></textarea>
+                                <span class="input-group-addon btn btn-primary" data-toggle="modal" data-target$="#{{prefix}}icd" on-click="showICDEditor">
+                                    <i class="fa fa-search" aria-hidden="true"></i>
+                                </span>
+                            </div>
+                            <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                            <div class="help-block with-errors"></div>
+
+                        </div>
+                    </div>
+
+                    <!-- SPECIFIC FIELDS FROM VARIABLE SET -->
+                    <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}" as="variable" sort="_sortVariables">
+
+                        <template is="dom-if" if="{{isVisible(variable,config)}}">
+                            <div class="form-group row has-feedback">
+
+                                <label for="{{prefix}}{{variable.name}}" class="col-xs-2 col-form-label">{{variable.title}}</label>
+
+                                <template is="dom-if" if="{{checkVarType(variable, 'TEXT')}}">
+                                    <!-- TEXT type: include an input text and add suitable regular expression for text-->
+                                    <!-- http://stackoverflow.com/questions/14237686/disabling-controls-in-bootstrap-->
+
+                                    <template is="dom-if" if="{{checkSubType(variable, 'STRING')}}">
+                                        <!-- String subtype: include an input text and add suitable regular expression for text-->
+                                        <div class="col-xs-6">
+                                            <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}{{variable.name}}" name="{{variable.name}}"
+                                                   placeholder="{{variable.defaultValue}}" maxlength="{{variable.attributes.maxLength}}" required
+                                                   data-error="{{variable.attributes.errorPattern}}" pattern="{{variable.attributes.pattern}}">
+                                            <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                            <div class="help-block with-errors"></div>
+                                        </div>
+                                    </template>
+
+                                    <template is="dom-if" if="{{checkSubType(variable, 'TEXT')}}">
+                                        <!-- String subtype: include a text area and add suitable regular expression for text-->
+                                        <div class="col-xs-6">
+                                            <textarea class$="form-control {{prefix}}TextInput" id="{{prefix}}{{variable.name}}" name="{{variable.name}}"
+                                                      placeholder="{{variable.defaultValue}}" maxlength="{{variable.attributes.maxLength}}" required rows="5"
+                                                      data-error="{{variable.attributes.errorPattern}}" pattern="{{variable.attributes.pattern}}"></textarea>
+                                            <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                            <div class="help-block with-errors"></div>
+                                        </div>
+                                    </template>
+
+
+                                </template>
+
+                                <template is="dom-if" if="{{checkVarType(variable, 'NUMERIC')}}">
+                                    <!-- NUMERIC type: include an input text and add suitable regular expression for numbers -->
+                                    <div class="col-xs-6">
                                         <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}{{variable.name}}" name="{{variable.name}}"
-                                               placeholder="{{variable.defaultValue}}" maxlength="{{variable.attributes.maxLength}}" required
-                                               data-error="{{variable.attributes.errorPattern}}" pattern="{{variable.attributes.pattern}}">
+                                               placeholder="{{variable.name}} number" pattern="^[0-9]+$" maxlength="75" required data-error="Mandatory field. Only numbers are allowed ">
                                         <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
                                         <div class="help-block with-errors"></div>
                                     </div>
                                 </template>
 
-                                <template is="dom-if" if="{{checkSubType(variable, 'TEXT')}}">
-                                    <!-- String subtype: include a text area and add suitable regular expression for text-->
-                                    <div class="col-sm-9">
-                                        <textarea class$="form-control {{prefix}}TextInput" id="{{prefix}}{{variable.name}}" name="{{variable.name}}"
-                                                  placeholder="{{variable.defaultValue}}" maxlength="{{variable.attributes.maxLength}}" required rows="5"
-                                                  data-error="{{variable.attributes.errorPattern}}" pattern="{{variable.attributes.pattern}}"></textarea>
-                                        <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 0, 1)}}">
+                                    <!-- CATEGORICAL type, no value: values to be filled in this code -->
+                                    <!-- Dropdown related to years : fill in with values contained in {{years}} -->
+                                    <template is="dom-if" if="{{checkType(variable.name,'Year')}}">
+                                        <div class="col-xs-6">
+                                            <select class$="form-control {{prefix}}SelectInput" id="{{prefix}}{{variable.name}}" name="{{variable.name}}" required on-change="checkYears">
+                                                <option></option>
+                                                <template is="dom-repeat" items="{{yearsTest}}">
+                                                    <option value="{{item}}">{{item}}</option>
+                                                </template>
+                                            </select>
+                                            <div class="help-block with-errors" id="{{prefix}}_errorDiv_{{variable.name}}"></div>
+                                        </div>
+                                    </template>
+
+                                </template>
+
+                                <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 1, 2)}}">
+                                    <!-- CATEGORICAL type, single value: check box -->
+                                    <div class="col-xs-6">
+                                        <input class$="{{prefix}}CheckInput" type="checkbox" id="{{prefix}}{{variable.name}}" name="{{variable.name}}" value="{{variable.name}}" style="padding-left: 20px" required>
+                                    </div>
+                                </template>
+
+                                <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 2, 3)}}">
+                                    <!-- CATEGORICAL type, 2 values: radio buttons for selection -->
+                                    <!--<label class="col-sm-3 control-label">{{variable.name}}-{{variable.type}}</label>-->
+                                    <div class="col-xs-6">
+                                        <template is="dom-repeat" items="{{variable.allowedValues}}" as="value">
+                                            <div class="form-check form-check-inline">
+                                                <label class="form-check-label">
+                                                    <input id="{{prefix}}{{variable.name}}{{value}}" class$="form-check-input {{prefix}}RadioInput" type="radio" name="{{variable.name}}" value="{{value}}"> {{value}}
+                                                </label>
+                                            </div>
+                                        </template>
                                         <div class="help-block with-errors"></div>
                                     </div>
                                 </template>
 
-
-                            </template>
-
-                            <template is="dom-if" if="{{checkVarType(variable, 'NUMERIC')}}">
-                                <!-- NUMERIC type: include an input text and add suitable regular expression for numbers -->
-                                <div class="col-sm-9">
-                                    <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}{{variable.name}}" name="{{variable.name}}"
-                                           placeholder="{{variable.name}} number" pattern="^[0-9]+$" maxlength="75" required data-error="Mandatory field. Only numbers are allowed ">
-                                    <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
-                                    <div class="help-block with-errors"></div>
-                                </div>
-                            </template>
-
-                            <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 0, 1)}}">
-                                <!-- CATEGORICAL type, no value: values to be filled in this code -->
-                                <!-- Dropdown related to years : fill in with values contained in {{years}} -->
-                                <template is="dom-if" if="{{checkType(variable.name,'Year')}}">
-                                    <div class="col-sm-9">
-                                        <select class$="form-control {{prefix}}SelectInput" id="{{prefix}}{{variable.name}}" name="{{variable.name}}" required on-change="checkYears">
+                                <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 3, 500)}}">
+                                    <!-- CATEGORICAL type: dropdown: at least three elements in variable.allowedValues -->
+                                    <div class="col-xs-3">
+                                        <select class$="form-control {{prefix}}SelectInput" id="{{prefix}}{{variable.name}}" name="{{variable.name}}" required on-change="updateSelect">
                                             <option></option>
-                                            <template is="dom-repeat" items="{{yearsTest}}">
+                                            <template is="dom-repeat" items="{{variable.allowedValues}}">
                                                 <option value="{{item}}">{{item}}</option>
                                             </template>
                                         </select>
@@ -223,100 +254,57 @@
                                     </div>
                                 </template>
 
-                            </template>
-
-                            <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 1, 2)}}">
-                                <!-- CATEGORICAL type, single value: check box -->
-                                <div class="col-sm-9">
-                                    <input class$="{{prefix}}CheckInput" type="checkbox" id="{{prefix}}{{variable.name}}" name="{{variable.name}}" value="{{variable.name}}" style="padding-left: 20px" required>
-                                </div>
-                            </template>
-
-                            <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 2, 3)}}">
-                                <!-- CATEGORICAL type, 2 values: radio buttons for selection -->
-                                <!--<label class="col-sm-3 control-label">{{variable.name}}-{{variable.type}}</label>-->
-                                <div class="col-sm-9">
-                                    <template is="dom-repeat" items="{{variable.allowedValues}}" as="value">
+                                <template is="dom-if" if="{{checkVarType(variable, 'BOOLEAN')}}">
+                                    <!-- BOOLEAN type, 2 values: radio buttons for selection: yes or no -->
+                                    <!--<label class="col-sm-3 control-label">{{variable.name}}-{{variable.type}}</label>-->
+                                    <div class="col-xs-6">
                                         <div class="form-check form-check-inline">
                                             <label class="form-check-label">
-                                                <input id="{{prefix}}{{variable.name}}{{value}}" class$="form-check-input {{prefix}}RadioInput" type="radio" name="{{variable.name}}" value="{{value}}"> {{value}}
+                                                <input id="{{prefix}}{{variable.name}}yes" class$="form-check-input {{prefix}}RadioInput" type="radio" name="{{variable.name}}" value="true"> yes
+                                                <input id="{{prefix}}{{variable.name}}no" class$="form-check-input {{prefix}}RadioInput" type="radio" name="{{variable.name}}" value="false"> no
                                             </label>
                                         </div>
-                                    </template>
-                                    <div class="help-block with-errors"></div>
-                                </div>
-                            </template>
-
-                            <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 3, 500)}}">
-                                <!-- CATEGORICAL type: dropdown: at least three elements in variable.allowedValues -->
-                                <div class="col-sm-9">
-                                    <select class$="form-control {{prefix}}SelectInput" id="{{prefix}}{{variable.name}}" name="{{variable.name}}" required on-change="updateSelect">
-                                        <option></option>
-                                        <template is="dom-repeat" items="{{variable.allowedValues}}">
-                                            <option value="{{item}}">{{item}}</option>
-                                        </template>
-                                    </select>
-                                    <div class="help-block with-errors" id="{{prefix}}_errorDiv_{{variable.name}}"></div>
-                                </div>
-                            </template>
-
-                            <template is="dom-if" if="{{checkVarType(variable, 'BOOLEAN')}}">
-                                <!-- BOOLEAN type, 2 values: radio buttons for selection: yes or no -->
-                                <!--<label class="col-sm-3 control-label">{{variable.name}}-{{variable.type}}</label>-->
-                                <div class="col-sm-9">
-                                    <div class="form-check form-check-inline">
-                                        <label class="form-check-label">
-                                            <input id="{{prefix}}{{variable.name}}yes" class$="form-check-input {{prefix}}RadioInput" type="radio" name="{{variable.name}}" value="true"> yes
-                                            <input id="{{prefix}}{{variable.name}}no" class$="form-check-input {{prefix}}RadioInput" type="radio" name="{{variable.name}}" value="false"> no
-                                        </label>
+                                        <div class="help-block with-errors"></div>
                                     </div>
-                                    <div class="help-block with-errors"></div>
-                                </div>
-                            </template>
-                        </div>
+                                </template>
+                            </div>
+                        </template>
                     </template>
-                </template>
 
-                <div class="form-group">
-                    <label for="uploadInputFileVCF" class="col-sm-3 control-label">VCF or gVCF file</label>
-                    <div class="col-sm-9">
-                        <div class="input-group">
-                            <input type="text" class$="form-control {{prefix}}TextInput" id="uploadInputFileVCF" name="inputFile" readonly>
-                            <span class="input-group-btn">
-                                <label class="btn btn-primary" for="{{prefix}}FileToUpload">
-                                    <input id="{{prefix}}FileToUpload" type="file" style="display:none;" onchange="$('#uploadInputFileVCF')[0].value=$(this).val().replace('C:\\fakepath\\','');">
-                                    ...
-                                </label>
-                            </span>
+                    <div class="form-group row">
+                        <label for="uploadInputFileVCF" class="col-xs-2 col-form-label">VCF or gVCF file</label>
+                        <div class="col-xs-6">
+                            <div class="input-group">
+                                <input type="text" class$="form-control {{prefix}}TextInput" id="uploadInputFileVCF" name="inputFile" readonly>
+                                <span class="input-group-btn">
+                                    <label class="btn btn-primary" for="{{prefix}}FileToUpload">
+                                        <input id="{{prefix}}FileToUpload" type="file" style="display:none;" onchange="$('#uploadInputFileVCF')[0].value=$(this).val().replace('C:\\fakepath\\','');">
+                                        ...
+                                    </label>
+                                </span>
+                            </div>
                         </div>
+                        <span class='label label-info' id="upload-file-info"></span>
                     </div>
-                    <span class='label label-info' id="upload-file-info"></span>
-                </div>
 
-<!--                <div class="form-group">
-                    <label for="{{prefix}}inputFile" class="col-sm-3 control-label">VCF or gVCF file</label>
-                    <div class="col-sm-9">
-                        <input type="file" class="file" id="FileToUpload">
-                        <div class="input-group">
-                            <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}inputFile" name="inputFile">
-                            <span class="input-group-btn">
-                                    <button class="browse btn btn-primary" type="button">...</button>
-                            </span>
+    <!--                <div class="form-group">
+                        <label for="{{prefix}}inputFile" class="col-sm-3 control-label">VCF or gVCF file</label>
+                        <div class="col-sm-9">
+                            <input type="file" class="file" id="FileToUpload">
+                            <div class="input-group">
+                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}inputFile" name="inputFile">
+                                <span class="input-group-btn">
+                                        <button class="browse btn btn-primary" type="button">...</button>
+                                </span>
+                            </div>
                         </div>
-                    </div>
-                </div>-->
+                    </div>-->
 
-
-
-                <div class="form-group" style="float: right;">
-                    <div class="offset-sm-2 col-sm-10">
+                    <div class="form-group" style="float: right; width: 55%;">
                         <button type="submit" class="btn btn-primary" on-click="submitForm">Upload and check sample</button>
                     </div>
-                </div>
-
-                {{individualId}}
-
-            </form>
+                </form>
+            </div>
         </div>
 
         <!-- Modal dialog for HPO terms-->

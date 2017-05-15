@@ -174,8 +174,7 @@
 
                         <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}BiotypeDiv" style="cursor: pointer;"></i>&nbsp;Biotype</label>
                         <div id="{{prefix}}BiotypeDiv" hidden>
-                            <select class$="form-control {{prefix}}FilterSelect" id="{{prefix}}GeneBiotypes" on-change="updateQueryFilters">
-                                <option value="none">Select a biotype...</option>
+                            <select multiple class$="form-control {{prefix}}FilterSelect" id="{{prefix}}GeneBiotypes" on-change="updateQueryFilters">
                                 <template is="dom-repeat" items="{{biotypes}}">
                                     <option value="{{item}}">{{item}}</option>
                                 </template>
@@ -183,9 +182,6 @@
 
 
                         </div>
-                        <br>
-                        <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}TissueExpressionDiv" style="cursor: pointer;"></i>&nbsp;Tissue Expression</label>
-                        <div id="{{prefix}}TissueExpressionDiv" hidden></div>
                         <br>
                         <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}DepthDiv" style="cursor: pointer;"></i>&nbsp;Depth</label>
                         <div id="{{prefix}}DepthDiv" hidden>
