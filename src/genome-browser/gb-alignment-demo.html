@@ -226,9 +226,9 @@
             });
 
     // Take the file id to show the alignment track
-    let fileId;
+    let fileIds;
     if (typeof queryParams.BAM_NAME !== "undefined") {
-        fileId = queryParams.BAM_NAME;
+        fileIds = queryParams.BAM_NAME;
     }
 
     let study;
@@ -237,7 +237,7 @@
     }
 
     var genomeViewer;
-    var region = new Region({chromosome: "21", start: 17378018, end: 17378166});
+    var region = new Region({chromosome: "13", start: 32929163, end: 32929227});
     //        var region = new Region({chromosome: "X", start: 139865187, end: 139865193});
 
     getSpecies(function(s) {
@@ -335,22 +335,26 @@
         });
         tracks.push(this.gene);
 
-
-        let alignment = new AlignmentTrack({
-            title: "Alignment",
-            closable: true,
-            minHistogramRegionSize: 5000,
-            maxLabelRegionSize: 3000,
-            visibleRegionSize: 100000000,
-            height: 300,
-            renderer: new AlignmentRenderer(FEATURE_TYPES.alignment),
-            dataAdapter: new OpencgaAdapter(opencgaClient, "analysis/alignment", undefined, "query",
+        let fileIdsSplitted = fileIds.split(",");
+        for (let i in fileIdsSplitted) {
+            let fileId = fileIdsSplitted[i];
+            let alignment = new AlignmentTrack({
+                title: "Alignment",
+                closable: true,
+                minHistogramRegionSize: 5000,
+                maxLabelRegionSize: 3000,
+                visibleRegionSize: 100000000,
+                height: 300,
+                renderer: new AlignmentRenderer(FEATURE_TYPES.alignment),
+                dataAdapter: new OpencgaAdapter(opencgaClient, "analysis/alignment", undefined, "query",
                     {
                         fileId: fileId,
                         study: study
                     })
-        });
-        tracks.push(alignment);
+            });
+            tracks.push(alignment);
+
+        }
 
         let gene = new FeatureTrack({
             minHistogramRegionSize: 20000000,

@@ -882,7 +882,19 @@ AlignmentRenderer.prototype.render = function (response, args) {
         args.svgCanvasFeatures.removeChild(args.svgCanvasFeatures.firstChild);
     }
 
-    // var featureGroup = SVG.addChild(bamReadGroup, "g", {'feature_id': "caca"});
+    let addDifferencesSVG = function(svgBase, array, color) {
+        if (array === null || array.length === 0) {
+            return;
+        }
+        SVG.addChild(svgBase, "path", {
+            "d": array.join(" "),
+            "stroke": color,
+            "stroke-width": 0.7,
+            "fill": color,
+            "fill-opacity": 0.5
+        });
+    };
+
     let keys = Object.keys(polyDrawing);
     for (let i = 0; i < keys.length; i++) {
         let features = args.renderedArea[keys[i]];
@@ -914,19 +926,6 @@ AlignmentRenderer.prototype.render = function (response, args) {
             let read = features.get({start: position, end: position}).value.feature;
             $(svgChild).qtip('option', 'content.text', _this.tooltipText(read));
             $(svgChild).qtip('option', 'content.title', _this.tooltipTitle(read));
-        };
-
-        let addDifferencesSVG = function(svgBase, array, color) {
-            if (array === null || array.length === 0) {
-                return;
-            }
-            SVG.addChild(svgBase, "path", {
-                "d": array.join(" "),
-                "stroke": color,
-                "stroke-width": 0.7,
-                "fill": color,
-                "fill-opacity": 0.5
-            });
         };
 
         // Render differences
