@@ -21,6 +21,13 @@
             label {
                 padding-top: 10px;
             }
+            .input-group-addon {
+                min-width:200px;
+                text-align:left;
+            }
+            .form-control:read-only {
+                background-color: white;
+            }
         </style>
 
         <br>
@@ -34,95 +41,106 @@
 
                 <!-- Analysis Information -->
 
-                <div style="margin: 10px 5px 15px 50px" class="analysis-information" id="{{prefix}}analysisInformationDiv">
-                    <h4>Analysis Information</h4>
+                <div style="margin: 10px 5px 15px 50px" class="analysis-information col-sm-12" id="{{prefix}}analysisInformationDiv">
+                    <h3>Analysis Information</h3>
                     <hr>
-                    <div style="margin: 10px 5px 15px 15px" class="analysis-information" id="{{prefix}}analysisInformationDiv">
+                    <div style="margin: 10px 0px 15px 5px" class="analysis-information" id="{{prefix}}analysisInformationContent">
                         <ul>
                             <div class="form-group row" id="{{prefix}}analysisInformationID">
-                                <label for="{{prefix}}analysisID" class="col-xs-2 col-form-label">Analysis ID</label>
-                                <div class="col-xs-2">
-                                    <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}analysisID" name="analysisID" readonly value="AN-28">
-                                </div>
-                            </div>
-                            <div class="form-group row" id="{{prefix}}analysisInformationResume">
-                                <label for="{{prefix}}samplesID" class="col-xs-2 col-form-label">Samples ID</label>
-                                <div class="col-xs-2">
-                                    <textarea type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}samplesID" name="samplesID" style="resize:none" readonly row="2">"HG00097, HG00098, HG00099"</textarea>
-                                </div>
-                                <label for="{{prefix}}typeAnalysis" class="col-xs-2 col-form-label">Type of analysis</label>
-                                <div class="col-xs-2">
-                                    <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}typeAnalysis" name="typeAnalysis" readonly value="Trio">
-                                </div>
-                                <label for="{{prefix}}dateAnalysis" class="col-xs2 col-form-label">Date</label>
-                                <div class="col-xs-2">
-                                    <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}dateAnalysis" name="dateAnalysis" readonly value="05/05/2017">
+                                <div class="col-sm-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Analysis ID</span>
+                                        <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}analysisID" name="analysisID" readonly value="">
+                                    </div>
                                 </div>
                             </div>
 
+                            <div class="form-group-row" id="{{prefix}}analysisInformationResume" hidden>
+                                <div class="col-sm-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Samples ID</span>
+                                        <textarea type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}samplesID" name="samplesID" style="resize:none" readonly row="2">"HG00097, HG00098, HG00099"</textarea>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Type of analysis</span>
+                                        <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}typeAnalysis" name="typeAnalysis" readonly value="Trio">
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Date</span>
+                                        <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}dateAnalysis" name="dateAnalysis" readonly value="05/05/2017">
+                                    </div>
+                                </div>
+                            </div>
                         </ul>
-
-
-
-
                     </div>
-                    <br>
-
                 </div>
+                <br>
 
-                <div style="margin: 10px 5px 15px 25px" class="sample-information" id="{{prefix}}sampleInformationDiv">
-                    <h4>Sample Information</h4>
+                <div style="margin: 10px 5px 15px 50px" class="sample-information col-sm-12" id="{{prefix}}sampleInformationDiv" hidden>
+                    <h3>Sample Information</h3>
                     <hr>
-                    Some infromation related to the sample or samples. If the anlaysis is related to more than one sample (i.e. a family), then, all fields related to individual and variable
-                    set can be included from the case. For the rest of parents, sample IDs can be shown.
-                    <br>
-
-
                     <!-- Sample information related to individual -->
-
                     <ul>
                         <div class="form-group row" id="{{prefix}}individualIDDiv">
-                            <label for="{{prefix}}IndividualID" class="col-sm-2 col-form-label">Individual ID</label>
-                            <div class="col-sm-2">
-                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}IndividualID" name="individualID" readonly value="NUS2344234">
+                            <div class="col-sm-4">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Individual ID</span>
+                                    <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}IndividualID" name="individualID" readonly value="NUS2344234">
+                                </div>
                             </div>
                         </div>
                         <div class="form-group row" id="{{prefix}}chromosomalGenderDiv">
-                            <label for="{{prefix}}ChromosomalGender" class="col-sm-2 col-form-label">Chromosomal Gender</label>
-                            <div class="col-sm-2">
-                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}ChromosomalGender" name="chromosomalGender" readonly value="XX">
+                            <div class="col-sm-4">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Chromosomal Gender</span>
+                                    <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}ChromosomalGender" name="chromosomalGender" readonly value="XX">
+                                </div>
                             </div>
                         </div>
                         <div class="form-group row" id="{{prefix}}yearBirthDiv">
-                            <label for="{{prefix}}BirthYear" class="col-sm-2 col-form-label">Year of birth</label>
-                            <div class="col-sm-2">
-                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}BirthYear" name="birthYear" readonly value="1982">
+                            <div class="col-sm-4">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Year of birth</span>
+                                    <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}BirthYear" name="birthYear" readonly value="1982">
+                                </div>
                             </div>
                         </div>
-                        <div class="form-group row" id="{{prefix}}birthPlaceDiv" hidden>
-                            <label for="{{prefix}}BirthPlace" class="col-sm-2 col-form-label">Birth place</label>
-                            <div class="col-sm-2">
-                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}BirthPlace" name="birthPlace" readonly value="Spain">
+                        <div class="form-group row" id="{{prefix}}birthPlaceDiv">
+                            <div class="col-sm-4">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Birth place</span>
+                                    <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}BirthPlace" name="birthPlace" readonly value="Spain">
+                                </div>
                             </div>
                         </div>
                         <div class="form-group row" id="{{prefix}}ethnicityDiv">
-                            <label for="{{prefix}}Ethnicity" class="col-sm-2 col-form-label">Ethnicity</label>
-                            <div class="col-sm-2">
-                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}Ethnicity" name="ethnicity" readonly value="white mediterranean">
+                            <div class="col-sm-4">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Ethnicity</span>
+                                    <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}Ethnicity" name="ethnicity" readonly value="white mediterranean">
+                                </div>
                             </div>
                         </div>
                         <div class="form-group row" id="{{prefix}}HPODiv">
-                            <label for="{{prefix}}HPO" class="col-sm-2 col-form-label">HPO</label>
-                            <div class="col-sm-3">
-                                 <textarea class$="form-control {{prefix}}TextInput" id="{{prefix}}HPO" name="HPO"
-                                           readonly rows="2" style="resize:none">"HP:0000947"</textarea>
+                            <div class="col-sm-4">
+                                <div class="input-group">
+                                    <span class="input-group-addon">HPO</span>
+                                    <textarea class$="form-control {{prefix}}TextInput" id="{{prefix}}HPO" name="HPO"
+                                              readonly rows="2" style="resize:none">"HP:0000947"</textarea>
+                                </div>
                             </div>
                         </div>
                         <div class="form-group row" id="{{prefix}}diagnosisDiv">
-                            <label for="{{prefix}}Diagnosis" class="col-sm-2 col-form-label">Diagnosis</label>
-                            <div class="col-sm-3">
-                                 <textarea class$="form-control {{prefix}}TextInput" id="{{prefix}}diagnosis" name="diagnosis"
-                                           readonly rows="2" style="resize:none">Disorders of thyroid gland (E00-E07)</textarea>
+                            <div class="col-sm-4">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Diagnosis</span>
+                                    <textarea class$="form-control {{prefix}}TextInput" id="{{prefix}}diagnosis" name="diagnosis"
+                                              readonly rows="2" style="resize:none">Disorders of thyroid gland (E00-E07)</textarea>
+                                </div>
                             </div>
                         </div>
 
@@ -131,9 +149,11 @@
 
                         <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}" as="variable" sort="_sortVariables">
                             <div class="form-group row" id="{{prefix}}{{variable.name}}Div">
-                                <label for="{{prefix}}{{variable.name}}" class="col-sm-2 col-form-label">{{variable.title}}</label>
-                                <div class="col-sm-3">
-                                    <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}{{variable.name}}" readonly name="{{variable.name}}">
+                                <div class="col-sm-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">{{variable.title}}</span>
+                                        <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}{{variable.name}}" readonly name="{{variable.name}}">
+                                    </div>
                                 </div>
                             </div>
                         </template>
@@ -141,23 +161,62 @@
                     </ul>
                 </div>
 
-                <div style="margin: 10px 5px 15px 25px" class="prioritization-information" id="prioritizationInformationDiv">
-                    <h4>Prioritization Information</h4>
+
+                <div style="margin: 10px 5px 15px 50px" class="prioritization-information col-sm-12" id="{{prefix}}prioritizationInformationDiv">
+                    <h3>Prioritization Information</h3>
                     <hr>
-                    Information related to prioritization can be included according to left panel, including generic data (number of varaints), variants table and the filter used to
-                    generate the table
-                    <br>
-                    <ul>
-                    </ul>
+
+                    <div class="prioritization-summary col-sm-12" id="{{prefix}}prioritizationSummaryDiv">
+                        <h4>Summary of results</h4>
+
+                        <div class="form-group row">
+                            <div class="col-sm-3">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Total variants</span>
+                                    <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}totalVariants" name="totalVariants" readonly value="20">
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Diagnostic variants</span>
+                                    <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}diagnosticVariants" name="diagnosticVariants" readonly value="2">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-3">
+                                <div class="input-group">
+                                    <span class="input-group-addon">VUS</span>
+                                    <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}vusVariants" name="vusVariants" readonly value="2">
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Unexpected variants</span>
+                                    <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}unexpectedVariants" name="unexpectedVariants" readonly value="1">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="prioritization-summary col-sm-12" id="{{prefix}}variantsTableDiv" hidden>
+                        <h4>Variants table</h4>
+                    </div>
+
+                    <div class="prioritization-summary col-sm-12" id="{{prefix}}filterResumeDiv" hidden>
+                        <h4>Filter resume</h4>
+                    </div>
+
                 </div>
 
-                <div style="margin: 10px 5px 15px 25px" class="other-information" id="otherInformationDiv">
-                    <h4>Other Information</h4>
+
+                <div style="margin: 10px 15px 15px 50px" class="other-information col-sm-12" id="{{prefix}}otherInformationDiv">
+                    <h3>Other Information</h3>
                     <hr>
-                    A text are can be included to write some conclusions or free text
-                    <br>
-                    <ul>
-                    </ul>
+                    <div class="col-sm-10">
+                        <textarea type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}conclusions" name="conclusions" placeholder="Editable conclusions" style="resize:none" row="5" maxlength="300"></textarea>
+                    </div>
                 </div>
 
 
@@ -184,7 +243,7 @@
                     type: Object
                 },
                 selection: {
-                    type: Array,
+                    type: Object,
                     observer: 'fetchSelection'
                 },
                 title: {
@@ -198,10 +257,6 @@
                 },
                 variables: {
                     type: Array
-                },
-                analysisId: {
-                    type: Array,
-                    observer: 'loadAnalysis'
                 }
 
             },
@@ -214,33 +269,34 @@
                 this.requestDate = date.toLocaleString();
 
             },
-            loadAnalysis: function() {
+            fetchSelection: function () {
                 console.log(this);
                 debugger;
 
-                if (typeof this.analysisId !== "undefined") {
-
-                    let petete=3;
-
+                // AnalysisID
+                if (typeof this.selection.analysisID !== "undefined" && typeof this.analysisID === "undefined") {
+                    this.$$("#" + this.prefix + "analysisID").value = this.selection.analysisID;
+                    this.analysisID = this.selection.analysisID;
+                    this.$$("#" + this.prefix + "sampleInformationDiv").hidden = false;
                 }
 
-                let date = new Date();
-                this.requestDate = date.toLocaleString();
+                // Analysis resume
 
-            },
-            fetchSelection: function () {
+                if (typeof this.selection.analysisResume !== "undefined") {
+                    this.$$("#" + this.prefix + "analysisInformationResume").hidden = ! this.selection.analysisResume;
+                }
 
-                let _numFalseElements = 0;
-
-                if (typeof this.selection !== "undefined") {
-                    for (let i = 0; i < this.selection.length; i++) {
-                        this.$$("#" + this.prefix + this.selection[i].name + "Div").hidden = !this.selection[i].value;
-                        if (this.selection[i].value == false)
+                // Sample Information
+                if (typeof this.selection.sampleInfo !== "undefined") {
+                    let _numFalseElements = 0;
+                    for (let i = 0; i < this.selection.sampleInfo.length; i++) {
+                        this.$$("#" + this.prefix + this.selection.sampleInfo[i].name + "Div").hidden = !this.selection.sampleInfo[i].value;
+                        if (this.selection.sampleInfo[i].value == false)
                         {_numFalseElements++;}
 
                     }
 
-                    if (_numFalseElements == this.selection.length)
+                    if (_numFalseElements == this.selection.sampleInfo.length)
                     {
                         this.$$("#" + this.prefix + "sampleInformationDiv").hidden = true;
                     }
@@ -249,16 +305,30 @@
                         this.$$("#" + this.prefix + "sampleInformationDiv").hidden = false;
                     }
 
-                    let _a = 2;
-
                 }
 
+                // Prioritization Information
+                if (typeof this.selection.prioritizationInfo !== "undefined") {
 
 
-                //$("#"+ this.prefix + "birthYearDiv").show();
-                //$('#'+this.prefix + 'birthPlaceDiv')[0].hidden = !$('#'+this.prefix + 'birthPlaceDiv')[0].hidden;
+                    let _numFalseElements = 0;
+                    for (let i = 0; i < this.selection.prioritizationInfo.length; i++) {
+                        this.$$("#" + this.prefix + this.selection.prioritizationInfo[i].name + "Div").hidden = !this.selection.prioritizationInfo[i].value;
+                        if (this.selection.prioritizationInfo[i].value == false)
+                        {_numFalseElements++;}
 
-                //this.$[divId].hidden = !this.$[divId].hidden;
+                    }
+
+                    if (_numFalseElements == this.selection.prioritizationInfo.length)
+                    {
+                        this.$$("#" + this.prefix + "prioritizationInformationDiv").hidden = true;
+                    }
+                    else
+                    {
+                        this.$$("#" + this.prefix + "prioritizationInformationDiv").hidden = false;
+                    }
+
+                }
 
             },
             print: function(data) {

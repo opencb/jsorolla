@@ -52,7 +52,9 @@
                         </div>
                         <br>
                         <br>
-                        <input type="checkbox" name="analysisButtons" id="{{prefix}}AnalysisResume" value="analysisResume" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Analysis resume<br>
+                        <div id="{{prefix}}analysisResumeDiv" hidden>
+                            <input type="checkbox" name="analysisButtons" id="{{prefix}}AnalysisResume" value="analysisResume" class$="{{prefix}}FilterRadio" on-change="showAnalysisResume" style="padding-left: 20px"> Analysis resume<br>
+                        </div>
                     </div>
                 </div>
 
@@ -117,13 +119,13 @@
                     </h4>
                 </div>
                 <div id="{{prefix}}PrioritizationInformationContent" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}PrioritizationInformationHeading">
-                    <div class="panel-body">
+                    <div id="{{prefix}}PrioritizationFields" class="panel-body">
                         <div class="form-group">
                             <label>Select</label>
                             <br>
-                            <input type="checkbox" name="prioritizationButtons" id="{{prefix}}GenericData" value="genericData" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Generic data<br>
-                            <input type="checkbox" name="prioritizationButtons" id="{{prefix}}VariantsTable" value="variantsTable" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Variants table<br>
-                            <input type="checkbox" name="prioritizationButtons" id="{{prefix}}FilterResume" value="filterResume" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Filter resume<br>
+                            <input type="checkbox" name="prioritizationButtons" id="{{prefix}}VariantsTable" value="variantsTable" class$="{{prefix}}FilterRadio" on-change="showPrioritization" style="padding-left: 20px"> Variants table<br>
+                            <input type="checkbox" name="prioritizationButtons" id="{{prefix}}SummaryResults" value="prioritizationSummary" class$="{{prefix}}FilterRadio" checked on-change="showPrioritization" style="padding-left: 20px"> Summary of results<br>
+                            <input type="checkbox" name="prioritizationButtons" id="{{prefix}}FilterResume" value="filterResume" class$="{{prefix}}FilterRadio" on-change="showPrioritization" style="padding-left: 20px"> Filter resume<br>
                         </div>
                     </div>
                 </div>
@@ -221,10 +223,6 @@
                 expReport : {
                     type: Boolean,
                     notify: true
-                },
-                analysisId : {
-                    type: String,
-                    notify: true
                 }
             },
             ready: function() {
@@ -270,8 +268,9 @@
                         fieldsAux.push({name: fields[i].value , value: fields[i].checked});
                     }
                 }
-                this.selection.sample = fieldsAux;
 
+                let _obj = Object.assign({}, this.selection , {sampleInfo: fieldsAux});
+                this.selection = _obj;
 
             },
             sampleInfoAll: function () {
@@ -300,16 +299,48 @@
                 $("#" + this.prefix + "SampleInformationDiv").show();
                 $("#" + this.prefix + "PrioritizationInformationDiv").show();
                 $("#" + this.prefix + "OtherInformationDiv").show();
+                $("#" + this.prefix + "analysisResumeDiv").show();
 
-                console.log(this);
-                debugger;
 
-                this.analysisId = "AN-28" // hardcoded!!!
-                this.selection = {analysis: this.analysisId};
+                this.selection = {analysisID: "AN-28"}; // hardcoded!!!!
 
 
 
+            },
+            showAnalysisResume: function(e){
+                e.preventDefault();
+                let _obj = Object.assign({}, this.selection , {analysisResume: e.target.checked});
+                this.selection = _obj;
+
+            },
+            showPrioritization: function(e){
+                e.preventDefault();
+
+                let fields = this.$$("#" + this.prefix + "PrioritizationFields").querySelectorAll("input[type='checkbox']");
+                let fieldsAux = [];
+                if (fields.length > 0) {
+                    for (let i = 0; i < fields.length; i++) {
+                        fieldsAux.push({name: fields[i].value , value: fields[i].checked});
+                    }
+                }
+
+                let _obj = Object.assign({}, this.selection , {prioritizationInfo: fieldsAux});
+                this.selection = _obj;
+
+
+
+                /*                switch (e.target.id) {
+                 case (this.prefix + 'VariantsTable'):
+                 let _obj = Object.assign({}, this.selection , {summary: e.target.checked});
+                 case (this.prefix + 'SummaryResults'):
+                 let _obj = Object.assign({}, this.selection , {summary: e.target.checked});
+                 case (this.prefix + 'FilterResume'):
+
+                 }
+                 this.selection = _obj;*/
             }
+
+
         });
     </script>
 </dom-module>
