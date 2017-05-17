@@ -14,79 +14,31 @@
   ~ limitations under the License.
   -->
 
-<link rel="import" href="../catalog/samples/opencga-family-editor.html">
-
 <dom-module id="variant-sample-grid">
     <template>
         <style is="custom-style" include="jso-styles"></style>
 
-        <!--<h3><i class="fa fa-sitemap" aria-hidden="true"></i>&nbsp;Family Selector</h3>-->
-
-        <!--<div class="panel">-->
-            <!--<div class="col-md-2">-->
-                <!--<div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true">-->
-                    <!--&lt;!&ndash;Sample name&ndash;&gt;-->
-                    <!--<div class="panel panel-default">-->
-                        <!--<div class="panel-heading" role="tab" id="{{prefix}}SampleGeneralFilterHeading">-->
-                            <!--<h4 class="panel-title">-->
-                                <!--<a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"-->
-                                   <!--href="#{{prefix}}General" aria-expanded="true" aria-controls="{{prefix}}General">-->
-                                    <!--General-->
-                                    <!--<div style="float: right" class="tooltip-div">-->
-                                        <!--<a data-toggle="tooltip" title="Generic sample filters">-->
-                                            <!--<i class="fa fa-info-circle" aria-hidden="true"></i>-->
-                                        <!--</a>-->
-                                    <!--</div>-->
-                                <!--</a>-->
-                            <!--</h4>-->
-                        <!--</div>-->
-                        <!--<div id="{{prefix}}SampleGeneralFilter" class="panel-collapse" role="tabpanel"-->
-                             <!--aria-labelledby="{{prefix}}SampleGeneralFilterHeading">-->
-                            <!--<div class="form-group has-feedback panel-body">-->
-                                <!--Sample name:-->
-                                <!--<textarea id="{{prefix}}NameTextarea" class="form-control clearable" rows="3"-->
-                                          <!--placeholder="HG01879, HG01880, HG01881..."-->
-                                          <!--name="name" on-keyup="calculateFilters"></textarea>-->
-
-                                <!--<br> Individual name:-->
-                                <!--<textarea id="{{prefix}}IndividualTextarea" class="form-control clearable" rows="3"-->
-                                          <!--placeholder="Smith, Grant ..."-->
-                                          <!--name="individual" on-keyup="calculateFilters"></textarea>-->
-                            <!--</div>-->
-                        <!--</div>-->
-                    <!--</div>-->
-                <!--</div>-->
-            <!--</div>-->
-
-            <!--<div class="col-md-10">-->
-                <!--<table id="{{prefix}}FamilySelector" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"-->
-                       <!--data-checkbox-header="false" style="cursor: pointer;">-->
-                    <!--<thead style="background-color: #eee"></thead>-->
-                <!--</table>-->
-
-                <!--<div>-->
-                    <!--<h4>Family editor (Work in progess)</h4>-->
-                    <!--<opencga-family-editor samples="{{samples}}" opencga-client="{{opencgaClient}}"></opencga-family-editor>-->
-                <!--</div>-->
-            <!--</div>-->
-        <!--</div>-->
-
         <div>
-            <table id="{{prefix}}FamilySelector" data-search="true" data-show-columns="true" data-page-size="5" data-pagination="true" data-page-list="[10, 25, 50]"
-                   data-checkbox-header="false" style="cursor: pointer;">
+            <div id="{{prefix}}ToolbarLeft" style="float: left;margin: 20px 0px 0px 0px">
+                <span style="font-size: 14px">Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> samples</span>
+            </div>
+            <table id="{{prefix}}SampleSelector" data-search="true" data-show-columns="true"
+                   data-page-size="5" data-pagination="true" data-page-list="[5, 10]" style="cursor: pointer">
                 <thead style="background-color: #eee"></thead>
             </table>
         </div>
     </template>
+
     <script>
         Polymer({
             is: 'variant-sample-grid',
             properties: {
                 opencgaClient: {
-                    type: Object
+                    type: Object,
+                    observer: 'renderFromServer'
                 },
-                studyId: {
-                    type: Number,
+                study: {
+                    type: Object,
                     observer: 'renderFromServer'
                 },
                 samples: {
@@ -98,102 +50,56 @@
                 },
                 filters: {
                     type: Object,
-                    notify: true,
                     observer: "onFilterUpdate"
                 },
                 search: {
-                    type: Object,
-                    notify: true
+                    type: Object
                 }
-//                update: {
-//                    type: Object,
-//                    value: {},
-//                    observer: "updateFilter"
-//                }
             },
             observers: [
                 'calculateFilters(filteredVariables.variables.*)'
             ],
             ready: function() {
-                if (typeof this.prefix === "undefined" || this.prefix == "") {
-                    this.prefix = "sample" + Utils.randomString(6);
+                if (typeof this.prefix === "undefined" || this.prefix === "") {
+                    this.prefix = "sample2" + Utils.randomString(6);
                 }
 
-                // Columns that will be represented
-                this._columns = [
-                    [
-                        {
-//                            field: 'state',
-                            field: {source: 'state', context: this},
-                            checkbox: true,
-                            formatter: this.stateFormatter
-                        },
-                        {
-                            title: 'Name',
-                            field: 'name',
-                            sortable: true
-                        },
-                        {
-                            title: 'Proband',
-                            field: 'proband',
-                            formatter: this.probandFormatter
-                        },
-                        {
-                            title: 'Gender',
-                            field: 'gender'
-                        },
-                        {
-                            title: 'Father',
-                            field: 'father'
-                        },
-                        {
-                            title: 'Mother',
-                            field: 'mother'
-                        }
-                    ]
-                ];
-
-                this.renderFromServer();
+//                this.renderFromServer();
             },
             attached: function () {
-                this.table = $('#' + this.prefix + "FamilySelector");
+                this.table = $('#' + this.prefix + "SampleSelector");
             },
             renderFromServer: function () {
                 let filters = this.search;
 
-//                console.log(this.opencgaClient)
-//                console.log(this.studyId)
-//debugger
-//                if (typeof this.table !== "undefined") {
-//                    this.table.bootstrapTable('check', 1);
-//                    this.table.bootstrapTable('check', 5);
-//                    $('#' + this.prefix + "FamilySelector").bootstrapTable('check', 5);
-//                }
-//                    $('#' + this.prefix + "FamilySelector").bootstrapTable('check', 5);
+                this.from = 1;
+                this.to = 5;
 
-                if (typeof this.samples !== "undefined") {
-                    this._samples= this.samples;
-                } else {
-                    this._samples = [];
-                }
+                if (typeof this.opencgaClient !== "undefined" && typeof this.study !== "undefined" && this.study.id > 0) {
+                    let _this = this;
 
-                let _this = this;
-                if (typeof this.opencgaClient != "undefined" && this.opencgaClient instanceof OpenCGAClient && this.studyId > 0) {
-
-                    if (this.opencgaClient.getConfig().host.startsWith("https://")) {
-                        this._url = this.opencgaClient.getConfig().host;
+                    // Make a copy of the samples (if they exist), we will use this private copy until it is assigned to this.samples
+                    if (typeof this.samples !== "undefined") {
+                        this._samples = this.samples;
                     } else {
-                        this._url = 'http://' + this.opencgaClient.getConfig().host;
+                        this._samples = [];
                     }
 
-                    this._url = this._url + '/webservices/rest/v1/samples/search';
-//                    $('#' + this.prefix + "FamilySelector").bootstrapTable('destroy');
-                    $('#' + this.prefix + "FamilySelector").bootstrapTable({
-                        url: this._url,
+                    // Check that HTTP protocol is present and complete the URL
+                    let opencgaHostUrl = this.opencgaClient.getConfig().host;
+                    if (!opencgaHostUrl.startsWith("http://") && !opencgaHostUrl.startsWith("https://")) {
+                        opencgaHostUrl = 'http://' + opencgaHostUrl;
+                    }
+                    opencgaHostUrl += '/webservices/rest/v1/samples/search';
+
+                    $('#' + _this.prefix + "SampleSelector").bootstrapTable({
+                        url: opencgaHostUrl,
+                        columns: _this._getTableColumns(),
+                        method: 'get',
                         sidePagination: 'server',
                         queryParams: function (params) {
                             let auxParams = {
-                                studyId: _this.studyId,
+                                studyId: _this.study.id,
                                 sid: Cookies.get(_this.opencgaClient.getConfig().cookieSessionId),
                                 order: params.order,
                                 sort: params.sort,
@@ -203,7 +109,9 @@
 //                            if (params.search !== undefined && params.search.length > 0) {
 //                                auxParams["name"] = "~" + params.search;
 //                            }
-                            return $.extend({}, filters, auxParams);
+
+//                            return $.extend({}, filters, auxParams);
+                            return auxParams;
                         },
                         responseHandler: function (response) {
                             if (!_this.hasOwnProperty("numTotalResults")) {
@@ -214,26 +122,25 @@
                                 _this.numTotalResults = response.response[0].numTotalResults;
                             }
 
+                            _this.numTotalResultsText = _this.numTotalResults.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
                             return {
                                 total: _this.numTotalResults,
                                 rows: response.response[0].result
                             };
                         },
-                        columns: this._columns,
-
                         onClickRow: function (row, element, field) {
                             let index = element[0].getAttribute("data-index");
+                            // Check and uncheck actions trigger events that are captured below
                             if (row.state) {
-                                $('#' + _this.prefix + "FamilySelector").bootstrapTable('uncheck', index);
+                                $('#' + _this.prefix + "SampleSelector").bootstrapTable('uncheck', index);
                             } else {
-                                $('#' + _this.prefix + "FamilySelector").bootstrapTable('check', index);
+                                $('#' + _this.prefix + "SampleSelector").bootstrapTable('check', index);
                             }
                         },
-
                         onCheck: function (row, elem) {
                             // check sample is not already selected
                             for (let i in _this._samples) {
-                                if (_this._samples[i].name == row.name) {
+                                if (_this._samples[i].name === row.name) {
                                     return;
                                 }
                             }
@@ -243,70 +150,73 @@
                             _this.set('samples', _this._samples.slice());
 
                             // Map each sample to its associated individual
-                            if (typeof row.individual !== "undefined" && typeof row.individual.id !== "undefined"
-                                && row.individual.id != "-1") {
-                                if (typeof _this.individuals[row.individual.id] === "undefined") {
-                                    _this.individuals[row.individual.id] = [row];
-                                } else {
-                                    _this.individuals[row.individual.id].push(row);
-                                }
-                            }
+//                            if (typeof row.individual !== "undefined" && typeof row.individual.id !== "undefined" && row.individual.id !== "-1") {
+//                                if (typeof _this.individuals[row.individual.id] === "undefined") {
+//                                    _this.individuals[row.individual.id] = [row];
+//                                } else {
+//                                    _this.individuals[row.individual.id].push(row);
+//                                }
+//                            }
                         },
-
                         onUncheck: function (row, elem) {
                             let sampleToDeleteIdx = -1;
                             for (let i in _this.samples) {
-                                if (_this.samples[i].name == row.name) {
+                                if (_this.samples[i].name === row.name) {
                                     sampleToDeleteIdx = i;
                                     break;
                                 }
                             }
 
-                            if (sampleToDeleteIdx == -1) {
+                            if (sampleToDeleteIdx === -1) {
                                 return;
                             }
 
-                            if (typeof row.individual !== "undefined" && typeof row.individual.id !== "undefined"
-                                && row.individual.id != "-1") {
-                                if (row.individual.id in  _this.individuals) {
-                                    let samples = _this.individuals[row.individual.id];
-                                    for (let i in samples) {
-                                        if (row.name == samples[i].name) {
-                                            samples.splice(i, 1);
-                                            break;
-                                        }
-                                    }
-                                    _this.individuals[row.individual.id] = samples;
-                                }
-                            }
+//                            if (typeof row.individual !== "undefined" && typeof row.individual.id !== "undefined"
+//                                && row.individual.id !== "-1") {
+//                                if (row.individual.id in _this.individuals) {
+//                                    let samples = _this.individuals[row.individual.id];
+//                                    for (let i in samples) {
+//                                        if (row.name === samples[i].name) {
+//                                            samples.splice(i, 1);
+//                                            break;
+//                                        }
+//                                    }
+//                                    _this.individuals[row.individual.id] = samples;
+//                                }
+//                            }
 
                             _this.splice('_samples', sampleToDeleteIdx, 1);
                             _this.set('samples', _this._samples.slice());
                         },
                         onLoadSuccess: function (data) {
-                            if (_this.samples != "undefined") {
+                            // Check all already selected rows. Selected samples are stored in this.samples array
+                            if (_this.samples !== "undefined") {
                                 for (let idx in _this.samples) {
                                     for (let j in data.rows) {
-                                        if (_this.samples[idx].name == data.rows[j].name) {
-                                            $('#' + _this.prefix + "FamilySelector").bootstrapTable('check', j);
+                                        if (_this.samples[idx].name === data.rows[j].name) {
+                                            $('#' + _this.prefix + "SampleSelector").bootstrapTable('check', j);
                                             break;
                                         }
                                     }
                                 }
                             }
+                        },
+                        onPageChange: function (page, size) {
+                            _this.from = (page - 1) * size + 1;
+                            _this.to = page * size;
                         }
                     });
 
-                    this.opencgaClient.studies().info(this.studyId)
+                    this.opencgaClient.studies().info(this.study.id)
                         .then(function (response) {
                             _this.variableSets = response.response[0].result[0].variableSets;
                         })
                         .catch(function () {
-                            console.log("Could not obtain the variable sets of the study " + _this.studyId);
+                            console.log("Could not obtain the variable sets of the study " + _this.study.id);
                         });
                 } else {
                     // Delete table
-                    $('#' + this.prefix + "FamilySelector").bootstrapTable('destroy');
+                    $('#' + this.prefix + "SampleSelector").bootstrapTable('destroy');
                     this.numTotalResults = 0;
                 }
             },
@@ -318,22 +228,30 @@
                     for (let idx in this.field.context.samples) {
                         if (this.field.context.samples[idx].name == row.name) {
                             console.log("Family Selector")
-                            console.log('#' + this.field.context.prefix + "FamilySelector")
-                            console.log($('#' + this.field.context.prefix + "FamilySelector"))
+                            console.log('#' + this.field.context.prefix + "SampleSelector")
+                            console.log($('#' + this.field.context.prefix + "SampleSelector"))
 
-//                            $('#' + this.field.context.prefix + "FamilySelector").bootstrapTable('check', index);
+//                            $('#' + this.field.context.prefix + "SampleSelector").bootstrapTable('check', index);
 //                            this.field.context.table.bootstrapTable('check', 9);
 //                            this.field.context.table.bootstrapTable('check', 7);
-//                            Polymer.dom(this.field.context.root).querySelector('#' + this.field.context.prefix + "FamilySelector").bootstrapTable('check', index);
-//                            Polymer.dom(this.field.context.root).querySelector('#' + this.field.context.prefix + "FamilySelector").rows[index].setAttribute('class', 'success');
+//                            Polymer.dom(this.field.context.root).querySelector('#' + this.field.context.prefix + "SampleSelector").bootstrapTable('check', index);
+//                            Polymer.dom(this.field.context.root).querySelector('#' + this.field.context.prefix + "SampleSelector").rows[index].setAttribute('class', 'success');
 //                            debugger
                             break;
                         }
                     }
                 }
             },
-            probandFormatter: function () {
-                return '<input type="checkbox">';
+            dateFormatter: function (value, row) {
+                let pattern = /^(\d\d\d\d)(\d\d)(\d\d)/;
+                let matches = pattern.exec(value);
+                if (matches) {
+                    let [year, month, day] = [matches[1], matches[2] - 1, matches[3]];
+                    return year + "-" + month + "-" + day;
+                } else {
+//                    throw new Error("Invalid string: " + value);
+                    return "Invalid date: '" + value + "'";
+                }
             },
 
             /**
@@ -454,9 +372,53 @@
                 }
 
                 this.search = filterParams;
+            },
+            _getTableColumns: function () {
+                this._columns = [
+                    [
+                        {
+//                            title: 'Select',
+                            field: {source: 'state', context: this},
+                            checkbox: true,
+                            formatter: this.stateFormatter
+                        },
+                        {
+                            title: 'Sample ID',
+                            field: 'name'
+                        },
+                        {
+                            title: 'Date',
+                            field: 'creationDate',
+                            formatter: this.dateFormatter
+                        },
+                        {
+                            title: 'Status',
+                            field: 'status.name'
+                        },
+                        {
+                            title: 'Gender',
+                            field: 'individual.sex'
+                        },
+                        {
+                            title: 'Presumptive diagnosis',
+                            field: 'diagnosis'
+                        },
+                        {
+                            title: 'Father',
+                            field: 'individual.fatherId'
+                        },
+                        {
+                            title: 'Mother',
+                            field: 'individual.motherId'
+                        },
+                        {
+                            title: 'Cell Type',
+                            field: 'type'
+                        }
+                    ]
+                ];
+                return this._columns;
             }
         });
-
-
     </script>
 </dom-module>

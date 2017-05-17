@@ -29,11 +29,6 @@
         <!-- This is where main application is rendered -->
 
         <div>
-            <!--<div class="col-md-12">-->
-                <!--<h3>Connect, link & choose analysis of samples</h3>-->
-                <!--<br>-->
-            <!--</div>-->
-
             <div class="col-md-2">
                 <opencga-sample-filter study="{{study}}" config="{{config}}" samples="{{samples}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
                                         query="{{query}}" search="{{search}}">
@@ -41,7 +36,6 @@
             </div>
 
             <div class="col-md-10">
-
                 <br>
                 <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" filters="{{config.filters}}" alias="{{activeFilterAlias}}"></opencga-active-filters>
 
@@ -171,13 +165,13 @@
                             formatter: this.selectFormatter
                         },
                         {
-                            title: 'Date',
-                            field: 'date',
-                        },
-                        {
                             title: 'SampleID',
                             field: 'name',
                             sortable: true
+                        },
+                        {
+                            title: 'Date',
+                            field: 'date',
                         },
                         {
                             title: 'Status',
@@ -190,16 +184,24 @@
                         {
                             title: 'Presumptive diagnosis',
                             field: 'diagnosis'
+                        },
+                        {
+                            title: 'Father',
+                            field: 'fatherId'
+                        },
+                        {
+                            title: 'Mother',
+                            field: 'mother'
+                        },
+                        {
+                            title: 'Cell Type',
+                            field: 'gender'
                         }
                     ]
                 ];
 
 
                 this.renderFromServer();
-
-
-
-
 
 //                this.samples = [{name: "name1"}, {name: "name2"}, {name: "name3"}];
             },

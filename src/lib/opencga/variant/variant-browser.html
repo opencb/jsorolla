@@ -122,10 +122,12 @@
             },
             onCollapse: function () {
                 if (this._collapsed) {
-                    $("#" + this.prefix + "FilterMenu").css("display", "inline");
+//                    $("#" + this.prefix + "FilterMenu").css("display", "inline");
+                    $("#" + this.prefix + "FilterMenu").show(400);
                     $("#" + this.prefix + "MainWindow").removeClass("center").addClass("col-md-10");
                 } else {
-                    $("#" + this.prefix + "FilterMenu").css("display", "none");
+//                    $("#" + this.prefix + "FilterMenu").css("display", "none");
+                    $("#" + this.prefix + "FilterMenu").hide(400);
                     $("#" + this.prefix + "MainWindow").removeClass("col-md-10").addClass("center");
                 }
 
