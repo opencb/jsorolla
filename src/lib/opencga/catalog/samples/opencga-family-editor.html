@@ -19,7 +19,11 @@
     <template>
         <style is="custom-style" include="jso-styles"></style>
 
-        <div class="panel">
+        <template is="dom-if" if="{{!_sampleExists}}">
+            <h3>No samples provided, please select some samples.</h3>
+        </template>
+
+        <template is="dom-if" if="{{_sampleExists}}">
             <table class="table hover">
                 <thead>
                 <tr class="active">
@@ -30,6 +34,7 @@
                 </tr>
                 </thead>
                 <tbody>
+
                 <template is="dom-repeat" items="{{samples}}" as="sample">
                     <tr>
                         <td>{{sample.name}}</td>
@@ -56,20 +61,22 @@
                 </tbody>
             </table>
 
-            <div style="padding: 5px 10px">
+            <div style="padding: 2px 10px">
                 <input id="{{prefix}}ParentalConsanguinity" type="checkbox" on-change="selectParentalConsanguinity">
                 <label style="padding: 0px 5px">Parental Consanguinity</label>
             </div>
-            <div style="padding: 5px 10px">
+            <div style="padding: 2px 10px">
                 <input id="{{prefix}}SampleNames" type="checkbox" on-change="selectShowSampleNames">
                 <label style="padding: 0px 5px">Show Sample Names</label>
             </div>
 
-            <div style="padding: 20px 0px">
-                <h5>Pedigree</h5>
-                <div id="{{prefix}}PedigreeView" style="padding: 0px 20px;font-size: 10px"></div>
-            </div>
+        </template>
+
+        <div style="padding: 20px 0px">
+            <h4>{{pedigreeTitle}}</h4>
+            <div id="{{prefix}}PedigreeView" style="padding: 0px 20px;font-size: 10px"></div>
         </div>
+
     </template>
 
     <script>
@@ -79,13 +86,11 @@
                 opencgaClient: {
                     type: Object
                 },
-                studyId: {
+                study: {
                     type: Object
-//                    observer: 'renderFromServer'
                 },
                 samples: {
                     type: Array,
-//                    notify: true,
                     observer: '_updateSamples'
                 },
                 prefix: {
@@ -97,9 +102,11 @@
                     this.prefix = "family" + Utils.randomString(6);
                 }
 
+                this._sampleExists = false;
+
                 this._affected = {};
                 this._deceased = {};
-                this.pedigreeSettings = {children: []};
+                this.pedigreeSettings = {};
                 this.pedigree = {children: []};
             },
             selectAffected: function (e) {
@@ -203,26 +210,23 @@
             },
             _updateSamples: function () {
                 if (typeof this.samples !== "undefined" && this.samples !== null) {
-                    this.pedigreeRender();
 
-                    this.sampleNameIdMap = {};
-                    for (let sample of this.samples) {
-                        this.sampleNameIdMap[sample.name] = sample.id;
-                    }
-
-                    this.sampleRelativeMap = {};
-                    for (let sampleIdx in this.samples) {
-                        this.sampleRelativeMap[this.samples[sampleIdx].name] = [];
-                        for (let relativeIdx in this.samples) {
-                            if (sampleIdx !== relativeIdx) {
-                                this.sampleRelativeMap[this.samples[sampleIdx].name].push(this.samples[relativeIdx].name);
-                            }
+                    if (this.samples.length > 0) {
+                        this._sampleExists = true;
+                        this.pedigreeTitle = "Pedigree";
+                        this.pedigreeRender();
+                    } else {
+                        this._sampleExists = false;
+                        this.pedigreeTitle = "";
+                        if (typeof this.svg !== "undefined") {
+                            Polymer.dom(this.root).querySelector("#" + this.prefix + "PedigreeView").removeChild(this.svg);
+                            this.svg = undefined;
                         }
                     }
                 }
             },
             _removeSampleFromPedigree: function (sampleName) {
-                // Remove from pedigree the sample
+                // Remove the sample from pedigree
                 if (typeof this.pedigree.father !== "undefined" && this.pedigree.father.name === sampleName) {
                     this.pedigree.father = undefined;
                 }
@@ -242,19 +246,6 @@
                     }
                 }
             },
-            _isFatherFilter: function (item) {
-                let relatives = this.sampleRelativeMap[item.name];
-                debugger
-                return relatives.includes(item.name);
-            },
-            _isMotherFilter: function (item) {
-                let relatives = this.sampleRelativeMap[item.name];
-
-                return relatives.includes(item.name);
-            }
-
-
         });
-
     </script>
 </dom-module>

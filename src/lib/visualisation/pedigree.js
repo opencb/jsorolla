@@ -31,8 +31,8 @@ class Pedigree {
         }
 
         // We merge user's setting with default settings, by doing this users do not have to write al possible settings
-        this.settings = Object.assign(this._getDefaultSetting(), settings);
-        settings = this.settings;
+        settings = Object.assign(this._getDefaultSetting(), settings);
+        // settings = this.settings;
 
         let svg = SVG.create('svg', {
             width: settings.width,
@@ -41,7 +41,9 @@ class Pedigree {
             style: "fill: white"
         });
 
-        SVG.addChild(svg, 'rect', {width: settings.width, height: settings.height, style: "fill: white;stroke: black"});
+        if (settings.border) {
+            SVG.addChild(svg, 'rect', {width: settings.width, height: settings.height, style: "fill: white;stroke: black"});
+        }
 
 
         let xCenter = settings.width/2;
@@ -147,7 +149,7 @@ class Pedigree {
         // Draw the CHILDREN
         if (typeof pedigree.children !== "undefined" && pedigree.children.length > 0) {
             if (pedigree.children.length === 1) {
-                this._addChild(pedigree.children[0], xCenter, 0, settings.box, radius, svg);
+                this._addChild(pedigree.children[0], xCenter, 0, settings.box, radius, settings.selectShowSampleNames, svg);
             } else {
                 let numChildren = pedigree.children.length;
                 let w =  (numChildren + numChildren - 1) * settings.box;
@@ -167,7 +169,7 @@ class Pedigree {
                         style: "stroke: black;stroke-width: 2"
                     });
 
-                    this._addChild(pedigree.children[i], left + (i * interval), 15, settings.box, radius, svg);
+                    this._addChild(pedigree.children[i], left + (i * interval), 15, settings.box, radius, settings.selectShowSampleNames, svg);
                 }
             }
         }
@@ -175,7 +177,7 @@ class Pedigree {
         return svg;
     }
 
-    _addChild(object, xCenter, y, width, radius, svg) {
+    _addChild(object, xCenter, y, width, radius, showSampleNames, svg) {
         // Prepare the fill color
         let fillColor = this._getFillColor(object);
 
@@ -205,7 +207,7 @@ class Pedigree {
             }
         }
 
-        if (this.settings.selectShowSampleNames) {
+        if (showSampleNames) {
             let text = SVG.addChild(svg, 'text', {
                 x: xCenter - radius,  y: 10 + 3 * width + 15 + y,
                 style: "fill: black;font-size=8px;font-weight:10"
