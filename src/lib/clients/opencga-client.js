@@ -26,6 +26,7 @@ class OpenCGAClient {
         this._individuals;
         this._cohorts;
         this._jobs;
+        this._families;
         this._panels;
         this._variables;
         this._alignments;
@@ -89,6 +90,13 @@ class OpenCGAClient {
             this._individuals = new Individuals(this._config)
         }
         return this._individuals;
+    }
+
+    families() {
+        if (typeof this._families === "undefined") {
+            this._families = new Families(this._config)
+        }
+        return this._familie;
     }
 
     cohorts() {
@@ -708,6 +716,30 @@ class Individuals extends OpenCGAParentClass {
 
 }
 
+class Families extends OpenCGAParentClass {
+
+    constructor(config) {
+        super(config);
+    }
+
+    create(params, options) {
+        return this.get("families", undefined, "create", params, options);
+    }
+
+    search(params, options) {
+        return this.get("families", undefined, "search", params, options);
+    }
+
+    info(id, params, options) {
+        return this.get("families", id, "info", params, options);
+    }
+
+    update(id, params, options) {
+        return this.get("families", id, "update", params, options);
+    }
+
+}
+
 class Samples extends OpenCGAParentClass {
 
     constructor(config) {
@@ -755,27 +787,27 @@ class Variables extends OpenCGAParentClass {
     }
 
     create(params, options) {
-        return this.get("variableSet", undefined, "create", params, options);
+        return this.get("variableset", undefined, "create", params, options);
     }
 
     search(params, options) {
-        return this.get("variableSet", undefined, "search", params, options);
+        return this.get("variableset", undefined, "search", params, options);
     }
 
     info(id, params, options) {
-        return this.get("variableSet", id, "info", params, options);
+        return this.get("variableset", id, "info", params, options);
     }
 
     summary(id) {
-        return this.get("variableSet", id, "summary", {}, {});
+        return this.get("variableset", id, "summary", {}, {});
     }
 
     update(id, params, options) {
-        return this.get("variableSet", id, "update", params, options);
+        return this.get("variableset", id, "update", params, options);
     }
 
     remove(id, params, options) {
-        return this.get("variableSet", id, "delete", params, options);
+        return this.get("variableset", id, "delete", params, options);
     }
 
 }
