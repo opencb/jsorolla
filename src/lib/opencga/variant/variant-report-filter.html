@@ -79,11 +79,12 @@
                 <div id="{{prefix}}SampleInformationContent" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}SampleInformationHeading">
                     <div class="panel-body">
                         <div class="form-group">
-                            <label>Select</label>
+                            <label>Select for affected individual</label>
                             <br>
                             <input type="radio" name="sampleButtons" id="{{prefix}}AllRadio" value="all" class$="{{prefix}}FilterRadio" checked on-change="sampleInfoAll" style="padding-left: 20px"> All<br>
                             <input type="radio" name="sampleButtons" id="{{prefix}}SubsetRadio" value="range" class$="{{prefix}}FilterRadio" on-change="sampleInfoSubset" style="padding-left: 20px"> Subset
                             <div id="{{prefix}}SampleFields" class="panel-body">
+                                <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}sampleID" value="sampleID" class$="{{prefix}}FilterRadio" checked disabled on-change="sampleInfoField" style="padding-left: 20px"> Sample ID<br>
                                 <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}individualID" value="individualID" class$="{{prefix}}FilterRadio" checked disabled on-change="sampleInfoField" style="padding-left: 20px"> Individual ID<br>
                                 <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}chromosomalGender" value="chromosomalGender" class$="{{prefix}}FilterRadio" checked disabled on-change="sampleInfoField" style="padding-left: 20px"> Chromosomal Gender<br>
                                 <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}yearBirth" value="yearBirth" class$="{{prefix}}FilterRadio" checked disabled on-change="sampleInfoField" style="padding-left: 20px"> Year of Birth<br>
@@ -124,7 +125,7 @@
                             <label>Select</label>
                             <br>
                             <input type="checkbox" name="prioritizationButtons" id="{{prefix}}VariantsTable" value="variantsTable" class$="{{prefix}}FilterRadio" on-change="showPrioritization" style="padding-left: 20px"> Variants table<br>
-                            <input type="checkbox" name="prioritizationButtons" id="{{prefix}}SummaryResults" value="prioritizationSummary" class$="{{prefix}}FilterRadio" checked on-change="showPrioritization" style="padding-left: 20px"> Summary of results<br>
+                            <input type="checkbox" name="prioritizationButtons" id="{{prefix}}SummaryResults" value="prioritizationSummary" class$="{{prefix}}FilterRadio" on-change="showPrioritization" style="padding-left: 20px"> Summary of results<br>
                             <input type="checkbox" name="prioritizationButtons" id="{{prefix}}FilterResume" value="filterResume" class$="{{prefix}}FilterRadio" on-change="showPrioritization" style="padding-left: 20px"> Filter resume<br>
                         </div>
                     </div>
@@ -150,7 +151,7 @@
                         <div class="form-group">
                             <label>Select</label>
                             <br>
-                            <input type="checkbox" name="otherButtons" id="{{prefix}}Conclusions" value="conclusions" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Editable conclusions<br>
+                            <input type="checkbox" name="otherButtons" id="{{prefix}}Conclusions" value="conclusions" class$="{{prefix}}FilterRadio" on-change="showConclusions" style="padding-left: 20px"> Editable conclusions<br>
                         </div>
                     </div>
                 </div>
@@ -296,10 +297,11 @@
             showReportOptions: function(e){
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
                 $("#" + this.prefix + "analysisSelectedDiv").show();
+                $("#" + this.prefix + "analysisResumeDiv").show();
                 $("#" + this.prefix + "SampleInformationDiv").show();
                 $("#" + this.prefix + "PrioritizationInformationDiv").show();
                 $("#" + this.prefix + "OtherInformationDiv").show();
-                $("#" + this.prefix + "analysisResumeDiv").show();
+
 
 
                 this.selection = {analysisID: "AN-28"}; // hardcoded!!!!
@@ -338,7 +340,13 @@
 
                  }
                  this.selection = _obj;*/
-            }
+            },
+            showConclusions: function(e){
+                e.preventDefault();
+                let _obj = Object.assign({}, this.selection , {conclusions: e.target.checked});
+                this.selection = _obj;
+
+            },
 
 
         });

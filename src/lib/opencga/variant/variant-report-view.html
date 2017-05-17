@@ -28,6 +28,9 @@
             .form-control:read-only {
                 background-color: white;
             }
+            h2, h3 {
+                color: DarkBlue;
+            }
         </style>
 
         <br>
@@ -45,6 +48,7 @@
                     <h3>Analysis Information</h3>
                     <hr>
                     <div style="margin: 10px 0px 15px 5px" class="analysis-information" id="{{prefix}}analysisInformationContent">
+
                         <ul>
                             <div class="form-group row" id="{{prefix}}analysisInformationID">
                                 <div class="col-sm-4">
@@ -53,26 +57,15 @@
                                         <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}analysisID" name="analysisID" readonly value="">
                                     </div>
                                 </div>
+
                             </div>
 
                             <div class="form-group-row" id="{{prefix}}analysisInformationResume" hidden>
-                                <div class="col-sm-4">
-                                    <div class="input-group">
-                                        <span class="input-group-addon">Samples ID</span>
-                                        <textarea type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}samplesID" name="samplesID" style="resize:none" readonly row="2">"HG00097, HG00098, HG00099"</textarea>
-                                    </div>
-                                </div>
-                                <div class="col-sm-4">
-                                    <div class="input-group">
-                                        <span class="input-group-addon">Type of analysis</span>
-                                        <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}typeAnalysis" name="typeAnalysis" readonly value="Trio">
-                                    </div>
-                                </div>
-                                <div class="col-sm-4">
-                                    <div class="input-group">
-                                        <span class="input-group-addon">Date</span>
-                                        <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}dateAnalysis" name="dateAnalysis" readonly value="05/05/2017">
-                                    </div>
+                                <div class="col-sm-8">
+                                    <table id="tableAnalysisResume" data-search="false" data-show-columns="false" data-pagination="false" data-page-list="[10, 25, 50]"
+                                           data-checkbox-header="false" data-maintain-selected="true" style="cursor: pointer;">
+                                        <thead style="background-color: #eee"></thead>
+                                    </table>
                                 </div>
                             </div>
                         </ul>
@@ -85,6 +78,14 @@
                     <hr>
                     <!-- Sample information related to individual -->
                     <ul>
+                        <div class="form-group row" id="{{prefix}}sampleIDDiv">
+                            <div class="col-sm-4">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Sample ID</span>
+                                    <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}SampleID" name="sampleID" readonly value="HG00097">
+                                </div>
+                            </div>
+                        </div>
                         <div class="form-group row" id="{{prefix}}individualIDDiv">
                             <div class="col-sm-4">
                                 <div class="input-group">
@@ -162,11 +163,16 @@
                 </div>
 
 
-                <div style="margin: 10px 5px 15px 50px" class="prioritization-information col-sm-12" id="{{prefix}}prioritizationInformationDiv">
+                <div style="margin: 10px 5px 15px 50px" class="prioritization-information col-sm-12" id="{{prefix}}prioritizationInformationDiv" hidden>
                     <h3>Prioritization Information</h3>
                     <hr>
 
-                    <div class="prioritization-summary col-sm-12" id="{{prefix}}prioritizationSummaryDiv">
+                    <div class="prioritization-summary col-sm-12" id="{{prefix}}variantsTableDiv" hidden>
+                        <h4>Variants table</h4>
+                        Variants table to be shown here
+                    </div>
+
+                    <div class="prioritization-summary col-sm-12" id="{{prefix}}prioritizationSummaryDiv" hidden>
                         <h4>Summary of results</h4>
 
                         <div class="form-group row">
@@ -199,19 +205,44 @@
                         </div>
                     </div>
 
-
-                    <div class="prioritization-summary col-sm-12" id="{{prefix}}variantsTableDiv" hidden>
-                        <h4>Variants table</h4>
-                    </div>
-
                     <div class="prioritization-summary col-sm-12" id="{{prefix}}filterResumeDiv" hidden>
                         <h4>Filter resume</h4>
-                    </div>
+                        For this analysis, the following filters were applied for prioritization:
+                        <ul type="square">
+                            <li><b>Genomic</b></li>
+                            <ul type="disc">
+                                <li>Location: <i>chr3</i></li>
+                                <li>Biotype: <i>TR_V_gene</i></li>
+                                <li>PanelApp: <i>Arthrogryposis</i></li>
+                            </ul>
+                            <li><b>Clinical</b></li>
+                            <ul type="disc">
+                                <li>Inheritance: <i>autosomal recessive</i></li>
+                            </ul>
+                            <li><b>Population frequency</b></li>
+                            <ul type="disc">
+                                <li>1000 Genomes: <i>MAF < 0.01</i></li>
+                                <li>ESP6500: <i>MAF < 0.01</i></li>
+                            </ul>
+                            <li><b>Impact</b></li>
+                            <ul type="disc">
+                                <li>Protein Substitution Score: <i>SIFT < 0.05 AND Polyphen >0.95</i></li>
+                                <li>Impact: <i>High</i></li>
+                                <li>Effect (SO): <i>stop_gained</i></li>
+                            </ul>
+                            <li><b>Conservation</b></li>
+                            <ul type="disc">
+                                <li><i>Phylop < 0.01 AND PhastCons < 0.02 AND Gerp < 0.01</i></li>
+                            </ul>
+                            <li><b>Disease Databases</b>(No filters were applied)</li>
+                        </ul>
 
+
+                    </div>
                 </div>
 
 
-                <div style="margin: 10px 15px 15px 50px" class="other-information col-sm-12" id="{{prefix}}otherInformationDiv">
+                <div style="margin: 10px 15px 15px 50px" class="other-information col-sm-12" id="{{prefix}}conclusionsDiv" hidden>
                     <h3>Other Information</h3>
                     <hr>
                     <div class="col-sm-10">
@@ -222,6 +253,29 @@
 
             </div>
         </div>
+
+        <!-- Modal dialog for Variants table-->
+        <div class="modal fade" id="{{prefix}}variantsClassificationModal" tabindex="-1" role="dialog"
+             aria-labelledby="variantsClassificationLabel" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-sm" role="document" style="width: 500px;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">Variants classification</h4>
+                    </div>
+                    <div class="modal-body" style="height: 200px">
+                        <div class="col-sm-12" >
+                            <label>Under progress.</label>
+                            Variants table to be shown here. User will classify variants as diagnostic, VUS (Variants of Unkown Significance) and Unexpected variants
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
 
     </template>
@@ -268,6 +322,10 @@
                 let date = new Date();
                 this.requestDate = date.toLocaleString();
 
+
+
+
+
             },
             fetchSelection: function () {
                 console.log(this);
@@ -283,6 +341,37 @@
                 // Analysis resume
 
                 if (typeof this.selection.analysisResume !== "undefined") {
+
+
+                    $('#tableAnalysisResume').bootstrapTable('destroy');
+                    $('#tableAnalysisResume').bootstrapTable({
+                        columns: [
+                            {
+                                field: 'analysisSamples',
+                                title: 'Samples'
+                            },
+                            {
+                                field: 'analysisType',
+                                title: 'Type of Analysis'
+                            },
+                            {
+                                field: 'analysisDate',
+                                title: 'Date'
+                            },
+
+                        ],
+
+                    });
+
+                    $('#tableAnalysisResume').bootstrapTable('insertRow',{index:1 , row: {
+                        analysisSamples : "HG00097 (affected), HG00098 (parent), HG00099 (parent)",
+                        analysisType : "Trio",
+                        analysisDate : "05/05/2017"
+                    }
+
+                    });
+
+
                     this.$$("#" + this.prefix + "analysisInformationResume").hidden = ! this.selection.analysisResume;
                 }
 
@@ -309,24 +398,29 @@
 
                 // Prioritization Information
                 if (typeof this.selection.prioritizationInfo !== "undefined") {
-
-
                     let _numFalseElements = 0;
                     for (let i = 0; i < this.selection.prioritizationInfo.length; i++) {
+                        if (this.selection.prioritizationInfo[i].name == 'variantsTable' && this.selection.prioritizationInfo[i].value &&
+                            this.$$("#" + this.prefix + this.selection.prioritizationInfo[i].name + "Div").hidden)
+                        {$('#' + this.prefix + 'variantsClassificationModal').modal("show");}
                         this.$$("#" + this.prefix + this.selection.prioritizationInfo[i].name + "Div").hidden = !this.selection.prioritizationInfo[i].value;
                         if (this.selection.prioritizationInfo[i].value == false)
                         {_numFalseElements++;}
 
+
                     }
 
                     if (_numFalseElements == this.selection.prioritizationInfo.length)
-                    {
-                        this.$$("#" + this.prefix + "prioritizationInformationDiv").hidden = true;
-                    }
+                    {this.$$("#" + this.prefix + "prioritizationInformationDiv").hidden = true;}
                     else
-                    {
-                        this.$$("#" + this.prefix + "prioritizationInformationDiv").hidden = false;
-                    }
+                    {this.$$("#" + this.prefix + "prioritizationInformationDiv").hidden = false;}
+
+                }
+
+
+                // Editable conclusions
+                if (typeof this.selection.conclusions !== "undefined") {
+                    this.$$("#" + this.prefix + "conclusionsDiv").hidden = ! this.selection.conclusions;
 
                 }
 
