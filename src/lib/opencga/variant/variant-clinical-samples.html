@@ -1,0 +1,366 @@
+<!--
+  ~ Copyright 2015-2016 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<link rel="import" href="variant-sample-grid.html">
+<link rel="import" href="../catalog/samples/opencga-sample-filter.html">
+<link rel="import" href="../catalog/samples/opencga-family-editor.html">
+<link rel="import" href="../opencga-active-filters.html">
+
+<dom-module id="variant-clinical-samples">
+    <template>
+        <style is="custom-style" include="jso-styles"></style>
+
+        <!--<h3><i class="fa fa-sitemap" aria-hidden="true"></i>&nbsp;Family Selector</h3>-->
+
+        <div class="panel">
+            <div class="col-md-2">
+                <opencga-sample-filter opencga-client="{{opencgaClient}}"></opencga-sample-filter>
+            </div>
+
+            <div class="col-md-10">
+                <br>
+                <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" filters="{{config.filters}}" alias="{{activeFilterAlias}}"></opencga-active-filters>
+
+                <variant-sample-grid opencga-client="{{opencgaClient}}" study="{{study}}" samples="{{samples}}"></variant-sample-grid>
+
+                <br>
+                <div id="{{prefix}}toolbar">
+                    <div class="btn-group btn-group-sm">
+                        <button id="familyButton" class="button" on-click="addAnalysis"><img src="images/analysis_family_button.png" height="75"></button>
+                        <button id="trioButton" class="button" on-click="addAnalysis"><img src="images/analysis_trio_button.png" height="75"></button>
+                        <button id="duoButton" class="button" on-click="addAnalysis"><img src="images/analysis_duo_button.png" height="75"></button>
+                        <button id="singleButton" class="button" on-click="addAnalysis"><img src="images/analysis_single_button.png" height="75"></button>
+                        <button id="autoButton" class="button" on-click="addAnalysis"><img src="images/analysis_auto_button.png" height="75"></button>
+                        <button id="multiButton" class="button" on-click="addAnalysis"><img src="images/analysis_multi_button.png" height="75"></button>
+                    </div>
+                </div>
+                <br>
+
+
+                <table id="{{prefix}}tableAnalysis" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
+                       data-checkbox-header="false" data-maintain-selected="true" style="cursor: pointer;">
+                    <thead style="background-color: #eee"></thead>
+                </table>
+
+            </div>
+        </div>
+
+        <!-- Modal dialog for Family Editor-->
+        <div class="modal fade" id="{{prefix}}FamilyEditor" tabindex="-1" role="dialog"
+             aria-labelledby="familyEditorLabel" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-sm" role="document" style="width: 1300px;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="{{prefix}}FamilyEditorLabel">Family Editor</h4>
+                    </div>
+                    <div class="modal-body" style="height: 500px">
+                        <opencga-family-editor samples="{{samples}}" opencga-client="{{opencgaClient}}"></opencga-family-editor>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </template>
+
+    <script>
+        Polymer({
+            is: 'variant-clinical-samples',
+            properties: {
+                opencgaClient: {
+                    type: Object,
+                    observer: "renderAnalysisTable"
+                },
+                study: {
+                    type: Object
+//                    observer: 'renderFromServer'
+                },
+//                studyId: {
+//                    type: Number,
+//                    observer: 'renderFromServer'
+//                },
+                samples: {
+                    type: Array,
+                    notify: true
+                },
+                prefix: {
+                    type: String
+                },
+                filters: {
+                    type: Object,
+                    notify: true,
+                    observer: "onFilterUpdate"
+                },
+                search: {
+                    type: Object,
+                    notify: true
+                },
+                config: {
+                    type: Object
+                }
+            },
+            observers: [
+                'calculateFilters(filteredVariables.variables.*)'
+            ],
+            ready: function() {
+                if (typeof this.prefix === "undefined" || this.prefix == "") {
+                    this.prefix = "sample" + Utils.randomString(6);
+                }
+
+            },
+
+            renderAnalysisTable: function(){
+
+                $("#" + this.prefix + "tableAnalysis").bootstrapTable('destroy');
+                $("#" + this.prefix + "tableAnalysis").bootstrapTable({
+                    columns: [
+                        {
+                            field: 'analysisID',
+                            title: 'Analysis ID'
+                        },
+                        {
+                            field: 'analysisSamples',
+                            title: 'Samples'
+                        },
+                        {
+                            field: 'analysisType',
+                            title: 'Analysis'
+                        },
+                        {
+                            field: 'analysisDate',
+                            title: 'Date'
+                        },
+                        {
+                            field: 'analysisFilter',
+                            title: 'Filter'
+                        },
+                        {
+                            field: 'analysisAction',
+                            title: 'Action'
+                            //formatter: this.actionFormatter,
+                            //events: this.operateEvents
+                        },
+                    ],
+                });
+
+            },
+            attached: function () {
+                this.table = $('#' + this.prefix + "FamilySelector");
+            },
+
+
+            /**
+             * If filters have been removed, clean the values from the forms.
+             */
+            onFilterUpdate: function () {
+                this.updateForms(this.filters);
+            },
+
+            updateForms: function(filters) {
+                // This is just to avoid entering here when it has just been initialized
+                if (this.prefix === undefined) {
+                    return;
+                }
+
+                let sampleName = this.$$("#" + this.prefix + "NameTextarea").value;
+                if (!filters.hasOwnProperty("name") && sampleName !== undefined && sampleName.length > 0) {
+                    this.$$("#" + this.prefix + "NameTextarea").value = "";
+                }
+
+                let individual = this.$$("#" + this.prefix + "IndividualTextarea").value;
+                if (!filters.hasOwnProperty("individual.id") && individual !== undefined && individual.length > 0) {
+                    this.$$("#" + this.prefix + "IndividualTextarea").value = "";
+                }
+
+                if (this.filteredVariables.variables.length > 0) {
+                    if (!filters.hasOwnProperty("annotation")) {
+                        // Remove the filter variableSetId as it won't make more sense.
+//                        delete filters.variableSetId;
+                        this.set("filteredVariables.variables", []);
+
+                    } else if (filters.annotation.length < this.filteredVariables.variables.length) {
+//                        debugger
+                        let tmpVariables = [];
+                        filters.annotation.forEach(function(variable) {
+                            tmpVariables.push(variable);
+                        });
+
+                        this.set("filteredVariables.variables", tmpVariables);
+                    }
+//                    } else if (!filters.hasOwnProperty("variableSetId")) {
+//                        // They have removed the variableSetId so all the annotations should be out
+//                        delete filters.variables;
+//                        this.filteredVariables.variables = [];
+//                    }
+                }
+
+            },
+
+            /**
+             * Read from the values in the forms, and sets the filters.
+             */
+            calculateFilters: function() {
+                let filters = {};
+                let sampleName = "";
+                let individual = "";
+
+                if (this.$$("#" + this.prefix + "NameTextarea") !== null) {
+                    sampleName = this.$$("#" + this.prefix + "NameTextarea").value;
+                }
+                if (this.$$("#" + this.prefix + "IndividualTextarea") !== null) {
+                    individual = this.$$("#" + this.prefix + "IndividualTextarea").value;
+                }
+
+                if (sampleName !== undefined && sampleName.length > 0) {
+                    filters["name"] = "~" + sampleName;
+                }
+
+                if (individual !== undefined && individual.length > 0) {
+                    filters["individual.id"] = "~" + individual;
+                }
+
+                if (this.filteredVariables.variables !== undefined && this.filteredVariables.variables.length > 0) {
+//                    filters["variableSetId"] = this.filteredVariables.variableSet;
+                    let annotations = [];
+                    this.filteredVariables.variables.forEach(function(variable) {
+                        annotations.push(variable);
+                    });
+                    filters["annotation"] = annotations;
+                }
+                this.filters = filters;
+            },
+
+            onSearch: function () {
+                // Convert the filters to an objectParam that can be directly send to the sample search
+                let filterParams = {};
+
+                let keys = Object.keys(this.filters);
+                for (let i = 0; i < keys.length; i++) {
+                    // Some filters can come as an array of things.
+                    // annotation = [{name: name, value: Smith}, {name: age, value: >5}]
+                    if (Array.isArray(this.filters[keys[i]])) {
+                        let myArray = this.filters[keys[i]];
+
+                        let myArrayFilter = [];
+
+                        // The elements in the array can be either an object
+                        if (Object.getPrototypeOf(myArray[0]) === Object.prototype) {
+                            let myArray = this.filters[keys[i]];
+                            for (let j = 0; j < myArray.length; j++) {
+                                // TODO: We have to check if the value already has an operand
+                                myArrayFilter.push(myArray[j].name + "=" + myArray[j].value);
+                            }
+                        } else {
+                            // Or an array of strings or numbers
+                            myArrayFilter = this.filters[keys[i]];
+                        }
+
+                        filterParams[keys[i]] = myArrayFilter.join(";");
+                    } else {
+                        filterParams[keys[i]] = this.filters[keys[i]];
+                    }
+                }
+
+                if (this.filters.hasOwnProperty("annotation")) {
+                    // Add the variable set whose annotations will be queried
+                    filterParams["variableSetId"] = this.filteredVariables.variableSet;
+                }
+
+                this.search = filterParams;
+            },
+            addAnalysis: function(e) {
+                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+                //$("#analysisListDiv").show();
+                let analysisId= Math.floor(Math.random() * 100) + 1;
+                // Get the type of analysisId
+                let analysisType="";
+
+                switch (e.currentTarget.id) {
+                    case "familyButton":
+                        analysisType = "Family";
+                        break;
+                    case "trioButton":
+                        analysisType = "Trio";
+                        break;
+                    case "duoButton":
+                        analysisType = "Duo";
+                        break;
+                    case "singleButton":
+                        analysisType = "Single";
+                        break;
+                    case "autoButton":
+                        analysisType = "Auto comparative";
+                        break;
+                    case "multiButton":
+                        analysisType = "Multisample";
+                        break;
+                    default:
+                        analysisType = "Family";
+                        break;
+                }
+                let fullDate = new Date()
+                let twoDigitMonth = ((fullDate.getMonth().length+1) === 1)? (fullDate.getMonth()+1) : '0' + (fullDate.getMonth()+1);
+                let currentDate = fullDate.getDate() + "/" + twoDigitMonth + "/" + fullDate.getFullYear();
+
+                let samplesToShow="";
+
+                for (let sampleIdx in this.samples) {
+                    samplesToShow=samplesToShow + this.samples[sampleIdx].name + ",";
+                }
+                samplesToShow = samplesToShow.slice(0,-1);
+
+                let _this= this;
+                $("#" + this.prefix + "tableAnalysis").bootstrapTable('insertRow',{index:1 , row: {
+                    analysisID : "AN-"+analysisId,
+                    analysisSamples : samplesToShow,
+                    analysisType : analysisType,
+                    analysisDate : currentDate,
+                    analysisFilter : "NO",
+                    analysisAction: _this.actionFormatter()
+                }
+
+                });
+
+            },
+            actionFormatter: function() {
+                return [
+                    '<button type="button" class="btn btn-xs btn-danger" on-click="removeAnalysis">Remove <i class="fa fa-times" aria-hidden="true"></i></button>' ,
+                    '<button data-toggle="modal" role="button" type="button" class="btn btn-xs btn-success" data-target="#'+this.prefix+'FamilyEditor">Edit <i class="fa fa-cog" aria-hidden="true"></i></button>'
+                ].join('&nbsp');
+
+            },
+            removeAnalysis: function(e) {
+                console.log(this);
+                debugger;
+                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+                let ids = $.map($('#' + this.prefix + 'tableAnalysis').bootstrapTable('getSelections'), function (row) {
+                    return row.id;
+                });
+
+                $('#' + this.prefix + 'tableAnalysis').bootstrapTable('remove',{
+                    field: 'analysisID',
+                    values: ids
+                });
+            },
+
+        });
+
+
+    </script>
+</dom-module>
