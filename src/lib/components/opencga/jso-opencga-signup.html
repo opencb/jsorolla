@@ -5,14 +5,11 @@
             position: absolute;
             box-sizing: border-box;
             padding: 30px 100px;
-
             left: 0;
             right: 0;
             margin: 0px auto 0px auto;
-
             width: 500px;
             box-shadow: 0px 0px 12px 6px rgba(0, 0, 0, 0.30);
-
             background-color: var(--light-primary-color);
             color: var(--primary-text-color);
         }
@@ -29,6 +26,10 @@
 
         .message {
             margin-top: 20px;
+        }
+
+        .button {
+            color: var(--dark-button-color) !important;
         }
     </style>
     <template>
@@ -58,7 +59,7 @@
             <br>
             <br>
 
-            <div class="jso-btn jso-btn-shdw" on-click="handleForm">Sign up</div>
+            <div class="button jso-btn jso-btn-shdw" on-click="handleForm">Sign up</div>
         </form>
         <div class="message">{{message}}</div>
     </template>
@@ -90,29 +91,27 @@
                 value: ''
             }
         },
-        handleFormKey: function (e) {
+        handleFormKey: function(e) {
             if (e.which == 13) {
                 this.handleForm();
             }
         },
-        handleForm: function (e) {
+        handleForm: function(e) {
             this.message = '';
 
             if (this.$.form.checkValidity()) {
                 if (this.password === this.passwordCheck) {
                     this._signup();
-                }
-                else {
+                } else {
                     alert("Sorry, your password does not match");
                 }
-            }
-            else {
+            } else {
                 alert("Please, you should fill all the fields. If error persist, contact crew at " + CONTACT_MAIL + ".");
             }
         },
-        _signup: function () {
+        _signup: function() {
             var me = this;
-            var userid=this.user.toLowerCase();
+            var userid = this.user.toLowerCase();
             OpencgaManager.users.create({
                 query: {
                     userId: userid,
@@ -123,7 +122,7 @@
                 },
                 request: {
                     async: false,
-                    success: function (response) {
+                    success: function(response) {
                         if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                             var userId = response.response[0].result[0].id;
                             me.message = userId + ' created';
@@ -135,19 +134,19 @@
                             Cookies.expire('bioinfo_user');
                         }
                     },
-                    error: function (error) {
-                      if(error.error.indexOf('already') >=0){
-                        var err="User '" + me.user + "' already exists."
-                        alert(err);
-                        me.message = err;
-                      }else{
-                        me.message = 'Server error, try again later.';
-                      }
+                    error: function(error) {
+                        if (error.error.indexOf('already') >= 0) {
+                            var err = "User '" + me.user + "' already exists."
+                            alert(err);
+                            me.message = err;
+                        } else {
+                            me.message = 'Server error, try again later.';
+                        }
                     }
                 }
             });
         },
-        login: function (e) {
+        login: function(e) {
             var me = this;
             this.message = '';
 
@@ -158,7 +157,7 @@
                 },
                 request: {
                     async: false,
-                    success: function (response) {
+                    success: function(response) {
                         console.log(response);
                         if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                             me.sid = response.response[0].result[0].sessionId;
@@ -173,13 +172,13 @@
                             Cookies.expire('bioinfo_user');
                         }
                     },
-                    error: function () {
+                    error: function() {
                         me.message = 'Server error, try again later.';
                     }
                 }
             });
         },
-        createProject: function (userId, sid) {
+        createProject: function(userId, sid) {
             var me = this;
             this.message = '';
 
@@ -194,9 +193,9 @@
                 },
                 request: {
                     async: false,
-                    success: function (response) {
+                    success: function(response) {
                         if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-//                            me.message = 'Project created sucessfully.';
+                            //                            me.message = 'Project created sucessfully.';
                             me.projectId = response.response[0].result[0].id;
                             me.createStudy()
 
@@ -204,13 +203,13 @@
                             me.message = response.response[0].errorMsg;
                         }
                     },
-                    error: function () {
+                    error: function() {
                         console.log('jso-opencga-signup201:Server error, try again later.');
                     }
                 }
             });
         },
-        createMetaProject: function (userId, sid) {
+        createMetaProject: function(userId, sid) {
             var me = this;
             this.message = '';
 
@@ -225,9 +224,9 @@
                 },
                 request: {
                     async: false,
-                    success: function (response) {
+                    success: function(response) {
                         if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-//                            me.message = 'Project created sucessfully.';
+                            //                            me.message = 'Project created sucessfully.';
                             var projectId = response.response[0].result[0].id;
                             me.createMetaStudy(projectId)
 
@@ -235,14 +234,14 @@
                             me.message = response.response[0].errorMsg;
                         }
                     },
-                    error: function () {
+                    error: function() {
                         console.log('jso-opencga-signup232:Server error, try again later.');
                     }
                 }
             });
 
         },
-        createMetaStudy: function (projectId) {
+        createMetaStudy: function(projectId) {
             var me = this;
             this.message = '';
 
@@ -259,7 +258,7 @@
                 },
                 request: {
                     async: false,
-                    success: function (response) {
+                    success: function(response) {
                         if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
 
                             me.user = "";
@@ -273,16 +272,16 @@
                             me.message = response.response[0].errorMsg;
                         }
                     },
-                    error: function () {
+                    error: function() {
                         console.log('jso-opencga-signup270:Server error, try again later.');
                     }
                 }
             });
         },
-        createStudy: function (e) {
+        createStudy: function(e) {
             var me = this;
             this.message = '';
-//                var studyName = "WorkSpace";
+            //                var studyName = "WorkSpace";
 
             OpencgaManager.studies.create({
                 query: {
@@ -297,20 +296,22 @@
                 },
                 request: {
                     async: false,
-                    success: function (response) {
+                    success: function(response) {
                         if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-//                            me.message = 'Study created sucessfully.';
+                            //                            me.message = 'Study created sucessfully.';
                             me.studyId = response.response[0].result[0].id;
 
-                            me.fire('login', {status: true});
-//                            me.createAnalysis();
+                            me.fire('login', {
+                                status: true
+                            });
+                            //                            me.createAnalysis();
 
                         } else {
                             me.message = response.response[0].errorMsg;
                         }
                     },
-                    error: function () {
-                      console.log('jso-opencga-signup306:Server error, try again later.');
+                    error: function() {
+                        console.log('jso-opencga-signup306:Server error, try again later.');
                     }
                 }
             });

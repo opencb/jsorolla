@@ -33,6 +33,7 @@
     "uri.js": "~1.18.1",
     "pdfmake": "~0.1.20",
     "file-saver.js": "~1.20150507.2",
-    "cytoscape": "~2.5.4"
+    "cytoscape": "~2.5.4",
+    "async": "^2.1.2"
   }
 }

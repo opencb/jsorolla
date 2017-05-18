@@ -42,6 +42,10 @@
         .shortcut:hover {
             text-decoration: underline;
         }
+
+        .button {
+            color: var(--dark-button-color) !important;
+        }
     </style>
     <template>
         <div class="title">
@@ -65,7 +69,7 @@
             <br>
             <br>
 
-            <div class="jso-btn jso-btn-shdw" on-click="handleForm">Login</div>
+            <div class="button jso-btn jso-btn-shdw" on-click="handleForm">Login</div>
             <br>
             <div hidden$="{{hideAnonymous}}">
                 <span class="shortcut" on-click="handleAnonymous">Login as anonymous</span>
