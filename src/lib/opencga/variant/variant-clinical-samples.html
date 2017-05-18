@@ -39,28 +39,35 @@
                 <br>
                 <div id="{{prefix}}toolbar">
                     <div class="btn-group btn-group-sm">
-                        <button id="familyButton" class="button" on-click="addAnalysis"><img src="images/analysis_family_button.png" height="75"></button>
-                        <button id="trioButton" class="button" on-click="addAnalysis"><img src="images/analysis_trio_button.png" height="75"></button>
-                        <button id="duoButton" class="button" on-click="addAnalysis"><img src="images/analysis_duo_button.png" height="75"></button>
-                        <button id="singleButton" class="button" on-click="addAnalysis"><img src="images/analysis_single_button.png" height="75"></button>
-                        <button id="autoButton" class="button" on-click="addAnalysis"><img src="images/analysis_auto_button.png" height="75"></button>
-                        <button id="multiButton" class="button" on-click="addAnalysis"><img src="images/analysis_multi_button.png" height="75"></button>
+                        <button id="familyButton" class="button" on-click="addAnalysis"><img src="images/analysis_family_button.png" height="60"></button>
+                        <button id="trioButton" class="button" on-click="addAnalysis"><img src="images/analysis_trio_button.png" height="60"></button>
+                        <button id="duoButton" class="button" on-click="addAnalysis"><img src="images/analysis_duo_button.png" height="60"></button>
+                        <button id="singleButton" class="button" on-click="addAnalysis"><img src="images/analysis_single_button.png" height="60"></button>
+                        <button id="autoButton" class="button" on-click="addAnalysis"><img src="images/analysis_auto_button.png" height="60"></button>
+                        <button id="multiButton" class="button" on-click="addAnalysis"><img src="images/analysis_multi_button.png" height="60"></button>
                     </div>
                 </div>
                 <br>
 
 
-                <table id="{{prefix}}tableAnalysis" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
-                       data-checkbox-header="false" data-maintain-selected="true" style="cursor: pointer;">
-                    <thead style="background-color: #eee"></thead>
-                </table>
+                <div style="padding: 10px 0px">
+                    <h3>Clinical Analysis</h3>
+                    <div id="toolbar">
+                        <button id="{{prefix}}DeleteAnalysisButton" class="btn btn-danger disabled">
+                            <i class="fa fa-times"></i>&nbsp;Delete
+                        </button>
+                    </div>
+                    <table id="{{prefix}}tableAnalysis" data-toolbar="#toolbar" data-search="true" data-show-columns="true"
+                           data-pagination="true" data-page-size="5" data-page-list="[5, 10, 25]" data-checkbox-header="false" data-maintain-selected="true" style="cursor: pointer;">
+                        <thead style="background-color: #eee"></thead>
+                    </table>
+                </div>
 
             </div>
         </div>
 
         <!-- Modal dialog for Family Editor-->
-        <div class="modal fade" id="{{prefix}}FamilyEditor" tabindex="-1" role="dialog"
-             aria-labelledby="familyEditorLabel" data-backdrop="static" data-keyboard="false">
+        <div class="modal fade" id="{{prefix}}FamilyEditor" tabindex="-1" role="dialog" aria-labelledby="familyEditorLabel">
             <div class="modal-dialog modal-sm" role="document" style="width: 1300px;">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -76,7 +83,6 @@
                 </div>
             </div>
         </div>
-
     </template>
 
     <script>
@@ -123,13 +129,21 @@
                     this.prefix = "sample" + Utils.randomString(6);
                 }
 
+                this._numAnalysisSelected = 0;
             },
 
             renderAnalysisTable: function(){
 
+                let _this = this;
                 $("#" + this.prefix + "tableAnalysis").bootstrapTable('destroy');
                 $("#" + this.prefix + "tableAnalysis").bootstrapTable({
                     columns: [
+                        {
+                            field: 'state',
+                            checkbox: true,
+                            align: 'center',
+                            valign: 'middle'
+                        },
                         {
                             field: 'analysisID',
                             title: 'Analysis ID'
@@ -152,11 +166,21 @@
                         },
                         {
                             field: 'analysisAction',
-                            title: 'Action'
-                            //formatter: this.actionFormatter,
-                            //events: this.operateEvents
+                            title: 'Action',
+//                            formatter: _this.actionFormatter,
+//                            events: _this.operateEvents
                         },
                     ],
+                    onCheck: function (row, elem) {
+                        $('#' + _this.prefix + "DeleteAnalysisButton").removeClass("disabled");
+                        _this._numAnalysisSelected++;
+                    },
+                    onUncheck: function (row, elem) {
+                        _this._numAnalysisSelected--;
+                        if (_this._numAnalysisSelected <= 0) {
+                            $('#' + _this.prefix + "DeleteAnalysisButton").addClass("disabled");
+                        }
+                    }
                 });
 
             },
@@ -289,7 +313,7 @@
                 //$("#analysisListDiv").show();
                 let analysisId= Math.floor(Math.random() * 100) + 1;
                 // Get the type of analysisId
-                let analysisType="";
+                let analysisType = "";
 
                 switch (e.currentTarget.id) {
                     case "familyButton":
@@ -318,7 +342,7 @@
                 let twoDigitMonth = ((fullDate.getMonth().length+1) === 1)? (fullDate.getMonth()+1) : '0' + (fullDate.getMonth()+1);
                 let currentDate = fullDate.getDate() + "/" + twoDigitMonth + "/" + fullDate.getFullYear();
 
-                let samplesToShow="";
+                let samplesToShow = "";
 
                 for (let sampleIdx in this.samples) {
                     samplesToShow=samplesToShow + this.samples[sampleIdx].name + ",";
@@ -326,7 +350,7 @@
                 samplesToShow = samplesToShow.slice(0,-1);
 
                 let _this= this;
-                $("#" + this.prefix + "tableAnalysis").bootstrapTable('insertRow',{index:1 , row: {
+                $("#" + this.prefix + "tableAnalysis").bootstrapTable('insertRow',{index: 0 , row: {
                     analysisID : "AN-"+analysisId,
                     analysisSamples : samplesToShow,
                     analysisType : analysisType,
@@ -339,25 +363,26 @@
 
             },
             actionFormatter: function() {
-                return [
-                    '<button type="button" class="btn btn-xs btn-danger" on-click="removeAnalysis">Remove <i class="fa fa-times" aria-hidden="true"></i></button>' ,
-                    '<button data-toggle="modal" role="button" type="button" class="btn btn-xs btn-success" data-target="#'+this.prefix+'FamilyEditor">Edit <i class="fa fa-cog" aria-hidden="true"></i></button>'
-                ].join('&nbsp');
+//                return [
+//                    '<button type="button" class="btn btn-xs btn-danger" onclick="removeAnalysis">Remove <i class="fa fa-times" aria-hidden="true"></i></button>' ,
+//                    '<button data-toggle="modal" role="button" type="button" class="btn btn-xs btn-success" data-target="#'+this.prefix+'FamilyEditor">Edit <i class="fa fa-cog" aria-hidden="true"></i></button>'
+//                ].join('&nbsp');
+                return '<button data-toggle="modal" role="button" type="button" class="btn btn-sm btn-success" data-target="#' + this.prefix + 'FamilyEditor"><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;Edit</button>';
 
-            },
-            removeAnalysis: function(e) {
-                console.log(this);
-                debugger;
-                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-                let ids = $.map($('#' + this.prefix + 'tableAnalysis').bootstrapTable('getSelections'), function (row) {
-                    return row.id;
-                });
-
-                $('#' + this.prefix + 'tableAnalysis').bootstrapTable('remove',{
-                    field: 'analysisID',
-                    values: ids
-                });
-            },
+            }
+//            removeAnalysis: function(e) {
+//                console.log(this);
+//                debugger;
+//                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+//                let ids = $.map($('#' + this.prefix + 'tableAnalysis').bootstrapTable('getSelections'), function (row) {
+//                    return row.id;
+//                });
+//
+//                $('#' + this.prefix + 'tableAnalysis').bootstrapTable('remove',{
+//                    field: 'analysisID',
+//                    values: ids
+//                });
+//            },
 
         });
 
