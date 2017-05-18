@@ -250,13 +250,28 @@
                 host: this.host,
                 species: this.species,
                 category: 'feature',
-                subCategory: 'transcript',
+                subCategory: 'gene',
                 query: this.query,
                 resource: 'info',
                 success: function (response) {
                     me.set('gene', response.response[0].result[0]);
-                    me.set('transcript', response.response[0].result[0].transcripts);
                     console.log(me.gene)
+                },
+                error: function () {
+                    console.log('Server error');
+                }
+            });
+            CellBaseManager.get({
+                host: this.host,
+                species: this.species,
+                category: 'feature',
+                subCategory: 'transcript',
+                query: this.query,
+                resource: 'info',
+                success: function (response) {
+                    // me.set('gene', response.response[0].result[0]);
+                    me.set('transcript', response.response[0].result[0]);
+                    // console.log(me.gene)
                     console.log(me.transcript)
                 },
                 error: function () {
@@ -274,7 +289,15 @@
                     dbname: 'pdb'
                 },
                 success: function (response) {
-                    me.set('proteins', response.response[0].result);
+                    var items = [];
+                    var resitems = response.response[0].result;
+                    for (var i=0;i< resitems.length; i++){
+                        var item = resitems[i];
+                        if(item.dbName == 'pdb'){
+                            items.push(item);
+                        }
+                    }
+                    me.set('proteins', items);
                 },
                 error: function () {
                     console.log('Server error');

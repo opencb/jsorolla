@@ -239,7 +239,17 @@
         },
         handleUploadFile: function(e) {
             if (this.study != null) {
-                this.fire('upload-file');
+                var fileIndex = false;
+                for (var i = 0; i < this.files.length; i++) {
+                    if (this.files[i].index != null && this.files[i].index.status == "INDEXING") {
+                        fileIndex = true;
+                        alert("Wait until any file is Indexing");
+                        break;
+                    }
+                }
+                if (fileIndex == false) {
+                    this.fire('upload-file');
+                }
             } else {
                 alert("You must select a study before uploading a file.")
             }
@@ -279,7 +289,7 @@
 
             this.fileName = this.selected.name;
             this.fileType = this.selected.type;
-            if (this.fileType == "FOLDER") {
+            if (this.fileType == "FOLDER" || this.fileType == "DIRECTORY") {
                 this.isFile = true;
             } else {
                 this.isFile = false;
@@ -294,7 +304,7 @@
         },
         handleFileDblClick: function(e) {
             var file = e.currentTarget.file;
-            if (file.type == 'FOLDER') {
+            if (file.type == 'FOLDER' || file.type == "DIRECTORY") {
                 this.fire('openfolder', file);
             } else if (file.type == "FILE") {
                 this.fire('previewfile', file);
@@ -332,7 +342,7 @@
             if (selected == null) {
                 return true;
             } else {
-                if (selected.type == 'FOLDER') {
+                if (selected.type == 'FOLDER' || selected.type == "DIRECTORY") {
                     return true;
                 }
                 if (selected.index != null && selected.index.status !== 'NONE') {

@@ -115,6 +115,7 @@ FeatureTrack.prototype.initializeDom = function (targetId) {
         'width': this.svgCanvasWidth
     });
     this.updateHeight();
+    this.renderer.init();
 };
 
 FeatureTrack.prototype.render = function (targetId) {

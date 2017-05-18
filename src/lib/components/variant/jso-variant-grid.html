@@ -95,12 +95,50 @@
             name: 'snpId',
             title: 'SNP Id',
             width: 80,
-            defaultValue: '.'
+            defaultValue: '.',
+            formula: function(row) {
+                var links = [];
+                if (row.ids.length > 0) {
+                    for (var i = 0; i < row.ids.length; i++) {
+                        if (row.ids[i] == '.') {
+                            return '.';
+                        }
+                        var url = "http://www.ensembl.org/Homo_sapiens/Variation/Explore?r=" + row.chromosome + ":" + row.start + "-" + row.end + ";v=" + row.ids[i] + ";vdb=variation";
+                        links.push('<a href="' + url + '" target="_blank">' + row.ids[i] + '</a>');
+                    }
+
+                    return links.join(",");
+                } else {
+                    return '.';
+                }
+            },
+            sort: function(a, b) {
+                var rsnum_a = parseInt(a.id.replace('rs', ''));
+                var rsnum_b = parseInt(b.id.replace('rs', ''));
+                return rsnum_a - rsnum_b;
+            }
         }, {
             name: 'genes',
             title: 'Genes',
             width: 150,
-            defaultValue: '.'
+            defaultValue: '.',
+            formula: function(row) {
+                if (row.genes != null) {
+                    var genes = row.genes.split(",");
+                    var links = [];
+                    for (var i = 0; i < genes.length; i++) {
+                        if (genes[i] == '.') {
+                            return '.';
+                        }
+                        var url = "http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=" + genes[i] + ";r=" + row.chromosome + ":" + row.start + "-" + row.end;
+                        links.push('<a href="' + url + '" target="_blank">' + genes[i] + '</a>');
+                    }
+
+                    return links.join(",");
+                } else {
+                    return '.';
+                }
+            }
         }, {
             name: 'type',
             title: 'Type',
@@ -124,17 +162,42 @@
             name: 'sift',
             title: 'SIFT',
             width: 50,
-            defaultValue: '.'
+            defaultValue: '.',
+            styleFormula: function(row) {
+                var style = {
+                    backgroundColor: '#8ccd8c',
+                    color: '#fff'
+                };
+                if (row.sift == null) {
+                    style.backgroundColor = '#76afd5';
+                } else if (row.sift <= 0.05) {
+                    style.backgroundColor = '#f47070';
+                }
+                return style;
+            },
         }, {
             name: 'polyphen',
             title: 'Polyphen',
             width: 50,
+            defaultValue: '.',
+            styleFormula: function(row) {
+
+                var style = {
+                    backgroundColor: '#8ccd8c',
+                    color: '#fff'
+                };
+                if (row.polyphen == null) {
+                    style.backgroundColor = '#76afd5';
+                } else if (row.polyphen >= 0.95) {
+                    style.backgroundColor = '#f47070';
+                }
+                return style;
+            }
+        }, {
+            name: 'cadd',
+            title: 'CADD',
+            width: 50,
             defaultValue: '.'
-                // }, {
-                //     name: 'cadd',
-                //     title: 'CADD',
-                //     width: 50,
-                //     defaultValue: '.'
         }, {
             name: 'phylop',
             title: 'phyloP',
@@ -144,6 +207,11 @@
             name: 'phastCons',
             title: 'PhastCons',
             width: 57,
+            defaultValue: '.'
+        }, {
+            name: 'gerp',
+            title: 'GERP',
+            width: 50,
             defaultValue: '.'
         }, {
             name: '1000GENOMES_phase_3',
@@ -250,7 +318,15 @@
             name: 'exac',
             title: 'EXAC',
             width: 50,
-            defaultValue: '.'
+            defaultValue: '.',
+            formula: function(row) {
+                if (row.exac != null && row.exac != '.') {
+                    var url = "http://exac.broadinstitute.org/variant/" + row.chromosome + "-" + row.start + "-" + row.reference + "-" + row.alternate;
+                    return '<a href="' + url + '" target="_blank">' + row.exac + '</a>'
+                } else {
+                    return '.';
+                }
+            }
         }, {
             name: 'phenotype',
             title: 'Phenotype',
@@ -337,25 +413,22 @@
 
                 }
 
-                for (var i = 6; i < 11; i++) {
+                for (var i = 6; i < 14; i++) {
                     headerLine += columns[i].title + this.separator;
                 }
 
-                for (var i = 0; i < columns[11].columns.length; i++) {
-                    var sampleColumn = columns[11].columns[i];
-                    headerLine += columns[11].title + " " + sampleColumn.title + this.separator;
-                }
-                for (var i = 0; i < columns[12].columns.length; i++) {
-                    var sampleColumn = columns[12].columns[i];
-                    headerLine += columns[12].title + " " + sampleColumn.title + this.separator;
-                }
-                for (var i = 0; i < columns[13].columns.length; i++) {
-                    var sampleColumn = columns[13].columns[i];
-                    headerLine += columns[13].title + " " + sampleColumn.title + this.separator;
-                }
                 for (var i = 0; i < columns[14].columns.length; i++) {
                     var sampleColumn = columns[14].columns[i];
                     headerLine += columns[14].title + " " + sampleColumn.title + this.separator;
+                }
+                for (var i = 0; i < columns[15].columns.length; i++) {
+                    var sampleColumn = columns[15].columns[i];
+                    headerLine += columns[15].title + " " + sampleColumn.title + this.separator;
+                }
+                headerLine += columns[16].title + this.separator;
+                for (var i = 0; i < columns[17].columns.length; i++) {
+                    var sampleColumn = columns[17].columns[i];
+                    headerLine += columns[17].title + " " + sampleColumn.title + this.separator;
                 }
                 return headerLine;
             };
@@ -386,8 +459,10 @@
                 dataLine += getValue(row, "dp") + this.separator;
                 dataLine += getValue(row, "sift") + this.separator;
                 dataLine += getValue(row, "polyphen") + this.separator;
+                dataLine += getValue(row, "cadd") + this.separator;
                 dataLine += getValue(row, "phylop") + this.separator;
                 dataLine += getValue(row, "phastCons") + this.separator;
+                dataLine += getValue(row, "gerp") + this.separator;
 
                 dataLine += getValue(row["1000GENOMES_phase_3"], "ALL") + this.separator;
                 dataLine += getValue(row["1000GENOMES_phase_3"], "AMR") + this.separator;
@@ -398,6 +473,8 @@
 
                 dataLine += getValue(row["ESP_6500"], "EA") + this.separator;
                 dataLine += getValue(row["ESP_6500"], "AA") + this.separator;
+
+                dataLine += getValue(row, "exac") + this.separator;
 
                 if (row.phenotype) {
                     dataLine += getValue(row["phenotype"], "clinvar") + this.separator;
@@ -520,17 +597,33 @@
                         if (annotation.conservation != null) {
                             var phylopAux = null;
                             var phastConsAux = null;
+                            var gerpConsAux = null;
                             for (var j = 0; j < annotation.conservation.length; j++) {
                                 var cons = annotation.conservation[j];
                                 if (cons.source.toLowerCase() == "phastcons") {
                                     phastConsAux = cons.score.toFixed(3);
                                 } else if (cons.source.toLowerCase() == "phylop") {
                                     phylopAux = cons.score.toFixed(3);
+                                } else if (cons.source.toLowerCase() == "gerp") {
+                                    gerpAux = cons.score.toFixed(3);
                                 }
                             }
                             variant.phylop = phylopAux;
                             variant.phastCons = phastConsAux;
+                            variant.gerp = gerpAux;
 
+                        }
+
+                        //CADD
+                        if (annotation.functionalScore != null) {
+                        var caddAux = null;
+                        for (var j = 0; j < annotation.functionalScore.length; j++) {
+                            var fs = annotation.functionalScore[j];
+                            if (fs.source.toLowerCase() == "cadd_raw") {
+                                caddAux = fs.score.toFixed(3);
+                            }
+                        }
+                        variant.cadd = caddAux;
                         }
 
                         // Population Frequencies
@@ -540,14 +633,14 @@
                             variant['1000GENOMES_phase_3'] = {};
                             for (var j = 0; j < annotation.populationFrequencies.length; j++) {
                                 var freq = annotation.populationFrequencies[j];
-                                if (freq.study == "ESP_6500") {
+                                if (freq.study == "ESP6500") {
                                     if (freq.population == "EA") {
                                         variant['ESP_6500'].EA = (Math.min(freq.refAlleleFreq, freq.altAlleleFreq)).toFixed(3);
                                     } else if (freq.population == "AA") {
                                         variant['ESP_6500'].AA = (Math.min(freq.refAlleleFreq, freq.altAlleleFreq)).toFixed(3);
                                     }
 
-                                } else if (freq.study == "1000GENOMES_phase_3") {
+                                } else if (freq.study == "1kG_phase3") {
                                     if (freq.population == "ALL") {
                                         variant['1000GENOMES_phase_3'].ALL = (Math.min(freq.refAlleleFreq, freq.altAlleleFreq)).toFixed(3);
                                     } else if (freq.population == "SAS") {
@@ -652,6 +745,25 @@
                 total = 0;
             }
             return total;
-        }
+        },
+        // _getAdditionalInfo: function(variant) {
+        //     var me = this;
+        //     var variant = variant.chromosome + ":" + variant.start + ":" + variant.reference + ":" + variant.alternate;
+        //     var caddAux = null;
+        //     CellBaseManager.get({
+        //         species: 'hsapiens',
+        //         category: 'genomic',
+        //         subCategory: 'variant',
+        //         resource: 'annotation',
+        //         query: variant,
+        //         async: false,
+        //         success: function(response) {
+        //             if (response.response[0].result[0]) {
+        //                 var row = response.response[0].result[0];
+        //             }
+        //         }
+        //     });
+        //     return caddAux;
+        // }
     });
 </script>

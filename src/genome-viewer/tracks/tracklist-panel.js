@@ -798,14 +798,12 @@ TrackListPanel.prototype = {
 
 
         track.set('trackFeature:highlight', function(event) {
-
-
             var attrName = event.attrName || 'feature_id';
             if ('attrValue' in event) {
                 event.attrValue = ($.isArray(event.attrValue)) ? event.attrValue : [event.attrValue];
                 for (var key in event.attrValue) {
-                    var queryStr = attrName + '~=' + event.attrValue[key];
-                    var group = $(track.svgdiv).find('g[' + queryStr + ']')
+                    var queryStr = attrName + '~="' + event.attrValue[key]+'"';
+                    var group = $(track.div).find('g[' + queryStr + ']')
                     $(group).each(function() {
                         var animation = $(this).find('animate');
                         if (animation.length == 0) {
@@ -823,7 +821,7 @@ TrackListPanel.prototype = {
                             animation = animation[0];
                         }
                         var y = $(group).find('rect').attr("y");
-                        $(track.svgdiv).scrollTop(y);
+                        $(track.div).scrollTop(y);
                         animation.beginElement();
                     });
                 }

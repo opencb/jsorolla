@@ -5,11 +5,9 @@
             position: absolute;
             box-sizing: border-box;
             padding: 30px 100px;
-
             left: 0;
             right: 0;
             margin: 0px auto 0px auto;
-
             width: 500px;
             transition: all 0.2s;
             box-shadow: 0px 0px 12px 6px rgba(0, 0, 0, 0.30);
@@ -28,11 +26,31 @@
         }
 
         .message {
-            margin-top: 20px;
+            margin: 20px 0 0 0;
+            margin-bottom: 5px;
+        }
+        .button{
+          color:var(--dark-button-color) !important;
         }
 
         #formEmail {
-            margin-top: 40px;;
+            margin-top: 40px;
+        }
+
+        #cancel {
+            font-weight: normal;
+            height: auto;
+            padding: 5px 10px;
+            border-radius: 3px;
+            margin: 0 auto;
+            margin-top: 15px;
+            width: 100px;
+            background-color: var(--dark-button-color) !important;
+            color: var(--text-primary-color) !important;
+        }
+
+        #cancel:hover {
+            background-color: var(--light-button-color) !important;
         }
     </style>
     <template>
@@ -54,7 +72,7 @@
             <input class="jso" type="password" value="{{passwordCheck::input}}" required pattern="[a-zA-Z0-9\.]+">
             <br>
 
-            <div class="jso-btn jso-btn-shdw" on-click="handleChangePasswordForm">Change password</div>
+            <div class="button jso-btn jso-btn-shdw" on-click="handleChangePasswordForm">Change password</div>
         </form>
 
         <form id="formEmail">
@@ -62,10 +80,12 @@
             <input class="jso" type="email" value="{{email::input}}" required>
             <br>
 
-            <div class="jso-btn jso-btn-shdw" on-click="handleChangeEmailForm">Change e-mail</div>
+            <div class="button jso-btn jso-btn-shdw" on-click="handleChangeEmailForm">Change e-mail</div>
         </form>
+        <div hidden$="{{!message}}" class="message">{{message}}</div>
 
-        <div class="message">{{message}}</div>
+        <div id="cancel" class="jso-btn jso-btn-shdw" on-click="handleCancel">Cancel
+        </div>
     </template>
 </dom-module>
 <script>
@@ -93,34 +113,46 @@
                 value: ''
             }
         },
-        handleChangePasswordForm: function (e) {
+        clean: function() {
+            this.set('oldpassword', '');
+            this.set('password', '');
+            this.set('passwordCheck', '');
+            this.set('message', '');
+        },
+        handleChangePasswordForm: function(e) {
             var me = this;
             this.message = '';
 
-            if (this.$.formPassword.checkValidity() && (this.password === this.passwordCheck)) {
-                OpencgaManager.users.updatePassword({
-                    id: Cookies('bioinfo_user'),
-                    query: {
-                        password: CryptoJS.SHA1(this.oldpassword).toString(),
-                        npassword: CryptoJS.SHA1(this.password).toString(),
-                        sid: Cookies('bioinfo_sid')
-                    },
-                    request: {
-                        success: function (response) {
-                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                me.message = 'Password updated';
-                            } else {
-                                me.message = response.response[0].errorMsg;
-                            }
+            if (this.$.formPassword.checkValidity()) {
+                if (this.password === this.passwordCheck) {
+                    OpencgaManager.users.updatePassword({
+                        id: Cookies('bioinfo_user'),
+                        query: {
+                            password: CryptoJS.SHA1(this.oldpassword).toString(),
+                            npassword: CryptoJS.SHA1(this.password).toString(),
+                            sid: Cookies('bioinfo_sid')
                         },
-                        error: function () {
-                            me.message = 'Server error, try again later.';
+                        request: {
+                            success: function(response) {
+                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                    me.message = 'Password updated';
+                                } else {
+                                    me.message = response.response[0].errorMsg;
+                                }
+                            },
+                            error: function() {
+                                me.message = 'Server error, try again later.';
+                            }
                         }
-                    }
-                });
+                    });
+                } else {
+                    this.set('message', 'Sorry, your new password does not match.');
+                }
+            } else {
+                this.set('message', 'Please, you should fill all the fields.');
             }
         },
-        handleChangeEmailForm: function (e) {
+        handleChangeEmailForm: function(e) {
             var me = this;
             this.message = '';
 
@@ -132,19 +164,24 @@
                         sid: Cookies('bioinfo_sid')
                     },
                     request: {
-                        success: function (response) {
+                        success: function(response) {
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                                 me.message = 'E-mail updated';
                             } else {
                                 me.message = response.response[0].errorMsg;
                             }
                         },
-                        error: function () {
+                        error: function() {
                             me.message = 'Server error, try again later.';
                         }
                     }
                 });
+            }else{
+              me.message = 'E-mail format is not correct';
             }
+        },
+        handleCancel: function(e) {
+            this.fire('profilecancel');
         }
     });
 </script>
