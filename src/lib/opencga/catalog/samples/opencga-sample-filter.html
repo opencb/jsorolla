@@ -52,11 +52,13 @@
                 <div id="{{prefix}}SampleSelection" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}SampleSelectionHeading">
                     <div class="panel-body">
                         <div class="form-group">
-                            <label>Select</label>
-                            <br>
-                            <input type="radio" name="selectionButtons" id="allRadio" value="all" class$="{{prefix}}FilterRadio" checked="checked" on-change="selectSamples" style="padding-left: 20px"> All<br>
-                            <input type="radio" name="selectionButtons" id="recentlyRadio" value="recently" class$="{{prefix}}FilterRadio" checked on-change="selectSamples" style="padding-left: 20px"> Recently Uploaded<br>
-                            <input type="radio" name="selectionButtons" id="rangeRadio" value="range" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Range
+                            <form>
+                                <label>Select</label>
+                                <br>
+                                <input type="radio" name="selectionButtons" id="allRadio" value="all" class$="{{prefix}}FilterRadio" checked on-change="calculateFilters" style="padding-left: 20px"> All<br>
+                                <input type="radio" name="selectionButtons" id="recentlyRadio" value="recently" class$="{{prefix}}FilterRadio" on-change="calculateFilters" style="padding-left: 20px"> Recently Uploaded<br>
+                                <input type="radio" name="selectionButtons" id="rangeRadio" value="range" class$="{{prefix}}FilterRadio" on-change="calculateFilters" style="padding-left: 20px"> Range
+                            </form>
 
                             <div class="panel-body">
                                 <span>From</span>
@@ -77,7 +79,7 @@
 
                             <label>Other filters</label>
                             <br>
-                            <input type="checkbox" name="selectionButtons" id="controls" value="controls" class$="{{prefix}}FilterRadio" on-change="selectSamples" style="padding-left: 20px"> Controls<br>
+                            <input type="checkbox" name="selectionButtons" id="controls" value="controls" class$="{{prefix}}FilterRadio" on-change="calculateFilters" style="padding-left: 20px"> Controls<br>
                         </div>
                     </div>
                 </div>
@@ -89,7 +91,7 @@
                     <h4 class="panel-title">
                         <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
                            href="#{{prefix}}SampleIndividual" aria-expanded="true" aria-controls="{{prefix}}SampleIndividual">
-                            Sample and Individual
+                            Sample
                             <div style="float: right" class="tooltip-div">
                                 <a data-toggle="tooltip" title="Sample selection">
                                     <i class="fa fa-info-circle" aria-hidden="true"></i>
@@ -107,6 +109,9 @@
 
                             <label>Individual name</label>
                             <input type="text" id="{{prefix}}IndividualName" class="form-control" placeholder="Smith, Grant ..." on-keyup="calculateFilters">
+
+                            <label>Family name</label>
+                            <input type="text" id="{{prefix}}FamilyName" class="form-control" placeholder="Smith, Grant ..." on-keyup="calculateFilters">
                         </div>
                     </div>
                 </div>
@@ -322,7 +327,7 @@
                 },
                 search: {
                     type: Object,
-                    observer: 'renderHashQueryParams'
+                    notify: true
                 },
                 variableSets: {
                     type: Array
@@ -353,8 +358,11 @@
                 this.years = _years;
             },
             attached: function () {
-                $("#" + this.prefix + "datetimePickerFrom").datetimepicker();
+                $("#" + this.prefix + "datetimePickerFrom").datetimepicker({
+                    format: 'DD/MM/YYYY'
+                });
                 $("#" + this.prefix + "datetimePickerTo").datetimepicker({
+                    format: 'DD/MM/YYYY',
                     useCurrent: false //Important! See issue #1075
                 });
                 $("#" + this.prefix + "datetimePickerFrom").on("dp.change", function (e) {
@@ -363,6 +371,16 @@
                 $("#" + this.prefix + "datetimePickerTo").on("dp.change", function (e) {
                     $("#" + this.prefix + "datetimePickerFrom").data("DateTimePicker").maxDate(e.date);
                 });
+            },
+            onSearch: function () {
+                this.search = this.query;
+            },
+            calculateFilters: function () {
+                let _query = {};
+
+                _query.name = $("#" + this.prefix + "SampleName").val();
+
+                this.query = _query;
             },
             updateVariableSets: function () {
                 this.variables = [];

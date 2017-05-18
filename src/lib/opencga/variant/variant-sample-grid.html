@@ -53,7 +53,8 @@
                     observer: "onFilterUpdate"
                 },
                 search: {
-                    type: Object
+                    type: Object,
+                    observer: 'renderFromServer'
                 }
             },
             observers: [
@@ -110,8 +111,8 @@
 //                                auxParams["name"] = "~" + params.search;
 //                            }
 
-//                            return $.extend({}, filters, auxParams);
-                            return auxParams;
+                            return $.extend({}, filters, auxParams);
+//                            return auxParams;
                         },
                         responseHandler: function (response) {
                             if (!_this.hasOwnProperty("numTotalResults")) {
