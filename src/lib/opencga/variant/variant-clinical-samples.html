@@ -53,7 +53,7 @@
                 <div style="padding: 10px 0px">
                     <h3>Clinical Analysis</h3>
                     <div id="toolbar">
-                        <button id="{{prefix}}DeleteAnalysisButton" class="btn btn-danger disabled">
+                        <button id="{{prefix}}DeleteAnalysisButton" class="btn btn-danger disabled" on-click="deleteAnalysis">
                             <i class="fa fa-times"></i>&nbsp;Delete
                         </button>
                     </div>
@@ -75,7 +75,7 @@
                         <h4 class="modal-title" id="{{prefix}}FamilyEditorLabel">Family Editor</h4>
                     </div>
                     <div class="modal-body" style="height: 500px">
-                        <opencga-family-editor samples="{{samples}}" opencga-client="{{opencgaClient}}"></opencga-family-editor>
+                        <opencga-family-editor samples="{{samplesAnalysis}}" opencga-client="{{opencgaClient}}"></opencga-family-editor>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
@@ -83,6 +83,25 @@
                 </div>
             </div>
         </div>
+
+
+        <!-- Modal dialog for warnings -->
+        <div class="modal fade" id="{{prefix}}warningModal" tabindex="-1" role="dialog"
+             aria-labelledby="warningLabel" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-sm" role="document" style="width: 500px;">
+                <div class="modal-content">
+                    <div class="modal-header alert alert-danger">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">Warning!</h4>
+                    </div>
+                    <div id="{{prefix}}warningMsgDiv" class="modal-body" style="height: 100px"></div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </template>
 
     <script>
@@ -105,6 +124,10 @@
                     type: Array,
                     notify: true
                 },
+                analysis: {
+                    type: Array,
+                    notify: true
+                },
                 prefix: {
                     type: String
                 },
@@ -119,6 +142,9 @@
                 },
                 config: {
                     type: Object
+                },
+                samplesAnalysis: {
+                    type: Array
                 }
             },
             observers: [
@@ -130,6 +156,7 @@
                 }
 
                 this._numAnalysisSelected = 0;
+                //this.analysis = [];
             },
 
             renderAnalysisTable: function(){
@@ -154,7 +181,7 @@
                         },
                         {
                             field: 'analysisType',
-                            title: 'Analysis'
+                            title: 'Analysis type'
                         },
                         {
                             field: 'analysisDate',
@@ -167,9 +194,12 @@
                         {
                             field: 'analysisAction',
                             title: 'Action',
-//                            formatter: _this.actionFormatter,
-//                            events: _this.operateEvents
                         },
+                        {
+                            field: 'sampleList',
+                            visible: false
+
+                        }
                     ],
                     onCheck: function (row, elem) {
                         $('#' + _this.prefix + "DeleteAnalysisButton").removeClass("disabled");
@@ -180,6 +210,13 @@
                         if (_this._numAnalysisSelected <= 0) {
                             $('#' + _this.prefix + "DeleteAnalysisButton").addClass("disabled");
                         }
+                    },
+                    onClickCell: function (field, value, row, elem){
+                        if (field === 'analysisAction') { // Only of cell related to family editor is selected, get samples for this analysis to the family editor
+                            _this.samplesAnalysis = row.sampleList;
+                        }
+
+
                     }
                 });
 
@@ -309,80 +346,143 @@
                 this.search = filterParams;
             },
             addAnalysis: function(e) {
+
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
                 //$("#analysisListDiv").show();
                 let analysisId= Math.floor(Math.random() * 100) + 1;
                 // Get the type of analysisId
                 let analysisType = "";
+                let _properMembers = -1;
 
                 switch (e.currentTarget.id) {
                     case "familyButton":
                         analysisType = "Family";
+                        _properMembers = 4;
                         break;
                     case "trioButton":
                         analysisType = "Trio";
+                        _properMembers = 3;
                         break;
                     case "duoButton":
                         analysisType = "Duo";
+                        _properMembers = 2;
                         break;
                     case "singleButton":
                         analysisType = "Single";
+                        _properMembers = 1;
                         break;
                     case "autoButton":
                         analysisType = "Auto comparative";
+                        _properMembers = 2;
                         break;
                     case "multiButton":
                         analysisType = "Multisample";
+                        _properMembers = 2;
                         break;
                     default:
                         analysisType = "Family";
+                        _properMembers = 4;
                         break;
                 }
-                let fullDate = new Date()
-                let twoDigitMonth = ((fullDate.getMonth().length+1) === 1)? (fullDate.getMonth()+1) : '0' + (fullDate.getMonth()+1);
-                let currentDate = fullDate.getDate() + "/" + twoDigitMonth + "/" + fullDate.getFullYear();
 
-                let samplesToShow = "";
 
-                for (let sampleIdx in this.samples) {
-                    samplesToShow=samplesToShow + this.samples[sampleIdx].name + ",";
+                if (this.analysisError(analysisType, this.samples.length, _properMembers)) {
+                    let fullDate = new Date();
+                    let twoDigitMonth = ((fullDate.getMonth().length + 1) === 1) ? (fullDate.getMonth() + 1) : '0' + (fullDate.getMonth() + 1);
+                    let currentDate = fullDate.getDate() + "/" + twoDigitMonth + "/" + fullDate.getFullYear();
+
+                    let samplesToShow = "";
+
+                    for (let sampleIdx in this.samples) {
+                        samplesToShow = samplesToShow + this.samples[sampleIdx].name + ",";
+                    }
+                    samplesToShow = samplesToShow.slice(0, -1);
+
+                    let _this = this;
+                    $("#" + this.prefix + "tableAnalysis").bootstrapTable('insertRow', {
+                        index: 0, row: {
+                            analysisID: "AN-" + analysisId,
+                            analysisSamples: samplesToShow,
+                            analysisType: analysisType,
+                            analysisDate: currentDate,
+                            analysisFilter: "NO",
+                            analysisAction: _this.actionFormatter(),
+                            sampleList: _this.samples
+                        }
+                    });
+
+                    // Add analysis to property analysis so that can be used in prioritization
+                    // This code will be removed as soon as analysis can be saved
+
+
+                    let _anObject = {
+                        analysisID: "AN-" + analysisId,
+                        analysisSamples: samplesToShow,
+                        analysisType: analysisType,
+                        analysisDate: currentDate,
+                        analysisFilter: "NO"};
+
+                    if (typeof this.analysis !== "undefined"){
+                        this.push('analysis', _anObject);
+                    }
+                    else {
+                        this.analysis=[_anObject];
+                    }
+
                 }
-                samplesToShow = samplesToShow.slice(0,-1);
 
-                let _this= this;
-                $("#" + this.prefix + "tableAnalysis").bootstrapTable('insertRow',{index: 0 , row: {
-                    analysisID : "AN-"+analysisId,
-                    analysisSamples : samplesToShow,
-                    analysisType : analysisType,
-                    analysisDate : currentDate,
-                    analysisFilter : "NO",
-                    analysisAction: _this.actionFormatter()
-                }
-
+            },
+            deleteAnalysis: function(e) {
+                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+                let ids = $.map($('#' + this.prefix + 'tableAnalysis').bootstrapTable('getSelections'), function (row) {
+                    return row.analysisID;
                 });
+
+                $('#' + this.prefix + 'tableAnalysis').bootstrapTable('remove', {
+                    field: 'analysisID',
+                    values: ids
+                });
+
+                // Remove from property analysis.
+                // This code will be removed as soon as analysis can be saved
+
+                for (let i in ids) {
+                    let analysisToDeleteIdx = -1;
+                    for (let j in this.analysis) {
+                        if (this.analysis[j].analysisID === ids[i]) {
+                            analysisToDeleteIdx = j;
+                            break
+                        }
+                    }
+                    this.splice('analysis', analysisToDeleteIdx, 1);
+                }
+
+
+
 
             },
             actionFormatter: function() {
-//                return [
-//                    '<button type="button" class="btn btn-xs btn-danger" onclick="removeAnalysis">Remove <i class="fa fa-times" aria-hidden="true"></i></button>' ,
-//                    '<button data-toggle="modal" role="button" type="button" class="btn btn-xs btn-success" data-target="#'+this.prefix+'FamilyEditor">Edit <i class="fa fa-cog" aria-hidden="true"></i></button>'
-//                ].join('&nbsp');
                 return '<button data-toggle="modal" role="button" type="button" class="btn btn-sm btn-success" data-target="#' + this.prefix + 'FamilyEditor"><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;Edit</button>';
 
+            },
+            analysisError: function (analysisType, introducedLength, properLength){
+
+                if ((analysisType === 'Trio' || analysisType === 'Duo' || analysisType === 'Single' || analysisType === 'Auto comparative') && introducedLength != properLength){
+                    $("#" + this.prefix + "warningMsgDiv").html("Incorrect number of samples selected (" + introducedLength.toString() + ") for " + analysisType + " analysis (" + properLength.toString()+")");
+                    $("#" + this.prefix + "warningModal").modal('show');
+                    return false;
+                }
+                else if ((analysisType === 'Family' || analysisType === 'Multisample') && introducedLength < properLength){
+                    $("#" + this.prefix + "warningMsgDiv").html("Incorrect number of samples selected (" + introducedLength.toString() + ") for " + analysisType + " analysis (at least " + properLength.toString()+")");
+                    $("#" + this.prefix + "warningModal").modal('show');
+                    return false;
+                }
+                else
+                    return true;
+
+
             }
-//            removeAnalysis: function(e) {
-//                console.log(this);
-//                debugger;
-//                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-//                let ids = $.map($('#' + this.prefix + 'tableAnalysis').bootstrapTable('getSelections'), function (row) {
-//                    return row.id;
-//                });
-//
-//                $('#' + this.prefix + 'tableAnalysis').bootstrapTable('remove',{
-//                    field: 'analysisID',
-//                    values: ids
-//                });
-//            },
+
 
         });
 
