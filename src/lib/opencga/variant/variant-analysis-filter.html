@@ -998,8 +998,9 @@
         },
         updateQueryFilters: function () {
             let _filters = {};
+
             console.log(this)
-            debugger
+
             // Adding sample genotypes filter
             if (typeof this.sampleGenotypes !== "undefined" && this.sampleGenotypes != "") {
                 _filters.genotype = this.sampleGenotypes;
@@ -1035,19 +1036,19 @@
             }
 
             // Regions
-            if (this.$$("#" + this.prefix + "LocationTextarea").value != "") {
+            if (this.$$("#" + this.prefix + "LocationTextarea").value !== "") {
                 _filters.region = this.$$("#" + this.prefix + "LocationTextarea").value;
             }
 
             // Features: Gene, SNP ID
-            if (this.$$("#" + this.prefix + "FeatureTextarea").value != "") {
-//                    if (this.$$("#" + this.prefix + "FeatureTextarea").value.startsWith("rs") || this.$$("#" + this.prefix + "FeatureTextarea").value.split(':').length > 2) {
-//                        _filters.ids = this.$$("#" + this.prefix + "FeatureTextarea").value;
-//                    } else {
-//                        _filters.gene = this.$$("#" + this.prefix + "FeatureTextarea").value;
-//                    }
-                _filters["annot-xref"] = this.$$("#" + this.prefix + "FeatureTextarea").value;
-            }
+//            if (this.$$("#" + this.prefix + "FeatureTextarea").value !== "") {
+////                    if (this.$$("#" + this.prefix + "FeatureTextarea").value.startsWith("rs") || this.$$("#" + this.prefix + "FeatureTextarea").value.split(':').length > 2) {
+////                        _filters.ids = this.$$("#" + this.prefix + "FeatureTextarea").value;
+////                    } else {
+////                        _filters.gene = this.$$("#" + this.prefix + "FeatureTextarea").value;
+////                    }
+//                _filters["annot-xref"] = this.$$("#" + this.prefix + "FeatureTextarea").value;
+//            }
 
             // Biotype
             if (typeof this.query["annot-biotype"] !== "undefined") {
@@ -1061,14 +1062,14 @@
 
 
             // Type
-            let types = this.$$("#" + this.prefix + "Type").querySelectorAll("input:checked");
-            let typesAux = [];
-            if (types.length > 0) {
-                for (let i = 0; i < types.length; i++) {
-                    typesAux.push(types[i].value);
-                }
-                _filters.type = typesAux.join(',');
-            }
+//            let types = this.$$("#" + this.prefix + "Type").querySelectorAll("input:checked");
+//            let typesAux = [];
+//            if (types.length > 0) {
+//                for (let i = 0; i < types.length; i++) {
+//                    typesAux.push(types[i].value);
+//                }
+//                _filters.type = typesAux.join(',');
+//            }
 
             // Population Frequencies
             // Population minor allele frequency: {study}:{population}[<|>|<=|>=]{number}
@@ -1162,15 +1163,15 @@
             }
 
             // Gene Ontology and Human Phenotype Ontology
-            if (this.$$("#" + this.prefix + "GeneOntologyTextarea").value != "") {
-                _filters["annot-go"] = this.$$("#" + this.prefix + "GeneOntologyTextarea").value;
-            }
-            if (this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value != "") {
-                _filters["annot-hpo"] = this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value;
-            }
-            if (this.$$("#" + this.prefix + "TraitsTextarea").value != "") {
-                _filters["traits"] = this.$$("#" + this.prefix + "TraitsTextarea").value;
-            }
+//            if (this.$$("#" + this.prefix + "GeneOntologyTextarea").value != "") {
+//                _filters["annot-go"] = this.$$("#" + this.prefix + "GeneOntologyTextarea").value;
+//            }
+//            if (this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value != "") {
+//                _filters["annot-hpo"] = this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value;
+//            }
+//            if (this.$$("#" + this.prefix + "TraitsTextarea").value != "") {
+//                _filters["traits"] = this.$$("#" + this.prefix + "TraitsTextarea").value;
+//            }
 
             // Cadd scores
             let cadd = [];

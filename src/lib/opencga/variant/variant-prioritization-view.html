@@ -43,7 +43,7 @@
         <div>
             <br>
             <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" filters="{{config.filters}}"
-                                    filter-bioformat="VARIANT" alias="{{activeFilterAlias}}">
+                                    filter-bioformat="VARIANT" fixed-filters="{{fixedFilters}}" alias="{{activeFilterAlias}}" refresh="{{search}}">
             </opencga-active-filters>
 
 
@@ -225,6 +225,8 @@
 
                 this._isPrioritizationMode = this.mode === "prioritization";
                 this._isClinicalMode = this.mode === "clinical";
+
+                this.fixedFilters = ["studies"];
             },
             checkVariant: function(variant) {
                 return variant.split(':').length > 2;

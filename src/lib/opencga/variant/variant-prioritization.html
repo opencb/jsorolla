@@ -46,7 +46,7 @@
             <variant-prioritization-view mode="{{mode}}" title="{{title}}" project="{{project}}" study="{{study}}" samples="{{samples}}" prefix="{{prefix}}"
                                          opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}"
                                          protein-substitution-scores="{{proteinSubstitutionScores}}" consequence-types="{{consequenceTypes}}"
-                                         beacon-hosts="{{beaconHosts}}" query="{{query}}" search="{{search}}" on-propagate="propagateGeneEvent">
+                                         beacon-hosts="{{beaconHosts}}" query="{{query}}" search="{{search}}" on-clear="onClear" on-filterchange="onFilterChange" on-propagate="propagateGeneEvent">
             </variant-prioritization-view>
         </div>
 
@@ -135,6 +135,14 @@
                 }
 
                 this._collapsed = !this._collapsed;
+            },
+            onClear: function() {
+                this.query = {studies: this.project.alias + ":" + this.study.alias};
+                this.search = {};
+            },
+            onFilterChange: function(e) {
+                this.query = e.detail;
+                this.search = e.detail;
             }
         });
     </script>
