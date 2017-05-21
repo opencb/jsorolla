@@ -124,21 +124,8 @@
                                 </button>
                                 <div id="analysisSelectedDiv" style="display:none">
                                     <label>Analysis selected:</label>
-                                    <input type="text" class$="custom-sized-input {{prefix}}FilterTextInput" placeholder="AN-28" aria-describedby="basic-addon1" disabled>
+                                    <input type="text" class$="custom-sized-input {{prefix}}FilterTextInput" placeholder="{{currentAnalysisID}}" aria-describedby="basic-addon1" disabled>
                                 </div>
-
-<!--                                <div class="dropdown" id="segregationDropdownDiv" style="display: none">
-                                    <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="segregationDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                        {{segregation}}
-                                        <span class="caret"></span>
-                                    </button>
-                                    <ul class="dropdown-menu" aria-labelledby="segregationDropdown" on-click="selectSegregation">
-                                        <template is="dom-repeat" items="{{config.segregation}}">
-                                            <li><a>{{item}}</a></li>
-                                        </template>
-                                    </ul>
-                                </div>-->
-
                             </div>
                         </div>
                     </div>
@@ -630,33 +617,25 @@
 
 
 
-
-
-
-                            <!-- Modal dialog for Analysis Browser-->
-        <div class="modal fade" id="{{prefix}}AnalysisBrowser" tabindex="-1" role="dialog"
-             aria-labelledby="sampleBrowserLabel">
-            <div class="modal-dialog modal-lg" role="document" style="width: 1024px;">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title" id="{{prefix}}AnalysisBrowserLabel">Analysis Selector</h4>
-                    </div>
-                    <div class="modal-body" style="height: 500px">
-                        <variant-analysis-selector></variant-analysis-selector>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="showSegregation">OK</button>
+            <!-- Modal dialog for Analysis Browser-->
+            <div class="modal fade" id="{{prefix}}AnalysisBrowser" tabindex="-1" role="dialog"
+                 aria-labelledby="sampleBrowserLabel">
+                <div class="modal-dialog modal-lg" role="document" style="width: 1024px;">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="{{prefix}}AnalysisBrowserLabel">Analysis Selector</h4>
+                        </div>
+                        <div class="modal-body" style="height: 650px">
+                            <variant-analysis-selector opencga-client="{{opencgaClient}}" analysis="{{analysis}}" analysis-selected="{{analysisSelected}}"></variant-analysis-selector>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="loadAnalysis">OK</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-
-
-
-
-
-
 
     </template>
 
@@ -718,9 +697,17 @@
             },
             prefix: {
                 type: String
+            },
+            analysis: {
+                type: Array
+            },
+            analysisSelected: {
+                type: Object
             }
         },
         ready: function() {
+
+
             if (typeof this.prefix === "undefined" || this.prefix == "") {
                 this.prefix = "browser" + Utils.randomString(6);
             }
@@ -1355,10 +1342,11 @@
                     break;
             }
         },
-        showSegregation: function(e){
+        loadAnalysis: function(e){
             e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+            this.currentAnalysisID = this.analysisSelected.analysisID;
+            this.samples = this.analysisSelected.sampleList; // Samples are notified to variant-prioritization-view
             $("#analysisSelectedDiv").show();
-            $("#segregationDropdownDiv").show();
 
         }
     });

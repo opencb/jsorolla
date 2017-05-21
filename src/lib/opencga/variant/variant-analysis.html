@@ -117,19 +117,19 @@
 
         <div class="col-md-12">
             <div class="analysis-content" id="{{prefix}}UploadButtonDiv" style="display: inline">
-                <variant-clinical-upload opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}"></variant-clinical-upload>
+                <variant-clinical-upload opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}" clear-dom="{{clearDomUpload}}"></variant-clinical-upload>
             </div>
 
             <div class="analysis-content" id="{{prefix}}SamplesButtonDiv" style="display: none">
                 <!--<variant-analysis-samples prefix="{{prefix}}" opencga-client="{{opencgaClient}}" study="{{study}}" samples="{{samples}}"
                                           config="{{config}}" query="{{query}}"></variant-analysis-samples>-->
-                <variant-clinical-samples opencga-client="{{opencgaClient}}" study="{{study}}" study-id="{{study.id}}" samples="{{samples}}" prefix="{{prefix}}" config="{{config}}"></variant-clinical-samples>
+                <variant-clinical-samples opencga-client="{{opencgaClient}}" study="{{study}}" study-id="{{study.id}}" samples="{{samples}}" prefix="{{prefix}}" config="{{config}}" analysis="{{analysis}}"></variant-clinical-samples>
             </div>
 
             <div class="analysis-content" id="{{prefix}}FilterButtonDiv" style="display: none">
                 <div class="col-md-2">
                     <variant-analysis-filter prefix="{{prefix}}" mode="{{mode}}" study="{{study}}" project="{{project}}" samples="{{samples}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"
-                                             population-frequencies="{{populationFrequencies}}" consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}" style="font-size: 12px">
+                                             population-frequencies="{{populationFrequencies}}" consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}" analysis="{{analysis}}" style="font-size: 12px">
                     </variant-analysis-filter>
                 </div>
 
@@ -143,7 +143,7 @@
             </div>
 
             <div class="analysis-content" id="{{prefix}}ReportButtonDiv" style="display: none">
-                <variant-analysis-report opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}" title="{{title}}"></variant-analysis-report>
+                <variant-analysis-report opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}" title="{{title}}" analysis="{{analysis}}"></variant-analysis-report>
             </div>
         </div>
     </template>
@@ -166,6 +166,10 @@
                     value: ""
                 },
                 samples: {
+                    type: Array,
+                    notify: true
+                },
+                analysis: {
                     type: Array,
                     notify: true
                 },
@@ -200,6 +204,10 @@
                 search: {
                     type: Object
                 },
+                clearDomUpload: {
+                    type: Object,
+                    notify: true
+                }
             },
             ready: function () {
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
@@ -223,6 +231,15 @@
             onFilterChange: function(e) {
                 this.query = e.detail;
                 this.search = e.detail;
+                switch (e.target.id) {
+                    case this.prefix + "UploadButton":
+                        this.clearDomUpload = {clear: true};
+                        break;
+                    default:
+                        analysisType = "Family";
+                        _properMembers = 4;
+                        break;
+                }
             }
         });
 

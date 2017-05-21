@@ -48,7 +48,7 @@
                         </button>
                         <div id="{{prefix}}analysisSelectedDiv" style="display:none">
                             <label>Analysis selected:</label>
-                            <input type="text" class$="custom-sized-input {{prefix}}FilterTextInput" placeholder="AN-28" aria-describedby="basic-addon1" disabled>
+                            <input type="text" class$="custom-sized-input {{prefix}}FilterTextInput" placeholder="{{currentAnalysisID}}" aria-describedby="basic-addon1" disabled>
                         </div>
                         <br>
                         <br>
@@ -167,6 +167,25 @@
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                         <h4 class="modal-title" id="{{prefix}}AnalysisBrowserLabel">Analysis Selector</h4>
                     </div>
+                    <div class="modal-body" style="height: 650px">
+                        <variant-analysis-selector opencga-client="{{opencgaClient}}" analysis="{{analysis}}" analysis-selected="{{analysisSelected}}"></variant-analysis-selector>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="showReportOptions">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+<!--        <div class="modal fade" id="{{prefix}}AnalysisBrowser" tabindex="-1" role="dialog"
+             aria-labelledby="sampleBrowserLabel">
+            <div class="modal-dialog modal-lg" role="document" style="width: 1024px;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="{{prefix}}AnalysisBrowserLabel">Analysis Selector</h4>
+                    </div>
                     <div class="modal-body" style="height: 500px">
                         <variant-analysis-selector></variant-analysis-selector>
                     </div>
@@ -175,7 +194,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div>-->
 
         <div style="width: 60%;margin: 0 auto">
             <button type="button" class="btn btn-primary btn-md" style="width: 100%" on-click="onSave">
@@ -224,11 +243,18 @@
                 expReport : {
                     type: Boolean,
                     notify: true
-                }
+                },
+                analysisSelected: {
+                    type: Object,
+                    notify: true
+                },
+                analysis: {
+                    type: Array
+                },
             },
             ready: function() {
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
-                    this.prefix = Utils.randomString(6);
+                    this.prefix = "repFilter" + Utils.randomString(6);
                 }
 
 
@@ -304,7 +330,9 @@
 
 
 
-                this.selection = {analysisID: "AN-28"}; // hardcoded!!!!
+                this.currentAnalysisID = this.analysisSelected.analysisID;
+                this.selection = {analysisID: this.analysisSelected.analysisID};
+
 
 
 

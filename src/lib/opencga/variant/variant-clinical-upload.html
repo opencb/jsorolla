@@ -369,6 +369,29 @@
                 </div>
             </div>
         </div>
+
+        <!-- Modal dialog for VCF upload-->
+        <div class="modal fade" id="{{prefix}}uploadModal" tabindex="-1" role="dialog"
+             aria-labelledby="uploadLabel" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-sm" role="document" style="width: 500px;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="{{prefix}}uploadLabel">VCF upload</h4>
+                    </div>
+                    <div class="modal-body" style="height: 200px">
+                        <div class="col-sm-12" >
+                            <label>VCF has been uploaded. You can now proceed to Analysis</label>
+                            VCF validation is under progress.
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </template>
 
     <script>
@@ -402,12 +425,16 @@
                 minYearTest: {
                     type: Number,
                     value: 2005
+                },
+                clearDom: {
+                    type: Object,
+                    observer: "_clearHtmlDom"
                 }
             },
             ready: function () {
 
                 if (typeof this.prefix === "undefined" || this.prefix === "") {
-                    this.prefix = Utils.randomString(6);
+                    this.prefix = "upload" + Utils.randomString(6);
                 }
                 let _years = [];
                 let fullDate = new Date();
@@ -686,12 +713,15 @@
             },
             _clearHtmlDom: function() {
 
+                $("#" + this.prefix + "uploadForm").validator('destroy');
                 // Empty everything before rendering
                 $("." + this.prefix + "SelectInput").prop('selectedIndex', 0);
                 $("." + this.prefix + "TextInput").val("");
                 $("." + this.prefix + "CheckInput").prop("checked", false);
                 $("." + this.prefix + "RadioInput").prop("checked", false);
                 $("#" + this.prefix + "birthPlaceRegion").prop("disabled",true);
+
+                $("#" + this.prefix + "uploadForm").validator('update');
             },
 
 
@@ -763,6 +793,8 @@
                     .catch(function() {
                         console.log("Could not index file " + _this.fileId);
                     });
+
+                this.showUploadModal();
 
             },
             uploadVCF: function(individualId, formFields) {
@@ -876,6 +908,12 @@
                 //console.log(this);
                 //debugger;
             },
+            showUploadModal: function(){
+
+                $("#" + this.prefix + "uploadModal").modal("show");
+                this._clearHtmlDom();
+
+            }
 
 
         });
