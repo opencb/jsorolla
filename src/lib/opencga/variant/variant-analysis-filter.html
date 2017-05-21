@@ -152,24 +152,25 @@
                                       name="location" on-keyup="updateQueryFilters"></textarea>
                         </div>
                         <br>
-                        <!--<label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}FeatureDiv" style="cursor: pointer;"></i>&nbsp;Feature IDs (gene, transcript, SNP IDs)</label>
+
+                        <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}FeatureDiv" style="cursor: pointer;"></i>&nbsp;Feature (Genes, SNPs, ...)</label>
                         <div id="{{prefix}}FeatureDiv" hidden>
-                            <textarea id="{{prefix}}FeatureTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="5" placeholder="BRCA2, ENSG00000139618, ENST00000544455, rs28897700"
-                                      name="geneSnp" on-keyup="updateQueryFilters"></textarea>
+                            <textarea id="{{prefix}}FeatureTextarea" name="geneSnp" class$="form-control clearable {{prefix}}FilterTextInput"
+                                      rows="3" placeholder="BRCA2, ENSG00000139618, ENST00000544455, rs28897700" on-keyup="updateQueryFilters"></textarea>
                         </div>
-                        <br>-->
+                        <br>
 
                         <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}BiotypeDiv" style="cursor: pointer;"></i>&nbsp;Biotype</label>
                         <div id="{{prefix}}BiotypeDiv" hidden>
                             <select multiple class$="form-control {{prefix}}FilterSelect" id="{{prefix}}GeneBiotypes" on-change="updateQueryFilters">
+                                <option value="none">Select a biotype...</option>
                                 <template is="dom-repeat" items="{{biotypes}}">
                                     <option value="{{item}}">{{item}}</option>
                                 </template>
                             </select>
-
-
                         </div>
                         <br>
+
                         <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}DepthDiv" style="cursor: pointer;"></i>&nbsp;Depth</label>
                         <div id="{{prefix}}DepthDiv" hidden>
                             <div class="horizontal layout">
@@ -188,6 +189,7 @@
                             </div>
                         </div>
                         <br>
+
                         <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}PanelAppDiv" style="cursor: pointer;"></i>&nbsp;PanelApp</label>
                         <div id="{{prefix}}PanelAppDiv" hidden>
                             <select class$="form-control {{prefix}}FilterSelect" id="{{prefix}}PanelApps" on-change="updatePanel">
@@ -203,6 +205,7 @@
                         </div>
                         <!--TODO: Update when server side starts to support all xrefs and with/without rs ids-->
                         <br>
+
                         <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}UserPanelDiv" style="cursor: pointer;"></i>&nbsp;User-defined panels</label>
                         <div id="{{prefix}}UserPanelDiv" hidden>
                             <textarea id="{{prefix}}UserPanelTextarea" name="UserPanelTextarea" class$="form-control clearable {{prefix}}FilterTextInput"
@@ -235,7 +238,7 @@
                     <div class="panel-body">
                         <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}InheritanceDiv" style="cursor: pointer;"></i>&nbsp;Inheritance</label>
                         <div id="{{prefix}}InheritanceDiv" hidden>
-                            <select id="{{prefix}}Inheritance" >
+                            <select class$="form-control {{prefix}}FilterSelect" id="{{prefix}}Inheritance">
                                 <option>Select inheritance mode</option>
                                 <option>Autosomal dominant</option>
                                 <option>Autosomal recessive</option>
@@ -250,17 +253,24 @@
                             </select>
                         </div>
                         <br>
+
                         <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}GeneTypeDiv" style="cursor: pointer;"></i>&nbsp;Type of Genes</label>
                         <div id="{{prefix}}GeneTypeDiv" hidden></div>
                         <br>
+
                         <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}HPODiv" style="cursor: pointer;"></i>&nbsp;HPO</label>
                         <div id="{{prefix}}HPODiv" hidden>
-                             <textarea id="{{prefix}}HPOTextarea" rows="3" placeholder="HPO term"></textarea>
+                             <!--<textarea id="{{prefix}}HPOTextarea" rows="3" placeholder="HPO term"></textarea>-->
+                            <textarea id="{{prefix}}HumanPhenotypeOntologyTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="3"
+                                      name="hpo" placeholder="HP:0000001, HP:3000079" on-keyup="updateQueryFilters"></textarea>
                         </div>
                         <br>
+
                         <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}GODiv" style="cursor: pointer;"></i>&nbsp;Gene Ontology</label>
                         <div id="{{prefix}}GODiv" hidden>
-                            <textarea id="{{prefix}}GOTextarea" rows="3" placeholder="GO:0000145"></textarea>
+                            <!--<textarea id="{{prefix}}GOTextarea" rows="3" placeholder="GO:0000145"></textarea>-->
+                            <textarea id="{{prefix}}GeneOntologyTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="3"
+                                      name="geneOntology" placeholder="GO:0000145" on-keyup="updateQueryFilters"></textarea>
                         </div>
                         <br>
 
@@ -1028,23 +1038,22 @@
             }
 
             // Features: Gene, SNP ID
-//            if (this.$$("#" + this.prefix + "FeatureTextarea").value !== "") {
-////                    if (this.$$("#" + this.prefix + "FeatureTextarea").value.startsWith("rs") || this.$$("#" + this.prefix + "FeatureTextarea").value.split(':').length > 2) {
-////                        _filters.ids = this.$$("#" + this.prefix + "FeatureTextarea").value;
-////                    } else {
-////                        _filters.gene = this.$$("#" + this.prefix + "FeatureTextarea").value;
-////                    }
-//                _filters["annot-xref"] = this.$$("#" + this.prefix + "FeatureTextarea").value;
-//            }
-
-            // Biotype
-            if (typeof this.query["annot-biotype"] !== "undefined") {
-                this.$$("#" + this.prefix + "GeneBiotypes").value = this.query["annot-biotype"];
+            if (this.$$("#" + this.prefix + "FeatureTextarea").value !== "") {
+                if (this.$$("#" + this.prefix + "FeatureTextarea").value.startsWith("rs") || this.$$("#" + this.prefix + "FeatureTextarea").value.split(':').length > 2) {
+                    _filters["annot-xref"] = this.$$("#" + this.prefix + "FeatureTextarea").value;
+                } else {
+                    _filters["annot-xref"] = this.$$("#" + this.prefix + "FeatureTextarea").value.toUpperCase();
+                }
             }
 
-            //Panel - annot-panel
-            if (typeof this.query["gene"] !== "undefined") {
-                this.$$("#" + this.prefix + "PanelAppsTextarea").value = this.query.gene;
+            // Biotype
+            if (this.$$("#" + this.prefix + "GeneBiotypes").value !== "none") {
+                _filters["annot-biotype"] = this.$$("#" + this.prefix + "GeneBiotypes").value;
+            }
+
+            // Panel - annot-panel
+            if (this.$$("#" + this.prefix + "PanelApps").value !== "none" || this.$$("#" + this.prefix + "PanelAppsTextarea").value !== "") {
+                _filters["gene"] = this.$$("#" + this.prefix + "PanelAppsTextarea").value;
             }
 
 
@@ -1150,12 +1159,12 @@
             }
 
             // Gene Ontology and Human Phenotype Ontology
-//            if (this.$$("#" + this.prefix + "GeneOntologyTextarea").value != "") {
-//                _filters["annot-go"] = this.$$("#" + this.prefix + "GeneOntologyTextarea").value;
-//            }
-//            if (this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value != "") {
-//                _filters["annot-hpo"] = this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value;
-//            }
+            if (this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value != "") {
+                _filters["annot-hpo"] = this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value;
+            }
+            if (this.$$("#" + this.prefix + "GeneOntologyTextarea").value != "") {
+                _filters["annot-go"] = this.$$("#" + this.prefix + "GeneOntologyTextarea").value;
+            }
 //            if (this.$$("#" + this.prefix + "TraitsTextarea").value != "") {
 //                _filters["traits"] = this.$$("#" + this.prefix + "TraitsTextarea").value;
 //            }
