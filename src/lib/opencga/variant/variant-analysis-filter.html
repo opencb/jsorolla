@@ -124,7 +124,7 @@
                                 </button>
                                 <div id="analysisSelectedDiv" style="display:none">
                                     <label>Analysis selected:</label>
-                                    <input type="text" class$="custom-sized-input {{prefix}}FilterTextInput" placeholder="AN-28" aria-describedby="basic-addon1" disabled>
+                                    <input type="text" class$="custom-sized-input {{prefix}}FilterTextInput" placeholder="{{currentAnalysisID}}" aria-describedby="basic-addon1" disabled>
                                 </div>
                             </div>
                         </div>
@@ -627,10 +627,10 @@
                             <h4 class="modal-title" id="{{prefix}}AnalysisBrowserLabel">Analysis Selector</h4>
                         </div>
                         <div class="modal-body" style="height: 650px">
-                            <variant-analysis-selector opencga-client="{{opencgaClient}}" analysis="{{analysis}}"></variant-analysis-selector>
+                            <variant-analysis-selector opencga-client="{{opencgaClient}}" analysis="{{analysis}}" analysis-selected="{{analysisSelected}}"></variant-analysis-selector>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="showAnalysisSelected">OK</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="loadAnalysis">OK</button>
                         </div>
                     </div>
                 </div>
@@ -700,6 +700,9 @@
             },
             analysis: {
                 type: Array
+            },
+            analysisSelected: {
+                type: Object
             }
         },
         ready: function() {
@@ -1338,10 +1341,11 @@
                     break;
             }
         },
-        showAnalysisSelected: function(e){
+        loadAnalysis: function(e){
             e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+            this.currentAnalysisID = this.analysisSelected.analysisID;
+            this.samples = this.analysisSelected.sampleList; // Samples are notified to variant-prioritization-view
             $("#analysisSelectedDiv").show();
-
 
         }
     });

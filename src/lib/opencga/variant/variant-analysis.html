@@ -117,7 +117,7 @@
 
         <div class="col-md-12">
             <div class="analysis-content" id="{{prefix}}UploadButtonDiv" style="display: inline">
-                <variant-clinical-upload opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}"></variant-clinical-upload>
+                <variant-clinical-upload opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}" clear-dom="{{clearDomUpload}}"></variant-clinical-upload>
             </div>
 
             <div class="analysis-content" id="{{prefix}}SamplesButtonDiv" style="display: none">
@@ -142,7 +142,7 @@
             </div>
 
             <div class="analysis-content" id="{{prefix}}ReportButtonDiv" style="display: none">
-                <variant-analysis-report opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}" title="{{title}}"></variant-analysis-report>
+                <variant-analysis-report opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}" title="{{title}}" analysis="{{analysis}}"></variant-analysis-report>
             </div>
         </div>
     </template>
@@ -199,6 +199,10 @@
 //                },
                 query: {
                     type: Object
+                },
+                clearDomUpload: {
+                    type: Object,
+                    notify: true
                 }
             },
             ready: function () {
@@ -214,6 +218,16 @@
                 $('.analysis-button').removeClass("btn-primary").addClass("btn-success"); // Make all buttons to belong to btn-success (the same colour)
                 $("#" + e.target.id).removeClass("btn-success").addClass("btn-primary"); // change class of selected button (a different colour for that button)
                 $("#" + e.target.id + "Div").show();
+
+                switch (e.target.id) {
+                    case this.prefix + "UploadButton":
+                        this.clearDomUpload = {clear: true};
+                        break;
+                    default:
+                        analysisType = "Family";
+                        _properMembers = 4;
+                        break;
+                }
 
             }
         });

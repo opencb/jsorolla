@@ -28,9 +28,6 @@
             .form-control:read-only {
                 background-color: white;
             }
-            h2, h3 {
-                color: DarkBlue;
-            }
         </style>
 
         <br>
@@ -311,12 +308,15 @@
                 },
                 variables: {
                     type: Array
-                }
+                },
+                analysisSelected: {
+                    type: Object
+                },
 
             },
             ready: function() {
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
-                    this.prefix = Utils.randomString(6);
+                    this.prefix = "repView" + Utils.randomString(6);
                 }
 
                 let date = new Date();
@@ -332,9 +332,10 @@
                 debugger;
 
                 // AnalysisID
-                if (typeof this.selection.analysisID !== "undefined" && typeof this.analysisID === "undefined") {
-                    this.$$("#" + this.prefix + "analysisID").value = this.selection.analysisID;
-                    this.analysisID = this.selection.analysisID;
+                //if (typeof this.analysisSelected.analysisID !== "undefined" && typeof this.analysisID === "undefined") {
+                if (typeof this.analysisSelected.analysisID !== "undefined") {
+                    this.$$("#" + this.prefix + "analysisID").value = this.analysisSelected.analysisID;
+                    this.analysisID = this.analysisSelected.analysisID;
                     this.$$("#" + this.prefix + "sampleInformationDiv").hidden = false;
                 }
 
@@ -363,10 +364,11 @@
 
                     });
 
+                    let _this=this;
                     $('#tableAnalysisResume').bootstrapTable('insertRow',{index:1 , row: {
-                        analysisSamples : "HG00097 (affected), HG00098 (parent), HG00099 (parent)",
-                        analysisType : "Trio",
-                        analysisDate : "05/05/2017"
+                        analysisSamples : _this.analysisSelected.analysisSamples,
+                        analysisType : _this.analysisSelected.analysisType,
+                        analysisDate : _this.analysisSelected.analysisDate
                     }
 
                     });

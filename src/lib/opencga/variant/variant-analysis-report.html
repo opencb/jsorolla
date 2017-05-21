@@ -26,11 +26,11 @@
         <!-- This is where main application is rendered -->
 
         <div class="col-md-2">
-            <variant-report-filter opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}" selection="{{selection}}" exp-report="{{expReport}}" variables="{{variables}}"></variant-report-filter>
+            <variant-report-filter opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}" selection="{{selection}}" exp-report="{{expReport}}" variables="{{variables}}" analysis="{{analysis}}" analysis-selected="{{analysisSelected}}"></variant-report-filter>
         </div>
 
         <div class="col-md-10">
-            <variant-report-view opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}" selection="{{selection}}" title="{{title}}" exp-report="{{expReport}}" variables="{{variables}}"></variant-report-view>
+            <variant-report-view opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}" selection="{{selection}}" title="{{title}}" exp-report="{{expReport}}" variables="{{variables}}" analysis-selected="{{analysisSelected}}"></variant-report-view>
 
         </div>
 
@@ -58,6 +58,12 @@
                 },
                 expReport: {
                     type: Boolean
+                },
+                analysis: {
+                    type: Array
+                },
+                analysisSelected: {
+                    type: Object
                 }
 
             }
