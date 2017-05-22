@@ -146,14 +146,14 @@
                 </div>
                 <div id="{{prefix}}Position" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}PositionHeading">
                     <div class="panel-body">
-                        <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}LocationDiv" style="cursor: pointer;"></i>&nbsp;Location (Chromosomal position, Genes, SNPs, Cytoband)</label>
+                        <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}LocationDiv" style="cursor: pointer;"></i>&nbsp;Location (Chromosomal position)</label>
                         <div id="{{prefix}}LocationDiv" hidden>
                             <textarea id="{{prefix}}LocationTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="3" placeholder="3:444-55555, 1:1-100000"
                                       name="location" on-keyup="updateQueryFilters"></textarea>
                         </div>
                         <br>
 
-                        <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}FeatureDiv" style="cursor: pointer;"></i>&nbsp;Feature (Genes, SNPs, ...)</label>
+                        <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}FeatureDiv" style="cursor: pointer;"></i>&nbsp;Feature IDs (Genes, SNPs, ...)</label>
                         <div id="{{prefix}}FeatureDiv" hidden>
                             <textarea id="{{prefix}}FeatureTextarea" name="geneSnp" class$="form-control clearable {{prefix}}FilterTextInput"
                                       rows="3" placeholder="BRCA2, ENSG00000139618, ENST00000544455, rs28897700" on-keyup="updateQueryFilters"></textarea>
@@ -163,7 +163,6 @@
                         <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}BiotypeDiv" style="cursor: pointer;"></i>&nbsp;Biotype</label>
                         <div id="{{prefix}}BiotypeDiv" hidden>
                             <select multiple class$="form-control {{prefix}}FilterSelect" id="{{prefix}}GeneBiotypes" on-change="updateQueryFilters">
-                                <option value="none">Select a biotype...</option>
                                 <template is="dom-repeat" items="{{biotypes}}">
                                     <option value="{{item}}">{{item}}</option>
                                 </template>
