@@ -223,6 +223,11 @@
                 $("#" + e.target.id).removeClass("btn-success").addClass("btn-primary"); // change class of selected button (a different colour for that button)
                 $("#" + e.target.id + "Div").show();
 
+                if (e.target.id === this.prefix + "UploadButton")
+                {
+                    this.clearDomUpload = {clear: true};
+                }
+
             },
             onClear: function() {
                 this.query = {studies: this.project.alias + ":" + this.study.alias};
@@ -231,15 +236,7 @@
             onFilterChange: function(e) {
                 this.query = e.detail;
                 this.search = e.detail;
-                switch (e.target.id) {
-                    case this.prefix + "UploadButton":
-                        this.clearDomUpload = {clear: true};
-                        break;
-                    default:
-                        analysisType = "Family";
-                        _properMembers = 4;
-                        break;
-                }
+
             }
         });
 

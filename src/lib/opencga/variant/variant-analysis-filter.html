@@ -163,6 +163,7 @@
                         <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}BiotypeDiv" style="cursor: pointer;"></i>&nbsp;Biotype</label>
                         <div id="{{prefix}}BiotypeDiv" hidden>
                             <select multiple class$="form-control {{prefix}}FilterSelect" id="{{prefix}}GeneBiotypes" on-change="updateQueryFilters">
+                                <option></option>
                                 <template is="dom-repeat" items="{{biotypes}}">
                                     <option value="{{item}}">{{item}}</option>
                                 </template>
