@@ -691,7 +691,7 @@
                     }
                 }
 
-                if (this.study.acl.length > 0) {
+                if (typeof this.study.acl !== "undefined" && this.study.acl.length > 0) {
                     for (let i = 0; i < this.study.acl.length; i++) {
                         let member = this.study.acl[i].member;
                         let permissions = this.study.acl[i].permissions;
