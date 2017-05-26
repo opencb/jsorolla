@@ -13,6 +13,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+<link rel="import" href="../opencga-message-dialog.html">
 
 <dom-module id="variant-clinical-upload">
     <template>
@@ -392,6 +393,9 @@
                 </div>
             </div>
         </div>
+
+        <opencga-message-dialog opencga-client="{{opencgaClient}}" show-message-modal="{{showMessageModal}}" settings-message-modal="{{settingsMessageModal}}"></opencga-message-dialog>
+
     </template>
 
     <script>
@@ -429,7 +433,16 @@
                 clearDom: {
                     type: Object,
                     observer: "_clearHtmlDom"
+                },
+                showMessageModal: {
+                    type: Boolean,
+                    notify: true
+                },
+                settingsMessageModal: {
+                    type: Object,
+                    notify: true
                 }
+
             },
             ready: function () {
 
@@ -794,7 +807,8 @@
                         console.log("Could not index file " + _this.fileId);
                     });
 
-                this.showUploadModal();
+                //this.showUploadModal();
+                this.showModal = true;
 
             },
             uploadVCF: function(individualId, formFields) {
@@ -831,6 +845,8 @@
                 }
             },
             openCGAsteps: function(formFields) {
+
+
                 // The following steps are run to register the form in openCGA:
                 // 1. Create the individual (returns an individualId)
                 // 2. Upload VCF (returns a sampleId, since a Sample is created automatically and a fileId)
@@ -898,8 +914,66 @@
                     formFields[field.name] = field.value;
                 });
 
-                // Register the form in openCGA through different steps
-                this.openCGAsteps(formFields);
+                // Get SampleID from VCF file
+
+                if (window.File && window.FileReader && window.FileList && window.Blob) {
+                    let vcfFile = $("#" + this.prefix + "FileToUpload").prop('files')[0];
+                    let reader = new FileReader();
+                    let _this = this;
+
+
+
+                    reader.onload = (function () {
+
+                        let content = reader.result.split('\n');
+                        let i = 0;
+                        let sampleId = "";
+                        while (i < content.length) {
+                            if (content[i].startsWith('#CHROM')) {
+                                let headerColumns = content[i].split('\t')
+                                sampleId = headerColumns[headerColumns.length - 1];
+                                break;
+                            }
+                            i++;
+
+                        }
+                        alert(sampleId);
+                        // Register the form in openCGA through different steps
+                        _this.settingsMessageModal = {
+                            messageHeader: "Header message",
+                            messageBody: ["Hey, this is me!", "Javier"],
+                            type: "",
+                            height: "100px",
+                            width: "500px",
+                        };
+
+                        _this.showMessageModal = true;
+                        //_this.openCGAsteps(formFields);
+                        _this.showMessageModal = false;
+
+                    });
+                    reader.onerror = (function(){
+                        _this.settingsMessageModal = {
+                            messageHeader: "Header message",
+                            messageBody: ["Hey, this is me!", "Javier"],
+                            type: "",
+                            height: "100px",
+                            width: "500px",
+                        };
+
+                        _this.showMessageModal = true;
+                        //_this.openCGAsteps(formFields);
+                        _this.showMessageModal = false;
+                    });
+
+                    reader.readAsText(vcfFile);
+                }
+                else {
+
+                }
+
+
+
 
 
 
