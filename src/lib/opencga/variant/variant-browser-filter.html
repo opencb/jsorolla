@@ -611,46 +611,56 @@
                     </div>
                     <div id="{{prefix}}ConsequenceType" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}consequenceTypeHeading">
                         <div class="panel-body ct-scroll">
-                            <div class="ct-tree-view ct-item">
-                                <ul id="consequenceTypeFilter">
-                                    <template is="dom-repeat" items="{{consequenceTypes.categories}}" as="category">
-                                        <li id="{{category.title}}">
-                                            <!--First check if there is a title for that category-->
-                                            <template is="dom-if" if="{{checkTitle(category)}}">
-                                                <!--If it is a category, only title is shown as it doesn't have any SO term associated with it-->
-                                                <template is="dom-if" if="{{category.isCategory}}">
-                                                    <input type="checkbox" on-change="updateConsequenceTypeFilter" class$="{{prefix}}FilterCheckBox"> {{category.title}}
-                                                </template>
-                                                <!--If it is not a category, SO terms should be shown along with its actual title-->
-                                                <template is="dom-if" if="{{!category.isCategory}}">
-                                                    <input type="checkbox" on-change="updateConsequenceTypeFilter" data-id="{{category.name}}" class$="soTermCheckBox {{prefix}}FilterCheckBox">
-                                                    <span title="{{item.description}}">
-                                                        {{category.title}} (<a href="http://www.sequenceontology.org/browser/current_svn/term/{{category.id}}" target="_blank">{{category.id}}</a>)</span>
-                                                </template>
-                                            </template>
-                                            <!--Title is optional. Consequence type name is taken in case title is not given-->
-                                            <template is="dom-if" if="{{!checkTitle(category)}}">
-                                                <!--If it is a category, only name is shown as it doesn't have any SO term associated with it-->
-                                                <template is="dom-if" if="{{category.isCategory}}">
-                                                    <input type="checkbox" on-change="updateConsequenceTypeFilter" class$="{{prefix}}FilterCheckBox"> {{category.name}}
-                                                </template>
-                                                <!--If it is not a category, SO terms should be shown along with its actual name-->
-                                                <template is="dom-if" if="{{!category.isCategory}}">
-                                                    <input type="checkbox" on-change="updateConsequenceTypeFilter" data-id="{{category.name}}" class$="soTermCheckBox {{prefix}}FilterCheckBox">
-                                                    <span title="{{item.description}}">
-                                                        {{category.name}} (<a href="http://www.sequenceontology.org/browser/current_svn/term/{{category.id}}" target="_blank">{{category.id}}</a>)</span>
-                                                </template>
-                                            </template>
-                                            <ul>
-                                                <template is="dom-repeat" items="{{category.terms}}">
-                                                    <li><input type="checkbox" data-id="{{item.name}}" on-change="updateConsequenceTypeFilter" class$="soTermCheckBox {{prefix}}FilterCheckBox">
+                            <div class="form-group">
+                                <span class="subsection">Select Loss-of-Function terms</span>
+                                <div>
+                                    <input id="{{prefix}}LossOfFunctionCheckBox" type="checkbox" on-change="updateConsequenceTypeFilter" class$="{{prefix}}FilterCheckBox"> LoF terms
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <span class="subsection">Select consequence type terms</span>
+                                <div class="ct-tree-view ct-item">
+                                    <ul id="{{prefix}}consequenceTypeFilter">
+                                        <template is="dom-repeat" items="{{consequenceTypes.categories}}" as="category">
+                                            <li id="{{category.title}}">
+                                                <!--First check if there is a title for that category-->
+                                                <template is="dom-if" if="{{checkTitle(category)}}">
+                                                    <!--If it is a category, only title is shown as it doesn't have any SO term associated with it-->
+                                                    <template is="dom-if" if="{{category.isCategory}}">
+                                                        <input type="checkbox" on-change="updateConsequenceTypeFilter" class$="{{prefix}}FilterCheckBox"> {{category.title}}
+                                                    </template>
+                                                    <!--If it is not a category, SO terms should be shown along with its actual title-->
+                                                    <template is="dom-if" if="{{!category.isCategory}}">
+                                                        <input type="checkbox" on-change="updateConsequenceTypeFilter" data-id="{{category.name}}" class$="soTermCheckBox {{prefix}}FilterCheckBox">
                                                         <span title="{{item.description}}">
-                                                    {{item.name}} (<a href="http://www.sequenceontology.org/browser/current_svn/term/{{item.id}}" target="_blank">{{item.id}}</a>)</span></li>
+                                                        {{category.title}} (<a href="http://www.sequenceontology.org/browser/current_svn/term/{{category.id}}" target="_blank">{{category.id}}</a>)</span>
+                                                    </template>
                                                 </template>
-                                            </ul>
-                                        </li>
-                                    </template>
-                                </ul>
+                                                <!--Title is optional. Consequence type name is taken in case title is not given-->
+                                                <template is="dom-if" if="{{!checkTitle(category)}}">
+                                                    <!--If it is a category, only name is shown as it doesn't have any SO term associated with it-->
+                                                    <template is="dom-if" if="{{category.isCategory}}">
+                                                        <input type="checkbox" on-change="updateConsequenceTypeFilter" class$="{{prefix}}FilterCheckBox"> {{category.name}}
+                                                    </template>
+                                                    <!--If it is not a category, SO terms should be shown along with its actual name-->
+                                                    <template is="dom-if" if="{{!category.isCategory}}">
+                                                        <input type="checkbox" on-change="updateConsequenceTypeFilter" data-id="{{category.name}}" class$="soTermCheckBox {{prefix}}FilterCheckBox">
+                                                        <span title="{{item.description}}">
+                                                        {{category.name}} (<a href="http://www.sequenceontology.org/browser/current_svn/term/{{category.id}}" target="_blank">{{category.id}}</a>)</span>
+                                                    </template>
+                                                </template>
+                                                <ul>
+                                                    <template is="dom-repeat" items="{{category.terms}}">
+                                                        <li><input type="checkbox" data-id="{{item.name}}" on-change="updateConsequenceTypeFilter" class$="soTermCheckBox {{prefix}}FilterCheckBox">
+                                                            <span title="{{item.description}}">
+                                                    {{item.name}} (<a href="http://www.sequenceontology.org/browser/current_svn/term/{{item.id}}" target="_blank">{{item.id}}</a>)</span></li>
+                                                    </template>
+                                                </ul>
+                                            </li>
+                                        </template>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -897,26 +907,53 @@
                 }
             },
             updateConsequenceTypeFilter: function(e) {
-                let soTerms = [];
+                // Select LoF term checkboxes
+                let lofCheckBox = this.$$("#" + this.prefix + "LossOfFunctionCheckBox");
+                if (e.target.id === this.prefix + "LossOfFunctionCheckBox") {
+                    let checkBoxes = this.$$("#" + this.prefix + "consequenceTypeFilter").querySelectorAll("li input");
+                    for (let i = 0; i < this.consequenceTypes.lof.length; i++) {
+                        for (let j = 0; j < checkBoxes.length; j++) {
+                            if (checkBoxes[j].dataId === this.consequenceTypes.lof[i]) {
+                                checkBoxes[j].checked = lofCheckBox.checked;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                // Select/Unselect the items from one category
                 if (e.target.parentNode.id !== "") {
                     $("#" + e.target.parentNode.id).children('ul').children('li').children('input').prop("checked", e.target.checked);
                 }
-                let selected = $('.soTermCheckBox:checked');
+
+//                let selected = $('.soTermCheckBox');
+                let soTerms = [];
+                let selected =  this.$$("#" + this.prefix + "consequenceTypeFilter").querySelectorAll("li input");
                 for (let i = 0; i < selected.length; i++) {
-                    soTerms.push(selected[i].dataId);
+                    if (selected[i].checked && typeof selected[i].dataId !== "undefined") {
+                        soTerms.push(selected[i].dataId);
+                    } else {
+                        // If one term from LoF array is not selected we remove LoF check
+                        if (lofCheckBox.checked && this.consequenceTypes.lof.includes(selected[i].dataId)) {
+                            lofCheckBox.checked = false;
+                        }
+                    }
                 }
+
                 this.set('ct', soTerms);
                 this.updateQueryFilters();
             },
             checkScore: function (e) {
+                let inputElement = $("#" + this.prefix + e.target.name + "Input");
+                let operatorElement = $("#" + this.prefix + e.target.name +"Operator");
                 if (e.target.value === "score") {
-                    $("#" + this.prefix + e.target.name +"Input").prop("disabled", false);
-                    $("#" + this.prefix + e.target.name +"Operator").prop("disabled", false);
+                    inputElement.prop("disabled", false);
+                    operatorElement.prop("disabled", false);
                 } else {
-                    $("#" + this.prefix + e.target.name + "Input").val("");
-                    $("#" + this.prefix + e.target.name + "Operator").val("<");
-                    $("#" + this.prefix + e.target.name + "Input").prop("disabled", true);
-                    $("#" + this.prefix + e.target.name + "Operator").prop("disabled", true);
+                    inputElement.val("");
+                    operatorElement.val("<");
+                    inputElement.prop("disabled", true);
+                    operatorElement.prop("disabled", true);
                 }
                 this.updateQueryFilters();
             },

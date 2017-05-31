@@ -225,8 +225,9 @@
                         query["annot-ct"] = "missense_variant";
                         break;
                     case "LoF":
-                        query["annot-ct"] = "transcript_ablation,splice_acceptor_variant,splice_donor_variant,stop_gained,frameshift_variant," +
-                            "stop_lost,start_lost,transcript_amplification,inframe_insertion,inframe_deletion";
+//                        query["annot-ct"] = "transcript_ablation,splice_acceptor_variant,splice_donor_variant,stop_gained,frameshift_variant," +
+//                            "stop_lost,start_lost,transcript_amplification,inframe_insertion,inframe_deletion";
+                        query["annot-ct"] = this.consequenceTypes.lof.join(",");
                         break;
                     default:
                         if (typeof query["annot-ct"] !== "undefined") {
