@@ -146,7 +146,7 @@
                             <div class="input-group">
                                 <textarea class$="form-control {{prefix}}TextInput" id="{{prefix}}diagnosis" name="diagnosis"
                                           placeholder="ICD-10 term" required data-error="A diagnosis term must be selected" readonly rows="2" style="resize:none"></textarea>
-                                <span class="input-group-addon btn btn-primary" data-toggle="modal" data-target$="#{{prefix}}icd" on-click="showICDEditor">
+                                <span class="input-group-addon btn btn-primary" data-toggle="modal" data-target$="#{{prefix}}icd">
                                     <i class="fa fa-search" aria-hidden="true"></i>
                                 </span>
                             </div>
@@ -449,6 +449,7 @@
                 if (typeof this.prefix === "undefined" || this.prefix === "") {
                     this.prefix = "upload" + Utils.randomString(6);
                 }
+
                 let _years = [];
                 let fullDate = new Date();
                 let limitYear = fullDate.getFullYear();
@@ -470,6 +471,7 @@
 
             },
             updateVariableSets: function () {
+
                 this.variables = [];
                 let _this = this;
                 this.opencgaClient.studies().info(this.study.id, {include: "variableSets"})
@@ -481,25 +483,26 @@
                                 variableSet: _this.variableSets[0].id,
                                 variables: []
                             };
+
                         } else {
                             _this.variableSets = [{name : "none"}];
                         }
                     })
-                    .catch(function () {
+                    .catch(function (response) {
                         console.log("Could not obtain the variable sets of the study " + _this.study);
+                        _this.settingsMessageModal = {
+                            messageHeader: "Error",
+                            messageBody: [response.error],
+                            type: "danger",
+                            height: "100px",
+                            width: "500px"
+                        };
+                        _this.showMessageModal = true;
+
                     });
 
 
-
-                for (let variable in this.variables)
-                {
-                    if(variable.attributes.prearranged == true)
-                    {
-                        $("#"+this.prefix+variable.name).prop('readonly',true);
-                    }
-                }
-
-
+                this.loadICDEditor();
 
             },
             _sortVariables: function (a, b) {
@@ -589,7 +592,10 @@
 
 
             },
-            showICDEditor: function (e) {
+            loadICDEditor: function (e) {
+
+                console.log(this);
+                debugger;
 
                 $("#" + this.prefix + "errorTermDiv").html("");
                 this.$$("#" + this.prefix + "autoInput").value="";
@@ -601,7 +607,6 @@
                     data: ICD_10,
                     onNodeSelected: function(event, node) {
                         _this.$$("#" + _this.prefix + "autoInput").value=node.text;
-                        //$("#" + _this.prefix + "autoInput").trigger("input"); // Necessary to avoid another matching nodes
 
 
                     },
@@ -807,8 +812,18 @@
                         console.log("Could not index file " + _this.fileId);
                     });
 
-                //this.showUploadModal();
-                this.showModal = true;
+
+                this.settingsMessageModal = {
+                    messageHeader: "",
+                    messageBody: ["The VCF file has successfully uploaded. You can now proceed to Analysis tab or upload another VCF file"],
+                    type: "",
+                    height: "100px",
+                    width: "500px"
+                };
+
+                this.showMessageModal = true;
+                this._clearHtmlDom();
+
 
             },
             uploadVCF: function(individualId, formFields) {
@@ -854,6 +869,8 @@
                 // 4. Link the sample (sampleId) and the individual (individualId)
                 // 5. Index and annotate the VCF file (using fileId obtained in step 2)
 
+                console.log(this);
+                debugger;
 
                 if (this.opencgaClient instanceof OpenCGAClient) {
                     // 1. Create individual
@@ -892,8 +909,16 @@
                             _this.uploadVCF(individualId, formFields);
 
                         })
-                        .catch(function () {
-                            console.log("Could not create individual for the study " + _this.study);
+                        .catch(function (response) {
+                            _this.settingsMessageModal = {
+                                messageHeader: "Error",
+                                messageBody: [response.error],
+                                type: "danger",
+                                height: "100px",
+                                width: "500px"
+                            };
+
+                            _this.showMessageModal = true;
                         });
 
                 }
@@ -914,78 +939,72 @@
                     formFields[field.name] = field.value;
                 });
 
-                // Get SampleID from VCF file
 
+                // Some checks before submitting VCF to Catalog
                 if (window.File && window.FileReader && window.FileList && window.Blob) {
                     let vcfFile = $("#" + this.prefix + "FileToUpload").prop('files')[0];
-                    let reader = new FileReader();
-                    let _this = this;
 
+                    if(vcfFile.type ==='text/vcard' && vcfFile.name.split('.').pop() === 'vcf') {
 
+                        let reader = new FileReader();
+                        let _this = this;
 
-                    reader.onload = (function () {
+                        reader.onload = (function () {
+                            // Get SampleID from VCF file
+                            let content = reader.result.split('\n');
+                            let i = 0;
+                            let sampleId = "";
+                            while (i < content.length) {
+                                if (content[i].startsWith('#CHROM')) {
+                                    let headerColumns = content[i].split('\t');
+                                    sampleId = headerColumns[headerColumns.length - 1];
+                                    break;
+                                }
+                                i++;
 
-                        let content = reader.result.split('\n');
-                        let i = 0;
-                        let sampleId = "";
-                        while (i < content.length) {
-                            if (content[i].startsWith('#CHROM')) {
-                                let headerColumns = content[i].split('\t')
-                                sampleId = headerColumns[headerColumns.length - 1];
-                                break;
                             }
-                            i++;
+                            // Register the form in openCGA through different steps
+                            _this.openCGAsteps(formFields);
 
-                        }
-                        alert(sampleId);
-                        // Register the form in openCGA through different steps
-                        _this.settingsMessageModal = {
-                            messageHeader: "Header message",
-                            messageBody: ["Hey, this is me!", "Javier"],
-                            type: "",
+                        });
+                        reader.onerror = (function () {
+                            _this.settingsMessageModal = {
+                                messageHeader: "Error",
+                                messageBody: ["The VCF file couldn't be read"],
+                                type: "danger",
+                                height: "100px",
+                                width: "500px"
+                            };
+
+                            _this.showMessageModal = true;
+                        });
+
+                        reader.readAsText(vcfFile);
+                    } // Type of file: VCF or not
+                    else {
+                        this.settingsMessageModal = {
+                            messageHeader: "Error",
+                            messageBody: ["The file selected is not a VCF file"],
+                            type: "danger",
                             height: "100px",
-                            width: "500px",
+                            width: "500px"
                         };
 
-                        _this.showMessageModal = true;
-                        //_this.openCGAsteps(formFields);
-                        _this.showMessageModal = false;
+                        this.showMessageModal = true;
 
-                    });
-                    reader.onerror = (function(){
-                        _this.settingsMessageModal = {
-                            messageHeader: "Header message",
-                            messageBody: ["Hey, this is me!", "Javier"],
-                            type: "",
-                            height: "100px",
-                            width: "500px",
-                        };
-
-                        _this.showMessageModal = true;
-                        //_this.openCGAsteps(formFields);
-                        _this.showMessageModal = false;
-                    });
-
-                    reader.readAsText(vcfFile);
-                }
+                    }
+                } // Whether browser supports FILE API
                 else {
+                    this.settingsMessageModal = {
+                        messageHeader: "Error",
+                        messageBody: ["Your browser is not supported. The latest version of Google Chrome is recommended (https://www.google.es/chrome/browser/desktop/index.html)"],
+                        type: "danger",
+                        height: "100px",
+                        width: "500px"
+                    };
 
+                    this.showMessageModal = true;
                 }
-
-
-
-
-
-
-                // Submit the form
-                //$("#" + this.prefix + "uploadForm").submit();
-                //console.log(this);
-                //debugger;
-            },
-            showUploadModal: function(){
-
-                $("#" + this.prefix + "uploadModal").modal("show");
-                this._clearHtmlDom();
 
             }
 

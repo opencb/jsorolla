@@ -53,7 +53,8 @@
                 },
                 showMessageModal: {
                     type: Boolean,
-                    observer: "modalEvent"
+                    observer: "modalEvent",
+                    notify: true
                 },
                 settingsMessageModal: {
                     type: Object
@@ -92,15 +93,13 @@
                     $("#" + this.prefix + "modalDiv").css("width", this.settingsMessageModal.width)
                     $("#" + this.prefix + "bodyDiv").css("height", this.settingsMessageModal.height)
 
+                    // Body message
                     this.messageHeader = this.settingsMessageModal.messageHeader;
 
-
-
-                    //this.messageBody = this.settingsMessageModal.messageBody;
-
-
-
+                    // Show modal
                     $("#" + this.prefix + "messageModal").modal("show");
+
+                    this.showMessageModal = false;
 
                 }
             }
