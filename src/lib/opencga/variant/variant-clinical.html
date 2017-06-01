@@ -15,15 +15,14 @@
   -->
 
 <link rel="import" href="variant-clinical-upload.html">
-<link rel="import" href="variant-analysis-samples.html">
 <link rel="import" href="variant-clinical-samples.html">
 <link rel="import" href="variant-browser-filter.html">
 <link rel="import" href="variant-prioritization-view.html">
 <link rel="import" href="variant-sample-grid.html">
-<link rel="import" href="variant-analysis-report.html">
-<link rel="import" href="variant-analysis-filter.html">
+<link rel="import" href="variant-clinical-report.html">
+<link rel="import" href="variant-clinical-filter.html">
 
-<dom-module id="variant-analysis">
+<dom-module id="variant-clinical">
 
     <template>
         <style is="custom-style" include="jso-styles">
@@ -128,9 +127,9 @@
 
             <div class="analysis-content" id="{{prefix}}FilterButtonDiv" style="display: none">
                 <div class="col-md-2">
-                    <variant-analysis-filter prefix="{{prefix}}" mode="{{mode}}" study="{{study}}" project="{{project}}" samples="{{samples}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"
+                    <variant-clinical-filter prefix="{{prefix}}" mode="{{mode}}" study="{{study}}" project="{{project}}" samples="{{samples}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"
                                              population-frequencies="{{populationFrequencies}}" consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}" analysis="{{analysis}}" style="font-size: 12px">
-                    </variant-analysis-filter>
+                    </variant-clinical-filter>
                 </div>
 
                 <div class="col-md-10">
@@ -143,14 +142,14 @@
             </div>
 
             <div class="analysis-content" id="{{prefix}}ReportButtonDiv" style="display: none">
-                <variant-analysis-report opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}" title="{{title}}" analysis="{{analysis}}"></variant-analysis-report>
+                <variant-clinical-report opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}" title="{{title}}" analysis="{{analysis}}"></variant-clinical-report>
             </div>
         </div>
     </template>
 
     <script>
         Polymer({
-            is: 'variant-analysis',
+            is: 'variant-clinical',
             properties: {
                 host: {
                     type: String

@@ -14,7 +14,7 @@
   ~ limitations under the License.
   -->
 
-<link rel="import" href="variant-analysis-selector.html">
+<link rel="import" href="variant-clinical-selector.html">
 
 <dom-module id="variant-report-filter">
     <template>
@@ -168,7 +168,7 @@
                         <h4 class="modal-title" id="{{prefix}}AnalysisBrowserLabel">Analysis Selector</h4>
                     </div>
                     <div class="modal-body" style="height: 650px">
-                        <variant-analysis-selector opencga-client="{{opencgaClient}}" analysis="{{analysis}}" analysis-selected="{{analysisSelected}}"></variant-analysis-selector>
+                        <variant-clinical-selector opencga-client="{{opencgaClient}}" analysis="{{analysis}}" analysis-selected="{{analysisSelected}}"></variant-clinical-selector>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="showReportOptions">OK</button>
@@ -187,7 +187,7 @@
                         <h4 class="modal-title" id="{{prefix}}AnalysisBrowserLabel">Analysis Selector</h4>
                     </div>
                     <div class="modal-body" style="height: 500px">
-                        <variant-analysis-selector></variant-analysis-selector>
+                        <variant-clinical-selector></variant-clinical-selector>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="showReportOptions">OK</button>

@@ -17,7 +17,7 @@
 <!--<link rel="import" href="../../../../../../src/components/opencga-sample-browser.html">-->
 <link rel="import" href="variant-sample-selector.html">
 <link rel="import" href="variant-sample-grid.html">
-<link rel="import" href="variant-analysis-selector.html">
+<link rel="import" href="variant-clinical-selector.html">
 
 <dom-module id="variant-browser-filter">
     <template>
@@ -754,7 +754,7 @@
                         <h4 class="modal-title" id="{{prefix}}AnalysisBrowserLabel">Analysis Selector</h4>
                     </div>
                     <div class="modal-body" style="height: 780px">
-                        <variant-analysis-selector></variant-analysis-selector>
+                        <variant-clinical-selector></variant-clinical-selector>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="showSegregation">OK</button>
