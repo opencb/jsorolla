@@ -308,11 +308,11 @@ GenomeViewer.prototype = {
 
         if (!$.isFunction(this.quickSearchResultFn)) {
             this.quickSearchResultFn = function (query) {
-                _this.client.get('feature', 'id', query, 'starts_with', { limit: 10 })
-                    .then(function (data) {
-                        _this.setNavigationBar(data.response[0].result);
-                        // results = data.response[0].result;
-                    });
+                return _this.client.get('feature', 'id', query, 'starts_with', { limit: 10 })
+                    // .then(function (data) {
+                    //     _this.setNavigationBar(data.response[0].result);
+                    //     // results = data.response[0].result;
+                    // });
             };
         }
 

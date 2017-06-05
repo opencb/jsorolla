@@ -3,6 +3,7 @@ module.exports = function (grunt) {
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         def: {
+            index: 'gb-alignment-demo',
             name: 'genome-browser',
             build: 'build/<%= pkg.version %>/<%= def.name %>',
             vendorbuild: '<%= def.build %>/vendor'
@@ -28,6 +29,14 @@ module.exports = function (grunt) {
                     'src/genome-browser/renderers/renderer.js',
                     'src/genome-browser/renderers/*-renderer.js',
 
+                    'src/lib/data-adapter/feature/cellbase-adapter-new.js',
+                    'src/lib/data-adapter/feature/opencga-adapter-new.js',
+                    'src/lib/cache/indexeddb-cache.js',
+                    'src/lib/clients/cellbase-client.js',
+                    'src/lib/clients/cellbase-client-config.js',
+                    'src/lib/clients/rest-client.js',
+                    'src/lib/clients/opencga-client.js',
+                    'src/lib/clients/opencga-client-config.js',
 
                     'src/genome-browser/genome-viewer.js'
 
@@ -35,16 +44,16 @@ module.exports = function (grunt) {
                 dest: '<%= def.build %>/<%= def.name %>.js'
             }
         },
-        uglify: {
-            options: {
-                banner: '/*! <%= def.name %> <%= grunt.template.today("mmmm dd, yyyy HH:MM:ss") %> */\n'
-            },
-            dist: {
-                files: {
-                    '<%= def.build %>/<%= def.name %>.min.js': ['<%= concat.dist.dest %>']
-                }
-            }
-        },
+        // uglify: {
+        //     options: {
+        //         banner: '/*! <%= def.name %> <%= grunt.template.today("mmmm dd, yyyy HH:MM:ss") %> */\n'
+        //     },
+        //     dist: {
+        //         files: {
+        //             '<%= def.build %>/<%= def.name %>.min.js': ['<%= concat.dist.dest %>']
+        //         }
+        //     }
+        // },
         copy: {
             dist: {
                 files: [
@@ -52,10 +61,11 @@ module.exports = function (grunt) {
                     {   expand: true, cwd: './bower_components', src: ['underscore/underscore-min.js'], dest: '<%= def.vendorbuild %>' },
                     {   expand: true, cwd: './bower_components', src: ['backbone/backbone.js'], dest: '<%= def.vendorbuild %>' },
                     {   expand: true, cwd: './bower_components', src: ['fontawesome/**'], dest: '<%= def.vendorbuild %>' },
+                    {   expand: true, cwd: './bower_components', src: ['qtip2/**'], dest: '<%= def.vendorbuild %>' },
                     {   expand: true, cwd: './bower_components', src: ['jquery/dist/jquery.min.js'], dest: '<%= def.vendorbuild %>' },
-                    {   expand: true, cwd: './bower_components', src: ['qtip2/jquery.qtip.min.css'], dest: '<%= def.vendorbuild %>' },
-                    {   expand: true, cwd: './bower_components', src: ['qtip2/jquery.qtip.min.js'], dest: '<%= def.vendorbuild %>' },
                     {   expand: true, cwd: './bower_components', src: ['uri.js/src/URI.min.js'], dest: '<%= def.vendorbuild %>' },
+                    {   expand: true, cwd: './bower_components', src: ['cookies-js/src/cookies.js'], dest: '<%= def.vendorbuild %>' },
+                    {   expand: true, cwd: './bower_components', src: ['crypto-js-evanvosberg/crypto-js.js'], dest: '<%= def.vendorbuild %>' },
                     {   expand: true, cwd: './', src: ['styles/**'], dest: '<%= def.build %>/' }, // includes files in path and its subdirs
                     {   expand: true, cwd: './src/<%= def.name %>/', src: ['gv-config.js'], dest: '<%= def.build %>/' }
                 ]
@@ -71,7 +81,7 @@ module.exports = function (grunt) {
             },
             dist: {
                 files: {
-                    '<%= def.build %>/index.html': ['src/<%= def.name %>/<%= def.name %>.html']
+                    '<%= def.build %>/index.html': ['src/<%= def.name %>/<%= def.index %>.html']
                 }
             }
         },
@@ -91,6 +101,6 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-processhtml');
     grunt.loadNpmTasks('grunt-hub');
 
-    grunt.registerTask('default', ['hub:lib', 'clean', 'concat', 'uglify', 'copy', 'processhtml']);
-    grunt.registerTask('no-dep', ['clean', 'concat', 'uglify', 'copy', 'processhtml']);
+    grunt.registerTask('default', ['hub:lib', 'clean', 'concat', 'copy', 'processhtml']);
+    grunt.registerTask('no-dep', ['clean', 'concat', 'copy', 'processhtml']);
 };

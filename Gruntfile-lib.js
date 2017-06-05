@@ -47,7 +47,8 @@ module.exports = function (grunt) {
 
                     //data-adapter
                     'src/lib/data-adapter/feature/feature-data-adapter.js',
-                    'src/lib/data-adapter/feature/**/*.js',
+                    // Commented because the adapters now are in JS6
+                    // 'src/lib/data-adapter/feature/*.js',
                     'src/lib/data-adapter/network/**/*.js',
 
                     //cache
