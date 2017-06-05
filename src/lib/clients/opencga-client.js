@@ -14,6 +14,31 @@
  * limitations under the License.
  */
 
+class OpenCGAClientConfig {
+
+    constructor(host = "172.24.193.208:8080/opencga", version = "v1", useCookies = true, cookiePrefix = "catalog") {
+        this.host = host;
+        this.version = version;
+        this.useCookies = useCookies;
+        if (this.useCookies) {
+            this.setPrefix(cookiePrefix);
+        } else {
+            this.userId = "";
+            this.sessionId = "";
+        }
+        // default values
+        this.rpc = "rest";
+    }
+
+    setPrefix(prefix) {
+        this.cookieSessionId = prefix + "_sid";
+        this.cookieUserId = prefix + "_userId";
+        this.cookiePassword = prefix + "_password";
+        this.cookieLoginResponse = prefix + "_loginResponse";
+    }
+
+}
+
 class OpenCGAClient {
 
     constructor(config) {
