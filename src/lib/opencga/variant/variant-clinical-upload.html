@@ -20,19 +20,25 @@
         <style is="custom-style" include="jso-styles"></style>
 
         <div class="col-md-12">
-            <h3 style="margin: 10px 5px 15px 40px">Upload and check file</h3>
+
 
             <div style="width: 60%; margin: 0px 0px 0px 90px">
 
                 <form id="{{prefix}}uploadForm" class="form-horizontal" data-toggle="validator" role="form">
 
+                    <h3 style="margin: 10px 5px 15px -40px">Patient Information</h3>
                     <!-- GENERAL INFORMATION -->
                     <!-- Individual ID -->
                     <div class="form-group row has-feedback">
-                        <label for="{{prefix}}sampleID" class="col-xs-2 col-form-label">Individual ID</label>
+                        <label for="{{prefix}}patientID" class="col-xs-2 col-form-label">Patient ID</label>
                         <div class="col-xs-6">
-                            <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}sampleID" name="sampleID" placeholder="ID or clinical record number" maxlength="75" required data-error="" pattern=".+">
-                            <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                            <div class="input-group">
+                                <input type="text" class$="form-control {{prefix}}TextInput codeDis" id="{{prefix}}patientID" name="patientID" placeholder="ID or clinical record number" maxlength="75" required data-error="" pattern=".+">
+                                <span class="input-group-addon btn btn-primary" on-click="searchIndividual">
+                                    <i class="fa fa-search" aria-hidden="true"></i>
+                                </span>
+                            </div>
+                            <span class="glyphicon form-control-feedback" aria-hidden="true" style="padding-right:60px; z-index:5"></span>
                             <div class="help-block with-errors"></div>
                         </div>
                     </div>
@@ -40,7 +46,7 @@
                     <div class="form-group row has-feedback">
                         <label for="{{prefix}}chromosomalGender" class="col-xs-2 col-form-label">Chromosomal Gender</label>
                         <div class="col-xs-3">
-                            <select class$="form-control {{prefix}}SelectInput" id="{{prefix}}chromosomalGender"
+                            <select class$="form-control {{prefix}}SelectInput codeDis" id="{{prefix}}chromosomalGender"
                                     name="chromosomalGender" required>
                                 <option></option>
                                 <template is="dom-repeat" items="{{config.chromosomal_gender}}">
@@ -50,11 +56,25 @@
                             <div class="help-block with-errors" id="{{prefix}}_errorDiv_chromosomalGender"></div>
                         </div>
                     </div>
+                    <!-- STATUS -->
+                    <div class="form-group row has-feedback">
+                        <label for="{{prefix}}status" class="col-xs-2 col-form-label">Status</label>
+                        <div class="col-xs-6">
+                            <select class$="form-control {{prefix}}SelectInput codeDis" id="{{prefix}}status"
+                                    name="status" required>
+                                <option></option>
+                                <template is="dom-repeat" items="{{config.status}}">
+                                    <option value="{{item.id}}">{{item.title}}</option>
+                                </template>
+                            </select>
+                            <div class="help-block with-errors" id="{{prefix}}_errorDiv_status"></div>
+                        </div>
+                    </div>
                     <!-- YEAR OF BIRTH -->
                     <div class="form-group row has-feedback">
                         <label for="{{prefix}}birthYear" class="col-xs-2 col-form-label">Year of Birth</label>
                         <div class="col-xs-3">
-                            <select class$="form-control {{prefix}}SelectInput" id="{{prefix}}birthYear"
+                            <select class$="form-control {{prefix}}SelectInput codeDis" id="{{prefix}}birthYear"
                                     name="birthYear" required on-change="checkYears">
                                 <option></option>
                                 <template is="dom-repeat" items="{{yearsBirth}}">
@@ -69,7 +89,7 @@
                     <div class="form-group row has-feedback">
                         <label for="{{prefix}}birthPlace" class="col-xs-2 col-form-label">Birth Place</label>
                         <div class="col-xs-3">
-                            <select class$="form-control {{prefix}}SelectInput" id="{{prefix}}birthPlace"
+                            <select class$="form-control {{prefix}}SelectInput codeDis" id="{{prefix}}birthPlace"
                                     name="birthPlace" required on-change="updateSelect">
                                 <option></option>
                                 <template is="dom-repeat" items="{{config.countries}}">
@@ -84,7 +104,7 @@
                     <div class="form-group row has-feedback" id="otherCountryDiv" style="display:none">
                         <label for="{{prefix}}otherCountry" class="col-xs-2 col-form-label"></label>
                         <div class="col-xs-3">
-                            <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}otherCountry" name="otherCountry" placeholder="Introduce country" maxlength="75" required data-error="Mandatory country. Only a-z characteres and spaces are allowed" pattern="^[A-Za-z]+((\\s)?([A-Za-z])+)+$">
+                            <input type="text" class$="form-control {{prefix}}TextInput codeDis" id="{{prefix}}otherCountry" name="otherCountry" placeholder="Introduce country" maxlength="75" required data-error="Mandatory country. Only a-z characteres and spaces are allowed" pattern="^[A-Za-z]+((\\s)?([A-Za-z])+)+$">
                             <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
                             <div class="help-block with-errors"></div>
                         </div>
@@ -94,7 +114,7 @@
                     <div class="form-group row has-feedback">
                         <label for="{{prefix}}birthPlaceRegion" class="col-xs-2 col-form-label">Birth Place (province)</label>
                         <div class="col-xs-3">
-                            <select class$="form-control {{prefix}}SelectInput" id="{{prefix}}birthPlaceRegion"
+                            <select class$="form-control {{prefix}}SelectInput codeDis" id="{{prefix}}birthPlaceRegion"
                                     name="birthPlaceRegion" required>
                                 <option></option>
                                 <template is="dom-repeat" items="{{config.province}}">
@@ -110,7 +130,7 @@
                     <div class="form-group row has-feedback">
                         <label for="{{prefix}}ethnicity" class="col-xs-2 col-form-label">Ethnicity</label>
                         <div class="col-xs-3">
-                            <select class$="form-control {{prefix}}SelectInput" id="{{prefix}}ethnicity"
+                            <select class$="form-control {{prefix}}SelectInput codeDis" id="{{prefix}}ethnicity"
                                     name="ethnicity" required>
                                 <option></option>
                                 <template is="dom-repeat" items="{{config.ethnicity}}">
@@ -127,13 +147,13 @@
                         <label for="{{prefix}}HPO" class="col-xs-2 col-form-label">HPO</label>
                         <div class="col-xs-6">
                             <div class="input-group">
-                                <textarea class$="form-control {{prefix}}TextInput" id="{{prefix}}HPO" name="HPO"
+                                <textarea class$="form-control {{prefix}}TextInput codeDis" id="{{prefix}}HPO" name="HPO"
                                           placeholder="HP:0000947" required data-error="An HPO term must be selected" rows="2" style="resize:none"></textarea>
                                 <span class="input-group-addon btn btn-primary" data-toggle="modal" data-target$="#{{prefix}}hpoModal">
                                     <i class="fa fa-search" aria-hidden="true"></i>
                                 </span>
                             </div>
-                            <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                            <span class="glyphicon form-control-feedback" aria-hidden="true" style="padding-right:60px; padding-top:10px; z-index:5"></span>
                             <div class="help-block with-errors"></div>
                         </div>
                     </div>
@@ -150,11 +170,60 @@
                                     <i class="fa fa-search" aria-hidden="true"></i>
                                 </span>
                             </div>
-                            <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                            <span class="glyphicon form-control-feedback" aria-hidden="true" style="padding-right:60px; padding-top:10px; z-index:5"></span>
                             <div class="help-block with-errors"></div>
 
                         </div>
                     </div>
+
+                    <!-- PARENTAL CONSANGUINITY -->
+                    <div class="form-group row has-feedback">
+                        <label class="col-xs-2 col-form-label">Parental Consanguinity</label>
+                        <div class="col-xs-6">
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label codeDis">
+                                    <input id="{{prefix}}parentalConsanguinityno" class$="form-check-input {{prefix}}RadioInput" type="radio" name="parentalConsanguinity" value="false" checked> no
+                                    <input id="{{prefix}}parentalConsanguinityyes" class$="form-check-input {{prefix}}RadioInput" type="radio" name="parentalConsanguinity" value="true"> yes
+                                </label>
+                            </div>
+                            <div class="help-block with-errors"></div>
+                        </div>
+                    </div>
+
+
+                    <h3 style="margin: 10px 5px 15px -40px">Upload and check file</h3>
+
+                    <!-- SAMPLE TYPE -->
+                    <div class="form-group row has-feedback">
+                        <label for="{{prefix}}sampleType" class="col-xs-2 col-form-label">Type of sample</label>
+                        <div class="col-xs-3">
+                            <select class$="form-control {{prefix}}SelectInput" id="{{prefix}}sampleType"
+                                    name="sampleType" required>
+                                <option></option>
+                                <template is="dom-repeat" items="{{config.sample_type}}">
+                                    <option value="{{item.id}}">{{item.title}}</option>
+                                </template>
+                            </select>
+                            <div class="help-block with-errors" id="{{prefix}}_errorDiv_sampleType"></div>
+                        </div>
+                    </div>
+
+
+                    <!-- CELL LINE -->
+                    <div class="form-group row has-feedback">
+                        <label class="col-xs-2 col-form-label">Cell line</label>
+                        <div class="col-xs-6">
+                            <template is="dom-repeat" items="{{config.cell_line}}">
+                                <div class="form-check form-check-inline">
+                                        <label class="form-check-label">
+                                                <input id="{{prefix}}{{item.id}}" class$="form-check-input {{prefix}}RadioInput" type="radio" name="cellLine" value="{{item.title}}" checked="{{item.checked}}"> {{item.title}}
+                                        </label>
+                                </div>
+                            </template>
+                            <div class="help-block with-errors"></div>
+                        </div>
+                    </div>
+
 
                     <!-- SPECIFIC FIELDS FROM VARIABLE SET -->
                     <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}" as="variable" sort="_sortVariables">
@@ -301,8 +370,10 @@
                         </div>
                     </div>-->
 
-                    <div class="form-group" style="float: right; width: 55%;">
-                        <button type="submit" class="btn btn-primary" on-click="submitForm">Upload and check sample</button>
+                    <!--<div class="form-group row" style="float: right; width: 55%;">-->
+                    <div class="form-group row" style="padding-left: 240px;">
+                            <button type="button" class="btn btn-primary" on-click="_clearHtmlDom">Clear form</button>
+                            <button type="submit" class="btn btn-primary" on-click="submitForm">Upload and check sample</button>
                     </div>
                 </form>
             </div>
@@ -594,9 +665,6 @@
             },
             loadICDEditor: function (e) {
 
-                console.log(this);
-                debugger;
-
                 $("#" + this.prefix + "errorTermDiv").html("");
                 this.$$("#" + this.prefix + "autoInput").value="";
                 this.icdTerms = this.getICDterms();
@@ -738,12 +806,16 @@
                 $("." + this.prefix + "CheckInput").prop("checked", false);
                 $("." + this.prefix + "RadioInput").prop("checked", false);
                 $("#" + this.prefix + "birthPlaceRegion").prop("disabled",true);
+                $('.codeDis').prop('disabled', false);
+
+                $("#" + this.prefix + "parentalConsanguinityno").prop("checked", true);
+                $("#" + this.prefix + "germline").prop("checked", true);
 
                 $("#" + this.prefix + "uploadForm").validator('update');
             },
 
 
-            createAnnotationSet: function(sampleId, formFields){
+/*            createAnnotationSet: function(sampleId, formFields){
                 // Create an annotation set in openCGA for a sample
                 let jsonAnnotation = {};
                 $(this.variableSets[0].variables).each(function(index, currentVariable){
@@ -771,9 +843,9 @@
 
 
 
-            },
+            },*/
 
-            linkSampleIndividual: function(individualId, sampleId){
+/*            linkSampleIndividual: function(individualId, sampleId){
                 // Link a sample and an individual in openCGA
                 let params = {
                     study: this.study.alias,
@@ -791,7 +863,7 @@
                     .catch(function() {
                         console.log("Could not link sample " + _this.sampleId + " and individual " + _this.individualId);
                     });
-            },
+            },*/
 
             indexVCF: function(fileId){
                 // Index and annotate a VCF file in openCGA
@@ -826,7 +898,7 @@
 
 
             },
-            uploadVCF: function(individualId, formFields) {
+            /*uploadVCF: function(individualId, formFields) {
                 // Upload VCF file to openCGA
                 if (this.opencgaClient instanceof OpenCGAClient) {
                     params = {
@@ -858,8 +930,8 @@
                             console.log("Could not upload VCF file for the study " + _this.study);
                         });
                 }
-            },
-            openCGAsteps: function(formFields) {
+            },*/
+/*            openCGAsteps: function(formFields) {
 
 
                 // The following steps are run to register the form in openCGA:
@@ -923,11 +995,148 @@
 
                 }
 
+            },*/
+
+
+            uploadVCF: function(formFields) {
+                // Upload VCF file to openCGA
+                if (this.opencgaClient instanceof OpenCGAClient) {
+                    params = {
+                        study: this.study.alias,
+                        type: "FILE",
+                        file: $("#" + this.prefix + "FileToUpload").prop('files')[0],
+                        fileFormat: "VCF",
+                        bioformat: "VARIANT",
+                        relativeFilePath: "."
+                    };
+
+                    let _this = this;
+
+                    this.opencgaClient.files().upload(params)
+                        .then(function (response) {
+                            console.log(response);
+                            debugger;
+                            // 3. Index and annotate VCF
+                            let _fileId = response.response[0].result[0].id;
+                            _this.indexVCF(_fileId);
+
+
+                        })
+                        .catch(function () {
+                            console.log("Could not upload VCF file for the study " + _this.study);
+                        });
+                }
+            },
+
+
+            openCGAsteps: function(formFields, sampleId) {
+
+                // The following steps are run to register the form in openCGA:
+                // 1. Create sample (given an ID) and the individual information related to that sample, together with sample annotation set
+                // 2. Upload VCF
+                // 3. Index and annotate the VCF file (using fileId obtained in step 2)
+
+                console.log(this);
+                debugger;
+
+
+                if (this.opencgaClient instanceof OpenCGAClient) {
+                    // 1. Create sample
+
+                    let isSomatic = (formFields.cellLine === "somatic");
+                    let icdId = formFields.diagnosis.split('(')[1].slice(0,-1);
+                    let icdName = formFields.diagnosis.split('(')[0];
+                    let hpoId = formFields.HPO; // To be modified when HPO is included
+                    let hpoName = formFields.HPO;
+
+                    let jsonAnnotation = {};
+                    $(this.variableSets[0].variables).each(function(index, currentVariable){
+                        jsonAnnotation[currentVariable.name] = formFields[currentVariable.name];
+                    });
+
+
+                    let params = {
+                        study: this.study.alias
+                    };
+
+                    let body= {
+                            "name": sampleId,
+                            "type": formFields.sampleType,
+                            "somatic": isSomatic,
+                            "annotationSets": [
+                                {
+                                    "name": "annotation_sample_" + sampleId,
+                                    "variableSet": this.variableSets[0].id,
+                                    "annotations": jsonAnnotation
+                                }
+                            ],
+                            "individual" : {
+                                "name": formFields.patientID,
+                                "family": "", // to be removed
+                                "fatherId": -1, // To be removed
+                                "motherId": -1, // to be removed
+                                "sex": "UNKNOWN", //To be removed
+                                "ethnicity": formFields.ethnicity,
+                                "dateOfBirth": formFields.birthYear,
+                                "population": {
+                                    "name": formFields.birthPlace,
+                                    "subpopulation": formFields.birthPlaceRegion,
+                                    "description": ""
+                                },
+                                "karyotypicSex": formFields.chromosomalGender,
+                                "lifeStatus": "UNKNOWN", // TO be removed
+                                "affectationStatus": "UNKNOWN", // To be removed
+                                "ontologyTerms": [
+                                    {
+                                      "id": hpoId,
+                                      "name": hpoName,
+                                      "source": "HPO"
+                                    },
+                                    {
+                                        "id": icdId,
+                                        "name": icdName,
+                                        "source": "ICD10"
+                                    }
+                                ]
+                            }
+
+                    };
+
+
+                    let _this = this;
+                    this.opencgaClient.samples().create(params, body)
+                        .then(function (response) {
+                            console.log(_this);
+                            debugger;
+                            _this.uploadVCF(formFields);
+
+                        })
+                        .catch(function (response) {
+                            console.log(_this);
+                            debugger;
+                            _this.settingsMessageModal = {
+                                messageHeader: "Error",
+                                messageBody: [response.error],
+                                type: "danger",
+                                height: "100px",
+                                width: "500px"
+                            };
+
+                            _this.showMessageModal = true;
+                        });
+
+                }
+
             },
 
             submitForm: function(e) {
                 e.preventDefault();
 
+                // Enable those fields that needed to be enabled to submit a form
+                $('.codeDis').prop('disabled', false);
+
+                console.log(this);
+                debugger;
 
                 // Get values from form fields
                 let fields = $("#"+ this.prefix + "uploadForm").serializeArray();
@@ -964,7 +1173,8 @@
 
                             }
                             // Register the form in openCGA through different steps
-                            _this.openCGAsteps(formFields);
+                            //_this.openCGAsteps(formFields);
+                            _this.openCGAsteps(formFields, sampleId);
 
                         });
                         reader.onerror = (function () {
@@ -1006,8 +1216,68 @@
                     this.showMessageModal = true;
                 }
 
-            }
+            },
+            searchIndividual: function()
+            {
+                console.log(this);
+                debugger;
+                if (this.opencgaClient instanceof OpenCGAClient) {
+                    // 1. Create individual
+                    let params = {
+                        study: this.study.alias,
 
+                    };
+
+                    let _this = this;
+                    let _individualId = this.$$("#"+ this.prefix + "patientID").value;
+                    this.opencgaClient.individuals().info(_individualId, params, {"method": "GET"})
+                        .then(function (response) {
+                            console.log(_this);
+                            debugger;
+                            if (response.response[0].numResults >= 1)
+                            {
+
+                                let formFields = response.response[0].result[0];
+                                $("#" + _this.prefix + "patientID").prop("disabled", true);
+                                $("#" + _this.prefix + "chromosomalGender").val(formFields.karyotypicSex);
+                                $("#" + _this.prefix + "chromosomalGender").prop("disabled", true);
+                                $("#" + _this.prefix + "birthYear").val(formFields.dateOfBirth);
+                                $("#" + _this.prefix + "birthYear").prop("disabled", true);
+                                $("#" + _this.prefix + "birthPlace").val(formFields.population.name);
+                                $("#" + _this.prefix + "birthPlace").prop("disabled", true);
+                                $("#" + _this.prefix + "birthPlaceRegion").val(formFields.population.subpopulation);
+                                $("#" + _this.prefix + "birthPlaceRegion").prop("disabled", true);
+                                $("#" + _this.prefix + "ethnicity").val(formFields.ethnicity);
+                                $("#" + _this.prefix + "ethnicity").prop("disabled", true);
+                                $("#" + _this.prefix + "HPO").val(formFields.ontologyTerms[0].name);
+                                $("#" + _this.prefix + "HPO").prop("disabled", true);
+                                $("#" + _this.prefix + "diagnosis").val(formFields.ontologyTerms[1].name);
+                                $("#" + _this.prefix + "uploadForm").validator('update');
+                                $("#" + _this.prefix + "uploadForm").validator('validate');
+
+                            }
+
+
+                        })
+                        .catch(function (response) {
+                            console.log(_this);
+                            debugger;
+                            _this.settingsMessageModal = {
+                                messageHeader: "Error",
+                                messageBody: ["The user " + _individualId + " does not exist"],
+                                type: "danger",
+                                height: "100px",
+                                width: "500px"
+                            };
+                            _this.showMessageModal = true;
+
+
+
+                        });
+
+                }
+
+            }
 
         });
     </script>
