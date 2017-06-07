@@ -57,25 +57,53 @@
                                 <br>
                                 <input type="radio" name="selectionButtons" id="allRadio" value="all" class$="{{prefix}}FilterRadio" checked on-change="calculateFilters" style="padding-left: 20px"> All<br>
                                 <input type="radio" name="selectionButtons" id="recentlyRadio" value="recently" class$="{{prefix}}FilterRadio" on-change="calculateFilters" style="padding-left: 20px"> Recently Uploaded<br>
-                                <input type="radio" name="selectionButtons" id="rangeRadio" value="range" class$="{{prefix}}FilterRadio" on-change="calculateFilters" style="padding-left: 20px"> Range
+                                <input type="radio" name="selectionButtons" id="rangeRadio" value="range" class$="{{prefix}}FilterRadio" on-change="calculateFilters" style="padding-left: 20px"> Date (Year-Month-Day)
                             </form>
 
-                            <div class="panel-body">
-                                <span>From</span>
-                                <div class="input-group date" id="{{prefix}}datetimePickerFrom">
-                                    <input type="text" class="form-control"/>
-                                    <span class="input-group-addon">
-                                    <span class="glyphicon glyphicon-calendar"></span>
-                                </span>
-                                </div>
-                                <span>To</span>
-                                <div class="input-group date" id="{{prefix}}datetimePickerTo">
-                                    <input type="text" class="form-control"/>
-                                    <span class="input-group-addon">
-                                    <span class="glyphicon glyphicon-calendar"></span>
-                                </span>
-                                </div>
+                            <div style="padding: 15px 30px">
+                                <form class="form-inline">
+                                    <div class="form-group row">
+                                        <select class$="form-control {{prefix}}SelectInput codeDis" id="{{prefix}}YearSelect" name="birthYear" required on-change="checkYears">
+                                            <template is="dom-repeat" items="{{yearsToSearch}}">
+                                                <option value="{{item}}">{{item}}</option>
+                                            </template>
+                                        </select>
+
+                                        <label style="padding: 0px 5px">-</label>
+                                        <select class$="form-control {{prefix}}SelectInput codeDis" id="{{prefix}}MonthSelect" name="birthYear" required on-change="checkYears">
+                                            <option></option>
+                                            <template is="dom-repeat" items="{{monthToSearch}}">
+                                                <option value="{{item}}">{{item}}</option>
+                                            </template>
+                                        </select>
+
+                                        <label style="padding: 0px 5px">-</label>
+                                        <select class$="form-control {{prefix}}SelectInput codeDis" id="{{prefix}}DaySelect" name="birthYear" required on-change="checkYears">
+                                            <option></option>
+                                            <template is="dom-repeat" items="{{daysToSearch}}">
+                                                <option value="{{item}}">{{item}}</option>
+                                            </template>
+                                        </select>
+                                    </div>
+                                </form>
                             </div>
+
+                            <!--<div class="panel-body">-->
+                            <!--<span>From</span>-->
+                            <!--<div class="input-group date" id="{{prefix}}datetimePickerFrom">-->
+                            <!--<input type="text" class="form-control"/>-->
+                            <!--<span class="input-group-addon">-->
+                            <!--<span class="glyphicon glyphicon-calendar"></span>-->
+                            <!--</span>-->
+                            <!--</div>-->
+                            <!--<span>To</span>-->
+                            <!--<div class="input-group date" id="{{prefix}}datetimePickerTo">-->
+                            <!--<input type="text" class="form-control"/>-->
+                            <!--<span class="input-group-addon">-->
+                            <!--<span class="glyphicon glyphicon-calendar"></span>-->
+                            <!--</span>-->
+                            <!--</div>-->
+                            <!--</div>-->
 
                             <label>Other filters</label>
                             <br>
@@ -86,36 +114,33 @@
             </div>
 
             <!-- Sample and Individual Name -->
-            <div class="panel panel-default">
-                <div class="panel-heading" role="tab" id="{{prefix}}SampleIndividualHeading">
-                    <h4 class="panel-title">
-                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                           href="#{{prefix}}SampleIndividual" aria-expanded="true" aria-controls="{{prefix}}SampleIndividual">
-                            Sample
-                            <div style="float: right" class="tooltip-div">
-                                <a data-toggle="tooltip" title="Sample selection">
-                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                </a>
-                            </div>
-                        </a>
-                    </h4>
-                </div>
+            <!--<div class="panel panel-default">-->
+            <!--<div class="panel-heading" role="tab" id="{{prefix}}SampleIndividualHeading">-->
+            <!--<h4 class="panel-title">-->
+            <!--<a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"-->
+            <!--href="#{{prefix}}SampleIndividual" aria-expanded="true" aria-controls="{{prefix}}SampleIndividual">-->
+            <!--Sample-->
+            <!--<div style="float: right" class="tooltip-div">-->
+            <!--<a data-toggle="tooltip" title="Sample selection">-->
+            <!--<i class="fa fa-info-circle" aria-hidden="true"></i>-->
+            <!--</a>-->
+            <!--</div>-->
+            <!--</a>-->
+            <!--</h4>-->
+            <!--</div>-->
 
-                <div id="{{prefix}}SampleIndividual" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}SampleIndividualHeading">
-                    <div class="panel-body">
-                        <div class="form-group">
-                            <label>Sample name</label>
-                            <input type="text" id="{{prefix}}SampleName" class="form-control" placeholder="HG01879, HG01880, HG01881..." on-keyup="calculateFilters">
+            <!--<div id="{{prefix}}SampleIndividual" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}SampleIndividualHeading">-->
+            <!--<div class="panel-body">-->
+            <!--<div class="form-group">-->
+            <!--<label>Sample name</label>-->
+            <!--<input type="text" id="{{prefix}}SampleName" class="form-control" placeholder="HG01879, HG01880, HG01881..." on-keyup="calculateFilters">-->
 
-                            <label>Individual name</label>
-                            <input type="text" id="{{prefix}}IndividualName" class="form-control" placeholder="Smith, Grant ..." on-keyup="calculateFilters">
-
-                            <label>Family name</label>
-                            <input type="text" id="{{prefix}}FamilyName" class="form-control" placeholder="Smith, Grant ..." on-keyup="calculateFilters">
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <!--<label>Individual name</label>-->
+            <!--<input type="text" id="{{prefix}}IndividualName" class="form-control" placeholder="Smith, Grant ..." on-keyup="calculateFilters">-->
+            <!--</div>-->
+            <!--</div>-->
+            <!--</div>-->
+            <!--</div>-->
 
 
             <!--Sample characteristics-->
@@ -133,13 +158,22 @@
                         </a>
                     </h4>
                 </div>
-                <div id="{{prefix}}SampleGeneralFilter" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}SampleGeneralFilterHeading">
-                    <div class="panel-body">
-                        <input type="checkbox" id="changeMOdeChekbox" value="compact" checked on-change="_changeMode"> Compact<br>
-                    </div>
+                <div id="{{prefix}}SampleGeneralFilter" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}SampleGeneralFilterHeading">
 
-                    <template is="dom-if" if="{{compact}}">
-                        <div class="panel-body">
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <label>Sample name</label>
+                            <input type="text" id="{{prefix}}SampleName" class="form-control" placeholder="HG01879, HG01880, HG01881..." on-keyup="calculateFilters">
+
+                            <label>Individual name</label>
+                            <input type="text" id="{{prefix}}IndividualName" class="form-control" placeholder="Smith, Grant ..." on-keyup="calculateFilters">
+                        </div>
+
+                        <div>
+                            <input type="checkbox" id="changeMOdeChekbox" value="compact" checked on-change="_changeMode"> Compact<br>
+                        </div>
+
+                        <template is="dom-if" if="{{compact}}">
                             <div class="form-group">
                                 <label for="variableSetSelect">Variable Set</label>
                                 <select class="form-control" id="variableSetSelect" style="width: 100%" on-change="selectedVariableSet">
@@ -165,85 +199,85 @@
                                     </template>
                                 </template>
                             </ul>
-                        </div>
-                    </template>
+                        </template>
 
-                    <template is="dom-if" if="{{!compact}}">
-                        <div class="form-group has-feedback panel-body">
-                            <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}" as="variable" sort="_sortVariables">
-                                <template is="dom-if" if="{{isVisible(variable,config)}}">
-                                    <br>
-                                    <label for="{{prefix}}{{variable.name}}">{{variable.title}}:</label>
-                                    <template is="dom-if" if="{{checkVarType(variable, 'TEXT')}}">
-                                        <!-- TEXT type: include an input text and add suitable regular expression for text-->
-                                        <!-- http://stackoverflow.com/questions/14237686/disabling-controls-in-bootstrap-->
-                                        <input type="text" class="form-control" id="{{prefix}}{{variable.name}}" placeholder="{{variable.name}} name" pattern="{{variable.attributes.pattern}}" aria-describedby="basic-addon1">
-                                    </template>
+                        <template is="dom-if" if="{{!compact}}">
+                            <div class="form-group has-feedback">
+                                <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}" as="variable" sort="_sortVariables">
+                                    <template is="dom-if" if="{{isVisible(variable,config)}}">
+                                        <br>
+                                        <label for="{{prefix}}{{variable.name}}">{{variable.title}}:</label>
+                                        <template is="dom-if" if="{{checkVarType(variable, 'TEXT')}}">
+                                            <!-- TEXT type: include an input text and add suitable regular expression for text-->
+                                            <!-- http://stackoverflow.com/questions/14237686/disabling-controls-in-bootstrap-->
+                                            <input type="text" class="form-control" id="{{prefix}}{{variable.name}}" placeholder="{{variable.name}} name" pattern="{{variable.attributes.pattern}}" aria-describedby="basic-addon1">
+                                        </template>
 
-                                    <template is="dom-if" if="{{checkVarType(variable, 'NUMERIC')}}">
-                                        <!-- NUMERIC type: include an input text and add suitable regular expression for numbers -->
-                                        <input type="text" class="form-control" id="{{prefix}}{{variable.name}}" placeholder="{{variable.name}} number" pattern="^[0-9]+$">
-                                    </template>
+                                        <template is="dom-if" if="{{checkVarType(variable, 'NUMERIC')}}">
+                                            <!-- NUMERIC type: include an input text and add suitable regular expression for numbers -->
+                                            <input type="text" class="form-control" id="{{prefix}}{{variable.name}}" placeholder="{{variable.name}} number" pattern="^[0-9]+$">
+                                        </template>
 
-                                    <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 0, 1)}}">
-                                        <!-- CATEGORICAL type, no value: values to be filled in this code -->
-                                        <!-- Dropdown related to years : fill in with values contained in {{years}} -->
-                                        <template is="dom-if" if="{{checkType(variable.name,'Year')}}">
-                                            <select class="form-control" id="{{prefix}}{{variable.name}}" on-change="checkYears">
+                                        <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 0, 1)}}">
+                                            <!-- CATEGORICAL type, no value: values to be filled in this code -->
+                                            <!-- Dropdown related to years : fill in with values contained in {{years}} -->
+                                            <template is="dom-if" if="{{checkType(variable.name,'Year')}}">
+                                                <select class="form-control" id="{{prefix}}{{variable.name}}" on-change="checkYears">
+                                                    <!--<option></option>-->
+                                                    <template is="dom-repeat" items="{{years}}">
+                                                        <option value="{{item}}">{{item}}</option>
+                                                    </template>
+                                                </select>
+                                                <div class="help-block with-errors" id="{{prefix}}_errorDiv_{{variable.name}}"></div>
+                                            </template>
+
+                                        </template>
+
+                                        <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 1, 2)}}">
+                                            <!-- CATEGORICAL type, single value: check box -->
+                                            <div class="col-sm-9">
+                                                <input type="checkbox" id="{{prefix}}{{variable.name}}" style="padding-left: 20px">
+                                            </div>
+                                        </template>
+
+                                        <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 2, 3)}}">
+                                            <!-- CATEGORICAL type, 2 values: radio buttons for selection -->
+                                            <template is="dom-repeat" items="{{variable.allowedValues}}" as="value">
+                                                <div class="form-check form-check-inline">
+                                                    <label class="form-check-label">
+                                                        <input id="{{prefix}}{{variable.name}}{{value}}" class="form-check-input" type="radio" name="{{variable.name}}Options"> {{value}} <br>
+                                                    </label>
+                                                </div>
+                                            </template>
+                                        </template>
+
+                                        <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 3, 500)}}">
+                                            <!-- CATEGORICAL type: dropdown: at least three elements in variable.allowedValues -->
+                                            <select class="form-control" id="{{prefix}}{{variable.name}}">
                                                 <!--<option></option>-->
-                                                <template is="dom-repeat" items="{{years}}">
+                                                <template is="dom-repeat" items="{{variable.allowedValues}}">
                                                     <option value="{{item}}">{{item}}</option>
                                                 </template>
                                             </select>
-                                            <div class="help-block with-errors" id="{{prefix}}_errorDiv_{{variable.name}}"></div>
                                         </template>
 
-                                    </template>
-
-                                    <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 1, 2)}}">
-                                        <!-- CATEGORICAL type, single value: check box -->
-                                        <div class="col-sm-9">
-                                            <input type="checkbox" id="{{prefix}}{{variable.name}}" style="padding-left: 20px">
-                                        </div>
-                                    </template>
-
-                                    <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 2, 3)}}">
-                                        <!-- CATEGORICAL type, 2 values: radio buttons for selection -->
-                                        <template is="dom-repeat" items="{{variable.allowedValues}}" as="value">
+                                        <template is="dom-if" if="{{checkVarType(variable, 'BOOLEAN')}}">
+                                            <!-- BOOLEAN type, 2 values: radio buttons for selection: yes or no -->
                                             <div class="form-check form-check-inline">
                                                 <label class="form-check-label">
-                                                    <input id="{{prefix}}{{variable.name}}{{value}}" class="form-check-input" type="radio" name="{{variable.name}}Options"> {{value}} <br>
+                                                    <input id="{{prefix}}{{variable.name}}yes" class="form-check-input" type="radio" name="{{variable.name}}Options"> yes <br>
+                                                    <input id="{{prefix}}{{variable.name}}no" class="form-check-input" type="radio" name="{{variable.name}}Options"> no <br>
                                                 </label>
                                             </div>
                                         </template>
+                                        <!-- Close dom-if for visibility -->
                                     </template>
-
-                                    <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 3, 500)}}">
-                                        <!-- CATEGORICAL type: dropdown: at least three elements in variable.allowedValues -->
-                                        <select class="form-control" id="{{prefix}}{{variable.name}}">
-                                            <!--<option></option>-->
-                                            <template is="dom-repeat" items="{{variable.allowedValues}}">
-                                                <option value="{{item}}">{{item}}</option>
-                                            </template>
-                                        </select>
-                                    </template>
-
-                                    <template is="dom-if" if="{{checkVarType(variable, 'BOOLEAN')}}">
-                                        <!-- BOOLEAN type, 2 values: radio buttons for selection: yes or no -->
-                                        <div class="form-check form-check-inline">
-                                            <label class="form-check-label">
-                                                <input id="{{prefix}}{{variable.name}}yes" class="form-check-input" type="radio" name="{{variable.name}}Options"> yes <br>
-                                                <input id="{{prefix}}{{variable.name}}no" class="form-check-input" type="radio" name="{{variable.name}}Options"> no <br>
-                                            </label>
-                                        </div>
-                                    </template>
-                                    <!-- Close dom-if for visibility -->
+                                    <!-- Close dom-repeat for variables -->
                                 </template>
-                                <!-- Close dom-repeat for variables -->
-                            </template>
-                        </div>
-                        <!-- Close dom-if for extended -->
-                    </template>
+                            </div>
+                            <!-- Close dom-if for extended -->
+                        </template>
+                    </div>
                 </div>
             </div>
         </div>
@@ -353,10 +387,27 @@
                 let _years = [];
                 let fullDate = new Date()
                 let limitYear = fullDate.getFullYear();
-                for (let year = this.minYear; year<=limitYear; year++)
-                {_years.push(year);}
+                for (let year = this.minYear; year <= limitYear; year++) {
+                    _years.push(year);
+                }
                 // This change triggers the polymer dom-repeat
                 this.years = _years;
+
+
+                // Init arrays for Date range selector
+                let _yearsToSearch = [];
+                for (let year = limitYear, i = 0; i < 5; year--, i++) {
+                    _yearsToSearch.push(year);
+                }
+                this.yearsToSearch = _yearsToSearch;
+
+                this.monthToSearch = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+                let _days = [];
+                for (let i = 1; i <= 31; i++) {
+                    _days.push(i);
+                }
+                this.daysToSearch = _days;
             },
             attached: function () {
                 $("#" + this.prefix + "datetimePickerFrom").datetimepicker({
