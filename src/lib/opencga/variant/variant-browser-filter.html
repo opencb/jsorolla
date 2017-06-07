@@ -733,9 +733,9 @@
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                         <h4 class="modal-title" id="{{prefix}}SampleBrowserLabel">Family Selector</h4>
                     </div>
-                    <div class="modal-body" style="height: 600px">
+                    <div class="modal-body" style="height: 960px">
                         <!--<opencga-family-selector opencga-client="{{opencgaClient}}" study-id="{{study.id}}" samples="{{samples}}" prefix="{{prefix}}"></opencga-family-selector>-->
-                        <variant-sample-selector opencga-client="{{opencgaClient}}" study="{{study}}" study-id="{{study.id}}" samples="{{samples}}" prefix="{{prefix}}"></variant-sample-selector>
+                        <variant-sample-selector opencga-client="{{opencgaClient}}" study="{{study}}" study-id="{{study.id}}" samples="{{samples}}" on-familychange="familyChange"></variant-sample-selector>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
@@ -814,6 +814,9 @@
                     notify: true,
                     observer: "sampleChanged"
                 },
+                family: {
+                    type: Object
+                },
                 cohorts: {
                     type: Object
                 },
@@ -837,6 +840,10 @@
                 this.isFamilyAnalysis = true;
                 this.set('panelList', PANELS);
 
+                this.family = {};
+            },
+            familyChange: function (e, family) {
+                this.family = family;
             },
             onSearch: function () {
                 this.search = this.query;

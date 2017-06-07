@@ -66,6 +66,7 @@
                 }
 
 //                this.renderFromServer();
+                this._initTableColumns();
             },
             attached: function () {
                 this.table = $('#' + this.prefix + "SampleSelector");
@@ -95,7 +96,7 @@
 
                     $('#' + _this.prefix + "SampleSelector").bootstrapTable({
                         url: opencgaHostUrl,
-                        columns: _this._getTableColumns(),
+                        columns: _this._columns,
                         method: 'get',
                         sidePagination: 'server',
                         queryParams: function (params) {
@@ -254,7 +255,15 @@
                     return "Invalid date: '" + value + "'";
                 }
             },
-
+            diagnosisFormatter: function (value, row) {
+//                console.log(value)
+//                console.log(row)
+//                debugger
+                return '-';
+            },
+            cellTypeFormatter: function (value, row) {
+                return (row.somatic) ? "Somatic" : "Germline";
+            },
             /**
              * If filters have been removed, clean the values from the forms.
              */
@@ -374,7 +383,7 @@
 
                 this.search = filterParams;
             },
-            _getTableColumns: function () {
+            _initTableColumns: function () {
                 this._columns = [
                     [
                         {
@@ -402,7 +411,7 @@
                         },
                         {
                             title: 'Presumptive diagnosis',
-                            field: 'diagnosis'
+                            formatter: this.diagnosisFormatter
                         },
                         {
                             title: 'Father',
@@ -414,7 +423,8 @@
                         },
                         {
                             title: 'Cell Type',
-                            field: 'type'
+//                            field: 'somatic',
+                            formatter: this.cellTypeFormatter
                         }
                     ]
                 ];

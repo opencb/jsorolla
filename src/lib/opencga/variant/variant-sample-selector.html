@@ -67,11 +67,11 @@
                        <!--data-checkbox-header="false" style="cursor: pointer;">-->
                     <!--<thead style="background-color: #eee"></thead>-->
                 <!--</table>-->
-                <h4>Sample results</h4>
+                <h3>Sample results</h3>
                 <variant-sample-grid opencga-client="{{opencgaClient}}" study="{{study}}" samples="{{samples}}" search="{{search}}"></variant-sample-grid>
 
                 <div style="padding: 20px 0px">
-                    <h4>Family editor</h4>
+                    <!--<h3>Family editor</h3>-->
                     <opencga-family-editor samples="{{samples}}" opencga-client="{{opencgaClient}}"></opencga-family-editor>
                 </div>
             </div>
@@ -95,6 +95,10 @@
 //                },
                 samples: {
                     type: Array,
+                    notify: true
+                },
+                family: {
+                    type: Object,
                     notify: true
                 },
                 prefix: {
