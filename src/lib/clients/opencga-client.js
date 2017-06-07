@@ -188,21 +188,8 @@ class OpenCGAParentClass {
         }
     }
 
-    get(category, ids, action, params, options) {
-        return this.extendedGet(category, ids, null, null, action, params, options);
-    }
-
     post(category, ids, action, params, body, options) {
-        if (typeof options === 'undefined') {
-            options = {};
-        }
-        options['method'] = 'POST';
-
-        if (typeof params === 'undefined') {
-            params = {};
-        }
-        params["body"] = body;
-        return this.extendedGet(category, ids, null, null, action, params, options);
+        return this.extendedPost(category, ids, null, null, action, params, body, options);
     }
 
     extendedPost(category1, ids1, category2, ids2, action, params, body, options) {
@@ -216,6 +203,10 @@ class OpenCGAParentClass {
         }
         params["body"] = body;
         return this.extendedGet(category1, ids1, category2, ids2, action, params, options);
+    }
+
+    get(category, ids, action, params, options) {
+        return this.extendedGet(category, ids, null, null, action, params, options);
     }
 
     extendedGet(category1, ids1, category2, ids2, action, params, options) {
