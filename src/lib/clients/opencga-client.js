@@ -56,6 +56,7 @@ class OpenCGAClient {
         this._variables;
         this._alignments;
         this._variants;
+        this._clinical;
         this._ga4gh;
     }
 
@@ -136,6 +137,13 @@ class OpenCGAClient {
             this._panels = new Panels(this._config)
         }
         return this._panels;
+    }
+
+    clinical() {
+        if (typeof this._clinical === "undefined") {
+            this._clinical = new Clinical(this._config)
+        }
+        return this._clinical;
     }
 
     variables() {
@@ -885,6 +893,30 @@ class Panels extends OpenCGAParentClass {
 
     info(id, params, options) {
         return this.get("panels", id, "info", params, options);
+    }
+
+}
+
+class Clinical extends OpenCGAParentClass {
+
+    constructor(config) {
+        super(config);
+    }
+
+    create(params, options) {
+        if (options === undefined) {
+            options = {};
+        }
+        options["method"] = "POST";
+        return this.get("clinical", undefined, "create", params, options);
+    }
+
+    info(id, params, options) {
+        return this.get("clinical", id, "info", params, options);
+    }
+
+    search(params, options) {
+        return this.get("clinical", undefined, "search", params, options);
     }
 
 }
