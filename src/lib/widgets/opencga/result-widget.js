@@ -1085,7 +1085,7 @@ ResultWidget.prototype = {
 
     _createGenomeViewer: function (target) {
         var _this = this;
-        var genomeViewer = new GenomeViewer({
+        var genomeViewer = new GenomeBrowser({
             cellBaseHost: 'http://bioinfo.hpc.cam.ac.uk/cellbase/webservices/rest',
             cellBaseVersion: 'v3',
             target: target,

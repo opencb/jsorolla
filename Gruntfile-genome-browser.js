@@ -38,7 +38,7 @@ module.exports = function (grunt) {
                     'src/lib/clients/opencga-client.js',
                     'src/lib/clients/opencga-client-config.js',
 
-                    'src/genome-browser/genome-viewer.js'
+                    'src/genome-browser/genome-browser.js'
 
                 ],
                 dest: '<%= def.build %>/<%= def.name %>.js'

@@ -74,7 +74,7 @@
 
 
 <!--<script type="text/javascript" src="../../genome-browser/gv-config.js"></script>-->
-<!--<script type="text/javascript" src="../../genome-browser/genome-viewer.js"></script>-->
+<!--<script type="text/javascript" src="../../genome-browgenome-browser.jsr.js"></script>-->
 
 <dom-module id="genome-browser-view">
     <template>
@@ -101,15 +101,24 @@
                 },
                 region: {
                     type: Object,
-//                    value: new Region({chromosome: "21", start: 22859462, end: 22859610}),
                     observer: "changeRegion"
                 },
                 species: {
                     type: Object
                 },
+                tracks: {
+                    type: Array,
+                    value: ['sequence', 'gene']
+                },
+                trackConfigs: {
+                    type: Object
+                },
+                settings: {
+                    type: Object
+                },
                 prefix: {
                     type: String
-                },
+                }
             },
             ready: function () {
                 if (typeof this.prefix === "undefined" || this.prefix === "") {
@@ -129,36 +138,32 @@
                 this.getSpecies().then(function (availableSpecies) {
                     _this.species = availableSpecies.vertebrates[0];
 
-                    let width = document.querySelector("#" + _this.prefix + "GenomeBrowser").getBoundingClientRect().width;
-                    // TODO fix this width
-                    if (width < 40) {
-                        width = 1440;
-                    }
-
-                    _this.genomeViewer = new GenomeViewer({
-                        client: _this.cellbaseClient,
-//                    cellBaseHost: CELLBASE_HOST,
-//                    cellBaseVersion: CELLBASE_VERSION,
-                        target: _this.prefix + "GenomeBrowser",
-                        width: width,
-                        region: _this.region,
-                        availableSpecies: availableSpecies,
-                        species: _this.species,
+                    let settings = {
                         sidePanel: false,
-                        autoRender: true,
-                        resizable: true,
-                        karyotypePanelConfig: {
+                            autoRender: true,
+                            resizable: true,
+                            karyotypePanelConfig: {
                             collapsed: true,
-                            collapsible: true
+                                collapsible: true
                         },
                         chromosomePanelConfig: {
                             collapsed: true,
-                            collapsible: true
+                                collapsible: true
                         },
                         navigationBarConfig: {
                             componentsConfig: {
                             }
                         },
+                        width: 1400
+                    };
+
+                    settings = Object.assign(settings, _this.settings);
+                    settings = Object.assign(settings, {
+                        client: _this.cellbaseClient,
+                        target: _this.prefix + "GenomeBrowser",
+                        region: _this.region,
+                        availableSpecies: availableSpecies,
+                        species: _this.species,
                         handlers: {
                             'region:change': function(e) {
                                 console.log(e)
@@ -166,42 +171,28 @@
                         }
                     });
 
+                    _this.genomeBrowser = new GenomeBrowser(settings);
+
                     let tracks = [];
+                    for (let i = 0; i < _this.tracks; i++) {
+                        switch (_this.tracks[i]) {
+                            case 'sequence':
+                                tracks.push(_this.addSequenceTrack(_this.trackConfigs['sequence']));
+                                break;
+                            case 'gene':
+                                tracks.push(_this.addGeneTrack(_this.trackConfigs['gene']));
+                                break;
+//                            case 'snp':
+//                            case 'variant':
+//                                tracks.push(_this.addVariantTrack(_this.trackConfigs[_this.tracks[i]]));
+//                                break;
+                            default:
+                                tracks.push(_this.addGenericTrack(_this.trackConfigs[_this.tracks[i]]));
+                                break;
+                        }
+                    }
 
-                    let sequence = new FeatureTrack({
-                        title: 'Sequence',
-                        height: 20,
-                        visibleRegionSize: 200,
-
-                        renderer: new SequenceRenderer(),
-                        dataAdapter: new CellBaseAdapter(_this.cellbaseClient, "genomic", "region", "sequence", {}, { chunkSize: 100})
-                    });
-                    tracks.push(sequence);
-
-                    let gene = new GeneTrack({
-                        title: 'Gene',
-                        minHistogramRegionSize: 20000000,
-                        maxLabelRegionSize: 10000000,
-                        minTranscriptRegionSize: 200000,
-                        height: 100,
-
-                        renderer: new GeneRenderer({
-                            handlers: {
-                                'feature:click': function(e) {
-                                    console.log(e)
-                                }
-                            }
-                        }),
-                        dataAdapter: new CellBaseAdapter(_this.cellbaseClient, "genomic", "region", "gene",
-                            {
-                                exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence'
-                            }, {
-                                chunkSize: 100000
-                            })
-                    });
-                    tracks.push(gene);
-
-                    let gene2 = new FeatureTrack({
+                    let gene = new FeatureTrack({
                         minHistogramRegionSize: 20000000,
                         maxLabelRegionSize: 10000000,
                         height: 120,
@@ -216,13 +207,83 @@
                             })
                     });
 
-                    _this.genomeViewer.addOverviewTrack(gene2);
-                    _this.genomeViewer.addTrack(tracks);
+                    _this.genomeBrowser.addOverviewTrack(gene);
+                    _this.genomeBrowser.addTrack(tracks);
 
-                    _this.genomeViewer.draw();
+                    _this.genomeBrowser.draw();
 
                 });
 
+            },
+            addSequenceTrack: function(settings) {
+                let mySettings = {
+                    title: 'Sequence',
+                    height: 20,
+                    visibleRegionSize: 200,
+
+                    renderer: new SequenceRenderer(),
+                    dataAdapter: new CellBaseAdapter(_this.cellbaseClient, "genomic", "region", "sequence", {}, { chunkSize: 100})
+                };
+                mySettings = Object.assign(mySettings, settings);
+                return new FeatureTrack(mySettings);
+            },
+            addGeneTrack: function(settings) {
+                let mySettings = {
+                    title: 'Gene',
+                    minHistogramRegionSize: 20000000,
+                    maxLabelRegionSize: 10000000,
+                    minTranscriptRegionSize: 200000,
+                    height: 100,
+
+                    renderer: new GeneRenderer({
+                        handlers: {
+                            'feature:click': function(e) {
+                                console.log(e)
+                            }
+                        }
+                    }),
+                    dataAdapter: new CellBaseAdapter(_this.cellbaseClient, "genomic", "region", "gene",
+                        {
+                            exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence'
+                        }, {
+                            chunkSize: 100000
+                        })
+                };
+                mySettings = Object.assign(mySettings, settings);
+                return new GeneTrack(mySettings);
+            },
+            addVariantTrack: function(settings) {
+
+            },
+            /*
+            settings is supposed to have:
+            - type: alignment...
+            - config: Configuration of the track (title, closable, height...)
+            - source: opencga, cellbase...
+            - data: data that will be used
+             */
+            addAlignmentTrack: function(settings) {
+                let mySettings = {
+                    title: "Alignment",
+                    closable: true,
+                    minHistogramRegionSize: 5000,
+                    maxLabelRegionSize: 3000,
+                    visibleRegionSize: 100000000,
+                    height: 300
+                };
+                let renderer = {
+                    renderer: new AlignmentRenderer(FEATURE_TYPES.alignment),
+                    dataAdapter: new OpencgaAdapter(opencgaClient, "analysis/alignment", undefined, "query", settings.data)
+                };
+                mySettings = Object.assign(mySettings, settings.config, renderer);
+                new AlignmentTrack(mySettings);
+            },
+            addGenericTrack: function (settings) {
+                switch (settings.type) {
+                    case 'alignment':
+                    default:
+                        return this.addAlignmentTrack(settings);
+                }
             },
             getSpecies: function() {
                 return this.cellbaseClient.getMeta("species").then(function(r) {
