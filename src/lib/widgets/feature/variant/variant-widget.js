@@ -377,7 +377,7 @@ VariantWidget.prototype = {
             end: 32889611
         });
 
-        var genomeViewer = new GenomeViewer({
+        var genomeViewer = new GenomeBrowser({
             sidePanel: false,
             target: target,
             border: false,
