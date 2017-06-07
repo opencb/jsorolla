@@ -796,7 +796,7 @@ class Samples extends OpenCGAParentClass {
     }
 
     create(params, body, options) {
-        return this.body("samples", undefined, "create", params, body, options);
+        return this.post("samples", undefined, "create", params, body, options);
     }
 
     search(params, options) {
