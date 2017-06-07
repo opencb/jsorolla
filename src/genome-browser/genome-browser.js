@@ -19,12 +19,12 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-function GenomeViewer(args) {
+function GenomeBrowser(args) {
     // Using Underscore 'extend' function to extend and add Backbone Events
     _.extend(this, Backbone.Events);
 
     var _this = this;
-    this.id = Utils.genId("GenomeViewer");
+    this.id = Utils.genId("GenomeBrowser");
 
     //set default args
     this.autoRender = true;
@@ -99,7 +99,7 @@ function GenomeViewer(args) {
     }
 }
 
-GenomeViewer.prototype = {
+GenomeBrowser.prototype = {
     render: function () {
         console.log("Initializing Genome Viewer");
 

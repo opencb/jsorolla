@@ -21,7 +21,7 @@
             },
             attached: function () {
                 var region = new Region({chromosome: "13", start: 32889611, end: 32889611});
-                this.genomeViewer = new GenomeViewer({
+                this.genomeViewer = new GenomeBrowser({
                     cellBaseHost: "http://bioinfodev.hpc.cam.ac.uk/cellbase-4.5.0-beta",
                     cellBaseVersion: 'v4',
                     target: this.$$('#' + this.prefix + 'GenomeViewer'),
