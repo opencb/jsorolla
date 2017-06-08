@@ -232,8 +232,8 @@
                 }
 
                 // Render new Pedigree
-                let pedigree = new Pedigree();
-                this.svg = pedigree.createSvg(ped, this.pedigreeSettings);
+                let pedigree = new Pedigree(ped);
+                this.svg = pedigree.render(this.pedigreeSettings);
                 let querySelector = Polymer.dom(this.root).querySelector("#" + this.prefix + "PedigreeView");
                 querySelector.appendChild(this.svg);
             },
