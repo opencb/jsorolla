@@ -70,85 +70,85 @@ class OpenCGAClient {
 
     users() {
         if (typeof this._users === "undefined") {
-            console.log(this._config)
-            this._users = new Users(this._config)
+            console.log(this._config);
+            this._users = new Users(this._config);
         }
         return this._users;
     }
 
     projects() {
         if (typeof this._projects === "undefined") {
-            this._projects = new Projects(this._config)
+            this._projects = new Projects(this._config);
         }
         return this._projects;
     }
 
     studies() {
         if (typeof this._studies === "undefined") {
-            this._studies = new Studies(this._config)
+            this._studies = new Studies(this._config);
         }
         return this._studies;
     }
 
     files() {
         if (typeof this._files === "undefined") {
-            this._files = new Files(this._config)
+            this._files = new Files(this._config);
         }
         return this._files;
     }
 
     jobs() {
         if (typeof this._jobs === "undefined") {
-            this._jobs = new Jobs(this._config)
+            this._jobs = new Jobs(this._config);
         }
         return this._jobs;
     }
 
     samples() {
         if (typeof this._samples === "undefined") {
-            this._samples = new Samples(this._config)
+            this._samples = new Samples(this._config);
         }
         return this._samples;
     }
 
     individuals() {
         if (typeof this._individuals === "undefined") {
-            this._individuals = new Individuals(this._config)
+            this._individuals = new Individuals(this._config);
         }
         return this._individuals;
     }
 
     families() {
         if (typeof this._families === "undefined") {
-            this._families = new Families(this._config)
+            this._families = new Families(this._config);
         }
         return this._familie;
     }
 
     cohorts() {
         if (typeof this._cohorts === "undefined") {
-            this._cohorts = new Cohorts(this._config)
+            this._cohorts = new Cohorts(this._config);
         }
         return this._cohorts;
     }
 
     panels() {
         if (typeof this._panels === "undefined") {
-            this._panels = new Panels(this._config)
+            this._panels = new Panels(this._config);
         }
         return this._panels;
     }
 
     clinical() {
         if (typeof this._clinical === "undefined") {
-            this._clinical = new Clinical(this._config)
+            this._clinical = new Clinical(this._config);
         }
         return this._clinical;
     }
 
     variables() {
         if (typeof this._variables === "undefined") {
-            this._variables = new Variables(this._config)
+            this._variables = new Variables(this._config);
         }
         return this._variables;
     }
@@ -156,7 +156,7 @@ class OpenCGAClient {
     // Analysis
     alignments() {
         if (typeof this._alignments === "undefined") {
-            this._alignments = new Alignment(this._config)
+            this._alignments = new Alignment(this._config);
         }
         return this._alignments;
     }
@@ -181,7 +181,7 @@ class OpenCGAClient {
 class OpenCGAParentClass {
 
     constructor(config) {
-        if (typeof config === 'undefined') {
+        if (typeof config === "undefined") {
             this._config = new OpenCGAClientConfig();
         } else {
             this._config = config;
@@ -193,12 +193,12 @@ class OpenCGAParentClass {
     }
 
     extendedPost(category1, ids1, category2, ids2, action, params, body, options) {
-        if (typeof options === 'undefined') {
+        if (typeof options === "undefined") {
             options = {};
         }
-        options['method'] = 'POST';
+        options["method"] = "POST";
 
-        if (typeof params === 'undefined') {
+        if (typeof params === "undefined") {
             params = {};
         }
         params["body"] = body;
@@ -301,7 +301,7 @@ class OpenCGAParentClass {
                 keyValueArray.push(keyArray[i] + "=" + encodeURIComponent(params[keyArray[i]]));
             }
         }
-        return keyValueArray.join('&');
+        return keyValueArray.join("&");
     }
 
     _getUserId() {
@@ -373,7 +373,7 @@ class Users extends OpenCGAParentClass {
 
                 return response;
             }
-        }.bind(this))
+        }.bind(this));
     }
 
     logout() {
@@ -441,7 +441,7 @@ class Users extends OpenCGAParentClass {
         if (!params.hasOwnProperty("body")) {
             let aux = {
                 body: params
-            }
+            };
             params = aux;
         }
         options["method"] = "POST";
@@ -458,7 +458,7 @@ class Users extends OpenCGAParentClass {
         if (!params.hasOwnProperty("body")) {
             let aux = {
                 body: params
-            }
+            };
             params = aux;
         }
         options["method"] = "POST";
