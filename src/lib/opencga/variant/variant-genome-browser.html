@@ -51,7 +51,7 @@
                 <table id="{{prefix}}VariantGenomeBrowserTable" data-pagination="true" data-page-list="[]" style="padding: 0px 0px"></table>
             </div>
             <div class="" style="width: 80%;float: right;padding: 0px 5px">
-                <genome-browser-view cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}" region="{{region}}"></genome-browser-view>
+                <genome-browser cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}" region="{{region}}" tracks="[[tracks]]"></genome-browser>
             </div>
         </div>
 
@@ -93,6 +93,7 @@
                 }
 
                 this.summary = true;
+                this.tracks = ["sequence", "gene"];
             },
             attached: function() {
                 this.table = $('#' + this.prefix + 'VariantGenomeBrowserTable');

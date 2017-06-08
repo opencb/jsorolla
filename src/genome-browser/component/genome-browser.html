@@ -110,7 +110,8 @@
                 },
                 trackConfigs: {
                     type: Object,
-                    observer: "init"
+                    observer: "init",
+                    value: {}
                 },
                 settings: {
                     type: Object
@@ -131,7 +132,7 @@
             },
             init: function() {
                 if (typeof this.cellbaseClient === "undefined" || typeof this.opencgaClient === "undefined"
-                    || typeof this.genomeViewer !== "undefined") {
+                    || typeof this.genomeBrowser !== "undefined") {
                     return;
                 }
                 let _this = this;
@@ -305,8 +306,8 @@
                 });
             },
             changeRegion: function(region) {
-                if (typeof this.genomeViewer !== "undefined") {
-                    this.genomeViewer.setRegion(region);
+                if (typeof this.genomeBrowser!== "undefined") {
+                    this.genomeBrowser.setRegion(region);
                 }
             }
         });
