@@ -81,7 +81,7 @@
                         <h4 class="modal-title" id="{{prefix}}FamilyEditorLabel">Family Editor</h4>
                     </div>
                     <div class="modal-body" style="height: 500px">
-                        <opencga-family-editor samples="{{_samplesAnalysis}}" opencga-client="{{opencgaClient}}"></opencga-family-editor>
+                        <opencga-family-editor samples="{{_samplesAnalysis}}" opencga-client="{{opencgaClient}}" on-familychange="familyChange"></opencga-family-editor>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
@@ -180,8 +180,6 @@
 
             renderAnalysisTable: function(){
 
-                console.log(this);
-                debugger;
 
                 let _this = this;
                 $("#" + this.prefix + "tableAnalysis").bootstrapTable('destroy');
@@ -199,10 +197,14 @@
                         }
                     },
                     onClickCell: function (field, value, row, elem){
-                        console.log(_this);
-                        debugger;
-                        if (field === 'family') { // Only if cell related to family editor is selected, get samples for this analysis to the family editor
+                        if (field === "family") { // Only if cell related to family editor is selected, get samples for this analysis to the family editor
                             _this._samplesAnalysis = row.sampleList;
+                        }
+                        else if (field === "action"){ // Only if cell related to save is selected
+                            console.log(this);
+                            debugger;
+                            _this.saveAnalysis();
+
                         }
 
 
@@ -396,17 +398,21 @@
                     // Add analysis to property analysis so that can be used in prioritization
                     // This code will be removed as soon as analysis can be saved
 
+                    let aux = Utils.randomString(6);
+
                     let _anObject = {
                         analysisID: _this.analysisFormatter("AN-" + analysisId),
                         analysisSamples: samplesToShow,
                         analysisType: analysisType,
                         analysisDate: currentDate,
-                        family: _this.familyFormatter(_familyEditor),
-                        action: _this.actionFormatter(_familyEditor),
-                        sampleList: this.samples};
+                        family: _this.familyFormatter(_familyEditor, aux),
+                        action: _this.actionFormatter(_familyEditor, aux),
+                        sampleList: this.samples,
+                        analysisIDinternal: aux
+                    };
 
 
-                   /* if (this.opencgaClient instanceof OpenCGAClient) {
+/*                    if (this.opencgaClient instanceof OpenCGAClient) {
 
 
                         let params = {
@@ -488,23 +494,31 @@
 
 
             },
-            familyFormatter: function(familyEditor) {
+            saveAnalysis: function() {
+                // TO BE DONE
+            },
+            familyFormatter: function(familyEditor, randomString) {
                 if (familyEditor) {
-                    return '<button data-toggle="modal" role="button" type="button" class="btn btn-sm btn-success" data-target="#' + this.prefix + 'FamilyEditor"><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;Edit</button>';
+                    return '<button data-toggle="modal" id="' + randomString + '" role="button" type="button" class="btn btn-sm btn-success" data-target="#' + this.prefix + 'FamilyEditor" ><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;Edit</button>';
                 }
                 else { // Is not a family analysis -> a family cannot be edited
-                    return '<button data-toggle="modal" role="button" type="button" class="btn btn-sm btn-success disabled" data-target="#' + this.prefix + 'FamilyEditor"><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;Edit</button>';
+                    return '<button data-toggle="modal" id="' + randomString + '" role="button" type="button" class="btn btn-sm btn-success disabled" data-target="#' + this.prefix + 'FamilyEditor"><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;Edit</button>';
                 }
 
             },
-            actionFormatter: function(familyEditor) {
+            actionFormatter: function(familyEditor, randomString) {
                 if (familyEditor) {
-                    return '<button type="button" class="btn btn-sm btn-primary" disabled><i class="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;Save</button>';
+                    //return '<button type="button" id="' + randomString + '" class="btn btn-sm btn-primary" disabled><i class="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;Save</button>';
+                    return '<button type="button" id="' + randomString + '" class="btn btn-sm btn-primary" onclick="petete()"><i class="fa fa-floppy-o" aria-hidden="true" ></i>&nbsp;Save</button>';
                 }
                 else { // If not a family analysis, such analysis can be saved inmediatly
-                    return '<button type="button" class="btn btn-sm btn-primary"><i class="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;Save</button>';
+                    return '<button type="button" id="' + randomString + '" class="btn btn-sm btn-primary"><i class="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;Save</button>';
                 }
 
+            },
+            petete: function(e) {
+                console.log(this);
+                debugger;
             },
             analysisFormatter: function(analysisID) {
                 return '<input type="text" class="form-control" value="' + analysisID +'" maxlength="75">';
@@ -525,6 +539,9 @@
                     return true;
 
 
+            },
+            familyChange: function (e, family) {
+                this.family = family;
             },
             _getTableColumns: function() {
                 this._columns = [
@@ -563,6 +580,10 @@
                             field: 'sampleList',
                             visible: false
 
+                        },
+                        {
+                            field: 'analysisIDinternal',
+                            visible: false
                         }
                     ]
                 ];
