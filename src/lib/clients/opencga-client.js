@@ -122,7 +122,7 @@ class OpenCGAClient {
         if (typeof this._families === "undefined") {
             this._families = new Families(this._config);
         }
-        return this._familie;
+        return this._families;
     }
 
     cohorts() {
