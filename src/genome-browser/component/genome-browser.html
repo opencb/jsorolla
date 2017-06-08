@@ -76,15 +76,13 @@
 <!--<script type="text/javascript" src="../../genome-browser/gv-config.js"></script>-->
 <!--<script type="text/javascript" src="../../genome-browgenome-browser.jsr.js"></script>-->
 
-<dom-module id="genome-browser-view">
+<dom-module id="genome-browser">
     <template>
-        <!--<style is="custom-style" include="jso-styles"></style>-->
-
         <div id="{{prefix}}GenomeBrowser"></div>
     </template>
     <script>
         Polymer({
-            is: 'genome-browser-view',
+            is: 'genome-browser',
             properties: {
                 cellbaseClient: {
                     type: Object,
@@ -111,7 +109,8 @@
                     value: ['sequence', 'gene']
                 },
                 trackConfigs: {
-                    type: Object
+                    type: Object,
+                    observer: "init"
                 },
                 settings: {
                     type: Object
@@ -131,7 +130,8 @@
 //                this.region = {chromosome: "21", start: 22859462, end: 22859610};
             },
             init: function() {
-                if (typeof this.cellbaseClient === "undefined" || typeof this.genomeViewer !== "undefined") {
+                if (typeof this.cellbaseClient === "undefined" || typeof this.opencgaClient === "undefined"
+                    || typeof this.genomeViewer !== "undefined") {
                     return;
                 }
                 let _this = this;
@@ -174,7 +174,7 @@
                     _this.genomeBrowser = new GenomeBrowser(settings);
 
                     let tracks = [];
-                    for (let i = 0; i < _this.tracks; i++) {
+                    for (let i = 0; i < _this.tracks.length; i++) {
                         switch (_this.tracks[i]) {
                             case 'sequence':
                                 tracks.push(_this.addSequenceTrack(_this.trackConfigs['sequence']));
@@ -222,7 +222,7 @@
                     visibleRegionSize: 200,
 
                     renderer: new SequenceRenderer(),
-                    dataAdapter: new CellBaseAdapter(_this.cellbaseClient, "genomic", "region", "sequence", {}, { chunkSize: 100})
+                    dataAdapter: new CellBaseAdapter(this.cellbaseClient, "genomic", "region", "sequence", {}, { chunkSize: 100})
                 };
                 mySettings = Object.assign(mySettings, settings);
                 return new FeatureTrack(mySettings);
@@ -242,7 +242,7 @@
                             }
                         }
                     }),
-                    dataAdapter: new CellBaseAdapter(_this.cellbaseClient, "genomic", "region", "gene",
+                    dataAdapter: new CellBaseAdapter(this.cellbaseClient, "genomic", "region", "gene",
                         {
                             exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence'
                         }, {
@@ -273,10 +273,10 @@
                 };
                 let renderer = {
                     renderer: new AlignmentRenderer(FEATURE_TYPES.alignment),
-                    dataAdapter: new OpencgaAdapter(opencgaClient, "analysis/alignment", undefined, "query", settings.data)
+                    dataAdapter: new OpencgaAdapter(this.opencgaClient, "analysis/alignment", undefined, "query", settings.data)
                 };
                 mySettings = Object.assign(mySettings, settings.config, renderer);
-                new AlignmentTrack(mySettings);
+                return new AlignmentTrack(mySettings);
             },
             addGenericTrack: function (settings) {
                 switch (settings.type) {
