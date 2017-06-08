@@ -10,26 +10,26 @@ class RestClient {
 
         let dataResponse = null;
         console.time("AJAX call to CellBase");
-        var request = new XMLHttpRequest();
+        let request = new XMLHttpRequest();
         request.onload = function(event) {
             console.log("CellBaseClient: call to URL succeed: '" + url +"'");
-            var contentType = this.getResponseHeader('Content-Type');
-            if (contentType === 'application/json') {
+            let contentType = this.getResponseHeader("Content-Type");
+            if (contentType === "application/json") {
                 dataResponse = JSON.parse(this.response);
 
-                if (typeof options != "undefined" && typeof options.cacheFn === "function") {
+                if (typeof options !== "undefined" && typeof options.cacheFn === "function") {
                     options.cacheFn(dataResponse);
                 }
 
                 // If the call is OK then we execute the success function from the user
                 // console.log(options)
-                if (typeof options != "undefined" && typeof options.success === "function" && typeof options.cacheFn == "undefined") {
+                if (typeof options !== "undefined" && typeof options.success === "function" && typeof options.cacheFn === "undefined") {
                     options.success(dataResponse);
                 }
                 console.timeEnd("AJAX call to CellBase");
                 console.log(options, "Size: " + event.total + " Bytes");
             } else {
-                console.log(this.response)
+                console.log(this.response);
             }
         };
 
@@ -68,29 +68,29 @@ class RestClient {
         // Creating the promise
         return new Promise(function(resolve, reject) {
 
-            var request = new XMLHttpRequest();
+            let request = new XMLHttpRequest();
 
             request.onload = function(event) {
-                if (request.status == 200) {
-                    let contentType = this.getResponseHeader('Content-Type');
+                if (request.status === 200) {
+                    let contentType = this.getResponseHeader("Content-Type");
                     // startsWith() is used because sometimes the contentType is 'application/json;charset=utf-8'
                     if (contentType.startsWith("application/json")) {
                         dataResponse = JSON.parse(this.response);
 
-                        if (typeof options != "undefined" && typeof options.cacheFn === "function") {
+                        if (typeof options !== "undefined" && typeof options.cacheFn === "function") {
                             options.cacheFn(dataResponse);
                         }
 
                         // If the call is OK then we execute the success function from the user
                         // console.log(options)
-                        if (typeof options != "undefined" && typeof options.success === "function" && typeof options.cacheFn == "undefined") {
+                        if (typeof options !== "undefined" && typeof options.success === "function" && typeof options.cacheFn === "undefined") {
                             options.success(dataResponse);
                         }
                         console.timeEnd("REST call to " + url);
                         console.debug("REST call query: ", options, ", Size: " + event.total + " Bytes");
                         resolve(dataResponse);
                     } else {
-                        console.log("Result is not JSON: " + this.response)
+                        console.log("Result is not JSON: " + this.response);
                     }
                 } else {
                     console.error("REST call to URL failed: '" + url +"'");

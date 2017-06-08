@@ -20,63 +20,89 @@
         <style is="custom-style" include="jso-styles"></style>
 
         <template is="dom-if" if="{{!_sampleExists}}">
-            <h3>No samples provided, please select some samples.</h3>
+            <div class="alert alert-warning" role="alert"><h4>No samples selected, please select some samples.</h4></div>
         </template>
 
         <template is="dom-if" if="{{_sampleExists}}">
-            <table class="table hover">
-                <thead>
-                <tr class="active">
-                    <th>Sample ID</th>
-                    <th>Affected</th>
-                    <th>Deceased</th>
-                    <th>Family Role</th>
-                </tr>
-                </thead>
-                <tbody>
-
-                <template is="dom-repeat" items="{{samples}}" as="sample">
-                    <tr>
-                        <td>{{sample.name}}</td>
-                        <td>
-                            <input id="{{prefix}}{{sample.name}}Affected" data-sample="{{sample.name}}" type="checkbox" on-change="selectAffected">
-                        </td>
-                        <td>
-                            <input id="{{prefix}}{{sample.name}}Deceased" data-sample="{{sample.name}}" type="checkbox" on-change="selectDeceased">
-                        </td>
-                        <td>
-                            <div class="dropdown">
-                                <select class="form-control" id="{{prefix}}{{sample.name}}Role" data-sample="{{sample.name}}" on-change="selectRole">
-                                    <option value="none">Select a role...</option>
-                                    <option value="father">Father</option>
-                                    <option value="mother">Mother</option>
-                                    <option value="son">Son</option>
-                                    <option value="daughter">Daughter</option>
-                                    <option value="undefined">Unspecified Sex Child</option>
-                                </select>
-                            </div>
-                        </td>
-                    </tr>
-                </template>
-                </tbody>
-            </table>
-
-            <div style="padding: 2px 10px">
-                <input id="{{prefix}}ParentalConsanguinity" type="checkbox" on-change="selectParentalConsanguinity">
-                <label style="padding: 0px 5px">Parental Consanguinity</label>
-            </div>
-            <div style="padding: 2px 10px">
-                <input id="{{prefix}}SampleNames" type="checkbox" on-change="selectShowSampleNames">
-                <label style="padding: 0px 5px">Show Sample Names</label>
-            </div>
-
+            <h3 style="padding: 5px 10px">Family editor</h3>
         </template>
 
-        <div style="padding: 20px 0px">
-            <h4>{{pedigreeTitle}}</h4>
-            <div id="{{prefix}}PedigreeView" style="padding: 0px 20px;font-size: 10px"></div>
+        <div id="{{prefix}}FilterMenu1" class="col-md-7" hidden$="{{checkProject(project)}}">
+            <template is="dom-if" if="{{_sampleExists}}">
+                <form class="form-inline">
+                    <div class="form-group row" style="padding: 15px 10px">
+                        <label style="padding: 0px 10px">Family name</label>
+                        <input type="text" class="form-control" id="{{prefix}}FamilyName" placeholder="" maxlength="100">
+                    </div>
+                </form>
+
+                <table class="table hover">
+                    <thead>
+                    <tr class="active">
+                        <th>Sample ID</th>
+                        <th>Affected</th>
+                        <th>Deceased</th>
+                        <th>Family Role</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <template is="dom-repeat" items="{{samples}}" as="sample">
+                        <tr>
+                            <td>{{sample.name}}</td>
+                            <td>
+                                <input id="{{prefix}}{{sample.name}}Affected" data-sample="{{sample.name}}" type="checkbox" on-change="selectAffected">
+                            </td>
+                            <td>
+                                <input id="{{prefix}}{{sample.name}}Deceased" data-sample="{{sample.name}}" type="checkbox" on-change="selectDeceased">
+                            </td>
+                            <td>
+                                <div class="dropdown">
+                                    <select class="form-control" id="{{prefix}}{{sample.name}}Role" data-sample="{{sample.name}}" on-change="selectRole">
+                                        <option value="none">Select a role...</option>
+                                        <option value="father">Father</option>
+                                        <option value="mother">Mother</option>
+                                        <option value="son">Son</option>
+                                        <option value="daughter">Daughter</option>
+                                        <option value="undefined">Unspecified Sex Child</option>
+                                    </select>
+                                </div>
+                            </td>
+                        </tr>
+                    </template>
+                    </tbody>
+                </table>
+
+                <div style="padding: 2px 10px">
+                    <input id="{{prefix}}ParentalConsanguinity" type="checkbox" on-change="selectParentalConsanguinity">
+                    <label style="padding: 0px 5px">Parental Consanguinity</label>
+                </div>
+                <div style="padding: 2px 10px">
+                    <input id="{{prefix}}SampleNames" type="checkbox" on-change="selectShowSampleNames">
+                    <label style="padding: 0px 5px">Show Sample Names</label>
+                </div>
+            </template>
         </div>
 
+        <div id="{{prefix}}FilterMenu2" class="col-md-5" hidden$="{{checkProject(project)}}">
+            <div style="padding: 15px 0px">
+                <template is="dom-if" if="{{settings.save}}">
+                    <template is="dom-if" if="{{_sampleExists}}">
+                        <div style="width: 80%">
+                            <button class="btn btn-primary" type="button" style="float: right; padding: 5px 10px" data-toggle="tooltip" title="Save pedigree in OpenCGA server">
+                                <i class="fa fa-floppy-o" aria-hidden="true" style="padding-right: 5px"></i>
+                                Save
+                            </button>
+                        </div>
+                    </template>
+                </template>
+
+                <div style="padding: 50px 15px">
+                    <h4>{{pedigreeTitle}}</h4>
+                    <div id="{{prefix}}PedigreeView" style="padding: 5px 5px;font-size: 10px"></div>
+                </div>
+            </div>
+        </div>
     </template>
 
     <script>
@@ -93,13 +119,16 @@
                     type: Array,
                     observer: '_updateSamples'
                 },
+                settings: {
+                    type: Object
+                },
                 prefix: {
                     type: String
-                },
+                }
             },
             ready: function() {
                 if (typeof this.prefix === "undefined" || this.prefix === "") {
-                    this.prefix = "family" + Utils.randomString(6);
+                    this.prefix = "FamilyEditor" + Utils.randomString(6);
                 }
 
                 this._sampleExists = false;
@@ -108,15 +137,14 @@
                 this._deceased = {};
                 this.pedigreeSettings = {};
                 this.pedigree = {children: []};
+                this.family = {name: "", pedigree: this.pedigree};
             },
             selectAffected: function (e) {
-                e.preventDefault();
                 let sampleName = e.currentTarget.dataSample;
                 this._affected[sampleName] = e.currentTarget.checked;
                 this.pedigreeRender();
             },
             selectDeceased: function (e) {
-                e.preventDefault();
                 let sampleName = e.currentTarget.dataSample;
                 this._deceased[sampleName] = e.currentTarget.checked;
                 this.pedigreeRender();
@@ -130,7 +158,6 @@
                 this.pedigreeRender();
             },
             selectRole: function (e) {
-                e.preventDefault();
                 let role = this.$$("#" + this.prefix + e.target.dataSample + "Role").value;
                 this._samples = this.samples;
 
@@ -199,10 +226,16 @@
             pedigreeRender: function () {
                 let ped = this._createPedigree();
 
+                let familyName = $("#" + this.prefix + "FamilyName").val();
+                this.family = {name: familyName, pedigree: ped};
+                this.fire('familychange', this.family);
+
+                // Remove SVG before render new one
                 if (typeof this.svg !== "undefined") {
                     Polymer.dom(this.root).querySelector("#" + this.prefix + "PedigreeView").removeChild(this.svg);
                 }
 
+                // Render new Pedigree
                 let pedigree = new Pedigree();
                 this.svg = pedigree.createSvg(ped, this.pedigreeSettings);
                 let querySelector = Polymer.dom(this.root).querySelector("#" + this.prefix + "PedigreeView");
@@ -245,7 +278,7 @@
                         this.pedigree.children.splice(indexToRemove, 1);
                     }
                 }
-            },
+            }
         });
     </script>
 </dom-module>

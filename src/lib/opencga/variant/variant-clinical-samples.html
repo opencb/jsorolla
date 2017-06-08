@@ -18,6 +18,7 @@
 <link rel="import" href="../catalog/samples/opencga-sample-filter.html">
 <link rel="import" href="../catalog/samples/opencga-family-editor.html">
 <link rel="import" href="../opencga-active-filters.html">
+<link rel="import" href="../opencga-message-dialog.html">
 
 <dom-module id="variant-clinical-samples">
     <template>
@@ -36,9 +37,11 @@
                 <br>
                 <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" filters="{{config.filters}}" alias="{{activeFilterAlias}}"></opencga-active-filters>
 
+                <h3>Sample Results</h3>
                 <variant-sample-grid opencga-client="{{opencgaClient}}" study="{{study}}" samples="{{samples}}"></variant-sample-grid>
 
                 <br>
+                <h3>Analysis Type</h3>
                 <div id="{{prefix}}toolbar">
                     <div class="btn-group btn-group-sm">
                         <button id="familyButton" class="button" on-click="addAnalysis"><img src="images/analysis_family_button.png" height="60"></button>
@@ -54,6 +57,7 @@
 
                 <div style="padding: 10px 0px">
                     <h3>Clinical Analysis</h3>
+                    <div class="alert alert-warning" role="alert" style="width: 80%">There are unsaved analyses!</div>
                     <div id="toolbar">
                         <button id="{{prefix}}DeleteAnalysisButton" class="btn btn-danger disabled" on-click="deleteAnalysis">
                             <i class="fa fa-times"></i>&nbsp;Delete
@@ -77,7 +81,7 @@
                         <h4 class="modal-title" id="{{prefix}}FamilyEditorLabel">Family Editor</h4>
                     </div>
                     <div class="modal-body" style="height: 500px">
-                        <opencga-family-editor samples="{{samplesAnalysis}}" opencga-client="{{opencgaClient}}"></opencga-family-editor>
+                        <opencga-family-editor samples="{{_samplesAnalysis}}" opencga-client="{{opencgaClient}}"></opencga-family-editor>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
@@ -104,6 +108,8 @@
             </div>
         </div>
 
+        <opencga-message-dialog opencga-client="{{opencgaClient}}" show-message-modal="{{showMessageModal}}" settings-message-modal="{{settingsMessageModal}}"></opencga-message-dialog>
+
     </template>
 
     <script>
@@ -126,10 +132,10 @@
                     type: Array,
                     notify: true
                 },
-                analysis: {
-                    type: Array,
-                    notify: true
-                },
+//                analysis: {
+//                    type: Array,
+//                    notify: true
+//                },
                 prefix: {
                     type: String
                 },
@@ -145,8 +151,17 @@
                 config: {
                     type: Object
                 },
-                samplesAnalysis: {
-                    type: Array
+                showMessageModal: {
+                    type: Boolean,
+                    notify: true
+                },
+                settingsMessageModal: {
+                    type: Object,
+                    notify: true
+                },
+                analysisChanged : {
+                    type: Number,
+                    observer: "renderAnalysisTable"
                 }
             },
             observers: [
@@ -159,50 +174,20 @@
 
                 this._numAnalysisSelected = 0;
                 //this.analysis = [];
+
+                this.analysisChanged = 0;
             },
 
             renderAnalysisTable: function(){
 
+                console.log(this);
+                debugger;
+
                 let _this = this;
                 $("#" + this.prefix + "tableAnalysis").bootstrapTable('destroy');
                 $("#" + this.prefix + "tableAnalysis").bootstrapTable({
-                    columns: [
-                        {
-                            field: 'state',
-                            checkbox: true,
-                            align: 'center',
-                            valign: 'middle'
-                        },
-                        {
-                            field: 'analysisID',
-                            title: 'Analysis ID'
-                        },
-                        {
-                            field: 'analysisSamples',
-                            title: 'Samples'
-                        },
-                        {
-                            field: 'analysisType',
-                            title: 'Analysis type'
-                        },
-                        {
-                            field: 'analysisDate',
-                            title: 'Date'
-                        },
-                        {
-                            field: 'analysisFilter',
-                            title: 'Filter'
-                        },
-                        {
-                            field: 'analysisAction',
-                            title: 'Action',
-                        },
-                        {
-                            field: 'sampleList',
-                            visible: false
-
-                        }
-                    ],
+                    columns: _this._getTableColumns(),
+                    data: _this._analysis,
                     onCheck: function (row, elem) {
                         $('#' + _this.prefix + "DeleteAnalysisButton").removeClass("disabled");
                         _this._numAnalysisSelected++;
@@ -214,8 +199,10 @@
                         }
                     },
                     onClickCell: function (field, value, row, elem){
-                        if (field === 'analysisAction') { // Only of cell related to family editor is selected, get samples for this analysis to the family editor
-                            _this.samplesAnalysis = row.sampleList;
+                        console.log(_this);
+                        debugger;
+                        if (field === 'family') { // Only if cell related to family editor is selected, get samples for this analysis to the family editor
+                            _this._samplesAnalysis = row.sampleList;
                         }
 
 
@@ -355,19 +342,23 @@
                 // Get the type of analysisId
                 let analysisType = "";
                 let _properMembers = -1;
+                let _familyEditor = false;
 
                 switch (e.currentTarget.id) {
                     case "familyButton":
                         analysisType = "Family";
                         _properMembers = 4;
+                        _familyEditor = true;
                         break;
                     case "trioButton":
                         analysisType = "Trio";
                         _properMembers = 3;
+                        _familyEditor = true;
                         break;
                     case "duoButton":
                         analysisType = "Duo";
                         _properMembers = 2;
+                        _familyEditor = true;
                         break;
                     case "singleButton":
                         analysisType = "Single";
@@ -401,36 +392,69 @@
                     samplesToShow = samplesToShow.slice(0, -1);
 
                     let _this = this;
-                    $("#" + this.prefix + "tableAnalysis").bootstrapTable('insertRow', {
-                        index: 0, row: {
-                            analysisID: "AN-" + analysisId,
-                            analysisSamples: samplesToShow,
-                            analysisType: analysisType,
-                            analysisDate: currentDate,
-                            analysisFilter: "NO",
-                            analysisAction: _this.actionFormatter(),
-                            sampleList: _this.samples
-                        }
-                    });
 
                     // Add analysis to property analysis so that can be used in prioritization
                     // This code will be removed as soon as analysis can be saved
 
-
                     let _anObject = {
-                        analysisID: "AN-" + analysisId,
+                        analysisID: _this.analysisFormatter("AN-" + analysisId),
                         analysisSamples: samplesToShow,
                         analysisType: analysisType,
                         analysisDate: currentDate,
-                        analysisFilter: "NO",
+                        family: _this.familyFormatter(_familyEditor),
+                        action: _this.actionFormatter(_familyEditor),
                         sampleList: this.samples};
 
-                    if (typeof this.analysis !== "undefined"){
-                        this.push('analysis', _anObject);
+
+                   /* if (this.opencgaClient instanceof OpenCGAClient) {
+
+
+                        let params = {
+                            study: this.study.alias
+                        };
+
+                        let body= {
+                            "name": "AN-" + analysisId,
+                            "type": analysisType,
+                            "sample": samplesToShow,
+                            "family": "sdfsf"
+                        };
+
+
+                        let _this = this;
+                        this.opencgaClient.clinical().create(params, body)
+                            .then(function (response) {
+                                console.log(_this);
+                                debugger;
+
+
+                            })
+                            .catch(function (response) {
+                                console.log(_this);
+                                debugger;
+                                _this.settingsMessageModal = {
+                                    messageHeader: "Error",
+                                    messageBody: [response.error],
+                                    type: "danger",
+                                    height: "100px",
+                                    width: "500px"
+                                };
+
+                                _this.showMessageModal = true;
+                            });
+
+                    }*/
+
+                    console.log(this);
+                    debugger;
+                    if (typeof this._analysis !== "undefined"){
+                        this.push('_analysis', _anObject);
                     }
                     else {
-                        this.analysis=[_anObject];
+                        this._analysis=[_anObject];
                     }
+
+                    this.analysisChanged++;
 
                 }
 
@@ -464,9 +488,26 @@
 
 
             },
-            actionFormatter: function() {
-                return '<button data-toggle="modal" role="button" type="button" class="btn btn-sm btn-success" data-target="#' + this.prefix + 'FamilyEditor"><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;Edit</button>';
+            familyFormatter: function(familyEditor) {
+                if (familyEditor) {
+                    return '<button data-toggle="modal" role="button" type="button" class="btn btn-sm btn-success" data-target="#' + this.prefix + 'FamilyEditor"><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;Edit</button>';
+                }
+                else { // Is not a family analysis -> a family cannot be edited
+                    return '<button data-toggle="modal" role="button" type="button" class="btn btn-sm btn-success disabled" data-target="#' + this.prefix + 'FamilyEditor"><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;Edit</button>';
+                }
 
+            },
+            actionFormatter: function(familyEditor) {
+                if (familyEditor) {
+                    return '<button type="button" class="btn btn-sm btn-primary" disabled><i class="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;Save</button>';
+                }
+                else { // If not a family analysis, such analysis can be saved inmediatly
+                    return '<button type="button" class="btn btn-sm btn-primary"><i class="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;Save</button>';
+                }
+
+            },
+            analysisFormatter: function(analysisID) {
+                return '<input type="text" class="form-control" value="' + analysisID +'" maxlength="75">';
             },
             analysisError: function (analysisType, introducedLength, properLength){
 
@@ -483,6 +524,49 @@
                 else
                     return true;
 
+
+            },
+            _getTableColumns: function() {
+                this._columns = [
+                    [
+                        {
+                            field: 'state',
+                            checkbox: true,
+                            align: 'center',
+                            valign: 'middle'
+                        },
+                        {
+                            field: 'analysisID',
+                            title: 'Analysis ID'
+                        },
+                        {
+                            field: 'analysisSamples',
+                            title: 'Samples'
+                        },
+                        {
+                            field: 'analysisType',
+                            title: 'Analysis type'
+                        },
+                        {
+                            field: 'analysisDate',
+                            title: 'Date'
+                        },
+                        {
+                            field: 'family',
+                            title: 'Family'
+                        },
+                        {
+                            field: 'action',
+                            title: 'Action'
+                        },
+                        {
+                            field: 'sampleList',
+                            visible: false
+
+                        }
+                    ]
+                ];
+                return this._columns;
 
             }
 
