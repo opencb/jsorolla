@@ -102,6 +102,7 @@
                         queryParams: function (params) {
                             let auxParams = {
                                 studyId: _this.study.id,
+//                                lazy: "false",
                                 sid: Cookies.get(_this.opencgaClient.getConfig().cookieSessionId),
                                 order: params.order,
                                 sort: params.sort,
@@ -223,9 +224,6 @@
                 }
             },
             stateFormatter: function (value, row, index) {
-                console.log(this.field)
-                console.log(this.field.context.samples)
-//                debugger
                 if (typeof this.field.context.samples != "undefined") {
                     for (let idx in this.field.context.samples) {
                         if (this.field.context.samples[idx].name == row.name) {
@@ -242,6 +240,13 @@
                             break;
                         }
                     }
+                }
+            },
+            individualFormatter: function (value, row) {
+                if (typeof row.individual.name !== "undefined") {
+                    return row.individual.name;
+                } else {
+                    return '-'
                 }
             },
             dateFormatter: function (value, row) {
@@ -391,6 +396,11 @@
                             field: {source: 'state', context: this},
                             checkbox: true,
                             formatter: this.stateFormatter
+                        },
+                        {
+                            title: 'Individual',
+                            field: 'individual.id',
+                            formatter: this.individualFormatter
                         },
                         {
                             title: 'Sample ID',
