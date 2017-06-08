@@ -19,11 +19,35 @@
  */
 class Pedigree {
 
-    constructor(settings) {
+    constructor(pedigree, settings) {
+        this.pedigree = pedigree;
         this.settings = settings;
     }
 
-    createSvg(pedigree, settings) {
+    isDuo() {
+        return (typeof this.pedigree.father !== "undefined" || typeof this.pedigree.mother !== "undefined")
+            && typeof this.pedigree.children !== "undefined" && this.pedigree.children.length === 1;
+    }
+
+    isTrio() {
+        return typeof this.pedigree.father !== "undefined" && typeof this.pedigree.mother !== "undefined"
+            && typeof this.pedigree.children !== "undefined" && this.pedigree.children.length === 1;
+    }
+
+    isFamily() {
+        return typeof this.pedigree.father !== "undefined" && typeof this.pedigree.mother !== "undefined"
+            && typeof this.pedigree.children !== "undefined" && this.pedigree.children.length > 1;
+    }
+
+    render(settings) {
+        return this._render(this.pedigree, settings);
+    }
+
+    static renderFromPed(pedigree, settings) {
+        return this._render(pedigree, settings);
+    }
+
+    _render(pedigree, settings) {
 
         // If no settings is provided we use the one passed in the constructor
         if (typeof settings === "undefined" || settings === null) {
@@ -34,7 +58,7 @@ class Pedigree {
         settings = Object.assign(this._getDefaultSetting(), settings);
         // settings = this.settings;
 
-        let svg = SVG.create('svg', {
+        let svg = SVG.create("svg", {
             width: settings.width,
             height: settings.height,
             viewBox: "0 0 " + settings.width + " " + settings.height,
@@ -42,7 +66,7 @@ class Pedigree {
         });
 
         if (settings.border) {
-            SVG.addChild(svg, 'rect', {width: settings.width, height: settings.height, style: "fill: white;stroke: black"});
+            SVG.addChild(svg, "rect", {width: settings.width, height: settings.height, style: "fill: white;stroke: black"});
         }
 
 
@@ -54,19 +78,19 @@ class Pedigree {
             let verticalBarOffset = 0;
             if (pedigree.parentalConsanguinity) {
                 verticalBarOffset = 2;
-                SVG.addChild(svg, 'line', {
+                SVG.addChild(svg, "line", {
                     x1: xCenter - settings.box,     y1: 10 + radius - verticalBarOffset,
                     x2: xCenter + settings.box,     y2: 10 + radius - verticalBarOffset,
                     style: "stroke: black;stroke-width: 2"
                 });
-                SVG.addChild(svg, 'line', {
+                SVG.addChild(svg, "line", {
                     x1: xCenter - settings.box,     y1: 10 + radius + verticalBarOffset,
                     x2: xCenter + settings.box,     y2: 10 + radius + verticalBarOffset,
                     style: "stroke: black;stroke-width: 2"
                 });
 
             } else {
-                SVG.addChild(svg, 'line', {
+                SVG.addChild(svg, "line", {
                     x1: xCenter - settings.box,     y1: 10 + radius,
                     x2: xCenter + settings.box,     y2: 10 + radius,
                     style: "stroke: black;stroke-width: 2"
@@ -74,7 +98,7 @@ class Pedigree {
             }
 
             // Vertical bar for children
-            SVG.addChild(svg, 'line', {
+            SVG.addChild(svg, "line", {
                 x1: xCenter,    y1: 10 + radius + verticalBarOffset,
                 x2: xCenter,    y2: 10 + radius + (1.5 * settings.box),
                 style: "stroke: black;stroke-width: 2"
@@ -85,14 +109,14 @@ class Pedigree {
         if (typeof pedigree.father !== "undefined") {
             // Prepare the fill color
             let fillColor = this._getFillColor(pedigree.father);
-            SVG.addChild(svg, 'rect', {
+            SVG.addChild(svg, "rect", {
                 x: xCenter - 2 * settings.box,  y: 10,
                 width: settings.box,            height: settings.box,
                 style: "fill: " + fillColor + ";stroke: black;stroke-width: 2"
             });
 
             if (settings.selectShowSampleNames) {
-                let text = SVG.addChild(svg, 'text', {
+                let text = SVG.addChild(svg, "text", {
                     x: xCenter - 2 * settings.box,  y: 10 + settings.box + 15,
                     style: "fill: black;font-size=8px;font-weight:10"
                 });
@@ -111,7 +135,7 @@ class Pedigree {
 
 
             if (pedigree.father.deceased) {
-                SVG.addChild(svg, 'line', {
+                SVG.addChild(svg, "line", {
                     x1: xCenter - 2 * settings.box - 10,    y1: 10 + settings.box + 10,
                     x2: xCenter - settings.box + 10,        y2: 0,
                     style: "stroke: black;stroke-width: 2"
@@ -123,14 +147,14 @@ class Pedigree {
         if (typeof pedigree.mother !== "undefined") {
             // Prepare the fill color
             let fillColor = this._getFillColor(pedigree.mother);
-            SVG.addChild(svg, 'circle', {
+            SVG.addChild(svg, "circle", {
                 cx: xCenter - radius + (2 * settings.box),  cy: 10 + radius,
                 r: radius,
                 style: "fill: " + fillColor + ";stroke: black;stroke-width: 2"
             });
 
             if (settings.selectShowSampleNames) {
-                let text = SVG.addChild(svg, 'text', {
+                let text = SVG.addChild(svg, "text", {
                     x: xCenter - 2 * radius + (2 * settings.box),  y: 10 + settings.box + 15,
                     style: "fill: black;font-size=8px;font-weight:10"
                 });
@@ -138,7 +162,7 @@ class Pedigree {
             }
 
             if (pedigree.mother.deceased) {
-                SVG.addChild(svg, 'line', {
+                SVG.addChild(svg, "line", {
                     x1: xCenter + settings.box - 10,        y1: 10 + settings.box + 10,
                     x2: xCenter + 2 * settings.box + 10,    y2: 0,
                     style: "stroke: black;stroke-width: 2"
@@ -154,7 +178,7 @@ class Pedigree {
                 let numChildren = pedigree.children.length;
                 let w =  (numChildren + numChildren - 1) * settings.box;
                 // Add horizontal bar
-                SVG.addChild(svg, 'line', {
+                SVG.addChild(svg, "line", {
                     x1: xCenter - w / 2,        y1: 10 + radius + (1.5 * settings.box),
                     x2: xCenter + w / 2 ,       y2: 10 + radius + (1.5 * settings.box),
                     style: "stroke: black;stroke-width: 2"
@@ -163,7 +187,7 @@ class Pedigree {
                 let left = xCenter - w / 2;
                 let interval = w / (numChildren - 1);
                 for (let i = 0; i < pedigree.children.length; i++) {
-                    SVG.addChild(svg, 'line', {
+                    SVG.addChild(svg, "line", {
                         x1: left + (i * interval),        y1: 10 + radius + (1.5 * settings.box),
                         x2: left + (i * interval) ,       y2: 10 + radius + (1.5 * settings.box) + 15,
                         style: "stroke: black;stroke-width: 2"
@@ -183,7 +207,7 @@ class Pedigree {
 
         // No defined gender
         if (typeof object.gender === "undefined" || object.gender === "undefined") {
-            SVG.addChild(svg, 'rect', {
+            SVG.addChild(svg, "rect", {
                 x: xCenter - radius,    y: 10 + radius + (1.5 * width) + y,
                 width: width * 0.8,           height: width * 0.8,
                 transform: "translate(" + radius + ") rotate(45 " + (xCenter - radius) + " " + (10 + radius + (1.5 * width) + y) + ")",
@@ -192,14 +216,14 @@ class Pedigree {
         } else {
             // Child is a boy
             if (object.gender === "male") {
-                SVG.addChild(svg, 'rect', {
+                SVG.addChild(svg, "rect", {
                     x: xCenter - radius,    y: 10 + radius + (1.5 * width) + y,
                     width: width,    height: width,
                     style: "fill: " + fillColor + ";stroke: black;stroke-width: 2"
                 });
             } else {
                 // Child is a girl
-                SVG.addChild(svg, 'circle', {
+                SVG.addChild(svg, "circle", {
                     cx: xCenter,    cy: 10 + radius + radius + (1.5 * width) + y,
                     r: radius,
                     style: "fill: " + fillColor + ";stroke: black;stroke-width: 2"
@@ -208,7 +232,7 @@ class Pedigree {
         }
 
         if (showSampleNames) {
-            let text = SVG.addChild(svg, 'text', {
+            let text = SVG.addChild(svg, "text", {
                 x: xCenter - radius,  y: 10 + 3 * width + 15 + y,
                 style: "fill: black;font-size=8px;font-weight:10"
             });
@@ -216,7 +240,7 @@ class Pedigree {
         }
 
         if (object.deceased) {
-            SVG.addChild(svg, 'line', {
+            SVG.addChild(svg, "line", {
                 x1: xCenter - radius - 10,      y1: 10 + (2.5 * width) + radius + 10 + y,
                 x2: xCenter + radius + 10,      y2: 10 + (2.5 * width) - radius - 10 + y,
                 style: "stroke: black;stroke-width: 2"
