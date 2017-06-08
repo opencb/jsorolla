@@ -23,10 +23,6 @@
             <div class="alert alert-warning" role="alert"><h4>No samples selected, please select some samples.</h4></div>
         </template>
 
-        <template is="dom-if" if="{{_sampleExists}}">
-            <h3 style="padding: 5px 10px">Family editor</h3>
-        </template>
-
         <div id="{{prefix}}FilterMenu1" class="col-md-7" hidden$="{{checkProject(project)}}">
             <template is="dom-if" if="{{_sampleExists}}">
                 <form class="form-inline">
