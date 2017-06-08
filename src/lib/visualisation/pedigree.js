@@ -74,7 +74,7 @@ class Pedigree {
         let radius = settings.box / 2;
 
         // Draw the lines between parents and children
-        if ((typeof pedigree.father !== "undefined" && typeof pedigree.mother !== "undefined") || true) {
+        if (typeof pedigree.father !== "undefined" || typeof pedigree.mother !== "undefined") {
             let verticalBarOffset = 0;
             if (pedigree.parentalConsanguinity) {
                 verticalBarOffset = 2;
