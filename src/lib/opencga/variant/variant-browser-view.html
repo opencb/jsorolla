@@ -493,8 +493,8 @@
                 }
             },
             getStudy: function (study) {
-                let name = study.split(':')[1];
-                return name;
+                let fields = study.split(':');
+                return study.split(':')[fields.length - 1];
             },
             checkForGenotypes: function (stat) {
                 let genotypesCount = stat.value.genotypesCount;
