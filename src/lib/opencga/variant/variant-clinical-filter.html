@@ -119,7 +119,8 @@
                             <div class="panel-body">
                                 <label><i class="fa fa-sitemap" aria-hidden="true"></i>Select analysis:</label>
                                 <br>
-                                <button data-toggle="modal" role="button" data-placement="bottom" data-target$="#{{prefix}}AnalysisBrowser">
+                                <!--<button data-toggle="modal" role="button" data-placement="bottom" data-target$="#{{prefix}}AnalysisBrowser">-->
+                                <button data-toggle="modal" role="button" data-placement="bottom" on-click="showClinicalSelector">
                                     Browse...
                                 </button>
                                 <div id="analysisSelectedDiv" style="display:none">
@@ -637,7 +638,7 @@
                             <h4 class="modal-title" id="{{prefix}}AnalysisBrowserLabel">Analysis Selector</h4>
                         </div>
                         <div class="modal-body" style="height: 650px">
-                            <variant-clinical-selector opencga-client="{{opencgaClient}}" analysis="{{analysis}}" analysis-selected="{{analysisSelected}}"></variant-clinical-selector>
+                            <variant-clinical-selector opencga-client="{{opencgaClient}}" analysis-selected="{{analysisSelected}}" study="{{study}}" analysis-modal="{{analysisModal}}"></variant-clinical-selector>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="loadAnalysis">OK</button>
@@ -708,11 +709,12 @@
             prefix: {
                 type: String
             },
-            analysis: {
-                type: Array
-            },
             analysisSelected: {
                 type: Object
+            },
+            analysisModal: {
+                type: Boolean,
+                notify: true
             }
         },
         ready: function() {
@@ -1353,10 +1355,22 @@
         },
         loadAnalysis: function(e){
             e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+            console.log(this);
+            debugger;
             this.currentAnalysisID = this.analysisSelected.analysisID;
             this.samples = this.analysisSelected.sampleList; // Samples are notified to variant-prioritization-view
             $("#analysisSelectedDiv").show();
 
+        },
+        showClinicalSelector: function(e){
+            e.preventDefault();
+            if (typeof (this.analysisModal) === "undefined"){
+                this.analysisModal = true;
+            }
+            else {
+                this.analysisModal = ! this.analysisModal;
+            }
+            $("#" + this.prefix + "AnalysisBrowser").modal('show');
         }
     });
 </script>

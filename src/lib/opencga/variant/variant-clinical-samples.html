@@ -57,7 +57,9 @@
 
                 <div style="padding: 10px 0px">
                     <h3>Clinical Analysis</h3>
-                    <div class="alert alert-warning" role="alert" style="width: 80%">There are unsaved analyses!</div>
+                    <template is="dom-if" if="{{unsavedAnalysis}}">
+                        <div class="alert alert-warning" role="alert" style="margin:0 auto;">There are unsaved analyses!</div>
+                    </template>
                     <div id="toolbar">
                         <button id="{{prefix}}DeleteAnalysisButton" class="btn btn-danger disabled" on-click="deleteAnalysis">
                             <i class="fa fa-times"></i>&nbsp;Delete
@@ -122,20 +124,11 @@
                 },
                 study: {
                     type: Object
-//                    observer: 'renderFromServer'
                 },
-//                studyId: {
-//                    type: Number,
-//                    observer: 'renderFromServer'
-//                },
                 samples: {
                     type: Array,
                     notify: true
                 },
-//                analysis: {
-//                    type: Array,
-//                    notify: true
-//                },
                 prefix: {
                     type: String
                 },
@@ -173,10 +166,10 @@
                 }
 
                 this._numAnalysisSelected = 0;
-                //this.analysis = [];
-
                 this.analysisChanged = 0;
                 this.currentAnalysis = {};
+                this.selectedRow = -1;
+                this.unsavedAnalysis = 0;
             },
 
             renderAnalysisTable: function(){
@@ -198,37 +191,16 @@
                         }
                     },
                     onClickCell: function (field, value, row, elem){
-                        if (field === "family") { // Only if cell related to family editor is selected, get samples for this analysis to the family editor
+                        if (field === "editFamily") { // Only if cell related to family editor is selected, get samples for this analysis to the family editor
                             _this._samplesAnalysis = row.sampleList;
                             _this.currentAnalysis = row;
+                            _this.selectedRow = elem.parent().data("index");
                         }
                         else if (field === "action"){ // Only if cell related to save is selected
-                            console.log(_this);
-                            debugger;
-
-                            let children = _this.family.pedigree.children;
-                            let affectedSample ="";
-                            for (let i=0; i < children.length; i++)
-                            {
-                                if (children[i].affected)
-                                {
-                                    affectedSample = children[i].name;
-                                }
-
+                            if (row.family !== null ) { // If a family is not defined, save can not be achieved
+                                _this.saveAnalysis(row);
                             }
-                            let analysisInfo = {
-                                analysisID: $("#" + _this.prefix + "analysisID" +  row.analysisIDinternal).val(),
-                                type: row.analysisType,
-                                family: _this.family.name,
-                                proband: affectedSample,
-                                sample: row.analysisSamples,
-                            };
-
-                            _this.saveAnalysis(analysisInfo);
-
                         }
-
-
                     }
                 });
 
@@ -236,7 +208,6 @@
             attached: function () {
                 this.table = $('#' + this.prefix + "FamilySelector");
             },
-
 
             /**
              * If filters have been removed, clean the values from the forms.
@@ -401,7 +372,6 @@
                         break;
                 }
 
-
                 if (this.analysisError(analysisType, this.samples.length, _properMembers)) {
                     let fullDate = new Date();
                     let twoDigitMonth = ((fullDate.getMonth().length + 1) === 1) ? (fullDate.getMonth() + 1) : '0' + (fullDate.getMonth() + 1);
@@ -420,18 +390,17 @@
                     // This code will be removed as soon as analysis can be saved
 
                     let aux = Utils.randomString(6);
-                    console.log(this);
-                    debugger;
 
                     let _anObject = {
                         analysisID: _this.analysisFormatter("AN-" + analysisId, aux),
                         analysisSamples: samplesToShow,
                         analysisType: analysisType,
                         analysisDate: currentDate,
-                        family: _this.familyFormatter(_familyEditor, aux),
+                        editFamily: _this.familyFormatter(_familyEditor, aux),
                         action: _this.actionFormatter(_familyEditor, aux),
                         sampleList: this.samples,
-                        analysisIDinternal: aux
+                        analysisIDinternal: aux,
+                        family: null
                     };
 
                     if (typeof this._analysis !== "undefined"){
@@ -442,6 +411,7 @@
                     }
 
                     this.analysisChanged++;
+                    this.unsavedAnalysis++;
 
                 }
 
@@ -459,8 +429,7 @@
 
                 // Remove from property analysis.
                 // This code will be removed as soon as analysis can be saved
-
-                for (let i in ids) {
+/*                for (let i in ids) {
                     let analysisToDeleteIdx = -1;
                     for (let j in this.analysis) {
                         if (this.analysis[j].analysisID === ids[i]) {
@@ -469,52 +438,85 @@
                         }
                     }
                     this.splice('analysis', analysisToDeleteIdx, 1);
-                }
-
-
+                }*/
+                this.unsavedAnalysis--;
 
 
             },
-            saveAnalysis: function(analysisInfo) {
-                // TO BE DONE
+            saveAnalysis: function(rowInfo) {
 
+                let children = rowInfo.family.pedigree.children;
+                let _affectedSample = "";
+                for (let i = 0; i < children.length; i++) {
+                    if (children[i].affected) {
+                        _affectedSample = children[i].name;
+                    }
+                }
 
+                let _analysisType = "";
+                switch (rowInfo.analysisType) {
+                    case "Single":
+                        _analysisType = "SINGLE";
+                        break;
+                    case "Duo":
+                        _analysisType = "DUO";
+                        break;
+                    case "Trio":
+                        _analysisType = "TRIO";
+                        break;
+                    case "Family":
+                        _analysisType = "FAMILY";
+                        break;
+                    case "Auto comparative":
+                        _analysisType = "AUTO";
+                        break;
+                    case "Multisample":
+                        _analysisType = "MULTISAMPLE";
+                        break;
+                }
 
                 if (this.opencgaClient instanceof OpenCGAClient) {
                     // Create Family
 
                     // Get family members
-
                     let _father = null;
-                    if (typeof(this.family.pedigree.father) != "undefined") {
-                        for (let j = 0; j < this.samples.length; j++) {
-                            if (this.family.pedigree.father.name === this.samples[j].name) {
-                                _father = this.samples[j].individual.id;
+                    if (typeof(rowInfo.family.pedigree.father) !== "undefined") {
+                        for (let j = 0; j < rowInfo.sampleList.length; j++) {
+                            if (rowInfo.family.pedigree.father.name === rowInfo.sampleList[j].name) {
+                                _father = rowInfo.sampleList[j].individual.id;
                             }
                         }
-
                     }
 
                     let _mother = null;
-                    if (typeof(this.family.pedigree.mother) != "undefined") {
-                        for (let j = 0; j < this.samples.length; j++) {
-                            if (this.family.pedigree.mother.name === this.samples[j].name) {
-                                _mother = this.samples[j].individual.id;
+                    if (typeof(rowInfo.family.pedigree.mother) !== "undefined") {
+                        for (let j = 0; j < rowInfo.sampleList.length; j++) {
+                            if (rowInfo.family.pedigree.mother.name === rowInfo.sampleList[j].name) {
+                                _mother = rowInfo.sampleList[j].individual.id;
                             }
                         }
-
                     }
 
-                    console.log(this);
-                    debugger;
                     let _children = [];
-                    let myChild = this.family.pedigree.children;
+                    let myChild = rowInfo.family.pedigree.children;
+                    let _sex="";
                     for (let i=0 ; i< myChild.length; i++){
-                        for (let j=0; j<this.samples.length; j++){
-                            if (myChild[i].name === this.samples[j].name) {
+                        for (let j=0; j<rowInfo.sampleList.length; j++){
+                            if (myChild[i].name === rowInfo.sampleList[j].name) {
+                                switch (rowInfo.sampleList[j].role) {
+                                    case "son":
+                                        _sex = "MALE";
+                                        break;
+                                    case "daughter":
+                                        _sex = "FEMALE";
+                                        break;
+                                    case "undefined":
+                                        _sex = "UNKNOWN";
+                                        break;
+                                }
                                 _children.push({
-                                    "name": this.samples[j].individual.id,
-                                    "sex": (this.samples[j].role === "son") ? "MALE" : "FEMALE",
+                                    "name": rowInfo.sampleList[j].individual.id,
+                                    "sex": _sex,
                                     "fatherId": _father,
                                     "motherId": _mother
                                 });
@@ -522,44 +524,37 @@
                         }
                     }
 
-
-
-
                     let params = {
                         study: this.study.alias
                     };
-
-
                     let body = {
-                        "name": analysisInfo.family,
-                        "parentalConsanguinity": this.family.pedigree.parentalConsanguinity,
-                        "description": analysisInfo.family,
+                        "name": rowInfo.family.name,
+                        "parentalConsanguinity": rowInfo.family.pedigree.parentalConsanguinity,
                         "mother": {
                             "name": _mother,
                             "sex": "FEMALE"
                         },
                         "father": {
                             "name": _father,
-                            "sex": "MALE",
+                            "sex": "MALE"
                         },
                         "children": _children
                     };
 
-
-
-
-
                     let _this = this;
                     this.opencgaClient.families().create(params, body)
                         .then(function (response) {
-                            console.log(_this);
-                            debugger;
-
-
+                            // Create analysis
+                            let analysisInfo = {
+                                analysisID: $("#" + _this.prefix + "analysisID" + rowInfo.analysisIDinternal).val(),
+                                type: _analysisType,
+                                familyID: rowInfo.family.name,
+                                proband: _children[0].name, // TO BE CHANGED
+                                sample: _affectedSample // TO BE CHANGED
+                            };
+                            _this.createAnalysis(analysisInfo);
                         })
                         .catch(function (response) {
-                            console.log(_this);
-                            debugger;
                             _this.settingsMessageModal = {
                                 messageHeader: "Error",
                                 messageBody: [response.error],
@@ -570,24 +565,35 @@
 
                             _this.showMessageModal = true;
                         });
-
-
-
-
-                    // Create analysis
-
-
-/*                    let body= {
-                        "name": "AN-" + analysisId,
-                        "type": analysisType,
-                        "sample": samplesToShow,
-                        "family": "sdfsf",
-                        "proband": "dadasd",
-                        "sample": "ascaasd"
-                     };*/
-
-
                 }
+            },
+            createAnalysis: function(analysisInfo) {
+                let params = {
+                    study: this.study.alias
+                };
+                let body= {
+                    "name": analysisInfo.analysisID,
+                    "type": analysisInfo.type,
+                    "family": analysisInfo.familyID,
+                    "proband": analysisInfo.proband,
+                    "sample": analysisInfo.sample
+                 };
+                let _this = this;
+                this.opencgaClient.clinical().create(params, body)
+                    .then(function (response) {
+                        console.log(_this);
+                        _this.unsavedAnalysis--;
+                    })
+                    .catch(function (response) {
+                        _this.settingsMessageModal = {
+                            messageHeader: "Error",
+                            messageBody: [response.error],
+                            type: "danger",
+                            height: "100px",
+                            width: "500px"
+                        };
+                        _this.showMessageModal = true;
+                    });
             },
             familyFormatter: function(familyEditor, randomString) {
                 if (familyEditor) {
@@ -596,17 +602,14 @@
                 else { // Is not a family analysis -> a family cannot be edited
                     return '<button data-toggle="modal" id="' + this.prefix + 'Editor' + randomString +'" role="button" type="button" class="btn btn-sm btn-success disabled" data-target="#' + this.prefix + 'FamilyEditor"><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;Edit</button>';
                 }
-
             },
             actionFormatter: function(familyEditor, randomString) {
                 if (familyEditor) {
                     return '<button type="button" id="' + this.prefix + 'Save' + randomString +'" class="btn btn-sm btn-primary" disabled><i class="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;Save</button>';
-                    //return '<button type="button" id="' + randomString + '" class="btn btn-sm btn-primary" onclick="petete()"><i class="fa fa-floppy-o" aria-hidden="true" ></i>&nbsp;Save</button>';
                 }
                 else { // If not a family analysis, such analysis can be saved inmediatly
                     return '<button type="button" id="' + this.prefix + 'Save' + randomString +'" class="btn btn-sm btn-primary"><i class="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;Save</button>';
                 }
-
             },
             analysisFormatter: function(analysisID, randomString) {
                 return '<input type="text" id="' + this.prefix + 'analysisID' + randomString +'" class="form-control" value="' + analysisID +'" maxlength="75">';
@@ -631,15 +634,18 @@
                 this.family = family;
             },
             checkFamily: function(e){
-                console.log(this);
-                debugger;
                 e.preventDefault();
                 let ped = new Pedigree(this.family.pedigree);
-
 
                 if ((this.currentAnalysis.analysisType === "Duo" && ped.isDuo() && this.family.name != "") ||
                     (this.currentAnalysis.analysisType === "Trio" && ped.isTrio() && this.family.name != "") ||
                     (this.currentAnalysis.analysisType === "Family" && ped.isFamily() && this.family.name != "")){
+                        let _this = this;
+                        $("#" + this.prefix + "tableAnalysis").bootstrapTable('updateRow', {
+                            index: _this.selectedRow, row: {
+                                family: _this.family
+                            }
+                        });
                         $("#" + this.prefix +"Save" +  this.currentAnalysis.analysisIDinternal).prop('disabled', false);
                 }
 
@@ -670,7 +676,7 @@
                             title: 'Date'
                         },
                         {
-                            field: 'family',
+                            field: 'editFamily',
                             title: 'Family'
                         },
                         {
@@ -680,21 +686,19 @@
                         {
                             field: 'sampleList',
                             visible: false
-
                         },
                         {
                             field: 'analysisIDinternal',
+                            visible: false
+                        },
+                        {
+                            field: 'family',
                             visible: false
                         }
                     ]
                 ];
                 return this._columns;
-
             }
-
-
         });
-
-
     </script>
 </dom-module>
