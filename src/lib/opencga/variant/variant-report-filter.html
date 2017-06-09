@@ -43,7 +43,7 @@
                     <div class="panel-body">
                         <label><i class="fa fa-sitemap" aria-hidden="true"></i>Select analysis:</label>
                         <br>
-                        <button data-toggle="modal" role="button" data-placement="bottom" data-target$="#{{prefix}}AnalysisBrowser">
+                        <button data-toggle="modal" role="button" data-placement="bottom" on-click="showClinicalSelector">
                             Browse...
                         </button>
                         <div id="{{prefix}}analysisSelectedDiv" style="display:none">
@@ -168,7 +168,8 @@
                         <h4 class="modal-title" id="{{prefix}}AnalysisBrowserLabel">Analysis Selector</h4>
                     </div>
                     <div class="modal-body" style="height: 650px">
-                        <variant-clinical-selector opencga-client="{{opencgaClient}}" analysis="{{analysis}}" analysis-selected="{{analysisSelected}}"></variant-clinical-selector>
+                        <!--<variant-clinical-selector opencga-client="{{opencgaClient}}" analysis="{{analysis}}" analysis-selected="{{analysisSelected}}"></variant-clinical-selector>-->
+                        <variant-clinical-selector opencga-client="{{opencgaClient}}" analysis-selected="{{analysisSelected}}" study="{{study}}" analysis-modal="{{analysisModal}}"></variant-clinical-selector>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="showReportOptions">OK</button>
@@ -251,6 +252,10 @@
                 analysis: {
                     type: Array
                 },
+                analysisModal: {
+                    type: Boolean,
+                    notify: true
+                }
             },
             ready: function() {
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
@@ -375,6 +380,16 @@
                 this.selection = _obj;
 
             },
+            showClinicalSelector: function(e){
+                e.preventDefault();
+                if (typeof (this.analysisModal) === "undefined"){
+                    this.analysisModal = true;
+                }
+                else {
+                    this.analysisModal = ! this.analysisModal;
+                }
+                $("#" + this.prefix + "AnalysisBrowser").modal('show');
+            }
 
 
         });

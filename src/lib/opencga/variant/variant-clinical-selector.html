@@ -16,6 +16,7 @@
 
 <link rel="import" href="../catalog/samples/opencga-sample-filter.html">
 <link rel="import" href="../opencga-active-filters.html">
+<link rel="import" href="../opencga-message-dialog.html">
 
 <dom-module id="variant-clinical-selector">
 
@@ -25,11 +26,8 @@
         <!-- This is where main application is rendered -->
 
 
-
         <div class="panel">
             <div class="col-md-3">
-                    <!--<opencga-sample-filter opencga-client="{{opencgaClient}}"></opencga-sample-filter>-->
-
                 <!--
                 The following code has to be defined properly -> this is only for demo purposes
                 -->
@@ -111,36 +109,15 @@
             </div>
 
             <div class="col-md-9">
-
                 <br>
                 <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" filters="{{config.filters}}"
                                         filter-bioformat="VARIANT" alias="{{activeFilterAlias}}">
                 </opencga-active-filters>
-
-                <table class="table hover" id="{{prefix}}tableAnalysis">
-                    <thead>
-                        <tr class="active">
-                            <th>Select</th>
-                            <th>Analysis ID</th>
-                            <th>Samples</th>
-                            <th>Analysis type</th>
-                            <th>Date</th>
-                            <th>Filter</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <template id="{{prefix}}analysisTableTemplate" is="dom-repeat" items="{{analysis}}" as="item">
-                            <tr>
-                                <td><input type="radio" id="{{prefix}}{{item.analysisID}}" name="radioAnalysis" on-click="selectAnalysis"></td>
-                                <td>{{item.analysisID}}</td>
-                                <td>{{item.analysisSamples}}</td>
-                                <td>{{item.analysisType}}</td>
-                                <td>{{item.analysisDate}}</td>
-                                <td>{{item.analysisFilter}}</td>
-                            </tr>
-                        </template>
-                    </tbody>
+                <table id="{{prefix}}tableAnalysis" data-toolbar="#toolbar" data-search="true" data-show-columns="true"
+                       data-pagination="true" data-page-size="5" data-page-list="[5, 10, 25]" data-checkbox-header="false" data-maintain-selected="true" style="cursor: pointer;">
+                    <thead style="background-color: #eee"></thead>
                 </table>
+
             </div>
         </div>
     </template>
@@ -152,31 +129,114 @@
                 opencgaClient: {
                     type: Object
                 },
-                analysis: {
-                    type: Array,
-                },
                 analysisSelected: {
                     type: Object,
                     notify: true
+                },
+                study: {
+                    type: Object
+                },
+                analysisModal: {
+                    type: Boolean,
+                    observer: "loadData"
                 }
-
             },
             ready: function() {
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
                     this.prefix = "anSelector" + Utils.randomString(6);
                 }
+                this.analysis = [];
+                this.analysisSelected = {}
             },
-            selectAnalysis: function(e){
-                let _analysisID = e.currentTarget.id.split(this.prefix)[1];
+            loadData: function(){
 
-                for (let i in this.analysis) {
-                    if (this.analysis[i].analysisID === _analysisID) {
-                        this.analysisSelected = this.analysis[i];
-                        break
-                    }
+                if (this.opencgaClient instanceof OpenCGAClient) {
+                    let params = {
+                        study: this.study.alias
+                    };
+
+                    let _this = this;
+                    let _analysisObj = [];
+                    this.opencgaClient.clinical().search(params)
+                        .then(function (response) {
+                            let _analysis = response.response[0].result;
+                            for (let i=0; i<_analysis.length; i++){
+                                _analysisObj.push({
+                                    analysisID: _analysis[i].name,
+                                    analysisType: _analysis[i].type,
+                                    analysisDate: _analysis[i].creationDate,
+                                    analysis: _analysis[i]
+                                })
+                            }
+                            _this.analysis = _analysisObj;
+                            _this.renderAnalysisTable();
+                        })
+                        .catch(function (response) {
+                            _this.settingsMessageModal = {
+                                messageHeader: "Error",
+                                messageBody: [response.error],
+                                type: "danger",
+                                height: "100px",
+                                width: "500px"
+                            };
+
+                            _this.showMessageModal = true;
+                        });
                 }
+            },
+            renderAnalysisTable: function(){
+                let _this=this;
+                $("#" + this.prefix + "tableAnalysis").bootstrapTable('destroy');
+                $("#" + this.prefix + "tableAnalysis").bootstrapTable({
+                    columns: _this._getTableColumns(),
+                    data: this.analysis,
+                    onCheck: function (row, elem) {
+                        let _family = row.analysis.family;
 
+                        // To be modified -> take into account the case in which there are more than one sample per individual
+                        // Children
+                        let _samplesSelected = [];
+                        for (let i=0; i<_family.children.length; i++){
+                            _samplesSelected.push(_family.children[i].samples[0]);
+                        }
+                        // Father
+                        _samplesSelected.push(_family.father.samples[0]);
+                        // Mother
+                        _samplesSelected.push(_family.mother.samples[0]);
 
+                        _this.analysisSelected = {sampleList: _samplesSelected, analysisID: row.analysisID};
+                    },
+                });
+
+            },
+            _getTableColumns: function() {
+                this._columns = [
+                    [
+                        {
+                            field: 'state',
+                            radio: true,
+                            align: 'center',
+                            valign: 'middle'
+                        },
+                        {
+                            field: 'analysisID',
+                            title: 'Analysis ID'
+                        },
+                        {
+                            field: 'analysisType',
+                            title: 'Analysis type'
+                        },
+                        {
+                            field: 'analysisDate',
+                            title: 'Date'
+                        },
+                        {
+                            field: 'analysis',
+                            visible: false,
+                        }
+                    ]
+                ];
+                return this._columns;
             }
         });
 
