@@ -93,6 +93,10 @@
                 padding: 5px 0px 5px 0px;
                 font-weight: bold;
             }
+
+            .affected {
+                color: red;
+            }
         </style>
 
         <div>
@@ -219,10 +223,6 @@
                                             <span class="caret"></span>
                                         </button>
                                         <ul class="dropdown-menu" aria-labelledby="segregationPrioritizationDropdown" on-click="selectSegregation">
-                                            <!--                  <li><a>Autosomal Dominant</a></li>
-                                                              <li><a>Autosomal Recessive</a></li>
-                                                              <li><a>Compound Heterozygotous</a></li>
-                                                              <li><a>Recessive X-linked</a></li>-->
                                             <template is="dom-repeat" items="{{config.segregation}}">
                                                 <li><a>{{item}}</a></li>
                                             </template>
@@ -230,7 +230,6 @@
                                         </span>
                                     </div>
 
-                                    <!--<span>Sample Genotypes:</span>-->
                                     <table class="table table-hover" id="segregationTable">
                                         <thead>
                                         <tr>
@@ -238,27 +237,26 @@
                                             <th>0/0</th>
                                             <th>0/1</th>
                                             <th>1/1</th>
-                                            <th>./.</th>
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        <template is="dom-repeat" items="{{samples}}" as="sample">
+                                        <template is="dom-repeat" items="{{_samples}}" as="sample">
                                             <tr id="{{sample.name}}">
-                                                <td class$="{{sample.status}}">{{sample.name}}&nbsp;({{sample.memberCode}})</td>
+                                                <td id="{{prefix}}{{sample.name}}RowName" class$="{{sample.className}}">{{sample.name}}&nbsp;({{sample.role}})</td>
                                                 <td><input type="checkbox" value="0|0" data-id="{{sample.name}}" on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
                                                 <td><input type="checkbox" value="0|1" data-id="{{sample.name}}" on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
                                                 <td><input type="checkbox" value="1|1" data-id="{{sample.name}}" on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
-                                                <td><input type="checkbox" value=".|." data-id="{{sample.name}}" on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
                                             </tr>
                                         </template>
                                         </tbody>
                                     </table>
+                                    <input type="checkbox" value="./." on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox">&nbsp;Include missing
                                 </template>
 
                                 <template is="dom-if" if="{{isCancerAnalysis}}">
                                     <label><i class="fa fa-user-times" aria-hidden="true"></i> Cancer Analysis</label>
                                     <br>
-                                    Not ready yet.
+                                    Not ready yet, work in progress.
                                 </template>
                             </div>
                         </div>
@@ -735,7 +733,7 @@
                     </div>
                     <div class="modal-body" style="height: 920px">
                         <!--<opencga-family-selector opencga-client="{{opencgaClient}}" study-id="{{study.id}}" samples="{{samples}}" prefix="{{prefix}}"></opencga-family-selector>-->
-                        <variant-sample-selector opencga-client="{{opencgaClient}}" study="{{study}}" study-id="{{study.id}}" samples="{{samples}}" on-familychange="familyChange"></variant-sample-selector>
+                        <variant-sample-selector opencga-client="{{opencgaClient}}" study="{{study}}" study-id="{{study.id}}" samples="{{samples}}" on-familychange="onFamilyChange"></variant-sample-selector>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
@@ -841,9 +839,34 @@
                 this.set('panelList', PANELS);
 
                 this.family = {};
+                this._samples = [];
             },
-            familyChange: function (e, family) {
-                this.family = family;
+            onFamilyChange: function (e, family) {
+                let samples = [];
+                if (typeof family.pedigree.father !== "undefined") {
+                    let father = family.pedigree.father;
+                    father.role = "father";
+                    father.className = father.affected === true ? "affected" : "";
+//                    if (father.affected) {
+//                        $("#" + this.prefix + father.name + " RowName").addClass("affected");
+//                    } else {
+//                        $("#" + this.prefix + father.name + " RowName").removeClass("affected");
+//                    }
+                    samples.push(father);
+                }
+                if (typeof family.pedigree.mother !== "undefined") {
+                    let mother = family.pedigree.mother;
+                    mother.role = "mother";
+                    mother.className = mother.affected === true  ? "affected" : "";
+                    samples.push(mother);
+                }
+
+                for (let child of family.pedigree.children) {
+                    child.role = child.gender === "male" ? "son" : "daughter";
+                    child.className = child.affected === true ? "affected" : "";
+                    samples.push(child);
+                }
+                this._samples = samples;
             },
             onSearch: function () {
                 this.search = this.query;
