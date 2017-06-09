@@ -63,14 +63,14 @@
                             <div style="padding: 15px 30px">
                                 <form class="form-inline">
                                     <div class="form-group row">
-                                        <select class$="form-control {{prefix}}SelectInput codeDis" id="{{prefix}}YearSelect" name="birthYear" required on-change="checkYears">
+                                        <select class$="form-control {{prefix}}SelectInput codeDis" id="{{prefix}}YearSelect" name="birthYear" required on-change="checkYears" disabled>
                                             <template is="dom-repeat" items="{{yearsToSearch}}">
                                                 <option value="{{item}}">{{item}}</option>
                                             </template>
                                         </select>
 
                                         <label style="padding: 0px 5px">-</label>
-                                        <select class$="form-control {{prefix}}SelectInput codeDis" id="{{prefix}}MonthSelect" name="birthYear" required on-change="checkYears">
+                                        <select class$="form-control {{prefix}}SelectInput codeDis" id="{{prefix}}MonthSelect" name="birthYear" required on-change="checkYears" disabled>
                                             <option></option>
                                             <template is="dom-repeat" items="{{monthToSearch}}">
                                                 <option value="{{item}}">{{item}}</option>
@@ -78,7 +78,7 @@
                                         </select>
 
                                         <label style="padding: 0px 5px">-</label>
-                                        <select class$="form-control {{prefix}}SelectInput codeDis" id="{{prefix}}DaySelect" name="birthYear" required on-change="checkYears">
+                                        <select class$="form-control {{prefix}}SelectInput codeDis" id="{{prefix}}DaySelect" name="birthYear" required on-change="checkYears" disabled>
                                             <option></option>
                                             <template is="dom-repeat" items="{{daysToSearch}}">
                                                 <option value="{{item}}">{{item}}</option>
@@ -88,23 +88,6 @@
                                 </form>
                             </div>
 
-                            <!--<div class="panel-body">-->
-                            <!--<span>From</span>-->
-                            <!--<div class="input-group date" id="{{prefix}}datetimePickerFrom">-->
-                            <!--<input type="text" class="form-control"/>-->
-                            <!--<span class="input-group-addon">-->
-                            <!--<span class="glyphicon glyphicon-calendar"></span>-->
-                            <!--</span>-->
-                            <!--</div>-->
-                            <!--<span>To</span>-->
-                            <!--<div class="input-group date" id="{{prefix}}datetimePickerTo">-->
-                            <!--<input type="text" class="form-control"/>-->
-                            <!--<span class="input-group-addon">-->
-                            <!--<span class="glyphicon glyphicon-calendar"></span>-->
-                            <!--</span>-->
-                            <!--</div>-->
-                            <!--</div>-->
-
                             <label>Other filters</label>
                             <br>
                             <input type="checkbox" name="selectionButtons" id="controls" value="controls" class$="{{prefix}}FilterRadio" on-change="calculateFilters" style="padding-left: 20px"> Controls<br>
@@ -112,36 +95,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Sample and Individual Name -->
-            <!--<div class="panel panel-default">-->
-            <!--<div class="panel-heading" role="tab" id="{{prefix}}SampleIndividualHeading">-->
-            <!--<h4 class="panel-title">-->
-            <!--<a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"-->
-            <!--href="#{{prefix}}SampleIndividual" aria-expanded="true" aria-controls="{{prefix}}SampleIndividual">-->
-            <!--Sample-->
-            <!--<div style="float: right" class="tooltip-div">-->
-            <!--<a data-toggle="tooltip" title="Sample selection">-->
-            <!--<i class="fa fa-info-circle" aria-hidden="true"></i>-->
-            <!--</a>-->
-            <!--</div>-->
-            <!--</a>-->
-            <!--</h4>-->
-            <!--</div>-->
-
-            <!--<div id="{{prefix}}SampleIndividual" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}SampleIndividualHeading">-->
-            <!--<div class="panel-body">-->
-            <!--<div class="form-group">-->
-            <!--<label>Sample name</label>-->
-            <!--<input type="text" id="{{prefix}}SampleName" class="form-control" placeholder="HG01879, HG01880, HG01881..." on-keyup="calculateFilters">-->
-
-            <!--<label>Individual name</label>-->
-            <!--<input type="text" id="{{prefix}}IndividualName" class="form-control" placeholder="Smith, Grant ..." on-keyup="calculateFilters">-->
-            <!--</div>-->
-            <!--</div>-->
-            <!--</div>-->
-            <!--</div>-->
-
 
             <!--Sample characteristics-->
             <div class="panel panel-default">
@@ -427,8 +380,15 @@
             onSearch: function () {
                 this.search = this.query;
             },
-            calculateFilters: function () {
+            calculateFilters: function (e) {
                 let _query = {};
+
+                // Active/disable
+                if (e.target.defaultValue === "range" && e.target.checked) {
+                    $(".codeDis").removeAttr("disabled");
+                } else {
+                    $(".codeDis").attr("disabled", "disabled");
+                }
 
                 _query.name = $("#" + this.prefix + "SampleName").val();
 
