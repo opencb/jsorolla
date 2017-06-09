@@ -60,25 +60,25 @@
                                 <input type="radio" name="selectionButtons" id="rangeRadio" value="range" class$="{{prefix}}FilterRadio" on-change="calculateFilters" style="padding-left: 20px"> Date (Year-Month-Day)
                             </form>
 
-                            <div style="padding: 15px 30px">
+                            <div style="padding: 15px 0px 15px 25px">
                                 <form class="form-inline">
                                     <div class="form-group row">
-                                        <select class$="form-control {{prefix}}SelectInput codeDis" id="{{prefix}}YearSelect" name="birthYear" required on-change="checkYears" disabled>
+                                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm" id="{{prefix}}YearSelect" name="birthYear" required on-change="checkYears" disabled>
                                             <template is="dom-repeat" items="{{yearsToSearch}}">
                                                 <option value="{{item}}">{{item}}</option>
                                             </template>
                                         </select>
 
-                                        <label style="padding: 0px 5px">-</label>
-                                        <select class$="form-control {{prefix}}SelectInput codeDis" id="{{prefix}}MonthSelect" name="birthYear" required on-change="checkYears" disabled>
+                                        <label style="padding: 0px 2px">-</label>
+                                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm" id="{{prefix}}MonthSelect" name="birthYear" required on-change="checkYears" disabled>
                                             <option></option>
                                             <template is="dom-repeat" items="{{monthToSearch}}">
                                                 <option value="{{item}}">{{item}}</option>
                                             </template>
                                         </select>
 
-                                        <label style="padding: 0px 5px">-</label>
-                                        <select class$="form-control {{prefix}}SelectInput codeDis" id="{{prefix}}DaySelect" name="birthYear" required on-change="checkYears" disabled>
+                                        <label style="padding: 0px 2px">-</label>
+                                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm" id="{{prefix}}DaySelect" name="birthYear" required on-change="checkYears" disabled>
                                             <option></option>
                                             <template is="dom-repeat" items="{{daysToSearch}}">
                                                 <option value="{{item}}">{{item}}</option>
@@ -90,7 +90,7 @@
 
                             <label>Other filters</label>
                             <br>
-                            <input type="checkbox" name="selectionButtons" id="controls" value="controls" class$="{{prefix}}FilterRadio" on-change="calculateFilters" style="padding-left: 20px"> Controls<br>
+                            <input type="checkbox" name="selectionButtons" id="controls" value="controls" class$="{{prefix}}FilterRadio" on-change="calculateFilters" style="padding-left: 20px"> Controls
                         </div>
                     </div>
                 </div>

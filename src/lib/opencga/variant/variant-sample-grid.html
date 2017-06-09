@@ -266,6 +266,20 @@
 //                debugger
                 return '-';
             },
+            fatherFormatter: function (value, row) {
+                if (row.individual.fatherId > 0) {
+                    return row.individual.fatherId;
+                } else {
+                    return '-';
+                }
+            },
+            motherFormatter: function (value, row) {
+                if (row.individual.motherId > 0) {
+                    return row.individual.motherId;
+                } else {
+                    return '-';
+                }
+            },
             cellTypeFormatter: function (value, row) {
                 return (row.somatic) ? "Somatic" : "Germline";
             },
@@ -403,7 +417,7 @@
                             formatter: this.individualFormatter
                         },
                         {
-                            title: 'Sample ID',
+                            title: 'Sample',
                             field: 'name'
                         },
                         {
@@ -425,11 +439,13 @@
                         },
                         {
                             title: 'Father',
-                            field: 'individual.fatherId'
+//                            field: 'individual.fatherId',
+                            formatter: this.fatherFormatter
                         },
                         {
                             title: 'Mother',
-                            field: 'individual.motherId'
+//                            field: 'individual.motherId',
+                            formatter: this.motherFormatter
                         },
                         {
                             title: 'Cell Type',
