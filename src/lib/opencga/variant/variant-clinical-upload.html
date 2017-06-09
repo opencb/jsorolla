@@ -17,16 +17,16 @@
 
 <dom-module id="variant-clinical-upload">
     <template>
-        <style is="custom-style" include="jso-styles"></style>
+        <style is="custom-style" include="jso-styles">
+            .title {
+                margin: 30px 5px 25px -40px;
+            }
+        </style>
 
         <div class="col-md-12">
-
-
             <div style="width: 60%; margin: 0px 0px 0px 90px">
-
                 <form id="{{prefix}}uploadForm" class="form-horizontal" data-toggle="validator" role="form">
-
-                    <h3 style="margin: 10px 5px 15px -40px">Patient Information</h3>
+                    <h3 class="title">Patient Information</h3>
                     <!-- GENERAL INFORMATION -->
                     <!-- Individual ID -->
                     <div class="form-group row has-feedback">
@@ -159,7 +159,6 @@
                     </div>
 
                     <!-- DIAGNOSIS (ONTOLOGY) -->
-
                     <div class="form-group row has-feedback">
                         <label for="{{prefix}}diagnosis" class="col-xs-2 col-form-label">Diagnosis</label>
                         <div class="col-xs-6">
@@ -191,7 +190,7 @@
                     </div>
 
 
-                    <h3 style="margin: 10px 5px 15px -40px">Upload and check file</h3>
+                    <h3 class="title">Upload and check file</h3>
 
                     <!-- SAMPLE TYPE -->
                     <div class="form-group row has-feedback">
@@ -215,15 +214,14 @@
                         <div class="col-xs-6">
                             <template is="dom-repeat" items="{{config.cell_line}}">
                                 <div class="form-check form-check-inline">
-                                        <label class="form-check-label">
-                                                <input id="{{prefix}}{{item.id}}" class$="form-check-input {{prefix}}RadioInput" type="radio" name="cellLine" value="{{item.title}}" checked="{{item.checked}}"> {{item.title}}
-                                        </label>
+                                    <label class="form-check-label">
+                                        <input id="{{prefix}}{{item.id}}" class$="form-check-input {{prefix}}RadioInput" type="radio" name="cellLine" value="{{item.title}}" checked="{{item.checked}}"> {{item.title}}
+                                    </label>
                                 </div>
                             </template>
                             <div class="help-block with-errors"></div>
                         </div>
                     </div>
-
 
                     <!-- SPECIFIC FIELDS FROM VARIABLE SET -->
                     <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}" as="variable" sort="_sortVariables">
@@ -231,7 +229,14 @@
                         <template is="dom-if" if="{{isVisible(variable,config)}}">
                             <div class="form-group row has-feedback">
 
-                                <label for="{{prefix}}{{variable.name}}" class="col-xs-2 col-form-label">{{variable.title}}</label>
+                                <!-- We first try to display 'title', if not present then we use 'name' -->
+                                <template is="dom-if" if="{{variable.title}}">
+                                    <label for="{{prefix}}{{variable.name}}" class="col-xs-2 col-form-label">{{variable.title}}</label>
+                                </template>
+
+                                <template is="dom-if" if="{{!variable.title}}">
+                                    <label for="{{prefix}}{{variable.name}}" class="col-xs-2 col-form-label">{{variable.name}}</label>
+                                </template>
 
                                 <template is="dom-if" if="{{checkVarType(variable, 'TEXT')}}">
                                     <!-- TEXT type: include an input text and add suitable regular expression for text-->
@@ -259,11 +264,40 @@
                                         </div>
                                     </template>
 
-
+                                    <template is="dom-if" if="{{!checkSubType(variable, 'STRING')}}">
+                                        <!-- String subtype: include an input text and add suitable regular expression for text-->
+                                        <div class="col-xs-6">
+                                            <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}{{variable.name}}" name="{{variable.name}}"
+                                                   placeholder="{{variable.defaultValue}}" maxlength="{{variable.attributes.maxLength}}" required
+                                                   data-error="{{variable.attributes.errorPattern}}" pattern="{{variable.attributes.pattern}}">
+                                            <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                            <div class="help-block with-errors"></div>
+                                        </div>
+                                    </template>
                                 </template>
 
-                                <template is="dom-if" if="{{checkVarType(variable, 'NUMERIC')}}">
-                                    <!-- NUMERIC type: include an input text and add suitable regular expression for numbers -->
+                                <!--<template is="dom-if" if="{{checkVarType(variable, 'NUMERIC')}}">-->
+                                <!--&lt;!&ndash; NUMERIC type: include an input text and add suitable regular expression for numbers &ndash;&gt;-->
+                                <!--<div class="col-xs-6">-->
+                                <!--<input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}{{variable.name}}" name="{{variable.name}}"-->
+                                <!--placeholder="{{variable.name}} number" pattern="^[0-9]+$" maxlength="75" required data-error="Mandatory field. Only numbers are allowed ">-->
+                                <!--<span class="glyphicon form-control-feedback" aria-hidden="true"></span>-->
+                                <!--<div class="help-block with-errors"></div>-->
+                                <!--</div>-->
+                                <!--</template>-->
+
+                                <template is="dom-if" if="{{checkVarType(variable, 'INTEGER')}}">
+                                    <!-- INTEGER type: include an input text and add suitable regular expression for numbers -->
+                                    <div class="col-xs-6">
+                                        <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}{{variable.name}}" name="{{variable.name}}"
+                                               placeholder="{{variable.name}} number" pattern="^[0-9]+$" maxlength="75" required data-error="Mandatory field. Only numbers are allowed ">
+                                        <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                        <div class="help-block with-errors"></div>
+                                    </div>
+                                </template>
+
+                                <template is="dom-if" if="{{checkVarType(variable, 'DOUBLE')}}">
+                                    <!-- DOUBLE type: include an input text and add suitable regular expression for numbers -->
                                     <div class="col-xs-6">
                                         <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}{{variable.name}}" name="{{variable.name}}"
                                                placeholder="{{variable.name}} number" pattern="^[0-9]+$" maxlength="75" required data-error="Mandatory field. Only numbers are allowed ">
@@ -357,23 +391,10 @@
                         <span class='label label-info' id="upload-file-info"></span>
                     </div>
 
-    <!--                <div class="form-group">
-                        <label for="{{prefix}}inputFile" class="col-sm-3 control-label">VCF or gVCF file</label>
-                        <div class="col-sm-9">
-                            <input type="file" class="file" id="FileToUpload">
-                            <div class="input-group">
-                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}inputFile" name="inputFile">
-                                <span class="input-group-btn">
-                                        <button class="browse btn btn-primary" type="button">...</button>
-                                </span>
-                            </div>
-                        </div>
-                    </div>-->
-
                     <!--<div class="form-group row" style="float: right; width: 55%;">-->
                     <div class="form-group row" style="padding-left: 240px;">
-                            <button type="button" class="btn btn-primary" on-click="_clearHtmlDom">Clear form</button>
-                            <button type="submit" class="btn btn-primary" on-click="submitForm">Upload and check sample</button>
+                        <button type="button" class="btn btn-primary" on-click="_clearHtmlDom">Clear form</button>
+                        <button type="submit" class="btn btn-primary" on-click="submitForm">Upload and check sample</button>
                     </div>
                 </form>
             </div>
@@ -393,7 +414,6 @@
                             <label>Under progress.</label>
                             Introduce an HPO term (HP:0202564) in the upload form (HPO text input)
                         </div>
-
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
@@ -424,7 +444,6 @@
 
                             </datalist>
                         </div>
-
                         <div class="col-sm-6" style="overflow-y: auto; height:400px;">
                             <div id="{{prefix}}ICDtree"></div>
                         </div>
@@ -433,7 +452,6 @@
                             <div class="col-sm-6" id="{{prefix}}errorTermDiv"><label></label></div>
                             <div class="col-sm-3"></div>
                         </div>
-
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" on-click="selectICD">OK</button>
@@ -466,7 +484,6 @@
         </div>
 
         <opencga-message-dialog opencga-client="{{opencgaClient}}" show-message-modal="{{showMessageModal}}" settings-message-modal="{{settingsMessageModal}}"></opencga-message-dialog>
-
     </template>
 
     <script>
@@ -537,9 +554,6 @@
 
                 this._clearHtmlDom();
                 //this.set('icd10Terms', ICD_10);
-
-
-
             },
             updateVariableSets: function () {
 
@@ -571,10 +585,7 @@
                         _this.showMessageModal = true;
 
                     });
-
-
                 this.loadICDEditor();
-
             },
             _sortVariables: function (a, b) {
                 if (a.rank < b.rank) {
@@ -610,7 +621,6 @@
 
             },
             checkYears: function(e) {
-
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
 
                 $("#" + this.prefix + "_errorDiv_birthYear").html("");
@@ -623,8 +633,7 @@
                 let pairElement = $();
                 let valuePE = '';
 
-                if(identifier.search('birthYear')!=-1) // Birth year element raises the event -> check Test year
-                {
+                if (identifier.search('birthYear')!=-1) {    // Birth year element raises the event -> check Test year
                     // Check Year of Test
                     $("#" + this.prefix + "_errorDiv_age").html("");
                     currentElement = $("#"+e.target.id);
@@ -645,7 +654,6 @@
                         // If year of birth is 2015, person is 1 or 2 years old (assuming 2017 is current year)
                         $("#" + this.prefix + "_errorDiv_birthYear").html(message + "Year of Birth does not match age");
                     }
-
                 }
                 else { // Year of test element raises the event -> swap elements and check the birth year
                     currentElement = $("#" + this.prefix + "birthYear");
@@ -658,37 +666,24 @@
                         $("#" + this.prefix + "_errorDiv_testYear").html("Year of Test must be posterior to year of Birth");
                     }
                 }
-
-
-
-
             },
             loadICDEditor: function (e) {
                 $("#" + this.prefix + "errorTermDiv").html("");
                 this.$$("#" + this.prefix + "autoInput").value="";
                 this.icdTerms = this.getICDterms();
 
-
                 let _this = this;
                 $("#" + this.prefix +"ICDtree").treeview({
                     data: ICD_10,
                     onNodeSelected: function(event, node) {
                         _this.$$("#" + _this.prefix + "autoInput").value=node.text;
-
-
                     },
                     onNodeUnselected: function(event, node) {
                         _this.$$("#" + _this.prefix + "autoInput").value="";
-
-
                     },
-
-
                 });
 
                 $("#" + this.prefix + "ICDtree").treeview('collapseAll', {silent: true});
-
-
                 $("#" + this.prefix + "autoInput").on("input", function(){
                     $("#" + _this.prefix + "ICDtree").treeview('collapseAll', {silent: true});
                     $("#" + _this.prefix + "ICDtree").treeview('search', [ this.value, {
@@ -697,12 +692,9 @@
                         revealResults: true,  // reveal matching nodes
                     }]);
                 });
-
             },
-
             getICDterms: function(){
                 // In ICD_10 there are up to three nested levels
-
                 let _auxTerms = [];
                 for (let i=0; i < ICD_10.length; i++)
                 {
@@ -717,22 +709,19 @@
                     }
 
                 }
-
                 return _auxTerms;
-
             },
             selectICD: function(e) {
                 e.preventDefault();
 
                 selectedTerm = this.$$("#" + this.prefix + "autoInput").value.replace(/^\s+/g, '');
-                if (selectedTerm != "") { // Check that the term is correct (one of the list)
+                if (selectedTerm !== "") { // Check that the term is correct (one of the list)
                     let _icdTermsNS = $.map(this.icdTerms, function(elem){return elem.replace(/^\s+/g, '')});
                     if ($.inArray(selectedTerm, _icdTermsNS)!= -1) {
                         this.$$("#" + this.prefix + "diagnosis").value = selectedTerm;
                         $("#" + this.prefix + "icd").modal('hide');
                     }
-                    else
-                    {
+                    else {
                         $("#" + this.prefix + "errorTermDiv").html("A proper ICD-10 term must be selected from the list or tree");
                     }
                 }
@@ -740,18 +729,10 @@
                     this.$$("#" + this.prefix + "diagnosis").value = '';
                     $("#" + this.prefix + "icd").modal('hide');
                 }
-
             },
             updateSelect: function(e){
-
                 $("#" + this.prefix + "_errorDiv_testAge").html("");
-
-
-                //console.log(this);
-                //debugger;
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-                //console.log(this);
-                //debugger;
                 let currentElementId = e.target.id;
                 let currentElement = $("#" +  e.target.id);
                 // Dropdown related to birthplace
@@ -762,28 +743,22 @@
                         $("#" + this.prefix + "birthPlaceRegion").prop("disabled",false);
                         $("#" + this.prefix + "birthPlaceRegion").prop("required",true);
                     }
-                    else
-                    {
+                    else {
                         $("#" + this.prefix + "birthPlaceRegion").prop("disabled",true);
                         $("#" + this.prefix + "birthPlaceRegion").prop("selectedIndex",0);
                         $("#" + this.prefix + "birthPlaceRegion").prop("value","unknown");
                         $("#" + this.prefix + "birthPlaceRegion").prop("required",false);
-                        if (currentElement.val() == 'Other')
-                        {// Display input text to introduce country
+                        if (currentElement.val() == 'Other') {// Display input text to introduce country
                             $("#otherCountryDiv").show();
                             $("#" + this.prefix + "otherCountry").prop("required",true);
                         }
-                        else
-                        {
+                        else {
                             $("#otherCountryDiv").hide();
                             $("#" + this.prefix + "otherCountry").prop("required",false);
                         }
                     }
-
-
-                } else if (currentElementId == (this.prefix + 'testAge')){
+                } else if (currentElementId == (this.prefix + 'testAge')) {
                     // Dropdown related to age of Test -> check hat year of birth is correct
-
                     let pairElement = $("#" + this.prefix + "birthYear");
                     let valuePE = pairElement.find("option:selected").text();
                     if (valuePE !='') {
@@ -793,11 +768,9 @@
                             $("#" + this.prefix + "_errorDiv_testAge").html("Age selected does not match year of Birth");
                         }
                     }
-
                 }
             },
             _clearHtmlDom: function() {
-
                 $("#" + this.prefix + "uploadForm").validator('destroy');
                 // Empty everything before rendering
                 $("." + this.prefix + "SelectInput").prop('selectedIndex', 0);
@@ -812,58 +785,6 @@
 
                 $("#" + this.prefix + "uploadForm").validator('update');
             },
-
-
-/*            createAnnotationSet: function(sampleId, formFields){
-                // Create an annotation set in openCGA for a sample
-                let jsonAnnotation = {};
-                $(this.variableSets[0].variables).each(function(index, currentVariable){
-                    jsonAnnotation[currentVariable.name] = formFields[currentVariable.name];
-                });
-
-                let params = {
-                    study: this.study.alias,
-                    variableSetId: this.variableSets[0].id,
-                    body: {
-                        "name": "annotation_sample_" + sampleId, // hardcoded
-                        "annotations": jsonAnnotation
-                    }
-
-                };
-                let _this = this;
-                _this.sampleId = sampleId;
-                this.opencgaClient.samples().annotationsetsCreate(sampleId, params, {"method": "POST"})
-                    .then(function (response) {
-                        console.log(response);
-                    })
-                    .catch(function() {
-                        console.log("Could not create annotation set for the sample " + _this.sampleId);
-                    });
-
-
-
-            },*/
-
-/*            linkSampleIndividual: function(individualId, sampleId){
-                // Link a sample and an individual in openCGA
-                let params = {
-                    study: this.study.alias,
-                    body: {
-                        "individual.id": individualId
-                    }
-                };
-                let _this= this;
-                _this.individualId = individualId;
-                _this.sampleID = sampleId;
-                this.opencgaClient.samples().update(sampleId, params, {"method": "POST"})
-                    .then(function (response) {
-                        console.log(response);
-                    })
-                    .catch(function() {
-                        console.log("Could not link sample " + _this.sampleId + " and individual " + _this.individualId);
-                    });
-            },*/
-
             indexVCF: function(fileId){
                 // Index and annotate a VCF file in openCGA
                 let params = {
@@ -894,109 +815,7 @@
 
                 this.showMessageModal = true;
                 this._clearHtmlDom();
-
-
             },
-            /*uploadVCF: function(individualId, formFields) {
-                // Upload VCF file to openCGA
-                if (this.opencgaClient instanceof OpenCGAClient) {
-                    params = {
-                        study: this.study.alias,
-                        type: "FILE",
-                        file: $("#" + this.prefix + "FileToUpload").prop('files')[0],
-                        fileFormat: "VCF",
-                        bioformat: "VARIANT",
-                        relativeFilePath: "."
-                    };
-
-                    let _this = this;
-                    _this.individualId = individualId;
-
-                    this.opencgaClient.files().upload(params)
-                        .then(function (response) {
-                            console.log(response);
-                            let _sampleId = response.response[0].result[0].sampleIds[0];
-                            let _fileId = response.response[0].result[0].id;
-                            // 3. Create an annotation set
-                            _this.createAnnotationSet(_sampleId, formFields);
-                            // 4. Link sample and individual
-                            _this.linkSampleIndividual(_this.individualId, _sampleId);
-                            // 5. Index and annotate VCF
-                            _this.indexVCF(_fileId);
-
-                        })
-                        .catch(function () {
-                            console.log("Could not upload VCF file for the study " + _this.study);
-                        });
-                }
-            },*/
-/*            openCGAsteps: function(formFields) {
-
-
-                // The following steps are run to register the form in openCGA:
-                // 1. Create the individual (returns an individualId)
-                // 2. Upload VCF (returns a sampleId, since a Sample is created automatically and a fileId)
-                // 3. Create an annotation set given the sampleId provided in step 2
-                // 4. Link the sample (sampleId) and the individual (individualId)
-                // 5. Index and annotate the VCF file (using fileId obtained in step 2)
-
-                console.log(this);
-                debugger;
-
-                if (this.opencgaClient instanceof OpenCGAClient) {
-                    // 1. Create individual
-                    let params = {
-                        study: this.study.alias,
-                        body: {
-                            "name": formFields.sampleID,
-                            "family": "",
-                            "fatherId": -1,
-                            "motherId": -1,
-                            "sex": "UNKNOWN",
-                            "ethnicity": formFields.ethnicity,
-                            "species": {
-                                "taxonomyCode": "9606",
-                                "scientificName": "Homo sapiens",
-                                "commonName": "Homo sapiens"
-                            },
-                            "population": {
-                                "name": formFields.birthPlace,
-                                "subpopulation": formFields.birthPlaceRegion,
-                                "description": ""
-                            },
-                            "karyotypicSex": formFields.chromosomalGender,
-                            "lifeStatus": "UNKNOWN",
-                            "affectationStatus": "UNKNOWN"
-                        }
-                    };
-
-
-
-                    let _this = this;
-                    this.opencgaClient.individuals().create(params, {"method": "POST"})
-                        .then(function (response) {
-                            let individualId = response.response[0].result[0].id;
-                            // 2. Upload VCF
-                            _this.uploadVCF(individualId, formFields);
-
-                        })
-                        .catch(function (response) {
-                            _this.settingsMessageModal = {
-                                messageHeader: "Error",
-                                messageBody: [response.error],
-                                type: "danger",
-                                height: "100px",
-                                width: "500px"
-                            };
-
-                            _this.showMessageModal = true;
-                        });
-
-                }
-
-            },*/
-
-
             uploadVCF: function(formFields) {
                 // Upload VCF file to openCGA
                 if (this.opencgaClient instanceof OpenCGAClient) {
@@ -1013,32 +832,20 @@
 
                     this.opencgaClient.files().upload(params)
                         .then(function (response) {
-                            console.log(response);
-                            debugger;
                             // 3. Index and annotate VCF
                             let _fileId = response.response[0].result[0].id;
                             _this.indexVCF(_fileId);
-
-
                         })
                         .catch(function () {
                             console.log("Could not upload VCF file for the study " + _this.study);
                         });
                 }
             },
-
-
             openCGAsteps: function(formFields, sampleId) {
-
                 // The following steps are run to register the form in openCGA:
                 // 1. Create sample (given an ID) and the individual information related to that sample, together with sample annotation set
                 // 2. Upload VCF
                 // 3. Index and annotate the VCF file (using fileId obtained in step 2)
-
-                console.log(this);
-                debugger;
-
-
                 if (this.opencgaClient instanceof OpenCGAClient) {
                     // 1. Create sample
 
@@ -1054,66 +861,59 @@
                         jsonAnnotation[currentVariable.name] = formFields[currentVariable.name];
                     });
 
-
                     let params = {
                         study: this.study.alias
                     };
 
                     let body= {
-                            "name": sampleId,
-                            "type": formFields.sampleType,
-                            "somatic": isSomatic,
-                            "annotationSets": [
-                                {
-                                    "name": "annotation_sample_" + sampleId,
-                                    "variableSet": this.variableSets[0].id,
-                                    "annotations": jsonAnnotation
-                                }
-                            ],
-                            "individual" : {
-                                "name": formFields.patientID,
-                                "family": "", // to be removed
-                                "fatherId": -1, // To be removed
-                                "motherId": -1, // to be removed
-                                "ethnicity": formFields.ethnicity,
-                                "dateOfBirth": formFields.birthYear,
-                                "population": {
-                                    "name": formFields.birthPlace,
-                                    "subpopulation": formFields.birthPlaceRegion,
-                                    "description": ""
-                                },
-                                "karyotypicSex": formFields.chromosomalGender,
-                                "lifeStatus": "UNKNOWN", // TO be removed
-                                "affectationStatus": formFields.status,
-                                "parentalConsanguinity": hasParentalConsanguinity,
-                                "ontologyTerms": [
-                                    {
-                                      "id": hpoId,
-                                      "name": hpoName,
-                                      "source": "HPO"
-                                    },
-                                    {
-                                        "id": icdId,
-                                        "name": icdName,
-                                        "source": "ICD10"
-                                    }
-                                ]
+                        "name": sampleId,
+                        "type": formFields.sampleType,
+                        "somatic": isSomatic,
+                        "annotationSets": [
+                            {
+                                "name": "annotation_sample_" + sampleId,
+                                "variableSet": this.variableSets[0].id,
+                                "annotations": jsonAnnotation
                             }
-
+                        ],
+                        "individual" : {
+                            "name": formFields.patientID,
+                            "family": "", // to be removed
+                            "fatherId": -1, // To be removed
+                            "motherId": -1, // to be removed
+                            "ethnicity": formFields.ethnicity,
+                            "dateOfBirth": formFields.birthYear,
+                            "population": {
+                                "name": formFields.birthPlace,
+                                "subpopulation": formFields.birthPlaceRegion,
+                                "description": ""
+                            },
+                            "karyotypicSex": formFields.chromosomalGender,
+                            "lifeStatus": "UNKNOWN", // TO be removed
+                            "affectationStatus": formFields.status,
+                            "parentalConsanguinity": hasParentalConsanguinity,
+                            "ontologyTerms": [
+                                {
+                                    "id": hpoId,
+                                    "name": hpoName,
+                                    "source": "HPO"
+                                },
+                                {
+                                    "id": icdId,
+                                    "name": icdName,
+                                    "source": "ICD10"
+                                }
+                            ]
+                        }
                     };
-
 
                     let _this = this;
                     this.opencgaClient.samples().create(params, body)
                         .then(function (response) {
-                            console.log(_this);
-                            debugger;
                             _this.uploadVCF(formFields);
 
                         })
                         .catch(function (response) {
-                            console.log(_this);
-                            debugger;
                             _this.settingsMessageModal = {
                                 messageHeader: "Error",
                                 messageBody: [response.error],
@@ -1124,19 +924,13 @@
 
                             _this.showMessageModal = true;
                         });
-
                 }
-
             },
-
             submitForm: function(e) {
                 e.preventDefault();
 
                 // Enable those fields that needed to be enabled to submit a form
                 $('.codeDis').prop('disabled', false);
-
-                console.log(this);
-                debugger;
 
                 // Get values from form fields
                 let fields = $("#"+ this.prefix + "uploadForm").serializeArray();
@@ -1147,7 +941,6 @@
                 $(fields).each(function(index, field){
                     formFields[field.name] = field.value;
                 });
-
 
                 // Some checks before submitting VCF to Catalog
                 if (window.File && window.FileReader && window.FileList && window.Blob) {
@@ -1215,12 +1008,8 @@
 
                     this.showMessageModal = true;
                 }
-
             },
-            searchIndividual: function()
-            {
-                console.log(this);
-                debugger;
+            searchIndividual: function() {
                 if (this.opencgaClient instanceof OpenCGAClient) {
                     // 1. Create individual
                     let params = {
@@ -1232,11 +1021,7 @@
                     let _individualId = this.$$("#"+ this.prefix + "patientID").value;
                     this.opencgaClient.individuals().info(_individualId, params, {"method": "GET"})
                         .then(function (response) {
-                            console.log(_this);
-                            debugger;
-                            if (response.response[0].numResults >= 1)
-                            {
-
+                            if (response.response[0].numResults >= 1) {
                                 let formFields = response.response[0].result[0];
                                 $("#" + _this.prefix + "patientID").prop("disabled", true);
                                 $("#" + _this.prefix + "chromosomalGender").val(formFields.karyotypicSex);
@@ -1260,17 +1045,11 @@
                                 else {
                                     $("#" + _this.prefix + "parentalConsanguinityno").prop("checked", true);
                                 }
-
                                 $("#" + _this.prefix + "uploadForm").validator('update');
                                 $("#" + _this.prefix + "uploadForm").validator('validate');
-
                             }
-
-
                         })
                         .catch(function (response) {
-                            console.log(_this);
-                            debugger;
                             _this.settingsMessageModal = {
                                 messageHeader: "Error",
                                 messageBody: ["The user " + _individualId + " does not exist"],
@@ -1279,15 +1058,9 @@
                                 width: "500px"
                             };
                             _this.showMessageModal = true;
-
-
-
                         });
-
                 }
-
             }
-
         });
     </script>
 </dom-module>
