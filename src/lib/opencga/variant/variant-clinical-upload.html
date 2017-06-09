@@ -265,14 +265,16 @@
                                     </template>
 
                                     <template is="dom-if" if="{{!checkSubType(variable, 'STRING')}}">
-                                        <!-- String subtype: include an input text and add suitable regular expression for text-->
-                                        <div class="col-xs-6">
-                                            <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}{{variable.name}}" name="{{variable.name}}"
-                                                   placeholder="{{variable.defaultValue}}" maxlength="{{variable.attributes.maxLength}}" required
-                                                   data-error="{{variable.attributes.errorPattern}}" pattern="{{variable.attributes.pattern}}">
-                                            <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
-                                            <div class="help-block with-errors"></div>
-                                        </div>
+                                        <template is="dom-if" if="{{!checkSubType(variable, 'TEXT')}}">
+                                            <!-- String subtype: include an input text and add suitable regular expression for text-->
+                                            <div class="col-xs-6">
+                                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}{{variable.name}}" name="{{variable.name}}"
+                                                       placeholder="{{variable.defaultValue}}" maxlength="{{variable.attributes.maxLength}}" required
+                                                       data-error="{{variable.attributes.errorPattern}}" pattern="{{variable.attributes.pattern}}">
+                                                <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                                <div class="help-block with-errors"></div>
+                                            </div>
+                                        </template>
                                     </template>
                                 </template>
 
