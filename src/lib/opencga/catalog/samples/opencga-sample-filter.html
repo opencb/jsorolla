@@ -40,7 +40,7 @@
                     <h4 class="panel-title">
                         <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
                            href="#{{prefix}}SampleSelection" aria-expanded="true" aria-controls="{{prefix}}SampleSelection">
-                            Sample Selection
+                            Sample
                             <div style="float: right" class="tooltip-div">
                                 <a data-toggle="tooltip" title="Sample selection">
                                     <i class="fa fa-info-circle" aria-hidden="true"></i>
@@ -51,16 +51,25 @@
                 </div>
                 <div id="{{prefix}}SampleSelection" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}SampleSelectionHeading">
                     <div class="panel-body">
+
+                        <div class="form-group">
+                            <label>Sample name</label>
+                            <input type="text" id="{{prefix}}SampleName" class="form-control" placeholder="HG01879, HG01880, HG01881..." on-keyup="calculateFilters">
+
+                            <label>Individual name</label>
+                            <input type="text" id="{{prefix}}IndividualName" class="form-control" placeholder="Smith, Grant ..." on-keyup="calculateFilters">
+                        </div>
+
                         <div class="form-group">
                             <form id="{{prefix}}DateRadioButton">
-                                <label>Select</label>
+                                <label>By Date</label>
                                 <br>
                                 <input type="radio" name="selectionButtons" id="allRadio" value="all" class$="{{prefix}}FilterRadio" checked on-change="calculateFilters" style="padding-left: 20px"> All<br>
                                 <input type="radio" name="selectionButtons" id="recentlyRadio" value="recently" class$="{{prefix}}FilterRadio" on-change="calculateFilters" style="padding-left: 20px"> Recently Uploaded<br>
                                 <input type="radio" name="selectionButtons" id="dateRadio" value="date" class$="{{prefix}}FilterRadio" on-change="calculateFilters" style="padding-left: 20px"> Date (Year-Month-Day)
                             </form>
 
-                            <div style="padding: 15px 0px 15px 25px">
+                            <div style="padding: 10px 0px 15px 25px">
                                 <form class="form-inline">
                                     <div class="form-group row">
                                         <select class$="form-control {{prefix}}SelectInput codeDis input-sm" id="{{prefix}}YearSelect" name="birthYear" required on-change="checkYears" disabled>
@@ -114,16 +123,16 @@
                 <div id="{{prefix}}SampleGeneralFilter" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}SampleGeneralFilterHeading">
 
                     <div class="panel-body">
-                        <div class="form-group">
-                            <label>Sample name</label>
-                            <input type="text" id="{{prefix}}SampleName" class="form-control" placeholder="HG01879, HG01880, HG01881..." on-keyup="calculateFilters">
+                        <!--<div class="form-group">-->
+                        <!--<label>Sample name</label>-->
+                        <!--<input type="text" id="{{prefix}}SampleName" class="form-control" placeholder="HG01879, HG01880, HG01881..." on-keyup="calculateFilters">-->
 
-                            <label>Individual name</label>
-                            <input type="text" id="{{prefix}}IndividualName" class="form-control" placeholder="Smith, Grant ..." on-keyup="calculateFilters">
-                        </div>
+                        <!--<label>Individual name</label>-->
+                        <!--<input type="text" id="{{prefix}}IndividualName" class="form-control" placeholder="Smith, Grant ..." on-keyup="calculateFilters">-->
+                        <!--</div>-->
 
                         <div>
-                            <input type="checkbox" id="changeMOdeChekbox" value="compact" checked on-change="_changeMode"> Compact<br>
+                            <input type="checkbox" id="{{prefix}}CompactCheckbox" value="compact" checked on-change="_changeMode">&nbsp;Compact<br>
                         </div>
 
                         <template is="dom-if" if="{{compact}}">
@@ -157,9 +166,17 @@
                         <template is="dom-if" if="{{!compact}}">
                             <div class="form-group has-feedback">
                                 <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}" as="variable" sort="_sortVariables">
-                                    <template is="dom-if" if="{{isVisible(variable,config)}}">
-                                        <br>
-                                        <label for="{{prefix}}{{variable.name}}">{{variable.title}}:</label>
+                                    <template is="dom-if" if="{{isVisible(variable, config)}}">
+                                        <!--<label for="{{prefix}}{{variable.name}}">{{variable.title}}:</label>-->
+                                        <!-- We first try to display 'title', if not present then we use 'name' -->
+                                        <template is="dom-if" if="{{variable.title}}">
+                                            <label for="{{prefix}}{{variable.name}}">{{variable.title}}</label>
+                                        </template>
+
+                                        <template is="dom-if" if="{{!variable.title}}">
+                                            <label for="{{prefix}}{{variable.name}}">{{variable.name}}</label>
+                                        </template>
+
                                         <template is="dom-if" if="{{checkVarType(variable, 'TEXT')}}">
                                             <!-- TEXT type: include an input text and add suitable regular expression for text-->
                                             <!-- http://stackoverflow.com/questions/14237686/disabling-controls-in-bootstrap-->
@@ -171,12 +188,10 @@
                                             <input type="text" class="form-control" id="{{prefix}}{{variable.name}}" placeholder="{{variable.name}} number" pattern="^[0-9]+$">
                                         </template>
 
-
                                         <template is="dom-if" if="{{checkVarType(variable, 'INTEGER')}}">
                                             <!-- NUMERIC type: include an input text and add suitable regular expression for numbers -->
                                             <input type="text" class="form-control" id="{{prefix}}{{variable.name}}" placeholder="{{variable.name}} number" pattern="^[0-9]+$">
                                         </template>
-
 
                                         <template is="dom-if" if="{{checkVarType(variable, 'DOUBLE')}}">
                                             <!-- NUMERIC type: include an input text and add suitable regular expression for numbers -->
@@ -195,11 +210,11 @@
                                                 </select>
                                                 <div class="help-block with-errors" id="{{prefix}}_errorDiv_{{variable.name}}"></div>
                                             </template>
-
                                         </template>
 
                                         <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 1, 2)}}">
                                             <!-- CATEGORICAL type, single value: check box -->
+                                            <br>
                                             <div class="col-sm-9">
                                                 <input type="checkbox" id="{{prefix}}{{variable.name}}" style="padding-left: 20px">
                                             </div>
@@ -209,9 +224,7 @@
                                             <!-- CATEGORICAL type, 2 values: radio buttons for selection -->
                                             <template is="dom-repeat" items="{{variable.allowedValues}}" as="value">
                                                 <div class="form-check form-check-inline">
-                                                    <label class="form-check-label">
-                                                        <input id="{{prefix}}{{variable.name}}{{value}}" class="form-check-input" type="radio" name="{{variable.name}}Options"> {{value}} <br>
-                                                    </label>
+                                                    <input id="{{prefix}}{{variable.name}}{{value}}" class="form-check-input" type="radio" name="{{variable.name}}Options"> {{value}}
                                                 </div>
                                             </template>
                                         </template>
@@ -229,10 +242,8 @@
                                         <template is="dom-if" if="{{checkVarType(variable, 'BOOLEAN')}}">
                                             <!-- BOOLEAN type, 2 values: radio buttons for selection: yes or no -->
                                             <div class="form-check form-check-inline">
-                                                <label class="form-check-label">
-                                                    <input id="{{prefix}}{{variable.name}}yes" class="form-check-input" type="radio" name="{{variable.name}}Options"> yes <br>
-                                                    <input id="{{prefix}}{{variable.name}}no" class="form-check-input" type="radio" name="{{variable.name}}Options"> no <br>
-                                                </label>
+                                                <input id="{{prefix}}{{variable.name}}yes" class="form-check-input" type="radio" name="{{variable.name}}Options"> yes
+                                                <input id="{{prefix}}{{variable.name}}no" class="form-check-input" type="radio" name="{{variable.name}}Options"> no
                                             </div>
                                         </template>
                                         <!-- Close dom-if for visibility -->
@@ -254,6 +265,7 @@
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                         <h4 class="modal-title">Filter by {{ variable.name }}</h4>
                     </div>
+
                     <div class="modal-body">
                         <!--CATEGORICAL-->
                         <template is="dom-if" if="{{_isCategorical}}">
@@ -269,27 +281,32 @@
                                 </template>
                             </div>
                         </template>
+
                         <!--TEXT-->
                         <template is="dom-if" if="{{_isText}}">
                             <div class="form-group">
                                 <input type="text" name="{{prefix}}Text" class="form-control" />
                             </div>
                         </template>
+
                         <!--NUMERIC-->
                         <template is="dom-if" if="{{_isNumerical}}">
                             <div class="form-group">
                                 <input type="text" name="{{prefix}}Numerical" class="form-control" />
                             </div>
                         </template>
+
                         <!--BOOLEAN-->
                         <template is="dom-if" if="{{_isBoolean}}">
                             <input type="checkbox" checked>
                         </template>
+
                         <!--OBJECT-->
                         <template is="dom-if" if="{{_isObject}}">
                             Not implemented
                         </template>
                     </div>
+
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default add-right-margin" data-dismiss="modal">Cancel</button>
                         <button type="button" class="btn btn-primary" on-click="updateCompactFilter" data-dismiss="modal">Update filter</button>
@@ -387,6 +404,16 @@
                     $(".codeDis").attr("disabled", "disabled");
                 }
 
+                let name = $("#" + this.prefix + "SampleName").val();
+                if (typeof name !== "undefined" && name !== "") {
+                    _query.name = name;
+                }
+
+                let individual = $("#" + this.prefix + "IndividualName").val();
+                if (typeof individual !== "undefined" && individual !== "") {
+                    _query.individual = individual;
+                }
+
                 let dateOption = $("#" + this.prefix + "DateRadioButton input[type='radio']:checked").val();
                 switch (dateOption) {
                     case "recently":
@@ -430,12 +457,6 @@
                         delete _query.creationDate;
                         break;
                 }
-
-                let name = $("#" + this.prefix + "SampleName").val();
-                if (typeof name !== "undefined" && name !== "") {
-                   _query.name = name;
-                }
-
 
                 this.query = _query;
             },
