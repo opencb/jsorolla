@@ -78,8 +78,6 @@
                 this.to = 5;
 
                 if (typeof this.opencgaClient !== "undefined" && typeof this.study !== "undefined" && this.study.id > 0) {
-                    let _this = this;
-
                     // Make a copy of the samples (if they exist), we will use this private copy until it is assigned to this.samples
                     if (typeof this.samples !== "undefined") {
                         this._samples = this.samples;
@@ -94,6 +92,8 @@
                     }
                     opencgaHostUrl += '/webservices/rest/v1/samples/search';
 
+                    let _this = this;
+                    $('#' + _this.prefix + 'SampleSelector').bootstrapTable('destroy');
                     $('#' + _this.prefix + "SampleSelector").bootstrapTable({
                         url: opencgaHostUrl,
                         columns: _this._columns,
@@ -109,12 +109,11 @@
                                 limit: params.limit,
                                 skip: params.offset
                             };
-//                            if (params.search !== undefined && params.search.length > 0) {
-//                                auxParams["name"] = "~" + params.search;
-//                            }
 
-                            return $.extend({}, filters, auxParams);
-//                            return auxParams;
+                            if (typeof filters === "undefined") {
+                                filters = {};
+                            }
+                            return Object.assign(filters, auxParams);
                         },
                         responseHandler: function (response) {
                             if (!_this.hasOwnProperty("numTotalResults")) {
