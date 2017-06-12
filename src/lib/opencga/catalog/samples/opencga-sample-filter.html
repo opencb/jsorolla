@@ -404,9 +404,9 @@
                             if (d < 10) {
                                 d = "0" + d;
                             }
-                            dates.push("^" + da.getFullYear() + m + d)
+                            dates.push("^" + da.getFullYear() + m + d + "*")
                         }
-                        _query.creationDate = dates.join(",");
+                        _query.creationDate = "~" + dates.join(",");
                         break;
                     case "date":
                         let year = $("#" + this.prefix + "YearSelect").val();
@@ -414,13 +414,13 @@
                         let day = $("#" + this.prefix + "DaySelect").val();
                         let date;
                         if (month === "any") {
-                            date = "^" + year;
+                            date = "~^" + year + "*";
                         } else {
                             let monthIndex = this.monthToSearch.indexOf(month);
                             if (day === "any") {
-                                date = "^" + year + monthIndex;
+                                date = "~^" + year + monthIndex + "*";
                             } else {
-                                date = "^" + year + monthIndex + day;
+                                date = "~^" + year + monthIndex + day + "*";
                             }
                         }
                         _query.creationDate = date;
