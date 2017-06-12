@@ -1,0 +1,177 @@
+<!--
+  ~ Copyright 2015 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<dom-module id="opencga-analysis-filter">
+    <template>
+        <br>
+        <div style="width: 60%;margin: 0 auto">
+            <button type="button" class="btn btn-primary" style="width: 100%" on-click="onSearch">
+                <i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px 0px 5px"></i>
+                Search
+            </button>
+        </div>
+        <br>
+        <br>
+        <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true">
+            <!-- Analysis Selection -->
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="{{prefix}}AnalysisSelectionHeading">
+                    <h4 class="panel-title">
+                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
+                           href="#{{prefix}}AnalysisSelection" aria-expanded="true" aria-controls="{{prefix}}AnalysisSelection">
+                            Analysis Selection
+                            <div style="float: right" class="tooltip-div">
+                                <a data-toggle="tooltip" title="Analysis selection">
+                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        </a>
+                    </h4>
+                </div>
+                <div id="{{prefix}}AnalysisSelection" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}AnalysisSelectionHeading">
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <form>
+                                <label>Select</label>
+                                <br>
+                                <input type="radio" name="selectionButtons" id="allRadio" value="all" class$="{{prefix}}FilterRadio" checked on-change="calculateFilters" style="padding-left: 20px"> All<br>
+                                <input type="radio" name="selectionButtons" id="recentlyRadio" value="recently" class$="{{prefix}}FilterRadio" on-change="calculateFilters" style="padding-left: 20px"> Recently Created<br>
+                                <input type="radio" name="selectionButtons" id="rangeRadio" value="range" class$="{{prefix}}FilterRadio" on-change="calculateFilters" style="padding-left: 20px"> Date (Year-Month-Day)
+                            </form>
+                            <div style="padding: 15px 0px 0px 25px">
+                                <form class="form-inline">
+                                    <div class="form-group row">
+                                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm" id="{{prefix}}YearSelect" name="birthYear" required on-change="checkYears" disabled>
+                                            <template is="dom-repeat" items="{{yearsToSearch}}">
+                                                <option value="{{item}}">{{item}}</option>
+                                            </template>
+                                        </select>
+
+                                        <label style="padding: 0px 2px">-</label>
+                                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm" id="{{prefix}}MonthSelect" name="birthYear" required on-change="checkYears" disabled>
+                                            <option></option>
+                                            <template is="dom-repeat" items="{{monthToSearch}}">
+                                                <option value="{{item}}">{{item}}</option>
+                                            </template>
+                                        </select>
+                                        <label style="padding: 0px 2px">-</label>
+                                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm" id="{{prefix}}DaySelect" name="birthYear" required on-change="checkYears" disabled>
+                                            <option></option>
+                                            <template is="dom-repeat" items="{{daysToSearch}}">
+                                                <option value="{{item}}">{{item}}</option>
+                                            </template>
+                                        </select>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Analysis Characteristics -->
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="{{prefix}}AnalysisCharacteristicsHeading">
+                    <h4 class="panel-title">
+                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
+                           href="#{{prefix}}AnalysisCharacteristics" aria-expanded="true" aria-controls="{{prefix}}AnalysisCharacteristics">
+                            Analysis Characteristics
+                            <div style="float: right" class="tooltip-div">
+                                <a data-toggle="tooltip" title="Analysis Characteristics">
+                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        </a>
+                    </h4>
+                </div>
+                <div id="{{prefix}}AnalysisCharacteristics" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}AnalysisCharacteristicsHeading">
+                    <div class="panel-body">
+                        <div class="form-group">
+                                <label>Analysis ID</label>
+                                <input type="text" id="{{prefix}}analysisID" class="form-control input-sm" placeholder="AN-23, AN-50 ..." on-keyup="calculateFilters">
+                                <label>Samples name</label>
+                                <input type="text" id="{{prefix}}sampleID" class="form-control input-sm" placeholder="HG01881,HG00101 ..." on-keyup="calculateFilters">
+                                <label>Analysis Type</label>
+                                <input type="text" id="{{prefix}}analysisType" class="form-control input-sm" placeholder="Duo, Family ..." on-keyup="calculateFilters">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'opencga-analysis-filter',
+            properties: {
+                opencgaClient: {
+                    type: Object
+                },
+                study: {
+                    type: Object
+                },
+                query: {
+                    type: Object,
+                    notify: true
+                },
+                search: {
+                    type: Object,
+                    notify: true
+                }
+            },
+            ready: function() {
+                if (typeof this.prefix === "undefined" || this.prefix == "") {
+                    this.prefix = "anFilter" + Utils.randomString(6);
+                }
+                let _years = [];
+                let fullDate = new Date()
+                let limitYear = fullDate.getFullYear();
+                for (let year = this.minYear; year <= limitYear; year++) {
+                    _years.push(year);
+                }
+                // This change triggers the polymer dom-repeat
+                this.years = _years;
+
+                // Init arrays for Date range selector
+                let _yearsToSearch = [];
+                for (let year = limitYear, i = 0; i < 5; year--, i++) {
+                    _yearsToSearch.push(year);
+                }
+                this.yearsToSearch = _yearsToSearch;
+
+                this.monthToSearch = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+                let _days = [];
+                for (let i = 1; i <= 31; i++) {
+                    _days.push(i);
+                }
+                this.daysToSearch = _days;
+            },
+            calculateFilters: function (e) {
+                let _query = {};
+
+                // Active/disable
+                if (e.target.defaultValue === "range" && e.target.checked) {
+                    $(".codeDis").removeAttr("disabled");
+                } else {
+                    $(".codeDis").attr("disabled", "disabled");
+                }
+
+                _query.name = $("#" + this.prefix + "analysisID").val();
+
+                this.query = _query;
+            }
+        });
+    </script>
+</dom-module>

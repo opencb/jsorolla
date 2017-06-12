@@ -17,111 +17,35 @@
 <link rel="import" href="../catalog/samples/opencga-sample-filter.html">
 <link rel="import" href="../opencga-active-filters.html">
 <link rel="import" href="../opencga-message-dialog.html">
+<link rel="import" href="../catalog/samples/opencga-analysis-filter.html">
+<link rel="import" href="../opencga-message-dialog.html">
 
 <dom-module id="variant-clinical-selector">
-
     <template>
         <style is="custom-style" include="jso-styles"></style>
-        <style is="custom-style" include="jso-styles"></style>
-        <!-- This is where main application is rendered -->
-
-
-        <div class="panel">
+        <!--<div class="panel">-->
             <div class="col-md-3">
-                <!--
-                The following code has to be defined properly -> this is only for demo purposes
-                -->
-
-                <br>
-                <div style="width: 60%;margin: 0 auto">
-                    <button type="button" class="btn btn-primary" style="width: 100%" on-click="onSearch">
-                        <i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px 0px 5px"></i>
-                        Search
-                    </button>
-                </div>
-                <br>
-                <br>
-
-                <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true">
-
-                    <!-- Sample Selection -->
-                    <div class="panel panel-default">
-                        <div class="panel-heading" role="tab" id="{{prefix}}SampleSelectionHeading">
-                            <h4 class="panel-title">
-                                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                                   href="#{{prefix}}SampleSelection" aria-expanded="true" aria-controls="{{prefix}}SampleSelection">
-                                    Analysis Selection
-                                    <div style="float: right" class="tooltip-div">
-                                        <a data-toggle="tooltip" title="Sample selection">
-                                            <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                        </a>
-                                    </div>
-                                </a>
-                            </h4>
-                        </div>
-                        <div id="{{prefix}}SampleSelection" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}SampleSelectionHeading">
-                            <div class="panel-body">
-                                <div class="form-group">
-                                    <form>
-                                        <label>Select</label>
-                                        <br>
-                                        <input type="radio" name="selectionButtons" id="allRadio" value="all" class$="{{prefix}}FilterRadio" checked on-change="calculateFilters" style="padding-left: 20px"> All<br>
-                                        <input type="radio" name="selectionButtons" id="recentlyRadio" value="recently" class$="{{prefix}}FilterRadio" on-change="calculateFilters" style="padding-left: 20px"> Recently Created<br>
-                                        <input type="radio" name="selectionButtons" id="rangeRadio" value="range" class$="{{prefix}}FilterRadio" on-change="calculateFilters" style="padding-left: 20px"> Range
-                                    </form>
-
-                                    <div class="panel-body">
-                                        <span>From</span>
-                                        <div class="input-group date" id="{{prefix}}datetimePickerFrom">
-                                            <input type="text" class="form-control"/>
-                                            <span class="input-group-addon">
-                                                <span class="glyphicon glyphicon-calendar"></span>
-                                            </span>
-                                        </div>
-                                            <span>To</span>
-                                            <div class="input-group date" id="{{prefix}}datetimePickerTo">
-                                                <input type="text" class="form-control"/>
-                                                <span class="input-group-addon">
-                                        <span class="glyphicon glyphicon-calendar"></span>
-                                    </span>
-                                        </div>
-                                    </div>
-
-                                    <label>Other filters</label>
-                                    <div class="panel-body">
-                                        <label>Analysis ID</label>
-                                        <input type="text" id="{{prefix}}analysisID" class="form-control" placeholder="AN-23, AN-50 ..." on-keyup="calculateFilters">
-
-                                        <label>Samples ID</label>
-                                        <input type="text" id="{{prefix}}sampleID" class="form-control" placeholder="HG01881,HG00101 ..." on-keyup="calculateFilters">
-
-                                        <label>Analysis Type</label>
-                                        <input type="text" id="{{prefix}}analysisType" class="form-control" placeholder="Duo, Family ..." on-keyup="calculateFilters">
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-
+                <opencga-analysis-filter opencga-client="{{opencgaClient}}" study="{{study}}" query="{{query}}" search="{{search}}"></opencga-analysis-filter>
             </div>
-
             <div class="col-md-9">
                 <br>
                 <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" filters="{{config.filters}}"
                                         filter-bioformat="VARIANT" alias="{{activeFilterAlias}}">
                 </opencga-active-filters>
+                <h3>Analysis results</h3>
                 <table id="{{prefix}}tableAnalysis" data-search="true" data-show-columns="true"
                        data-pagination="true" data-page-size="5" data-page-list="[5, 10, 25]" data-checkbox-header="false" data-maintain-selected="true" style="cursor: pointer;">
                     <thead style="background-color: #eee"></thead>
                 </table>
 
-            </div>
-        </div>
-    </template>
+                <div>
+                    <h4>{{pedigreeTitle}}</h4>
+                    <div id="{{prefix}}PedigreeView" style="padding: 5px 5px;font-size: 10px"></div>
+                </div>
 
+            </div>
+        <!--</div>-->
+    </template>
     <script>
         Polymer({
             is: 'variant-clinical-selector',
@@ -145,16 +69,14 @@
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
                     this.prefix = "anSelector" + Utils.randomString(6);
                 }
-                this.analysis = [];
-                this.analysisSelected = {}
+                this.resetVariables();
             },
             loadData: function(){
-
+                this.resetVariables();
                 if (this.opencgaClient instanceof OpenCGAClient) {
                     let params = {
                         study: this.study.alias
                     };
-
                     let _this = this;
                     let _analysisObj = [];
                     this.opencgaClient.clinical().search(params)
@@ -164,7 +86,7 @@
                                 _analysisObj.push({
                                     analysisID: _analysis[i].name,
                                     analysisType: _analysis[i].type,
-                                    analysisDate: _analysis[i].creationDate,
+                                    analysisDate: _this.dateFormatter(_analysis[i].creationDate),
                                     analysis: _analysis[i]
                                 })
                             }
@@ -184,6 +106,21 @@
                         });
                 }
             },
+            resetVariables: function(){
+                this.analysis = [];
+                this.analysisSelected = {};
+                this._affected = {};
+                this._deceased = {};
+                this.pedigreeSettings = {};
+                this.pedigree = {children: []};
+                this.pedigreeTitle = "";
+
+                // If pedigree exists from a previous opened window, remove it
+                if (typeof this.svg !== "undefined") {
+                    Polymer.dom(this.root).querySelector("#" + this.prefix + "PedigreeView").removeChild(this.svg);
+                    this.svg = undefined;
+                }
+            },
             renderAnalysisTable: function(){
                 let _this=this;
                 $("#" + this.prefix + "tableAnalysis").bootstrapTable('destroy');
@@ -191,6 +128,9 @@
                     columns: _this._getTableColumns(),
                     data: this.analysis,
                     onCheck: function (row, elem) {
+                        _this.resetVariables();
+                        console.log(this);
+                        debugger;
                         let _family = row.analysis.family;
 
                         // To be modified -> take into account the case in which there are more than one sample per individual
@@ -205,9 +145,79 @@
                         _samplesSelected.push(_family.mother.samples[0]);
 
                         _this.analysisSelected = {sampleList: _samplesSelected, analysisID: row.analysisID};
-                    },
-                });
 
+                        // Render pedigree
+                        console.log(this);
+                        debugger;
+                        _this.pedigreeFromFamily(_family, row.analysisID);
+                    }
+                });
+            },
+            dateFormatter: function(date) {
+                return date.slice(6,8) + "/" + date.slice(4,6) + "/" + date.slice(0,4);
+            },
+            _createPedigree: function () {
+                // Complete the pedigree with the affected and deceased status
+                if (typeof this.pedigree.father !== "undefined") {
+                    this.pedigree.father.affected = this._affected[this.pedigree.father.name];
+                    this.pedigree.father.deceased = this._deceased[this.pedigree.father.name];
+                }
+                if (typeof this.pedigree.mother !== "undefined") {
+                    this.pedigree.mother.affected = this._affected[this.pedigree.mother.name];
+                    this.pedigree.mother.deceased = this._deceased[this.pedigree.mother.name];
+                }
+                if (typeof this.pedigree.children !== "undefined") {
+                    for (let child of this.pedigree.children) {
+                        child.affected = this._affected[child.name];
+                        child.deceased = this._deceased[child.name];
+                    }
+                }
+                return this.pedigree;
+            },
+            pedigreeRender: function () {
+                let ped = this._createPedigree();
+
+                let familyName = $("#" + this.prefix + "FamilyName").val();
+                // Remove SVG before render new one
+                if (typeof this.svg !== "undefined") {
+                    Polymer.dom(this.root).querySelector("#" + this.prefix + "PedigreeView").removeChild(this.svg);
+                }
+                // Render new Pedigree
+                let pedigree = new Pedigree(ped);
+                this.svg = pedigree.render(this.pedigreeSettings);
+                let querySelector = Polymer.dom(this.root).querySelector("#" + this.prefix + "PedigreeView");
+                querySelector.appendChild(this.svg);
+            },
+            pedigreeFromFamily: function(family, _analysisID) {
+
+                // Father
+                this.pedigree.father = {name: family.father.samples[0].name, gender: "male"};
+                // Mother
+                this.pedigree.mother = {name: family.mother.samples[0].name, gender: "female"};
+                // Children
+                let _gender = "";
+                for (let i=0; i<family.children.length; i++){
+                    _gender = family.children[i].sex;
+                    switch (_gender) {
+                        case "MALE":
+                            this.pedigree.children.push({name: family.children[i].samples[0].name, gender: "male"});
+                            break;
+                        case "FEMALE":
+                            this.pedigree.children.push({name: family.children[i].samples[0].name, gender: "female"});
+                            break;
+                        case "UNKNOWN":
+                            this.pedigree.children.push({name: family.children[i].samples[0].name, gender: "undefined"});
+                            break;
+                    }
+                }
+                // Show sample names
+                this.pedigreeSettings.selectShowSampleNames = true;
+
+                // Parental consanguinity
+                this.pedigree.parentalConsanguinity = (family.parentalConsanguinity === true);
+
+                this.pedigreeTitle = "Pedigree for " + _analysisID;
+                this.pedigreeRender();
             },
             _getTableColumns: function() {
                 this._columns = [
@@ -232,13 +242,12 @@
                         },
                         {
                             field: 'analysis',
-                            visible: false,
+                            visible: false
                         }
                     ]
                 ];
                 return this._columns;
             }
         });
-
     </script>
 </dom-module>
