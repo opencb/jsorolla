@@ -70,6 +70,20 @@
                             <div class="help-block with-errors" id="{{prefix}}_errorDiv_status"></div>
                         </div>
                     </div>
+                    <!-- LIFE STATUS -->
+                    <div class="form-group row has-feedback">
+                        <label for="{{prefix}}lifeStatus" class="col-xs-2 col-form-label">Life Status</label>
+                        <div class="col-xs-3">
+                            <select class$="form-control {{prefix}}SelectInput codeDis" id="{{prefix}}lifeStatus"
+                                    name="lifeStatus" required>
+                                <option></option>
+                                <template is="dom-repeat" items="{{config.life_status}}">
+                                    <option value="{{item.id}}">{{item.title}}</option>
+                                </template>
+                            </select>
+                            <div class="help-block with-errors" id="{{prefix}}_errorDiv_lifeStatus"></div>
+                        </div>
+                    </div>
                     <!-- YEAR OF BIRTH -->
                     <div class="form-group row has-feedback">
                         <label for="{{prefix}}birthYear" class="col-xs-2 col-form-label">Year of Birth</label>
@@ -891,7 +905,7 @@
                                 "description": ""
                             },
                             "karyotypicSex": formFields.chromosomalGender,
-                            "lifeStatus": "UNKNOWN", // TO be removed
+                            "lifeStatus": formFields.lifeStatus,
                             "affectationStatus": formFields.status,
                             "parentalConsanguinity": hasParentalConsanguinity,
                             "ontologyTerms": [
@@ -1030,6 +1044,8 @@
                                 $("#" + _this.prefix + "chromosomalGender").prop("disabled", true);
                                 $("#" + _this.prefix + "status").val(formFields.affectationStatus);
                                 $("#" + _this.prefix + "status").prop("disabled", true);
+                                $("#" + _this.prefix + "lifeStatus").val(formFields.lifeStatus);
+                                $("#" + _this.prefix + "lifeStatus").prop("disabled", true);
                                 $("#" + _this.prefix + "birthYear").val(formFields.dateOfBirth);
                                 $("#" + _this.prefix + "birthYear").prop("disabled", true);
                                 $("#" + _this.prefix + "birthPlace").val(formFields.population.name);

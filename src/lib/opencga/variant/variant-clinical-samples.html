@@ -49,7 +49,7 @@
                         <button id="duoButton" class="button" on-click="addAnalysis"><img src="images/analysis_duo_button.png" height="60"></button>
                         <button id="singleButton" class="button" on-click="addAnalysis"><img src="images/analysis_single_button.png" height="60"></button>
                         <button id="autoButton" class="button" on-click="addAnalysis"><img src="images/analysis_auto_button.png" height="60"></button>
-                        <button id="multiButton" class="button" on-click="addAnalysis"><img src="images/analysis_multi_button.png" height="60"></button>
+                        <!--<button id="multiButton" class="button" on-click="addAnalysis"><img src="images/analysis_multi_button.png" height="60"></button>-->
                     </div>
                 </div>
                 <br>
@@ -396,6 +396,7 @@
                         analysisSamples: samplesToShow,
                         analysisType: analysisType,
                         analysisDate: currentDate,
+                        filter: "NO",
                         editFamily: _this.familyFormatter(_familyEditor, aux),
                         action: _this.actionFormatter(_familyEditor, aux),
                         sampleList: this.samples,
@@ -576,12 +577,14 @@
                     "type": analysisInfo.type,
                     "family": analysisInfo.familyID,
                     "proband": analysisInfo.proband,
-                    "sample": analysisInfo.sample
+                    "sample": analysisInfo.sample,
+                    "attributes" : {
+                        "filter": false
+                    }
                  };
                 let _this = this;
                 this.opencgaClient.clinical().create(params, body)
                     .then(function (response) {
-                        console.log(_this);
                         _this.unsavedAnalysis--;
                     })
                     .catch(function (response) {
@@ -674,6 +677,11 @@
                         {
                             field: 'analysisDate',
                             title: 'Date'
+                        },
+                        {
+                            field: 'filter',
+                            title: 'Filter'
+
                         },
                         {
                             field: 'editFamily',

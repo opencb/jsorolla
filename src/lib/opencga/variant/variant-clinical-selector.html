@@ -82,11 +82,13 @@
                     this.opencgaClient.clinical().search(params)
                         .then(function (response) {
                             let _analysis = response.response[0].result;
+                            let _filterAttr = "";
                             for (let i=0; i<_analysis.length; i++){
                                 _analysisObj.push({
                                     analysisID: _analysis[i].name,
                                     analysisType: _analysis[i].type,
                                     analysisDate: _this.dateFormatter(_analysis[i].creationDate),
+                                    filter: _this.filterFormatter(_analysis[i].attributes.filter),
                                     analysis: _analysis[i]
                                 })
                             }
@@ -129,8 +131,6 @@
                     data: this.analysis,
                     onCheck: function (row, elem) {
                         _this.resetVariables();
-                        console.log(this);
-                        debugger;
                         let _family = row.analysis.family;
 
                         // To be modified -> take into account the case in which there are more than one sample per individual
@@ -147,14 +147,15 @@
                         _this.analysisSelected = {sampleList: _samplesSelected, analysisID: row.analysisID};
 
                         // Render pedigree
-                        console.log(this);
-                        debugger;
                         _this.pedigreeFromFamily(_family, row.analysisID);
                     }
                 });
             },
             dateFormatter: function(date) {
                 return date.slice(6,8) + "/" + date.slice(4,6) + "/" + date.slice(0,4);
+            },
+            filterFormatter: function(filter) {
+                return (filter === true) ? "YES" : "NO";
             },
             _createPedigree: function () {
                 // Complete the pedigree with the affected and deceased status
@@ -239,6 +240,10 @@
                         {
                             field: 'analysisDate',
                             title: 'Date'
+                        },
+                        {
+                            field: 'filter',
+                            title: 'Filter'
                         },
                         {
                             field: 'analysis',
