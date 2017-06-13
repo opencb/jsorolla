@@ -461,9 +461,27 @@
             handleExportPDF: function(e) {
                 console.log(this);
                 debugger;
-                //this._getTextInfo();
-                //this.print($('#' + this.prefix + "report")[0].innerHTML);
-                this.print(this.$$('#' + this.prefix + "reportDiv").innerHTML);
+                //
+                // this.print(this.$$('#' + this.prefix + "reportDiv").innerHTML);
+
+/*                var doc = new jsPDF();
+                let a = this.$$('#' + this.prefix + "reportDiv").innerHTML;
+                doc.text(a, 10, 10);
+                doc.save('report.pdf');*/
+
+                html2canvas($("#" + this.prefix + "reportDiv") , {
+                    onrendered: function(canvas) {
+                        var imgData = canvas.toDataURL(
+                            'image/png');
+                        var doc = new jsPDF('p', 'mm');
+                        doc.addImage(imgData, 'PNG', 10, 10);
+                        doc.save('sample-file.pdf')
+
+                   }
+                });
+
+
+
                 this.expReport = false; // Reset export report button again
 
             },

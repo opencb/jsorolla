@@ -1355,8 +1355,6 @@
         },
         loadAnalysis: function(e){
             e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-            console.log(this);
-            debugger;
             this.currentAnalysisID = this.analysisSelected.analysisID;
             this.samples = this.analysisSelected.sampleList; // Samples are notified to variant-prioritization-view
             $("#analysisSelectedDiv").show();
