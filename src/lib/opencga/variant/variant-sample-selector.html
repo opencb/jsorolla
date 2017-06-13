@@ -109,6 +109,9 @@
                     notify: true,
                     observer: "onFilterUpdate"
                 },
+                query: {
+                    type: Object
+                },
                 search: {
                     type: Object,
                     notify: true
@@ -122,6 +125,7 @@
                     this.prefix = "sample" + Utils.randomString(6);
                 }
 
+                this.compact = true;
             },
             attached: function () {
                 this.table = $('#' + this.prefix + "FamilySelector");

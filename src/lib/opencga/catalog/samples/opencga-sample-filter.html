@@ -72,14 +72,14 @@
                             <div style="padding: 10px 0px 15px 25px">
                                 <form class="form-inline">
                                     <div class="form-group row">
-                                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm" id="{{prefix}}YearSelect" name="birthYear" required on-change="checkYears" disabled>
+                                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm" id="{{prefix}}YearSelect" name="birthYear" required on-change="updateDateFilter" disabled>
                                             <template is="dom-repeat" items="{{yearsToSearch}}">
                                                 <option value="{{item}}">{{item}}</option>
                                             </template>
                                         </select>
 
                                         <label style="padding: 0px 2px">-</label>
-                                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm" id="{{prefix}}MonthSelect" name="birthYear" required on-change="checkYears" disabled>
+                                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm" id="{{prefix}}MonthSelect" name="birthYear" required on-change="updateDateFilter" disabled>
                                             <option value="any">Any</option>
                                             <template is="dom-repeat" items="{{monthToSearch}}">
                                                 <option value="{{item}}">{{item}}</option>
@@ -87,7 +87,7 @@
                                         </select>
 
                                         <label style="padding: 0px 2px">-</label>
-                                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm" id="{{prefix}}DaySelect" name="birthYear" required on-change="checkYears" disabled>
+                                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm" id="{{prefix}}DaySelect" name="birthYear" required on-change="updateDateFilter" disabled>
                                             <option value="any">Any</option>
                                             <template is="dom-repeat" items="{{daysToSearch}}">
                                                 <option value="{{item}}">{{item}}</option>
@@ -131,9 +131,11 @@
                         <!--<input type="text" id="{{prefix}}IndividualName" class="form-control" placeholder="Smith, Grant ..." on-keyup="calculateFilters">-->
                         <!--</div>-->
 
-                        <div>
-                            <input type="checkbox" id="{{prefix}}CompactCheckbox" value="compact" checked on-change="_changeMode">&nbsp;Compact<br>
-                        </div>
+                        <template is="dom-if" if="{{_displayCompactCheckBox}}">
+                            <div>
+                                <input type="checkbox" id="{{prefix}}CompactCheckbox" value="compact" checked on-change="_changeMode">&nbsp;Compact<br>
+                            </div>
+                        </template>
 
                         <template is="dom-if" if="{{compact}}">
                             <div class="form-group">
@@ -153,7 +155,6 @@
                             </div>
                             <ul class="list-unstyled" style="max-height: 150px; overflow-y: auto; padding: 5px;">
                                 <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}" as="variable" filter="_filterVariable" sort="_sortVariables">
-
                                     <template is="dom-if" if="{{isVisible(variable,config)}}">
                                         <li style="cursor: pointer;" data-toggle="modal" data-target="#{{prefix}}ModalFilters" on-click="variableSelected" data-variable="{{variable}}">
                                             {{variable.title}}
@@ -337,6 +338,7 @@
                 },
                 query: {
                     type: Object,
+                    value: {},
                     notify: true
                 },
                 config: {
@@ -358,14 +360,14 @@
                     value: 1920
                 },
                 compact: {
-                    type: Boolean,
-                    value: false
+                    type: Boolean
                 }
             },
             ready: function() {
                 if (typeof this.prefix === "undefined" || this.prefix === "") {
                     this.prefix = "VarSampleFilter" + Utils.randomString(6);
                 }
+
                 let _years = [];
                 let fullDate = new Date();
                 let limitYear = fullDate.getFullYear();
@@ -390,6 +392,16 @@
                     _days.push(i);
                 }
                 this.daysToSearch = _days;
+
+                // If compact is not set then we set false as default and we display the checkbox
+                if (typeof this.compact === "undefined") {
+                    this._displayCompactCheckBox = true;
+                    this.compact = false;
+                } else {
+                    this._displayCompactCheckBox = false;
+                }
+                // TODO: this must be removed
+                this._displayCompactCheckBox = false;
             },
             onSearch: function () {
                 this.search = Object.assign({}, this.query);
@@ -436,21 +448,7 @@
                         _query.creationDate = "~" + dates.join(",");
                         break;
                     case "date":
-                        let year = $("#" + this.prefix + "YearSelect").val();
-                        let month = $("#" + this.prefix + "MonthSelect").val();
-                        let day = $("#" + this.prefix + "DaySelect").val();
-                        let date;
-                        if (month === "any") {
-                            date = "~^" + year + "*";
-                        } else {
-                            let monthIndex = this.monthToSearch.indexOf(month);
-                            if (day === "any") {
-                                date = "~^" + year + monthIndex + "*";
-                            } else {
-                                date = "~^" + year + monthIndex + day + "*";
-                            }
-                        }
-                        _query.creationDate = date;
+                        this.updateDateFilter(e);
                         break;
                     case "all":
                     default:
@@ -459,6 +457,29 @@
                 }
 
                 this.query = _query;
+            },
+            updateDateFilter: function (e) {
+                let year = $("#" + this.prefix + "YearSelect").val();
+                let month = $("#" + this.prefix + "MonthSelect").val();
+                let day = $("#" + this.prefix + "DaySelect").val();
+                let date;
+                if (month === "any") {
+                    date = "~^" + year + "*";
+                } else {
+                    let monthIndex = this.monthToSearch.indexOf(month) + 1;
+                    if (monthIndex < 10) {
+                        monthIndex = "0" + monthIndex;
+                    }
+                    if (day === "any") {
+                        date = "~^" + year + monthIndex + "*";
+                    } else {
+                        if (day < 10) {
+                            day = "0" + day;
+                        }
+                        date = "~^" + year + monthIndex + day + "*";
+                    }
+                }
+                this.query.creationDate = date;
             },
             updateVariableSets: function () {
                 this.variables = [];
