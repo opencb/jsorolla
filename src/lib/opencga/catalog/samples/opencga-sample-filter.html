@@ -40,7 +40,7 @@
                     <h4 class="panel-title">
                         <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
                            href="#{{prefix}}SampleSelection" aria-expanded="true" aria-controls="{{prefix}}SampleSelection">
-                            Sample Selection
+                            Sample
                             <div style="float: right" class="tooltip-div">
                                 <a data-toggle="tooltip" title="Sample selection">
                                     <i class="fa fa-info-circle" aria-hidden="true"></i>
@@ -51,35 +51,44 @@
                 </div>
                 <div id="{{prefix}}SampleSelection" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}SampleSelectionHeading">
                     <div class="panel-body">
+
                         <div class="form-group">
-                            <form>
-                                <label>Select</label>
+                            <label>Sample name</label>
+                            <input type="text" id="{{prefix}}SampleName" class="form-control" placeholder="HG01879, HG01880, HG01881..." on-keyup="calculateFilters">
+
+                            <label>Individual name</label>
+                            <input type="text" id="{{prefix}}IndividualName" class="form-control" placeholder="Smith, Grant ..." on-keyup="calculateFilters">
+                        </div>
+
+                        <div class="form-group">
+                            <form id="{{prefix}}DateRadioButton">
+                                <label>By Date</label>
                                 <br>
                                 <input type="radio" name="selectionButtons" id="allRadio" value="all" class$="{{prefix}}FilterRadio" checked on-change="calculateFilters" style="padding-left: 20px"> All<br>
                                 <input type="radio" name="selectionButtons" id="recentlyRadio" value="recently" class$="{{prefix}}FilterRadio" on-change="calculateFilters" style="padding-left: 20px"> Recently Uploaded<br>
-                                <input type="radio" name="selectionButtons" id="rangeRadio" value="range" class$="{{prefix}}FilterRadio" on-change="calculateFilters" style="padding-left: 20px"> Date (Year-Month-Day)
+                                <input type="radio" name="selectionButtons" id="dateRadio" value="date" class$="{{prefix}}FilterRadio" on-change="calculateFilters" style="padding-left: 20px"> Date (Year-Month-Day)
                             </form>
 
-                            <div style="padding: 15px 0px 15px 25px">
+                            <div style="padding: 10px 0px 15px 25px">
                                 <form class="form-inline">
                                     <div class="form-group row">
-                                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm" id="{{prefix}}YearSelect" name="birthYear" required on-change="checkYears" disabled>
+                                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm" id="{{prefix}}YearSelect" name="birthYear" required on-change="updateDateFilter" disabled>
                                             <template is="dom-repeat" items="{{yearsToSearch}}">
                                                 <option value="{{item}}">{{item}}</option>
                                             </template>
                                         </select>
 
                                         <label style="padding: 0px 2px">-</label>
-                                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm" id="{{prefix}}MonthSelect" name="birthYear" required on-change="checkYears" disabled>
-                                            <option></option>
+                                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm" id="{{prefix}}MonthSelect" name="birthYear" required on-change="updateDateFilter" disabled>
+                                            <option value="any">Any</option>
                                             <template is="dom-repeat" items="{{monthToSearch}}">
                                                 <option value="{{item}}">{{item}}</option>
                                             </template>
                                         </select>
 
                                         <label style="padding: 0px 2px">-</label>
-                                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm" id="{{prefix}}DaySelect" name="birthYear" required on-change="checkYears" disabled>
-                                            <option></option>
+                                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm" id="{{prefix}}DaySelect" name="birthYear" required on-change="updateDateFilter" disabled>
+                                            <option value="any">Any</option>
                                             <template is="dom-repeat" items="{{daysToSearch}}">
                                                 <option value="{{item}}">{{item}}</option>
                                             </template>
@@ -114,17 +123,19 @@
                 <div id="{{prefix}}SampleGeneralFilter" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}SampleGeneralFilterHeading">
 
                     <div class="panel-body">
-                        <div class="form-group">
-                            <label>Sample name</label>
-                            <input type="text" id="{{prefix}}SampleName" class="form-control" placeholder="HG01879, HG01880, HG01881..." on-keyup="calculateFilters">
+                        <!--<div class="form-group">-->
+                        <!--<label>Sample name</label>-->
+                        <!--<input type="text" id="{{prefix}}SampleName" class="form-control" placeholder="HG01879, HG01880, HG01881..." on-keyup="calculateFilters">-->
 
-                            <label>Individual name</label>
-                            <input type="text" id="{{prefix}}IndividualName" class="form-control" placeholder="Smith, Grant ..." on-keyup="calculateFilters">
-                        </div>
+                        <!--<label>Individual name</label>-->
+                        <!--<input type="text" id="{{prefix}}IndividualName" class="form-control" placeholder="Smith, Grant ..." on-keyup="calculateFilters">-->
+                        <!--</div>-->
 
-                        <div>
-                            <input type="checkbox" id="changeMOdeChekbox" value="compact" checked on-change="_changeMode"> Compact<br>
-                        </div>
+                        <template is="dom-if" if="{{_displayCompactCheckBox}}">
+                            <div>
+                                <input type="checkbox" id="{{prefix}}CompactCheckbox" value="compact" checked on-change="_changeMode">&nbsp;Compact<br>
+                            </div>
+                        </template>
 
                         <template is="dom-if" if="{{compact}}">
                             <div class="form-group">
@@ -144,7 +155,6 @@
                             </div>
                             <ul class="list-unstyled" style="max-height: 150px; overflow-y: auto; padding: 5px;">
                                 <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}" as="variable" filter="_filterVariable" sort="_sortVariables">
-
                                     <template is="dom-if" if="{{isVisible(variable,config)}}">
                                         <li style="cursor: pointer;" data-toggle="modal" data-target="#{{prefix}}ModalFilters" on-click="variableSelected" data-variable="{{variable}}">
                                             {{variable.title}}
@@ -157,9 +167,17 @@
                         <template is="dom-if" if="{{!compact}}">
                             <div class="form-group has-feedback">
                                 <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}" as="variable" sort="_sortVariables">
-                                    <template is="dom-if" if="{{isVisible(variable,config)}}">
-                                        <br>
-                                        <label for="{{prefix}}{{variable.name}}">{{variable.title}}:</label>
+                                    <template is="dom-if" if="{{isVisible(variable, config)}}">
+                                        <!--<label for="{{prefix}}{{variable.name}}">{{variable.title}}:</label>-->
+                                        <!-- We first try to display 'title', if not present then we use 'name' -->
+                                        <template is="dom-if" if="{{variable.title}}">
+                                            <label for="{{prefix}}{{variable.name}}">{{variable.title}}</label>
+                                        </template>
+
+                                        <template is="dom-if" if="{{!variable.title}}">
+                                            <label for="{{prefix}}{{variable.name}}">{{variable.name}}</label>
+                                        </template>
+
                                         <template is="dom-if" if="{{checkVarType(variable, 'TEXT')}}">
                                             <!-- TEXT type: include an input text and add suitable regular expression for text-->
                                             <!-- http://stackoverflow.com/questions/14237686/disabling-controls-in-bootstrap-->
@@ -167,6 +185,16 @@
                                         </template>
 
                                         <template is="dom-if" if="{{checkVarType(variable, 'NUMERIC')}}">
+                                            <!-- NUMERIC type: include an input text and add suitable regular expression for numbers -->
+                                            <input type="text" class="form-control" id="{{prefix}}{{variable.name}}" placeholder="{{variable.name}} number" pattern="^[0-9]+$">
+                                        </template>
+
+                                        <template is="dom-if" if="{{checkVarType(variable, 'INTEGER')}}">
+                                            <!-- NUMERIC type: include an input text and add suitable regular expression for numbers -->
+                                            <input type="text" class="form-control" id="{{prefix}}{{variable.name}}" placeholder="{{variable.name}} number" pattern="^[0-9]+$">
+                                        </template>
+
+                                        <template is="dom-if" if="{{checkVarType(variable, 'DOUBLE')}}">
                                             <!-- NUMERIC type: include an input text and add suitable regular expression for numbers -->
                                             <input type="text" class="form-control" id="{{prefix}}{{variable.name}}" placeholder="{{variable.name}} number" pattern="^[0-9]+$">
                                         </template>
@@ -183,11 +211,11 @@
                                                 </select>
                                                 <div class="help-block with-errors" id="{{prefix}}_errorDiv_{{variable.name}}"></div>
                                             </template>
-
                                         </template>
 
                                         <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 1, 2)}}">
                                             <!-- CATEGORICAL type, single value: check box -->
+                                            <br>
                                             <div class="col-sm-9">
                                                 <input type="checkbox" id="{{prefix}}{{variable.name}}" style="padding-left: 20px">
                                             </div>
@@ -197,9 +225,7 @@
                                             <!-- CATEGORICAL type, 2 values: radio buttons for selection -->
                                             <template is="dom-repeat" items="{{variable.allowedValues}}" as="value">
                                                 <div class="form-check form-check-inline">
-                                                    <label class="form-check-label">
-                                                        <input id="{{prefix}}{{variable.name}}{{value}}" class="form-check-input" type="radio" name="{{variable.name}}Options"> {{value}} <br>
-                                                    </label>
+                                                    <input id="{{prefix}}{{variable.name}}{{value}}" class="form-check-input" type="radio" name="{{variable.name}}Options"> {{value}}
                                                 </div>
                                             </template>
                                         </template>
@@ -217,10 +243,8 @@
                                         <template is="dom-if" if="{{checkVarType(variable, 'BOOLEAN')}}">
                                             <!-- BOOLEAN type, 2 values: radio buttons for selection: yes or no -->
                                             <div class="form-check form-check-inline">
-                                                <label class="form-check-label">
-                                                    <input id="{{prefix}}{{variable.name}}yes" class="form-check-input" type="radio" name="{{variable.name}}Options"> yes <br>
-                                                    <input id="{{prefix}}{{variable.name}}no" class="form-check-input" type="radio" name="{{variable.name}}Options"> no <br>
-                                                </label>
+                                                <input id="{{prefix}}{{variable.name}}yes" class="form-check-input" type="radio" name="{{variable.name}}Options"> yes
+                                                <input id="{{prefix}}{{variable.name}}no" class="form-check-input" type="radio" name="{{variable.name}}Options"> no
                                             </div>
                                         </template>
                                         <!-- Close dom-if for visibility -->
@@ -242,6 +266,7 @@
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                         <h4 class="modal-title">Filter by {{ variable.name }}</h4>
                     </div>
+
                     <div class="modal-body">
                         <!--CATEGORICAL-->
                         <template is="dom-if" if="{{_isCategorical}}">
@@ -257,27 +282,32 @@
                                 </template>
                             </div>
                         </template>
+
                         <!--TEXT-->
                         <template is="dom-if" if="{{_isText}}">
                             <div class="form-group">
                                 <input type="text" name="{{prefix}}Text" class="form-control" />
                             </div>
                         </template>
+
                         <!--NUMERIC-->
                         <template is="dom-if" if="{{_isNumerical}}">
                             <div class="form-group">
                                 <input type="text" name="{{prefix}}Numerical" class="form-control" />
                             </div>
                         </template>
+
                         <!--BOOLEAN-->
                         <template is="dom-if" if="{{_isBoolean}}">
                             <input type="checkbox" checked>
                         </template>
+
                         <!--OBJECT-->
                         <template is="dom-if" if="{{_isObject}}">
                             Not implemented
                         </template>
                     </div>
+
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default add-right-margin" data-dismiss="modal">Cancel</button>
                         <button type="button" class="btn btn-primary" on-click="updateCompactFilter" data-dismiss="modal">Update filter</button>
@@ -308,6 +338,7 @@
                 },
                 query: {
                     type: Object,
+                    value: {},
                     notify: true
                 },
                 config: {
@@ -329,16 +360,16 @@
                     value: 1920
                 },
                 compact: {
-                    type: Boolean,
-                    value: true
+                    type: Boolean
                 }
             },
             ready: function() {
-                if (typeof this.prefix === "undefined" || this.prefix == "") {
-                    this.prefix = Utils.randomString(6);
+                if (typeof this.prefix === "undefined" || this.prefix === "") {
+                    this.prefix = "VarSampleFilter" + Utils.randomString(6);
                 }
+
                 let _years = [];
-                let fullDate = new Date()
+                let fullDate = new Date();
                 let limitYear = fullDate.getFullYear();
                 for (let year = this.minYear; year <= limitYear; year++) {
                     _years.push(year);
@@ -347,7 +378,7 @@
                 this.years = _years;
 
 
-                // Init arrays for Date range selector
+                // Init arrays for Date selector
                 let _yearsToSearch = [];
                 for (let year = limitYear, i = 0; i < 5; year--, i++) {
                     _yearsToSearch.push(year);
@@ -361,38 +392,94 @@
                     _days.push(i);
                 }
                 this.daysToSearch = _days;
-            },
-            attached: function () {
-                $("#" + this.prefix + "datetimePickerFrom").datetimepicker({
-                    format: 'DD/MM/YYYY'
-                });
-                $("#" + this.prefix + "datetimePickerTo").datetimepicker({
-                    format: 'DD/MM/YYYY',
-                    useCurrent: false //Important! See issue #1075
-                });
-                $("#" + this.prefix + "datetimePickerFrom").on("dp.change", function (e) {
-                    $("#" + this.prefix + "datetimePickerTo").data("DateTimePicker").minDate(e.date);
-                });
-                $("#" + this.prefix + "datetimePickerTo").on("dp.change", function (e) {
-                    $("#" + this.prefix + "datetimePickerFrom").data("DateTimePicker").maxDate(e.date);
-                });
+
+                // If compact is not set then we set false as default and we display the checkbox
+                if (typeof this.compact === "undefined") {
+                    this._displayCompactCheckBox = true;
+                    this.compact = false;
+                } else {
+                    this._displayCompactCheckBox = false;
+                }
+                // TODO: this must be removed
+                this._displayCompactCheckBox = false;
             },
             onSearch: function () {
-                this.search = this.query;
+                this.search = Object.assign({}, this.query);
             },
             calculateFilters: function (e) {
                 let _query = {};
 
                 // Active/disable
-                if (e.target.defaultValue === "range" && e.target.checked) {
+                if (e.target.defaultValue === "date" && e.target.checked) {
                     $(".codeDis").removeAttr("disabled");
                 } else {
                     $(".codeDis").attr("disabled", "disabled");
                 }
 
-                _query.name = $("#" + this.prefix + "SampleName").val();
+                let name = $("#" + this.prefix + "SampleName").val();
+                if (typeof name !== "undefined" && name !== "") {
+                    _query.name = name;
+                }
+
+                let individual = $("#" + this.prefix + "IndividualName").val();
+                if (typeof individual !== "undefined" && individual !== "") {
+                    _query.individual = individual;
+                }
+
+                let dateOption = $("#" + this.prefix + "DateRadioButton input[type='radio']:checked").val();
+                switch (dateOption) {
+                    case "recently":
+                        let dates = [];
+                        // Last 7 days
+                        for (let i = 0; i < 7; i++) {
+                            let da = new Date();
+                            da.setDate(da.getDate() - i);
+                            // If the month and day have one digit we add 0 before
+                            let m = da.getMonth() + 1;
+                            if (m < 10) {
+                                m = "0" + m;
+                            }
+                            let d = da.getDate();
+                            if (d < 10) {
+                                d = "0" + d;
+                            }
+                            dates.push("^" + da.getFullYear() + m + d + "*")
+                        }
+                        _query.creationDate = "~" + dates.join(",");
+                        break;
+                    case "date":
+                        this.updateDateFilter(e);
+                        break;
+                    case "all":
+                    default:
+                        delete _query.creationDate;
+                        break;
+                }
 
                 this.query = _query;
+            },
+            updateDateFilter: function (e) {
+                let year = $("#" + this.prefix + "YearSelect").val();
+                let month = $("#" + this.prefix + "MonthSelect").val();
+                let day = $("#" + this.prefix + "DaySelect").val();
+                let date;
+                if (month === "any") {
+                    date = "~^" + year + "*";
+                } else {
+                    let monthIndex = this.monthToSearch.indexOf(month) + 1;
+                    if (monthIndex < 10) {
+                        monthIndex = "0" + monthIndex;
+                    }
+                    if (day === "any") {
+                        date = "~^" + year + monthIndex + "*";
+                    } else {
+                        if (day < 10) {
+                            day = "0" + day;
+                        }
+                        date = "~^" + year + monthIndex + day + "*";
+                    }
+                }
+                this.query.creationDate = date;
             },
             updateVariableSets: function () {
                 this.variables = [];
