@@ -317,7 +317,7 @@
                                 }
                             } else {
                                 _queryList.push({name: key, text: title, items: filterFields});
-                                if (this.fixedFilters.indexOf(key) !== -1) {
+                                if (typeof this.fixedFilters !== "undefined" && this.fixedFilters.indexOf(key) !== -1) {
                                     this.showFixedFilters = false;
                                 }
                             }
