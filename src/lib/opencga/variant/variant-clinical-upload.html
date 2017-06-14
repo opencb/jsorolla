@@ -162,7 +162,7 @@
                         <div class="col-xs-6">
                             <div class="input-group">
                                 <textarea class$="form-control {{prefix}}TextInput codeDis" id="{{prefix}}HPO" name="HPO"
-                                          placeholder="HP:0000947" required data-error="An HPO term must be selected" rows="2" style="resize:none"></textarea>
+                                          placeholder="HP:0000947" data-error="An HPO term must be selected" rows="2" style="resize:none"></textarea>
                                 <span class="input-group-addon btn btn-primary" data-toggle="modal" data-target$="#{{prefix}}hpoModal">
                                     <i class="fa fa-search" aria-hidden="true"></i>
                                 </span>
@@ -179,7 +179,8 @@
                             <div class="input-group">
                                 <textarea class$="form-control {{prefix}}TextInput" id="{{prefix}}diagnosis" name="diagnosis"
                                           placeholder="ICD-10 term" required data-error="A diagnosis term must be selected" readonly rows="2" style="resize:none"></textarea>
-                                <span class="input-group-addon btn btn-primary" data-toggle="modal" data-target$="#{{prefix}}icd">
+                                <!--<span class="input-group-addon btn btn-primary" id="{{prefix}}icdButton" data-toggle="modal" data-target$="#{{prefix}}icd">-->
+                                <span class="input-group-addon btn btn-primary" id="{{prefix}}icdButton" on-click="showICD">
                                     <i class="fa fa-search" aria-hidden="true"></i>
                                 </span>
                             </div>
@@ -959,6 +960,8 @@
                 });
 
                 // Some checks before submitting VCF to Catalog
+                console.log(this);
+                debugger;
                 if (window.File && window.FileReader && window.FileList && window.Blob) {
                     let vcfFile = $("#" + this.prefix + "FileToUpload").prop('files')[0];
 
@@ -975,8 +978,20 @@
                             while (i < content.length) {
                                 if (content[i].startsWith('#CHROM')) {
                                     let headerColumns = content[i].split('\t');
-                                    sampleId = headerColumns[headerColumns.length - 1];
-                                    break;
+                                    if (headerColumns.length != 10) {
+                                        this.settingsMessageModal = {
+                                            messageHeader: "Error",
+                                            messageBody: ["VCF file does not have proper number of data columns which are CHROM POS ID REF ALT QUAL FILTER INFO FORMAT <sample>. Besides, notice that for this version VCF multisample is not allowed"],
+                                            type: "danger",
+                                            height: "100px",
+                                            width: "500px"
+                                        };
+                                        this.showMessageModal = true;
+                                    }
+                                    else {
+                                        sampleId = headerColumns[headerColumns.length - 1];
+                                        break;
+                                    }
                                 }
                                 i++;
 
@@ -1078,6 +1093,30 @@
                             _this.showMessageModal = true;
                         });
                 }
+            },
+            showICD: function(){
+                let statusValue = $("#" + this.prefix + "status").find("option:selected").text();
+                if (statusValue === "Control" || statusValue === "Unaffected" ){
+                    // For a control or unaffected, disable ICD and make it not mandatory
+                    this.settingsMessageModal = {
+                        messageHeader: "Attention",
+                        messageBody: ["For " + statusValue + " patient a diagnostic cannot be chosen"],
+                        type: "info",
+                        height: "100px",
+                        width: "500px"
+                    };
+                    this.showMessageModal = true;
+                    $("#" + this.prefix + "diagnosis").val("");
+                    $("#" + this.prefix + "diagnosis").attr("placeholder", "ICD-10 term");
+                    $("#" + this.prefix + "diagnosis").attr("required", false);
+
+                }
+                else {
+                    $("#" + this.prefix + "icd").modal('show');
+                    $("#" + this.prefix + "diagnosis").attr("required", true);
+                }
+                $("#" + this.prefix + "diagnosis").focus();
+                $("#" + this.prefix + "uploadForm").validator('update');
             }
         });
     </script>
