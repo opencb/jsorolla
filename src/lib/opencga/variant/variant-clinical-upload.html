@@ -865,11 +865,15 @@
                 // 3. Index and annotate the VCF file (using fileId obtained in step 2)
                 if (this.opencgaClient instanceof OpenCGAClient) {
                     // 1. Create sample
-
                     let isSomatic = (formFields.cellLine === "somatic");
                     let hasParentalConsanguinity = (formFields.parentalConsanguinity === "true");
-                    let icdId = formFields.diagnosis.split('(')[1].slice(0,-1);
-                    let icdName = formFields.diagnosis.split('(')[0];
+                    let icdTermField = formFields.diagnosis;
+                    let icdName = "";
+                    let icdId="";
+                    if (icdTermField !== ""){
+                        icdId = icdTermField.split('(')[1].slice(0,-1);
+                        icdName = icdTermField.split('(')[0];
+                    }
                     let hpoId = formFields.HPO; // To be modified when HPO is included
                     let hpoName = formFields.HPO;
 
@@ -960,8 +964,6 @@
                 });
 
                 // Some checks before submitting VCF to Catalog
-                console.log(this);
-                debugger;
                 if (window.File && window.FileReader && window.FileList && window.Blob) {
                     let vcfFile = $("#" + this.prefix + "FileToUpload").prop('files')[0];
 
@@ -1107,6 +1109,7 @@
                     };
                     this.showMessageModal = true;
                     $("#" + this.prefix + "diagnosis").val("");
+                    document.getElementById( this.prefix + "diagnosis").innerHTML = "";
                     $("#" + this.prefix + "diagnosis").attr("placeholder", "ICD-10 term");
                     $("#" + this.prefix + "diagnosis").attr("required", false);
 

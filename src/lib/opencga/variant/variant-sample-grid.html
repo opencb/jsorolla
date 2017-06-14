@@ -102,7 +102,7 @@
                         queryParams: function (params) {
                             let auxParams = {
                                 studyId: _this.study.id,
-//                                lazy: "false",
+                                lazy: "false",
                                 sid: Cookies.get(_this.opencgaClient.getConfig().cookieSessionId),
                                 order: params.order,
                                 sort: params.sort,
@@ -260,10 +260,11 @@
                 }
             },
             diagnosisFormatter: function (value, row) {
-//                console.log(value)
-//                console.log(row)
-//                debugger
-                return '-';
+                if (row.individual.ontologyTerms.length > 0) {
+                    return row.individual.ontologyTerms[1].name;
+                } else {
+                    return '-';
+                }
             },
             fatherFormatter: function (value, row) {
                 if (row.individual.fatherId > 0) {

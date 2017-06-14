@@ -169,26 +169,8 @@
             filterFormatter: function(filter) {
                 return (filter === true) ? "YES" : "NO";
             },
-            _createPedigree: function () {
-                // Complete the pedigree with the affected and deceased status
-                if (typeof this.pedigree.father !== "undefined") {
-                    this.pedigree.father.affected = this._affected[this.pedigree.father.name];
-                    this.pedigree.father.deceased = this._deceased[this.pedigree.father.name];
-                }
-                if (typeof this.pedigree.mother !== "undefined") {
-                    this.pedigree.mother.affected = this._affected[this.pedigree.mother.name];
-                    this.pedigree.mother.deceased = this._deceased[this.pedigree.mother.name];
-                }
-                if (typeof this.pedigree.children !== "undefined") {
-                    for (let child of this.pedigree.children) {
-                        child.affected = this._affected[child.name];
-                        child.deceased = this._deceased[child.name];
-                    }
-                }
-                return this.pedigree;
-            },
             pedigreeRender: function () {
-                let ped = this._createPedigree();
+                let ped = this.pedigree;
 
                 let familyName = $("#" + this.prefix + "FamilyName").val();
                 // Remove SVG before render new one
@@ -205,21 +187,29 @@
 
                 // Father
                 this.pedigree.father = {name: family.father.samples[0].name, gender: "male"};
+                this.pedigree.father.affected = (family.father.affectationStatus === "AFFECTED") ? true : false;
+                this.pedigree.father.deceased = (family.father.lifeStatus === "ALIVE" || family.father.lifeStatus === "UNKNOWN") ? false : true;
                 // Mother
                 this.pedigree.mother = {name: family.mother.samples[0].name, gender: "female"};
+                this.pedigree.mother.affected = (family.mother.affectationStatus === "AFFECTED") ? true : false;
+                this.pedigree.mother.deceased = (family.mother.lifeStatus === "ALIVE" || family.mother.lifeStatus === "UNKNOWN") ? false : true;
                 // Children
                 let _gender = "";
+                let _affected = false;
+                let _deceased = false;
                 for (let i=0; i<family.children.length; i++){
                     _gender = family.children[i].sex;
+                    _affected = (family.children[i].affectationStatus === "AFFECTED") ? true : false;
+                    _deceased = (family.children[i].lifeStatus === "ALIVE" || family.children[i].lifeStatus === "UNKNOWN") ? false : true;
                     switch (_gender) {
                         case "MALE":
-                            this.pedigree.children.push({name: family.children[i].samples[0].name, gender: "male"});
+                            this.pedigree.children.push({name: family.children[i].samples[0].name, gender: "male", affected: _affected, deceased: _deceased});
                             break;
                         case "FEMALE":
-                            this.pedigree.children.push({name: family.children[i].samples[0].name, gender: "female"});
+                            this.pedigree.children.push({name: family.children[i].samples[0].name, gender: "female", affected: _affected, deceased: _deceased});
                             break;
                         case "UNKNOWN":
-                            this.pedigree.children.push({name: family.children[i].samples[0].name, gender: "undefined"});
+                            this.pedigree.children.push({name: family.children[i].samples[0].name, gender: "undefined", affected: _affected, deceased: _deceased});
                             break;
                     }
                 }

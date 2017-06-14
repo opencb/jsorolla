@@ -173,9 +173,12 @@
                     <h3>Prioritization Information</h3>
                     <hr>
 
-                    <div class="prioritization-summary col-sm-12" id="{{prefix}}variantsTableDiv" hidden>
+                    <div class="prioritization-summary col-sm-10" id="{{prefix}}variantsTableDiv" hidden>
                         <h4>Variants table</h4>
-                        Variants table to be shown here
+                        <table id="{{prefix}}variantTable" data-search="false" data-show-columns="false"
+                               data-pagination="false" data-page-size="500" data-checkbox-header="false" data-maintain-selected="true" style="cursor: pointer;">
+                            <thead style="background-color: #eee"></thead>
+                        </table>
                     </div>
 
                     <div class="prioritization-summary col-sm-12" id="{{prefix}}prioritizationSummaryDiv" hidden>
@@ -205,7 +208,9 @@
                     <div class="prioritization-summary col-sm-12" id="{{prefix}}filterResumeDiv" hidden>
                         <h4>Filter resume</h4>
                         For this analysis, the following filters were applied for prioritization:
-                        <ul type="square">
+                        <br>
+                        {{filterPrioritization}}
+                        <!--<ul type="square">
                             <li><b>Genomic</b></li>
                             <ul type="disc">
                                 <li>Location: <i>chr3</i></li>
@@ -232,7 +237,7 @@
                                 <li><i>Phylop < 0.01 AND PhastCons < 0.02 AND Gerp < 0.01</i></li>
                             </ul>
                             <li><b>Disease Databases</b>(No filters were applied)</li>
-                        </ul>
+                        </ul>-->
                     </div>
                 </div>
                 <div style="margin: 10px 15px 15px 50px" class="other-information col-sm-12" id="{{prefix}}conclusionsDiv" hidden>
@@ -248,7 +253,7 @@
         </div>
 
         <!-- Modal dialog for Variants table-->
-        <div class="modal fade" id="{{prefix}}variantsClassificationModal" tabindex="-1" role="dialog"
+<!--        <div class="modal fade" id="{{prefix}}variantsClassificationModal" tabindex="-1" role="dialog"
              aria-labelledby="variantsClassificationLabel" data-backdrop="static" data-keyboard="false">
             <div class="modal-dialog modal-sm" role="document" style="width: 500px;">
                 <div class="modal-content">
@@ -267,7 +272,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div>-->
     </template>
     <script>
         Polymer({
@@ -313,6 +318,7 @@
 
                 let date = new Date();
                 this.requestDate = date.toLocaleString();
+                this.fitlerPrioritization = {};
             },
             loadData: function() {
                 // Load data into report
@@ -326,9 +332,6 @@
                     $("#" + this.prefix + "analysisType").attr("value", this.analysisSelected.analysisType);
                     $("#" + this.prefix + "date").attr("value", this.analysisSelected.analysisDate);
                     this.analysisID = this.analysisSelected.analysisID;
-
-                    console.log(this);
-                    debugger;
                     // Sample Information
                     $("#" + this.prefix + "IndividualID").attr("value", this.analysisSelected.analysis.proband.name);
                     $("#" + this.prefix + "AffectationStatus").attr("value", this.analysisSelected.analysis.proband.affectationStatus);
@@ -360,8 +363,25 @@
                         querySelector.appendChild(this.analysisSelected.pedigree);
                     }
 
-                    // Prioritization information
-                    // To be filled here
+                    // Prioritization information (variants)
+                    let _this = this;
+                    $("#" + this.prefix + "variantTable").bootstrapTable('destroy');
+                    $("#" + this.prefix + "variantTable").bootstrapTable({
+                        columns: _this._getTableColumns(),
+                        data: {
+                            variant: "chr2:123123:A/T",
+                            id: "dbSNP213123",
+                            genes: "BRCA2",
+                            type: "SNV",
+                            consequenceType: "synonymous_Variant"
+                        }
+                        //data: _this._getVariantsInfo(_this.analysisSelected.proband.samples[0].attributes.variants)
+                    });
+
+                    // Filter information
+                    //this.filterPrioritization = this.analysisSelected.proband.samples[0].attributes.query;
+                    this.filterPrioritization = "Filtros aplicados";
+
 
                     // Show divs
                     $("#" + this.prefix + "analysisInformationDiv").attr("hidden", false);
@@ -400,7 +420,7 @@
                     for (let i = 0; i < this.selection.prioritizationInfo.length; i++) {
                         if (this.selection.prioritizationInfo[i].name == 'variantsTable' && this.selection.prioritizationInfo[i].value &&
                             this.$$("#" + this.prefix + this.selection.prioritizationInfo[i].name + "Div").hidden) {
-                            $('#' + this.prefix + 'variantsClassificationModal').modal("show");
+                            //$('#' + this.prefix + 'variantsClassificationModal').modal("show");
                         }
                         $("#" + this.prefix +this.selection.prioritizationInfo[i].name + "Div").attr("hidden", !this.selection.prioritizationInfo[i].value);
                         if (this.selection.prioritizationInfo[i].value == false) {
@@ -474,10 +494,46 @@
                 return (myVar.attributes.subtype === type);
             },
             updateTextArea: function(){
-                console.log(this);
-                debugger;
                 document.getElementById(this.prefix + "conclusions").innerHTML = document.getElementById(this.prefix + "conclusions").value;
-            }
+            },
+            _getVariantsInfo: function(variants){
+                let _myVariants = [];
+                for (let i=0; i < variants.length; i++){
+                    _myVariants.push({
+                        variant: variants[i].id,
+                        genes: variants[i].annotation.consequenceTypes[0].geneName,
+                        type: variants[i].type,
+                        consequenceType: variants[i].annotation.consequenceTypes[0].sequenceOntologyTerms[0].name
+                    });
+                }
+            },
+            _getTableColumns: function() {
+                this._columns = [
+                    [
+                        {
+                            title: 'Variant',
+                            field: 'variant'
+                        },
+                        {
+                            title: 'SNP Id',
+                            field: 'id'
+                        },
+                        {
+                            title: 'Genes',
+                            field: 'genes'
+                        },
+                        {
+                            title: 'Type',
+                            field: 'type'
+                        },
+                        {
+                            title: 'Consequence Type',
+                            field: 'consequenceType'
+                        }
+                    ]
+                ];
+                return this._columns;
+            },
 
         });
     </script>
