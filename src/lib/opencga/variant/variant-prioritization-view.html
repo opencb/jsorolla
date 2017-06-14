@@ -95,7 +95,8 @@
                     <variant-browser-grid mode="{{mode}}" study="{{study}}" project="{{project}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
                                           cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}"
                                           samples="{{samples}}" protein-substitution-scores="{{proteinSubstitutionScores}}" consequence-types="{{consequenceTypes}}"
-                                          query="[[query]]" search="[[search]]" variant="{{variant}}" on-selected="selectedGene" on-selectvariant="onSelectVariant" style="font-size: 12px">
+                                          query="[[query]]" search="[[search]]" variant="{{variant}}" on-selected="selectedGene" on-selectvariant="onSelectVariant"
+                                          show-select="{{showSelect}}" style="font-size: 12px">
                     </variant-browser-grid>
 
                     <!-- Bottom tabs with specific variant information -->
@@ -225,6 +226,8 @@
 
                 this._isPrioritizationMode = this.mode === "prioritization";
                 this._isClinicalMode = this.mode === "clinical";
+
+                this.showSelect = true;
 
                 this.fixedFilters = ["studies"];
             },

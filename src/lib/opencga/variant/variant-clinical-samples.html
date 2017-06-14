@@ -35,7 +35,8 @@
 
             <div class="col-md-10">
                 <br>
-                <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" filters="{{config.filters}}" alias="{{activeFilterAlias}}"></opencga-active-filters>
+                <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" filters="{{config.filters}}" fixed-filters="{{fixedFilters}}"
+                                        alias="{{activeFilterAlias}}" refresh="{{search}}" on-clear="onClear" on-filterchange="onFilterChange"></opencga-active-filters>
 
                 <h3>Sample Results</h3>
                 <variant-sample-grid opencga-client="{{opencgaClient}}" study="{{study}}" samples="{{samples}}" search="{{search}}"></variant-sample-grid>
@@ -122,6 +123,9 @@
                     type: Object,
                     observer: "renderAnalysisTable"
                 },
+                project: {
+                    type: Object
+                },
                 study: {
                     type: Object
                 },
@@ -170,6 +174,8 @@
                 this.currentAnalysis = {};
                 this.selectedRow = -1;
                 this.unsavedAnalysis = 0;
+
+                this.fixedFilters = ["studies"];
             },
 
             renderAnalysisTable: function(){
@@ -679,7 +685,6 @@
                         {
                             field: 'filter',
                             title: 'Filter'
-
                         },
                         {
                             field: 'editFamily',
@@ -704,6 +709,14 @@
                     ]
                 ];
                 return this._columns;
+            },
+            onClear: function() {
+                this.query = {studies: this.project.alias + ":" + this.study.alias};
+                this.search = {};
+            },
+            onFilterChange: function(e) {
+                this.query = e.detail;
+                this.search = e.detail;
             }
         });
     </script>

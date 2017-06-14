@@ -65,6 +65,13 @@
         Polymer({
             is: 'variant-browser-grid',
             properties: {
+                opencgaClient: {
+                    type: Object
+                },
+                cellbaseClient: {
+                    type: Object,
+                    observer: 'renderFromServer'
+                },
                 project: {
                     type: Object
                 },
@@ -79,13 +86,6 @@
                     type: Array,
                     value: [],
                     observer: 'renderFromLocal'
-                },
-                opencgaClient: {
-                    type: Object
-                },
-                cellbaseClient: {
-                    type: Object,
-                    observer: 'renderFromServer'
                 },
                 samples: {
                     type: Array,
@@ -117,13 +117,6 @@
                     type: Object,
                     observer: 'renderFromServer'
                 },
-                variant: {
-                    type: String,
-                    notify: true
-                },
-                prefix: {
-                    type: String
-                },
                 showPopFreqInColor: {
                     type: Boolean,
                     value: true
@@ -137,6 +130,17 @@
                 },
                 config: {
                     type: Object
+                },
+                variant: {
+                    type: String,
+                    notify: true
+                },
+                showSelect: {
+                    type: Boolean,
+                    value: false
+                },
+                prefix: {
+                    type: String
                 }
             },
             _test: function () {
@@ -247,6 +251,9 @@
                             _this.to = page * size;
                         }
                     });
+                    if (!this.showSelect) {
+                        $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('hideColumn', "stateCheckBox");
+                    }
                     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('showLoading');
                 }
 
@@ -615,7 +622,7 @@
                     let data = new Map();
                     for (popFreqIdx in row.annotation.populationFrequencies) {
                         let popFreq = row.annotation.populationFrequencies[popFreqIdx];
-                        if (this.field.study == popFreq.study && this.field.populationMap[popFreq.population] == true) {
+                        if (this.field.study === popFreq.study && this.field.populationMap[popFreq.population] === true) {
                             data.set(popFreq.population, Number(popFreq.altAlleleFreq).toFixed(4));
                         }
                     }
@@ -672,8 +679,8 @@
                     // NOTE: There are always 4 columns before the samples
                     for (let studyIdx in row.studies) {
                         if (row.studies[studyIdx].samplesData.length > 0) {
-                            if (typeof row.studies[studyIdx].samplesData[this.fieldIndex - 4] !== "undefined") {
-                                return row.studies[studyIdx].samplesData[this.fieldIndex - 4][0];
+                            if (typeof row.studies[studyIdx].samplesData[this.fieldIndex - 5] !== "undefined") {
+                                return row.studies[studyIdx].samplesData[this.fieldIndex - 5][0];
                             }
                         }
                     }
@@ -684,9 +691,9 @@
                 this.cols = this._createDefaultColumns();
 
                 if (typeof this.cols !== "undefined" && typeof this.cohorts !== "undefined" && Object.keys(this.cohorts).length > 0) {
-                    let cohortIdx = 6;
+                    let cohortIdx = 7;
                     let cohortStudies = Object.keys(this.cohorts);
-                    this.cols[0].splice(7, 0, {
+                    this.cols[0].splice(8, 0, {
                         title: this.project.name,
                         field: 'cohorts',
                         rowspan: 1,
@@ -712,7 +719,7 @@
 
                 if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.studies !== "undefined" && this.populationFrequencies.studies.length > 0) {
                     if (this.showPopFreqInColor) {
-                        let popIdx = 7;
+                        let popIdx = 8;
                         let subPopIdx = 6;
                         if (typeof this.cohorts !== "undefined" && Object.keys(this.cohorts).length > 0) {
                             popIdx++;
@@ -725,10 +732,10 @@
                             'Frequencies are visualized as colours which classify values into very rare, rare, average, common or missing, see http://www.dialogues-cns.com/wp-content/uploads/2015/03/DialoguesClinNeurosci-17-69-g001.jpg. Please, leave ' +
                             'the cursor over each square to visualize the actual frequency value."><i class="fa fa-info-circle" aria-hidden="true"></i></a>' +
                             '<div style="width: 60%;margin: auto"><div style="float: left">Legend:&nbsp;&nbsp;</div>' +
-                            '<div style="float: left; width: 12px;height: 12px;margin: 4px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.veryRare + '" title="Very rare:  freq < 0.001"></div>' +
-                            '<div style="float: left; width: 12px;height: 12px;margin: 4px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.rare + '" title="Rare:  freq < 0.005"></div>' +
-                            '<div style="float: left; width: 12px;height: 12px;margin: 4px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.average + '" title="Average:  freq < 0.05"></div>' +
-                            '<div style="float: left; width: 12px;height: 12px;margin: 4px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.common + '" title="Common:  freq >= 0.05"></div>' +
+                            '<div style="float: left; width: 10px;height: 10px;margin: 6px 2px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.veryRare + '" title="Very rare:  freq < 0.001"></div>' +
+                            '<div style="float: left; width: 10px;height: 10px;margin: 6px 2px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.rare + '" title="Rare:  freq < 0.005"></div>' +
+                            '<div style="float: left; width: 10px;height: 10px;margin: 6px 2px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.average + '" title="Average:  freq < 0.05"></div>' +
+                            '<div style="float: left; width: 10px;height: 10px;margin: 6px 2px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.common + '" title="Common:  freq >= 0.05"></div>' +
                             '</div>',
                             field: '',
                             rowspan: 1,
@@ -759,10 +766,10 @@
                             });
                         }
                     } else {
-                        let popIdx = 6;
+                        let popIdx = 7;
                         for (let i = 0; i < this.populationFrequencies.studies.length; i++) {
                             let study = this.populationFrequencies.studies[i];
-                            this.cols[0].splice(7 + i, 0, {
+                            this.cols[0].splice(8 + i, 0, {
                                 title: study.title,
                                 field: study.id,
                                 rowspan: 1,
@@ -794,7 +801,7 @@
                     switch(this.analysisMode) {
                         case "family":
                             // if type is 'family' we expected few samples to be provided in property 'samples'
-                            this.cols[0].splice(4, 0, {
+                            this.cols[0].splice(5, 0, {
                                 title: 'Samples',
                                 field: 'samples',
                                 rowspan: 1,
@@ -813,7 +820,7 @@
                             }
                             break;
                         case "cancer":
-                            this.cols[0].splice(4, 0, {
+                            this.cols[0].splice(5, 0, {
                                 title: this.samples[0].name,
                                 field: 'samples',
                                 rowspan: 1,
@@ -837,7 +844,7 @@
                             );
                             break;
                         case "caseControl":
-                            this.cols[0].splice(4, 0, {
+                            this.cols[0].splice(5, 0, {
                                 title: 'Samples',
                                 field: 'samples',
                                 rowspan: 1,
@@ -871,6 +878,15 @@
             _createDefaultColumns: function() {
                 var initCols = [
                     [
+                        {
+//                            title: 'Select',
+//                            field: {source: 'state', context: this},
+                            field: "stateCheckBox",
+                            checkbox: true,
+                            colspan: 1,
+                            rowspan: 2,
+                            formatter: this.stateFormatter
+                        },
                         {
                             title: 'Variant',
                             field: 'variant',
