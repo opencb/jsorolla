@@ -15,6 +15,7 @@
   -->
 
 <link rel="import" href="variant-clinical-selector.html">
+<link rel="import" href="../opencga-message-dialog.html">
 
 <dom-module id="variant-report-filter">
     <template>
@@ -24,10 +25,7 @@
             }
         </style>
 
-
         <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true">
-            <br>
-
             <!-- Analysis Information -->
             <div class="panel panel-default">
                 <div class="panel-heading" role="tab" id="{{prefix}}SampleAnalysisHeading">
@@ -50,8 +48,6 @@
                             <label>Analysis selected:</label>
                             <input type="text" class$="custom-sized-input {{prefix}}FilterTextInput" placeholder="{{currentAnalysisID}}" aria-describedby="basic-addon1" disabled>
                         </div>
-                        <br>
-                        <br>
                         <div id="{{prefix}}analysisResumeDiv" hidden>
                             <input type="checkbox" name="analysisButtons" id="{{prefix}}AnalysisResume" value="analysisResume" class$="{{prefix}}FilterRadio" on-change="showAnalysisResume" style="padding-left: 20px"> Analysis resume<br>
                         </div>
@@ -59,15 +55,13 @@
                 </div>
 
             </div>
-
-
             <!-- Sample Information -->
             <div class="panel panel-default" id="{{prefix}}SampleInformationDiv" style="display:none">
                 <div class="panel-heading" role="tab" id="{{prefix}}SampleInformationHeading">
                     <h4 class="panel-title">
                         <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
                            href="#{{prefix}}SampleInformationContent" aria-expanded="true" aria-controls="{{prefix}}SampleInformationContent">
-                            Sample Information
+                            Proband Information
                             <div style="float: right" class="tooltip-div">
                                 <a data-toggle="tooltip" title="Sample information">
                                     <i class="fa fa-info-circle" aria-hidden="true"></i>
@@ -79,25 +73,24 @@
                 <div id="{{prefix}}SampleInformationContent" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}SampleInformationHeading">
                     <div class="panel-body">
                         <div class="form-group">
-                            <label>Select for affected individual</label>
+                            <label>Additional information</label>
                             <br>
                             <input type="radio" name="sampleButtons" id="{{prefix}}AllRadio" value="all" class$="{{prefix}}FilterRadio" checked on-change="sampleInfoAll" style="padding-left: 20px"> All<br>
                             <input type="radio" name="sampleButtons" id="{{prefix}}SubsetRadio" value="range" class$="{{prefix}}FilterRadio" on-change="sampleInfoSubset" style="padding-left: 20px"> Subset
                             <div id="{{prefix}}SampleFields" class="panel-body">
-                                <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}sampleID" value="sampleID" class$="{{prefix}}FilterRadio" checked disabled on-change="sampleInfoField" style="padding-left: 20px"> Sample ID<br>
-                                <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}individualID" value="individualID" class$="{{prefix}}FilterRadio" checked disabled on-change="sampleInfoField" style="padding-left: 20px"> Patient ID<br>
-                                <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}chromosomalGender" value="chromosomalGender" class$="{{prefix}}FilterRadio" checked disabled on-change="sampleInfoField" style="padding-left: 20px"> Chromosomal Gender<br>
-                                <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}yearBirth" value="yearBirth" class$="{{prefix}}FilterRadio" checked disabled on-change="sampleInfoField" style="padding-left: 20px"> Year of Birth<br>
+                                <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}lifeStatus" value="lifeStatus" class$="{{prefix}}FilterRadio" checked disabled on-change="sampleInfoField" style="padding-left: 20px"> Life Status<br>
                                 <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}birthPlace" value="birthPlace" class$="{{prefix}}FilterRadio" checked disabled on-change="sampleInfoField" style="padding-left: 20px"> Birth place<br>
-                                <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}ethnicity" value="ethnicity" class$="{{prefix}}FilterRadio" checked disabled on-change="sampleInfoField" style="padding-left: 20px"> Ethnicity<br>
-                                <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}HPO" value="HPO" class$="{{prefix}}FilterRadio" checked disabled on-change="sampleInfoField" style="padding-left: 20px"> HPO<br>
-                                <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}diagnosis" value="diagnosis" class$="{{prefix}}FilterRadio" checked disabled on-change="sampleInfoField" style="padding-left: 20px"> Diagnosis<br>
-
+                                <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}sampleType" value="sampleType" class$="{{prefix}}FilterRadio" checked disabled on-change="sampleInfoField" style="padding-left: 20px"> Type of sample<br>
+                                <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}cellLine" value="cellLine" class$="{{prefix}}FilterRadio" checked disabled on-change="sampleInfoField" style="padding-left: 20px"> Cell line<br>
                                 <!-- SPECIFIC FIELDS FROM VARIABLE SET -->
                                 <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}" as="variable" sort="_sortVariables">
                                     <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}{{variable.name}}" value="{{variable.name}}" class$="{{prefix}}FilterRadio" checked disabled on-change="sampleInfoField" style="padding-left: 20px"> {{variable.title}}<br>
                                 </template>
-
+                            </div>
+                            <div>
+                                <label>Family information:</label>
+                                <br>
+                                <input type="checkbox" name="familyButtons" id="{{prefix}}familyPedigree" value="familyPedigree" class$="{{prefix}}FilterRadio" on-change="showPedigreeIn" style="padding-left: 20px"> Pedigree<br>
                             </div>
                         </div>
                     </div>
@@ -169,7 +162,7 @@
                     </div>
                     <div class="modal-body" style="height: 650px">
                         <!--<variant-clinical-selector opencga-client="{{opencgaClient}}" analysis="{{analysis}}" analysis-selected="{{analysisSelected}}"></variant-clinical-selector>-->
-                        <variant-clinical-selector opencga-client="{{opencgaClient}}" analysis-selected="{{analysisSelected}}" study="{{study}}" analysis-modal="{{analysisModal}}"></variant-clinical-selector>
+                        <variant-clinical-selector opencga-client="{{opencgaClient}}" analysis-selected="{{analysisSelected}}" study="{{study}}" analysis-modal="{{analysisModal}}" show-pedigree="{{showPedigree}}"></variant-clinical-selector>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="showReportOptions">OK</button>
@@ -177,26 +170,6 @@
                 </div>
             </div>
         </div>
-
-
-<!--        <div class="modal fade" id="{{prefix}}AnalysisBrowser" tabindex="-1" role="dialog"
-             aria-labelledby="sampleBrowserLabel">
-            <div class="modal-dialog modal-lg" role="document" style="width: 1024px;">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title" id="{{prefix}}AnalysisBrowserLabel">Analysis Selector</h4>
-                    </div>
-                    <div class="modal-body" style="height: 500px">
-                        <variant-clinical-selector></variant-clinical-selector>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="showReportOptions">OK</button>
-                    </div>
-                </div>
-            </div>
-        </div>-->
-
         <div style="width: 60%;margin: 0 auto">
             <button type="button" class="btn btn-primary btn-md" style="width: 100%" on-click="onSave">
                 <i class="fa fa-floppy-o" aria-hidden="true" style="padding: 0px 5px 0px 5px"></i>
@@ -211,9 +184,7 @@
             </button>
 
         </div>
-
-
-
+        <opencga-message-dialog opencga-client="{{opencgaClient}}" show-message-modal="{{showMessageModal}}" settings-message-modal="{{settingsMessageModal}}"></opencga-message-dialog>
     </template>
 
     <script>
@@ -254,17 +225,19 @@
                 },
                 analysisModal: {
                     type: Boolean,
-                    notify: true
+                    //notify: true
                 }
             },
             ready: function() {
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
                     this.prefix = "repFilter" + Utils.randomString(6);
                 }
-
+                this.showPedigree = false;
 
             },
             updateVariableSets: function () {
+                console.log(this);
+                debugger;
                 this.variables = [];
                 let _this = this;
                 this.opencgaClient.studies().info(this.study.id, {include: "variableSets"})
@@ -318,14 +291,33 @@
                 let fields = this.$$("#" + this.prefix + "SampleFields").querySelectorAll("input[type='checkbox']");
                 for (let i = 0; i < fields.length; i++) {
                     $("#" + fields[i].id).prop("disabled", false);
-
                 }
-
             },
             onExport: function () {
-                this.expReport = true;
+                //this.expReport = true;
+
+                this.settingsMessageModal = {
+                    messageHeader: "Warning",
+                    messageBody: ["To be implemented"],
+                    type: "danger",
+                    height: "100px",
+                    width: "500px"
+                };
+                this.showMessageModal = true;
+            },
+            onSave: function () {
+                this.settingsMessageModal = {
+                    messageHeader: "Warning",
+                    messageBody: ["To be implemented"],
+                    type: "danger",
+                    height: "100px",
+                    width: "500px"
+                };
+                this.showMessageModal = true;
             },
             showReportOptions: function(e){
+                console.log(this);
+                debugger;
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
                 $("#" + this.prefix + "analysisSelectedDiv").show();
                 $("#" + this.prefix + "analysisResumeDiv").show();
@@ -333,18 +325,15 @@
                 $("#" + this.prefix + "PrioritizationInformationDiv").show();
                 $("#" + this.prefix + "OtherInformationDiv").show();
 
-
-
                 this.currentAnalysisID = this.analysisSelected.analysisID;
-                this.selection = {analysisID: this.analysisSelected.analysisID};
-
-
-
-
             },
             showAnalysisResume: function(e){
                 e.preventDefault();
                 let _obj = Object.assign({}, this.selection , {analysisResume: e.target.checked});
+                this.selection = _obj;
+            },
+            showPedigreeIn: function(e){
+                let _obj = Object.assign({}, this.selection , {pedigree: e.target.checked});
                 this.selection = _obj;
 
             },
@@ -361,18 +350,6 @@
 
                 let _obj = Object.assign({}, this.selection , {prioritizationInfo: fieldsAux});
                 this.selection = _obj;
-
-
-
-                /*                switch (e.target.id) {
-                 case (this.prefix + 'VariantsTable'):
-                 let _obj = Object.assign({}, this.selection , {summary: e.target.checked});
-                 case (this.prefix + 'SummaryResults'):
-                 let _obj = Object.assign({}, this.selection , {summary: e.target.checked});
-                 case (this.prefix + 'FilterResume'):
-
-                 }
-                 this.selection = _obj;*/
             },
             showConclusions: function(e){
                 e.preventDefault();
@@ -390,8 +367,6 @@
                 }
                 $("#" + this.prefix + "AnalysisBrowser").modal('show');
             }
-
-
         });
     </script>
 </dom-module>

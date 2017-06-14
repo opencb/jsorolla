@@ -638,7 +638,7 @@
                             <h4 class="modal-title" id="{{prefix}}AnalysisBrowserLabel">Analysis Selector</h4>
                         </div>
                         <div class="modal-body" style="height: 750px">
-                            <variant-clinical-selector opencga-client="{{opencgaClient}}" analysis-selected="{{analysisSelected}}" study="{{study}}" analysis-modal="{{analysisModal}}"></variant-clinical-selector>
+                            <variant-clinical-selector opencga-client="{{opencgaClient}}" analysis-selected="{{analysisSelected}}" study="{{study}}" analysis-modal="{{analysisModal}}" show-pedigree="{{showPedigree}}"></variant-clinical-selector>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="loadAnalysis">OK</button>
@@ -729,6 +729,7 @@
 
             this.isFamilyAnalysis = true;
             this.set('panelList', PANELS);
+            this.showPedigree = true;
         },
         onSearch: function () {
             this.search = this.query;
