@@ -122,7 +122,7 @@
             <div class="analysis-content" id="{{prefix}}SamplesButtonDiv" style="display: none">
                 <!--<variant-analysis-samples prefix="{{prefix}}" opencga-client="{{opencgaClient}}" study="{{study}}" samples="{{samples}}"
                                           config="{{config}}" query="{{query}}"></variant-analysis-samples>-->
-                <variant-clinical-samples opencga-client="{{opencgaClient}}" study="{{study}}" study-id="{{study.id}}" samples="{{samples}}" prefix="{{prefix}}" config="{{config}}"></variant-clinical-samples>
+                <variant-clinical-samples opencga-client="{{opencgaClient}}" project="{{project}}" study="{{study}}" samples="{{samples}}" prefix="{{prefix}}" config="{{config}}"></variant-clinical-samples>
             </div>
 
             <div class="analysis-content" id="{{prefix}}FilterButtonDiv" style="display: none">
@@ -222,20 +222,9 @@
                 $("#" + e.target.id).removeClass("btn-success").addClass("btn-primary"); // change class of selected button (a different colour for that button)
                 $("#" + e.target.id + "Div").show();
 
-                if (e.target.id === this.prefix + "UploadButton")
-                {
+                if (e.target.id === this.prefix + "UploadButton") {
                     this.clearDomUpload = {clear: true};
                 }
-
-            },
-            onClear: function() {
-                this.query = {studies: this.project.alias + ":" + this.study.alias};
-                this.search = {};
-            },
-            onFilterChange: function(e) {
-                this.query = e.detail;
-                this.search = e.detail;
-
             }
         });
 

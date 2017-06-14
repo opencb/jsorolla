@@ -72,14 +72,14 @@
                             <div style="padding: 10px 0px 15px 25px">
                                 <form class="form-inline">
                                     <div class="form-group row">
-                                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm" id="{{prefix}}YearSelect" name="birthYear" required on-change="updateDateFilter" disabled>
+                                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm" id="{{prefix}}YearSelect" name="birthYear" required on-change="calculateFilters" disabled>
                                             <template is="dom-repeat" items="{{yearsToSearch}}">
                                                 <option value="{{item}}">{{item}}</option>
                                             </template>
                                         </select>
 
                                         <label style="padding: 0px 2px">-</label>
-                                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm" id="{{prefix}}MonthSelect" name="birthYear" required on-change="updateDateFilter" disabled>
+                                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm" id="{{prefix}}MonthSelect" name="birthYear" required on-change="calculateFilters" disabled>
                                             <option value="any">Any</option>
                                             <template is="dom-repeat" items="{{monthToSearch}}">
                                                 <option value="{{item}}">{{item}}</option>
@@ -87,7 +87,7 @@
                                         </select>
 
                                         <label style="padding: 0px 2px">-</label>
-                                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm" id="{{prefix}}DaySelect" name="birthYear" required on-change="updateDateFilter" disabled>
+                                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm" id="{{prefix}}DaySelect" name="birthYear" required on-change="calculateFilters" disabled>
                                             <option value="any">Any</option>
                                             <template is="dom-repeat" items="{{daysToSearch}}">
                                                 <option value="{{item}}">{{item}}</option>
@@ -410,11 +410,11 @@
                 let _query = {};
 
                 // Active/disable
-                if (e.target.defaultValue === "date" && e.target.checked) {
-                    $(".codeDis").removeAttr("disabled");
-                } else {
-                    $(".codeDis").attr("disabled", "disabled");
-                }
+//                if (e.target.defaultValue === "date" && e.target.checked) {
+//                    $(".codeDis").removeAttr("disabled");
+//                } else {
+//                    $(".codeDis").attr("disabled", "disabled");
+//                }
 
                 let name = $("#" + this.prefix + "SampleName").val();
                 if (typeof name !== "undefined" && name !== "") {
@@ -446,13 +446,17 @@
                             dates.push("^" + da.getFullYear() + m + d + "*")
                         }
                         _query.creationDate = "~" + dates.join(",");
+                        $(".codeDis").attr("disabled", "disabled");
                         break;
                     case "date":
-                        this.updateDateFilter(e);
+                        let date = this.updateDateFilter(e);
+                        _query.creationDate = date;
+                        $(".codeDis").removeAttr("disabled");
                         break;
                     case "all":
                     default:
                         delete _query.creationDate;
+                        $(".codeDis").attr("disabled", "disabled");
                         break;
                 }
 
@@ -479,7 +483,9 @@
                         date = "~^" + year + monthIndex + day + "*";
                     }
                 }
-                this.query.creationDate = date;
+//                this.query.creationDate = date;
+//                this.query = Object.assign(this.query, {creationDate: date});
+                return date;
             },
             updateVariableSets: function () {
                 this.variables = [];
