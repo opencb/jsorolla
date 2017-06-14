@@ -409,13 +409,6 @@
             calculateFilters: function (e) {
                 let _query = {};
 
-                // Active/disable
-//                if (e.target.defaultValue === "date" && e.target.checked) {
-//                    $(".codeDis").removeAttr("disabled");
-//                } else {
-//                    $(".codeDis").attr("disabled", "disabled");
-//                }
-
                 let name = $("#" + this.prefix + "SampleName").val();
                 if (typeof name !== "undefined" && name !== "") {
                     _query.name = name;
@@ -449,7 +442,7 @@
                         $(".codeDis").attr("disabled", "disabled");
                         break;
                     case "date":
-                        let date = this.updateDateFilter(e);
+                        let date = this._getDateFilter(e);
                         _query.creationDate = date;
                         $(".codeDis").removeAttr("disabled");
                         break;
@@ -462,7 +455,7 @@
 
                 this.query = _query;
             },
-            updateDateFilter: function (e) {
+            _getDateFilter: function (e) {
                 let year = $("#" + this.prefix + "YearSelect").val();
                 let month = $("#" + this.prefix + "MonthSelect").val();
                 let day = $("#" + this.prefix + "DaySelect").val();
@@ -483,8 +476,6 @@
                         date = "~^" + year + monthIndex + day + "*";
                     }
                 }
-//                this.query.creationDate = date;
-//                this.query = Object.assign(this.query, {creationDate: date});
                 return date;
             },
             updateVariableSets: function () {
@@ -589,7 +580,7 @@
                 let pairElement = '';
                 let divSuffix = '';
                 let message = '';
-                if(identifier.search('birthYear')!=-1) // Birth year element raises the event -> check Test year
+                if (identifier.search('birthYear')!=-1) // Birth year element raises the event -> check Test year
                 {
                     pairElement = $("#" + this.prefix + "testYear");
                     divSuffix = "birthYear";
@@ -601,16 +592,13 @@
                     divSuffix = "testYear";
                     message = "Year of Test must be posterior to year of Birth";
                 }
-                if(pairElement.find("option:selected")!='' && (parseInt(currentElement.find("option:selected").text())>parseInt(pairElement.find("option:selected").text())))
-                { // Year of birth cannot be lower than Year of test
+                if(pairElement.find("option:selected") !== ""
+                    && (parseInt(currentElement.find("option:selected").text())>parseInt(pairElement.find("option:selected").text()))) { // Year of birth cannot be lower than Year of test
                     $("#" + this.prefix + "_errorDiv_"+divSuffix).html(message);
                 }
             },
             checkType: function (str1, str2) {
-                if (str1.search(str2) != -1)
-                {return true;}
-                else
-                {return false;}
+                return str1.search(str2) !== -1;
             },
             _filterVariable: function(variable) {
                 for (let i = 0; i < this.filteredVariables.variables.length; i++) {
@@ -633,11 +621,13 @@
                 this.compact = !this.compact;
             },
             isVisible: function (myVar,conf){
-                let excludeArray = conf.variableSet.exclude
+                let excludeArray = conf.variableSet.exclude;
                 for (let index in excludeArray) {
-                    if (excludeArray[index].webComponent == this.localName) {
-                        return (!($.inArray(myVar.name, excludeArray[index].variables) != -1));
-                    } else {return true;}
+                    if (excludeArray[index].webComponent === this.localName) {
+                        return (!($.inArray(myVar.name, excludeArray[index].variables) !== -1));
+                    } else {
+                        return true;
+                    }
                 }
             },
         });
