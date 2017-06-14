@@ -63,6 +63,9 @@
                 analysisModal: {
                     type: Boolean,
                     observer: "loadData"
+                },
+                showPedigree: {
+                    type: Boolean
                 }
             },
             ready: function() {
@@ -118,10 +121,12 @@
                 this.pedigreeTitle = "";
 
                 // If pedigree exists from a previous opened window, remove it
-                if (typeof this.svg !== "undefined") {
-                    Polymer.dom(this.root).querySelector("#" + this.prefix + "PedigreeView").removeChild(this.svg);
-                    this.svg = undefined;
+                let querySelector = Polymer.dom(this.root).querySelector("#" + this.prefix + "PedigreeView");
+                if (typeof this.svg !== "undefined" && querySelector.hasChildNodes()) {
+                    querySelector.removeChild(this.svg);
+
                 }
+                this.svg = undefined;
             },
             renderAnalysisTable: function(){
                 let _this=this;
@@ -144,10 +149,17 @@
                         // Mother
                         _samplesSelected.push(_family.mother.samples[0]);
 
-                        _this.analysisSelected = {sampleList: _samplesSelected, analysisID: row.analysisID};
-
                         // Render pedigree
                         _this.pedigreeFromFamily(_family, row.analysisID);
+
+                        _this.analysisSelected = {
+                            sampleList: _samplesSelected,
+                            analysisID: row.analysisID,
+                            analysisType: row.analysisType,
+                            analysisDate: row.analysisDate,
+                            analysis: row.analysis,
+                            pedigree: _this.svg
+                        };
                     }
                 });
             },
@@ -217,7 +229,9 @@
                 // Parental consanguinity
                 this.pedigree.parentalConsanguinity = (family.parentalConsanguinity === true);
 
-                this.pedigreeTitle = "Pedigree for " + _analysisID;
+                if (this.showPedigree){
+                    this.pedigreeTitle = "Pedigree for " + _analysisID;
+                }
                 this.pedigreeRender();
             },
             _getTableColumns: function() {
