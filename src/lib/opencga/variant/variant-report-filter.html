@@ -118,7 +118,7 @@
                             <label>Select</label>
                             <br>
                             <input type="checkbox" name="prioritizationButtons" id="{{prefix}}VariantsTable" value="variantsTable" class$="{{prefix}}FilterRadio" on-change="showPrioritization" style="padding-left: 20px"> Variants table<br>
-                            <input type="checkbox" name="prioritizationButtons" id="{{prefix}}SummaryResults" value="prioritizationSummary" class$="{{prefix}}FilterRadio" on-change="showPrioritization" style="padding-left: 20px"> Summary of results<br>
+                            <!--<input type="checkbox" name="prioritizationButtons" id="{{prefix}}SummaryResults" value="prioritizationSummary" class$="{{prefix}}FilterRadio" on-change="showPrioritization" style="padding-left: 20px"> Summary of results<br>-->
                             <input type="checkbox" name="prioritizationButtons" id="{{prefix}}FilterResume" value="filterResume" class$="{{prefix}}FilterRadio" on-change="showPrioritization" style="padding-left: 20px"> Filter resume<br>
                         </div>
                     </div>
@@ -236,8 +236,6 @@
 
             },
             updateVariableSets: function () {
-                console.log(this);
-                debugger;
                 this.variables = [];
                 let _this = this;
                 this.opencgaClient.studies().info(this.study.id, {include: "variableSets"})
@@ -316,8 +314,6 @@
                 this.showMessageModal = true;
             },
             showReportOptions: function(e){
-                console.log(this);
-                debugger;
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
                 $("#" + this.prefix + "analysisSelectedDiv").show();
                 $("#" + this.prefix + "analysisResumeDiv").show();

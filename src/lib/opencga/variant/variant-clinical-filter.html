@@ -172,7 +172,7 @@
                         </div>
                         <br>
 
-                        <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}DepthDiv" style="cursor: pointer;"></i>&nbsp;Depth</label>
+             <!--           <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}DepthDiv" style="cursor: pointer;"></i>&nbsp;Depth</label>
                         <div id="{{prefix}}DepthDiv" hidden>
                             <div class="horizontal layout">
                                 <span>Depth</span>
@@ -189,7 +189,7 @@
                                 </span>
                             </div>
                         </div>
-                        <br>
+                        <br>-->
 
                         <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}PanelAppDiv" style="cursor: pointer;"></i>&nbsp;PanelApp</label>
                         <div id="{{prefix}}PanelAppDiv" hidden>
@@ -207,12 +207,12 @@
                         <!--TODO: Update when server side starts to support all xrefs and with/without rs ids-->
                         <br>
 
-                        <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}UserPanelDiv" style="cursor: pointer;"></i>&nbsp;User-defined panels</label>
+<!--                        <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}UserPanelDiv" style="cursor: pointer;"></i>&nbsp;User-defined panels</label>
                         <div id="{{prefix}}UserPanelDiv" hidden>
                             <textarea id="{{prefix}}UserPanelTextarea" name="UserPanelTextarea" class$="form-control clearable {{prefix}}FilterTextInput"
                                       rows="3" placeholder="No custom panel defined" on-keyup="updateQueryFilters"></textarea>
 
-                        </div>
+                        </div>-->
 
                         <!--<textarea id="{{prefix}}FeatureTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="5" placeholder="BRCA2, ENSG00000139618, ENST00000544455, P51587, 13:19748038:C:T, rs28897700, VAR_020705, RCV000162901, COSM3468368"-->
                         <!--name="geneSnp" on-keyup="updateQueryFilters"></textarea>-->
@@ -237,7 +237,7 @@
                 </div>
                 <div id="{{prefix}}Clinical" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}ClinicalHeading">
                     <div class="panel-body">
-                        <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}InheritanceDiv" style="cursor: pointer;"></i>&nbsp;Inheritance</label>
+<!--                        <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}InheritanceDiv" style="cursor: pointer;"></i>&nbsp;Inheritance</label>
                         <div id="{{prefix}}InheritanceDiv" hidden>
                             <select class$="form-control {{prefix}}FilterSelect" id="{{prefix}}Inheritance">
                                 <option>Select inheritance mode</option>
@@ -257,11 +257,11 @@
 
                         <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}GeneTypeDiv" style="cursor: pointer;"></i>&nbsp;Type of Genes</label>
                         <div id="{{prefix}}GeneTypeDiv" hidden></div>
-                        <br>
+                        <br>-->
 
                         <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}HPODiv" style="cursor: pointer;"></i>&nbsp;HPO</label>
                         <div id="{{prefix}}HPODiv" hidden>
-                             <!--<textarea id="{{prefix}}HPOTextarea" rows="3" placeholder="HPO term"></textarea>-->
+                             <!--<textarea id="{{prefix}}HPOTextarea" rows="3" placeholder="HPO term"></textarea>&ndash;&gt;-->
                             <textarea id="{{prefix}}HumanPhenotypeOntologyTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="3"
                                       name="hpo" placeholder="HP:0000001, HP:3000079" on-keyup="updateQueryFilters"></textarea>
                         </div>
@@ -304,7 +304,7 @@
                      aria-labelledby="{{prefix}}PopulationFrequencyHeading">
                     <div class="panel-body">
                         <!-- CSVS puesto a pelo... -->
-                        <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}CSVSdiv" style="cursor: pointer;"></i>&nbsp;CSVS</label>
+<!--                        <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}CSVSdiv" style="cursor: pointer;"></i>&nbsp;CSVS</label>
                         <div id="{{prefix}}CSVSdiv" hidden>
                             <div class="horizontal layout">
                                 <span>MAF</span>
@@ -321,7 +321,7 @@
                                 </span>
                             </div>
                         </div>
-                        <br>
+                        <br>-->
 
 
                         <!-- This code create the population frequencies menu filter form populationFrequencies from config.js -->
@@ -455,7 +455,7 @@
                             </div>
                         </div>
                         <br>
-                        <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}ImpactDiv" style="cursor: pointer;"></i>&nbsp;Impact</label>
+<!--                        <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}ImpactDiv" style="cursor: pointer;"></i>&nbsp;Impact</label>
                         <div id={{prefix}}ImpactDiv class="panel-body" hidden>
                             <div>
                                 <input type="checkbox" value="Low" on-change="updateQueryFilters" class$="{{prefix}}ImpactCheckBox"> Low<br>
@@ -465,7 +465,7 @@
 
                             </div>
                         </div>
-                        <br>
+                        <br>-->
 
 <!--                        <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}MtasterDiv" style="cursor: pointer;"></i>&nbsp;Mutation Taster</label>
                         <div class="panel-body" id="{{prefix}}MtasterDiv" hidden>
@@ -523,11 +523,11 @@
                             </div>
                         </div>
                         <br>
-                        <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}MutPredDiv" style="cursor: pointer;"></i>&nbsp;Mutation prediction</label>
+<!--                        <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}MutPredDiv" style="cursor: pointer;"></i>&nbsp;Mutation prediction</label>
                         <div id="{{prefix}}MutPredDiv" hidden>
                             <input id="{{prefix}}MutationPredGain" class$="form-check-input {{prefix}}RadioInput" type="radio" name="mutationPrediction" value="Gain"> Gain of function <br>
                             <input id="{{prefix}}MutationPredLoss" class$="form-check-input {{prefix}}RadioInput" type="radio" name="mutationPrediction" value="Loss"> Loss of function
-                        </div>
+                        </div>-->
 
                     </div>
                 </div>
@@ -598,7 +598,7 @@
             </div>
 
             <!-- Disease Databases -->
-            <div class="panel panel-default">
+         <!--   <div class="panel panel-default">
                 <div class="panel-heading" role="tab" id="{{prefix}}DisDBHeading">
                     <h4 class="panel-title">
                         <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}DisDB" aria-expanded="false" aria-controls="{{prefix}}DisDB">
@@ -625,7 +625,7 @@
                     </div>
                 </div>
             </div>
-
+-->
 
 
             <!-- Modal dialog for Analysis Browser-->
@@ -999,7 +999,8 @@
         updateQueryFilters: function () {
             let _filters = {};
 
-            console.log(this)
+            console.log(this);
+            debugger
 
             // Adding sample genotypes filter
             if (typeof this.sampleGenotypes !== "undefined" && this.sampleGenotypes != "") {
@@ -1056,7 +1057,7 @@
 
             // Panel - annot-panel
             if (this.$$("#" + this.prefix + "PanelApps").value !== "none" || this.$$("#" + this.prefix + "PanelAppsTextarea").value !== "") {
-                _filters["gene"] = this.$$("#" + this.prefix + "PanelAppsTextarea").value;
+                    _filters["gene"] = this.$$("#" + this.prefix + "PanelAppsTextarea").value;
             }
 
 
