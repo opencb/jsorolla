@@ -39,9 +39,11 @@
             </button>
 
             <!--Save -->
-            <!--<button type="button" class="btn btn-default btn-sm" data-toggle="popover" data-placement="bottom" on-click="_shareLink">-->
-            <!--<i class="fa fa-floppy-o" aria-hidden="true"></i> Save-->
-            <!--</button>-->
+            <template is="dom-if" if="{{showSelect}}">
+                <button type="button" class="btn btn-default btn-sm" data-toggle="popover" data-placement="bottom" on-click="_saveLink">
+                    <i class="fa fa-floppy-o" aria-hidden="true"></i> Save
+                </button>
+            </template>
 
             <!--<button type="button" class="btn btn-default btn-sm" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample" on-click="_test">-->
             <!--<i class="fa fa-share-alt" aria-hidden="true"></i> Share-->
@@ -691,7 +693,7 @@
                 this.cols = this._createDefaultColumns();
 
                 if (typeof this.cols !== "undefined" && typeof this.cohorts !== "undefined" && Object.keys(this.cohorts).length > 0) {
-                    let cohortIdx = 7;
+                    let cohortIdx = 6;
                     let cohortStudies = Object.keys(this.cohorts);
                     this.cols[0].splice(8, 0, {
                         title: this.project.name,
@@ -1105,6 +1107,10 @@
                 }).on("show.bs.popover", function () {
                     $(this).data("bs.popover").tip().css("max-width", "none");
                 });
+            },
+            _saveLink: function () {
+                let saveObject = {query: this.search, variants: $('#' + this.prefix + 'VariantBrowserGrid').bootstrapTable('getAllSelections')};
+                this.fire("save", saveObject);
             }
         });
     </script>

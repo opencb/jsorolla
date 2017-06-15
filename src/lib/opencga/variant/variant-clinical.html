@@ -136,7 +136,7 @@
                     <variant-prioritization-view prefix="{{prefix}}" mode="clinical" title="{{title}}" project="{{project}}" study="{{study}}" samples="{{samples}}"
                                                  opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}"
                                                  protein-substitution-scores="{{proteinSubstitutionScores}}" consequence-types="{{consequenceTypes}}"
-                                                 query="{{query}}" search="{{search}}" on-clear="onClear" on-filterchange="onFilterChange" on-propagate="propagateGeneEvent">
+                                                 query="{{query}}" search="{{search}}" on-clear="onClear" on-filterchange="onFilterChange" on-save="onSaveVariants" on-propagate="propagateGeneEvent">
                     </variant-prioritization-view>
                 </div>
             </div>
@@ -224,6 +224,15 @@
 
                 if (e.target.id === this.prefix + "UploadButton") {
                     this.clearDomUpload = {clear: true};
+                }
+            },
+            onSaveVariants: function (obj) {
+                for (let sample of this.samples) {
+                    if (typeof sample.fatherId !== "undefined" && sample.fatherId > 0 && typeof sample.motherId !== "undefined" && sample.motherId > 0) {
+                        opencgaClient.samples()
+                            .update(sample.id, {study: this.project.alias + ":" + this.study.alias}, {attributes: {"PRIORITIZATION": obj}});
+                        break;
+                    }
                 }
             }
         });

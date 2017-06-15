@@ -64,29 +64,28 @@
             </template>
 
             <template is="dom-if" if="{{_isClinicalMode}}">
-                <div style="float: left;padding-bottom: 0px" aria-label="...">
+                <div aria-label="...">
                     <span>
                         <i class="fa fa-file-text-o"></i>
                         <a id="{{prefix}}Files" class="variant-menu-link" data-view="TableResult" on-click="_changeView">TABLE RESULT</a>
                     </span>
-                        <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
-                        <span>
+                    <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
+                    <span>
                         <i class="fa fa-user-md"></i>
                         <a id="{{prefix}}Family" class="variant-menu-link" data-view="ClinicalData" on-click="_changeView">CLINICAL DATA</a>
                     </span>
-                        <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
-                        <span>
+                    <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
+                    <span>
                         <i class="fa fa-list-alt"></i>
                         <a id="{{prefix}}Browser" class="variant-menu-link" data-view="GenomeBrowser" on-click="_changeView">GENOME BROWSER (Beta)</a>
                     </span>
-                        <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
-                        <span>
-                        <i class="fa fa-save"></i>
-                        <a id="{{prefix}}Save" class="variant-menu-link" on-click="_savePrioritization">SAVE</a>
-                    </span>
+                    <!--<span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>-->
+                    <!--<span>-->
+                        <!--<i class="fa fa-save"></i>-->
+                        <!--<a id="{{prefix}}Save" class="variant-menu-link" on-click="_savePrioritization">SAVE</a>-->
+                    <!--</span>-->
                 </div>
             </template>
-            <br>
 
             <div>
                 <!-- First TAB -->

@@ -532,7 +532,7 @@
                     }
 
                     let params = {
-                        study: this.study.alias
+                        study: this.project.alias + ":" + this.study.alias
                     };
                     let body = {
                         "name": rowInfo.family.name,
@@ -576,7 +576,7 @@
             },
             createAnalysis: function(analysisInfo) {
                 let params = {
-                    study: this.study.alias
+                    study: this.project.alias + ":" + this.study.alias
                 };
                 let body= {
                     "name": analysisInfo.analysisID,
