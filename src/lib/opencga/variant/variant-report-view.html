@@ -174,15 +174,10 @@
                     <hr>
                     <div class="prioritization-summary col-sm-10" id="{{prefix}}variantsTableDiv" hidden>
                         <h4>Variants table</h4>
-                        <template is="dom-if" if="{{variants}}">
-                            <table id="{{prefix}}variantTable" data-search="false" data-show-columns="false"
-                                   data-pagination="false" data-page-size="500" data-checkbox-header="false" data-maintain-selected="true" style="cursor: pointer;">
-                                <thead style="background-color: #eee"></thead>
-                            </table>
-                        </template>
-                        <template is="dom-if" if="{{!variants}}">
-                            No variants were saved for this analysis
-                        </template>
+                        <table id="{{prefix}}variantTable" data-search="false" data-show-columns="false"
+                               data-pagination="false" data-page-size="500" data-checkbox-header="false" data-maintain-selected="true" style="cursor: pointer;">
+                            <thead style="background-color: #eee"></thead>
+                        </table>
                     </div>
 
                     <div class="prioritization-summary col-sm-12" id="{{prefix}}prioritizationSummaryDiv" hidden>
@@ -356,10 +351,6 @@
                     if (typeof _prioritization !== "undefined") {
                         _dataTable = this._getVariantsInfo(_prioritization.variants);
                         _query = _prioritization.query;
-                        this.variants = true;
-                    }
-                    else {
-                        this.variants = false;
                     }
 
                     let _this = this;
