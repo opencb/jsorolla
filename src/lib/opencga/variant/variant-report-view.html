@@ -172,13 +172,17 @@
                 <div style="margin: 10px 5px 15px 50px" class="prioritization-information col-sm-12" id="{{prefix}}prioritizationInformationDiv" hidden>
                     <h3>Prioritization Information</h3>
                     <hr>
-
                     <div class="prioritization-summary col-sm-10" id="{{prefix}}variantsTableDiv" hidden>
                         <h4>Variants table</h4>
-                        <table id="{{prefix}}variantTable" data-search="false" data-show-columns="false"
-                               data-pagination="false" data-page-size="500" data-checkbox-header="false" data-maintain-selected="true" style="cursor: pointer;">
-                            <thead style="background-color: #eee"></thead>
-                        </table>
+                        <template is="dom-if" if="{{variants}}">
+                            <table id="{{prefix}}variantTable" data-search="false" data-show-columns="false"
+                                   data-pagination="false" data-page-size="500" data-checkbox-header="false" data-maintain-selected="true" style="cursor: pointer;">
+                                <thead style="background-color: #eee"></thead>
+                            </table>
+                        </template>
+                        <template is="dom-if" if="{{!variants}}">
+                            No variants were saved for this analysis
+                        </template>
                     </div>
 
                     <div class="prioritization-summary col-sm-12" id="{{prefix}}prioritizationSummaryDiv" hidden>
@@ -207,37 +211,20 @@
 
                     <div class="prioritization-summary col-sm-12" id="{{prefix}}filterResumeDiv" hidden>
                         <h4>Filter resume</h4>
-                        For this analysis, the following filters were applied for prioritization:
-                        <br>
-                        {{filterPrioritization}}
-                        <!--<ul type="square">
-                            <li><b>Genomic</b></li>
-                            <ul type="disc">
-                                <li>Location: <i>chr3</i></li>
-                                <li>Biotype: <i>TR_V_gene</i></li>
-                                <li>PanelApp: <i>Arthrogryposis</i></li>
-                            </ul>
-                            <li><b>Clinical</b></li>
-                            <ul type="disc">
-                                <li>Inheritance: <i>autosomal recessive</i></li>
-                            </ul>
-                            <li><b>Population frequency</b></li>
-                            <ul type="disc">
-                                <li>1000 Genomes: <i>MAF < 0.01</i></li>
-                                <li>ESP6500: <i>MAF < 0.01</i></li>
-                            </ul>
-                            <li><b>Impact</b></li>
-                            <ul type="disc">
-                                <li>Protein Substitution Score: <i>SIFT < 0.05 AND Polyphen >0.95</i></li>
-                                <li>Impact: <i>High</i></li>
-                                <li>Effect (SO): <i>stop_gained</i></li>
-                            </ul>
-                            <li><b>Conservation</b></li>
-                            <ul type="disc">
-                                <li><i>Phylop < 0.01 AND PhastCons < 0.02 AND Gerp < 0.01</i></li>
-                            </ul>
-                            <li><b>Disease Databases</b>(No filters were applied)</li>
-                        </ul>-->
+                            <template is="dom-if" if="{{filters}}">
+                                For this analysis, the following filters were applied for prioritization:
+                                <div style="margin: 10px 5px 15px 55px">
+                                    <br>
+                                    <ul type="disc">
+                                        <template is="dom-repeat" items="{{filterPrioritization}}">
+                                            <li>{{item.id}}: <i>{{item.value}}</i></li>
+                                        </template>
+                                    </ul>
+                                </div>
+                            </template>
+                            <template is="dom-if" if="{{!filters}}">
+                                No filters were applied for this analysis
+                            </template>
                     </div>
                 </div>
                 <div style="margin: 10px 15px 15px 50px" class="other-information col-sm-12" id="{{prefix}}conclusionsDiv" hidden>
@@ -362,25 +349,41 @@
                         }
                         querySelector.appendChild(this.analysisSelected.pedigree);
                     }
-
                     // Prioritization information (variants)
+                    let _prioritization = this.analysisSelected.analysis.family.children[0].samples[0].attributes.PRIORITIZATION;
+                    let _dataTable = [];
+                    let _query = undefined;
+                    if (typeof _prioritization !== "undefined") {
+                        _dataTable = this._getVariantsInfo(_prioritization.variants);
+                        _query = _prioritization.query;
+                        this.variants = true;
+                    }
+                    else {
+                        this.variants = false;
+                    }
+
                     let _this = this;
                     $("#" + this.prefix + "variantTable").bootstrapTable('destroy');
                     $("#" + this.prefix + "variantTable").bootstrapTable({
                         columns: _this._getTableColumns(),
-                        data: {
-                            variant: "chr2:123123:A/T",
-                            id: "dbSNP213123",
-                            genes: "BRCA2",
-                            type: "SNV",
-                            consequenceType: "synonymous_Variant"
-                        }
-                        //data: _this._getVariantsInfo(_this.analysisSelected.proband.samples[0].attributes.variants)
+                        data: _dataTable
                     });
 
                     // Filter information
-                    //this.filterPrioritization = this.analysisSelected.proband.samples[0].attributes.query;
-                    this.filterPrioritization = "Filtros aplicados";
+                    if (typeof _query !== "undefined"){
+                        let _filters = $.map(_query, function(value, key) {
+                            if (value !== "") {
+                                return [{id: key, value: value}];
+                            }
+                        });
+                        this.filterPrioritization = _filters;
+                        this.filters = true;
+                    } else {
+                        this.filterPrioritization = "No filters were selected";
+                        this.filters = false;
+                    }
+
+
 
 
                     // Show divs
@@ -506,6 +509,7 @@
                         consequenceType: variants[i].annotation.consequenceTypes[0].sequenceOntologyTerms[0].name
                     });
                 }
+                return _myVariants;
             },
             _getTableColumns: function() {
                 this._columns = [

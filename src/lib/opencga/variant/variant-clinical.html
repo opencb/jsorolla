@@ -21,6 +21,7 @@
 <link rel="import" href="variant-sample-grid.html">
 <link rel="import" href="variant-clinical-report.html">
 <link rel="import" href="variant-clinical-filter.html">
+<link rel="import" href="../opencga-message-dialog.html">
 
 <dom-module id="variant-clinical">
 
@@ -128,7 +129,7 @@
             <div class="analysis-content" id="{{prefix}}FilterButtonDiv" style="display: none">
                 <div class="col-md-2">
                     <variant-clinical-filter prefix="{{prefix}}" mode="{{mode}}" study="{{study}}" project="{{project}}" samples="{{samples}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"
-                                             population-frequencies="{{populationFrequencies}}" consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}" style="font-size: 12px">
+                                             population-frequencies="{{populationFrequencies}}" consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}" analysis-selected="{{analysisSelected}}" style="font-size: 12px">
                     </variant-clinical-filter>
                 </div>
 
@@ -145,6 +146,7 @@
                 <variant-clinical-report opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}" title="{{title}}" analysis="{{analysis}}"></variant-clinical-report>
             </div>
         </div>
+        <opencga-message-dialog opencga-client="{{opencgaClient}}" show-message-modal="{{showMessageModal}}" settings-message-modal="{{settingsMessageModal}}"></opencga-message-dialog>
     </template>
 
     <script>
@@ -206,6 +208,17 @@
                 clearDomUpload: {
                     type: Object,
                     notify: true
+                },
+                analysisSelected: { // TO BE REMOVED -> Now is used to get the analysis selected so that information about family is known for saving variants
+                    type: Object
+                },
+                showMessageModal: {
+                    type: Boolean,
+                    notify: true
+                },
+                settingsMessageModal: {
+                    type: Object,
+                    notify: true
                 }
             },
             ready: function () {
@@ -226,12 +239,45 @@
                     this.clearDomUpload = {clear: true};
                 }
             },
-            onSaveVariants: function (obj) {
-                for (let sample of this.samples) {
-                    if (typeof sample.fatherId !== "undefined" && sample.fatherId > 0 && typeof sample.motherId !== "undefined" && sample.motherId > 0) {
-                        opencgaClient.samples()
-                            .update(sample.id, {study: this.project.alias + ":" + this.study.alias}, {attributes: {"PRIORITIZATION": obj}});
-                        break;
+            onSaveVariants: function (e, obj) {
+                if (typeof this.analysisSelected !== "undefined") {
+                    let sampleId = this.analysisSelected.analysis.family.children[0].samples[0].id;
+                    let analysisId = this.analysisSelected.analysisID;
+
+                    if (this.opencgaClient instanceof OpenCGAClient) {
+
+                        let params = {
+                            study: this.project.alias + ":" + this.study.alias
+                        };
+
+                        let body =  {
+                            attributes: {"PRIORITIZATION": obj}
+                        };
+
+                        let _this = this;
+                        this.opencgaClient.samples().update(sampleId, params, body)
+                            .then(function (response) {
+                                _this.settingsMessageModal = {
+                                    messageHeader: "BIER-IVA",
+                                    messageBody: ["Selected variants have been saved for " + analysisId],
+                                    type: "info",
+                                    height: "100px",
+                                    width: "500px"
+                                };
+
+                                _this.showMessageModal = true;
+                            })
+                            .catch(function (response) {
+                                _this.settingsMessageModal = {
+                                    messageHeader: "Error",
+                                    messageBody: ["Variants couldn't be saved for " + analysisId],
+                                    type: "danger",
+                                    height: "100px",
+                                    width: "500px"
+                                };
+
+                                _this.showMessageModal = true;
+                            });
                     }
                 }
             }
