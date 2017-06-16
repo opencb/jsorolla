@@ -26,54 +26,22 @@
 
         <div>
             <div class="col-md-3">
-                <!--<div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true">-->
-                    <!--&lt;!&ndash;Sample name&ndash;&gt;-->
-                    <!--<div class="panel panel-default">-->
-                        <!--<div class="panel-heading" role="tab" id="{{prefix}}SampleGeneralFilterHeading">-->
-                            <!--<h4 class="panel-title">-->
-                                <!--<a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"-->
-                                   <!--href="#{{prefix}}General" aria-expanded="true" aria-controls="{{prefix}}General">-->
-                                    <!--General-->
-                                    <!--<div style="float: right" class="tooltip-div">-->
-                                        <!--<a data-toggle="tooltip" title="Generic sample filters">-->
-                                            <!--<i class="fa fa-info-circle" aria-hidden="true"></i>-->
-                                        <!--</a>-->
-                                    <!--</div>-->
-                                <!--</a>-->
-                            <!--</h4>-->
-                        <!--</div>-->
-                        <!--<div id="{{prefix}}SampleGeneralFilter" class="panel-collapse" role="tabpanel"-->
-                             <!--aria-labelledby="{{prefix}}SampleGeneralFilterHeading">-->
-                            <!--<div class="form-group has-feedback panel-body">-->
-                                <!--Sample name:-->
-                                <!--<textarea id="{{prefix}}NameTextarea" class="form-control clearable" rows="3"-->
-                                          <!--placeholder="HG01879, HG01880, HG01881..."-->
-                                          <!--name="name" on-keyup="calculateFilters"></textarea>-->
-
-                                <!--<br> Individual name:-->
-                                <!--<textarea id="{{prefix}}IndividualTextarea" class="form-control clearable" rows="3"-->
-                                          <!--placeholder="Smith, Grant ..."-->
-                                          <!--name="individual" on-keyup="calculateFilters"></textarea>-->
-                            <!--</div>-->
-                        <!--</div>-->
-                    <!--</div>-->
-                <!--</div>-->
-
-                <opencga-sample-filter opencga-client="{{opencgaClient}}" search="{{search}}"></opencga-sample-filter>
+                <opencga-sample-filter opencga-client="{{opencgaClient}}" query="{{query}}" search="{{search}}"></opencga-sample-filter>
             </div>
 
             <div class="col-md-9">
-                <!--<table id="{{prefix}}FamilySelector" data-search="true" data-show-columns="true" data-page-size="5" data-pagination="true" data-page-list="[10, 25, 50]"-->
-                       <!--data-checkbox-header="false" style="cursor: pointer;">-->
-                    <!--<thead style="background-color: #eee"></thead>-->
-                <!--</table>-->
-                <h3>Sample results</h3>
+                <br>
+                <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" fixed-filters="{{fixedFilters}}"
+                                        alias="{{activeFilterAlias}}" refresh="{{search}}" on-clear="onClear" on-filterchange="onFilterChange"></opencga-active-filters>
+                <!--<h3>Sample results</h3>-->
                 <variant-sample-grid opencga-client="{{opencgaClient}}" study="{{study}}" samples="{{samples}}" search="{{search}}"></variant-sample-grid>
 
-                <div style="padding: 20px 5px">
-                    <h3>Family editor</h3>
-                    <opencga-family-editor samples="{{samples}}" opencga-client="{{opencgaClient}}"></opencga-family-editor>
-                </div>
+                <template is="dom-if" if="{{isFamilyMode}}">
+                    <div style="padding: 20px 5px">
+                        <h3>Family editor</h3>
+                        <opencga-family-editor samples="{{samples}}" opencga-client="{{opencgaClient}}"></opencga-family-editor>
+                    </div>
+                </template>
             </div>
         </div>
     </template>
@@ -85,14 +53,17 @@
                 opencgaClient: {
                     type: Object
                 },
+                project: {
+                    type: Object
+                },
                 study: {
                     type: Object
 //                    observer: 'renderFromServer'
                 },
-//                studyId: {
-//                    type: Number,
-//                    observer: 'renderFromServer'
-//                },
+                mode: {
+                    type: String,
+                    value: "sample"
+                },
                 samples: {
                     type: Array,
                     notify: true
@@ -126,6 +97,21 @@
                 }
 
                 this.compact = true;
+
+                switch (this.mode) {
+                    default:
+                    case "sample":
+                        this.isSampleMode = true;
+                        break;
+                    case "family":
+                        this.isFamilyMode = true;
+                        break;
+                    case "cancer":
+                        this.isCancerMode = true;
+                        break;
+                }
+
+                this.fixedFilters = ["studies"];
             },
             attached: function () {
                 this.table = $('#' + this.prefix + "FamilySelector");
@@ -426,6 +412,14 @@
                 }
 
                 this.search = filterParams;
+            },
+            onClear: function() {
+                this.query = {studies: this.project.alias + ":" + this.study.alias};
+                this.search = {};
+            },
+            onFilterChange: function(e) {
+                this.query = e.detail;
+                this.search = e.detail;
             }
         });
 

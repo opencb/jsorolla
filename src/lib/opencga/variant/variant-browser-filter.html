@@ -201,60 +201,72 @@
                                 <form>
                                     <label>Select Analysis: </label>
                                     <br>
-                                    <input type="radio" name="analysisRadioButtons" id="familyRadio" value="family" class$="{{prefix}}FilterRadio" checked on-change="selectAnalysisType" style="padding-left: 20px"> Family<br>
-                                    <input type="radio" name="analysisRadioButtons" id="cancerRadio" value="cancer" class$="{{prefix}}FilterRadio" on-change="selectAnalysisType" style="padding-left: 20px"> Cancer<br>
+                                    <input id="sampleRadio" type="radio" name="analysisRadioButtons" value="sample" class$="{{prefix}}FilterRadio" checked on-change="selectAnalysisType" style="padding-left: 20px"> Samples<br>
+                                    <input id="familyRadio" type="radio" name="analysisRadioButtons" value="family" class$="{{prefix}}FilterRadio" on-change="selectAnalysisType" style="padding-left: 20px"> Family<br>
+                                    <input id="cancerRadio" type="radio" name="analysisRadioButtons" value="cancer" class$="{{prefix}}FilterRadio" on-change="selectAnalysisType" style="padding-left: 20px"> Cancer<br>
                                 </form>
                                 <br>
 
-                                <template is="dom-if" if="{{isFamilyAnalysis}}">
-                                    <label><i class="fa fa-sitemap" aria-hidden="true"></i> Family Analysis</label>
+                                <template is="dom-if" if="{{isSampleAnalysis}}">
+                                    <label><i class="fa fa-users" aria-hidden="true"></i>&nbsp;&nbsp;Sample Analysis</label>
                                     <br>
                                     <span>Select samples: &nbsp;
                                         <button data-toggle="modal" role="button" data-placement="bottom" data-target$="#{{prefix}}SampleBrowser" on-click="refreshSegregationTable">
                                             Browse...
                                         </button>
                                     </span>
-                                    <br>
-                                    <br>
-                                    <div class="dropdown">
-                                        <span>Inheritance mode: &nbsp;
-                                        <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="segregationPrioritizationDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                            {{segregation}}
-                                            <span class="caret"></span>
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="segregationPrioritizationDropdown" on-click="selectSegregation">
-                                            <template is="dom-repeat" items="{{config.segregation}}">
-                                                <li><a>{{item}}</a></li>
-                                            </template>
-                                        </ul>
-                                        </span>
-                                    </div>
+                                </template>
 
-                                    <table class="table table-hover" id="segregationTable">
-                                        <thead>
-                                        <tr>
-                                            <th>Sample</th>
-                                            <th>0/0</th>
-                                            <th>0/1</th>
-                                            <th>1/1</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <template is="dom-repeat" items="{{_samples}}" as="sample">
-                                            <tr id="{{sample.name}}">
-                                                <td id="{{prefix}}{{sample.name}}RowName" class$="{{sample.className}}">{{sample.name}}&nbsp;({{sample.role}})</td>
-                                                <td><input type="checkbox" value="0|0" data-id="{{sample.name}}" on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
-                                                <td><input type="checkbox" value="0|1" data-id="{{sample.name}}" on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
-                                                <td><input type="checkbox" value="1|1" data-id="{{sample.name}}" on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
-                                            </tr>
-                                        </template>
-                                        </tbody>
-                                    </table>
-                                    <input type="checkbox" value="./." on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox">&nbsp;Include missing
+                                <template is="dom-if" if="{{isFamilyAnalysis}}">
+                                    <label><i class="fa fa-sitemap" aria-hidden="true"></i>&nbsp;&nbsp;Family Analysis</label>
+                                    <br>
+                                    Not ready yet, work in progress.
+                                    <!--<span>Select family: &nbsp;-->
+                                        <!--<button data-toggle="modal" role="button" data-placement="bottom" data-target$="#{{prefix}}SampleBrowser" on-click="refreshSegregationTable">-->
+                                            <!--Browse...-->
+                                        <!--</button>-->
+                                    <!--</span>-->
+                                    <!--<br>-->
+                                    <!--<br>-->
+                                    <!--<div class="dropdown">-->
+                                        <!--<span>Inheritance mode: &nbsp;-->
+                                        <!--<button class="btn btn-default btn-sm dropdown-toggle" type="button" id="segregationPrioritizationDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">-->
+                                            <!--{{segregation}}-->
+                                            <!--<span class="caret"></span>-->
+                                        <!--</button>-->
+                                        <!--<ul class="dropdown-menu" aria-labelledby="segregationPrioritizationDropdown" on-click="selectSegregation">-->
+                                            <!--<template is="dom-repeat" items="{{config.segregation}}">-->
+                                                <!--<li><a>{{item}}</a></li>-->
+                                            <!--</template>-->
+                                        <!--</ul>-->
+                                        <!--</span>-->
+                                    <!--</div>-->
+
+                                    <!--<table class="table table-hover" id="segregationTable">-->
+                                        <!--<thead>-->
+                                        <!--<tr>-->
+                                            <!--<th>Sample</th>-->
+                                            <!--<th>0/0</th>-->
+                                            <!--<th>0/1</th>-->
+                                            <!--<th>1/1</th>-->
+                                        <!--</tr>-->
+                                        <!--</thead>-->
+                                        <!--<tbody>-->
+                                        <!--<template is="dom-repeat" items="{{_samples}}" as="sample">-->
+                                            <!--<tr id="{{sample.name}}">-->
+                                                <!--<td id="{{prefix}}{{sample.name}}RowName" class$="{{sample.className}}">{{sample.name}}&nbsp;({{sample.role}})</td>-->
+                                                <!--<td><input type="checkbox" value="0|0" data-id="{{sample.name}}" on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>-->
+                                                <!--<td><input type="checkbox" value="0|1" data-id="{{sample.name}}" on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>-->
+                                                <!--<td><input type="checkbox" value="1|1" data-id="{{sample.name}}" on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>-->
+                                            <!--</tr>-->
+                                        <!--</template>-->
+                                        <!--</tbody>-->
+                                    <!--</table>-->
+                                    <!--<input type="checkbox" value="./." on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox">&nbsp;Include missing-->
                                 </template>
 
                                 <template is="dom-if" if="{{isCancerAnalysis}}">
-                                    <label><i class="fa fa-user-times" aria-hidden="true"></i> Cancer Analysis</label>
+                                    <label><i class="fa fa-user-times" aria-hidden="true"></i>&nbsp;&nbsp;Cancer Analysis</label>
                                     <br>
                                     Not ready yet, work in progress.
                                 </template>
@@ -723,17 +735,17 @@
         </div>
 
         <!-- Modal dialog for Sample Browser in prioritization-->
-        <div class="modal fade" id="{{prefix}}SampleBrowser" tabindex="-1" role="dialog"
-             aria-labelledby="sampleBrowserLabel">
+        <div class="modal fade" id="{{prefix}}SampleBrowser" tabindex="-1" role="dialog" aria-labelledby="sampleBrowserLabel">
             <div class="modal-dialog modal-lg" role="document" style="width: 1440px;">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                         <h4 class="modal-title" id="{{prefix}}SampleBrowserLabel">Family Selector</h4>
                     </div>
-                    <div class="modal-body" style="height: 920px">
+                    <div class="modal-body" style="height: 680px">
                         <!--<opencga-family-selector opencga-client="{{opencgaClient}}" study-id="{{study.id}}" samples="{{samples}}" prefix="{{prefix}}"></opencga-family-selector>-->
-                        <variant-sample-selector opencga-client="{{opencgaClient}}" study="{{study}}" study-id="{{study.id}}" samples="{{samples}}" on-familychange="onFamilyChange"></variant-sample-selector>
+                        <variant-sample-selector opencga-client="{{opencgaClient}}" project="{{project}}" study="{{study}}" mode="{{analysisType}}" samples="{{samples}}"
+                                                 on-familychange="onFamilyChange"></variant-sample-selector>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
@@ -835,7 +847,8 @@
                 this.sampleGenotypesObj = {};
                 this.query = {};
 
-                this.isFamilyAnalysis = true;
+                this.isSampleAnalysis = true;
+
                 this.set('panelList', PANELS);
 
                 this.family = {};
@@ -1497,11 +1510,16 @@
             selectAnalysisType: function (e) {
                 e.preventDefault();
                 this.analysisType = e.target.value;
-                this.isFamilyAnalysis = this.isCancerAnalysis = false;
-                if (this.analysisType === "family") {
-                    this.isFamilyAnalysis = true;
+                this.isSampleAnalysis = this.isFamilyAnalysis = this.isCancerAnalysis = false;
+
+                if (this.analysisType === "sample") {
+                    this.isSampleAnalysis = true;
                 } else {
-                    this.isCancerAnalysis = true;
+                    if (this.analysisType === "family") {
+                        this.isFamilyAnalysis = true;
+                    } else {
+                        this.isCancerAnalysis = true;
+                    }
                 }
             },
             selectSegregation: function (e) {
