@@ -47,7 +47,7 @@ class OpencgaAdapter {
         // this.species = species;
     }
     getVariant(args){
-
+ console.log("pasando por el getVariant");
         var _this = this;
         var params = {};
 debugger
@@ -141,6 +141,7 @@ debugger
 
     }
     getData(args) {
+        console.log("pasando por el getData");
         var _this = this;
         var params = {};
 //                    histogram: (dataType == 'histogram')
@@ -313,7 +314,8 @@ debugger
             // var items = this._adaptChunks(queryResult, categories[i], dataType, chunkSize);
             // responseItems = responseItems.concat(items);
         }
-
+console.log("pasando por el data");
+    console.log(data);
         /** time log **/
         console.timeEnd(timeId);
 
@@ -329,11 +331,18 @@ debugger
         var regions = [];
         var chunks = [];
         if (dataType !== 'histogram') {
-            if (typeof this.parse === 'function') {
-                chunks = this.parse(response, dataType);
-            } else {
-                chunks = response;
+            for(var i = 0; i< response.response.length; i++){
+                var res = response.response[i].result;
+                chunks.push(res);
+
             }
+            console.log("Los chunks son:");
+            console.log(chunks);
+            //if (typeof this.parse === 'function') {
+            //    chunks = this.parse(response, dataType);
+            //} else {
+            //    chunks = response;
+            //}
             var regionSplit = queryRegion.split(',');
             for (var i = 0; i < regionSplit.length; i++) {
                 var regionStr = regionSplit[i];
@@ -352,11 +361,13 @@ debugger
                 regions.push(region);
             }
         }
+    console.log(response);
+    debugger
         var responseItems = [];
         responseItems.push({
-            chunkKey: data.response[i].id,
+            chunkKey: response.response[i].id,
             region: regions,
-            value: data.response[i].result,
+            value: response.response[i].result,
             dataType: dataType
         });
        // var items = this.cache.putByRegions(regions, chunks, categories, dataType, chunkSize);

@@ -115,6 +115,7 @@ VariantTrack.prototype.initializeDom = function (targetId) {
         'width': this.svgCanvasWidth
     });
     this.updateHeight();
+    this.renderer.init();
 };
 
 VariantTrack.prototype.render = function (targetId) {
