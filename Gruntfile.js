@@ -15,11 +15,11 @@ module.exports = function (grunt) {
                 src: ['Gruntfile-genome-viewer.js'],
                 tasks: ['no-dep']
             },
+
             'genome-browser': {
                 src: ['Gruntfile-genome-browser.js'],
                 tasks: ['default']
             },
-
 
             'circular-genome-viewer': {
                 src: ['Gruntfile-circular-genome-viewer.js'],

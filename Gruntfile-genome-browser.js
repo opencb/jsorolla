@@ -32,11 +32,9 @@ module.exports = function (grunt) {
                     'src/lib/data-adapter/feature/cellbase-adapter-new.js',
                     'src/lib/data-adapter/feature/opencga-adapter-new.js',
                     'src/lib/cache/indexeddb-cache.js',
-                    'src/lib/clients/cellbase-client.js',
-                    'src/lib/clients/cellbase-client-config.js',
                     'src/lib/clients/rest-client.js',
+                    'src/lib/clients/cellbase-client.js',
                     'src/lib/clients/opencga-client.js',
-                    'src/lib/clients/opencga-client-config.js',
 
                     'src/genome-browser/genome-browser.js'
 
