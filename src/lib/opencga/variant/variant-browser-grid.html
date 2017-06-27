@@ -16,7 +16,7 @@
 
 <dom-module id="variant-browser-grid">
     <template>
-        <style is="custom-style" include="jso-styles"></style>
+        <!--<style include="jso-styles"></style>-->
 
         <div id="{{prefix}}ToolbarLeft" style="float: left;margin: 20px 0px 0px 0px">
             <span style="font-size: 14px">Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> variants</span>
@@ -64,92 +64,109 @@
     </template>
 
     <script>
-        Polymer({
-            is: 'variant-browser-grid',
-            properties: {
-                opencgaClient: {
-                    type: Object
-                },
-                cellbaseClient: {
-                    type: Object,
-                    observer: 'renderFromServer'
-                },
-                project: {
-                    type: Object
-                },
-                study: {
-                    type: Object,
-                    observer: 'renderFromServer'
-                },
-                mode: {
-                    type: String
-                },
-                data: {
-                    type: Array,
-                    value: [],
-                    observer: 'renderFromLocal'
-                },
-                samples: {
-                    type: Array,
-                    value: [],
-                    observer: '_refreshTableColumns'
-                },
-                cohorts: {
-                    type: Object,
-                    observer: '_refreshTableColumns'
-                },
-                consequenceTypes: {
-                    type: Object,
-                    observer: 'assignColors'
-                },
-                populationFrequencies: {
-                    type: Object,
-                    value: {},
-                    observer: '_refreshTableColumns'
-                },
-                proteinSubstitutionScores: {
-                    type: Object,
-                    observer: 'assignColors'
-                },
-                query: {
-                    type: Object
+        class VariantBrowserGrid extends Polymer.Element {
+
+            static get is() {
+                return 'variant-browser-grid';
+            }
+
+            static get properties() {
+                return {
+                    opencgaClient: {
+                        type: Object
+                    },
+                    cellbaseClient: {
+                        type: Object,
+                        observer: 'renderFromServer'
+                    },
+                    project: {
+                        type: Object
+                    },
+                    study: {
+                        type: Object,
+                        observer: 'renderFromServer'
+                    },
+                    mode: {
+                        type: String
+                    },
+                    data: {
+                        type: Array,
+                        value: [],
+                        observer: 'renderFromLocal'
+                    },
+                    samples: {
+                        type: Array,
+                        value: [],
+                        observer: '_refreshTableColumns'
+                    },
+                    cohorts: {
+                        type: Object,
+                        observer: '_refreshTableColumns'
+                    },
+                    consequenceTypes: {
+                        type: Object,
+                        observer: 'assignColors'
+                    },
+                    populationFrequencies: {
+                        type: Object,
+                        value: {},
+                        observer: '_refreshTableColumns'
+                    },
+                    proteinSubstitutionScores: {
+                        type: Object,
+                        observer: 'assignColors'
+                    },
+                    query: {
+                        type: Object
 //                    observer: 'renderFromServer'
-                },
-                search: {
-                    type: Object,
-                    observer: 'renderFromServer'
-                },
-                showPopFreqInColor: {
-                    type: Boolean,
-                    value: true
-                },
-                queryCellbase: {
-                    type: Boolean,
-                    value: false
-                },
-                summary: {
-                    type: Boolean
-                },
-                config: {
-                    type: Object
-                },
-                variant: {
-                    type: String,
-                    notify: true
-                },
-                showSelect: {
-                    type: Boolean,
-                    value: false
-                },
-                prefix: {
-                    type: String
+                    },
+                    search: {
+                        type: Object,
+                        observer: 'renderFromServer'
+                    },
+                    showPopFreqInColor: {
+                        type: Boolean,
+                        value: true
+                    },
+                    queryCellbase: {
+                        type: Boolean,
+                        value: false
+                    },
+                    summary: {
+                        type: Boolean
+                    },
+                    config: {
+                        type: Object
+                    },
+                    variant: {
+                        type: String,
+                        notify: true
+                    },
+                    showSelect: {
+                        type: Boolean,
+                        value: false
+                    },
+                    prefix: {
+                        type: String
+                    }
                 }
-            },
-            _test: function () {
+            }
+
+            constructor() {
+                super();
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            _test() {
                 let getUrlQueryParams = this._getUrlQueryParams();
                 return ">>" + getUrlQueryParams.url;
-            },
-            ready: function () {
+            }
+            ready() {
+                super.ready();
+
                 // TO BE REMOVED!
                 this._refreshTableColumns();
 
@@ -158,14 +175,14 @@
                 }
 
                 this.analysisMode = "family";
-            },
-            attached: function() {
+            }
+            attached() {
                 this.table = $('#' + this.prefix + 'VariantBrowserGrid');
 
                 this.downloadRefreshIcon = $("#" + this.prefix + "DownloadRefresh");
                 this.downloadIcon = $("#" + this.prefix + "DownloadIcon");
-            },
-            assignColors: function () {
+            }
+            assignColors() {
                 if (typeof this.consequenceTypes !== "undefined") {
                     let consequenceTypeToColor = {};
                     let consequenceTypeToImpact = {};
@@ -195,8 +212,8 @@
                     this.pssColor = pssColor;
                 }
                 this.renderFromServer();
-            },
-            renderFromServer: function () {
+            }
+            renderFromServer() {
                 this.variant = ""; // Empty the variant every time the grid is loaded
 
                 this.from = 1;
@@ -245,7 +262,8 @@
                         },
                         onLoadSuccess: function (data) {
                             // The first time we mark as selected the first row that is rows[2] since the first two rows are the header
-                            Polymer.dom(_this.root).querySelector(_this.table.selector).rows[2].setAttribute('class', 'success');
+
+//                            Polymer.dom(_this.root).querySelector(_this.table.selector).rows[2].setAttribute('class', 'success');
                             _this._onSelectVariant(data.rows[0]);
                         },
                         onPageChange: function (page, size) {
@@ -304,8 +322,8 @@
                     });
                     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('showLoading');
                 }
-            },
-            _getUrlQueryParams: function() {
+            }
+            _getUrlQueryParams() {
                 if (typeof this.opencgaClient === "undefined") {
                     return {host: "", queryParams: {}, url: ""};
                 }
@@ -371,14 +389,15 @@
                 let url = host + "?" + query.join("&");
 
                 return {host: host, queryParams: queryParams, url: url};
-            },
-            _onSelectVariant: function(row) {
+            }
+            _onSelectVariant(row) {
                 if (typeof row !== "undefined") {
                     let _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
-                    this.fire('selectvariant', {id: _variant, variant: row});
+//                    this.fire('selectvariant', {id: _variant, variant: row});
+                    this.dispatchEvent(new CustomEvent('selectvariant', {detail: {id: _variant, variant: row}}));
                 }
-            },
-            renderFromLocal: function () {
+            }
+            renderFromLocal() {
                 let _this = this;
                 $('#' + this.prefix + 'VariantBrowserGrid').bootstrapTable('destroy');
                 $('#' + this.prefix + 'VariantBrowserGrid').bootstrapTable({
@@ -390,23 +409,24 @@
                         $($element).addClass('success');
                     }
                 });
-            },
-            showGene: function(geneName) {
-                this.fire('selected', {gene: geneName});
-            },
-            variantFormatter: function (value, row, index) {
+            }
+            showGene(geneName) {
+//                this.fire('selected', {gene: geneName});
+                this.dispatchEvent(new CustomEvent('selected', {detail: {gene: geneName}}));
+            }
+            variantFormatter(value, row, index) {
                 let ref = (row.reference != "") ? row.reference : "-";
                 let alt = (row.alternate != "") ? row.alternate : "-";
                 return "<span style='white-space: nowrap'>" + row.chromosome + ':' + row.start + " " + ref + '/' + alt + "</span>";
-            },
-            snpFormatter: function (value, row, index) {
+            }
+            snpFormatter(value, row, index) {
                 if (typeof row.id !== "undefined" && row.id.startsWith("rs")) {
                     return "<a target='_blank' href='http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + row.id + "'>" + row.id + "</a>";
                 } else {
                     return '-';
                 }
-            },
-            geneFormatter: function (value, row, index) {
+            }
+            geneFormatter(value, row, index) {
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
                     if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined" && row.annotation.consequenceTypes.length > 0) {
                         var visited = {};
@@ -427,8 +447,8 @@
                     }
                 }
                 return '-';
-            },
-            consequenceTypeFormatter: function (value, row, index) {
+            }
+            consequenceTypeFormatter(value, row, index) {
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
                     if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined" && row.annotation.consequenceTypes.length > 0) {
                         var consequenceTypesArr = [];
@@ -484,8 +504,8 @@
                     }
                 }
                 return '-';
-            },
-            proteinScoreFormatter: function (value, row, index) {
+            }
+            proteinScoreFormatter(value, row, index) {
                 var min = 10;
                 var max = 0;
                 let description = {};
@@ -529,8 +549,8 @@
                     return '<span style="color: ' + this.field.context.pssColor.get(str) + '" title="' + max + '">' + description.polyphen + '</span>';
                 }
                 return '-';
-            },
-            caddScaledFormatter:  function (value, row, index) {
+            }
+            caddScaledFormatter(value, row, index) {
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined" && typeof row.annotation.functionalScore !== "undefined") {
                     for (let i = 0; i < row.annotation.functionalScore.length; i++) {
                         if (typeof row.annotation.functionalScore[i] !== "undefined" && row.annotation.functionalScore[i].source == "cadd_scaled" && row.type != "INDEL") {
@@ -544,8 +564,8 @@
                     }
                 }
                 return '-';
-            },
-            conservationFormatter:  function (value, row, index) {
+            }
+            conservationFormatter(value, row, index) {
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined" && typeof row.annotation.conservation !== "undefined") {
                     for (let i = 0; i < row.annotation.conservation.length; i++) {
                         if (row.annotation.conservation[i].source == this.field) {
@@ -554,8 +574,8 @@
                     }
                 }
                 return '-';
-            },
-            cohortFormatter: function (value, row, index) {
+            }
+            cohortFormatter(value, row, index) {
                 if (typeof this.field.cohorts !== "undefined" && this.field.cohorts.length > 0) {
 
                     let data = new Map();
@@ -597,8 +617,8 @@
                     return htmlCohortsTable;
                 }
                 return '-';
-            },
-            populationFrequenciesFormatter: function(value, row, index) {
+            }
+            populationFrequenciesFormatter(value, row, index) {
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined" && typeof row.annotation.populationFrequencies !== "undefined") {
                     for (let popFreqIdx in row.annotation.populationFrequencies) {
                         let popFreq = row.annotation.populationFrequencies[popFreqIdx];
@@ -617,12 +637,12 @@
                     }
                 }
                 return '-';
-            },
-            populationFrequenciesFormatter2: function(value, row, index) {
+            }
+            populationFrequenciesFormatter2(value, row, index) {
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined" && typeof row.annotation.populationFrequencies !== "undefined") {
 
                     let data = new Map();
-                    for (popFreqIdx in row.annotation.populationFrequencies) {
+                    for (let popFreqIdx in row.annotation.populationFrequencies) {
                         let popFreq = row.annotation.populationFrequencies[popFreqIdx];
                         if (this.field.study === popFreq.study && this.field.populationMap[popFreq.population] === true) {
                             data.set(popFreq.population, Number(popFreq.altAlleleFreq).toFixed(4));
@@ -632,7 +652,7 @@
                     let tableSize = this.field.populations.length * 15;
                     // Creates the colored table with one row and as many columns as populations
                     let htmlPopFreqTable = "<table style='width: " + tableSize + "px'><tr>";
-                    for (p in this.field.populations) {
+                    for (let p in this.field.populations) {
                         let popFreq = this.field.populations[p];
                         if (typeof data.get(popFreq) !== "undefined") {
                             let freq = data.get(this.field.populations[p]);
@@ -654,8 +674,8 @@
                     return htmlPopFreqTable;
                 }
                 return '-';
-            },
-            clinvarFormatter: function (value, row, index) {
+            }
+            clinvarFormatter(value, row, index) {
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined" && typeof row.annotation.variantTraitAssociation !== "undefined") {
                     if (row.annotation.variantTraitAssociation != null) {
                         let traits = [];
@@ -675,8 +695,8 @@
                     }
                 }
                 return '-';
-            },
-            sampleFormatter: function (value, row, index) {
+            }
+            sampleFormatter(value, row, index) {
                 if (typeof row !== "undefined" && typeof row.studies !== "undefined" && row.studies.length > 0) {
                     // NOTE: There are always 4 columns before the samples
                     for (let studyIdx in row.studies) {
@@ -688,8 +708,8 @@
                     }
                 }
                 return '-';
-            },
-            _refreshTableColumns: function() {
+            }
+            _refreshTableColumns() {
                 this.cols = this._createDefaultColumns();
 
                 if (typeof this.cols !== "undefined" && typeof this.cohorts !== "undefined" && Object.keys(this.cohorts).length > 0) {
@@ -748,7 +768,7 @@
                         for (let j = 0; j < this.populationFrequencies.studies.length; j++) {
                             let populations = [];
                             let populationMap = {};
-                            for (pop in this.populationFrequencies.studies[j].populations) {
+                            for (let pop in this.populationFrequencies.studies[j].populations) {
                                 populations.push(this.populationFrequencies.studies[j].populations[pop].id);
                                 populationMap[this.populationFrequencies.studies[j].populations[pop].id] = true;
                             }
@@ -876,8 +896,8 @@
 
 
                 this.renderFromServer();
-            },
-            _createDefaultColumns: function() {
+            }
+            _createDefaultColumns() {
                 var initCols = [
                     [
                         {
@@ -1036,8 +1056,8 @@
                     ]
                 ];
                 return initCols;
-            },
-            _downloadTabFile: function () {
+            }
+            _downloadTabFile() {
                 let urlQueryParams = this._getUrlQueryParams();
                 let params = urlQueryParams.queryParams;
                 params.limit = 1000; // Default limit is 1000 for now
@@ -1064,8 +1084,8 @@
                         _this.downloadRefreshIcon.css('display', 'none');
                         _this.downloadIcon.css('display', 'inline-block');
                     });
-            },
-            _downloadJsonFile: function () {
+            }
+            _downloadJsonFile() {
                 let urlQueryParams = this._getUrlQueryParams();
                 let params = urlQueryParams.queryParams;
                 params.limit = 1000; // Default limit is 1000 for now
@@ -1096,8 +1116,8 @@
                         _this.downloadRefreshIcon.css('display', 'none');
                         _this.downloadIcon.css('display', 'inline-block');
                     });
-            },
-            _shareLink: function () {
+            }
+            _shareLink() {
                 let _this = this;
                 $("[data-toggle=popover]").popover({
                     content: function() {
@@ -1107,11 +1127,14 @@
                 }).on("show.bs.popover", function () {
                     $(this).data("bs.popover").tip().css("max-width", "none");
                 });
-            },
-            _saveLink: function () {
-                let saveObject = {query: this.search, variants: $('#' + this.prefix + 'VariantBrowserGrid').bootstrapTable('getAllSelections')};
-                this.fire("save", saveObject);
             }
-        });
+            _saveLink() {
+                let saveObject = {query: this.search, variants: $('#' + this.prefix + 'VariantBrowserGrid').bootstrapTable('getAllSelections')};
+//                this.fire("save", saveObject);
+                this.dispatchEvent(new CustomEvent("save", {detail: saveObject}));
+            }
+        }
+
+        customElements.define(VariantBrowserGrid.is, VariantBrowserGrid);
     </script>
 </dom-module>

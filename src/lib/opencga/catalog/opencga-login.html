@@ -1,16 +1,17 @@
 <dom-module id="opencga-login">
     <template>
-        <style is="custom-style" include="jso-styles"></style>
-        <style>
-            .basic-margin {
-                width: 300px;
-                margin-left: 20px;
-                margin-right: auto;
-            }
-            .fields {
-                margin-top: 10px;
-            }
-        </style>
+        <!--<custom-style>-->
+            <style include="jso-styles">
+                .basic-margin {
+                    width: 300px;
+                    margin-left: 20px;
+                    margin-right: auto;
+                }
+                .fields {
+                    margin-top: 10px;
+                }
+            </style>
+        <!--</custom-style>-->
 
         <div class="basic-margin">
             <div class="input-group fields">
@@ -41,52 +42,66 @@
 
     </template>
     <script>
-        Polymer({
-            is: 'opencga-login',
-            properties: {
-                opencgaClient: {
-                    type: Object
-                },
-                loginText: {
-                    type: String,
-                    value: "Login"
-                },
-                user: {
-                    type: String,
-                    value: ""
-                },
-                password: {
-                    type: String,
-                    value: ""
-                }
-            },
+        class OpencgaLogin extends Polymer.Element {
 
-            login: function() {
+            static get is() { return 'opencga-login'; }
+
+            static get properties() {
+                return {
+                    opencgaClient: {
+                        type: Object
+                    },
+                    loginText: {
+                        type: String,
+                        value: "Login"
+                    },
+                    user: {
+                        type: String,
+                        value: ""
+                    },
+                    password: {
+                        type: String,
+                        value: ""
+                    }
+                }
+            }
+
+            constructor() {
+                super();
+            }
+
+            ready() {
+                super.ready();
+            }
+
+            login() {
                 let user = this.$.opencgaUser.value;
                 let pass = this.$.opencgaPassword.value;
 
                 var _this = this;
                 this.opencgaClient.users().login(user, pass)
-                        .then(function(response) {
-                            _this.$.opencgaUser.value = "";
-                            _this.$.opencgaPassword.value = "";
-                            _this.$.incorrect.hidden = true;
-                            _this.fire('login', {
-                                userId: user,
-                                sessionId: response.response[0].result[0].id
-                            });
-                        })
-                        .catch(function(response) {
-                            this.errorMessage = response.error;
-                            this.$.incorrect.hidden = false;
-                        }.bind(this));
-            },
+                    .then(function(response) {
+                        _this.$.opencgaUser.value = "";
+                        _this.$.opencgaPassword.value = "";
+                        _this.$.incorrect.hidden = true;
+                        _this.fire('login', {
+                            userId: user,
+                            sessionId: response.response[0].result[0].id
+                        });
+                    })
+                    .catch(function(response) {
+                        this.errorMessage = response.error;
+                        this.$.incorrect.hidden = false;
+                    }.bind(this));
+            }
 
-            checkEnterKey: function(e) {
+            checkEnterKey(e) {
                 if (e.keyCode == 13) { // Enter was clicked
                     this.login();
                 }
             }
-        });
+        }
+
+        window.customElements.define(OpencgaLogin.is, OpencgaLogin);
     </script>
 </dom-module>

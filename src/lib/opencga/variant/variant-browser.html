@@ -19,7 +19,7 @@
 
 <dom-module id="variant-browser">
     <template>
-        <style is="custom-style" include="jso-styles">
+        <style include="jso-styles">
             .center {
                 margin: auto;
                 text-align: justify;
@@ -58,69 +58,87 @@
     </template>
 
     <script>
-        Polymer({
-            is: 'variant-browser',
-            properties: {
-                host: {
-                    type: String
-                },
-                project: {
-                    type: Object
-                },
-                study: {
-                    type: Object,
-                    observer: "onStudyUpdate"
-                },
-                studies: {
-                    type: Array
-                },
-                title: {
-                    type: String,
-                    value: ""
-                },
-                config: {
-                    type: Object
-                },
-                opencgaClient: {
-                    type: Object
-                },
-                cellbaseClient: {
-                    type: Object
-                },
-                populationFrequencies: {
-                    type: Object
-                },
-                consequenceTypes: {
-                    type: Object
-                },
-                proteinSubstitutionScores: {
-                    type: Object
-                },
-                beaconHosts: {
-                    type: Array
-                },
-                query: {
-                    type: Object
-                },
-                search: {
-                    type: Object,
-                    observer: 'renderHashQueryParams'
-                },
-                summary: {
-                    type: Boolean
-                },
-                prefix: {
-                    type: String
+        class VariantBrowser extends Polymer.Element {
+
+            static get is() {
+                return 'variant-browser';
+            }
+
+            static get properties() {
+                return {
+                    host: {
+                        type: String
+                    },
+                    project: {
+                        type: Object
+                    },
+                    study: {
+                        type: Object,
+                        observer: "onStudyUpdate"
+                    },
+                    studies: {
+                        type: Array
+                    },
+                    title: {
+                        type: String,
+                        value: ""
+                    },
+                    config: {
+                        type: Object
+                    },
+                    opencgaClient: {
+                        type: Object
+                    },
+                    cellbaseClient: {
+                        type: Object
+                    },
+                    populationFrequencies: {
+                        type: Object
+                    },
+                    consequenceTypes: {
+                        type: Object
+                    },
+                    proteinSubstitutionScores: {
+                        type: Object
+                    },
+                    beaconHosts: {
+                        type: Array
+                    },
+                    query: {
+                        type: Object
+                    },
+                    search: {
+                        type: Object,
+                        observer: 'renderHashQueryParams'
+                    },
+                    summary: {
+                        type: Boolean
+                    },
+                    prefix: {
+                        type: String
+                    }
                 }
-            },
-            ready: function () {
+            }
+
+            constructor() {
+                super();
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            ready() {
+                super.ready();
+
                 if (typeof this.prefix === "undefined" || this.prefix === "") {
                     this.prefix = "varbrowser" + Utils.randomString(6);
                 }
 
                 this._collapsed = false;
-            },
-            onCollapse: function () {
+            }
+
+            onCollapse() {
                 if (this._collapsed) {
 //                    $("#" + this.prefix + "FilterMenu").css("display", "inline");
                     $("#" + this.prefix + "FilterMenu").show(400);
@@ -132,8 +150,9 @@
                 }
 
                 this._collapsed = !this._collapsed;
-            },
-            renderHashQueryParams: function () {
+            }
+
+            renderHashQueryParams() {
                 let hashFrag = window.location.hash.split('?')[0];
                 if (typeof this.query !== "undefined" && Object.keys(this.query).length > 0) {
                     let qArray = [];
@@ -145,27 +164,34 @@
                     hashFrag += "?" + qArray.join('&');
                 }
                 window.location.hash = hashFrag;
-            },
-            onStudyUpdate: function () {
+            }
+
+            onStudyUpdate() {
                 // Update cohorts from config, this updates the Cohort filter MAF
-                if (typeof this.config.cohorts !== "undefined" && Object.keys(this.config.cohorts).length > 0) {
+                if (typeof this.config !== "undefined" && typeof this.config.cohorts !== "undefined" && Object.keys(this.config.cohorts).length > 0) {
                     this.cohorts = this.config.cohorts;
                 }
-            },
-            checkProject: function (project) {
+            }
+
+            checkProject(project) {
                 return Object.keys(project).length === 0;
-            },
-            propagateGeneEvent: function (e) {
+            }
+
+            propagateGeneEvent(e) {
                 this.fire('gene', {gene: e.detail.gene});
-            },
-            onClear: function() {
+            }
+
+            onClear() {
                 this.query = {studies: this.project.alias + ":" + this.study.alias};
                 this.search = {};
-            },
-            onFilterChange: function(e) {
+            }
+            onFilterChange(e) {
+                debugger
                 this.query = e.detail;
                 this.search = e.detail;
             }
-        });
+        }
+
+        customElements.define(VariantBrowser.is, VariantBrowser);
     </script>
 </dom-module>

@@ -16,7 +16,7 @@
 
 <dom-module id="opencga-active-filters">
     <template>
-        <style is="custom-style" include="jso-styles">
+        <style include="jso-styles">
             .filter-button:hover {
                 text-decoration: line-through;
             }
@@ -117,64 +117,87 @@
         </div>
     </template>
     <script>
-        Polymer({
-            is: 'opencga-active-filters',
-            properties: {
-                opencgaClient: {
-                    type: Object,
-                    value: function() {
-                        return {'_config':{}};
+        class OpencgaActiveFilters extends Polymer.Element {
+
+            static get is() {
+                return 'opencga-active-filters';
+            }
+
+            static get properties() {
+                return {
+                    opencgaClient: {
+                        type: Object,
+                        value: function () {
+                            return {'_config': {}};
+                        }
+                    },
+                    query: {
+                        type: Object,
+                        notify: true,
+                        observer: 'onQueryUpdate'
+                    },
+                    filters: {
+                        type: Array
+                    },
+                    alias: {
+                        type: Object,
+                    },
+                    filterBioformat: {
+                        type: String
+                    },
+                    fixedFilters: {
+                        type: Array,
+                        observer: "fixedFiltersObtained"
+                    },
+                    refresh: {
+                        type: Object,
+                        observer: "searchClicked"
+                    },
+                    prefix: {
+                        type: String
                     }
-                },
-                query: {
-                    type: Object,
-                    notify: true,
-                    observer: 'onQueryUpdate'
-                },
-                filters: {
-                    type: Array
-                },
-                alias: {
-                    type: Object,
-                },
-                filterBioformat: {
-                    type: String
-                },
-                fixedFilters: {
-                    type: Array,
-                    observer: "fixedFiltersObtained"
-                },
-                refresh: {
-                    type: Object,
-                    observer: "searchClicked"
-                },
-                prefix: {
-                    type: String
                 }
-            },
-            observers: [
-                'checkFilters(opencgaClient._config.*)'
-            ],
-            ready: function () {
+            }
+
+            static get observers() {
+                return ['checkFilters(opencgaClient._config.*)']
+            }
+
+            constructor() {
+                super();
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            ready() {
+                super.ready();
+
                 if (typeof this.prefix === "undefined" || this.prefix === "") {
                     this.prefix = "activeFilter_" + Utils.randomString(6);
                 }
 
                 this.fixedFilterList = [];
-            },
-            clear: function () {
+            }
+
+            clear() {
                 $(".filtersLink").css("color", "black");
 
                 // Trigger clear event
-                this.fire('clear', {});
-            },
-            launchModal: function () {
+//                this.fire('clear', {});
+                this.dispatchEvent(new CustomEvent('clear', {detail: {}, bubbles: true, composed: true}));
+            }
+
+            launchModal() {
                 $('#' + this.prefix + 'SaveModal').modal('show');
-            },
-            checkSid: function (config) {
+            }
+
+            checkSid(config) {
                 return typeof config.sessionId !== "undefined" && config.sessionId !== "";
-            },
-            checkFilters: function (config) {
+            }
+
+            checkFilters(config) {
                 let _this = this;
                 if (this.opencgaClient instanceof OpenCGAClient && typeof config.value.sessionId !== 'undefined') {
                     this.opencgaClient.users().getFilters({}, {})
@@ -190,8 +213,8 @@
                             }
                         });
                 }
-            },
-            save: function () {
+            }
+            save() {
                 let params = {};
                 params.name = this.$.filterName.value;
                 params.description = this.$.filterDescription.value;
@@ -222,8 +245,8 @@
                                 });
                         }
                     });
-            },
-            onFilterChange: function (e) {
+            }
+            onFilterChange(e) {
                 if (typeof this.filters !== 'undefined' && this.filters !== null) {
                     // We look for the filter name in the filters array
                     for (let f of this.filters) {
@@ -231,13 +254,14 @@
                             $(".filtersLink").css("color", "black");
                             e.target.style.color = "green";
                             let _queryList = Object.assign({}, f.query);
-                            this.fire("filterchange", _queryList);
+//                            this.fire("filterchange", _queryList);
+                            this.dispatchEvent(new CustomEvent("filterchange", {detail: _queryList, bubbles: true, composed: true}));
                             break;
                         }
                     }
                 }
-            },
-            onQueryFilterDelete: function (e) {
+            }
+            onQueryFilterDelete(e) {
                 let _queryList = this.query;
                 // Reset selected filters to none
                 $(".filtersLink").css("color", "black");
@@ -271,9 +295,10 @@
                 }
 
                 _queryList = Object.assign({}, _queryList);
-                this.fire("filterchange", _queryList);
-            },
-            onQueryUpdate: function () {
+//                this.fire("filterchange", _queryList);
+                this.dispatchEvent(new CustomEvent("filterchange", {detail: _queryList, bubbles: true, composed: true}));
+            }
+            onQueryUpdate() {
                 let _queryList = [];
                 let keys = Object.keys(this.query);
                 for (let keyIdx in keys) {
@@ -326,20 +351,26 @@
                 }
 
                 this.queryList = _queryList;
-            },
-            searchClicked: function () {
+            }
+
+            searchClicked() {
                 $("#" + this.prefix + "Warning").css('display', 'none');
-            },
-            fixedFiltersObtained: function () {
+            }
+
+            fixedFiltersObtained() {
                 this.showFixedFilters = true;
-            },
-            _isQueryListEmpty: function(item) {
+            }
+
+            _isQueryListEmpty(item) {
                 // here item is this.queryList object
                 return item.length === 0
-            },
-            _isMultiValued: function(item) {
+            }
+
+            _isMultiValued(item) {
                 return typeof item.items !== 'undefined';
             }
-        });
+        }
+
+        customElements.define(OpencgaActiveFilters.is, OpencgaActiveFilters);
     </script>
 </dom-module>
