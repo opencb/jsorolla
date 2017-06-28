@@ -30,7 +30,7 @@ function ChromosomePanel(args) {
     this.autoRender = true;
     this.client;
     this.cellBaseHost = 'http://bioinfo.hpc.cam.ac.uk/cellbase';
-    this.cellBaseVersion = 'v3';
+    this.cellBaseVersion = 'v4';
 
     this.pixelBase;
     this.species = 'hsapiens';
