@@ -29,8 +29,9 @@ function ChromosomePanel(args) {
     this.target;
     this.autoRender = true;
     this.client;
-    this.cellBaseHost = 'http://bioinfo.hpc.cam.ac.uk/cellbase';
-    this.cellBaseVersion = 'v4';
+    //DEPRECATED
+    //this.cellBaseHost = 'http://bioinfo.hpc.cam.ac.uk/cellbase';
+    //this.cellBaseVersion = 'v4';
 
     this.pixelBase;
     this.species = 'hsapiens';

@@ -47,7 +47,7 @@ class OpencgaAdapter {
         // this.species = species;
     }
 
-    getData(args) {
+    getAlignmentData(args) {
         var _this = this;
         var params = {};
 //                    histogram: (dataType == 'histogram')

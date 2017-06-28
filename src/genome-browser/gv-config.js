@@ -1,6 +1,6 @@
 
-// var CELLBASE_HOST = 'http://bioinfodev.hpc.cam.ac.uk/cellbase';
-var CELLBASE_HOST = 'bioinfodev.hpc.cam.ac.uk/cellbase-4.5.0-rc.1.1';
+ var CELLBASE_HOST = 'bioinfo.hpc.cam.ac.uk/cellbase';
+//var CELLBASE_HOST = 'bioinfodev.hpc.cam.ac.uk/cellbase-4.5.0-rc.1.1';
 var CELLBASE_VERSION = 'v4';
 // var OPENCGA_HOST = 'localhost:8080/opencga';
 var OPENCGA_HOST = 'bioinfodev.hpc.cam.ac.uk/opencga-test';
