@@ -5,11 +5,11 @@
     <title>Genome Viewer Demo</title>
 
     <!-- build:[href] vendor/fontawesome/css/ -->
-    <link rel="stylesheet" href="../../../bower_components/fontawesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../../../node_modules/font-awesome/css/font-awesome.min.css">
     <!-- /build -->
 
     <!-- build:[href] vendor/qtip2/ -->
-    <link rel="stylesheet" href="../../../bower_components/qtip2/jquery.qtip.min.css">
+    <link rel="stylesheet" href="../../../node_modules/qtip2/dist/jquery.qtip.min.css">
     <!-- /build -->
 
     <!-- build:[href] styles/css/ -->
@@ -18,31 +18,31 @@
 
 
     <!-- build:[src] vendor/underscore/ -->
-    <script type="text/javascript" src="../../../bower_components/underscore/underscore-min.js"></script>
+    <script type="text/javascript" src="../../../node_modules/underscore/underscore-min.js"></script>
     <!-- /build -->
 
     <!-- build:[src] vendor/backbone/ -->
-    <script type="text/javascript" src="../../../bower_components/backbone/backbone.js"></script>
+    <script type="text/javascript" src="../../../node_modules/backbone/backbone.js"></script>
     <!-- /build -->
 
     <!-- build:[src] vendor/jquery/dist/ -->
-    <script type="text/javascript" src="../../../bower_components/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="../../../node_modules/jquery/dist/jquery.min.js"></script>
     <!-- /build -->
 
     <!-- build:[src] vendor/qtip2/ -->
-    <script type="text/javascript" src="../../../bower_components/qtip2/jquery.qtip.min.js"></script>
+    <script type="text/javascript" src="../../../node_modules/qtip2/dist/jquery.qtip.min.js"></script>
     <!-- /build -->
 
     <!-- build:[src] vendor/uri.js/src/ -->
-    <script type="text/javascript" src="../../../bower_components/uri.js/src/URI.min.js"></script>
+    <script type="text/javascript" src="../../../node_modules/urijs/src/URI.min.js"></script>
     <!-- /build -->
 
     <!-- build:[src] vendor/cookies.js/src/ -->
-    <script type="text/javascript" src="../../../bower_components/cookies-js/src/cookies.js"></script>
+    <script type="text/javascript" src="../../../node_modules/cookies-js/src/cookies.js"></script>
     <!-- /build -->
 
     <!-- build:[src] vendor/crypto.js/src/ -->
-    <script type="text/javascript" src="../../../bower_components/crypto-js-evanvosberg/crypto-js.js"></script>
+    <script type="text/javascript" src="../../../node_modules/crypto-js/crypto-js.js"></script>
     <!-- /build -->
 
 
@@ -292,7 +292,7 @@
             dataAdapter: new CellBaseAdapter(cellbaseClient, "genomic", "region", "sequence", {}, { chunkSize: 100})
         });
         tracks.push(this.sequence);
-        this.gene = new GeneTrack({
+        this.gene = new FeatureTrack({
             title: 'Gene',
             minHistogramRegionSize: 20000000,
             maxLabelRegionSize: 10000000,
