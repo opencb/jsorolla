@@ -27,7 +27,7 @@ class Lollipop {
     createSvg(protein, variants, settings) {
 
         // If no settings is provided we use the one passed in the constructor
-        if (typeof settings === "undefined" || settings == null) {
+        if (typeof settings === "undefined" || settings === null) {
             settings = this.settings;
         }
 

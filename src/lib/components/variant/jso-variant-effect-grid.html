@@ -22,11 +22,9 @@
         jso-table::shadow .table-header-field > .name.jso-table {
             padding: 4px 0;
         }
-
     </style>
     <template>
-        <jso-table id="table" hidden$="{{isEmpty}}"
-                   on-rowclick="handleRowClick"></jso-table>
+        <jso-table id="table" hidden$="{{isEmpty}}" on-rowclick="handleRowClick"></jso-table>
         <div hidden$="{{!isEmpty}}" style="padding:20px 50px;">
             No effect found.
         </div>
@@ -46,30 +44,29 @@
                 type: Boolean
             }
         },
-        ready: function () {
+        ready: function() {
             this.$.table.columns = this._columns;
         },
-        _columns: [
-            {
+        _columns: [{
                 name: "geneName",
-                title: "Gene Name"
-            },
-            {
+                title: "Gene Name",
+                defaultValue: '.'
+            }, {
                 name: "ensemblGeneId",
                 title: "Ensembl Gene Id",
                 cellTemplate: "ensemblGeneIdTemplate",
-                width: 150
-            },
-            {
+                width: 150,
+                defaultValue: '.'
+            }, {
                 name: "ensemblTranscriptId",
                 title: "Ensembl Transcript Id",
                 cellTemplate: 'ensemblTranscriptIdTemplate',
-                width: 150
-            },
-            {
+                width: 150,
+                defaultValue: '.'
+            }, {
                 name: "so",
                 title: "Conseq. type",
-                formula: function (row) {
+                formula: function(row) {
                     var aux = {};
                     if (row.soName && row.soAccession) {
 
@@ -80,88 +77,109 @@
                 },
                 width: 300
             },
-            {
-                name: "relativePosition",
-                title: "Relative Position"
-            },
+            // {
+            //     name: "relativePosition",
+            //     title: "Relative Position"
+            // },
             {
                 name: "codon",
                 title: "Codon",
-                width: 60
-            },
-            {
+                width: 60,
+                defaultValue: '.'
+            }, {
                 name: "strand",
-                title: "Strand"
-            },
-            {
+                title: "Strand",
+                defaultValue: '.'
+            }, {
                 name: "biotype",
-                title: "Biotype"
-            },
-            {
-                name: "cDnaPosition",
+                title: "Biotype",
+                defaultValue: '.'
+            }, {
+                name: "cdnaPosition",
                 title: "cDna Position",
-                width: 80
-            },
-            {
+                width: 80,
+                defaultValue: '.'
+            }, {
                 name: "cdsPosition",
                 title: "cds Position",
-                width: 80
-            },
-            {
+                width: 80,
+                defaultValue: '.'
+            }, {
                 name: "aaPosition",
                 title: "AA Position",
-                width: 80
-            },
-            {
+                width: 80,
+                formula: function(row) {
+                    try {
+                        var pva = row.proteinVariantAnnotation;
+                        var res = (pva.position) ? pva.position : ".";
+                        return res;
+                    } catch (e) {
+                        return ".";
+                    }
+                }
+            }, {
                 name: "aaChange",
                 title: "AA Change",
-                width: 80
+                width: 80,
+                formula: function(row) {
+                    try {
+                        var pva = row.proteinVariantAnnotation;
+                        var res = pva.reference + " > " + pva.alternate;
+                        return res;
+                    } catch (e) {
+                        return ".";
+                    }
+                }
 
-            },
-            {
+            }, {
                 name: "sift",
                 title: "Sift",
-                formula: function (row) {
-                    var pss = row.proteinSubstitutionScores;
-
-                    if (pss != null && pss.length > 0) {
-                        for (var i = 0; i < pss.length; i++) {
-                            var elem = pss[i];
-                            if (elem.source.toLowerCase() == "sift") {
-                                return elem.score;
+                formula: function(row) {
+                    var pva = row.proteinVariantAnnotation;
+                    if (pva != null && Object.keys(pva).length > 0) {
+                        var pss = pva.substitutionScores;
+                        if (pss != null && pss.length > 0) {
+                            for (var i = 0; i < pss.length; i++) {
+                                var elem = pss[i];
+                                if (elem.source.toLowerCase() == "sift") {
+                                    return elem.score;
+                                }
                             }
                         }
                     }
-                    return "";
+                    return ".";
                 },
                 width: 80
-            },
-            {
-                name: "polyphen", title: "Polyphen",
-                formula: function (row) {
-                    var pss = row.proteinSubstitutionScores;
-
-                    if (pss != null && pss.length > 0) {
-                        for (var i = 0; i < pss.length; i++) {
-                            var elem = pss[i];
-                            if (elem.source.toLowerCase() == "polyphen") {
-                                return elem.score;
+            }, {
+                name: "polyphen",
+                title: "Polyphen",
+                formula: function(row) {
+                    var pva = row.proteinVariantAnnotation;
+                    if (pva != null && Object.keys(pva).length> 0) {
+                        var pss = pva.substitutionScores;
+                        if (pss != null && pss.length > 0) {
+                            for (var i = 0; i < pss.length; i++) {
+                                var elem = pss[i];
+                                if (elem.source.toLowerCase() == "polyphen") {
+                                    return elem.score;
+                                }
                             }
                         }
                     }
-                    return "";
+
+                    return ".";
                 },
                 width: 100
             }
         ],
 
-        rowChanged: function (neo, old) {
+        rowChanged: function(neo, old) {
             var me = this;
             this.$.table.currentPage = 1;
             if (neo) {
                 var variant = neo.chromosome + ":" + neo.start + ":" + neo.reference + ":" + neo.alternate;
                 CellBaseManager.get({
-//                    host: 'http://wwwdev.ebi.ac.uk/cellbase/webservices/rest',
+                    //                    host: 'http://wwwdev.ebi.ac.uk/cellbase/webservices/rest',
                     // version: 'v4',
                     species: 'hsapiens',
                     category: 'genomic',
@@ -169,7 +187,7 @@
                     resource: 'annotation',
                     query: variant,
                     async: false,
-                    success: function (response) {
+                    success: function(response) {
                         try {
                             me.$.table.data = me.parseFunction(response.response[0].result[0].consequenceTypes);
                             me.isEmpty = (me.$.table.data.length > 0) ? false : true;
@@ -181,7 +199,7 @@
                 });
             }
         },
-        parseFunction: function (data) {
+        parseFunction: function(data) {
             var res = [];
 
             for (var i = 0; i < data.length; i++) {

@@ -178,7 +178,7 @@ AlignmentTrack.prototype.draw = function () {
 
     if (typeof this.visibleRegionSize === 'undefined' || this.region.length() < this.visibleRegionSize) {
         this.setLoading(true);
-        this.dataAdapter.getData({
+        this.dataAdapter.getAlignmentData({
             dataType: this.dataType,
             region: new Region({
                 chromosome: this.region.chromosome,
@@ -227,7 +227,7 @@ AlignmentTrack.prototype.move = function (disp) {
 
         if (disp > 0 && virtualStart < this.svgCanvasLeftLimit) {
             _this.setLoading(true);
-            this.dataAdapter.getData({
+            this.dataAdapter.getAlignmentData({
                 dataType: this.dataType,
                 region: new Region({
                     chromosome: _this.region.chromosome,
@@ -251,7 +251,7 @@ AlignmentTrack.prototype.move = function (disp) {
 
         if (disp < 0 && virtualEnd > this.svgCanvasRightLimit) {
             _this.setLoading(true);
-            this.dataAdapter.getData({
+            this.dataAdapter.getAlignmentData({
                 dataType: this.dataType,
                 region: new Region({
                     chromosome: _this.region.chromosome,

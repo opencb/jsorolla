@@ -140,8 +140,8 @@ debugger
 
 
     }
-    getData(args) {
-        console.log("pasando por el getData");
+
+    getAlignmentData(args) {
         var _this = this;
         var params = {};
 //                    histogram: (dataType == 'histogram')

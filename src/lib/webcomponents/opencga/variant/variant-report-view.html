@@ -1,0 +1,535 @@
+<!--
+  ~ Copyright 2015 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+
+<dom-module id="variant-report-view">
+    <template>
+        <style is="custom-style" include="jso-styles">
+            label {
+                padding-top: 10px;
+            }
+            .input-group-addon {
+                min-width:200px;
+                text-align:left;
+            }
+            .form-control:read-only {
+                background-color: white;
+            }
+        </style>
+
+        <br>
+        <div id="{{prefix}}reportDiv" class="panel panel-default" style="overflow-y: auto; height:550px;">
+            <div class="panel-body">
+                <h2 style="margin: 10px 5px 15px 25px">{{title}} Report</h2>
+                <div style="float: right; padding: 0px 0px 10px 5px">
+                    <span>{{requestDate}}</span>
+                </div>
+                <br>
+                <!-- Analysis Information -->
+                <div style="margin: 10px 5px 15px 50px" class="analysis-information col-sm-12" id="{{prefix}}analysisInformationDiv" hidden>
+                    <h3>Analysis Information</h3>
+                    <hr>
+                    <div style="margin: 10px 0px 15px 5px" class="analysis-information col-sm-10" id="{{prefix}}analysisInformationContent">
+                        <div class="form-group row" id="{{prefix}}analysisInformationID" hidden>
+                            <label for="{{prefix}}analysisID" class="col-xs-2 col-form-label">Analysis ID</label>
+                            <div class="col-xs-3">
+                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}analysisID" name="analysis" value="" readonly>
+                            </div>
+                        </div>
+                        <div class="form-group row" id="{{prefix}}analysisInformationResume" hidden>
+                            <label for="{{prefix}}analysisType" class="col-xs-2 col-form-label">Analysis Type</label>
+                            <div class="col-xs-3">
+                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}analysisType" name="analysisType" value="" readonly>
+                            </div>
+                            <label for="{{prefix}}date" class="col-xs-1 col-form-label">Date</label>
+                            <div class="col-xs-3">
+                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}date" name="date" value="" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br>
+
+                <div style="margin: 10px 5px 15px 50px" class="sample-information col-sm-12" id="{{prefix}}sampleInformationDiv" hidden>
+                    <h3>Proband Information</h3>
+                    <hr>
+                    <!-- Sample information related to proband -->
+                    <h4> Proband </h4>
+                    <div style="margin: 10px 0px 15px 5px" class="analysis-information col-sm-10" id="{{prefix}}analysisInformationProband">
+                        <div class="form-group row">
+                            <label for="{{prefix}}IndividualID" class="col-xs-2 col-form-label">Patient ID</label>
+                            <div class="col-xs-3">
+                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}IndividualID" name="individualID" readonly value="">
+                            </div>
+                            <label for="{{prefix}}SampleID" class="col-xs-2 col-form-label">Sample ID</label>
+                            <div class="col-xs-3">
+                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}SampleID" name="date" value="" readonly>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{prefix}}ChromosomalGender" class="col-xs-2 col-form-label">Chromosomal Gender</label>
+                            <div class="col-xs-3">
+                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}ChromosomalGender" name="chromosomalGender" readonly value="">
+                            </div>
+                            <label for="{{prefix}}AffectationStatus" class="col-xs-2 col-form-label">Affectation Status</label>
+                            <div class="col-xs-3">
+                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}AffectationStatus" name="date" value="" readonly>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{prefix}}Ethnicity" class="col-xs-2 col-form-label">Ethnicity</label>
+                            <div class="col-xs-3">
+                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}Ethnicity" name="ethnicity" value="" readonly>
+                            </div>
+                            <label for="{{prefix}}BirthYear" class="col-xs-2 col-form-label">Year of Birth</label>
+                            <div class="col-xs-3">
+                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}BirthYear" name="birthYear" readonly value="">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{prefix}}HPO" class="col-xs-2 col-form-label">HPO</label>
+                            <div class="col-xs-5">
+                                <textarea class$="form-control {{prefix}}TextInput" id="{{prefix}}HPO" name="HPO" readonly value="" style="resize:none" rows="2"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{prefix}}Diagnosis" class="col-xs-2 col-form-label">Diagnosis</label>
+                            <div class="col-xs-5">
+                                <textarea class$="form-control {{prefix}}TextInput" id="{{prefix}}Diagnosis" name="diagnosis" readonly value="" style="resize:none" rows="2"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{prefix}}ParentalConsanguinity" class="col-xs-2 col-form-label">Parental Consanguinity</label>
+                            <div class="col-xs-3">
+                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}ParentalConsanguinity" name="parentalConsanguinity" readonly value="">
+                            </div>
+                        </div>
+                        <div class="form-group row" id="{{prefix}}sampleTypeDiv">
+                            <label for="{{prefix}}sampleType" class="col-xs-2 col-form-label">Sample Type</label>
+                            <div class="col-xs-3">
+                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}sampleType" name="sampleType" readonly value="">
+                            </div>
+                        </div>
+                        <div class="form-group row" id="{{prefix}}cellLineDiv">
+                            <label for="{{prefix}}cellLine" class="col-xs-2 col-form-label">Cell line</label>
+                            <div class="col-xs-3">
+                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}cellLine" name="cellLine" readonly value="">
+                            </div>
+                        </div>
+                        <div class="form-group row" id="{{prefix}}lifeStatusDiv">
+                            <label for="{{prefix}}lifeStatus" class="col-xs-2 col-form-label">Life Status</label>
+                            <div class="col-xs-3">
+                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}lifeStatus" name="lifeStatus" readonly value="">
+                            </div>
+                        </div>
+                        <div class="form-group row" id="{{prefix}}birthPlaceDiv">
+                            <label for="{{prefix}}lifeStatus" class="col-xs-2 col-form-label">Birth Place</label>
+                            <div class="col-xs-3">
+                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}birthPlace" name="birthPlace" readonly value="">
+                            </div>
+                        </div>
+
+                        <!-- Sample information related to variable set -->
+                        <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}" as="variable" sort="_sortVariables">
+                            <div class="form-group row" id="{{prefix}}{{variable.name}}Div">
+                                <label for="{{prefix}}{{variable.name}}" class="col-xs-2 col-form-label">{{variable.title}}</label>
+                                <template is="dom-if" if="{{checkSubType(variable, 'TEXT')}}">
+                                    <div class="col-xs-5">
+                                        <textarea class$="form-control {{prefix}}TextInput" id="{{prefix}}{{variable.name}}" name="{{variable.name}}" readonly value="" style="resize:none" rows="3"></textarea>
+                                    </div>
+                                </template>
+                                <template is="dom-if" if="{{!checkSubType(variable, 'TEXT')}}">
+                                    <div class="col-xs-3">
+                                        <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}{{variable.name}}" name="{{variable.name}}" readonly value="">
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                <div style="margin: 10px 5px 15px 50px" class="sample-information col-sm-12" id="{{prefix}}analysisInformationFamilyDiv" hidden>
+                    <h4> Family </h4>
+                    <div style="margin: 10px 0px 15px 5px" class="analysis-information col-sm-10">
+                        <div>
+                            <div id="{{prefix}}PedigreeView" style="padding: 5px 5px;font-size: 10px"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin: 10px 5px 15px 50px" class="prioritization-information col-sm-12" id="{{prefix}}prioritizationInformationDiv" hidden>
+                    <h3>Prioritization Information</h3>
+                    <hr>
+                    <div class="prioritization-summary col-sm-10" id="{{prefix}}variantsTableDiv" hidden>
+                        <h4>Variants table</h4>
+                        <table id="{{prefix}}variantTable" data-search="false" data-show-columns="false"
+                               data-pagination="false" data-page-size="500" data-checkbox-header="false" data-maintain-selected="true" style="cursor: pointer;">
+                            <thead style="background-color: #eee"></thead>
+                        </table>
+                    </div>
+
+                    <div class="prioritization-summary col-sm-12" id="{{prefix}}prioritizationSummaryDiv" hidden>
+                        <h4>Summary of results</h4>
+                        <div class="form-group row">
+                            <label for="{{prefix}}totalVariants" class="col-xs-2 col-form-label">Total Variants</label>
+                            <div class="col-xs-2">
+                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}totalVariants" name="totalVariants" value="20" readonly>
+                            </div>
+                            <label for="{{prefix}}diagnosticVariants" class="col-xs-2 col-form-label">Diagnostic Variants</label>
+                            <div class="col-xs-2">
+                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}diagnosticVariants" name="diagnosticVariants" readonly value="2">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{prefix}}vus" class="col-xs-2 col-form-label">VUS</label>
+                            <div class="col-xs-2">
+                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}vus" name="totalVariants" value="2" readonly>
+                            </div>
+                            <label for="{{prefix}}unexpectedVariants" class="col-xs-2 col-form-label">Unexpected Variants</label>
+                            <div class="col-xs-2">
+                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}unexpectedVariants" name="diagnosticVariants" readonly value="1">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="prioritization-summary col-sm-12" id="{{prefix}}filterResumeDiv" hidden>
+                        <h4>Filter resume</h4>
+                            <template is="dom-if" if="{{filters}}">
+                                For this analysis, the following filters were applied for prioritization:
+                                <div style="margin: 10px 5px 15px 55px">
+                                    <br>
+                                    <ul type="disc">
+                                        <template is="dom-repeat" items="{{filterPrioritization}}">
+                                            <li>{{item.id}}: <i>{{item.value}}</i></li>
+                                        </template>
+                                    </ul>
+                                </div>
+                            </template>
+                            <template is="dom-if" if="{{!filters}}">
+                                No filters were applied for this analysis
+                            </template>
+                    </div>
+                </div>
+                <div style="margin: 10px 15px 15px 50px" class="other-information col-sm-12" id="{{prefix}}conclusionsDiv" hidden>
+                    <h3>Other Information</h3>
+                    <hr>
+                    <div class="col-sm-10">
+                        <textarea type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}conclusions" name="conclusions" placeholder="Editable conclusions" style="resize:none" row="5" maxlength="300" on-change="updateTextArea"></textarea>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+        <!-- Modal dialog for Variants table-->
+<!--        <div class="modal fade" id="{{prefix}}variantsClassificationModal" tabindex="-1" role="dialog"
+             aria-labelledby="variantsClassificationLabel" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-sm" role="document" style="width: 500px;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">Variants classification</h4>
+                    </div>
+                    <div class="modal-body" style="height: 200px">
+                        <div class="col-sm-12" >
+                            <label>Under progress.</label>
+                            Variants table to be shown here. User will classify variants as diagnostic, VUS (Variants of Unkown Significance) and Unexpected variants
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>-->
+    </template>
+    <script>
+        Polymer({
+            is: 'variant-report-view',
+            properties: {
+                opencgaClient: {
+                    type: Object
+                },
+                study: {
+                    type: Object
+                },
+                prefix: {
+                    type: String
+                },
+                config: {
+                    type: Object
+                },
+                selection: {
+                    type: Object,
+                    observer: 'showSelection'
+                },
+                title: {
+                    type: String,
+                    value: ""
+                },
+                expReport: {
+                    type: Boolean,
+                    observer: 'handleExportPDF',
+                    //notify: true
+                },
+                variables: {
+                    type: Array
+                },
+                analysisSelected: {
+                    type: Object,
+                    observer: 'loadData'
+                }
+            },
+            ready: function() {
+                if (typeof this.prefix === "undefined" || this.prefix == "") {
+                    this.prefix = "repView" + Utils.randomString(6);
+                }
+
+                let date = new Date();
+                this.requestDate = date.toLocaleString();
+                this.fitlerPrioritization = {};
+            },
+            loadData: function() {
+                // Load data into report
+
+                // Remove content of all elements here before rendering -> TO BE DONE
+
+                if (typeof (this.analysisSelected.analysis) != "undefined") {
+
+                    // Analysis ID and analysis resume
+                    $("#" + this.prefix + "analysisID").attr("value", this.analysisSelected.analysisID);
+                    $("#" + this.prefix + "analysisType").attr("value", this.analysisSelected.analysisType);
+                    $("#" + this.prefix + "date").attr("value", this.analysisSelected.analysisDate);
+                    this.analysisID = this.analysisSelected.analysisID;
+                    // Sample Information
+                    $("#" + this.prefix + "IndividualID").attr("value", this.analysisSelected.analysis.proband.name);
+                    $("#" + this.prefix + "AffectationStatus").attr("value", this.analysisSelected.analysis.proband.affectationStatus);
+                    $("#" + this.prefix + "BirthYear").attr("value", this.analysisSelected.analysis.proband.dateOfBirth);
+                    $("#" + this.prefix + "Ethnicity").attr("value", this.analysisSelected.analysis.proband.ethnicity);
+                    $("#" + this.prefix + "ChromosomalGender").attr("value", this.analysisSelected.analysis.proband.karyotypicSex);
+                    $("#" + this.prefix + "lifeStatus").attr("value", this.analysisSelected.analysis.proband.lifeStatus);
+                    $("#" + this.prefix + "ParentalConsanguinity").attr("value", this.analysisSelected.analysis.proband.parentalConsanguinity);
+                    $("#" + this.prefix + "birthPlace").attr("value", this.analysisSelected.analysis.proband.population.name);
+                    $("#" + this.prefix + "SampleID").attr("value", this.analysisSelected.analysis.proband.samples[0].name);
+                    $("#" + this.prefix + "HPO").text(this.analysisSelected.analysis.proband.ontologyTerms[0].name);
+                    $("#" + this.prefix + "Diagnosis").text(this.analysisSelected.analysis.proband.ontologyTerms[1].name);
+                    $("#" + this.prefix + "cellLine").attr("value", this.analysisSelected.analysis.proband.samples[0].somatic);
+                    $("#" + this.prefix + "sampleType").attr("value", this.analysisSelected.analysis.proband.samples[0].type);
+                    $("#" + this.prefix + "testYear").attr("value", this.analysisSelected.analysis.proband.samples[0].annotationSets[0].annotations[0].value);
+                    $("#" + this.prefix + "physician").attr("value", this.analysisSelected.analysis.proband.samples[0].annotationSets[0].annotations[1].value);
+                    $("#" + this.prefix + "hospital").attr("value", this.analysisSelected.analysis.proband.samples[0].annotationSets[0].annotations[2].value);
+                    $("#" + this.prefix + "testAge").attr("value", this.analysisSelected.analysis.proband.samples[0].annotationSets[0].annotations[3].value);
+                    $("#" + this.prefix + "technicalData").text(this.analysisSelected.analysis.proband.samples[0].annotationSets[0].annotations[4].value);
+
+
+                    // Family information (pedigree) -> Only for FAMILY, TRIO or DUO
+                    if (this.analysisSelected.analysisType === "TRIO" || this.analysisSelected.analysisType === "DUO" || this.analysisSelected.analysisType === "FAMILY") {
+                        let querySelector = Polymer.dom(this.root).querySelector("#" + this.prefix + "PedigreeView");
+                        if (querySelector.hasChildNodes()) {
+                            let item = querySelector.childNodes[0];
+                            querySelector.removeChild(item);
+                        }
+                        querySelector.appendChild(this.analysisSelected.pedigree);
+                    }
+                    // Prioritization information (variants)
+                    let _prioritization = this.analysisSelected.analysis.family.children[0].samples[0].attributes.PRIORITIZATION;
+                    let _dataTable = [];
+                    let _query = undefined;
+                    if (typeof _prioritization !== "undefined") {
+                        _dataTable = this._getVariantsInfo(_prioritization.variants);
+                        _query = _prioritization.query;
+                    }
+
+                    let _this = this;
+                    $("#" + this.prefix + "variantTable").bootstrapTable('destroy');
+                    $("#" + this.prefix + "variantTable").bootstrapTable({
+                        columns: _this._getTableColumns(),
+                        data: _dataTable
+                    });
+
+                    // Filter information
+                    if (typeof _query !== "undefined"){
+                        let _filters = $.map(_query, function(value, key) {
+                            if (value !== "") {
+                                return [{id: key, value: value}];
+                            }
+                        });
+                        this.filterPrioritization = _filters;
+                        this.filters = true;
+                    } else {
+                        this.filterPrioritization = "No filters were selected";
+                        this.filters = false;
+                    }
+
+
+
+
+                    // Show divs
+                    $("#" + this.prefix + "analysisInformationDiv").attr("hidden", false);
+                    $("#" + this.prefix + "sampleInformationDiv").attr("hidden", false);
+                    $("#" + this.prefix + "analysisInformationID").attr("hidden", false);
+
+                }
+            },
+            showSelection: function () {
+                // Analysis ID
+                if (typeof this.analysisSelected !== "undefined") {
+                    $("#" + this.prefix + "sampleInformationDiv").attr("hidden", false);
+                }
+
+                // Analysis resume
+                if (typeof this.selection.analysisResume !== "undefined") {
+                    $("#" + this.prefix + "analysisInformationResume").attr("hidden", !this.selection.analysisResume);
+                }
+
+                // Sample Information
+                if (typeof this.selection.sampleInfo !== "undefined") {
+                    for (let i = 0; i < this.selection.sampleInfo.length; i++) {
+                        //this.$$("#" + this.prefix + this.selection.sampleInfo[i].name + "Div").hidden = !this.selection.sampleInfo[i].value;
+                        $("#" + this.prefix + this.selection.sampleInfo[i].name + "Div").attr("hidden", !this.selection.sampleInfo[i].value);
+                    }
+                }
+
+                // Family information (pedigree) -> Only for FAMILY, TRIO or DUO
+                if (this.analysisSelected.analysisType === "TRIO" || this.analysisSelected.analysisType === "DUO" || this.analysisSelected.analysisType === "FAMILY"){
+                        $("#" + this.prefix + "analysisInformationFamilyDiv").attr("hidden", !this.selection.pedigree);
+                }
+
+                // Prioritization Information
+                if (typeof this.selection.prioritizationInfo !== "undefined") {
+                    let _numFalseElements = 0;
+                    for (let i = 0; i < this.selection.prioritizationInfo.length; i++) {
+                        if (this.selection.prioritizationInfo[i].name == 'variantsTable' && this.selection.prioritizationInfo[i].value &&
+                            this.$$("#" + this.prefix + this.selection.prioritizationInfo[i].name + "Div").hidden) {
+                            //$('#' + this.prefix + 'variantsClassificationModal').modal("show");
+                        }
+                        $("#" + this.prefix +this.selection.prioritizationInfo[i].name + "Div").attr("hidden", !this.selection.prioritizationInfo[i].value);
+                        if (this.selection.prioritizationInfo[i].value == false) {
+                            _numFalseElements++;
+                        }
+                    }
+
+                    if (_numFalseElements == this.selection.prioritizationInfo.length) {
+                        $("#" + this.prefix + "prioritizationInformationDiv").attr("hidden", true);
+                    }
+                    else{
+                        $("#" + this.prefix + "prioritizationInformationDiv").attr("hidden", false);
+                    }
+                }
+
+                // Editable conclusions
+                if (typeof this.selection.conclusions !== "undefined") {
+                    $("#" + this.prefix + "conclusionsDiv").attr("hidden", ! this.selection.conclusions);
+                }
+            },
+            print: function(data) {
+
+                var mywindow = window.open('', '', 'height=1000,width=1000');
+                mywindow.document.write('<html><head>');
+                /* var styles = document.getElementsByTagName('style');
+
+                 mywindow.document.write('<style>');
+                 for (var i = 0; i < styles.length; i++) {
+                 mywindow.document.write(styles[i].innerHTML);
+                 }
+                 mywindow.document.write('</style>');*/
+
+                mywindow.document.write('</head><body>');
+                mywindow.document.write(data);
+                mywindow.document.write('</body></html>');
+
+                mywindow.document.close(); // necessary for IE >= 10
+                mywindow.focus(); // necessary for IE >= 10
+                mywindow.print();
+                mywindow.close();
+
+            },
+            _getTextInfo: function() {
+                let elem =  this.$$("#" + this.prefix + "sampleInformationDiv").querySelectorAll("input");
+                let reportFields = [];
+                for (var i = 0; i < elem.length; i++) {
+                    reportFields.push({name: elem[i].name , value: elem[i].value});
+                }
+                this.reportFields = reportFields;
+
+            },
+            handleExportPDF: function(e) {
+                var pdf = new jsPDF('p', 'pt', 'letter');
+                var canvas = pdf.canvas;
+                canvas.height = 72 * 11;
+                canvas.width = 72 * 8.5;
+                var html = this.$$("#" + this.prefix + "reportDiv").innerHTML;
+                html2pdf(html, pdf, function (pdf) {
+                    pdf.output('dataurlnewwindow');
+                });
+                this.expReport = false; // Reset export report button again
+
+            },
+            _sortVariables: function (a, b) {
+                if (a.rank < b.rank) {
+                    return -1;
+                }
+                return 1;
+            },
+            checkSubType: function (myVar, type) {
+                return (myVar.attributes.subtype === type);
+            },
+            updateTextArea: function(){
+                document.getElementById(this.prefix + "conclusions").innerHTML = document.getElementById(this.prefix + "conclusions").value;
+            },
+            _getVariantsInfo: function(variants){
+                let _myVariants = [];
+                for (let i=0; i < variants.length; i++){
+                    _myVariants.push({
+                        variant: variants[i].id,
+                        genes: variants[i].annotation.consequenceTypes[0].geneName,
+                        type: variants[i].type,
+                        consequenceType: variants[i].annotation.consequenceTypes[0].sequenceOntologyTerms[0].name
+                    });
+                }
+                return _myVariants;
+            },
+            _getTableColumns: function() {
+                this._columns = [
+                    [
+                        {
+                            title: 'Variant',
+                            field: 'variant'
+                        },
+                        {
+                            title: 'SNP Id',
+                            field: 'id'
+                        },
+                        {
+                            title: 'Genes',
+                            field: 'genes'
+                        },
+                        {
+                            title: 'Type',
+                            field: 'type'
+                        },
+                        {
+                            title: 'Consequence Type',
+                            field: 'consequenceType'
+                        }
+                    ]
+                ];
+                return this._columns;
+            },
+
+        });
+    </script>
+</dom-module>

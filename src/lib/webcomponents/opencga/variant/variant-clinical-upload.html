@@ -1,0 +1,1126 @@
+<!--
+  ~ Copyright 2015 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<link rel="import" href="../opencga-message-dialog.html">
+
+<dom-module id="variant-clinical-upload">
+    <template>
+        <style is="custom-style" include="jso-styles">
+            .title {
+                margin: 30px 5px 25px -40px;
+            }
+        </style>
+
+        <div class="col-md-12">
+            <div style="width: 60%; margin: 0px 0px 0px 90px">
+                <form id="{{prefix}}uploadForm" class="form-horizontal" data-toggle="validator" role="form">
+                    <h3 class="title">Patient Information</h3>
+                    <!-- GENERAL INFORMATION -->
+                    <!-- Individual ID -->
+                    <div class="form-group row has-feedback">
+                        <label for="{{prefix}}patientID" class="col-xs-2 col-form-label">Patient ID</label>
+                        <div class="col-xs-6">
+                            <div class="input-group">
+                                <input type="text" class$="form-control {{prefix}}TextInput codeDis" id="{{prefix}}patientID" name="patientID" placeholder="ID or clinical record number" maxlength="75" required data-error="" pattern=".+">
+                                <span class="input-group-addon btn btn-primary" on-click="searchIndividual">
+                                    <i class="fa fa-search" aria-hidden="true"></i>
+                                </span>
+                            </div>
+                            <span class="glyphicon form-control-feedback" aria-hidden="true" style="padding-right:60px; z-index:5"></span>
+                            <div class="help-block with-errors"></div>
+                        </div>
+                    </div>
+                    <!-- CHROMOSOMAL GENDER -->
+                    <div class="form-group row has-feedback">
+                        <label for="{{prefix}}chromosomalGender" class="col-xs-2 col-form-label">Chromosomal Gender</label>
+                        <div class="col-xs-3">
+                            <select class$="form-control {{prefix}}SelectInput codeDis" id="{{prefix}}chromosomalGender"
+                                    name="chromosomalGender" required>
+                                <option></option>
+                                <template is="dom-repeat" items="{{config.chromosomal_gender}}">
+                                    <option value="{{item}}">{{item}}</option>
+                                </template>
+                            </select>
+                            <div class="help-block with-errors" id="{{prefix}}_errorDiv_chromosomalGender"></div>
+                        </div>
+                    </div>
+                    <!-- STATUS -->
+                    <div class="form-group row has-feedback">
+                        <label for="{{prefix}}status" class="col-xs-2 col-form-label">Affectation Status</label>
+                        <div class="col-xs-3">
+                            <select class$="form-control {{prefix}}SelectInput codeDis" id="{{prefix}}status"
+                                    name="status" required>
+                                <option></option>
+                                <template is="dom-repeat" items="{{config.status}}">
+                                    <option value="{{item.id}}">{{item.title}}</option>
+                                </template>
+                            </select>
+                            <div class="help-block with-errors" id="{{prefix}}_errorDiv_status"></div>
+                        </div>
+                    </div>
+                    <!-- LIFE STATUS -->
+                    <div class="form-group row has-feedback">
+                        <label for="{{prefix}}lifeStatus" class="col-xs-2 col-form-label">Life Status</label>
+                        <div class="col-xs-3">
+                            <select class$="form-control {{prefix}}SelectInput codeDis" id="{{prefix}}lifeStatus"
+                                    name="lifeStatus" required>
+                                <option></option>
+                                <template is="dom-repeat" items="{{config.life_status}}">
+                                    <option value="{{item.id}}">{{item.title}}</option>
+                                </template>
+                            </select>
+                            <div class="help-block with-errors" id="{{prefix}}_errorDiv_lifeStatus"></div>
+                        </div>
+                    </div>
+                    <!-- YEAR OF BIRTH -->
+                    <div class="form-group row has-feedback">
+                        <label for="{{prefix}}birthYear" class="col-xs-2 col-form-label">Year of Birth</label>
+                        <div class="col-xs-3">
+                            <select class$="form-control {{prefix}}SelectInput codeDis" id="{{prefix}}birthYear"
+                                    name="birthYear" required on-change="checkYears">
+                                <option></option>
+                                <template is="dom-repeat" items="{{yearsBirth}}">
+                                    <option value="{{item}}">{{item}}</option>
+                                </template>
+                            </select>
+                            <div class="help-block with-errors" id="{{prefix}}_errorDiv_birthYear"></div>
+                        </div>
+                    </div>
+
+                    <!-- BIRTH PLACE -->
+                    <div class="form-group row has-feedback">
+                        <label for="{{prefix}}birthPlace" class="col-xs-2 col-form-label">Birth Place</label>
+                        <div class="col-xs-3">
+                            <select class$="form-control {{prefix}}SelectInput codeDis" id="{{prefix}}birthPlace"
+                                    name="birthPlace" required on-change="updateSelect">
+                                <option></option>
+                                <template is="dom-repeat" items="{{config.countries}}">
+                                    <option value="{{item}}">{{item}}</option>
+                                </template>
+                            </select>
+                            <div class="help-block with-errors" id="{{prefix}}_errorDiv_birthPlace"></div>
+                        </div>
+                    </div>
+
+                    <!-- OTHER COUNTRY (TEXT INPUT if country selected is not in the list -->
+                    <div class="form-group row has-feedback" id="otherCountryDiv" style="display:none">
+                        <label for="{{prefix}}otherCountry" class="col-xs-2 col-form-label"></label>
+                        <div class="col-xs-3">
+                            <input type="text" class$="form-control {{prefix}}TextInput codeDis" id="{{prefix}}otherCountry" name="otherCountry" placeholder="Introduce country" maxlength="75" required data-error="Mandatory country. Only a-z characteres and spaces are allowed" pattern="^[A-Za-z]+((\\s)?([A-Za-z])+)+$">
+                            <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                            <div class="help-block with-errors"></div>
+                        </div>
+                    </div>
+
+                    <!-- BIRTH PLACE (PROVINCE) -->
+                    <div class="form-group row has-feedback">
+                        <label for="{{prefix}}birthPlaceRegion" class="col-xs-2 col-form-label">Birth Place (province)</label>
+                        <div class="col-xs-3">
+                            <select class$="form-control {{prefix}}SelectInput codeDis" id="{{prefix}}birthPlaceRegion"
+                                    name="birthPlaceRegion" required>
+                                <option></option>
+                                <template is="dom-repeat" items="{{config.province}}">
+                                    <option value="{{item}}">{{item}}</option>
+                                </template>
+
+                            </select>
+                            <div class="help-block with-errors" id="{{prefix}}_errorDiv_birthPlaceRegion"></div>
+                        </div>
+                    </div>
+
+                    <!-- ETHNICITY -->
+                    <div class="form-group row has-feedback">
+                        <label for="{{prefix}}ethnicity" class="col-xs-2 col-form-label">Ethnicity</label>
+                        <div class="col-xs-3">
+                            <select class$="form-control {{prefix}}SelectInput codeDis" id="{{prefix}}ethnicity"
+                                    name="ethnicity" required>
+                                <option></option>
+                                <template is="dom-repeat" items="{{config.ethnicity}}">
+                                    <option value="{{item.id}}">{{item.title}}</option>
+                                </template>
+                            </select>
+                            <div class="help-block with-errors" id="{{prefix}}_errorDiv_ethnicity"></div>
+                        </div>
+                    </div>
+
+
+                    <!-- HPO TERM (ONTOLOGY) -->
+                    <div class="form-group row has-feedback">
+                        <label for="{{prefix}}HPO" class="col-xs-2 col-form-label">HPO</label>
+                        <div class="col-xs-6">
+                            <div class="input-group">
+                                <textarea class$="form-control {{prefix}}TextInput codeDis" id="{{prefix}}HPO" name="HPO"
+                                          placeholder="HP:0000947" data-error="An HPO term must be selected" rows="2" style="resize:none"></textarea>
+                                <span class="input-group-addon btn btn-primary" data-toggle="modal" data-target$="#{{prefix}}hpoModal">
+                                    <i class="fa fa-search" aria-hidden="true"></i>
+                                </span>
+                            </div>
+                            <span class="glyphicon form-control-feedback" aria-hidden="true" style="padding-right:60px; padding-top:10px; z-index:5"></span>
+                            <div class="help-block with-errors"></div>
+                        </div>
+                    </div>
+
+                    <!-- DIAGNOSIS (ONTOLOGY) -->
+                    <div class="form-group row has-feedback">
+                        <label for="{{prefix}}diagnosis" class="col-xs-2 col-form-label">Diagnosis</label>
+                        <div class="col-xs-6">
+                            <div class="input-group">
+                                <textarea class$="form-control {{prefix}}TextInput" id="{{prefix}}diagnosis" name="diagnosis"
+                                          placeholder="ICD-10 term" required data-error="A diagnosis term must be selected" readonly rows="2" style="resize:none"></textarea>
+                                <!--<span class="input-group-addon btn btn-primary" id="{{prefix}}icdButton" data-toggle="modal" data-target$="#{{prefix}}icd">-->
+                                <span class="input-group-addon btn btn-primary" id="{{prefix}}icdButton" on-click="showICD">
+                                    <i class="fa fa-search" aria-hidden="true"></i>
+                                </span>
+                            </div>
+                            <span class="glyphicon form-control-feedback" aria-hidden="true" style="padding-right:60px; padding-top:10px; z-index:5"></span>
+                            <div class="help-block with-errors"></div>
+
+                        </div>
+                    </div>
+
+                    <!-- PARENTAL CONSANGUINITY -->
+                    <div class="form-group row has-feedback">
+                        <label class="col-xs-2 col-form-label">Parental Consanguinity</label>
+                        <div class="col-xs-6">
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label codeDis">
+                                    <input id="{{prefix}}parentalConsanguinityno" class$="form-check-input {{prefix}}RadioInput" type="radio" name="parentalConsanguinity" value="false" checked> no
+                                    <input id="{{prefix}}parentalConsanguinityyes" class$="form-check-input {{prefix}}RadioInput" type="radio" name="parentalConsanguinity" value="true"> yes
+                                </label>
+                            </div>
+                            <div class="help-block with-errors"></div>
+                        </div>
+                    </div>
+
+
+                    <h3 class="title">Upload and check file</h3>
+
+                    <!-- SAMPLE TYPE -->
+                    <div class="form-group row has-feedback">
+                        <label for="{{prefix}}sampleType" class="col-xs-2 col-form-label">Type of sample</label>
+                        <div class="col-xs-3">
+                            <select class$="form-control {{prefix}}SelectInput" id="{{prefix}}sampleType"
+                                    name="sampleType" required>
+                                <option></option>
+                                <template is="dom-repeat" items="{{config.sample_type}}">
+                                    <option value="{{item.id}}">{{item.title}}</option>
+                                </template>
+                            </select>
+                            <div class="help-block with-errors" id="{{prefix}}_errorDiv_sampleType"></div>
+                        </div>
+                    </div>
+
+
+                    <!-- CELL LINE -->
+                    <div class="form-group row has-feedback">
+                        <label class="col-xs-2 col-form-label">Cell line</label>
+                        <div class="col-xs-6">
+                            <template is="dom-repeat" items="{{config.cell_line}}">
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label">
+                                        <input id="{{prefix}}{{item.id}}" class$="form-check-input {{prefix}}RadioInput" type="radio" name="cellLine" value="{{item.title}}" checked="{{item.checked}}"> {{item.title}}
+                                    </label>
+                                </div>
+                            </template>
+                            <div class="help-block with-errors"></div>
+                        </div>
+                    </div>
+
+                    <!-- SPECIFIC FIELDS FROM VARIABLE SET -->
+                    <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}" as="variable" sort="_sortVariables">
+
+                        <template is="dom-if" if="{{isVisible(variable,config)}}">
+                            <div class="form-group row has-feedback">
+
+                                <!-- We first try to display 'title', if not present then we use 'name' -->
+                                <template is="dom-if" if="{{variable.title}}">
+                                    <label for="{{prefix}}{{variable.name}}" class="col-xs-2 col-form-label">{{variable.title}}</label>
+                                </template>
+
+                                <template is="dom-if" if="{{!variable.title}}">
+                                    <label for="{{prefix}}{{variable.name}}" class="col-xs-2 col-form-label">{{variable.name}}</label>
+                                </template>
+
+                                <template is="dom-if" if="{{checkVarType(variable, 'TEXT')}}">
+                                    <!-- TEXT type: include an input text and add suitable regular expression for text-->
+                                    <!-- http://stackoverflow.com/questions/14237686/disabling-controls-in-bootstrap-->
+
+                                    <template is="dom-if" if="{{checkSubType(variable, 'STRING')}}">
+                                        <!-- String subtype: include an input text and add suitable regular expression for text-->
+                                        <div class="col-xs-6">
+                                            <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}{{variable.name}}" name="{{variable.name}}"
+                                                   placeholder="{{variable.defaultValue}}" maxlength="{{variable.attributes.maxLength}}" required
+                                                   data-error="{{variable.attributes.errorPattern}}" pattern="{{variable.attributes.pattern}}">
+                                            <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                            <div class="help-block with-errors"></div>
+                                        </div>
+                                    </template>
+
+                                    <template is="dom-if" if="{{checkSubType(variable, 'TEXT')}}">
+                                        <!-- String subtype: include a text area and add suitable regular expression for text-->
+                                        <div class="col-xs-6">
+                                            <textarea class$="form-control {{prefix}}TextInput" id="{{prefix}}{{variable.name}}" name="{{variable.name}}"
+                                                      placeholder="{{variable.defaultValue}}" maxlength="{{variable.attributes.maxLength}}" required rows="5"
+                                                      data-error="{{variable.attributes.errorPattern}}" pattern="{{variable.attributes.pattern}}"></textarea>
+                                            <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                            <div class="help-block with-errors"></div>
+                                        </div>
+                                    </template>
+
+                                    <template is="dom-if" if="{{!checkSubType(variable, 'STRING')}}">
+                                        <template is="dom-if" if="{{!checkSubType(variable, 'TEXT')}}">
+                                            <!-- String subtype: include an input text and add suitable regular expression for text-->
+                                            <div class="col-xs-6">
+                                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}{{variable.name}}" name="{{variable.name}}"
+                                                       placeholder="{{variable.defaultValue}}" maxlength="{{variable.attributes.maxLength}}" required
+                                                       data-error="{{variable.attributes.errorPattern}}" pattern="{{variable.attributes.pattern}}">
+                                                <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                                <div class="help-block with-errors"></div>
+                                            </div>
+                                        </template>
+                                    </template>
+                                </template>
+
+                                <!--<template is="dom-if" if="{{checkVarType(variable, 'NUMERIC')}}">-->
+                                <!--&lt;!&ndash; NUMERIC type: include an input text and add suitable regular expression for numbers &ndash;&gt;-->
+                                <!--<div class="col-xs-6">-->
+                                <!--<input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}{{variable.name}}" name="{{variable.name}}"-->
+                                <!--placeholder="{{variable.name}} number" pattern="^[0-9]+$" maxlength="75" required data-error="Mandatory field. Only numbers are allowed ">-->
+                                <!--<span class="glyphicon form-control-feedback" aria-hidden="true"></span>-->
+                                <!--<div class="help-block with-errors"></div>-->
+                                <!--</div>-->
+                                <!--</template>-->
+
+                                <template is="dom-if" if="{{checkVarType(variable, 'INTEGER')}}">
+                                    <!-- INTEGER type: include an input text and add suitable regular expression for numbers -->
+                                    <div class="col-xs-6">
+                                        <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}{{variable.name}}" name="{{variable.name}}"
+                                               placeholder="{{variable.name}} number" pattern="^[0-9]+$" maxlength="75" required data-error="Mandatory field. Only numbers are allowed ">
+                                        <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                        <div class="help-block with-errors"></div>
+                                    </div>
+                                </template>
+
+                                <template is="dom-if" if="{{checkVarType(variable, 'DOUBLE')}}">
+                                    <!-- DOUBLE type: include an input text and add suitable regular expression for numbers -->
+                                    <div class="col-xs-6">
+                                        <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}{{variable.name}}" name="{{variable.name}}"
+                                               placeholder="{{variable.name}} number" pattern="^[0-9]+$" maxlength="75" required data-error="Mandatory field. Only numbers are allowed ">
+                                        <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                        <div class="help-block with-errors"></div>
+                                    </div>
+                                </template>
+
+                                <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 0, 1)}}">
+                                    <!-- CATEGORICAL type, no value: values to be filled in this code -->
+                                    <!-- Dropdown related to years : fill in with values contained in {{years}} -->
+                                    <template is="dom-if" if="{{checkType(variable.name,'Year')}}">
+                                        <div class="col-xs-6">
+                                            <select class$="form-control {{prefix}}SelectInput" id="{{prefix}}{{variable.name}}" name="{{variable.name}}" required on-change="checkYears">
+                                                <option></option>
+                                                <template is="dom-repeat" items="{{yearsTest}}">
+                                                    <option value="{{item}}">{{item}}</option>
+                                                </template>
+                                            </select>
+                                            <div class="help-block with-errors" id="{{prefix}}_errorDiv_{{variable.name}}"></div>
+                                        </div>
+                                    </template>
+
+                                </template>
+
+                                <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 1, 2)}}">
+                                    <!-- CATEGORICAL type, single value: check box -->
+                                    <div class="col-xs-6">
+                                        <input class$="{{prefix}}CheckInput" type="checkbox" id="{{prefix}}{{variable.name}}" name="{{variable.name}}" value="{{variable.name}}" style="padding-left: 20px" required>
+                                    </div>
+                                </template>
+
+                                <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 2, 3)}}">
+                                    <!-- CATEGORICAL type, 2 values: radio buttons for selection -->
+                                    <!--<label class="col-sm-3 control-label">{{variable.name}}-{{variable.type}}</label>-->
+                                    <div class="col-xs-6">
+                                        <template is="dom-repeat" items="{{variable.allowedValues}}" as="value">
+                                            <div class="form-check form-check-inline">
+                                                <label class="form-check-label">
+                                                    <input id="{{prefix}}{{variable.name}}{{value}}" class$="form-check-input {{prefix}}RadioInput" type="radio" name="{{variable.name}}" value="{{value}}"> {{value}}
+                                                </label>
+                                            </div>
+                                        </template>
+                                        <div class="help-block with-errors"></div>
+                                    </div>
+                                </template>
+
+                                <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 3, 500)}}">
+                                    <!-- CATEGORICAL type: dropdown: at least three elements in variable.allowedValues -->
+                                    <div class="col-xs-3">
+                                        <select class$="form-control {{prefix}}SelectInput" id="{{prefix}}{{variable.name}}" name="{{variable.name}}" required on-change="updateSelect">
+                                            <option></option>
+                                            <template is="dom-repeat" items="{{variable.allowedValues}}">
+                                                <option value="{{item}}">{{item}}</option>
+                                            </template>
+                                        </select>
+                                        <div class="help-block with-errors" id="{{prefix}}_errorDiv_{{variable.name}}"></div>
+                                    </div>
+                                </template>
+
+                                <template is="dom-if" if="{{checkVarType(variable, 'BOOLEAN')}}">
+                                    <!-- BOOLEAN type, 2 values: radio buttons for selection: yes or no -->
+                                    <!--<label class="col-sm-3 control-label">{{variable.name}}-{{variable.type}}</label>-->
+                                    <div class="col-xs-6">
+                                        <div class="form-check form-check-inline">
+                                            <label class="form-check-label">
+                                                <input id="{{prefix}}{{variable.name}}yes" class$="form-check-input {{prefix}}RadioInput" type="radio" name="{{variable.name}}" value="true"> yes
+                                                <input id="{{prefix}}{{variable.name}}no" class$="form-check-input {{prefix}}RadioInput" type="radio" name="{{variable.name}}" value="false"> no
+                                            </label>
+                                        </div>
+                                        <div class="help-block with-errors"></div>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+                    </template>
+
+                    <div class="form-group row">
+                        <label for="uploadInputFileVCF" class="col-xs-2 col-form-label">VCF or gVCF file</label>
+                        <div class="col-xs-6">
+                            <div class="input-group">
+                                <input type="text" class$="form-control {{prefix}}TextInput" id="uploadInputFileVCF" name="inputFile" readonly>
+                                <span class="input-group-btn">
+                                    <label class="btn btn-primary" for="{{prefix}}FileToUpload">
+                                        <input id="{{prefix}}FileToUpload" type="file" style="display:none;" onchange="$('#uploadInputFileVCF')[0].value=$(this).val().replace('C:\\fakepath\\','');">
+                                        ...
+                                    </label>
+                                </span>
+                            </div>
+                        </div>
+                        <span class='label label-info' id="upload-file-info"></span>
+                    </div>
+
+                    <!--<div class="form-group row" style="float: right; width: 55%;">-->
+                    <div class="form-group row" style="padding-left: 240px;">
+                        <button type="button" class="btn btn-primary" on-click="_clearHtmlDom">Clear form</button>
+                        <button type="submit" class="btn btn-primary" on-click="submitForm">Upload and check sample</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal dialog for HPO terms-->
+        <div class="modal fade" id="{{prefix}}hpoModal" tabindex="-1" role="dialog"
+             aria-labelledby="hpoLabel" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-sm" role="document" style="width: 500px;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="{{prefix}}HPOEditorLabel">HPO terms selector</h4>
+                    </div>
+                    <div class="modal-body" style="height: 200px">
+                        <div class="col-sm-12" >
+                            <label>Under progress.</label>
+                            Introduce an HPO term (HP:0202564) in the upload form (HPO text input)
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal dialog for ICD-10 diagnosis selector-->
+        <div class="modal fade" id="{{prefix}}icd" tabindex="-1" role="dialog"
+             aria-labelledby="icdLabel" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-sm" role="document" style="width: 1300px;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="{{prefix}}Icd10EditorLabel">Diagnosis selector (ICD-10 Terms)</h4>
+                    </div>
+                    <div class="modal-body" style="height: 500px">
+                        <div class="col-sm-12" >
+                            <label>Introduce an ICD-10 term or select it from tree</label>
+                        </div>
+                        <div class="col-sm-6" style="overflow-y: auto; height:400px;">
+                            <input id="{{prefix}}autoInput" list="icd_browser" class$="form-control {{prefix}}TextInput" placeholder="ICD-10 term" >
+                            <datalist id="icd_browser" style="height:auto; max-height:100px; overflow-x:hidden;">
+                                <template is="dom-repeat" items="{{icdTerms}}">
+                                    <option value="{{item}}">
+                                </template>
+
+                            </datalist>
+                        </div>
+                        <div class="col-sm-6" style="overflow-y: auto; height:400px;">
+                            <div id="{{prefix}}ICDtree"></div>
+                        </div>
+                        <div>
+                            <div class="col-sm-3"></div>
+                            <div class="col-sm-6" id="{{prefix}}errorTermDiv"><label></label></div>
+                            <div class="col-sm-3"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" on-click="selectICD">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal dialog for VCF upload-->
+        <div class="modal fade" id="{{prefix}}uploadModal" tabindex="-1" role="dialog"
+             aria-labelledby="uploadLabel" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-sm" role="document" style="width: 500px;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="{{prefix}}uploadLabel">VCF upload</h4>
+                    </div>
+                    <div class="modal-body" style="height: 200px">
+                        <div class="col-sm-12" >
+                            <label>VCF has been uploaded. You can now proceed to Analysis</label>
+                            VCF validation is under progress.
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <opencga-message-dialog opencga-client="{{opencgaClient}}" show-message-modal="{{showMessageModal}}" settings-message-modal="{{settingsMessageModal}}"></opencga-message-dialog>
+    </template>
+
+    <script>
+        Polymer({
+            is: 'variant-clinical-upload',
+            properties: {
+                opencgaClient: {
+                    type: Object
+                },
+                study: {
+                    type: Number,
+                    observer: 'updateVariableSets'
+                },
+                config: {
+                    type: Object
+                },
+                prefix: {
+                    type: String
+                },
+                variableSets: {
+                    type: Array
+                },
+                variables: {
+                    type: Array,
+                    observer: 'variablesChanged'
+                },
+                minYearBirth: {
+                    type: Number,
+                    value: 1920
+                },
+                minYearTest: {
+                    type: Number,
+                    value: 2005
+                },
+                clearDom: {
+                    type: Object,
+                    observer: "_clearHtmlDom"
+                },
+                showMessageModal: {
+                    type: Boolean,
+                    notify: true
+                },
+                settingsMessageModal: {
+                    type: Object,
+                    notify: true
+                }
+
+            },
+            ready: function () {
+
+                if (typeof this.prefix === "undefined" || this.prefix === "") {
+                    this.prefix = "upload" + Utils.randomString(6);
+                }
+
+                let _years = [];
+                let fullDate = new Date();
+                let limitYear = fullDate.getFullYear();
+                for (let year = this.minYearBirth; year<=limitYear; year++)
+                {_years.push(year);}
+                // This change triggers the polymer dom-repeat
+                this.yearsBirth = _years;
+
+                _years = [];
+                for (year = this.minYearTest; year<=limitYear; year++)
+                {_years.push(year);}
+                // This change triggers the polymer dom-repeat
+                this.yearsTest = _years;
+
+                this._clearHtmlDom();
+                //this.set('icd10Terms', ICD_10);
+            },
+            updateVariableSets: function () {
+
+                this.variables = [];
+                let _this = this;
+                this.opencgaClient.studies().info(this.study.id, {include: "variableSets"})
+                    .then(function (response) {
+                        _this.variableSets = response.response[0].result[0].variableSets;
+                        if (_this.variableSets.length > 0) {
+                            _this.variables = _this.variableSets[0].variables; // setting first one by default
+                            _this.filteredVariables = {
+                                variableSet: _this.variableSets[0].id,
+                                variables: []
+                            };
+
+                        } else {
+                            _this.variableSets = [{name : "none"}];
+                        }
+                    })
+                    .catch(function (response) {
+                        console.log("Could not obtain the variable sets of the study " + _this.study);
+                        _this.settingsMessageModal = {
+                            messageHeader: "Error",
+                            messageBody: [response.error],
+                            type: "danger",
+                            height: "100px",
+                            width: "500px"
+                        };
+                        _this.showMessageModal = true;
+
+                    });
+                this.loadICDEditor();
+            },
+            _sortVariables: function (a, b) {
+                if (a.rank < b.rank) {
+                    return -1;
+                }
+                return 1;
+            },
+            variablesChanged: function () {
+                this._areVariablesEmpty = (this.variables.length === 0);
+            },
+            checkCatType: function (myVar, type, lowerLimit, upperLimit) {
+                return (myVar.type === type && myVar.allowedValues.length >= lowerLimit && myVar.allowedValues.length < upperLimit);
+            },
+            checkVarType: function (myVar, type) {
+                return (myVar.type === type);
+            },
+            checkSubType: function (myVar, type) {
+                return (myVar.attributes.subtype === type);
+            },
+            isVisible: function (myVar,conf){
+                let excludeArray = conf.variableSet.exclude
+                for (let index in excludeArray) {
+                    if (excludeArray[index].webComponent == this.localName) {
+                        return (!($.inArray(myVar.name, excludeArray[index].variables) != -1));
+                    } else {return true;}
+                }
+            },
+            checkType: function (str1, str2) {
+                if (str1.search(str2) != -1)
+                {return true;}
+                else
+                {return false;}
+
+            },
+            checkYears: function(e) {
+                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+
+                $("#" + this.prefix + "_errorDiv_birthYear").html("");
+                $("#" + this.prefix + "_errorDiv_testYear").html("");
+
+                let identifier = e.target.id;
+                let message = '';
+                let currentElement = $();
+                let valueCE = '';
+                let pairElement = $();
+                let valuePE = '';
+
+                if (identifier.search('birthYear')!=-1) {    // Birth year element raises the event -> check Test year
+                    // Check Year of Test
+                    $("#" + this.prefix + "_errorDiv_age").html("");
+                    currentElement = $("#"+e.target.id);
+                    valueCE = currentElement.find("option:selected").text();
+                    pairElement = $("#" + this.prefix + "testYear");
+                    valuePE = pairElement.find("option:selected").text();
+
+                    if(valuePE != '' && (parseInt(valueCE) > parseInt(valuePE)))
+                    { // Year of birth cannot be lower than Year of test
+                        message = "Year of Birth must be prior to year of Test. ";
+                        $("#" + this.prefix + "_errorDiv_birthYear").html(message);
+                    }
+                    // Check Age
+                    pairElement = $("#" + this.prefix + "age");
+                    valuePE = pairElement.find("option:selected").text();
+                    let fullDate = new Date();
+                    if (valuePE != '' && !(parseInt(valuePE) >= (fullDate.getFullYear() - parseInt(valueCE) - 1) && parseInt(valuePE) <= fullDate.getFullYear() - parseInt(valueCE))) {
+                        // If year of birth is 2015, person is 1 or 2 years old (assuming 2017 is current year)
+                        $("#" + this.prefix + "_errorDiv_birthYear").html(message + "Year of Birth does not match age");
+                    }
+                }
+                else { // Year of test element raises the event -> swap elements and check the birth year
+                    currentElement = $("#" + this.prefix + "birthYear");
+                    valueCE = currentElement.find("option:selected").text();
+                    pairElement = $("#"+e.target.id);
+                    valuePE = pairElement.find("option:selected").text();
+
+                    if(valuePE != '' && (parseInt(valueCE) > parseInt(valuePE)))
+                    { // Year of birth cannot be lower than Year of test
+                        $("#" + this.prefix + "_errorDiv_testYear").html("Year of Test must be posterior to year of Birth");
+                    }
+                }
+            },
+            loadICDEditor: function (e) {
+                $("#" + this.prefix + "errorTermDiv").html("");
+                this.$$("#" + this.prefix + "autoInput").value="";
+                this.icdTerms = this.getICDterms();
+
+                let _this = this;
+                $("#" + this.prefix +"ICDtree").treeview({
+                    data: ICD_10,
+                    onNodeSelected: function(event, node) {
+                        _this.$$("#" + _this.prefix + "autoInput").value=node.text;
+                    },
+                    onNodeUnselected: function(event, node) {
+                        _this.$$("#" + _this.prefix + "autoInput").value="";
+                    },
+                });
+
+                $("#" + this.prefix + "ICDtree").treeview('collapseAll', {silent: true});
+                $("#" + this.prefix + "autoInput").on("input", function(){
+                    $("#" + _this.prefix + "ICDtree").treeview('collapseAll', {silent: true});
+                    $("#" + _this.prefix + "ICDtree").treeview('search', [ this.value, {
+                        ignoreCase: true,     // case insensitive
+                        exactMatch: false,    // like or equals
+                        revealResults: true,  // reveal matching nodes
+                    }]);
+                });
+            },
+            getICDterms: function(){
+                // In ICD_10 there are up to three nested levels
+                let _auxTerms = [];
+                for (let i=0; i < ICD_10.length; i++)
+                {
+                    _auxTerms.push(ICD_10[i].text);
+                    for (let j=0; j < ICD_10[i].nodes.length; j++)
+                    {
+                        _auxTerms.push('   ' + ICD_10[i].nodes[j].text);
+                        for (let k=0; k < ICD_10[i].nodes[j].nodes.length; k++)
+                        {
+                            _auxTerms.push('     ' + ICD_10[i].nodes[j].nodes[k].text);
+                        }
+                    }
+
+                }
+                return _auxTerms;
+            },
+            selectICD: function(e) {
+                e.preventDefault();
+
+                selectedTerm = this.$$("#" + this.prefix + "autoInput").value.replace(/^\s+/g, '');
+                if (selectedTerm !== "") { // Check that the term is correct (one of the list)
+                    let _icdTermsNS = $.map(this.icdTerms, function(elem){return elem.replace(/^\s+/g, '')});
+                    if ($.inArray(selectedTerm, _icdTermsNS)!= -1) {
+                        this.$$("#" + this.prefix + "diagnosis").value = selectedTerm;
+                        $("#" + this.prefix + "icd").modal('hide');
+                    }
+                    else {
+                        $("#" + this.prefix + "errorTermDiv").html("A proper ICD-10 term must be selected from the list or tree");
+                    }
+                }
+                else {
+                    this.$$("#" + this.prefix + "diagnosis").value = '';
+                    $("#" + this.prefix + "icd").modal('hide');
+                }
+            },
+            updateSelect: function(e){
+                $("#" + this.prefix + "_errorDiv_testAge").html("");
+                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+                let currentElementId = e.target.id;
+                let currentElement = $("#" +  e.target.id);
+                // Dropdown related to birthplace
+                if (currentElementId == (this.prefix + 'birthPlace')){
+                    if (currentElement.val() == 'Spain'){
+                        $("#otherCountryDiv").hide();
+                        $("#" + this.prefix + "otherCountry").prop("required",false);
+                        $("#" + this.prefix + "birthPlaceRegion").prop("disabled",false);
+                        $("#" + this.prefix + "birthPlaceRegion").prop("required",true);
+                    }
+                    else {
+                        $("#" + this.prefix + "birthPlaceRegion").prop("disabled",true);
+                        $("#" + this.prefix + "birthPlaceRegion").prop("selectedIndex",0);
+                        $("#" + this.prefix + "birthPlaceRegion").prop("value","unknown");
+                        $("#" + this.prefix + "birthPlaceRegion").prop("required",false);
+                        if (currentElement.val() == 'Other') {// Display input text to introduce country
+                            $("#otherCountryDiv").show();
+                            $("#" + this.prefix + "otherCountry").prop("required",true);
+                        }
+                        else {
+                            $("#otherCountryDiv").hide();
+                            $("#" + this.prefix + "otherCountry").prop("required",false);
+                        }
+                    }
+                } else if (currentElementId == (this.prefix + 'testAge')) {
+                    // Dropdown related to age of Test -> check hat year of birth is correct
+                    let pairElement = $("#" + this.prefix + "birthYear");
+                    let valuePE = pairElement.find("option:selected").text();
+                    if (valuePE !='') {
+                        let birthYear = parseInt(valuePE);
+                        let fullDate = new Date();
+                        if (!(parseInt(currentElement.val()) >= (fullDate.getFullYear() - birthYear - 1) && parseInt(currentElement.val()) <= fullDate.getFullYear() - birthYear)) {
+                            $("#" + this.prefix + "_errorDiv_testAge").html("Age selected does not match year of Birth");
+                        }
+                    }
+                }
+            },
+            _clearHtmlDom: function() {
+                $("#" + this.prefix + "uploadForm").validator('destroy');
+                // Empty everything before rendering
+                $("." + this.prefix + "SelectInput").prop('selectedIndex', 0);
+                $("." + this.prefix + "TextInput").val("");
+                $("." + this.prefix + "CheckInput").prop("checked", false);
+                $("." + this.prefix + "RadioInput").prop("checked", false);
+                $("#" + this.prefix + "birthPlaceRegion").prop("disabled",true);
+                $('.codeDis').prop('disabled', false);
+
+                $("#" + this.prefix + "parentalConsanguinityno").prop("checked", true);
+                $("#" + this.prefix + "germline").prop("checked", true);
+
+                $("#" + this.prefix + "uploadForm").validator('update');
+            },
+            indexVCF: function(fileId){
+                // Index and annotate a VCF file in openCGA
+                let params = {
+                    file: fileId,
+                    study: this.study.alias,
+                    outDir: fileId + "_index_annot",
+                    calculateStats: true,
+                    annotate: true
+                };
+                let _this = this;
+                _this.fileId = fileId;
+                this.opencgaClient.variants().index(params)
+                    .then(function (response) {
+                        console.log(response);
+                    })
+                    .catch(function() {
+                        console.log("Could not index file " + _this.fileId);
+                    });
+
+
+                this.settingsMessageModal = {
+                    messageHeader: "",
+                    messageBody: ["The VCF file has successfully uploaded. You can now proceed to Analysis tab or upload another VCF file"],
+                    type: "",
+                    height: "100px",
+                    width: "500px"
+                };
+
+                this.showMessageModal = true;
+                this._clearHtmlDom();
+            },
+            uploadVCF: function(formFields) {
+                // Upload VCF file to openCGA
+                if (this.opencgaClient instanceof OpenCGAClient) {
+                    params = {
+                        study: this.study.alias,
+                        type: "FILE",
+                        file: $("#" + this.prefix + "FileToUpload").prop('files')[0],
+                        fileFormat: "VCF",
+                        bioformat: "VARIANT",
+                        relativeFilePath: "."
+                    };
+
+                    let _this = this;
+
+                    this.opencgaClient.files().upload(params)
+                        .then(function (response) {
+                            // 3. Index and annotate VCF
+                            let _fileId = response.response[0].result[0].id;
+                            _this.indexVCF(_fileId);
+                        })
+                        .catch(function () {
+                            console.log("Could not upload VCF file for the study " + _this.study);
+                        });
+                }
+            },
+            openCGAsteps: function(formFields, sampleId) {
+                // The following steps are run to register the form in openCGA:
+                // 1. Create sample (given an ID) and the individual information related to that sample, together with sample annotation set
+                // 2. Upload VCF
+                // 3. Index and annotate the VCF file (using fileId obtained in step 2)
+                if (this.opencgaClient instanceof OpenCGAClient) {
+                    // 1. Create sample
+                    let isSomatic = (formFields.cellLine === "somatic");
+                    let hasParentalConsanguinity = (formFields.parentalConsanguinity === "true");
+                    let icdTermField = formFields.diagnosis;
+                    let icdName = "";
+                    let icdId="";
+                    if (icdTermField !== ""){
+                        icdId = icdTermField.split('(')[1].slice(0,-1);
+                        icdName = icdTermField.split('(')[0];
+                    }
+                    let hpoId = formFields.HPO; // To be modified when HPO is included
+                    let hpoName = formFields.HPO;
+
+                    let jsonAnnotation = {};
+                    $(this.variableSets[0].variables).each(function(index, currentVariable){
+                        jsonAnnotation[currentVariable.name] = formFields[currentVariable.name];
+                    });
+
+                    let params = {
+                        study: this.study.alias
+                    };
+
+                    let body= {
+                        "name": sampleId,
+                        "type": formFields.sampleType,
+                        "somatic": isSomatic,
+                        "annotationSets": [
+                            {
+                                "name": "annotation_sample_" + sampleId,
+                                "variableSet": this.variableSets[0].id,
+                                "annotations": jsonAnnotation
+                            }
+                        ],
+                        "individual" : {
+                            "name": formFields.patientID,
+                            "family": "", // to be removed
+                            "fatherId": -1, // To be removed
+                            "motherId": -1, // to be removed
+                            "ethnicity": formFields.ethnicity,
+                            "dateOfBirth": formFields.birthYear,
+                            "population": {
+                                "name": formFields.birthPlace,
+                                "subpopulation": formFields.birthPlaceRegion,
+                                "description": ""
+                            },
+                            "karyotypicSex": formFields.chromosomalGender,
+                            "lifeStatus": formFields.lifeStatus,
+                            "affectationStatus": formFields.status,
+                            "parentalConsanguinity": hasParentalConsanguinity,
+                            "ontologyTerms": [
+                                {
+                                    "id": hpoId,
+                                    "name": hpoName,
+                                    "source": "HPO"
+                                },
+                                {
+                                    "id": icdId,
+                                    "name": icdName,
+                                    "source": "ICD10"
+                                }
+                            ]
+                        }
+                    };
+
+                    let _this = this;
+                    this.opencgaClient.samples().create(params, body)
+                        .then(function (response) {
+                            _this.uploadVCF(formFields);
+
+                        })
+                        .catch(function (response) {
+                            _this.settingsMessageModal = {
+                                messageHeader: "Error",
+                                messageBody: [response.error],
+                                type: "danger",
+                                height: "100px",
+                                width: "500px"
+                            };
+
+                            _this.showMessageModal = true;
+                        });
+                }
+            },
+            submitForm: function(e) {
+                e.preventDefault();
+
+                // Enable those fields that needed to be enabled to submit a form
+                $('.codeDis').prop('disabled', false);
+
+                // Get values from form fields
+                let fields = $("#"+ this.prefix + "uploadForm").serializeArray();
+
+                let formFields = {};
+
+                // fill-in variable set
+                $(fields).each(function(index, field){
+                    formFields[field.name] = field.value;
+                });
+
+                // Some checks before submitting VCF to Catalog
+                if (window.File && window.FileReader && window.FileList && window.Blob) {
+                    let vcfFile = $("#" + this.prefix + "FileToUpload").prop('files')[0];
+
+                    if(vcfFile.type ==='text/vcard' && vcfFile.name.split('.').pop() === 'vcf') {
+
+                        let reader = new FileReader();
+                        let _this = this;
+
+                        reader.onload = (function () {
+                            // Get SampleID from VCF file
+                            let content = reader.result.split('\n');
+                            let i = 0;
+                            let sampleId = "";
+                            while (i < content.length) {
+                                if (content[i].startsWith('#CHROM')) {
+                                    let headerColumns = content[i].split('\t');
+                                    if (headerColumns.length != 10) {
+                                        this.settingsMessageModal = {
+                                            messageHeader: "Error",
+                                            messageBody: ["VCF file does not have proper number of data columns which are CHROM POS ID REF ALT QUAL FILTER INFO FORMAT <sample>. Besides, notice that for this version VCF multisample is not allowed"],
+                                            type: "danger",
+                                            height: "100px",
+                                            width: "500px"
+                                        };
+                                        this.showMessageModal = true;
+                                    }
+                                    else {
+                                        sampleId = headerColumns[headerColumns.length - 1];
+                                        break;
+                                    }
+                                }
+                                i++;
+
+                            }
+                            // Register the form in openCGA through different steps
+                            //_this.openCGAsteps(formFields);
+                            _this.openCGAsteps(formFields, sampleId);
+
+                        });
+                        reader.onerror = (function () {
+                            _this.settingsMessageModal = {
+                                messageHeader: "Error",
+                                messageBody: ["The VCF file couldn't be read"],
+                                type: "danger",
+                                height: "100px",
+                                width: "500px"
+                            };
+
+                            _this.showMessageModal = true;
+                        });
+
+                        reader.readAsText(vcfFile);
+                    } // Type of file: VCF or not
+                    else {
+                        this.settingsMessageModal = {
+                            messageHeader: "Error",
+                            messageBody: ["The file selected is not a VCF file"],
+                            type: "danger",
+                            height: "100px",
+                            width: "500px"
+                        };
+
+                        this.showMessageModal = true;
+
+                    }
+                } // Whether browser supports FILE API
+                else {
+                    this.settingsMessageModal = {
+                        messageHeader: "Error",
+                        messageBody: ["Your browser is not supported. The latest version of Google Chrome is recommended (https://www.google.es/chrome/browser/desktop/index.html)"],
+                        type: "danger",
+                        height: "100px",
+                        width: "500px"
+                    };
+
+                    this.showMessageModal = true;
+                }
+            },
+            searchIndividual: function() {
+                if (this.opencgaClient instanceof OpenCGAClient) {
+                    // 1. Create individual
+                    let params = {
+                        study: this.study.alias,
+
+                    };
+
+                    let _this = this;
+                    let _individualId = this.$$("#"+ this.prefix + "patientID").value;
+                    this.opencgaClient.individuals().info(_individualId, params, {"method": "GET"})
+                        .then(function (response) {
+                            if (response.response[0].numResults >= 1) {
+                                let formFields = response.response[0].result[0];
+                                $("#" + _this.prefix + "patientID").prop("disabled", true);
+                                $("#" + _this.prefix + "chromosomalGender").val(formFields.karyotypicSex);
+                                $("#" + _this.prefix + "chromosomalGender").prop("disabled", true);
+                                $("#" + _this.prefix + "status").val(formFields.affectationStatus);
+                                $("#" + _this.prefix + "status").prop("disabled", true);
+                                $("#" + _this.prefix + "lifeStatus").val(formFields.lifeStatus);
+                                $("#" + _this.prefix + "lifeStatus").prop("disabled", true);
+                                $("#" + _this.prefix + "birthYear").val(formFields.dateOfBirth);
+                                $("#" + _this.prefix + "birthYear").prop("disabled", true);
+                                $("#" + _this.prefix + "birthPlace").val(formFields.population.name);
+                                $("#" + _this.prefix + "birthPlace").prop("disabled", true);
+                                $("#" + _this.prefix + "birthPlaceRegion").val(formFields.population.subpopulation);
+                                $("#" + _this.prefix + "birthPlaceRegion").prop("disabled", true);
+                                $("#" + _this.prefix + "ethnicity").val(formFields.ethnicity);
+                                $("#" + _this.prefix + "ethnicity").prop("disabled", true);
+                                $("#" + _this.prefix + "HPO").val(formFields.ontologyTerms[0].name);
+                                $("#" + _this.prefix + "HPO").prop("disabled", true);
+                                $("#" + _this.prefix + "diagnosis").val(formFields.ontologyTerms[1].name);
+                                if (formFields.parentalConsanguinity === true){
+                                    $("#" + _this.prefix + "parentalConsanguinityyes").prop("checked", true);
+                                }
+                                else {
+                                    $("#" + _this.prefix + "parentalConsanguinityno").prop("checked", true);
+                                }
+                                $("#" + _this.prefix + "uploadForm").validator('update');
+                                $("#" + _this.prefix + "uploadForm").validator('validate');
+                            }
+                        })
+                        .catch(function (response) {
+                            _this.settingsMessageModal = {
+                                messageHeader: "Error",
+                                messageBody: ["The user " + _individualId + " does not exist"],
+                                type: "danger",
+                                height: "100px",
+                                width: "500px"
+                            };
+                            _this.showMessageModal = true;
+                        });
+                }
+            },
+            showICD: function(){
+                let statusValue = $("#" + this.prefix + "status").find("option:selected").text();
+                if (statusValue === "Control" || statusValue === "Unaffected" ){
+                    // For a control or unaffected, disable ICD and make it not mandatory
+                    this.settingsMessageModal = {
+                        messageHeader: "Attention",
+                        messageBody: ["For " + statusValue + " patient a diagnostic cannot be chosen"],
+                        type: "info",
+                        height: "100px",
+                        width: "500px"
+                    };
+                    this.showMessageModal = true;
+                    $("#" + this.prefix + "diagnosis").val("");
+                    document.getElementById( this.prefix + "diagnosis").innerHTML = "";
+                    $("#" + this.prefix + "diagnosis").attr("placeholder", "ICD-10 term");
+                    $("#" + this.prefix + "diagnosis").attr("required", false);
+
+                }
+                else {
+                    $("#" + this.prefix + "icd").modal('show');
+                    $("#" + this.prefix + "diagnosis").attr("required", true);
+                }
+                $("#" + this.prefix + "diagnosis").focus();
+                $("#" + this.prefix + "uploadForm").validator('update');
+            }
+        });
+    </script>
+</dom-module>

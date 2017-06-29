@@ -27,6 +27,10 @@ function Renderer(args) {
 
 Renderer.prototype = {
 
+    init: function () {
+
+    },
+
     render: function (items) {
 
     },

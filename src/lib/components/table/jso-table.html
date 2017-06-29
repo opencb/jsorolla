@@ -1,5 +1,7 @@
 <script src="../../../../../file-saver.js/FileSaver.js"></script>
+<link rel="import" href="../../../../../iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="../../../../../iron-resizable-behavior/iron-resizable-behavior.html">
+<link rel="import" href="../../../../../polymer/polymer.html">
 
 <dom-module id="jso-table">
     <style is="custom-style" include="iron-flex iron-flex-reverse iron-flex-alignment iron-flex-factors iron-positioning">
@@ -182,9 +184,9 @@
             background-color: #bbb !important;
         }
 
-        /*div.table-row:last-of-type {
+        div.table-row:last-of-type {
             border-bottom-width: 0;
-        }*/
+        }
 
         .table-row:nth-child(2n) {
             background-color: #fbfbfb;
@@ -356,22 +358,30 @@
         }
 
         #columnsMenu {
+            box-sizing: border-box;
             position: fixed;
             min-width: 200px;
             cursor: pointer;
             transition: opacity 0.1s, visibility 0.1s;
-        }
-
-        #columnsMenu {
             max-height: 300px;
             overflow-y: auto;
+            visibility: hidden;
+            opacity: 0;
+            list-style: none;
+            text-decoration: none;
+            z-index: 100000;
+            border: 1px solid #afafaf;
+            background-color: #fff;
+            line-height: 22px;
+            margin: 1px 0 0 0;
+            padding: 5px 0;
+            box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.2);
         }
-
-        div.jso-dropdown ul li:hover,
+        /*div.jso-dropdown ul li:hover,
         ul.jso-context li:hover {
             background-color: var(--default-primary-color);
             color: var(--text-primary-color);
-        }
+        }*/
 
         li.columnControl {
             cursor: pointer;
@@ -424,7 +434,7 @@
                 </div>
 
                 <div class="flex"></div>
-
+                <content select=".custom-buttons"></content>
                 <div class="">{{pageFirstItem}}</div>
                 <div class="">-</div>
                 <div class="">{{pageLastItem}}</div>
@@ -445,15 +455,16 @@
         </div>
 
 
-        <ul id="columnsMenu" class="jso-context" on-mouseleave="handleColumnsMenuLeave" on-wheel="handleMenuScroll">
+        <ul id="columnsMenu" on-mouseleave="handleColumnsMenuLeave" on-wheel="handleMenuScroll">
             <!-- <li>Export</li>
             <li data-divider></li> -->
             <template is="dom-repeat" items="{{columns}}">
                 <li class="columnControl">
-                    <label class="jso-control">
+                    <jso-table-column-menu-item column="{{item}}" on-column-toggle="handleColumnVisibilityClick"></jso-table-column-menu-item>
+                    <!-- <label class="jso-control">
                         <input type="checkbox" checked$="{{isColumnVisible(item)}}" on-click="handleColumnVisibilityClick">
                         <span>{{item.title}}</span>
-                    </label>
+                    </label> -->
                 </li>
             </template>
         </ul>
@@ -691,9 +702,10 @@
             return v.visible !== false;
         },
         handleColumnVisibilityClick: function(e) {
-            var columnIndex = this.columns.indexOf(e.model.item);
-            this.set('columns.' + columnIndex + '.visible', e.currentTarget.checked);
+            // var columnIndex = this.columns.indexOf(e.model.item);
+            // this.set('columns.' + columnIndex + '.visible', e.currentTarget.checked);
             this.columnsChanged();
+            this.fire('column-visibility-change', e);
         },
         /* LISTENERS */
         handleScroll: function(e) {
@@ -878,6 +890,7 @@
             this.columns = [];
         },
         refresh: function() {
+            this.updateColumns();
             this.dataChanged();
         },
         checkRemote: function() {
@@ -1231,7 +1244,10 @@
                 subColumnsEl.classList.add('sub', 'horizontal', 'layout', 'style-scope', 'jso-table');
                 for (var i = 0; i < column.columns.length; i++) {
                     var subColumn = column.columns[i];
-                    this._createHeaderField(subColumnsEl, subColumn);
+                    if (subColumn.visible != false) {
+                        this._createHeaderField(subColumnsEl, subColumn);
+                    }
+                    // this._createHeaderField(subColumnsEl, subColumn);
                 }
                 el.appendChild(subColumnsEl);
             } else {
@@ -1403,7 +1419,10 @@
             } else if (column.plainColumns.length > 0) {
                 for (var i = 0; i < column.plainColumns.length; i++) {
                     var c = column.plainColumns[i];
-                    this._createTypeField(el, c, rowData, true);
+                    if (c.visible != false) {
+                        this._createTypeField(el, c, rowData, true);
+                    }
+                    // this._createTypeField(el, c, rowData, true);
                 }
             } else {
                 this._createTypeField(el, column, rowData);
@@ -1448,7 +1467,12 @@
                             if (!this.hasAttribute('readonly')) {
                                 this.setAttribute('readonly', '');
                                 var val = this.value;
-                                rowData.attributes[column.name] = val;
+                                if (column.editFormula != null) {
+                                    column.editFormula(rowData, val);
+                                } else {
+                                    rowData[column.name] = val;
+                                }
+                                // rowData.attributes[column.name] = val;
                                 me.fire('update-row', {
                                     row: rowData,
                                     column: column
@@ -1822,3 +1846,60 @@
         }
     })
 </script>
+
+<dom-module id="jso-table-column-menu-item">
+    <style is="custom-style" include="iron-flex iron-flex-reverse iron-flex-alignment iron-flex-factors iron-positioning"></style>
+    <style>
+
+    </style>
+    <template>
+        <label class="jso-control">
+            <input type="checkbox" checked$="{{isColumnVisible(column.visible)}}" on-click="handleColumnVisibilityClick">
+            <span>{{column.title}}
+                <template is="dom-if" if="{{column.columns}}">
+                    ,
+                    <template is="dom-repeat" items="{{column.columns}}">
+                        <jso-table-subcolum-name column="{{item}}"></jso-table-subcolum-name>
+                    </template>
+                </template>
+            </span>
+        </label>
+    </template>
+    <script>
+        Polymer({
+            is: 'jso-table-column-menu-item',
+            properties: {
+                column: {
+                    type: Object
+                }
+            },
+            handleColumnVisibilityClick: function(e) {
+                this.set('column.visible', !this.column.visible);
+                this.fire('column-toggle', this.column);
+            },
+            isColumnVisible: function(v) {
+                return v !== false;
+            },
+        })
+    </script>
+</dom-module>
+
+<dom-module id="jso-table-subcolum-name">
+    <style is="custom-style" include="iron-flex iron-flex-reverse iron-flex-alignment iron-flex-factors iron-positioning"></style>
+    <template>
+        {{column.title}}
+        <template is="dom-repeat" items="{{column.columns}}">
+            {{item.title}}
+        </template>
+    </template>
+    <script>
+        Polymer({
+            is: 'jso-table-subcolum-name',
+            properties: {
+                column: {
+                    type: Object
+                }
+            }
+        })
+    </script>
+</dom-module>

@@ -216,7 +216,7 @@ AlignmentRenderer.prototype.render = function (response, args) {
 
                     differences.push({
                         pos: relativePosition,
-                        seq: feature.alignedSequence.slice(relativePosition, myLength),
+                        seq: feature.alignedSequence.slice(relativePosition, relativePosition + myLength),
                         op: "I",
                         length: myLength
                     });
@@ -226,7 +226,7 @@ AlignmentRenderer.prototype.render = function (response, args) {
                     myLength = parseInt(feature.alignment.cigar[i].operationLength);
                     differences.push({
                         pos: relativePosition,
-                        seq: feature.alignedSequence.slice(relativePosition, myLength),
+                        // seq: feature.alignedSequence.slice(relativePosition, relativePosition + myLength),
                         op: "D",
                         length: myLength
                     });
@@ -328,17 +328,8 @@ AlignmentRenderer.prototype.render = function (response, args) {
         var width = length * args.pixelBase;
         //calculate x to draw svg rect
         var x = _this.getFeatureX(start, args);
-//		try{
-//			var maxWidth = Math.max(width, /*settings.getLabel(feature).length*8*/0); //XXX cuidado : text.getComputedTextLength()
-//		}catch(e){
-//			var maxWidth = 72;
-//		}
-        maxWidth = width;
-        //if(length <0){
-        //    debugger
-        //}
-        // console.log(length + ' in px: ' + width);
 
+        maxWidth = width;
 
         var rowHeight = 15;
         var rowY = 70;
@@ -350,17 +341,23 @@ AlignmentRenderer.prototype.render = function (response, args) {
             if (polyDrawing[rowY] == null) {
                 polyDrawing[rowY] = {
                     reads: [],
-                    differences: []
+                    differences: {
+                        A: [],
+                        T: [],
+                        C: [],
+                        G: [],
+                        N: [],
+                        I: [],
+                        D: []
+                    },
+                    config: {
+                        height: height
+                    }
                 }
             }
 
             var enc = args.renderedArea[rowY].add({start: x, end: x + maxWidth - 1, feature: feature});
             if (enc) {
-                // var featureGroup = SVG.addChild(bamReadGroup, "g", {'feature_id': feature.name});
-                // var points = {
-                //     "Reverse": x + "," + (rowY + (height / 2)) + " " + (x + 5) + "," + rowY + " " + (x + width) + "," + rowY + " " + (x + width) + "," + (rowY + height) + " " + (x + 5) + "," + (rowY + height) + " " + x + "," + (rowY + (height / 2)),
-                //     "Forward": (x - 1) + "," + rowY + " " + (x + width - 5) + "," + rowY + " " + (x + width) + "," + (rowY + (height / 2)) + " " + (x + width - 5) + "," + (rowY + height) + " " + (x - 1) + "," + (rowY + height) + " " + (x - 1) + "," + rowY
-                // };
                 var points = {
                     "Reverse": `M${x} ${rowY + (height / 2)} L${x + 5} ${rowY} H${x + width} V${rowY + height} H${x + 5} L${x} ${rowY + (height / 2)} `,
                     "Forward": `M${x} ${rowY} H${x + width - 5} L${x + width} ${rowY + (height / 2)} L${x + width - 5} ${rowY + height} H${x} V${rowY} `
@@ -369,14 +366,36 @@ AlignmentRenderer.prototype.render = function (response, args) {
                 polyDrawing[rowY]["reads"].push(points[strand]);
 
                 //PROCESS differences
-                if (differences != null && args.regionSize < 400) {
-                    polyDrawing[rowY]["differences"].push(AlignmentRenderer.drawBamDifferences(differences,
-                        args.pixelBase, x, rowY + height));
+                if (differences.length > 0 && args.regionSize < 1000) {
+                    for (let i = 0; i < differences.length; i++) {
+                        let diff = differences[i];
+                        let tmpStart = _this.getFeatureX(diff.pos + start, args);
+                        let tmpEnd = tmpStart + args.pixelBase;
+
+                        if (diff.op === "M") {
+                            let rectangle = `M${tmpStart} ${rowY} V${rowY + height} H${tmpEnd} V${rowY} H${tmpStart}`;
+                            polyDrawing[rowY]["differences"][diff.seq].push(rectangle);
+                        } else if (diff.op === "I") {
+                            diff.pos = tmpStart;
+                            diff.size = args.pixelBase;
+                            polyDrawing[rowY]["differences"][diff.op].push(diff);
+                        } else if (diff.op === "D") {
+                            tmpEnd = tmpStart + args.pixelBase * diff.length;
+                            // Deletion as a line or as a cross
+                            // Line
+                            let line = `M${tmpStart} ${rowY + (height / 2)} H${tmpEnd} H${tmpStart}`;
+                            // Cross
+                            // let line = `M${tmpStart} ${rowY + height} L${tmpEnd} ${rowY} L${tmpStart} ${rowY + height}
+                            //             M${tmpStart} ${rowY} L${tmpEnd} ${rowY + height} L${tmpStart} ${rowY}`;
+                            polyDrawing[rowY]["differences"][diff.op].push(line);
+                        } else {
+                            console.log("Unexpected difference found: " + diff.op);
+                        }
+                    }
                 }
                 break;
             }
             rowY += rowHeight;
-//			textY += rowHeight;
         }
     };
 
@@ -863,7 +882,19 @@ AlignmentRenderer.prototype.render = function (response, args) {
         args.svgCanvasFeatures.removeChild(args.svgCanvasFeatures.firstChild);
     }
 
-    // var featureGroup = SVG.addChild(bamReadGroup, "g", {'feature_id': "caca"});
+    let addDifferencesSVG = function(svgBase, array, color) {
+        if (array === null || array.length === 0) {
+            return;
+        }
+        SVG.addChild(svgBase, "path", {
+            "d": array.join(" "),
+            "stroke": color,
+            "stroke-width": 0.7,
+            "fill": color,
+            "fill-opacity": 0.5
+        });
+    };
+
     let keys = Object.keys(polyDrawing);
     for (let i = 0; i < keys.length; i++) {
         let features = args.renderedArea[keys[i]];
@@ -897,16 +928,33 @@ AlignmentRenderer.prototype.render = function (response, args) {
             $(svgChild).qtip('option', 'content.title', _this.tooltipTitle(read));
         };
 
-        for (let j = 0; j < polyDrawing[keys[i]]["differences"].length; j++) {
-            let differences = polyDrawing[keys[i]]["differences"][j];
-            bamReadGroup.appendChild(differences);
+        // Render differences
+        addDifferencesSVG(bamReadGroup, polyDrawing[keys[i]]["differences"]["A"], "#009900");
+        addDifferencesSVG(bamReadGroup, polyDrawing[keys[i]]["differences"]["T"], "#aa0000");
+        addDifferencesSVG(bamReadGroup, polyDrawing[keys[i]]["differences"]["C"], "#0000ff");
+        addDifferencesSVG(bamReadGroup, polyDrawing[keys[i]]["differences"]["G"], "#857a00");
+        addDifferencesSVG(bamReadGroup, polyDrawing[keys[i]]["differences"]["N"], "#888");
+        addDifferencesSVG(bamReadGroup, polyDrawing[keys[i]]["differences"]["D"], "#000");
+        if (polyDrawing[keys[i]]["differences"]["I"].length > 0) {
+            var text = SVG.addChild(bamReadGroup, "text", {
+                "y": parseInt(keys[i]) + polyDrawing[keys[i]].config.height,
+                "class": 'ocb-font-ubuntumono ocb-font-size-15'
+            });
+            for (let j = 0; j < polyDrawing[keys[i]]["differences"]["I"].length; j++) {
+                let diff = polyDrawing[keys[i]]["differences"]["I"][j];
+                var t = SVG.addChild(text, "tspan", {
+                    "x": diff.pos - (diff.size / 2),
+                    // "font-weight": 'bold',
+                    "textLength": diff.size
+                });
+                t.textContent = '|';
+                $(t).qtip({
+                    content: {text: diff.seq, title: 'Insertion'},
+                    position: {target: "mouse", adjust: {x: 25, y: 15}},
+                    style: {classes: this.toolTipfontClass + ' qtip-dark qtip-shadow'}
+                });
+            }
         }
-
-        // args.trackListPanel.on('mousePosition:change', function (e) {
-        //     debugger
-        //     $(svgChild).qtip('option', 'content.text', "CACA");
-        //     let x = features.id
-        // });
     }
 
     console.timeEnd("BamRender " + response.params.resource);

@@ -389,7 +389,8 @@ NavigationBar.prototype = {
                     let items = data.response[0].result;
                     for (var i = 0; i < items.length; i++) {
                         var item = items[i];
-                        var value = item[this.quickSearchDisplayKey];
+                        // var value = item[this.quickSearchDisplayKey];
+                        var value = item.name;
                         _this.quickSearchDataset[value] = item;
                         var menuEntry = document.createElement('option');
                         menuEntry.setAttribute('value', value);

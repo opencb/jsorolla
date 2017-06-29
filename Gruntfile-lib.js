@@ -16,13 +16,9 @@ module.exports = function (grunt) {
                     'src/lib/utils.js',
                     'src/lib/svg.js',
                     'src/lib/region.js',
-                    'src/lib/grid.js',
                     'src/lib/feature-binary-search-tree.js',
                     'src/lib/cellbase-manager.js',
                     'src/lib/opencga-manager.js',
-                    'src/lib/ensembl-manager.js',
-
-                    '!src/lib/worker-fileupload.js',
 
                     //widgets
                     '!src/lib/widgets/widget.js',
@@ -47,7 +43,8 @@ module.exports = function (grunt) {
 
                     //data-adapter
                     'src/lib/data-adapter/feature/feature-data-adapter.js',
-                    'src/lib/data-adapter/feature/**/*.js',
+                    // Commented because the adapters now are in JS6
+                    // 'src/lib/data-adapter/feature/*.js',
                     'src/lib/data-adapter/network/**/*.js',
 
                     //cache

@@ -1,11 +1,15 @@
-<script src="../../../../client-line-navigator/line-navigator.js"></script>
-<script src="../../../../client-line-navigator/file-navigator.js"></script>
+<link rel="import" href="../../../../polymer/polymer.html">
+<link rel="import" href="../../../../iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../../../iron-list/iron-list.html">
 
-<!-- <script src="../../../../line-navigator/file-wrapper.js"></script>
-<script src="../../../../line-navigator/line-navigator.js"></script> -->
 
-<script src="validator.js"></script>
-<script src="vcf-validator.js"></script>
+<script src="../../../../line-navigator/file-wrapper.js"></script>
+<script src="../../../../line-navigator/line-navigator.js"></script>
+
+<!-- <script src="validator.js"></script> -->
+<!-- <script src="vcf-validator.js"></script> -->
+<!-- <script src="expression-validator.js"></script> -->
+<!-- <script src="experimental-design-validator.js"></script> -->
 
 <dom-module name="jso-validator">
     <style is="custom-style" include="iron-flex iron-flex-reverse iron-flex-alignment iron-flex-factors iron-positioning">
@@ -21,16 +25,20 @@
             box-sizing: border-box;
             background-color: var(--light-secondary-color);
             padding: 0 7px;
-            height: 24px;
         }
 
         #header {
+            height: 30px;
             border-bottom: 1px solid var(--divider-color);
         }
 
         #footer {
+            height: 30px;
             border-top: 1px solid var(--divider-color);
-            padding-left: 0px;
+        }
+
+        #footer>* {
+            margin-left: 3px;
         }
 
         .line {
@@ -173,10 +181,9 @@
             overflow-y: auto;
             min-width: 400px;
             min-height: 150px;
-            max-width: 800px;
         }
 
-        #linePreview {
+        #linePreviewPanel {
             max-width: 1000px;
         }
     </style>
@@ -185,7 +192,8 @@
         <div id="header" class="horizontal layout center">
             <div class="line">Line </div>
             <div class="type">Type</div>
-            <div class="flex">Message</div>
+            <div class="msg">Message</div>
+            <div class="flex"></div>
             <div class="uploadbar" hidden$="{{!uploading}}">
                 <div id="progressBar" class="uploadprogress"></div>
                 <div class="uploadtext">
@@ -233,7 +241,7 @@
             <div class="header">
                 <i class="fa fa-view"></i> &nbsp; View line
             </div>
-            <div class="container wrapped-text" id="linePreview">{{linePreview}}</div>
+            <div class="container wrapped-text">{{linePreview}}</div>
         </jso-panel>
 
 
@@ -367,7 +375,6 @@
                     switch (e.type) {
                         case "error":
                             me.errorCount++;
-                            // console.log(me.errorCount);
                             if (me.errorCount == 100) {
                                 me.stop();
                                 alert('File has more than 100 errors, the validation is stopped');
@@ -377,10 +384,10 @@
                             me.warningCount++;
                             break;
                     }
-                    if (me.log[e.type]==me.logIron) {
-                      me.push("logIron", e);
-                    }else{
-                      me.push('log.' + e.type, e);
+                    if (me.log[e.type] == me.logIron) {
+                        me.push("logIron", e);
+                    } else {
+                        me.push('log.' + e.type, e);
                     }
                 });
 
@@ -409,7 +416,7 @@
                 }
             },
             progressChanged: function(neo, old) {
-                console.log("progress : " + neo);
+                // console.log("progress : " + neo);
                 this.$.progressBar.style.width = neo + '%';
             },
             computeSpin: function(progress) {
@@ -428,9 +435,8 @@
                     if (lines.length > 0) {
                         var aux = lines[0].split("\t");
                         aux[me.column] = '<span style="color:red">' + aux[me.column] + '</span>';
-                        me.$.linePreview.innerHTML = aux.join("\t");
-                        // me.linePreview = lines[0];
-                        me.$.linePreviewPanel.show();
+                        me.linePreview = lines[0];
+                        me.$.linePreviewPanel.hidden = false;
                     }
 
                     if (eof) {
@@ -441,7 +447,7 @@
             },
             handleCloseLinePreview: function(e) {
                 e.stopPropagation();
-                this.$.linePreview.innerHTML = "";
+                this.linePreview = "";
             }
         })
     </script>

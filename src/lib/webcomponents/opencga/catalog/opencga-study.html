@@ -1,0 +1,749 @@
+<dom-module id="opencga-study">
+    <template>
+        <style is="custom-style" include="jso-styles"></style>
+        <style>
+            .center {
+                text-align: justify;
+            }
+
+            dt {
+                float: left;
+                clear: left;
+                text-align: right;
+                width: 15%;
+                color: #645a5a;
+            }
+
+            dd {
+                float: left;
+                margin-left: 1em;
+                color: #999
+            }
+        </style>
+
+        <div class="center">
+
+            <!-- 1ST ROW: STUDY SUMMARY -->
+            <!--<div>-->
+                <!--<h2>General information</h2>-->
+                <!--<dl>-->
+                    <!--<dt>Name</dt>-->
+                    <!--<dd>{{study.name}}</dd>-->
+                    <!--<dt>Alias (id)</dt>-->
+                    <!--<dd>{{study.alias}} ({{study.id}})</dd>-->
+                    <!--<template is="dom-if" if="{{_isNotEmpty(study.type)}}">-->
+                        <!--<dt>Type</dt>-->
+                        <!--<dd>{{study.type}}</dd>-->
+                    <!--</template>-->
+                    <!--<dt>Date</dt>-->
+                    <!--<dd>{{_formatDate(study.creationDate)}}</dd>-->
+                    <!--<dt>Disk usage</dt>-->
+                    <!--<dd>{{_getDiskUsage(study.diskUsage)}}</dd>-->
+                    <!--<template is="dom-if" if="{{_isNotEmpty(study.description)}}">-->
+                        <!--<dt>Description</dt>-->
+                        <!--<dd>{{study.description}}</dd>-->
+                    <!--</template>-->
+                <!--</dl>-->
+            <!--</div>-->
+
+            <!-- 2ND ROW -->
+            <div style="clear: both; padding: 15px 0px;">
+
+                <!-- PERMISSIONS -->
+                <div class="col-md-6" style="padding: 10px;">
+                    <h3 style="margin-left: 10px;">Members and permissions</h3>
+                    <table class="table table-bordered center" style="overflow: auto">
+                        <thead>
+                        <tr class="table-header bg-primary">
+                            <th>User</th>
+                            <th>Groups</th>
+                            <th>Effective permissions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            <template is="dom-repeat" items="{{_users}}" as="user">
+                                <tr>
+                                    <td>
+                                        <span style="cursor: pointer;" data-toggle="modal" data-target="#{{prefix}}ModalPermissions"
+                                           on-click="_userSelectedChanged" user="{{user}}">{{user.id}}</span>
+                                    </td>
+                                    <!-- Groups -->
+                                    <td>
+                                        <template is="dom-if" if="{{_isNotEmpty(user.group)}}">
+                                            <span style="cursor: pointer;" data-toggle="modal" data-target="#{{prefix}}ModalPermissions"
+                                               on-click="_userSelectedChanged" user="{{user}}">{{user.group}}</span>
+                                        </template>
+                                        <!--No groups-->
+                                        <template is="dom-if" if="{{!_isNotEmpty(user.group)}}">
+                                            -
+                                        </template>
+                                    </td>
+                                    <td>
+                                        <span style="cursor: pointer;" data-toggle="modal" data-target="#{{prefix}}ModalPermissions"
+                                        on-click="_userSelectedChanged" user="{{user}}">Click here</span>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- VARIABLE SETS -->
+                <div class="col-md-6" style="padding: 10px;">
+                    <h3 style="margin-left: 10px;">Variable sets</h3>
+                    <table class="table table-bordered center" style="overflow: auto">
+                        <thead>
+                        <tr class="table-header bg-primary">
+                            <th>Name (id)</th>
+                            <th>Description</th>
+                            <th>#Mandatory</th>
+                            <th>#Total</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <template is="dom-repeat" items="{{variableSets}}" as="variableset">
+                            <tr>
+                                <td><span style="font-weight: bold;">{{variableset.name}}</span> ({{variableset.id}})</td>
+                                <td>{{variableset.description}}</td>
+                                <td>{{variableset.mandatory}}</td>
+                                <td>{{variableset.total}}</td>
+                            </tr>
+                        </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 3RD ROW -->
+            <div style="clear: both; padding: 15px 0px;">
+                <div class="col-md-4" style="padding: 10px;">
+                    <h3 style="margin-left: 10px;">File summary</h3>
+                    <div id="{{prefix}}files-barplot" style="margin: 10px auto; padding: 0px 10px;"></div>
+                    <div class="col-md-6" style="padding: 10px;">
+                        <div id="{{prefix}}files-format-piechart" style="margin: 10px auto; padding: 0px 10px;"></div>
+                    </div>
+                    <div class="col-md-6" style="padding: 10px;">
+                        <div id="{{prefix}}files-other" style="margin: 10px auto; padding: 0px 10px;"></div>
+                    </div>
+                </div>
+                <div class="col-md-4" style="padding: 10px;">
+                    <h3 style="margin-left: 10px;">Sample summary</h3>
+                    <div id="{{prefix}}samples-barplot" style="margin: 10px auto; padding: 0px 10px;"></div>
+                    <div class="col-md-6" style="padding: 10px;">
+                        <div id="{{prefix}}samples-annotations-piechart" style="margin: 10px auto; padding: 0px 10px;"></div>
+                    </div>
+                    <div class="col-md-6" style="padding: 10px;">
+                        <div id="{{prefix}}samples-other" style="margin: 10px auto; padding: 0px 10px;"></div>
+                    </div>
+                </div>
+                <div class="col-md-4" style="padding: 10px;">
+                    <h3 style="margin-left: 10px;">Job summary</h3>
+                    <div id="{{prefix}}jobs-barplot" style="margin: 10px auto; padding: 0px 10px;"></div>
+                    <div class="col-md-6" style="padding: 10px;">
+                        <div id="{{prefix}}jobs-other2" style="margin: 10px auto; padding: 0px 10px;"></div>
+                    </div>
+                    <div class="col-md-6" style="padding: 10px;">
+                        <div id="{{prefix}}jobs-other" style="margin: 10px auto; padding: 0px 10px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Permission modal window -->
+            <div class="modal fade" id="{{prefix}}ModalPermissions" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">Permissions <span class="badge">{{getTotalPermissions(_selectedUser.permissions)}}</span></h4>
+                        </div>
+                        <div class="modal-body">
+                            <template is="dom-if" if="{{_isNotEmpty(_selectedUser.permissions)}}">
+                                <ul class="list-unstyled" style="max-height: 250px; overflow-y:scroll;">
+                                    <template is="dom-repeat" items="{{_selectedUser.permissions}}" as="permission">
+                                        <li>{{permission}}</li>
+                                    </template>
+                                </ul>
+                            </template>
+                            <template is="dom-if" if="{{!_isNotEmpty(_selectedUser.permissions)}}">
+                                <span>"{{_selectedUser.id}}"</span> does not have any permissions.
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+    </template>
+    <script>
+        Polymer({
+            is: 'opencga-study',
+
+            properties: {
+                opencgaClient: {
+                    type: Object
+                },
+                study: {
+                    type: Object,
+                    observer: '_getStudyInfo'
+                },
+                prefix: {
+                    type: Object
+                },
+                config: {
+                    type: Object,
+                    value: {
+                        showMonthlyPlots: true,
+                        files: {
+                            formats: ["BAM", "VCF", "PED"]
+                        }
+                    }
+                },
+                _selectedUser: {
+                    type: Object
+                },
+                _isUserSelected: {
+                    type: Boolean,
+                    value: false
+                }
+            },
+
+            ready: function() {
+                if (typeof this.prefix === "undefined" || this.prefix == "") {
+                    this.prefix = "study" + Utils.randomString(6);
+                }
+                this.variableSets = [];
+                this.months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            },
+
+            _getStudyInfo: function() {
+                if (this.opencgaClient instanceof OpenCGAClient && this.study !== "undefined" && this.study.hasOwnProperty("id")) {
+                    this._updateVariableSetSummary();
+                    this._updateFileInfo();
+                    this._updateSampleInfo();
+//                    this._updateJobInfo();
+                    this._updateSharedUsers();
+//                    this.opencgaClient.studies().summary(this.study.id).then(this._parseStudySummary.bind(this));
+//                    this._updateGraphics();
+
+                }
+            },
+
+//            _parseStudySummary: function(response) {
+//                if (response.response[0].numResults === 1) {
+//                    this._study = response.response[0].result[0];
+//                }
+//            },
+
+            _formatDate: function(dateStr) {
+                return moment(dateStr, "YYYYMMDDHHmmss").format('D MMM YY');
+            },
+
+            getTotalPermissions: function(permissions) {
+                if (permissions !== undefined) {
+                    return permissions.length;
+                }
+                return 0;
+            },
+
+            _updateVariableSetSummary: function() {
+                let variableSets = this.study.variableSets;
+                let variabletSetsArray = [];
+                variableSets.forEach(function(variableSet) {
+                    let mandatory = 0;
+                    variableSet.variables.forEach(function(variable) {
+                        if (variable.required) {
+                            mandatory += 1;
+                        }
+                    });
+                    let description = variableSet.description;
+                    if (description === undefined || description.length === 0) {
+                        description = "-";
+                    }
+                    variabletSetsArray.push({
+                        id: variableSet.id,
+                        name: variableSet.name,
+                        description: description,
+                        mandatory: mandatory,
+                        total: variableSet.variables.length
+                    });
+                });
+                this.variableSets = variabletSetsArray;
+            },
+
+            _updateFileInfo: function() {
+
+                if (this.config.showMonthlyPlots) {
+                    // Files created by month
+                    let params = {
+                        studyId: this.study.id,
+                        fields: "format,month",
+                        format: this.config.files.formats.join(","),
+                        count: true
+                    };
+
+                    this.opencgaClient.files().groupBy(params).then(function (param) {
+                        if (param.response[0].numResults > 0) {
+                            let params = {
+                                title: "Files created by month",
+                                xAxisText: "Month",
+                                yAxisText: "Number of files created"
+                            };
+
+                            // We create this object to sort it by date first
+                            let myObject = [];
+                            let myHash = {};
+                            let _this = this;
+                            param.response[0].result.forEach(function (result) {
+                                let date = _this.months[parseInt(result._id.month) - 1] + " " + result._id.year;
+                                if (!(date in myHash)) {
+                                    myObject.push([result._id.year + result._id.month, date]);
+                                    myHash[date] = {};
+                                    _this.config.files.formats.forEach(function(format) {
+                                        myHash[date][format] = 0;
+                                    });
+                                }
+                                myHash[date][result._id.format] = result.count;
+                            });
+
+                            // Sort it by the name
+                            myObject.sort(function (a, b) {
+                                return a[0] > b[0];
+                            });
+
+                            // Calculate acums
+                            let acum = 0;
+                            let categories = [];
+                            let series = [];
+                            this.config.files.formats.forEach(function(format) {
+                                series.push({
+                                    name: format,
+                                    data: []
+                                });
+                            });
+                            series.push({
+                                name: "Accumulated",
+                                data: []
+                            });
+//                            let series = [{
+//                                name: "BAM",
+//                                data: []
+//                            }, {
+//                                name: "VCF",
+//                                data: []
+//                            }, {
+//                                name: "Accumulated",
+//                                data: []
+//                            }];
+
+                            for (let i = 0; i < myObject.length; i++) {
+                                let date = myObject[i][1];
+                                categories.push(date);
+
+                                for (let j = 0; j < this.config.files.formats.length; j++) {
+                                    series[j].data.push(myHash[date][this.config.files.formats[j]]);
+                                    acum += myHash[date][this.config.files.formats[j]];
+                                }
+                                series[series.length - 1].data.push(acum);
+                            }
+
+                            if (categories.length === 0) {
+                                $("#" + this.prefix + "files-barplot")[0].innerHTML = "No files found.";
+                                return;
+                            }
+
+                            params.categories = categories;
+                            params.series = series;
+
+                            this._updateBarplot("#" + this.prefix + "files-barplot", params);
+
+                        } else {
+                            $("#" + this.prefix + "files-barplot")[0].innerHTML = "No files found with format BAM or VCF.";
+                        }
+                    }.bind(this));
+                }
+
+                let params = {
+                    studyId: this.study.id,
+                    fields: "format",
+//                    format: this.config.files.formats.join(","),
+                    count: true
+                };
+
+                this.opencgaClient.files().groupBy(params).then(function (param) {
+                    let results = param.response[0].result;
+                    let total = 0;
+                    let myHash = {
+                        OTHER: 0
+                    };
+                    this.config.files.formats.forEach(function(format) {
+                        myHash[format] = 0;
+                    });
+
+                    let _this = this;
+                    results.forEach(function(result) {
+                        total += result.count;
+                        // If the format is one of the formats asked
+                        if (_this.config.files.formats.indexOf(result._id.format) > -1) {
+                            myHash[result._id.format] = result.count;
+                        } else {
+                            myHash["OTHER"] += result.count;
+                        }
+                    });
+
+                    // Pass the information to the data format used by highcharts
+                    let data = [];
+                    this.config.files.formats.forEach(function(format) {
+                        data.push({
+                            name: format,
+                            y: myHash[format]/total
+                        });
+                    });
+                    // Add others
+                    data.push({
+                        name: "OTHER",
+                        y: myHash["OTHER"]/total
+                    });
+
+                    let params = {
+                        title: "% file formats",
+                        data: data
+                    };
+                    this._updatePieChart("#" + this.prefix + "files-format-piechart", params);
+
+                }.bind(this));
+            },
+
+            _updateSampleInfo: function() {
+
+                if (this.config.showMonthlyPlots) {
+                    // Samples created by month
+                    let params = {
+                        studyId: this.study.id,
+                        fields: "month",
+                        count: true
+                    };
+
+                    this.opencgaClient.samples().groupBy(params).then(function (param) {
+                        if (param.response[0].numResults > 0) {
+                            let params = {
+                                title: "Samples created by month",
+                                xAxisText: "Month",
+                                yAxisText: "Number of samples created"
+                            };
+
+                            // We create this object to sort it by date first
+                            let myObject = [];
+                            let _this = this;
+                            param.response[0].result.forEach(function (result) {
+                                myObject.push([result._id.year + result._id.month, {
+                                    date: _this.months[parseInt(result._id.month) - 1] + " " + result._id.year,
+                                    count: result.count
+                                }]);
+                            });
+
+                            // Sort it by the name
+                            myObject.sort(function (a, b) {
+                                return a[0] > b[0];
+                            });
+
+                            // Calculate acums
+                            let acum = 0;
+                            let categories = [];
+                            let series = [{
+                                name: "New samples",
+                                data: []
+                            }, {
+                                name: "Accumulated samples",
+                                data: []
+                            }];
+                            for (let i = 0; i < myObject.length; i++) {
+                                categories.push(myObject[i][1].date);
+                                series[0].data.push(myObject[i][1].count);
+
+                                acum = myObject[i][1].count + acum;
+                                series[1].data.push(acum);
+                            }
+
+                            if (categories.length === 0) {
+                                $("#" + this.prefix + "samples-barplot")[0].innerHTML = "No samples found.";
+                                return;
+                            }
+
+                            params.categories = categories;
+                            params.series = series;
+
+                            this._updateBarplot("#" + this.prefix + "samples-barplot", params);
+                        } else {
+                            $("#" + this.prefix + "samples-barplot")[0].innerHTML = "No samples found.";
+                        }
+                    }.bind(this));
+                }
+
+                // Obtain the % of samples annotated
+                params = {
+                    studyId: this.study.id,
+                    include: "annotationSets.variableSetId"
+                };
+                this.opencgaClient.samples().search(params).then(function(result) {
+                    if (result.response[0].numResults > 0) {
+                        // By default, we initialize an array of 1 element to 0, meaning that we have 0 samples with 0 annotations.
+                        // 1st position: 0 annotations, 2nd position: 1 annotation, 3rd position: 2 annotations...
+                        // The number of positions will be added dynamically as we read the annotations from the results when needed
+                        let total = [0];
+                        result.response[0].result.forEach(function(sample) {
+                            let howMany = sample.annotationSets.length;
+                            while(howMany > (total.length - 1)) {
+                                total.push(0);
+                            }
+                            total[howMany] += 1;
+                        });
+
+                        let data = [];
+                        for (let i = 0; i < total.length; i++) {
+                            let text = " annotations";
+                            if (i === 1) {
+                                text = " annotation";
+                            }
+                            data.push({
+                                name: i + text,
+                                y: total[i]/result.response[0].numResults
+                            });
+                        }
+
+                        let params = {
+                            title: "% samples annotated",
+                            data: data
+                        };
+                        this._updatePieChart("#" + this.prefix + "samples-annotations-piechart", params);
+                    }
+                }.bind(this));
+            },
+
+            _updateJobInfo: function() {
+                if (this.config.showMonthlyPlots) {
+                    // Samples created by month
+                    let params = {
+                        studyId: this.study.id,
+                        fields: "month",
+                        count: true
+                    };
+
+                    this.opencgaClient.jobs().groupBy(params).then(function (param) {
+                        if (param.response[0].numResults > 0) {
+                            let params = {
+                                title: "Jobs created by month",
+                                xAxisText: "Month",
+                                yAxisText: "Number of jobs created",
+                                categories: [],
+                                series: []
+                            };
+
+                            // We create this object to sort it by date first
+                            let myObject = [];
+                            let _this = this;
+                            param.response[0].result.forEach(function (result) {
+                                myObject.push([result._id.year + result._id.month, {
+                                    date: _this.months[parseInt(result._id.month) - 1] + " " + result._id.year,
+                                    count: result.count
+                                }]);
+                            });
+
+                            // Sort it by the name
+                            myObject.sort(function (a, b) {
+                                return a[0] < b[0];
+                            });
+
+                            // Calculate acums
+                            let acum = 0;
+                            let categories = [];
+                            let series = [{
+                                name: "New jobs",
+                                data: []
+                            }, {
+                                name: "Accumulated jobs",
+                                data: []
+                            }];
+                            for (let i = 0; i < myObject.length; i++) {
+                                categories.push(myObject[i][1].date);
+                                series[0].data.push(myObject[i][1].count);
+
+                                acum = myObject[i][1].count + acum;
+                                series[1].data.push(acum);
+                            }
+
+                            if (categories.length === 0) {
+                                $("#" + this.prefix + "jobs-barplot")[0].innerHTML = "No jobs found.";
+                                return;
+                            }
+
+                            params.categories = categories;
+                            params.series = series;
+
+                            this._updateBarplot("#" + this.prefix + "jobs-barplot", params);
+                        } else {
+                            $("#" + this.prefix + "jobs-barplot")[0].innerHTML = "No jobs found.";
+                        }
+                    }.bind(this));
+                }
+            },
+
+            _updateBarplot: function(_id, params) {
+                // params = { title, xAxisText, yAxisText, categories, series}
+
+                $(_id).highcharts({
+                    credits: {enabled: false},
+                    chart: {
+                        type: 'column'
+                    },
+                    title: {
+                        text: params.title
+                    },
+                    xAxis: {
+                        categories: params.categories,
+                        title: {
+                            text: params.xAxisText
+                        },
+                        crosshair: true
+                    },
+                    yAxis: {
+                        min: 0,
+                        title: {
+                            text: params.yAxisText
+                        }
+                    },
+                    tooltip: {
+                        headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                        '<td style="padding:0"><b>{point.y}</b></td></tr>',
+                        footerFormat: '</table>',
+                        shared: true,
+                        useHTML: true
+                    },
+                    plotOptions: {
+                        column: {
+                            pointPadding: 0.2,
+                            borderWidth: 0
+                        }
+                    },
+                    series: params.series
+                });
+            },
+
+            _updatePieChart: function(_id, params) {
+                // params = { title, data}
+                $(_id).highcharts({
+                    credits: {enabled: false},
+                    chart: {
+                        plotBackgroundColor: null,
+                        plotBorderWidth: null,
+                        plotShadow: false,
+                        type: 'pie'
+                    },
+                    title: {
+                        text: params.title
+                    },
+                    tooltip: {
+                        pointFormat: '{series.name}: <b>{point.percentage:.2f}%</b>'
+                    },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: {
+                                enabled: true,
+                                format: '<b>{point.name}</b>: {point.percentage:.2f} %',
+                                style: {
+                                    color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                                }
+                            }
+                        }
+                    },
+                    series: [{
+                        name: 'Type',
+                        colorByPoint: true,
+                        data: params.data
+                    }]
+                });
+            },
+
+            _updateSharedUsers: function() {
+                let temporalUsers = [];
+
+                let it = 0;
+                let userHash = {};
+
+                if (this.study.groups.length > 0) {
+                    for (let i = 0; i < this.study.groups.length; i++) {
+                        userHash[this.study.groups[i].name] = [];
+                        for (let j = 0; j < this.study.groups[i].userIds.length; j++) {
+                            temporalUsers.push({
+                                id: this.study.groups[i].userIds[j],
+                                group: this.study.groups[i].name,
+                                permissions: []
+                            });
+
+                            // We store the positions where the permissions will be updated
+                            userHash[this.study.groups[i].name].push(it);
+                            it += 1;
+                        }
+                    }
+                }
+
+                if (typeof this.study.acl !== "undefined" && this.study.acl.length > 0) {
+                    for (let i = 0; i < this.study.acl.length; i++) {
+                        let member = this.study.acl[i].member;
+                        let permissions = this.study.acl[i].permissions;
+                        permissions.sort();
+
+                        if (userHash.hasOwnProperty(member)) {
+                            let positions = userHash[member];
+                            for (let position in positions) {
+                                temporalUsers[position].permissions = permissions;
+                            }
+
+                        } else {
+                            temporalUsers.push({
+                                id: member,
+                                group: undefined,
+                                permissions: permissions
+                            });
+                        }
+                    }
+                }
+
+                // Update the variable
+                this._users = temporalUsers;
+            },
+
+            _userSelectedChanged: function(e) {
+                e.preventDefault();
+                if (e.target.hasOwnProperty("user")) {
+                    this._selectedUser = e.target.user;
+                } else {
+                    this._selectedUser = e.target.parentElement.user;
+                }
+                this._isUserSelected = true;
+                $(e.target.dataTarget).modal('show')
+            },
+
+            _isNotEmpty: function(field) {
+                if (field !== undefined && field.length > 0) {
+                    return true;
+                }
+                return false;
+            },
+
+            _getDiskUsage: function(bytes) {
+                if(bytes == 0) return '0 Byte';
+                var k = 1000;
+                var dm = 3;
+                var sizes = [' Bytes', ' KB', ' MB', ' GB', ' TB', ' PB', ' EB', ' ZB', ' YB'];
+                var i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + sizes[i];
+            }
+
+        });
+    </script>
+</dom-module>

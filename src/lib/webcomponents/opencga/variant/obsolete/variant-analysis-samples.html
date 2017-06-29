@@ -1,0 +1,492 @@
+<!--
+  ~ Copyright 2015 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<link rel="import" href="../variant-sample-grid.html">
+<link rel="import" href="../../catalog/samples/opencga-sample-filter.html">
+<link rel="import" href="../../catalog/samples/opencga-family-editor.html">
+<link rel="import" href="../../opencga-active-filters.html">
+
+<dom-module id="variant-analysis-samples">
+    <template>
+        <style is="custom-style" include="jso-styles">
+            .top-space {
+                padding-top: 12px;
+            }
+        </style>
+
+        <!-- This is where main application is rendered -->
+
+        <div>
+            <div class="col-md-2">
+                <opencga-sample-filter study="{{study}}" config="{{config}}" samples="{{samples}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
+                                        query="{{query}}" search="{{search}}">
+                </opencga-sample-filter>
+            </div>
+
+            <div class="col-md-10">
+                <br>
+                <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" filters="{{config.filters}}" alias="{{activeFilterAlias}}"></opencga-active-filters>
+
+
+                <table id="{{prefix}}SampleSelector" data-search="true" data-show-columns="true" data-pagination="true" data-page-size="5" data-page-list="[5, 10, 25]"
+                       data-checkbox-header="false" data-maintain-selected="true" style="cursor: pointer;">
+                    <thead style="background-color: #eee"></thead>
+                </table>
+                <br>
+
+                <div id="{{prefix}}toolbar">
+                    <div class="btn-group btn-group-sm">
+                        <button id="familyButton" class="button" on-click="addAnalysis"><img src="../images/analysis_family_button.png" height="75"></button>
+                        <button id="trioButton" class="button" on-click="addAnalysis"><img src="../images/analysis_trio_button.png" height="75"></button>
+                        <button id="duoButton" class="button" on-click="addAnalysis"><img src="../images/analysis_duo_button.png" height="75"></button>
+                        <button id="singleButton" class="button" on-click="addAnalysis"><img src="../images/analysis_single_button.png" height="75"></button>
+                        <button id="autoButton" class="button" on-click="addAnalysis"><img src="../images/analysis_auto_button.png" height="75"></button>
+                        <button id="multiButton" class="button" on-click="addAnalysis"><img src="../images/analysis_multi_button.png" height="75"></button>
+                    </div>
+                </div>
+
+                <br>
+                <!--  -->
+
+
+
+
+
+                <!--<div class="analysis-list" id="analysisListDiv" style="display:none">-->
+<!--                <div class="analysis-list" id="analysisListDiv">
+                    <table id="analysisTable" class="table hover">
+                        <thead>
+                        <tr class="active">
+                            <th>Analysis ID</th>
+                            <th>Patients</th>
+                            <th>Analysis</th>
+                            <th>Date</th>
+                            <th>Filter</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>AN-28</td>
+                            <td>HG00096, HG00097, HG00099</td>
+                            <td>Trio</td>
+                            <td>01/02/2017</td>
+                            <td>NO</td>
+                            <td><button type="button" class="btn btn-danger" on-click="hideTable">Remove
+                                <i class="fa fa-times" aria-hidden="true"></i></button>
+                                <button data-toggle="modal" role="button" type="button" class="btn btn-success" data-target$="#{{prefix}}FamilyEditor">Edit
+                                    <i class="fa fa-cog" aria-hidden="true"></i></button>
+
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>-->
+
+                    <table id="tableAnalysis" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
+                           data-checkbox-header="false" data-maintain-selected="true" style="cursor: pointer;">
+                        <thead style="background-color: #eee"></thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Modal dialog for family editor : has to be designed as a web component-->
+        <div class="modal fade" id="{{prefix}}FamilyEditor" tabindex="-1" role="dialog"
+             aria-labelledby="sampleBrowserLabel">
+            <div class="modal-dialog modal-lg" role="document" style="width: 1024px;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="{{prefix}}FamilyEditorLabel">Family Editor</h4>
+                    </div>
+                    <div class="modal-body" style="height: 500px">
+                        <opencga-family-editor opencga-client="{{opencgaClient}}" study-id="{{study.id}}" samples="{{samples}}" prefix="{{prefix}}"></opencga-family-editor>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        Polymer({
+            is: 'variant-analysis-samples',
+            properties: {
+                opencgaClient: {
+                    type: Object
+                },
+                study: {
+                    type: Object,
+                    observer: 'renderFromServer'
+                },
+                samples: {
+                    type: Array,
+                    notify: true
+                },
+                prefix: {
+                    type: String
+                },
+                query: {
+                    type: Object
+                },
+                config: {
+                    type: Object
+                },
+                search: {
+                    type: Object,
+                    observer: 'renderHashQueryParams'
+                },
+            },
+            ready: function() {
+                if (typeof this.prefix === "undefined" || this.prefix == "") {
+                    this.prefix = Utils.randomString(6);
+                }
+                // Columns that will be represented
+                this._columns = [
+                    [
+                        {
+                            title: 'Select',
+                            field: 'select',
+                            formatter: this.selectFormatter
+                        },
+                        {
+                            title: 'SampleID',
+                            field: 'name',
+                            sortable: true
+                        },
+                        {
+                            title: 'Date',
+                            field: 'date',
+                        },
+                        {
+                            title: 'Status',
+                            field: 'sampleStatus'
+                        },
+                        {
+                            title: 'Gender',
+                            field: 'gender'
+                        },
+                        {
+                            title: 'Presumptive diagnosis',
+                            field: 'diagnosis'
+                        },
+                        {
+                            title: 'Father',
+                            field: 'fatherId'
+                        },
+                        {
+                            title: 'Mother',
+                            field: 'mother'
+                        },
+                        {
+                            title: 'Cell Type',
+                            field: 'gender'
+                        }
+                    ]
+                ];
+
+
+                this.renderFromServer();
+
+//                this.samples = [{name: "name1"}, {name: "name2"}, {name: "name3"}];
+            },
+            renderHashQueryParams: function () {
+                let hashFrag = window.location.hash.split('?')[0];
+                if (typeof this.query !== "undefined" && Object.keys(this.query).length > 0) {
+                    let qArray = [];
+                    for (let key in this.query) {
+                        if (key != "studies") {
+                            qArray.push(key + "=" + this.query[key]);
+                        }
+                    }
+                    hashFrag += "?" + qArray.join('&');
+                }
+                window.location.hash = hashFrag;
+
+                // for reading from the url,
+//                if (typeof query !== "undefined") {
+//                    let params = query.split('&');
+//                    let queryObject = {};
+//                    for (let i = 0; i < params.length; i++) {
+//                        let [key, value] = params[i].split('=');
+//                        queryObject[key] = value;
+//                    }
+//                    this._query = queryObject;
+//                }
+            },
+            renderFromServer: function () {
+                let filters = this.search;
+
+
+//                console.log(this.opencgaClient)
+//                console.log(this.studyId)
+//debugger
+                this._samples = [];
+                let _this = this;
+                if (typeof this.opencgaClient != "undefined" && this.opencgaClient instanceof OpenCGAClient && this.study.id > 0) {
+
+                    if (this.opencgaClient.getConfig().host.startsWith("https://")) {
+                        this._url = this.opencgaClient.getConfig().host;
+                    } else {
+                        this._url = 'http://' + this.opencgaClient.getConfig().host;
+                    }
+
+                    this._url = this._url + '/webservices/rest/v1/samples/search';
+
+
+                    $('#tableAnalysis').bootstrapTable('destroy');
+                    $('#tableAnalysis').bootstrapTable({
+                        columns: [
+                            {
+                                field: 'analysisID',
+                                title: 'Analysis ID'
+                            },
+                            {
+                                field: 'analysisSamples',
+                                title: 'Samples'
+                            },
+                            {
+                                field: 'analysisType',
+                                title: 'Analysis'
+                            },
+                            {
+                                field: 'analysisDate',
+                                title: 'Date'
+                            },
+                            {
+                                field: 'analysisFilter',
+                                title: 'Filter'
+                            },
+                            {
+                                field: 'analysisAction',
+                                title: 'Action',
+                                formatter: this.actionFormatter,
+                                events: this.operateEvents
+                            },
+
+
+                        ],
+
+                    });
+
+                    $('#' + this.prefix + "SampleSelector").bootstrapTable('destroy');
+                    $('#' + this.prefix + "SampleSelector").bootstrapTable({
+                        url: this._url,
+                        sidePagination: 'server',
+                        queryParams: function (params) {
+                            let auxParams = {
+                                studyId: _this.study.id,
+                                sid: Cookies.get(_this.opencgaClient.getConfig().cookieSessionId),
+                                order: params.order,
+                                sort: params.sort,
+                                limit: params.limit,
+                                skip: params.offset
+                            };
+//                            if (params.search !== undefined && params.search.length > 0) {
+//                                auxParams["name"] = "~" + params.search;
+//                            }
+                            return $.extend({}, filters, auxParams);
+                        },
+                        responseHandler: function (response) {
+                            if (!_this.hasOwnProperty("numTotalResults")) {
+                                _this.numTotalResults = 0;
+                            }
+                            if (_this.numTotalResults !== response.response[0].numTotalResults
+                                && response.response[0].numTotalResults > response.queryOptions.limit) {
+                                _this.numTotalResults = response.response[0].numTotalResults;
+                            }
+
+                            return {
+                                total: _this.numTotalResults,
+                                rows: response.response[0].result
+                            }
+                        },
+                        columns: this._columns,
+
+                        onClickRow: function (row, element) {
+                            let index = element[0].getAttribute("data-index");
+                            if (row.state) {
+                                $('#samplestable').bootstrapTable('uncheck', index);
+                            } else {
+                                $('#samplestable').bootstrapTable('check', index);
+                            }
+                        },
+
+                        onCheck: function (row, elem) {
+                            _this.push("_samples", row);
+                            _this.set('samples', _this._samples.slice());
+
+                            // Map each sample to its associated individual
+                            if (typeof row.individual !== "undefined" && typeof row.individual.id !== "undefined"
+                                && row.individual.id != "-1") {
+                                if (typeof _this.individuals[row.individual.id] === "undefined") {
+                                    _this.individuals[row.individual.id] = [row];
+                                } else {
+                                    _this.individuals[row.individual.id].push(row);
+                                }
+                            }
+                        },
+
+                        onUncheck: function (row, elem) {
+                            let sampleToDeleteIdx;
+                            for (let sampleIdx in _this.samples) {
+                                if (row.name == _this.samples[sampleIdx].name) {
+                                    sampleToDeleteIdx = sampleIdx;
+                                    break;
+                                }
+                            }
+                            if (typeof row.individual !== "undefined" && typeof row.individual.id !== "undefined"
+                                && row.individual.id != "-1") {  $('.analysis-content').hide(); // hides all content divs
+                                if (row.individual.id in  _this.individuals) {
+                                    let samples = _this.individuals[row.individual.id];
+                                    for (let i in samples) {
+                                        if (row.name == samples[i].name) {
+                                            samples.splice(i, 1);
+                                            break;
+                                        }
+                                    }
+                                    _this.individuals[row.individual.id] = samples;
+                                }
+                            }
+
+                            _this.splice('_samples', sampleToDeleteIdx, 1);
+                            _this.set('samples', _this._samples.slice());
+                        }
+                    });
+
+//                    this.opencgaClient.studies().info(this.study.id)
+//                        .then(function (response) {
+//                            _this.variableSets = response.response[0].result[0].variableSets;
+//                        })
+//                        .catch(function () {
+//                            console.log("Could not obtain the variable sets of the study " + _this.study.id);
+//                        });
+                } else {
+                    // Delete table
+                    $('#fileTable').bootstrapTable('destroy');
+                    this.numTotalResults = 0;
+                }
+            },
+            selectFormatter: function () {
+                return '<input type="checkbox">';
+            },
+            actionFormatter: function() {
+              return [
+                '<button id="petete" type="button" class="btn btn-danger" on-click="removeAnalysis">Remove<i class="fa fa-times" aria-hidden="true"></i></button> ' ,
+                '<button data-toggle="modal" role="button" type="button" class="btn btn-success" data-target="#'+this.prefix+'FamilyEditor">Edit<i class="fa fa-cog" aria-hidden="true"></i></button>'
+                ].join('');
+
+            },
+
+            showTable: function(e) {
+                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+                $("#analysisListDiv").show();
+            },
+            addAnalysis: function(e) {
+                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+                //$("#analysisListDiv").show();
+                let analysisId= Math.floor(Math.random() * 100) + 1;
+                // Get the type of analysisId
+                let analysisType="";
+
+                switch (e.currentTarget.id) {
+                    case "familyButton":
+                        analysisType = "Family";
+                        break;
+                    case "trioButton":
+                        analysisType = "Trio";
+                        break;
+                    case "duoButton":
+                        analysisType = "Duo";
+                        break;
+                    case "singleButton":
+                        analysisType = "Single";
+                        break;
+                    case "autoButton":
+                        analysisType = "Auto comparative";
+                        break;
+                    case "multiButton":
+                        analysisType = "Multisample";
+                        break;
+                    default:
+                        analysisType = "Family";
+                        break;
+                }
+                let fullDate = new Date()
+                let twoDigitMonth = ((fullDate.getMonth().length+1) === 1)? (fullDate.getMonth()+1) : '0' + (fullDate.getMonth()+1);
+                let currentDate = fullDate.getDate() + "/" + twoDigitMonth + "/" + fullDate.getFullYear();
+
+                let samplesToShow="";
+
+                /*                for (let sampleIdx in _this.samples) {
+                 samplesToShow=samplesToShow+","+ _this.samples[sampleIdx].name;
+
+
+                 }*/
+
+                let buttonRemoveText="<button type=\"button\" class=\"btn btn-danger\" on-click=\"removeAnalysis\">Remove<i class=\"fa fa-times\" aria-hidden=\"true\"></i></button>";
+                let buttonEditText="<button data-toggle=\"modal\" role=\"button\" type=\"button\" class=\"btn btn-success\" data-target=\"#"+this.prefix+"FamilyEditor\">Edit<i class=\"fa fa-cog\" aria-hidden=\"true\"></i></button>";
+
+                let tdAnalysisId="<td>AN-"+analysisId+"</td>";
+                let tdSamples="<td>HG00096</td>";
+                let tdAnalysisType="<td>"+analysisType+"</td>";
+                let tdCurrentDate="<td>"+currentDate+"</td>";
+                let tdFilter="<td>NO</td>";
+                let tdButtons="<td>"+buttonRemoveText+" "+buttonEditText+"</td>";
+                let my_tr="<tr>"+tdAnalysisId+tdSamples+tdAnalysisType+tdCurrentDate+tdFilter+tdButtons+"</tr>";
+
+                //console.log(e)
+                //debugger
+
+                //$('#analysisTable').append(my_tr)
+
+                $('#tableAnalysis').bootstrapTable('insertRow',{index:1 , row: {
+                    analysisID : "AN-"+analysisId,
+                    analysisSamples : "HG00096",
+                    analysisType : analysisType,
+                    analysisDate : currentDate,
+                    analysisFilter : "NO"
+
+
+                }
+
+                });
+
+
+
+
+            },
+
+            removeAnalysis: function(e) {
+                console.log(e);
+                debugger;
+                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+                var ids = $.map($('#tableAnalysis').bootstrapTable('getSelections'), function (row) {
+                    return row.id;
+                });
+
+                $('#tableAnalysis').bootstrapTable('remove',{
+                    field: 'analysisID',
+                    values: dis
+                });
+            },
+
+
+        });
+    </script>
+</dom-module>

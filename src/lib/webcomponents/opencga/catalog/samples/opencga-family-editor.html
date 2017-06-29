@@ -1,0 +1,280 @@
+<!--
+  ~ Copyright 2015 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<dom-module id="opencga-family-editor">
+
+    <template>
+        <style is="custom-style" include="jso-styles"></style>
+
+        <template is="dom-if" if="{{!_sampleExists}}">
+            <div class="alert alert-warning" role="alert"><h4>No samples selected, please select some samples.</h4></div>
+        </template>
+
+        <div id="{{prefix}}FilterMenu1" class="col-md-7" hidden$="{{checkProject(project)}}">
+            <template is="dom-if" if="{{_sampleExists}}">
+                <form class="form-inline">
+                    <div class="form-group row" style="padding: 15px 10px">
+                        <label style="padding: 0px 10px">Family name</label>
+                        <input type="text" class="form-control" id="{{prefix}}FamilyName" placeholder="" maxlength="100" on-change="pedigreeRender">
+                    </div>
+                </form>
+
+                <table class="table hover">
+                    <thead>
+                    <tr class="active">
+                        <th>Sample ID</th>
+                        <th>Affected</th>
+                        <th>Deceased</th>
+                        <th>Family Role</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <template is="dom-repeat" items="{{samples}}" as="sample">
+                        <tr>
+                            <td>{{sample.name}}</td>
+                            <td>
+                                <input id="{{prefix}}{{sample.name}}Affected" data-sample="{{sample.name}}" type="checkbox" on-change="selectAffected">
+                            </td>
+                            <td>
+                                <input id="{{prefix}}{{sample.name}}Deceased" data-sample="{{sample.name}}" type="checkbox" on-change="selectDeceased">
+                            </td>
+                            <td>
+                                <div class="dropdown">
+                                    <select class="form-control" id="{{prefix}}{{sample.name}}Role" data-sample="{{sample.name}}" on-change="selectRole">
+                                        <option value="none">Select a role...</option>
+                                        <option value="father">Father</option>
+                                        <option value="mother">Mother</option>
+                                        <option value="son">Son</option>
+                                        <option value="daughter">Daughter</option>
+                                        <option value="undefined">Unspecified Sex Child</option>
+                                    </select>
+                                </div>
+                            </td>
+                        </tr>
+                    </template>
+                    </tbody>
+                </table>
+
+                <div style="padding: 2px 10px">
+                    <input id="{{prefix}}ParentalConsanguinity" type="checkbox" on-change="selectParentalConsanguinity">
+                    <label style="padding: 0px 5px">Parental Consanguinity</label>
+                </div>
+                <div style="padding: 2px 10px">
+                    <input id="{{prefix}}SampleNames" type="checkbox" on-change="selectShowSampleNames">
+                    <label style="padding: 0px 5px">Show Sample Names</label>
+                </div>
+            </template>
+        </div>
+
+        <div id="{{prefix}}FilterMenu2" class="col-md-5" hidden$="{{checkProject(project)}}">
+            <div style="padding: 15px 0px">
+                <template is="dom-if" if="{{settings.save}}">
+                    <template is="dom-if" if="{{_sampleExists}}">
+                        <div style="width: 80%">
+                            <button class="btn btn-primary" type="button" style="float: right; padding: 5px 10px" data-toggle="tooltip" title="Save pedigree in OpenCGA server">
+                                <i class="fa fa-floppy-o" aria-hidden="true" style="padding-right: 5px"></i>
+                                Save
+                            </button>
+                        </div>
+                    </template>
+                </template>
+
+                <div style="padding: 50px 15px">
+                    <h4>{{pedigreeTitle}}</h4>
+                    <div id="{{prefix}}PedigreeView" style="padding: 5px 5px;font-size: 10px"></div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        Polymer({
+            is: 'opencga-family-editor',
+            properties: {
+                opencgaClient: {
+                    type: Object
+                },
+                study: {
+                    type: Object
+                },
+                samples: {
+                    type: Array,
+                    observer: '_updateSamples'
+                },
+                settings: {
+                    type: Object
+                },
+                prefix: {
+                    type: String
+                }
+            },
+            ready: function() {
+                if (typeof this.prefix === "undefined" || this.prefix === "") {
+                    this.prefix = "FamilyEditor" + Utils.randomString(6);
+                }
+
+                this._sampleExists = false;
+
+                this._affected = {};
+                this._deceased = {};
+                this.pedigreeSettings = {};
+                this.pedigree = {children: []};
+                this.family = {name: "", pedigree: this.pedigree};
+            },
+            selectAffected: function (e) {
+                let sampleName = e.currentTarget.dataSample;
+                this._affected[sampleName] = e.currentTarget.checked;
+                this.pedigreeRender();
+            },
+            selectDeceased: function (e) {
+                let sampleName = e.currentTarget.dataSample;
+                this._deceased[sampleName] = e.currentTarget.checked;
+                this.pedigreeRender();
+            },
+            selectParentalConsanguinity: function (e) {
+                this.pedigree.parentalConsanguinity = e.currentTarget.checked;
+                this.pedigreeRender();
+            },
+            selectShowSampleNames: function (e) {
+                this.pedigreeSettings.selectShowSampleNames = e.currentTarget.checked;
+                this.pedigreeRender();
+            },
+            selectRole: function (e) {
+                let role = this.$$("#" + this.prefix + e.target.dataSample + "Role").value;
+                this._samples = this.samples;
+
+                let sampleName = e.target.dataSample;
+                if (role !== "none") {
+                    this._removeSampleFromPedigree(sampleName);
+                }
+
+                for (let i = 0; i < this._samples.length; i++) {
+                    if (this._samples[i].name === sampleName) {
+                        this._samples[i].role = role;
+                        switch (role) {
+                            case "father":
+                            case "Father":
+                                if (typeof this.pedigree.father !== "undefined") {
+                                    $("#" + this.prefix + this.pedigree.father.name + "Role").val('none');
+                                }
+                                this.pedigree.father = {name: sampleName, gender: "male"};
+                                break;
+                            case "mother":
+                            case "Mother":
+                                if (typeof this.pedigree.mother !== "undefined") {
+                                    $("#" + this.prefix + this.pedigree.mother.name + "Role").val('none');
+                                }
+                                this.pedigree.mother = {name: sampleName, gender: "female"};
+                                break;
+                            case "son":
+                            case "Son":
+                                this.pedigree.children.push({name: sampleName, gender: "male"});
+                                break;
+                            case "daughter":
+                            case "Daughter":
+                                this.pedigree.children.push({name: sampleName, gender: "female"});
+                                break;
+                            case "undefined":
+                                this.pedigree.children.push({name: sampleName, gender: "undefined"});
+                                break;
+                            case "none":
+                                // Remove sample from pedigree
+                                this._removeSampleFromPedigree(sampleName);
+                                break;
+                        }
+                        break;
+                    }
+                }
+                this.pedigreeRender();
+            },
+            _createPedigree: function () {
+                // Complete the pedigree with the affected and deceased status
+                if (typeof this.pedigree.father !== "undefined") {
+                    this.pedigree.father.affected = this._affected[this.pedigree.father.name];
+                    this.pedigree.father.deceased = this._deceased[this.pedigree.father.name];
+                }
+                if (typeof this.pedigree.mother !== "undefined") {
+                    this.pedigree.mother.affected = this._affected[this.pedigree.mother.name];
+                    this.pedigree.mother.deceased = this._deceased[this.pedigree.mother.name];
+                }
+                if (typeof this.pedigree.children !== "undefined") {
+                    for (let child of this.pedigree.children) {
+                        child.affected = this._affected[child.name];
+                        child.deceased = this._deceased[child.name];
+                    }
+                }
+                return this.pedigree;
+            },
+            pedigreeRender: function () {
+                let ped = this._createPedigree();
+
+                let familyName = $("#" + this.prefix + "FamilyName").val();
+                this.family = {name: familyName, pedigree: ped};
+                this.fire('familychange', this.family);
+
+                // Remove SVG before render new one
+                if (typeof this.svg !== "undefined") {
+                    Polymer.dom(this.root).querySelector("#" + this.prefix + "PedigreeView").removeChild(this.svg);
+                }
+
+                // Render new Pedigree
+                let pedigree = new Pedigree(ped);
+                this.svg = pedigree.render(this.pedigreeSettings);
+                let querySelector = Polymer.dom(this.root).querySelector("#" + this.prefix + "PedigreeView");
+                querySelector.appendChild(this.svg);
+            },
+            _updateSamples: function () {
+                if (typeof this.samples !== "undefined" && this.samples !== null) {
+
+                    if (this.samples.length > 0) {
+                        this._sampleExists = true;
+                        this.pedigreeTitle = "Pedigree";
+                        this.pedigreeRender();
+                    } else {
+                        this._sampleExists = false;
+                        this.pedigreeTitle = "";
+                        if (typeof this.svg !== "undefined") {
+                            Polymer.dom(this.root).querySelector("#" + this.prefix + "PedigreeView").removeChild(this.svg);
+                            this.svg = undefined;
+                        }
+                    }
+                }
+            },
+            _removeSampleFromPedigree: function (sampleName) {
+                // Remove the sample from pedigree
+                if (typeof this.pedigree.father !== "undefined" && this.pedigree.father.name === sampleName) {
+                    this.pedigree.father = undefined;
+                }
+                if (typeof this.pedigree.mother !== "undefined" && this.pedigree.mother.name === sampleName) {
+                    this.pedigree.mother = undefined;
+                }
+                if (typeof this.pedigree.children !== "undefined") {
+                    let indexToRemove = -1;
+                    for (let i = 0; i < this.pedigree.children.length; i++) {
+                        if (this.pedigree.children[i].name === sampleName) {
+                            indexToRemove = i;
+                            break;
+                        }
+                    }
+                    if (indexToRemove !== -1) {
+                        this.pedigree.children.splice(indexToRemove, 1);
+                    }
+                }
+            }
+        });
+    </script>
+</dom-module>

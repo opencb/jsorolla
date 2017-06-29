@@ -5,9 +5,10 @@
             position: relative;
             width: 100%;
         }
-        #legend{
-          margin: 0 auto;
-          width: 50%;
+
+        #legend {
+            margin: 0 auto;
+            width: 50%;
         }
     </style>
     <template>
@@ -17,8 +18,8 @@
             <div id="legend">
                 <i class="fa fa-lightbulb-o" aria-hidden="true" style="font-size:16px;color:#32b0cd"></i>
                 <br>- All values are normalized between zero and one.
-                <br>- Values closest to zero are deleterious and closest to one are benign.
-                <br>- Polyphen and Sift are opposed, but in this case, Polyphen has been calculated as 1 - Polyphen.
+                <br>- Values closest to one are deleterious and closest to zero are benign.
+                <br>- Polyphen and Sift are opposed, but in this case, Sift has been calculated as 1 - Sift.
             </div>
         </div>
     </template>
@@ -82,14 +83,30 @@
                 var variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
                 var categories = [];
                 var data = [];
+                var color = '#76afd5';
+                var sift = null;
+                var polyphen = null;
                 for (var i = 0; i < this.params.length; i++) {
                     categories.push(this.params[i].source);
+                    if (this.params[i].source == "sift") {
+                        sift = this.params[i].score;
+                    }
                     if (this.params[i].source == "polyphen") {
-                        data.push(1 - this._parseFloat(this.params[i].score));
-                    } else {
+                        polyphen = this.params[i].score;
                         data.push(this._parseFloat(this.params[i].score));
+                    } else {
+                        data.push(1 - this._parseFloat(this.params[i].score));
                     }
                 }
+                if (sift != null && polyphen != null) {
+                    color = '#8ccd8c';
+                    if (sift <= 0.05 && polyphen >= 0.95) {
+                        color = '#f47070';
+                    } else if (sift <= 0.05 || polyphen >= 0.95) {
+                        color = '#f59f67';
+                    }
+                }
+
                 var chart = new Highcharts.Chart({
                     chart: {
                         polar: true,
@@ -126,6 +143,7 @@
                         type: 'area',
                         name: variant,
                         data: data,
+                        color: color,
                         pointPlacement: 'on'
                     }]
 

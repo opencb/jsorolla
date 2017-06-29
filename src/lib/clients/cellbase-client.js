@@ -18,10 +18,38 @@
  * Created by imedina on 18/03/16.
  */
 
+class CellBaseClientConfig {
+
+    constructor(hosts = ["bioinfo.hpc.cam.ac.uk/cellbase", "www.ebi.ac.uk/cellbase"], version = "v3", species = "hsapiens") {
+        this.setHosts(hosts);
+        this.version = version;
+        this.species = species;
+
+        // default values
+        this.rpc = "rest";
+
+        this.cache = {
+            active: true,
+            database: this.species + "_" + this.version + "_cellbase_cache",
+            subcategories: ["genomic_chromosome", "genomic_region", "genomic_variant", "feature_gene", "feature_variation",
+                "feature_clinical", "feature_id", "feature_protein", "feature_transcript"]
+        };
+    }
+
+    setHosts(hosts) {
+        if (typeof hosts == "string") {
+            this.hosts = hosts.split(",");
+        } else {
+            this.hosts = hosts;
+        }
+    }
+
+}
+
 class CellBaseClient {
 
     constructor(config) {
-        if (typeof config == 'undefined') {
+        if (typeof config == "undefined") {
             this._config = new CellBaseClientConfig();
         } else {
             this._config = config;
@@ -33,11 +61,11 @@ class CellBaseClient {
     }
 
     _initCache() {
-        this.indexedDBCache.createObjectStores(this._config.cache.subcategories)
+        this.indexedDBCache.createObjectStores(this._config.cache.subcategories);
     }
 
     setHosts(hosts) {
-        if (typeof hosts != 'undefined') {
+        if (typeof hosts != "undefined") {
             this._config.setHosts(hosts);
         }
     }
@@ -101,23 +129,23 @@ class CellBaseClient {
     }
 
     getGeneClient(id, resource, params, options) {
-        return this.get('feature', 'gene', id, resource, params, options);
+        return this.get("feature", "gene", id, resource, params, options);
     }
 
     getTranscriptClient(id, resource, params, options) {
-        return this.get('feature', 'transcript', id, resource, params, options);
+        return this.get("feature", "transcript", id, resource, params, options);
     }
 
     getProteinClient(id, resource, params, options) {
-        return this.get('feature', 'protein', id, resource, params, options);
+        return this.get("feature", "protein", id, resource, params, options);
     }
 
     getVariationClient(id, resource, params, options) {
-        return this.get('feature', 'variation', id, resource, params, options);
+        return this.get("feature", "variation", id, resource, params, options);
     }
 
     getRegulatoryClient(id, resource, params, options) {
-        return this.get('feature', 'regulatory', id, resource, params, options);
+        return this.get("feature", "regulatory", id, resource, params, options);
     }
 
 
@@ -177,7 +205,7 @@ class CellBaseClient {
                                 query[i] = dataResponse[i];
                             };
                             // And remove the key response
-                            delete query['response'];
+                            delete query["response"];
 
                             if (idArray.length > 0) {
                                 for (let i = 0; i < dataResponse.response.length; i++) {
@@ -225,7 +253,7 @@ class CellBaseClient {
                             resolve(_this._callRestWebService(hosts, category, subcategory, nonCachedIds, resource, params, options));
                         } else {
                             let queryResponse = results[0].query;
-                            queryResponse['response'] = [];
+                            queryResponse["response"] = [];
 
                             // if (results.length > 1) {
                             //     debugger;
@@ -325,7 +353,7 @@ class CellBaseClient {
         for (let i in keyArray) {
             keyValueArray.push(keyArray[i] + "=" + encodeURIComponent(params[keyArray[i]]));
         }
-        let suffixKey = keyValueArray.join('&');
+        let suffixKey = keyValueArray.join("&");
         // suffixKey is preceded by '_' if suffix is true. Else it is treated as queryParam that needs to be sorted
         if (suffix && suffixKey !== "") {
             suffixKey = "_" + suffixKey;

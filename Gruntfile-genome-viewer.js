@@ -49,13 +49,13 @@ module.exports = function (grunt) {
             dist: {
                 files: [
 
-                    {   expand: true, cwd: './bower_components', src: ['underscore/underscore-min.js'], dest: '<%= def.vendorbuild %>' },
-                    {   expand: true, cwd: './bower_components', src: ['backbone/backbone.js'], dest: '<%= def.vendorbuild %>' },
-                    {   expand: true, cwd: './bower_components', src: ['fontawesome/**'], dest: '<%= def.vendorbuild %>' },
-                    {   expand: true, cwd: './bower_components', src: ['jquery/dist/jquery.min.js'], dest: '<%= def.vendorbuild %>' },
-                    {   expand: true, cwd: './bower_components', src: ['qtip2/jquery.qtip.min.css'], dest: '<%= def.vendorbuild %>' },
-                    {   expand: true, cwd: './bower_components', src: ['qtip2/jquery.qtip.min.js'], dest: '<%= def.vendorbuild %>' },
-                    {   expand: true, cwd: './bower_components', src: ['uri.js/src/URI.min.js'], dest: '<%= def.vendorbuild %>' },
+                    {   expand: true, cwd: './node_modules', src: ['underscore/underscore-min.js'], dest: '<%= def.vendorbuild %>' },
+                    {   expand: true, cwd: './node_modules', src: ['backbone/backbone.js'], dest: '<%= def.vendorbuild %>' },
+                    {   expand: true, cwd: './node_modules', src: ['font-awesome/**'], dest: '<%= def.vendorbuild %>' },
+                    {   expand: true, cwd: './node_modules', src: ['jquery/dist/jquery.min.js'], dest: '<%= def.vendorbuild %>' },
+                    {   expand: true, cwd: './node_modules', src: ['qtip2/dist/jquery.qtip.min.css'], dest: '<%= def.vendorbuild %>' },
+                    {   expand: true, cwd: './node_modules', src: ['qtip2/dist/jquery.qtip.min.js'], dest: '<%= def.vendorbuild %>' },
+                    {   expand: true, cwd: './node_modules', src: ['urijs/src/URI.min.js'], dest: '<%= def.vendorbuild %>' },
                     {   expand: true, cwd: './', src: ['styles/**'], dest: '<%= def.build %>/' }, // includes files in path and its subdirs
                     {   expand: true, cwd: './src/<%= def.name %>/', src: ['gv-config.js'], dest: '<%= def.build %>/' }
                 ]
