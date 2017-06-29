@@ -46,6 +46,100 @@ class OpencgaAdapter {
     setSpecies(species) {
         // this.species = species;
     }
+    getVariant(args){
+ console.log("pasando por el getVariant");
+        var _this = this;
+        var params = {};
+debugger
+        _.extend(params, this.params);
+        _.extend(params, args.params);
+
+        /** 1 region check **/
+        var region = args.region;
+        if (region.start > 300000000 || region.end < 1) {
+            return;
+        }
+        region.start = (region.start < 1) ? 1 : region.start;
+        region.end = (region.end > 300000000) ? 300000000 : region.end;
+
+        /** 2 category check **/
+        var categories = this.resource.toString().split(',');   // in this adapter
+
+        /** 3 dataType check **/
+        var dataType = args.dataType;
+        if (_.isUndefined(dataType)) {
+            console.log("dataType must be provided!!!");
+        }
+
+        /** 4 chunkSize check **/
+        var chunkSize = params.interval ? params.interval : this.options.chunkSize; // this.cache.defaultChunkSize should be the same
+        if (this.debug) {
+            console.log(chunkSize);
+        }
+        /** 5 studies check **/
+        var studies = params.studies;
+        if (studies === undefined) {
+            return;
+        }
+        // Create the chunks to be retrieved
+        let start = this._getStartChunkPosition(region.start);
+        let end = this._getStartChunkPosition(region.end);
+
+        let regions = [];
+        let myRegion = start;
+        args.webServiceCallCount = 0;
+
+        do {
+            regions.push(`${region.chromosome}:${myRegion}-${myRegion + this.options.chunkSize - 1}`);
+            //regions.push(`chr${region.chromosome}:${myRegion}-${myRegion + this.options.chunkSize - 1}`);
+            myRegion += this.options.chunkSize;
+        } while(myRegion < end);
+        let groupedRegions = this._groupQueries(regions);
+        args.regions = groupedRegions;
+
+        if (dataType === "features") {
+            let chunks = [];
+            for (let i = 0; i < groupedRegions.length; i++) {
+                args.webServiceCallCount++;
+                //let variants = this.client.variants().query(studies,
+                //    {
+                //        region: groupedRegions[i],
+                //        exclude: "studies"
+                //        //study: study
+                //    })
+                //    .then(function (response) {
+                //        return _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
+                //    });
+                let variants = this.client.variants().query(
+                    {
+                        region: groupedRegions[i],
+                        studies: studies
+                        //exclude: "studies"
+                        //study: study
+                    })
+                    .then(function (response) {
+                        console.log("Correctoo")
+                        console.log(response)
+                        //return _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
+                        args.webServiceCallCount--;
+                        var responseChunks = _this._variantsuccess(response, categories, dataType, groupedRegions[i], region, chunkSize);
+
+
+                        chunks = chunks.concat(responseChunks);
+                        if (args.webServiceCallCount === 0) {
+                            args.done({
+                                items: chunks, dataType: dataType, chunkSize: chunkSize, sender: _this
+                            });
+                        }
+
+                    });
+            }
+        } else { // histogram
+
+        }
+
+
+    }
 
     getAlignmentData(args) {
         var _this = this;
@@ -220,12 +314,68 @@ class OpencgaAdapter {
             // var items = this._adaptChunks(queryResult, categories[i], dataType, chunkSize);
             // responseItems = responseItems.concat(items);
         }
-
+console.log("pasando por el data");
+    console.log(data);
         /** time log **/
         console.timeEnd(timeId);
 
         return responseItems;
 
+    }
+
+    _variantsuccess(response, categories, dataType, queryRegion, originalRegion, chunkSize) {
+    //var timeId = Utils.randomString(4) + this.resource + " save";
+    //console.time(timeId);
+        /** time log **/
+
+        var regions = [];
+        var chunks = [];
+        if (dataType !== 'histogram') {
+            for(var i = 0; i< response.response.length; i++){
+                var res = response.response[i].result;
+                chunks.push(res);
+
+            }
+            console.log("Los chunks son:");
+            console.log(chunks);
+            //if (typeof this.parse === 'function') {
+            //    chunks = this.parse(response, dataType);
+            //} else {
+            //    chunks = response;
+            //}
+            var regionSplit = queryRegion.split(',');
+            for (var i = 0; i < regionSplit.length; i++) {
+                var regionStr = regionSplit[i];
+                regions.push(new Region(regionStr));
+            }
+        } else {
+            if (typeof this.parseHistogram === 'function') {
+                chunks = this.parseHistogram(response);
+            } else {
+                chunks = response;
+            }
+            for (var i = 0; i < chunks.length; i++) {
+                var interval = chunks[i];
+                var region = new Region(interval);
+                region.chromosome = originalRegion.chromosome;
+                regions.push(region);
+            }
+        }
+    console.log(response);
+    debugger
+        var responseItems = [];
+        responseItems.push({
+            chunkKey: response.response[i].id,
+            region: regions,
+            value: response.response[i].result,
+            dataType: dataType
+        });
+       // var items = this.cache.putByRegions(regions, chunks, categories, dataType, chunkSize);
+
+        /** time log **/
+        //console.timeEnd(timeId);
+
+        return responseItems;
     }
 
     _getStartChunkPosition (position) {

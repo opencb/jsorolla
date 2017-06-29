@@ -41,7 +41,9 @@ function Track(args) {
     this.externalLink = '';
 
     _.extend(this, args);
-
+    if(this.renderer != null){
+        this.renderer.track = this;
+    }
     this.pixelBase;
     this.svgCanvasWidth = 500000; //mesa
     this.pixelPosition = this.svgCanvasWidth / 2;

@@ -19,19 +19,18 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-FeatureTrack.prototype = new Track({});
+VariantTrack.prototype = new Track({});
 
-function FeatureTrack(args) {
+function VariantTrack(args) {
     Track.call(this, args);
 
     // Using Underscore 'extend' function to extend and add Backbone Events
     _.extend(this, Backbone.Events);
-
+console.log("dentro del variantTRack")
     //set default args
 
     //save default render reference;
     this.defaultRenderer = this.renderer;
-
     //    this.histogramRenderer = new FeatureClusterRenderer();
     this.histogramRenderer = new window[this.histogramRendererName](args);
 
@@ -45,7 +44,7 @@ function FeatureTrack(args) {
     this.dataType = 'features';
 };
 
-FeatureTrack.prototype.clean = function () {
+VariantTrack.prototype.clean = function () {
     this._clean();
 
     //    console.time("-----------------------------------------empty");
@@ -55,7 +54,7 @@ FeatureTrack.prototype.clean = function () {
     //    console.timeEnd("-----------------------------------------empty");
 };
 
-FeatureTrack.prototype.updateHeight = function () {
+VariantTrack.prototype.updateHeight = function () {
     //this._updateHeight();
     if (this.histogram) {
         this.contentDiv.style.height = this.histogramRenderer.histogramHeight + 5 + 'px';
@@ -96,12 +95,12 @@ FeatureTrack.prototype.updateHeight = function () {
     }
 };
 
-FeatureTrack.prototype.setWidth = function (width) {
+VariantTrack.prototype.setWidth = function (width) {
     this._setWidth(width);
     this.main.setAttribute("width", this.width);
 };
 
-FeatureTrack.prototype.initializeDom = function (targetId) {
+VariantTrack.prototype.initializeDom = function (targetId) {
     this._initializeDom(targetId);
 
     this.main = SVG.addChild(this.contentDiv, 'svg', {
@@ -119,7 +118,7 @@ FeatureTrack.prototype.initializeDom = function (targetId) {
     this.renderer.init();
 };
 
-FeatureTrack.prototype.render = function (targetId) {
+VariantTrack.prototype.render = function (targetId) {
     this.initializeDom(targetId);
 
     this.svgCanvasOffset = (this.width * 3 / 2) / this.pixelBase;
@@ -127,7 +126,7 @@ FeatureTrack.prototype.render = function (targetId) {
     this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset * 2
 };
 
-FeatureTrack.prototype.getDataHandler = function (event) {
+VariantTrack.prototype.getDataHandler = function (event) {
     var features;
     if (event.dataType == 'histogram') {
         this.renderer = this.histogramRenderer;
@@ -154,8 +153,9 @@ FeatureTrack.prototype.getDataHandler = function (event) {
     this.updateHeight();
 };
 
-FeatureTrack.prototype.draw = function () {
+VariantTrack.prototype.draw = function () {
     var _this = this;
+    console.log("en el draw del varianttrack")
 
     this.svgCanvasOffset = (this.width * 3 / 2) / this.pixelBase;
     this.svgCanvasLeftLimit = this.region.start - this.svgCanvasOffset * 2;
@@ -171,7 +171,8 @@ FeatureTrack.prototype.draw = function () {
 
     if (typeof this.visibleRegionSize === 'undefined' || this.region.length() < this.visibleRegionSize) {
         this.setLoading(true);
-        this.dataAdapter.getData({
+        console.log(" a por las variantes")
+        this.dataAdapter.getVariant({
             dataType: this.dataType,
             region: new Region({
                 chromosome: this.region.chromosome,
@@ -197,7 +198,7 @@ FeatureTrack.prototype.draw = function () {
     this.updateHeight();
 };
 
-FeatureTrack.prototype.move = function (disp) {
+VariantTrack.prototype.move = function (disp) {
     var _this = this;
 
     this.dataType = 'features';
@@ -219,7 +220,8 @@ FeatureTrack.prototype.move = function (disp) {
     if (typeof this.visibleRegionSize === 'undefined' || this.region.length() < this.visibleRegionSize) {
 
         if (disp > 0 && virtualStart < this.svgCanvasLeftLimit) {
-            this.dataAdapter.getData({
+            console.log("a por las variantes dentro del rendderer")
+            this.dataAdapter.getVariant({
                 dataType: this.dataType,
                 region: new Region({
                     chromosome: _this.region.chromosome,
@@ -240,7 +242,7 @@ FeatureTrack.prototype.move = function (disp) {
         }
 
         if (disp < 0 && virtualEnd > this.svgCanvasRightLimit) {
-            this.dataAdapter.getData({
+            this.dataAdapter.getVariant({
                 dataType: this.dataType,
                 region: new Region({
                     chromosome: _this.region.chromosome,
