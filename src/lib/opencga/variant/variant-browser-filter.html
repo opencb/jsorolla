@@ -220,49 +220,49 @@
                                 <template is="dom-if" if="{{isFamilyAnalysis}}">
                                     <label><i class="fa fa-sitemap" aria-hidden="true"></i>&nbsp;&nbsp;Family Analysis</label>
                                     <br>
-                                    Not ready yet, work in progress.
-                                    <!--<span>Select family: &nbsp;-->
-                                        <!--<button data-toggle="modal" role="button" data-placement="bottom" data-target$="#{{prefix}}SampleBrowser" on-click="refreshSegregationTable">-->
-                                            <!--Browse...-->
-                                        <!--</button>-->
-                                    <!--</span>-->
-                                    <!--<br>-->
-                                    <!--<br>-->
-                                    <!--<div class="dropdown">-->
-                                        <!--<span>Inheritance mode: &nbsp;-->
-                                        <!--<button class="btn btn-default btn-sm dropdown-toggle" type="button" id="segregationPrioritizationDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">-->
-                                            <!--{{segregation}}-->
-                                            <!--<span class="caret"></span>-->
-                                        <!--</button>-->
-                                        <!--<ul class="dropdown-menu" aria-labelledby="segregationPrioritizationDropdown" on-click="selectSegregation">-->
-                                            <!--<template is="dom-repeat" items="{{config.segregation}}">-->
-                                                <!--<li><a>{{item}}</a></li>-->
-                                            <!--</template>-->
-                                        <!--</ul>-->
-                                        <!--</span>-->
-                                    <!--</div>-->
+                                    <!--Not ready yet, work in progress.-->
+                                    <span>Select family: &nbsp;
+                                        <button data-toggle="modal" role="button" data-placement="bottom" data-target$="#{{prefix}}SampleBrowser" on-click="refreshSegregationTable">
+                                            Browse...
+                                        </button>
+                                    </span>
+                                    <br>
+                                    <br>
+                                    <div class="dropdown">
+                                        <span>Inheritance mode: &nbsp;
+                                        <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="segregationPrioritizationDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                            {{segregation}}
+                                            <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu" aria-labelledby="segregationPrioritizationDropdown" on-click="selectSegregation">
+                                            <template is="dom-repeat" items="{{config.segregation}}">
+                                                <li><a>{{item}}</a></li>
+                                            </template>
+                                        </ul>
+                                        </span>
+                                    </div>
 
-                                    <!--<table class="table table-hover" id="segregationTable">-->
-                                        <!--<thead>-->
-                                        <!--<tr>-->
-                                            <!--<th>Sample</th>-->
-                                            <!--<th>0/0</th>-->
-                                            <!--<th>0/1</th>-->
-                                            <!--<th>1/1</th>-->
-                                        <!--</tr>-->
-                                        <!--</thead>-->
-                                        <!--<tbody>-->
-                                        <!--<template is="dom-repeat" items="{{_samples}}" as="sample">-->
-                                            <!--<tr id="{{sample.name}}">-->
-                                                <!--<td id="{{prefix}}{{sample.name}}RowName" class$="{{sample.className}}">{{sample.name}}&nbsp;({{sample.role}})</td>-->
-                                                <!--<td><input type="checkbox" value="0|0" data-id="{{sample.name}}" on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>-->
-                                                <!--<td><input type="checkbox" value="0|1" data-id="{{sample.name}}" on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>-->
-                                                <!--<td><input type="checkbox" value="1|1" data-id="{{sample.name}}" on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>-->
-                                            <!--</tr>-->
-                                        <!--</template>-->
-                                        <!--</tbody>-->
-                                    <!--</table>-->
-                                    <!--<input type="checkbox" value="./." on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox">&nbsp;Include missing-->
+                                    <table class="table table-hover" id="segregationTable">
+                                        <thead>
+                                        <tr>
+                                            <th>Sample</th>
+                                            <th>0/0</th>
+                                            <th>0/1</th>
+                                            <th>1/1</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <template is="dom-repeat" items="{{_samples}}" as="sample">
+                                            <tr id="{{sample.name}}">
+                                                <td id="{{prefix}}{{sample.name}}RowName" class$="{{sample.className}}">{{sample.name}}&nbsp;({{sample.role}})</td>
+                                                <td><input type="checkbox" value="0|0" data-id="{{sample.name}}" on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
+                                                <td><input type="checkbox" value="0|1" data-id="{{sample.name}}" on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
+                                                <td><input type="checkbox" value="1|1" data-id="{{sample.name}}" on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
+                                            </tr>
+                                        </template>
+                                        </tbody>
+                                    </table>
+                                    <input type="checkbox" value="./." on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox">&nbsp;Include missing
                                 </template>
 
                                 <template is="dom-if" if="{{isCancerAnalysis}}">
