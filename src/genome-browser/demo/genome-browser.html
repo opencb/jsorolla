@@ -2,60 +2,26 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Genome Viewer Demo</title>
+    <title>Genome Browser demo</title>
 
-    <!-- build:[href] vendor/fontawesome/css/ -->
     <link rel="stylesheet" href="../../../node_modules/font-awesome/css/font-awesome.min.css">
-    <!-- /build -->
-
-    <!-- build:[href] vendor/qtip2/ -->
     <link rel="stylesheet" href="../../../node_modules/qtip2/dist/jquery.qtip.min.css">
-    <!-- /build -->
-
-    <!-- build:[href] styles/css/ -->
     <link rel="stylesheet" href="../../../styles/css/style.css">
-    <!-- /build -->
 
-
-    <!-- build:[src] vendor/underscore/ -->
     <script type="text/javascript" src="../../../node_modules/underscore/underscore-min.js"></script>
-    <!-- /build -->
-
-    <!-- build:[src] vendor/backbone/ -->
     <script type="text/javascript" src="../../../node_modules/backbone/backbone.js"></script>
-    <!-- /build -->
-
-    <!-- build:[src] vendor/jquery/dist/ -->
     <script type="text/javascript" src="../../../node_modules/jquery/dist/jquery.min.js"></script>
-    <!-- /build -->
-
-    <!-- build:[src] vendor/qtip2/ -->
     <script type="text/javascript" src="../../../node_modules/qtip2/dist/jquery.qtip.min.js"></script>
-    <!-- /build -->
-
-    <!-- build:[src] vendor/uri.js/src/ -->
     <script type="text/javascript" src="../../../node_modules/urijs/src/URI.min.js"></script>
-    <!-- /build -->
-
-    <!-- build:[src] vendor/cookies.js/src/ -->
     <script type="text/javascript" src="../../../node_modules/cookies-js/src/cookies.js"></script>
-    <!-- /build -->
-
-    <!-- build:[src] vendor/crypto.js/src/ -->
     <script type="text/javascript" src="../../../node_modules/crypto-js/crypto-js.js"></script>
-    <!-- /build -->
-
 
     <script type="text/javascript" src="../gv-config.js"></script>
 
-    <!-- build:js genome-viewer.min.js -->
     <script type="text/javascript" src="../../lib/svg.js"></script>
     <script type="text/javascript" src="../../lib/utils.js"></script>
     <script type="text/javascript" src="../../lib/region.js"></script>
     <script type="text/javascript" src="../../lib/feature-binary-search-tree.js"></script>
-    <!--<script type="text/javascript" src="../lib/cellbase-manager.js"></script> deprecated-->
-    <!--<script type="text/javascript" src="../lib/ensembl-manager.js"></script> deprecated-->
-    <!--<script type="text/javascript" src="../lib/opencga-manager.js"></script> deprecated-->
 
     <script type="text/javascript" src="../../lib/cache/file-feature-cache.js"></script>
     <script type="text/javascript" src="../../lib/cache/feature-chunk-cache.js"></script>
@@ -63,12 +29,8 @@
     <script type="text/javascript" src="../../lib/cache/indexedDB-store.js"></script>
     <script type="text/javascript" src="../../lib/cache/bam-cache.js"></script>
 
-
-    <!--<script type="text/javascript" src="../lib/data-adapter/feature/ensembl-adapter.js"></script> deprecated-->
-    <!--<script type="text/javascript" src="../lib/data-adapter/feature/opencga-adapter.js"></script> deprecated-->
     <script type="text/javascript" src="../../lib/data-adapter/feature/feature-template-adapter.js"></script>
 
-    <!--**-->
     <script type="text/javascript" src="../../lib/data-adapter/feature/feature-data-adapter.js"></script>
     <script type="text/javascript" src="../../lib/data-adapter/feature/vcf-data-adapter.js"></script>
     <script type="text/javascript" src="../../lib/data-adapter/feature/gff2-data-adapter.js"></script>
@@ -78,7 +40,6 @@
     <script type="text/javascript" src="../../lib/data-source/data-source.js"></script>
     <script type="text/javascript" src="../../lib/data-source/string-data-source.js"></script>
     <script type="text/javascript" src="../../lib/data-source/file-data-source.js"></script>
-    <!--**-->
 
     <script type="text/javascript" src="../../lib/widgets/feature/info/info-widget.js"></script>
     <script type="text/javascript" src="../../lib/widgets/feature/info/gene-info-widget.js"></script>
@@ -86,9 +47,6 @@
     <script type="text/javascript" src="../../lib/widgets/feature/info/snp-info-widget.js"></script>
     <script type="text/javascript" src="../../lib/widgets/feature/info/transcript-info-widget.js"></script>
     <script type="text/javascript" src="../../lib/widgets/feature/info/vcf-variant-info-widget.js"></script>
-
-    <!-- <script type="text/javascript" src="../../check-deprecated/legend-panel.js"></script> -->
-    <!-- <script type="text/javascript" src="../../check-deprecated/legend-widget.js"></script> -->
 
     <script type="text/javascript" src="../../lib/widgets/ux-window.js"></script>
 
@@ -115,40 +73,15 @@
     <script type="text/javascript" src="../renderers/alignment-renderer.js"></script>
     <script type="text/javascript" src="../renderers/variant-renderer.js"></script>
 
-
-    <!--<script type="text/javascript" src="fakeBam.js"></script>-->
-
-
     <script type="text/javascript" src="../genome-browser.js"></script>
-    <!-- /build -->
-
 
     <!-- ES6 -->
     <script type="text/javascript" src="../../lib/data-adapter/feature/cellbase-adapter-new.js"></script>
     <script type="text/javascript" src="../../lib/data-adapter/feature/opencga-adapter-new.js"></script>
     <script type="text/javascript" src="../../lib/cache/indexeddb-cache.js"></script>
     <script type="text/javascript" src="../../lib/clients/cellbase-client.js"></script>
-    <!--<script type="text/javascript" src="../lib/clients/cellbase-client-config.js"></script> deprecated removed-->
     <script type="text/javascript" src="../../lib/clients/rest-client.js"></script>
     <script type="text/javascript" src="../../lib/clients/opencga-client.js"></script>
-    <!--<script type="text/javascript" src="../lib/clients/opencga-client-config.js"></script> deprecated removed-->
-
-
-    <!-- Google Analytics -->
-    <script type="text/javascript">
-        var _gaq = _gaq || [];
-        _gaq.push(['_setAccount', 'UA-16414504-2']);
-        _gaq.push(['_trackPageview']);
-        (function() {
-            var ga = document.createElement('script');
-            ga.type = 'text/javascript';
-            ga.async = true;
-            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-            var s = document.getElementsByTagName('script')[0];
-            s.parentNode.insertBefore(ga, s);
-        })();
-    </script>
-
 
     <style type="text/css">
         html {
@@ -173,299 +106,325 @@
             color: gray;
         }
     </style>
-
 </head>
 
 <body class="ocb">
+    <div id="title">Genome Viewer</div>
+    <div id="application"></div>
 
-<div id="title">Genome Viewer</div>
-<div id="application"></div>
+    <script type="text/javascript">
+        // We first parse URL to check (and overwrite) if a CellBase Host and Version have been provided
+        var queryParams = URI.parseQuery(window.location.search);
+        if (typeof queryParams.CELLBASE_HOST !== "undefined") {
+            CELLBASE_HOST = queryParams.CELLBASE_HOST;
+        }
+        if (typeof queryParams.CELLBASE_VERSION !== "undefined") {
+            CELLBASE_VERSION = queryParams.CELLBASE_VERSION;
+        }
+        console.log("CellBase Host: " + CELLBASE_HOST, " - CellBase Version: " + CELLBASE_VERSION)
+        var cellBaseClientConfig = new CellBaseClientConfig(hosts = CELLBASE_HOST, version = CELLBASE_VERSION);
+        cellBaseClientConfig.cache.active = false;
+        var cellbaseClient = new CellBaseClient(cellBaseClientConfig);
+        // We parse the URL to check (and overwrite) the OPENCGA parameters as well
+        if (typeof queryParams.OPENCGA_HOST !== "undefined") {
+            OPENCGA_HOST = queryParams.OPENCGA_HOST;
+        }
+        if (typeof queryParams.OPENCGA_USER !== "undefined") {
+            OPENCGA_USER = queryParams.OPENCGA_USER;
+        }
+        if (typeof queryParams.OPENCGA_PASSWORD !== "undefined") {
+            OPENCGA_PASSWORD = queryParams.OPENCGA_PASSWORD;
+        }
 
-<script type="text/javascript">
-    // We first parse URL to check (and overwrite) if a CellBase Host and Version have been provided
-    var queryParams = URI.parseQuery(window.location.search);
-    if (typeof queryParams.CELLBASE_HOST !== "undefined") {
-        CELLBASE_HOST = queryParams.CELLBASE_HOST;
-    }
-    if (typeof queryParams.CELLBASE_VERSION !== "undefined") {
-        CELLBASE_VERSION = queryParams.CELLBASE_VERSION;
-    }
-    console.log("CellBase Host: " + CELLBASE_HOST, " - CellBase Version: " + CELLBASE_VERSION)
-    var cellBaseClientConfig = new CellBaseClientConfig(hosts = CELLBASE_HOST, version = CELLBASE_VERSION);
-    cellBaseClientConfig.cache.active = false;
-    var cellbaseClient = new CellBaseClient(cellBaseClientConfig);
-    // We parse the URL to check (and overwrite) the OPENCGA parameters as well
-    if (typeof queryParams.OPENCGA_HOST !== "undefined") {
-        OPENCGA_HOST = queryParams.OPENCGA_HOST;
-    }
-    if (typeof queryParams.OPENCGA_USER !== "undefined") {
-        OPENCGA_USER = queryParams.OPENCGA_USER;
-    }
-    if (typeof queryParams.OPENCGA_PASSWORD !== "undefined") {
-        OPENCGA_PASSWORD = queryParams.OPENCGA_PASSWORD;
-    }
-    console.log("Opencga host: " + OPENCGA_HOST, " - User: " + OPENCGA_USER, " - Password: " + OPENCGA_PASSWORD);
-    var opencgaClientConfig = new OpenCGAClientConfig(OPENCGA_HOST);
-    opencgaClientConfig.setPrefix("gm");
-    var opencgaClient = new OpenCGAClient(opencgaClientConfig);
-    //    opencgaClient.users().login(OPENCGA_USER, OPENCGA_PASSWORD)
-    //            .then(function() {
-    //                console.log("User " + OPENCGA_USER + " successfully logged in in opencga.");
-    //                opencgaClient = new OpenCGAClient(opencgaClientConfig);
-    //            })
-    //            .catch(function(e) {
-    //                console.log("Error logging in " + OPENCGA_USER, e);
-    //            });
-    // Take the file id to show the alignment track
-    let fileId;
-    if (typeof queryParams.BAM_NAME !== "undefined") {
-        fileId = queryParams.BAM_NAME;
-    }
-    let study;
-    if (typeof queryParams.STUDY !== "undefined") {
-        study = queryParams.STUDY;
-    }
-    var genomeViewer;
-    var region = new Region({chromosome: "21", start: 17299927, end: 17300073});
-    //        var region = new Region({chromosome: "X", start: 139865187, end: 139865193});
-    getSpecies(function(s) {
-        AVAILABLE_SPECIES = s;
-        run();
-    });
-    function getSpecies(callback) {
-        cellbaseClient.getMeta("species").then(function(r) {
-            var taxonomies = r.response[0].result[0];
-            for (var taxonomy in taxonomies) {
-                var newSpecies = [];
-                for (var i = 0; i < taxonomies[taxonomy].length; i++) {
-                    var species = taxonomies[taxonomy][i];
-                    for (var j = 0; j < species.assemblies.length; j++) {
-                        var s = Utils.clone(species)
-                        s.assembly = species.assemblies[j];
-                        delete s.assemblies;
-                        newSpecies.push(s)
+        console.log("Opencga host: " + OPENCGA_HOST, " - User: " + OPENCGA_USER, " - Password: " + OPENCGA_PASSWORD);
+        var opencgaClientConfig = new OpenCGAClientConfig(OPENCGA_HOST);
+        opencgaClientConfig.setPrefix("gm");
+        var opencgaClient = new OpenCGAClient(opencgaClientConfig);
+        //    opencgaClient.users().login(OPENCGA_USER, OPENCGA_PASSWORD)
+        //            .then(function() {
+        //                console.log("User " + OPENCGA_USER + " successfully logged in in opencga.");
+        //                opencgaClient = new OpenCGAClient(opencgaClientConfig);
+        //            })
+        //            .catch(function(e) {
+        //                console.log("Error logging in " + OPENCGA_USER, e);
+        //            });
+        // Take the file id to show the alignment track
+        let fileId;
+        if (typeof queryParams.BAM_NAME !== "undefined") {
+            fileId = queryParams.BAM_NAME;
+        }
+        let study;
+        if (typeof queryParams.STUDY !== "undefined") {
+            study = queryParams.STUDY;
+        }
+        var genomeBrowser;
+        var region = new Region({chromosome: "13", start: 32889611, end: 32973805});
+        getSpecies(function(s) {
+            AVAILABLE_SPECIES = s;
+            run();
+        });
+        function getSpecies(callback) {
+            cellbaseClient.getMeta("species").then(function(r) {
+                var taxonomies = r.response[0].result[0];
+                for (var taxonomy in taxonomies) {
+                    var newSpecies = [];
+                    for (var i = 0; i < taxonomies[taxonomy].length; i++) {
+                        var species = taxonomies[taxonomy][i];
+                        for (var j = 0; j < species.assemblies.length; j++) {
+                            var s = Utils.clone(species)
+                            s.assembly = species.assemblies[j];
+                            delete s.assemblies;
+                            newSpecies.push(s)
+                        }
                     }
+                    taxonomies[taxonomy] = newSpecies;
                 }
-                taxonomies[taxonomy] = newSpecies;
-            }
-            callback(taxonomies);
-        });
-    }
-    function run() {
-        var species = AVAILABLE_SPECIES.vertebrates[0];
-        genomeViewer = new GenomeBrowser({
-            client: cellbaseClient,
-            cellBaseHost: CELLBASE_HOST,
-            cellBaseVersion: CELLBASE_VERSION,
-            target: 'application',
-            width: document.querySelector('#application').getBoundingClientRect().width,
-            region: region,
-            availableSpecies: AVAILABLE_SPECIES,
-            species: species,
-            sidePanel: false,
-            autoRender: true,
-            resizable: true,
-            karyotypePanelConfig: {
-                collapsed: true,
-                collapsible: true
-            },
-            chromosomePanelConfig: {
-                collapsed: true,
-                collapsible: true
-            },
-            navigationBarConfig: {
-                componentsConfig: {
-                }
-            },
-            handlers: {
-                'region:change': function(e) {
-                    console.log(e)
-                }
-            }
-        });
-        tracks = [];
-        this.sequence = new FeatureTrack({
-            title: 'Sequence',
-            height: 20,
-            visibleRegionSize: 200,
-            renderer: new SequenceRenderer(),
-            dataAdapter: new CellBaseAdapter(cellbaseClient, "genomic", "region", "sequence", {}, { chunkSize: 100})
-        });
-        tracks.push(this.sequence);
-        this.gene = new FeatureTrack({
-            title: 'Gene',
-            minHistogramRegionSize: 20000000,
-            maxLabelRegionSize: 10000000,
-            minTranscriptRegionSize: 200000,
-            height: 100,
-            renderer: new GeneRenderer({
+                callback(taxonomies);
+            });
+        }
+        function run() {
+            var species = AVAILABLE_SPECIES.vertebrates[0];
+            genomeBrowser = new GenomeBrowser({
+                client: cellbaseClient,
+                cellBaseHost: CELLBASE_HOST,
+                cellBaseVersion: CELLBASE_VERSION,
+                target: 'application',
+                width: document.querySelector('#application').getBoundingClientRect().width,
+                region: region,
+                availableSpecies: AVAILABLE_SPECIES,
+                species: species,
+                sidePanel: false,
+                autoRender: true,
+                resizable: true,
+                karyotypePanelConfig: {
+                    collapsed: false,
+                    collapsible: true
+                },
+                chromosomePanelConfig: {
+                    collapsed: false,
+                    collapsible: true
+                },
+                navigationBarConfig: {
+                    componentsConfig: {
+                    }
+                },
                 handlers: {
-                    'feature:click': function(e) {
+                    'region:change': function(e) {
                         console.log(e)
                     }
                 }
-            }),
-            dataAdapter: new CellBaseAdapter(cellbaseClient, "genomic", "region", "gene",
-                    {
-                        exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence'
-                    }, {
-                        chunkSize: 100000
-                    })
-        });
-        tracks.push(this.gene);
-//        let variant = new VariantTrack({
-//            title: "Variant",
-//            closable: true,
-//            minHistogramRegionSize: 20000000,
-//            maxLabelRegionSize: 10000000,
-//            minTranscriptRegionSize: 200000,
-//            visibleRegionSize: 100000000,
-//            height: 300,
-//            renderer: new VariantRenderer(FEATURE_TYPES.variant),
-//            dataAdapter: new OpencgaAdapter(opencgaClient, "analysis/variant", undefined, "query",
-//                    {
-//                        studies:"reference_grch37:1kG_phase3"
-////                        exclude: "studies"
-//                    }, {
-//                        chunkSize: 100000
-//                    })
-//        });
-        //tracks.push(variant);
-        /*******************/
-        /*******************/
-        /*******************/
-//        var objectVariant ={sampleNames:[]};
-//        _.extend(objectVariant, FEATURE_TYPES.variant);
-//        var request = new XMLHttpRequest();
-//        var url = "http://bioinfodev.hpc.cam.ac.uk/hgva-1.2.0-dev/webservices/rest/v1/analysis/variant/query?studies=reference_grch37:1kG_phase3&samplesMetadata=true&region=false";
-//        request.onload = function () {
-//            objectVariant.sampleNames = JSON.parse(this.response).response[0].samples;
-//            console.log(objectVariant.sampleNames);
-//            var t = new FeatureTrack({
-//                title: 'Variant',
-//                closable: true,
-//                minHistogramRegionSize: 20000000,
-//                maxLabelRegionSize: 10000000,
-//                minTranscriptRegionSize: 200000,
-//                histogramColor: '#92de47',
-//                height: 100,
-////            renderer: new FeatureRenderer(),
-//                renderer: new VariantRenderer(objectVariant),
-//                dataAdapter: new FeatureTemplateAdapter({
-//                    multiRegions: false,
-//                    histogramMultiRegions: false,
-//                    uriTemplate: "http://bioinfodev.hpc.cam.ac.uk/hgva-1.1.0-dev/webservices/rest/v1/analysis/variant/query?region={region}&studies={studies}",
-//                    templateVariables: {
-//                        studies: "reference_grch37:1kG_phase3"
+            });
+
+            tracks = [];
+            this.sequence = new FeatureTrack({
+                title: 'Sequence',
+                height: 20,
+                visibleRegionSize: 200,
+                renderer: new SequenceRenderer(),
+                dataAdapter: new CellBaseAdapter(cellbaseClient, "genomic", "region", "sequence", {}, { chunkSize: 100})
+            });
+            tracks.push(this.sequence);
+
+            this.gene = new FeatureTrack({
+                title: 'Gene',
+                minHistogramRegionSize: 20000000,
+                maxLabelRegionSize: 10000000,
+                minTranscriptRegionSize: 200000,
+                height: 120,
+                renderer: new GeneRenderer({
+                    handlers: {
+                        'feature:click': function(e) {
+                            console.log(e)
+                        }
+                    }
+                }),
+                dataAdapter: new CellBaseAdapter(cellbaseClient, "genomic", "region", "gene",
+                        {
+                            exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence'
+                        }, {
+                            chunkSize: 100000
+                        })
+            });
+            tracks.push(this.gene);
+
+//            this.snp = new FeatureTrack({
+//                title: 'Variation',
+//                featureType: 'SNP',
+//                minHistogramRegionSize: 12000,
+//                maxLabelRegionSize: 3000,
+//                height: 120,
+//
+//                renderer: new FeatureRenderer(FEATURE_TYPES.snp),
+//
+//                dataAdapter: new CellBaseAdapter({
+//                    category: "genomic",
+//                    subCategory: "region",
+//                    resource: "snp",
+//                    params: {
+//                        exclude: 'annotation.populationFrequencies,annotation.additionalAttributes,transcriptVariations,xrefs,samples'
 //                    },
 //                    species: genomeViewer.species,
 //                    cacheConfig: {
-//                        chunkSize: 100000
-//                    },
-//                    parse: function(response) {
-//                        var chunks = [];
-//                        for(var i = 0; i< response.response.length; i++){
-//                            var res = response.response[i].result;
-////                        res._sampleNames = response.response[i].samples;
-////
-////
-////                        for(var j = 0; j < res.length; j++){
-////                            res[j]["samples"] = response.response[i].samples;
-////                        }
-//                            chunks.push(res);
-//                        }
-//                        console.log("Los chunks son:");
-//                        console.log(chunks);
-//                        return chunks;
+//                        chunkSize: 10000
 //                    }
 //                })
 //            });
-//            tracks.push(t);
-//        };
-//        request.onerror = function () {
-//            console.log('Server error');
-//        };
-//        request.open('GET', url, false);
-//        console.log(url);
-//        request.send();
-//        var t = new FeatureTrack({
-//            title: 'test',
-//            closable: true,
-//            minHistogramRegionSize: 20000000,
-//            maxLabelRegionSize: 10000000,
-//            minTranscriptRegionSize: 200000,
-//            histogramColor: '#92de47',
-//            height: 100,
-////            renderer: new FeatureRenderer(),
-//            renderer: new VariantRenderer(objectVariant),
-//            dataAdapter: new FeatureTemplateAdapter({
-//                multiRegions: false,
-//                histogramMultiRegions: false,
-//                uriTemplate: "http://bioinfodev.hpc.cam.ac.uk/hgva-1.2.0-dev/webservices/rest/v1/analysis/variant/query?region={region}&studies={studies}",
-//                templateVariables: {
-//                    studies: "reference_grch37:1kG_phase3"
-//                },
-//                species: genomeViewer.species,
-//                cacheConfig: {
-//                    chunkSize: 100000
-//                },
-//                parse: function(response) {
-//                    var chunks = [];
-//                    for(var i = 0; i< response.response.length; i++){
-//                        var res = response.response[i].result;
-////                        res._sampleNames = response.response[i].samples;
-////
-////
-////                        for(var j = 0; j < res.length; j++){
-////                            res[j]["samples"] = response.response[i].samples;
-////                        }
-//                        chunks.push(res);
-//                    }
-//                    console.log("Los chunks son:");
-//                    console.log(chunks);
-//                    return chunks;
-//                }
-//            })
-//        });
-        //tracks.push(t);
-        /*******************/
-        /*******************/
-//        let alignment = new AlignmentTrack({
-//            title: "Alignment",
-//            closable: true,
-//            minHistogramRegionSize: 5000,
-//            maxLabelRegionSize: 3000,
-//            visibleRegionSize: 100000000,
-//            height: 300,
-//            renderer: new AlignmentRenderer(FEATURE_TYPES.alignment),
-//            dataAdapter: new OpencgaAdapter(opencgaClient, "analysis/alignment", undefined, "query",
-//                    {
-//                        fileId: fileId,
-//                        study: study
-//                    })
-//        });
-//        tracks.push(alignment);
 //
-//        let gene = new FeatureTrack({
-//            minHistogramRegionSize: 20000000,
-//            maxLabelRegionSize: 10000000,
-//            height: 100,
-//
-//            renderer: new FeatureRenderer(FEATURE_TYPES.gene),
-//
-//            dataAdapter: new CellBaseAdapter(cellbaseClient, "genomic", "region", "gene",
-//                    {
-//                        exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence'
-//                    }, {
-//                        chunkSize: 100000
-//                    })
-//        });
-//
-//        genomeViewer.addOverviewTrack(gene);
-        genomeViewer.addTrack(tracks);
-        genomeViewer.draw();
-    }
-</script>
+//            tracks.push(this.snp);
+
+    //        let variant = new VariantTrack({
+    //            title: "Variant",
+    //            closable: true,
+    //            minHistogramRegionSize: 20000000,
+    //            maxLabelRegionSize: 10000000,
+    //            minTranscriptRegionSize: 200000,
+    //            visibleRegionSize: 100000000,
+    //            height: 300,
+    //            renderer: new VariantRenderer(FEATURE_TYPES.variant),
+    //            dataAdapter: new OpencgaAdapter(opencgaClient, "analysis/variant", undefined, "query",
+    //                    {
+    //                        studies:"reference_grch37:1kG_phase3"
+    ////                        exclude: "studies"
+    //                    }, {
+    //                        chunkSize: 100000
+    //                    })
+    //        });
+            //tracks.push(variant);
+            /*******************/
+            /*******************/
+            /*******************/
+    //        var objectVariant ={sampleNames:[]};
+    //        _.extend(objectVariant, FEATURE_TYPES.variant);
+    //        var request = new XMLHttpRequest();
+    //        var url = "http://bioinfodev.hpc.cam.ac.uk/hgva-1.2.0-dev/webservices/rest/v1/analysis/variant/query?studies=reference_grch37:1kG_phase3&samplesMetadata=true&region=false";
+    //        request.onload = function () {
+    //            objectVariant.sampleNames = JSON.parse(this.response).response[0].samples;
+    //            console.log(objectVariant.sampleNames);
+    //            var t = new FeatureTrack({
+    //                title: 'Variant',
+    //                closable: true,
+    //                minHistogramRegionSize: 20000000,
+    //                maxLabelRegionSize: 10000000,
+    //                minTranscriptRegionSize: 200000,
+    //                histogramColor: '#92de47',
+    //                height: 100,
+    ////            renderer: new FeatureRenderer(),
+    //                renderer: new VariantRenderer(objectVariant),
+    //                dataAdapter: new FeatureTemplateAdapter({
+    //                    multiRegions: false,
+    //                    histogramMultiRegions: false,
+    //                    uriTemplate: "http://bioinfodev.hpc.cam.ac.uk/hgva-1.1.0-dev/webservices/rest/v1/analysis/variant/query?region={region}&studies={studies}",
+    //                    templateVariables: {
+    //                        studies: "reference_grch37:1kG_phase3"
+    //                    },
+    //                    species: genomeViewer.species,
+    //                    cacheConfig: {
+    //                        chunkSize: 100000
+    //                    },
+    //                    parse: function(response) {
+    //                        var chunks = [];
+    //                        for(var i = 0; i< response.response.length; i++){
+    //                            var res = response.response[i].result;
+    ////                        res._sampleNames = response.response[i].samples;
+    ////
+    ////
+    ////                        for(var j = 0; j < res.length; j++){
+    ////                            res[j]["samples"] = response.response[i].samples;
+    ////                        }
+    //                            chunks.push(res);
+    //                        }
+    //                        console.log("Los chunks son:");
+    //                        console.log(chunks);
+    //                        return chunks;
+    //                    }
+    //                })
+    //            });
+    //            tracks.push(t);
+    //        };
+    //        request.onerror = function () {
+    //            console.log('Server error');
+    //        };
+    //        request.open('GET', url, false);
+    //        console.log(url);
+    //        request.send();
+    //        var t = new FeatureTrack({
+    //            title: 'test',
+    //            closable: true,
+    //            minHistogramRegionSize: 20000000,
+    //            maxLabelRegionSize: 10000000,
+    //            minTranscriptRegionSize: 200000,
+    //            histogramColor: '#92de47',
+    //            height: 100,
+    ////            renderer: new FeatureRenderer(),
+    //            renderer: new VariantRenderer(objectVariant),
+    //            dataAdapter: new FeatureTemplateAdapter({
+    //                multiRegions: false,
+    //                histogramMultiRegions: false,
+    //                uriTemplate: "http://bioinfodev.hpc.cam.ac.uk/hgva-1.2.0-dev/webservices/rest/v1/analysis/variant/query?region={region}&studies={studies}",
+    //                templateVariables: {
+    //                    studies: "reference_grch37:1kG_phase3"
+    //                },
+    //                species: genomeViewer.species,
+    //                cacheConfig: {
+    //                    chunkSize: 100000
+    //                },
+    //                parse: function(response) {
+    //                    var chunks = [];
+    //                    for(var i = 0; i< response.response.length; i++){
+    //                        var res = response.response[i].result;
+    ////                        res._sampleNames = response.response[i].samples;
+    ////
+    ////
+    ////                        for(var j = 0; j < res.length; j++){
+    ////                            res[j]["samples"] = response.response[i].samples;
+    ////                        }
+    //                        chunks.push(res);
+    //                    }
+    //                    console.log("Los chunks son:");
+    //                    console.log(chunks);
+    //                    return chunks;
+    //                }
+    //            })
+    //        });
+            //tracks.push(t);
+            /*******************/
+            /*******************/
+    //        let alignment = new AlignmentTrack({
+    //            title: "Alignment",
+    //            closable: true,
+    //            minHistogramRegionSize: 5000,
+    //            maxLabelRegionSize: 3000,
+    //            visibleRegionSize: 100000000,
+    //            height: 300,
+    //            renderer: new AlignmentRenderer(FEATURE_TYPES.alignment),
+    //            dataAdapter: new OpencgaAdapter(opencgaClient, "analysis/alignment", undefined, "query",
+    //                    {
+    //                        fileId: fileId,
+    //                        study: study
+    //                    })
+    //        });
+    //        tracks.push(alignment);
+    //
+    //        let gene = new FeatureTrack({
+    //            minHistogramRegionSize: 20000000,
+    //            maxLabelRegionSize: 10000000,
+    //            height: 100,
+    //
+    //            renderer: new FeatureRenderer(FEATURE_TYPES.gene),
+    //
+    //            dataAdapter: new CellBaseAdapter(cellbaseClient, "genomic", "region", "gene",
+    //                    {
+    //                        exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence'
+    //                    }, {
+    //                        chunkSize: 100000
+    //                    })
+    //        });
+    //
+    //        genomeViewer.addOverviewTrack(gene);
+            genomeBrowser.addTrack(tracks);
+            genomeBrowser.draw();
+        }
+    </script>
 
 </body>
 </html>
