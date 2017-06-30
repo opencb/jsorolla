@@ -84,10 +84,12 @@
                         _this.$.opencgaUser.value = "";
                         _this.$.opencgaPassword.value = "";
                         _this.$.incorrect.hidden = true;
-                        _this.fire('login', {
-                            userId: user,
-                            sessionId: response.response[0].result[0].id
-                        });
+                        _this.dispatchEvent(new CustomEvent('login', {
+                            detail: {
+                                userId: user,
+                                sessionId: response.response[0].result[0].id
+                            }, bubbles: true, composed: true
+                        }));
                     })
                     .catch(function(response) {
                         this.errorMessage = response.error;

@@ -13,15 +13,17 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<link rel="import" href="../opencga-message-dialog.html">
+<!--<link rel="import" href="../opencga-message-dialog.html">-->
 
 <dom-module id="variant-clinical-upload">
     <template>
-        <style is="custom-style" include="jso-styles">
-            .title {
-                margin: 30px 5px 25px -40px;
-            }
-        </style>
+        <custom-style>
+            <style include="jso-styles">
+                .title {
+                    margin: 30px 5px 25px -40px;
+                }
+            </style>
+        </custom-style>
 
         <div class="col-md-12">
             <div style="width: 60%; margin: 0px 0px 0px 90px">
@@ -500,56 +502,65 @@
             </div>
         </div>
 
-        <opencga-message-dialog opencga-client="{{opencgaClient}}" show-message-modal="{{showMessageModal}}" settings-message-modal="{{settingsMessageModal}}"></opencga-message-dialog>
+        <!--<opencga-message-dialog opencga-client="{{opencgaClient}}" show-message-modal="{{showMessageModal}}" settings-message-modal="{{settingsMessageModal}}"></opencga-message-dialog>-->
     </template>
 
     <script>
-        Polymer({
-            is: 'variant-clinical-upload',
-            properties: {
-                opencgaClient: {
-                    type: Object
-                },
-                study: {
-                    type: Number,
-                    observer: 'updateVariableSets'
-                },
-                config: {
-                    type: Object
-                },
-                prefix: {
-                    type: String
-                },
-                variableSets: {
-                    type: Array
-                },
-                variables: {
-                    type: Array,
-                    observer: 'variablesChanged'
-                },
-                minYearBirth: {
-                    type: Number,
-                    value: 1920
-                },
-                minYearTest: {
-                    type: Number,
-                    value: 2005
-                },
-                clearDom: {
-                    type: Object,
-                    observer: "_clearHtmlDom"
-                },
-                showMessageModal: {
-                    type: Boolean,
-                    notify: true
-                },
-                settingsMessageModal: {
-                    type: Object,
-                    notify: true
+        class VariantClinicalUpload extends Polymer.Element {
+            static get is() { return 'variant-clinical-upload'; }
+            static get properties() {
+                return {
+                    opencgaClient: {
+                        type: Object
+                    },
+                    study: {
+                        type: Number,
+                        observer: 'updateVariableSets'
+                    },
+                    config: {
+                        type: Object
+                    },
+                    prefix: {
+                        type: String
+                    },
+                    variableSets: {
+                        type: Array
+                    },
+                    variables: {
+                        type: Array,
+                        observer: 'variablesChanged'
+                    },
+                    minYearBirth: {
+                        type: Number,
+                        value: 1920
+                    },
+                    minYearTest: {
+                        type: Number,
+                        value: 2005
+                    },
+                    clearDom: {
+                        type: Object,
+                        observer: "_clearHtmlDom"
+                    },
+                    showMessageModal: {
+                        type: Boolean,
+                        notify: true
+                    },
+                    settingsMessageModal: {
+                        type: Object,
+                        notify: true
+                    }
                 }
+            }
+            constructor() {
+                super();
+            }
 
-            },
-            ready: function () {
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+            ready() {
+                super.ready();
 
                 if (typeof this.prefix === "undefined" || this.prefix === "") {
                     this.prefix = "upload" + Utils.randomString(6);
@@ -558,7 +569,8 @@
                 let _years = [];
                 let fullDate = new Date();
                 let limitYear = fullDate.getFullYear();
-                for (let year = this.minYearBirth; year<=limitYear; year++)
+                let year = 0;
+                for (year = this.minYearBirth; year<=limitYear; year++)
                 {_years.push(year);}
                 // This change triggers the polymer dom-repeat
                 this.yearsBirth = _years;
@@ -571,9 +583,8 @@
 
                 this._clearHtmlDom();
                 //this.set('icd10Terms', ICD_10);
-            },
-            updateVariableSets: function () {
-
+            }
+            updateVariableSets() {
                 this.variables = [];
                 let _this = this;
                 this.opencgaClient.studies().info(this.study.id, {include: "variableSets"})
@@ -603,41 +614,41 @@
 
                     });
                 this.loadICDEditor();
-            },
-            _sortVariables: function (a, b) {
+            }
+            _sortVariables(a, b) {
                 if (a.rank < b.rank) {
                     return -1;
                 }
                 return 1;
-            },
-            variablesChanged: function () {
+            }
+            variablesChanged() {
                 this._areVariablesEmpty = (this.variables.length === 0);
-            },
-            checkCatType: function (myVar, type, lowerLimit, upperLimit) {
+            }
+            checkCatType(myVar, type, lowerLimit, upperLimit) {
                 return (myVar.type === type && myVar.allowedValues.length >= lowerLimit && myVar.allowedValues.length < upperLimit);
-            },
-            checkVarType: function (myVar, type) {
+            }
+            checkVarType(myVar, type) {
                 return (myVar.type === type);
-            },
-            checkSubType: function (myVar, type) {
+            }
+            checkSubType(myVar, type) {
                 return (myVar.attributes.subtype === type);
-            },
-            isVisible: function (myVar,conf){
+            }
+            isVisible(myVar,conf){
                 let excludeArray = conf.variableSet.exclude
                 for (let index in excludeArray) {
                     if (excludeArray[index].webComponent == this.localName) {
                         return (!($.inArray(myVar.name, excludeArray[index].variables) != -1));
                     } else {return true;}
                 }
-            },
-            checkType: function (str1, str2) {
+            }
+            checkType(str1, str2) {
                 if (str1.search(str2) != -1)
                 {return true;}
                 else
                 {return false;}
 
-            },
-            checkYears: function(e) {
+            }
+            checkYears(e) {
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
 
                 $("#" + this.prefix + "_errorDiv_birthYear").html("");
@@ -683,8 +694,8 @@
                         $("#" + this.prefix + "_errorDiv_testYear").html("Year of Test must be posterior to year of Birth");
                     }
                 }
-            },
-            loadICDEditor: function (e) {
+            }
+            loadICDEditor(e) {
                 $("#" + this.prefix + "errorTermDiv").html("");
                 this.$$("#" + this.prefix + "autoInput").value="";
                 this.icdTerms = this.getICDterms();
@@ -709,8 +720,8 @@
                         revealResults: true,  // reveal matching nodes
                     }]);
                 });
-            },
-            getICDterms: function(){
+            }
+            getICDterms(){
                 // In ICD_10 there are up to three nested levels
                 let _auxTerms = [];
                 for (let i=0; i < ICD_10.length; i++)
@@ -727,8 +738,8 @@
 
                 }
                 return _auxTerms;
-            },
-            selectICD: function(e) {
+            }
+            selectICD(e) {
                 e.preventDefault();
 
                 selectedTerm = this.$$("#" + this.prefix + "autoInput").value.replace(/^\s+/g, '');
@@ -746,8 +757,8 @@
                     this.$$("#" + this.prefix + "diagnosis").value = '';
                     $("#" + this.prefix + "icd").modal('hide');
                 }
-            },
-            updateSelect: function(e){
+            }
+            updateSelect(e){
                 $("#" + this.prefix + "_errorDiv_testAge").html("");
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
                 let currentElementId = e.target.id;
@@ -786,8 +797,8 @@
                         }
                     }
                 }
-            },
-            _clearHtmlDom: function() {
+            }
+            _clearHtmlDom() {
                 $("#" + this.prefix + "uploadForm").validator('destroy');
                 // Empty everything before rendering
                 $("." + this.prefix + "SelectInput").prop('selectedIndex', 0);
@@ -801,8 +812,8 @@
                 $("#" + this.prefix + "germline").prop("checked", true);
 
                 $("#" + this.prefix + "uploadForm").validator('update');
-            },
-            indexVCF: function(fileId){
+            }
+            indexVCF(fileId){
                 // Index and annotate a VCF file in openCGA
                 let params = {
                     file: fileId,
@@ -832,8 +843,8 @@
 
                 this.showMessageModal = true;
                 this._clearHtmlDom();
-            },
-            uploadVCF: function(formFields) {
+            }
+            uploadVCF(formFields) {
                 // Upload VCF file to openCGA
                 if (this.opencgaClient instanceof OpenCGAClient) {
                     params = {
@@ -857,8 +868,8 @@
                             console.log("Could not upload VCF file for the study " + _this.study);
                         });
                 }
-            },
-            openCGAsteps: function(formFields, sampleId) {
+            }
+            openCGAsteps(formFields, sampleId) {
                 // The following steps are run to register the form in openCGA:
                 // 1. Create sample (given an ID) and the individual information related to that sample, together with sample annotation set
                 // 2. Upload VCF
@@ -946,8 +957,8 @@
                             _this.showMessageModal = true;
                         });
                 }
-            },
-            submitForm: function(e) {
+            }
+            submitForm(e) {
                 e.preventDefault();
 
                 // Enable those fields that needed to be enabled to submit a form
@@ -1041,8 +1052,8 @@
 
                     this.showMessageModal = true;
                 }
-            },
-            searchIndividual: function() {
+            }
+            searchIndividual() {
                 if (this.opencgaClient instanceof OpenCGAClient) {
                     // 1. Create individual
                     let params = {
@@ -1095,8 +1106,8 @@
                             _this.showMessageModal = true;
                         });
                 }
-            },
-            showICD: function(){
+            }
+            showICD(){
                 let statusValue = $("#" + this.prefix + "status").find("option:selected").text();
                 if (statusValue === "Control" || statusValue === "Unaffected" ){
                     // For a control or unaffected, disable ICD and make it not mandatory
@@ -1121,6 +1132,7 @@
                 $("#" + this.prefix + "diagnosis").focus();
                 $("#" + this.prefix + "uploadForm").validator('update');
             }
-        });
+        }
+        customElements.define(VariantClinicalUpload.is, VariantClinicalUpload);
     </script>
 </dom-module>
