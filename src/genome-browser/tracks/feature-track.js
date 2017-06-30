@@ -41,6 +41,7 @@ class FeatureTrack {
 
 
         this.invalidZoomText;
+        this.exclude;
 
         this.renderedArea = {}; //used for renders to store binary trees
         this.chunksDisplayed = {}; //used to avoid painting multiple times features contained in more than 1 chunk
@@ -477,9 +478,13 @@ class FeatureTrack {
     render(targetId) {
         this.initializeDom(targetId);
 
+        this._setCanvasConfig();
+    }
+
+    _setCanvasConfig() {
         this.svgCanvasOffset = (this.width * 3 / 2) / this.pixelBase;
         this.svgCanvasLeftLimit = this.region.start - this.svgCanvasOffset * 2;
-        this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset * 2
+        this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset * 2;
     }
 
     getDataHandler(event) {
@@ -510,20 +515,18 @@ class FeatureTrack {
     }
 
     draw() {
-        let _this = this;
-
-        this.svgCanvasOffset = (this.width * 3 / 2) / this.pixelBase;
-        this.svgCanvasLeftLimit = this.region.start - this.svgCanvasOffset * 2;
-        this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset * 2;
+        this.clean();
+        this._setCanvasConfig();
 
         this.updateHistogramParams();
-        this.clean();
 
         this.dataType = 'features';
         if (this.histogram) {
             this.dataType = 'histogram';
         }
-
+//         console.log(this.exclude)
+// debugger
+        let _this = this;
         if (typeof this.visibleRegionSize === 'undefined' || this.region.length() < this.visibleRegionSize) {
             this.setLoading(true);
             this.dataAdapter.getData({
@@ -537,7 +540,8 @@ class FeatureTrack {
                     histogram: this.histogram,
                     histogramLogarithm: this.histogramLogarithm,
                     histogramMax: this.histogramMax,
-                    interval: this.interval
+                    interval: this.interval,
+                    exclude: this.exclude
                 },
                 done: function (event) {
                     _this.getDataHandler(event);

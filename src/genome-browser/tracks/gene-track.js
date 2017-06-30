@@ -48,17 +48,15 @@ class GeneTrack extends FeatureTrack {
     }
 
     draw() {
-        let _this = this;
+        // super.draw();
 
-        this.svgCanvasOffset = (this.width * 3 / 2) / this.pixelBase;
-        this.svgCanvasLeftLimit = this.region.start - this.svgCanvasOffset * 2;
-        this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset * 2;
+        this._setCanvasConfig();
 
         this.updateTranscriptParams();
         this.updateHistogramParams();
         this.clean();
 
-        var dataType = 'features';
+        let dataType = 'features';
         /*
          if (!_.isUndefined(this.exclude)) {
          dataType = 'features' + this.exclude.replace(/[,.]/gi,'');
@@ -68,9 +66,10 @@ class GeneTrack extends FeatureTrack {
             dataType = 'histogram';
         }
 
+        let _this = this;
         if (typeof this.visibleRegionSize === 'undefined' || this.region.length() < this.visibleRegionSize) {
             this.setLoading(true);
-            let data = this.dataAdapter.getData({
+            this.dataAdapter.getData({
                 dataType: dataType,
                 region: new Region({
                     chromosome: this.region.chromosome,
@@ -89,8 +88,6 @@ class GeneTrack extends FeatureTrack {
                     _this.setLoading(false);
                 }
             });
-
-            //        this.invalidZoomText.setAttribute("visibility", "hidden");
         } else {
             //        this.invalidZoomText.setAttribute("visibility", "visible");
         }
