@@ -267,22 +267,23 @@
         });
         tracks.push(this.gene);
 
-        this.snp = new FeatureTrack({
-            title: 'Variation',
-            featureType: 'SNP',
-            minHistogramRegionSize: 12000,
-            maxLabelRegionSize: 3000,
-            height: 120,
+//        this.snp = new FeatureTrack({
+//            title: 'Variation',
+//            featureType: 'SNP',
+//            minHistogramRegionSize: 12000,
+//            maxLabelRegionSize: 3000,
+//            height: 120,
+//
+//            renderer: new FeatureRenderer(FEATURE_TYPES.snp),
+//
+//            dataAdapter: new CellBaseAdapter(cellbaseClient, "genomic", "region", "snp", {
+//                exclude: 'annotation.populationFrequencies,annotation.additionalAttributes,transcriptVariations,xrefs,samples'
+//            }, {
+//                chunkSize: 10000
+//            })
+//        });
+//        tracks.push(this.snp);
 
-            renderer: new FeatureRenderer(FEATURE_TYPES.snp),
-
-            dataAdapter: new CellBaseAdapter(cellbaseClient, "genomic", "region", "snp", {
-                exclude: 'annotation.populationFrequencies,annotation.additionalAttributes,transcriptVariations,xrefs,samples'
-            }, {
-                chunkSize: 10000
-            })
-        });
-        tracks.push(this.snp);
 
 
         //        let variant = new VariantTrack({
