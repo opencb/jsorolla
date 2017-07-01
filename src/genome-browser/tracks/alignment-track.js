@@ -10,8 +10,8 @@ class AlignmentTrack extends FeatureTrack {
     }
 
     getDataHandler(event) {
-        var features;
-        if (event.dataType == 'histogram') {
+        let features;
+        if (event.dataType == "histogram") {
             this.renderer = this.histogramRenderer;
             features = event.items;
         } else {
@@ -54,17 +54,17 @@ class AlignmentTrack extends FeatureTrack {
 
         this.svgCanvasOffset = (this.width * 3 / 2) / this.pixelBase;
         this.svgCanvasLeftLimit = this.region.start - this.svgCanvasOffset * 2;
-        this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset * 2
+        this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset * 2;
 
         this.updateHistogramParams();
         this.clean();
 
-        this.dataType = 'features';
+        this.dataType = "features";
         if (this.histogram) {
-            this.dataType = 'histogram';
+            this.dataType = "histogram";
         }
 
-        if (typeof this.visibleRegionSize === 'undefined' || this.region.length() < this.visibleRegionSize) {
+        if (typeof this.visibleRegionSize === "undefined" || this.region.length() < this.visibleRegionSize) {
             this.setLoading(true);
             this.dataAdapter.getAlignmentData({
                 dataType: this.dataType,
@@ -95,9 +95,9 @@ class AlignmentTrack extends FeatureTrack {
     move(disp) {
         let _this = this;
 
-        this.dataType = 'features';
+        this.dataType = "features";
         if (this.histogram) {
-            this.dataType = 'histogram';
+            this.dataType = "histogram";
         }
 
         _this.region.center();
@@ -110,7 +110,7 @@ class AlignmentTrack extends FeatureTrack {
         let virtualStart = parseInt(this.region.start - this.svgCanvasOffset);
         let virtualEnd = parseInt(this.region.end + this.svgCanvasOffset);
 
-        if (typeof this.visibleRegionSize === 'undefined' || this.region.length() < this.visibleRegionSize) {
+        if (typeof this.visibleRegionSize === "undefined" || this.region.length() < this.visibleRegionSize) {
 
             if (disp > 0 && virtualStart < this.svgCanvasLeftLimit) {
                 _this.setLoading(true);
@@ -169,7 +169,7 @@ class AlignmentTrack extends FeatureTrack {
             return Math.floor(position / response.chunkSize);
         };
         let getChunkKey = function (chromosome, chunkId) {
-            return chromosome + ":" + chunkId + "_" + response.dataType + "_" + response.chunkSize;
+            return `${chromosome}:${chunkId}_${response.dataType}_${response.chunkSize}`;
         };
 
         let chunks = response.items;
@@ -184,15 +184,15 @@ class AlignmentTrack extends FeatureTrack {
                 if (alignments == null) {
                     alignments = chunks[i].value;
                 }
-                for (var j = 0, lenj = alignments.length; j < lenj; j++) {
+                for (let j = 0, lenj = alignments.length; j < lenj; j++) {
                     feature = alignments[j];
 
                     //check if any feature has been already displayed by another chunk
                     displayed = false;
                     featureFirstChunk = getChunkId(feature.start);
                     featureLastChunk = getChunkId(feature.end);
-                    for (var chunkId = featureFirstChunk; chunkId <= featureLastChunk; chunkId++) { //loop over chunks touched by this feature
-                        var chunkKey = getChunkKey(feature.chromosome, chunkId);
+                    for (let chunkId = featureFirstChunk; chunkId <= featureLastChunk; chunkId++) { //loop over chunks touched by this feature
+                        let chunkKey = getChunkKey(feature.chromosome, chunkId);
                         if (this.chunksDisplayed[chunkKey] == true) {
                             displayed = true;
                             break;
@@ -246,7 +246,7 @@ class AlignmentTrack extends FeatureTrack {
             // Dispose of far away items from the left
             while (this.retrievedAlignments.items[0].region.end < this.region.start - this.svgCanvasOffset) {
                 let chunkKey = this.retrievedAlignments.items[0].chunkKey;
-                console.log("Dispose region " + chunkKey);
+                console.log(`Dispose region ${chunkKey}`);
                 this.retrievedChunkIds.delete(chunkKey);
                 this.retrievedAlignments.items.splice(0, 1);
             }
@@ -255,7 +255,7 @@ class AlignmentTrack extends FeatureTrack {
             for (let i = event.items.length - 1; i >= 0; i--) {
                 if (this.retrievedChunkIds.has(event.items[i].chunkKey)) {
                     // We should not call several times to the webservices asking for regions we already have
-                    debugger
+                    // debugger;
                 } else {
                     this.retrievedChunkIds.add(event.items[i].chunkKey);
                     this.retrievedAlignments.items.unshift(event.items[i]);
@@ -266,7 +266,7 @@ class AlignmentTrack extends FeatureTrack {
             while (this.retrievedAlignments.items[this.retrievedAlignments.items.length - 1].region.start >
             this.region.end + this.svgCanvasOffset) {
                 let chunkKey = this.retrievedAlignments.items[this.retrievedAlignments.items.length - 1].chunkKey;
-                console.log("Dispose region " + chunkKey);
+                console.log(`Dispose region ${chunkKey}`);
                 this.retrievedChunkIds.delete(chunkKey);
                 this.retrievedAlignments.items.splice(this.retrievedAlignments.items.length - 1, 1);
             }

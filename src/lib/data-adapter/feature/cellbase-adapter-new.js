@@ -48,15 +48,15 @@ class CellBaseAdapter {
     }
 
     getData (args) {
-        var _this = this;
+        let _this = this;
 
-        var params = {};
+        let params = {};
         //histogram: (dataType == 'histogram')
         _.extend(params, this.params);
         _.extend(params, args.params);
 
         /** 1 region check **/
-        var region = args.region;
+        let region = args.region;
         if (region.start > 300000000 || region.end < 1) {
             return;
         }
@@ -67,13 +67,13 @@ class CellBaseAdapter {
         // var categories = [this.category + this.subCategory + this.resource + Utils.queryString(params)];
 
         /** 3 dataType check **/
-        var dataType = args.dataType;
+        let dataType = args.dataType;
         if (_.isUndefined(dataType)) {
             console.log("dataType must be provided!!!");
         }
 
         /** 4 chunkSize check **/
-        var chunkSize = this.options.chunkSize; // this.cache.defaultChunkSize should be the same
+        let chunkSize = this.options.chunkSize; // this.cache.defaultChunkSize should be the same
         if (this.debug) {
             console.log(chunkSize);
         }
@@ -105,13 +105,13 @@ class CellBaseAdapter {
             // debugger
             this.client.get(this.category, this.subCategory, groupedRegions[i], this.resource, params)
                 .then(function(response) {
-                    var responseChunks = _this._cellbaseSuccess(response, dataType, chunkSize);
+                    let responseChunks = _this._cellbaseSuccess(response, dataType, chunkSize);
                     args.webServiceCallCount--;
 
                     chunks = chunks.concat(responseChunks);
                     if (args.webServiceCallCount === 0) {
                         chunks.sort(function(a, b) {
-                            return a.chunkKey.localeCompare(b.chunkKey)
+                            return a.chunkKey.localeCompare(b.chunkKey);
                         });
                         args.done({
                             items: chunks, dataType: dataType, chunkSize: chunkSize, sender: _this
@@ -120,7 +120,7 @@ class CellBaseAdapter {
 
                 })
                 .catch(function() {
-                    console.log('Server error');
+                    console.log("Server error");
                     args.done();
                 });
         }
@@ -132,18 +132,18 @@ class CellBaseAdapter {
     }
 
     _cellbaseSuccess (data, dataType, chunkSize) {
-        var timeId = Utils.randomString(4) + this.resource + " save";
+        let timeId = `${Utils.randomString(4) + this.resource} save`;
         console.time(timeId);
         /** time log **/
 
-        var regions = [];
-        var chunks = [];
-        for (var i = 0; i < data.response.length; i++) {    // TODO test what do several responses mean
-            var queryResult = data.response[i];
+        let regions = [];
+        let chunks = [];
+        for (let i = 0; i < data.response.length; i++) {    // TODO test what do several responses mean
+            let queryResult = data.response[i];
             if (dataType == "histogram") {
-                for (var j = 0; j < queryResult.result.length; j++) {
-                    var interval = queryResult.result[j];
-                    var region = new Region(interval);
+                for (let j = 0; j < queryResult.result.length; j++) {
+                    let interval = queryResult.result[j];
+                    let region = new Region(interval);
                     regions.push(region);
                     chunks.push(interval);
                 }
@@ -174,8 +174,8 @@ class CellBaseAdapter {
      * [ [r1,r2,r3,r4], [r5,r6,r7,r8] ]
      */
     _groupQueries (uncachedRegions) {
-        var groupSize = 50;
-        var queriesLists = [];
+        let groupSize = 50;
+        let queriesLists = [];
         while (uncachedRegions.length > 0) {
             queriesLists.push(uncachedRegions.splice(0, groupSize).toString());
         }
