@@ -252,18 +252,23 @@
             maxLabelRegionSize: 10000000,
             minTranscriptRegionSize: 200000,
             height: 120,
-            renderer: new GeneRenderer({
-                handlers: {
-                    'feature:click': function(e) {
-                        console.log(e)
-                    }
-                }
-            }),
-            dataAdapter: new CellBaseAdapter(cellbaseClient, "genomic", "region", "gene", {
-                exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence'
-            }, {
-                chunkSize: 100000
-            })
+            cellbase: {
+                "host": CELLBASE_HOST,
+                "version": CELLBASE_VERSION,
+                "species": "hsapiens"
+            }
+//            renderer: new GeneRenderer({
+//                handlers: {
+//                    'feature:click': function(e) {
+//                        console.log(e)
+//                    }
+//                }
+//            })
+//            dataAdapter: new CellBaseAdapter(cellbaseClient, "genomic", "region", "gene", {
+//                exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence'
+//            }, {
+//                chunkSize: 100000
+//            })
         });
         tracks.push(this.gene);
 

@@ -66,8 +66,8 @@ class FeatureTrack {
         this.dataType = "features";
 
         this.featureType = "Feature"; // This only have the old class feature track
-        this.resource = this.dataAdapter.resource;// This only have the old class feature track
-        this.species = this.dataAdapter.species;// This only have the old class feature track
+        // this.resource = this.dataAdapter.resource;// This only have the old class feature track
+        // this.species = this.dataAdapter.species;// This only have the old class feature track
     }
 
     get(attr) {
