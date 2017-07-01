@@ -101,7 +101,9 @@ class CellBaseAdapter {
         let chunks = [];
         for (let i = 0; i < groupedRegions.length; i++) {
             args.webServiceCallCount++;
-            this.client.get(this.category, this.subCategory, groupedRegions[i], this.resource, this.params)
+            // console.log(params)
+            // debugger
+            this.client.get(this.category, this.subCategory, groupedRegions[i], this.resource, params)
                 .then(function(response) {
                     var responseChunks = _this._cellbaseSuccess(response, dataType, chunkSize);
                     args.webServiceCallCount--;
