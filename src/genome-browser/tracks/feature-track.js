@@ -1,6 +1,6 @@
 class FeatureTrack {
     constructor(args) {
-        this.id = Utils.genId('track');
+        this.id = Utils.genId("track");
         this.dataAdapter;
         this.renderer;
         this.histogramRendererName = "HistogramRenderer";
@@ -16,8 +16,8 @@ class FeatureTrack {
         this.visible = true;
         this.contentVisible = true;
         this.closable = false;
-        this.fontClass = 'ocb-font-roboto ocb-font-size-14';
-        this.externalLink = '';
+        this.fontClass = "ocb-font-roboto ocb-font-size-14";
+        this.externalLink = "";
         this.autoRender = false;
 
         Object.assign(this, args);
@@ -46,7 +46,7 @@ class FeatureTrack {
         this.renderedArea = {}; //used for renders to store binary trees
         this.chunksDisplayed = {}; //used to avoid painting multiple times features contained in more than 1 chunk
 
-        if ('handlers' in this) {
+        if ("handlers" in this) {
             for (eventName in this.handlers) {
                 this.on(eventName, this.handlers[eventName]);
             }
@@ -63,9 +63,9 @@ class FeatureTrack {
         this.defaultRenderer = this.renderer;
 
         this.histogramRenderer = new window[this.histogramRendererName](args);
-        this.dataType = 'features';
+        this.dataType = "features";
 
-        this.featureType = 'Feature'; // This only have the old class feature track
+        this.featureType = "Feature"; // This only have the old class feature track
         this.resource = this.dataAdapter.resource;// This only have the old class feature track
         this.species = this.dataAdapter.species;// This only have the old class feature track
     }
@@ -80,12 +80,12 @@ class FeatureTrack {
 
     hide() {
         this.visible = false;
-        this.div.classList.add('hidden');
+        this.div.classList.add("hidden");
     }
 
     show() {
         this.visible = true;
-        this.div.classList.remove('hidden');
+        this.div.classList.remove("hidden");
         this.updateHeight();
     }
 
@@ -94,7 +94,6 @@ class FeatureTrack {
             this.hide();
         } else {
             this.show();
-
         }
     }
 
@@ -104,20 +103,20 @@ class FeatureTrack {
 
     hideContent() {
         this.contentVisible = false;
-        this.contentDiv.classList.add('hidden');
-        this.resizeDiv.classList.add('hidden');
+        this.contentDiv.classList.add("hidden");
+        this.resizeDiv.classList.add("hidden");
 
-        this.iToggleEl.classList.remove('fa-minus');
-        this.iToggleEl.classList.add('fa-plus');
+        this.iToggleEl.classList.remove("fa-minus");
+        this.iToggleEl.classList.add("fa-plus");
     }
 
     showContent() {
         this.contentVisible = true;
-        this.contentDiv.classList.remove('hidden');
-        this.resizeDiv.classList.remove('hidden');
+        this.contentDiv.classList.remove("hidden");
+        this.resizeDiv.classList.remove("hidden");
 
-        this.iToggleEl.classList.remove('fa-plus');
-        this.iToggleEl.classList.add('fa-minus');
+        this.iToggleEl.classList.remove("fa-plus");
+        this.iToggleEl.classList.add("fa-minus");
         this.updateHeight();
     }
 
@@ -126,26 +125,19 @@ class FeatureTrack {
             this.hideContent();
         } else {
             this.showContent();
-
         }
     }
 
     close() {
-        this.trigger('track:close', {
-            sender: this
-        });
+        this.trigger("track:close", { sender: this });
     }
 
     up() {
-        this.trigger('track:up', {
-            sender: this
-        });
+        this.trigger("track:up", { sender: this });
     }
 
     down() {
-        this.trigger('track:down', {
-            sender: this
-        });
+        this.trigger("track:down", { sender: this });
     }
 
     setSpecies(species) {
@@ -154,29 +146,29 @@ class FeatureTrack {
     }
 
     enableAutoHeight() {
-        console.log('enable autoHeigth');
+        console.log("enable autoHeigth");
         this.autoHeight = true;
         this.updateHeight();
     }
 
     disableAutoHeight() {
-        console.log('disable autoHeigth');
+        console.log("disable autoHeigth");
         this.autoHeight = false;
         this.updateHeight();
     }
 
     toggleAutoHeight(bool) {
-        if (bool == true) {
+        if (bool === true) {
             this.enableAutoHeight();
             return;
-        } else if (bool == false) {
+        } else if (bool === false) {
             this.disableAutoHeight();
             return;
         }
-        if (this.autoHeight == true) {
+        if (this.autoHeight === true) {
             this.disableAutoHeight();
             return;
-        } else if (this.autoHeight == false) {
+        } else if (this.autoHeight === false) {
             this.enableAutoHeight();
             return;
         }
@@ -192,7 +184,7 @@ class FeatureTrack {
             $(this.loadingEl).html('&nbsp; &nbsp;<i class="fa fa-spinner fa-spin"></i> Loading...</span>');
         } else {
             this.status = "ready";
-            $(this.loadingEl).html('');
+            $(this.loadingEl).html("");
         }
     }
 
@@ -208,17 +200,14 @@ class FeatureTrack {
             this.histogramLogarithm = undefined;
             this.histogramMax = undefined;
             this.interval = undefined;
-            $(this.histogramEl).html('');
+            $(this.histogramEl).html("");
         }
     }
     clean() {
         this._clean();
-
-        //    console.time("-----------------------------------------empty");
         while (this.svgCanvasFeatures.firstChild) {
             this.svgCanvasFeatures.removeChild(this.svgCanvasFeatures.firstChild);
         }
-        //    console.timeEnd("-----------------------------------------empty");
     }
 
     _clean() {
@@ -240,8 +229,8 @@ class FeatureTrack {
     updateHeight() {
         //this._updateHeight();
         if (this.histogram) {
-            this.contentDiv.style.height = this.histogramRenderer.histogramHeight + 5 + 'px';
-            this.main.setAttribute('height', this.histogramRenderer.histogramHeight);
+            this.contentDiv.style.height = `${this.histogramRenderer.histogramHeight + 5}px`;
+            this.main.setAttribute("height", this.histogramRenderer.histogramHeight);
             return;
         }
 
@@ -254,12 +243,12 @@ class FeatureTrack {
             renderedHeight = parseInt(heightKeys[0]) + 30;
         }
         renderedHeight = Math.max(renderedHeight, this.height);
-        this.main.setAttribute('height', renderedHeight);
+        this.main.setAttribute("height", renderedHeight);
 
         if (this.resizable) {
-            if (this.autoHeight == false) {
-                this.contentDiv.style.height = this.height + 10 + 'px';
-            } else if (this.autoHeight == true) {
+            if (this.autoHeight === false) {
+                this.contentDiv.style.height = `${this.height + 10}px`;
+            } else if (this.autoHeight === true) {
                 let x = this.pixelPosition;
                 let width = this.width;
                 let lastContains = 0;
@@ -272,8 +261,8 @@ class FeatureTrack {
                     }
                 }
                 let visibleHeight = Math.max(parseInt(lastContains) + 30, this.height);
-                this.contentDiv.style.height = visibleHeight + 10 + 'px';
-                this.main.setAttribute('height', visibleHeight);
+                this.contentDiv.style.height = `${visibleHeight + 10}px`;
+                this.main.setAttribute("height", visibleHeight);
             }
         }
     }
@@ -290,16 +279,16 @@ class FeatureTrack {
     initializeDom(targetId) {
         this._initializeDom(targetId);
 
-        this.main = SVG.addChild(this.contentDiv, 'svg', {
-            'class': 'trackSvg',
-            'x': 0,
-            'y': 0,
-            'width': this.width
+        this.main = SVG.addChild(this.contentDiv, "svg", {
+            "class": "trackSvg",
+            "x": 0,
+            "y": 0,
+            "width": this.width
         });
-        this.svgCanvasFeatures = SVG.addChild(this.main, 'svg', {
-            'class': 'features',
-            'x': -this.pixelPosition,
-            'width': this.svgCanvasWidth
+        this.svgCanvasFeatures = SVG.addChild(this.main, "svg", {
+            "class": "features",
+            "x": -this.pixelPosition,
+            "width": this.svgCanvasWidth
         });
         this.updateHeight();
         this.renderer.init();
@@ -307,8 +296,8 @@ class FeatureTrack {
 
     _initializeDom(targetId) {
         let _this = this;
-        let div = $('<div id="' + this.id + '-div"></div>')[0];
-        div.classList.add('ocb-gv-track');
+        let div = $(`<div id="${this.id}-div"></div>`)[0];
+        div.classList.add("ocb-gv-track");
 
         let titleBarHtml = `
            <div class="ocb-gv-track-title">
@@ -333,36 +322,36 @@ class FeatureTrack {
             </div>
         `;
 
-        var titleBardiv = $(titleBarHtml)[0];
+        let titleBardiv = $(titleBarHtml)[0];
 
-        if (typeof this.title === 'undefined') {
+        if (typeof this.title === "undefined") {
             $(titleBardiv).addClass("hidden");
         }
 
-        var titlediv = titleBardiv.querySelector('.ocb-gv-track-title');
-        this.titleEl = titleBardiv.querySelector('.ocb-gv-track-title-el');
+        let titlediv = titleBardiv.querySelector(".ocb-gv-track-title");
+        this.titleEl = titleBardiv.querySelector(".ocb-gv-track-title-el");
 
-        this.titleText = titleBardiv.querySelector('.ocb-gv-track-title-text');
-        this.histogramEl = titleBardiv.querySelector('.ocb-gv-track-title-histogram');
-        this.toggleEl = titleBardiv.querySelector('.ocb-gv-track-title-toggle');
-        this.iToggleEl = this.toggleEl.querySelector('i');
-        this.loadingEl = titleBardiv.querySelector('.ocb-gv-track-title-loading');
-        this.closeEl = titleBardiv.querySelector('.ocb-gv-track-title-close');
-        this.upEl = titleBardiv.querySelector('.ocb-gv-track-title-up');
-        this.downEl = titleBardiv.querySelector('.ocb-gv-track-title-down');
-        this.externalLinkEl = titleBardiv.querySelector('.ocb-gv-track-title-external-link');
+        this.titleText = titleBardiv.querySelector(".ocb-gv-track-title-text");
+        this.histogramEl = titleBardiv.querySelector(".ocb-gv-track-title-histogram");
+        this.toggleEl = titleBardiv.querySelector(".ocb-gv-track-title-toggle");
+        this.iToggleEl = this.toggleEl.querySelector("i");
+        this.loadingEl = titleBardiv.querySelector(".ocb-gv-track-title-loading");
+        this.closeEl = titleBardiv.querySelector(".ocb-gv-track-title-close");
+        this.upEl = titleBardiv.querySelector(".ocb-gv-track-title-up");
+        this.downEl = titleBardiv.querySelector(".ocb-gv-track-title-down");
+        this.externalLinkEl = titleBardiv.querySelector(".ocb-gv-track-title-external-link");
 
-        var contentDiv = $('<div id="' + this.id + '-svgdiv"></div>')[0];
+        let contentDiv = $(`<div id="${this.id}-svgdiv"></div>`)[0];
         $(contentDiv).css({
-            'position': 'relative',
-            'box-sizing': 'boder-box',
-            'z-index': 3,
-            'height': this.height,
-            'overflow-y': (this.resizable) ? 'auto' : 'hidden',
-            'overflow-x': 'hidden'
+            "position": "relative",
+            "box-sizing": "boder-box",
+            "z-index": 3,
+            "height": this.height,
+            "overflow-y": (this.resizable) ? "auto" : "hidden",
+            "overflow-x": "hidden"
         });
 
-        var resizediv = $('<div id="' + this.id + '-resizediv" class="ocb-track-resize"></div>')[0];
+        let resizediv = $(`<div id="${this.id}-resizediv" class="ocb-track-resize"></div>`)[0];
 
         $(targetId).addClass("unselectable");
         $(targetId).append(div);
@@ -373,11 +362,10 @@ class FeatureTrack {
 
         /** title div **/
         $(titleBardiv).css({
-            'padding': '4px'
-        })
-            .on('dblclick', function(e) {
-                e.stopPropagation();
-            });
+            "padding": "4px"
+        }).on("dblclick", function(e) {
+            e.stopPropagation();
+        });
 
         $(this.toggleEl).click(function(e) {
             _this.toggleContent();
@@ -397,13 +385,13 @@ class FeatureTrack {
 
         if (this.resizable) {
             $(resizediv).mousedown(function(event) {
-                $('html').addClass('unselectable');
+                $("html").addClass("unselectable");
                 event.stopPropagation();
-                var downY = event.clientY;
-                $('html').bind('mousemove.genomeViewer', function(event) {
-                    var despY = (event.clientY - downY);
-                    var actualHeight = $(contentDiv).outerHeight();
-                    var newHeight = actualHeight + despY;
+                let downY = event.clientY;
+                $("html").bind("mousemove.genomeViewer", function(event) {
+                    let despY = (event.clientY - downY);
+                    let actualHeight = $(contentDiv).outerHeight();
+                    let newHeight = actualHeight + despY;
                     if (newHeight > 0) {
                         _this.height = newHeight;
                         $(contentDiv).css({
@@ -414,9 +402,9 @@ class FeatureTrack {
                     //                    _this.autoHeight = false;
                 });
             });
-            $('html').bind('mouseup.genomeViewer', function(event) {
-                $('html').removeClass('unselectable');
-                $('html').off('mousemove.genomeViewer');
+            $("html").bind("mouseup.genomeViewer", function(event) {
+                $("html").removeClass("unselectable");
+                $("html").off("mousemove.genomeViewer");
             });
             $(contentDiv).closest(".trackListPanels").mouseup(function(event) {
                 _this.updateHeight();
@@ -435,9 +423,9 @@ class FeatureTrack {
         let histogramHeight = this.histogramRenderer.histogramHeight;
         let multiplier = this.histogramRenderer.multiplier;
 
-        this.histogramGroup = SVG.addChild(this.svgGroup, 'g', {
-            'class': 'histogramGroup',
-            'visibility': 'hidden'
+        this.histogramGroup = SVG.addChild(this.svgGroup, "g", {
+            "class": "histogramGroup",
+            "visibility": "hidden"
         });
         let text = SVG.addChild(this.histogramGroup, "text", {
             "x": 21,
@@ -445,7 +433,7 @@ class FeatureTrack {
             "font-size": 12,
             "opacity": "0.9",
             "fill": "orangered",
-            'class': this.fontClass
+            "class": this.fontClass
         });
         text.textContent = "0-";
         text = SVG.addChild(this.histogramGroup, "text", {
@@ -454,7 +442,7 @@ class FeatureTrack {
             "font-size": 12,
             "opacity": "0.9",
             "fill": "orangered",
-            'class': this.fontClass
+            "class": this.fontClass
         });
         text.textContent = "10-";
         text = SVG.addChild(this.histogramGroup, "text", {
@@ -463,7 +451,7 @@ class FeatureTrack {
             "font-size": 12,
             "opacity": "0.9",
             "fill": "orangered",
-            'class': this.fontClass
+            "class": this.fontClass
         });
         text.textContent = "100-";
         text = SVG.addChild(this.histogramGroup, "text", {
@@ -472,7 +460,7 @@ class FeatureTrack {
             "font-size": 12,
             "opacity": "0.9",
             "fill": "orangered",
-            'class': this.fontClass
+            "class": this.fontClass
         });
         text.textContent = "1000-";
     }
@@ -491,7 +479,7 @@ class FeatureTrack {
 
     getDataHandler(event) {
         let features;
-        if (event.dataType == 'histogram') {
+        if (event.dataType === "histogram") {
             this.renderer = this.histogramRenderer;
             features = event.items;
         } else {
@@ -522,14 +510,14 @@ class FeatureTrack {
 
         this.updateHistogramParams();
 
-        this.dataType = 'features';
+        this.dataType = "features";
         if (this.histogram) {
-            this.dataType = 'histogram';
+            this.dataType = "histogram";
         }
 //         console.log(this.exclude)
 // debugger
         let _this = this;
-        if (typeof this.visibleRegionSize === 'undefined' || this.region.length() < this.visibleRegionSize) {
+        if (typeof this.visibleRegionSize === "undefined" || this.region.length() < this.visibleRegionSize) {
             this.setLoading(true);
             this.dataAdapter.getData({
                 dataType: this.dataType,
@@ -563,14 +551,14 @@ class FeatureTrack {
             return Math.floor(position / response.chunkSize);
         };
         let getChunkKey = function(chromosome, chunkId) {
-            return chromosome + ":" + chunkId + "_" + response.dataType + "_" + response.chunkSize;
+            return `${chromosome}:${chunkId}_${response.dataType}_${response.chunkSize}`;
         };
 
         let chunks = response.items;
 
         let feature, displayed, featureFirstChunk, featureLastChunk, features = [];
         for (let i = 0, leni = chunks.length; i < leni; i++) {
-            if (this.chunksDisplayed[chunks[i].chunkKey] != true) { //check if any chunk is already displayed and skip it
+            if (this.chunksDisplayed[chunks[i].chunkKey] !== true) { //check if any chunk is already displayed and skip it
 
                 for (let j = 0, lenj = chunks[i].value.length; j < lenj; j++) {
                     feature = chunks[i].value[j];
@@ -581,7 +569,7 @@ class FeatureTrack {
                     featureLastChunk = getChunkId(feature.end);
                     for (let chunkId = featureFirstChunk; chunkId <= featureLastChunk; chunkId++) {
                         let chunkKey = getChunkKey(feature.chromosome, chunkId);
-                        if (this.chunksDisplayed[chunkKey] == true) {
+                        if (this.chunksDisplayed[chunkKey] === true) {
                             displayed = true;
                             break;
                         }
@@ -599,9 +587,9 @@ class FeatureTrack {
     move(disp) {
         let _this = this;
 
-        this.dataType = 'features';
+        this.dataType = "features";
         if (this.histogram) {
-            this.dataType = 'histogram';
+            this.dataType = "histogram";
         }
 
         _this.region.center();
@@ -615,7 +603,7 @@ class FeatureTrack {
         let virtualStart = parseInt(this.region.start - this.svgCanvasOffset);
         let virtualEnd = parseInt(this.region.end + this.svgCanvasOffset);
 
-        if (typeof this.visibleRegionSize === 'undefined' || this.region.length() < this.visibleRegionSize) {
+        if (typeof this.visibleRegionSize === "undefined" || this.region.length() < this.visibleRegionSize) {
 
             if (disp > 0 && virtualStart < this.svgCanvasLeftLimit) {
                 this.dataAdapter.getData({
@@ -661,7 +649,7 @@ class FeatureTrack {
             }
         }
 
-        if (this.autoHeight == true) {
+        if (this.autoHeight === true) {
             this.updateHeight();
         }
     }
