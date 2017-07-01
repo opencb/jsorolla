@@ -309,27 +309,29 @@ class FeatureTrack {
         let _this = this;
         let div = $('<div id="' + this.id + '-div"></div>')[0];
         div.classList.add('ocb-gv-track');
-        let titleBarHtml = '';
-        titleBarHtml += '   <div class="ocb-gv-track-title">';
-        //      titleBarHtml+=       '   <button id="configBtn" type="button" class="btn btn-xs btn-primary"><span class="glyphicon glyphicon-cog"></span></button>' ;
-        titleBarHtml += '   <div class="ocb-gv-track-title-el">';
-        titleBarHtml += '       <span class="ocb-gv-track-title-text">' + this.title + '</span>';
-        titleBarHtml += '       <span class="ocb-gv-track-title-histogram"></span>';
-        titleBarHtml += '       <span class="ocb-gv-track-title-toggle"><i class="fa fa-minus"></i></span>';
-        titleBarHtml += '       <span class="ocb-gv-track-title-down"><i class="fa fa-chevron-down"></i></span>';
-        titleBarHtml += '       <span class="ocb-gv-track-title-up"><i class="fa fa-chevron-up"></i></span>';
 
-        if (this.closable == true) {
-            titleBarHtml += '       <span class="ocb-gv-track-title-close"><i class="fa fa-times"></i></span>';
+        let titleBarHtml = `
+           <div class="ocb-gv-track-title">
+               <div class="ocb-gv-track-title-el">
+                    <span class="ocb-gv-track-title-text">${this.title}</span>
+                    <span class="ocb-gv-track-title-histogram"></span>
+                    <span class="ocb-gv-track-title-toggle"><i class="fa fa-minus"></i></span>
+                    <span class="ocb-gv-track-title-down"><i class="fa fa-chevron-down"></i></span>
+                    <span class="ocb-gv-track-title-up"><i class="fa fa-chevron-up"></i></span>
+        `;
+
+        if (this.closable === true) {
+            titleBarHtml += '           <span class="ocb-gv-track-title-close"><i class="fa fa-times"></i></span>';
         }
 
-        if (this.externalLink !== '') {
-            titleBarHtml += '       <span class="ocb-gv-track-title-external-link"><i class="fa fa-external-link"></i></span>';
+        if (this.externalLink !== "") {
+            titleBarHtml += '           <span class="ocb-gv-track-title-external-link"><i class="fa fa-external-link"></i></span>';
         }
 
-        titleBarHtml += '       <span class="ocb-gv-track-title-loading"></span>';
-        titleBarHtml += '   </div>';
-        titleBarHtml += '   </div>';
+        titleBarHtml += `            <span class="ocb-gv-track-title-loading"></span>
+                </div>
+            </div>
+        `;
 
         var titleBardiv = $(titleBarHtml)[0];
 
