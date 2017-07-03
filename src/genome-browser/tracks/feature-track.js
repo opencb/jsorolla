@@ -504,7 +504,14 @@ class FeatureTrack {
         this.updateHeight();
     }
 
-    draw() {
+    draw(adapter, renderer) {
+
+        if(adapter == null){
+            adapter = this.dataAdapter;
+        }
+        if (renderer == null){
+            renderer = this.renderer;
+        }
         this.clean();
         this._setCanvasConfig();
 
@@ -514,30 +521,50 @@ class FeatureTrack {
         if (this.histogram) {
             this.dataType = "histogram";
         }
-//         console.log(this.exclude)
+
 // debugger
         let _this = this;
         if (typeof this.visibleRegionSize === "undefined" || this.region.length() < this.visibleRegionSize) {
             this.setLoading(true);
-            this.dataAdapter.getData({
-                dataType: this.dataType,
-                region: new Region({
-                    chromosome: this.region.chromosome,
-                    start: this.region.start - this.svgCanvasOffset * 2,
-                    end: this.region.end + this.svgCanvasOffset * 2
-                }),
-                params: {
-                    histogram: this.histogram,
-                    histogramLogarithm: this.histogramLogarithm,
-                    histogramMax: this.histogramMax,
-                    interval: this.interval,
-                    exclude: this.exclude
-                },
-                done: function (event) {
-                    _this.getDataHandler(event);
+
+            let region = new Region({chromosome: this.region.chromosome,start: this.region.start -
+            this.svgCanvasOffset * 2, end: this.region.end + this.svgCanvasOffset * 2});
+
+            let params = {
+                histogram: this.histogram,
+                histogramLogarithm: this.histogramLogarithm,
+                histogramMax: this.histogramMax,
+                interval: this.interval,
+                exclude: this.exclude
+                };
+
+            adapter.getData({dataType:this.dataType, region: region, params: params})
+                .then(function (response){
+                    _this.getDataHandler(response);
                     _this.setLoading(false);
-                }
-            });
+                })
+                .catch(function(response){
+                    console.log("Feature Track draw error.")
+                });
+            //this.dataAdapter.getData({
+            //    dataType: this.dataType,
+            //    region: new Region({
+            //        chromosome: this.region.chromosome,
+            //        start: this.region.start - this.svgCanvasOffset * 2,
+            //        end: this.region.end + this.svgCanvasOffset * 2
+            //    }),
+            //    params: {
+            //        histogram: this.histogram,
+            //        histogramLogarithm: this.histogramLogarithm,
+            //        histogramMax: this.histogramMax,
+            //        interval: this.interval,
+            //        exclude: this.exclude
+            //    },
+            //    done: function (event) {
+            //        _this.getDataHandler(event);
+            //        _this.setLoading(false);
+            //    }
+            //});
         } else {
             //        this.invalidZoomText.setAttribute("visibility", "visible");
         }

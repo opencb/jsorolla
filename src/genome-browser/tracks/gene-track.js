@@ -72,7 +72,7 @@ class GeneTrack extends FeatureTrack {
             this.exclude = "transcripts,annotation";
         }
 
-        super.draw();
+        super.draw(this.dataAdapter, this.renderer);
     }
 
     move(disp) {

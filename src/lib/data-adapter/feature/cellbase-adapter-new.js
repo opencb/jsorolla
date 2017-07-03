@@ -83,47 +83,52 @@ class CellBaseAdapter {
             console.log("cellbase client must be provided!!!");
         }
 
-        // Create the chunks to be retrieved
-        let start = this._getStartChunkPosition(region.start);
-        let end = this._getStartChunkPosition(region.end);
 
-        let regions = [];
-        let myRegion = start;
-        args.webServiceCallCount = 0;
+        return new Promise(function(resolve, reject) {
+            // Create the chunks to be retrieved
+            let start = _this._getStartChunkPosition(region.start);
+            let end = _this._getStartChunkPosition(region.end);
 
-        do {
-            regions.push(`${region.chromosome}:${myRegion}-${myRegion + this.options.chunkSize - 1}`);
-            myRegion += this.options.chunkSize;
-        } while(myRegion < end);
+            let regions = [];
+            let myRegion = start;
+            args.webServiceCallCount = 0;
 
-        let groupedRegions = this._groupQueries(regions);
+            do {
+                regions.push(`${region.chromosome}:${myRegion}-${myRegion + _this.options.chunkSize - 1}`);
+                myRegion += _this.options.chunkSize;
+            } while(myRegion < end);
 
-        let chunks = [];
-        for (let i = 0; i < groupedRegions.length; i++) {
-            args.webServiceCallCount++;
-            // console.log(params)
-            // debugger
-            this.client.get(this.category, this.subCategory, groupedRegions[i], this.resource, params)
-                .then(function(response) {
-                    let responseChunks = _this._cellbaseSuccess(response, dataType, chunkSize);
-                    args.webServiceCallCount--;
 
-                    chunks = chunks.concat(responseChunks);
-                    if (args.webServiceCallCount === 0) {
-                        chunks.sort(function(a, b) {
-                            return a.chunkKey.localeCompare(b.chunkKey);
-                        });
-                        args.done({
-                            items: chunks, dataType: dataType, chunkSize: chunkSize, sender: _this
-                        });
-                    }
+            let groupedRegions = _this._groupQueries(regions);
 
-                })
-                .catch(function() {
-                    console.log("Server error");
-                    args.done();
-                });
-        }
+            let chunks = [];
+            for (let i = 0; i < groupedRegions.length; i++) {
+                args.webServiceCallCount++;
+                // console.log(params)
+                // debugger
+                _this.client.get(_this.category, _this.subCategory, groupedRegions[i], _this.resource, params)
+                    .then(function (response) {
+                        let responseChunks = _this._cellbaseSuccess(response, dataType, chunkSize);
+                        args.webServiceCallCount--;
+
+                        chunks = chunks.concat(responseChunks);
+                        if (args.webServiceCallCount === 0) {
+                            chunks.sort(function (a, b) {
+                                return a.chunkKey.localeCompare(b.chunkKey);
+                            });
+                            //args.done({
+                            resolve({items: chunks, dataType: dataType, chunkSize: chunkSize, sender: _this});
+                            //});
+                        }
+
+                    })
+                    .catch(function () {
+                        console.log("Server error");
+                        //args.done();
+                        reject();
+                    });
+            }
+        });
 
     }
 

@@ -237,14 +237,14 @@
 
 
         tracks = [];
-        this.sequence = new FeatureTrack({
-            title: 'Sequence',
-            height: 20,
-            visibleRegionSize: 200,
-            renderer: new SequenceRenderer(),
-            dataAdapter: new CellBaseAdapter(cellbaseClient, "genomic", "region", "sequence", {}, { chunkSize: 100})
-        });
-        tracks.push(this.sequence);
+//        this.sequence = new FeatureTrack({
+//            title: 'Sequence',
+//            height: 20,
+//            visibleRegionSize: 200,
+//            renderer: new SequenceRenderer(),
+//            dataAdapter: new CellBaseAdapter(cellbaseClient, "genomic", "region", "sequence", {}, { chunkSize: 100})
+//        });
+//        tracks.push(this.sequence);
 
         this.gene = new GeneTrack({
             title: 'Gene',
