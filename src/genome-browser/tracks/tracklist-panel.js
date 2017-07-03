@@ -19,91 +19,91 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-function TrackListPanel(args) { //parent is a DOM div element
-    let _this = this;
+class TrackListPanel { //parent is a DOM div element
+    constructor(args){
+        let _this = this;
 
-    // Using Underscore 'extend' function to extend and add Backbone Events
-    _.extend(this, Backbone.Events);
+        // Using Underscore 'extend' function to extend and add Backbone Events
+        Object.assign(this, Backbone.Events);
 
-    this.cellBaseHost = "http://bioinfo.hpc.cam.ac.uk/cellbase";
-    this.cellBaseVersion = "v3";
+        this.cellBaseHost = "http://bioinfo.hpc.cam.ac.uk/cellbase";
+        this.cellBaseVersion = "v3";
 
-    //set default args
-    this.target;
-    this.autoRender = true;
-    this.id = Utils.genId("TrackListPanel");
-    this.collapsed = false;
-    this.collapsible = false;
-    this.hidden = false;
+        //set default args
+        this.target;
+        this.autoRender = true;
+        this.id = Utils.genId("TrackListPanel");
+        this.collapsed = false;
+        this.collapsible = false;
+        this.hidden = false;
 
-    this.tracks = [];
-    this.tracksIndex = {};
+        this.tracks = [];
+        this.tracksIndex = {};
 
-    this.parentLayout;
-    this.mousePosition;
-    this.windowSize;
+        this.parentLayout;
+        this.mousePosition;
+        this.windowSize;
 
-    this.zoomMultiplier = 1;
-    this.showRegionOverviewBox = false;
-
-
-    this.height = 0;
-
-    //set instantiation args, must be last
-    _.extend(this, args);
-
-    //set new region object
-    this.region = new Region(this.region);
-    this.width -= 18;
+        this.zoomMultiplier = 1;
+        this.showRegionOverviewBox = false;
 
 
-    this.status;
+        this.height = 0;
 
-    //this region is used to do not modify original region, and will be used by trackSvg
-    this.visualRegion = new Region(this.region);
+        //set instantiation args, must be last
+        Object.assign(this, args);
 
-    /********/
-    this._setPixelBase();
-    /********/
+        //set new region object
+        this.region = new Region(this.region);
+        this.width -= 18;
 
-    this.on(this.handlers);
 
-    this.regionChanging = false;
+        this.status;
 
-    this.rendered = false;
-    if (this.autoRender) {
-        this.render();
+        //this region is used to do not modify original region, and will be used by trackSvg
+        this.visualRegion = new Region(this.region);
+
+        /********/
+        this._setPixelBase();
+        /********/
+
+        this.on(this.handlers);
+
+        this.regionChanging = false;
+
+        this.rendered = false;
+        if (this.autoRender) {
+            this.render();
+        }
+
     }
 
-};
-
-TrackListPanel.prototype = {
-    show: function() {
+    show() {
         $(this.div).css({
             display: "block"
         });
         this.hidden = false;
-    },
+    }
 
-    hide: function() {
+    hide() {
         $(this.div).css({
             display: "none"
         });
         this.hidden = true;
-    },
-    setVisible: function(bool) {
+    }
+    setVisible(bool) {
         if (bool) {
             this.show();
         } else {
             this.hide();
         }
-    },
-    setTitle: function(title) {
+    }
+    setTitle(title) {
         if ("titleDiv" in this) {
             $(this.titleDiv).html(title);
         }
-    },
-    showContent: function() {
+    }
+    showContent() {
         $(this.tlHeaderDiv).css({
             display: "block"
         });
@@ -114,8 +114,8 @@ TrackListPanel.prototype = {
         $(this.collapseDiv).removeClass("active");
         $(this.collapseDiv).children().first().removeClass("fa-plus");
         $(this.collapseDiv).children().first().addClass("fa-minus");
-    },
-    hideContent: function() {
+    }
+    hideContent() {
         $(this.tlHeaderDiv).css({
             display: "none"
         });
@@ -126,8 +126,8 @@ TrackListPanel.prototype = {
         $(this.collapseDiv).addClass("active");
         $(this.collapseDiv).children().first().removeClass("fa-minus");
         $(this.collapseDiv).children().first().addClass("fa-plus");
-    },
-    render: function() {
+    }
+    render() {
         let _this = this;
 
         this.div = document.createElement("div");
@@ -379,7 +379,7 @@ TrackListPanel.prototype = {
                         "cursor": "move"
                     });
                     downX = event.clientX;
-                    var lastX = 0;
+                    let lastX = 0;
                     $(this).mousemove(function(event) {
                         let newX = (downX - event.clientX) / _this.pixelBase | 0; //truncate always towards zero
                         if (newX != lastX) {
@@ -568,35 +568,35 @@ TrackListPanel.prototype = {
 
         this.setVisible(!this.hidden);
         this.rendered = true;
-    },
+    }
 
-    setHeight: function(height) {
+    setHeight(height) {
         //        this.height=Math.max(height,60);
         //        $(this.tlTracksDiv).css('height',height);
         //        //this.grid.setAttribute("height",height);
         //        //this.grid2.setAttribute("height",height);
         //        $(this.centerLine).css("height",parseInt(height));//25 es el margen donde esta el texto de la posicion
         //        $(this.mouseLine).css("height",parseInt(height));//25 es el margen donde esta el texto de la posicion
-    },
+    }
 
-    setWidth: function(width) {
+    setWidth(width) {
         console.log(`trackListPanel setWidth ------> ${width}`);
         this.width = width - 18;
-    },
+    }
 
-    highlight: function(event) {
+    highlight(event) {
         this.trigger("trackFeature:highlight", event);
-    },
+    }
 
 
-    moveRegion: function(event) {
+    moveRegion(event) {
         this.region.load(event.region);
         this.visualRegion.load(event.region);
         this._setTextPosition();
         this.trigger("trackRegion:move", event);
-    },
+    }
 
-    setSpecies: function(species) {
+    setSpecies(species) {
         this.species = species;
         //        this.trigger('trackSpecies:change', {species: species, sender: this});
 
@@ -605,9 +605,9 @@ TrackListPanel.prototype = {
             track.setSpecies(this.species);
 
         }
-    },
+    }
 
-    setRegion: function(region) { //item.chromosome, item.position, item.species
+    setRegion(region) { //item.chromosome, item.position, item.species
         console.log(`trackListPanel setRegion region ------> ${region}`);
         console.log(`trackListPanel setRegion width ------> ${this.width}`);
         let _this = this;
@@ -671,9 +671,9 @@ TrackListPanel.prototype = {
 
         //this.minRegionRect.setAttribute("width",this.minRectWidth);
         //this.minRegionRect.setAttribute("x",(this.width/2)-(this.minRectWidth/2)+6);
-    },
+    }
 
-    draw: function() {
+    draw() {
         let _this = this;
         this.targetDiv = (this.target instanceof HTMLElement) ? this.target : document.querySelector(`#${this.target}`);
         if (!this.targetDiv) {
@@ -685,15 +685,15 @@ TrackListPanel.prototype = {
         this.trigger("track:draw", {
             sender: this
         });
-    },
-    _checkAllTrackStatus: function(status) {
+    }
+    _checkAllTrackStatus(status) {
         for (let i = 0; i < this.tracks.length; i++) {
             let track = this.tracks[i];
             if (track.status != status) return false;
         }
         return true;
-    },
-    checkTracksReady: function() {
+    }
+    checkTracksReady() {
         return this._checkAllTrackStatus("ready");
         //        if (this._checkAllTrackStatus('ready')) {
         //            this.status = 'ready';
@@ -708,8 +708,8 @@ TrackListPanel.prototype = {
         //            }
         //        };
         //        setTimeout(checkStatus, 10);
-    },
-    addTrack: function(track) {
+    }
+    addTrack(track) {
         if (_.isArray(track)) {
             for (let i in track) {
                 this._addTrack(track[i]);
@@ -717,8 +717,8 @@ TrackListPanel.prototype = {
         } else {
             this._addTrack(track);
         }
-    },
-    _addTrack: function(track) {
+    }
+    _addTrack(track) {
         if (!this.rendered) {
             console.info(`${this.id} is not rendered yet`);
             return;
@@ -805,7 +805,7 @@ TrackListPanel.prototype = {
                 event.attrValue = ($.isArray(event.attrValue)) ? event.attrValue : [event.attrValue];
                 for (let key in event.attrValue) {
                     let queryStr = `${attrName}~=${event.attrValue[key]}`;
-                    var group = $(track.svgdiv).find(`g[${queryStr}]`);
+                    let group = $(track.svgdiv).find(`g[${queryStr}]`);
                     $(group).each(function() {
                         let animation = $(this).find("animate");
                         if (animation.length == 0) {
@@ -850,38 +850,38 @@ TrackListPanel.prototype = {
         //        track.on('track:ready', function () {
         //            _this.checkTracksReady();
         //        });
-    },
-    toggleAutoHeight: function(bool) {
+    }
+    toggleAutoHeight(bool) {
         for (let i = 0; i < this.tracks.length; i++) {
             let track = this.tracks[i];
             track.toggleAutoHeight(bool);
         }
-    },
-    updateHeight: function() {
+    }
+    updateHeight() {
         for (let i = 0; i < this.tracks.length; i++) {
             let track = this.tracks[i];
             track.updateHeight(true);
         }
-    },
+    }
 
-    containsTrack: function(track) {
+    containsTrack(track) {
         if (typeof this.tracksIndex[track.id] !== "undefined") {
             return true;
         } else {
             return false;
         }
-    },
-    getTrackIndex: function(track) {
+    }
+    getTrackIndex(track) {
         return this.tracksIndex[track.id];
-    },
-    _updateTracksIndex: function() {
+    }
+    _updateTracksIndex() {
         //update index with correct index after splice
         for (let i = 0; i < this.tracks.length; i++) {
             let track = this.tracks[i];
             this.tracksIndex[track.id] = i;
         }
-    },
-    refreshTracksDom: function() {
+    }
+    refreshTracksDom() {
         for (let i = 0; i < this.tracks.length; i++) {
             let track = this.tracks[i];
             $(track.div).detach();
@@ -890,8 +890,8 @@ TrackListPanel.prototype = {
         this.trigger("tracks:refresh", {
             sender: this
         });
-    },
-    removeTrack: function(track) {
+    }
+    removeTrack(track) {
         if (!this.containsTrack(track)) {
             return false;
         }
@@ -921,9 +921,9 @@ TrackListPanel.prototype = {
 
         this.refreshTracksDom();
         return track;
-    },
+    }
 
-    restoreTrack: function(track, index) {
+    restoreTrack(track, index) {
         if (this.containsTrack((track))) {
             return false;
         }
@@ -934,11 +934,11 @@ TrackListPanel.prototype = {
         }
         track.show();
         this.refreshTracksDom();
-    },
+    }
 
 
     //This routine is called when track order is modified
-    _reallocateAbove: function(track) {
+    _reallocateAbove(track) {
         if (!this.containsTrack((track))) {
             return false;
         }
@@ -957,10 +957,10 @@ TrackListPanel.prototype = {
         } else {
             console.log("is at top");
         }
-    },
+    }
 
     //This routine is called when track order is modified
-    _reallocateUnder: function(track) {
+    _reallocateUnder(track) {
         if (!this.containsTrack((track))) {
             return false;
         }
@@ -979,9 +979,9 @@ TrackListPanel.prototype = {
         } else {
             console.log("is at bottom");
         }
-    },
+    }
 
-    setTrackIndex: function(track, newIndex) {
+    setTrackIndex(track, newIndex) {
         if (!this.containsTrack((track))) {
             return false;
         }
@@ -998,8 +998,8 @@ TrackListPanel.prototype = {
 
         //update track div positions
         this.refreshTracksDom();
-    },
-    swapTracks: function(t1, t2) {
+    }
+    swapTracks(t1, t2) {
         if (!this.containsTrack((t1))) {
             return false;
         }
@@ -1014,40 +1014,40 @@ TrackListPanel.prototype = {
         this.tracksIndex[t1.id] = oldIndex2;
         this.tracksIndex[t2.id] = oldIndex1;
         this.refreshTracksDom();
-    },
+    }
 
-    scrollToTrack: function(track) {
+    scrollToTrack(track) {
         if (!this.containsTrack((track))) {
             return false;
         }
 
         let y = $(track.div).position().top;
         $(this.tlTracksDiv).scrollTop(y);
-    },
+    }
 
 
-    hideTrack: function(track) {
+    hideTrack(track) {
         if (!this.containsTrack((track))) {
             return false;
         }
         track.hide();
         this.refreshTracksDom();
-    },
+    }
 
-    showTrack: function(track) {
+    showTrack(track) {
         if (!this.containsTrack((track))) {
             return false;
         }
         track.show();
         this.refreshTracksDom();
-    },
-    _setPixelBase: function() {
+    }
+    _setPixelBase() {
         this.pixelBase = this.width / this.region.length();
         this.pixelBase = this.pixelBase / this.zoomMultiplier;
         this.halfVirtualBase = (this.width * 3 / 2) / this.pixelBase;
-    },
+    }
 
-    _setTextPosition: function() {
+    _setTextPosition() {
         let centerPosition = this.region.center();
         let baseLength = parseInt(this.width / this.pixelBase); //for zoom 100
         let aux = Math.ceil((baseLength / 2) - 1);
@@ -1061,15 +1061,15 @@ TrackListPanel.prototype = {
 
         this.windowSize = `Window size: ${Utils.formatNumber(this.visualRegion.length())} nts`;
         this.windowSizeDiv.innerHTML = this.windowSize;
-    },
+    }
 
-    getTrackById: function(trackId) {
+    getTrackById(trackId) {
         if (typeof this.tracksIndex[trackId] !== "undefined") {
             let i = this.tracksIndex[trackId];
             return this.tracks[i];
         }
-    },
-    getSequenceTrack: function() {
+    }
+    getSequenceTrack() {
         //if multiple, returns the first found
         for (let i = 0; i < this.tracks.length; i++) {
             let track = this.tracks[i];
@@ -1078,9 +1078,9 @@ TrackListPanel.prototype = {
             }
         }
         return;
-    },
+    }
 
-    getMousePosition: function(position) {
+    getMousePosition(position) {
         let base = "";
         if (position > 0) {
             base = this.getSequenceNucleotid(position);
@@ -1088,9 +1088,9 @@ TrackListPanel.prototype = {
         //        this.mouseLine.setAttribute('stroke',SEQUENCE_COLORS[base]);
         //        this.mouseLine.setAttribute('fill',SEQUENCE_COLORS[base]);
         return base;
-    },
+    }
 
-    getSequenceNucleotid: function(position) {
+    getSequenceNucleotid(position) {
         let seqTrack = this.getSequenceTrack();
         if (seqTrack) {
             let el = seqTrack.svgCanvasFeatures.querySelector(`text[data-pos="${position}"]`);
@@ -1099,15 +1099,15 @@ TrackListPanel.prototype = {
             }
         }
         return "";
-    },
+    }
 
-    setNucleotidPosition: function(position) {
+    setNucleotidPosition(position) {
         let base = this.getSequenceNucleotid(position);
         this.positionNucleotidDiv.style.color = SEQUENCE_COLORS[base];
         this.positionNucleotidDiv.textContent = base;
-    },
+    }
 
-    setCellBaseHost: function(host) {
+    setCellBaseHost(host) {
         this.cellBaseHost = host;
         for (let i = 0; i < this.tracks.length; i++) {
             let track = this.tracks[i];
@@ -1115,8 +1115,8 @@ TrackListPanel.prototype = {
                 track.dataAdapter.setHost(this.cellBaseHost);
             }
         }
-    },
-    deleteTracksCache:function(){
+    }
+    deleteTracksCache(){
         for (let i = 0; i < this.tracks.length; i++) {
             let track = this.tracks[i];
             if(track.dataAdapter.deleteCache != null){
@@ -1125,4 +1125,4 @@ TrackListPanel.prototype = {
         }
     }
 
-};
+}

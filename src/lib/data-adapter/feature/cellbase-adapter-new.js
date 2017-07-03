@@ -83,7 +83,6 @@ class CellBaseAdapter {
             console.log("cellbase client must be provided!!!");
         }
 
-
         return new Promise(function(resolve, reject) {
             // Create the chunks to be retrieved
             let start = _this._getStartChunkPosition(region.start);
@@ -98,9 +97,7 @@ class CellBaseAdapter {
                 myRegion += _this.options.chunkSize;
             } while(myRegion < end);
 
-
             let groupedRegions = _this._groupQueries(regions);
-
             let chunks = [];
             for (let i = 0; i < groupedRegions.length; i++) {
                 args.webServiceCallCount++;
@@ -116,20 +113,14 @@ class CellBaseAdapter {
                             chunks.sort(function (a, b) {
                                 return a.chunkKey.localeCompare(b.chunkKey);
                             });
-                            //args.done({
                             resolve({items: chunks, dataType: dataType, chunkSize: chunkSize, sender: _this});
-                            //});
                         }
-
                     })
                     .catch(function () {
-                        console.log("Server error");
-                        //args.done();
-                        reject();
+                        reject("Server error");
                     });
             }
         });
-
     }
 
     _getStartChunkPosition (position) {
