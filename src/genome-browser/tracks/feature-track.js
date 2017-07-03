@@ -478,6 +478,9 @@ class FeatureTrack {
     }
 
     getDataHandler(event) {
+        console.time("Total FeatureTrack -> getDataHandler " + event.sender.resource)
+
+        console.time("Chunks() FeatureTrack -> getDataHandler " + event.sender.resource)
         let features;
         if (event.dataType === "histogram") {
             this.renderer = this.histogramRenderer;
@@ -486,6 +489,9 @@ class FeatureTrack {
             this.renderer = this.defaultRenderer;
             features = this.getFeaturesToRenderByChunk(event);
         }
+        console.timeEnd("Chunks() FeatureTrack -> getDataHandler " + event.sender.resource)
+
+        console.time("render() FeatureTrack -> getDataHandler " + event.sender.resource)
         this.renderer.render(features, {
             cacheItems: event.items,
             svgCanvasFeatures: this.svgCanvasFeatures,
@@ -502,11 +508,13 @@ class FeatureTrack {
             featureType: this.featureType
         });
         this.updateHeight();
+        console.timeEnd("render() FeatureTrack -> getDataHandler " + event.sender.resource)
+        console.timeEnd("Total FeatureTrack -> getDataHandler " + event.sender.resource)
     }
 
     draw(adapter, renderer) {
 
-        if (adapter === null) {
+        if (typeof adapter === "undefined" || adapter === null) {
             adapter = this.dataAdapter;
         }
 
@@ -541,6 +549,7 @@ class FeatureTrack {
                 exclude: this.exclude
             };
 
+            console.time("SuperTotal FeatureTrack -> getDataHandler")
             adapter.getData({dataType: this.dataType, region: region, params: params})
                 .then(function (response) {
                     _this.getDataHandler(response);
@@ -549,6 +558,7 @@ class FeatureTrack {
                 .catch(function(reason) {
                     console.log("Feature Track draw error: " + reason)
                 });
+            console.timeEnd("SuperTotal FeatureTrack -> getDataHandler")
         } else {
             //        this.invalidZoomText.setAttribute("visibility", "visible");
         }
@@ -557,7 +567,6 @@ class FeatureTrack {
 
     getFeaturesToRenderByChunk(response, filters) {
         //Returns an array avoiding already drawn features in this.chunksDisplayed
-
         let getChunkId = function(position) {
             return Math.floor(position / response.chunkSize);
         };

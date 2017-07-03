@@ -101,8 +101,6 @@ class CellBaseAdapter {
             let chunks = [];
             for (let i = 0; i < groupedRegions.length; i++) {
                 args.webServiceCallCount++;
-                // console.log(params)
-                // debugger
                 _this.client.get(_this.category, _this.subCategory, groupedRegions[i], _this.resource, params)
                     .then(function (response) {
                         let responseChunks = _this._cellbaseSuccess(response, dataType, chunkSize);
@@ -151,8 +149,10 @@ class CellBaseAdapter {
 
         let items = [];
         for (let i = 0; i < regions.length; i++) {
+            let chunkStartId = Math.floor(regions[i].start / this.options.chunkSize);
             items.push({
-                chunkKey: `${regions[i].chromosome}:${regions[i].start}_${dataType}_${chunkSize}`,
+                chunkKey: `${regions[i].chromosome}:${chunkStartId}_${dataType}_${chunkSize}`,
+                // chunkKey: this._getChunkKey(regions[i].chromosome, chunkStartId),
                 region: regions[i],
                 value: chunks[i]
             });
