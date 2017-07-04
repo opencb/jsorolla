@@ -111,6 +111,11 @@
 <div id="application"></div>
 
 <script type="text/javascript">
+
+    /***************************************************************************/
+    /***** Setting Defaults Params                                           ***/
+    /***************************************************************************/
+
     // We first parse URL to check (and overwrite) if a CellBase Host and Version have been provided
     var queryParams = URI.parseQuery(window.location.search);
     if (typeof queryParams.CELLBASE_HOST !== "undefined") {
@@ -123,6 +128,7 @@
     var cellBaseClientConfig = new CellBaseClientConfig(hosts = CELLBASE_HOST, version = CELLBASE_VERSION);
     cellBaseClientConfig.cache.active = false;
     var cellbaseClient = new CellBaseClient(cellBaseClientConfig);
+
     // We parse the URL to check (and overwrite) the OPENCGA parameters as well
     if (typeof queryParams.OPENCGA_HOST !== "undefined") {
         OPENCGA_HOST = queryParams.OPENCGA_HOST;
@@ -133,7 +139,6 @@
     if (typeof queryParams.OPENCGA_PASSWORD !== "undefined") {
         OPENCGA_PASSWORD = queryParams.OPENCGA_PASSWORD;
     }
-
     console.log("Opencga host: " + OPENCGA_HOST, " - User: " + OPENCGA_USER, " - Password: " + OPENCGA_PASSWORD);
     var opencgaClientConfig = new OpenCGAClientConfig(OPENCGA_HOST);
     opencgaClientConfig.setPrefix("gm");
@@ -146,7 +151,8 @@
     //            .catch(function(e) {
     //                console.log("Error logging in " + OPENCGA_USER, e);
     //            });
-    // Take the file id to show the alignment track
+
+    // Take the file id to show the alignment track, this params are only necessary for Alignment Track
     let fileId;
     if (typeof queryParams.BAM_NAME !== "undefined") {
         fileId = queryParams.BAM_NAME;
@@ -155,12 +161,15 @@
     if (typeof queryParams.STUDY !== "undefined") {
         study = queryParams.STUDY;
     }
+
+    //GenomeBrowser, Region and Species:
     var genomeBrowser;
     var region = new Region({chromosome: "13", start: 32889607, end: 32890739});
     getSpecies(function(s) {
         AVAILABLE_SPECIES = s;
         run();
     });
+
     function getSpecies(callback) {
         cellbaseClient.getMeta("species").then(function(r) {
             var taxonomies = r.response[0].result[0];
@@ -180,6 +189,7 @@
             callback(taxonomies);
         });
     }
+
     function run() {
         var species = AVAILABLE_SPECIES.vertebrates[0];
         genomeBrowser = new GenomeBrowser({
@@ -213,6 +223,12 @@
             }
         });
 
+        tracks = [];
+
+        /***************************************************************************/
+        /***** Demo Gene overview Track using FeatureTrack and Cellbase adapter  ***/
+        /***************************************************************************/
+
         let renderer = new FeatureRenderer(FEATURE_TYPES.gene);
         renderer.on({
             'feature:click': function(event) {
@@ -220,6 +236,7 @@
                 console.log(event)
             }
         });
+
         let gene = new FeatureTrack({
 //        title: 'Gene overview',
             minHistogramRegionSize: 20000000,
@@ -235,8 +252,10 @@
         });
         genomeBrowser.addOverviewTrack(gene);
 
+        /***************************************************************************/
+        /***** Demo Sequence Track using FeatureTrack and Cellbase adapter       ***/
+        /***************************************************************************/
 
-        tracks = [];
         this.sequence = new FeatureTrack({
             title: 'Sequence',
             height: 20,
@@ -245,6 +264,10 @@
             dataAdapter: new CellBaseAdapter(cellbaseClient, "genomic", "region", "sequence", {}, { chunkSize: 100})
         });
         tracks.push(this.sequence);
+
+        /**************************************************************************/
+        /***** Demo Gene Track using GeneTrack and Cellbase adapter             ***/
+        /**************************************************************************/
 
         this.gene = new GeneTrack({
             title: 'Gene',
@@ -272,6 +295,10 @@
         });
         tracks.push(this.gene);
 
+        /***************************************************************************/
+        /***** Demo SNP Track using FeatureTrack and Cellbase adapter            ***/
+        /***************************************************************************/
+
 //        this.snp = new FeatureTrack({
 //            title: 'Variation',
 //            featureType: 'SNP',
@@ -290,7 +317,9 @@
 //        });
 //        tracks.push(this.snp);
 
-
+        /***************************************************************************/
+        /***** Demo Variant Track using VariantTrack and Opencga adapter         ***/
+        /***************************************************************************/
 
         //        let variant = new VariantTrack({
         //            title: "Variant",
@@ -313,60 +342,68 @@
         /*******************/
         /*******************/
         /*******************/
-        //        var objectVariant ={sampleNames:[]};
-        //        _.extend(objectVariant, FEATURE_TYPES.variant);
-        //        var request = new XMLHttpRequest();
-        //        var url = "http://bioinfodev.hpc.cam.ac.uk/hgva-1.2.0-dev/webservices/rest/v1/analysis/variant/query?studies=reference_grch37:1kG_phase3&samplesMetadata=true&region=false";
-        //        request.onload = function () {
-        //            objectVariant.sampleNames = JSON.parse(this.response).response[0].samples;
-        //            console.log(objectVariant.sampleNames);
-        //            var t = new FeatureTrack({
-        //                title: 'Variant',
-        //                closable: true,
-        //                minHistogramRegionSize: 20000000,
-        //                maxLabelRegionSize: 10000000,
-        //                minTranscriptRegionSize: 200000,
-        //                histogramColor: '#92de47',
-        //                height: 100,
-        ////            renderer: new FeatureRenderer(),
-        //                renderer: new VariantRenderer(objectVariant),
-        //                dataAdapter: new FeatureTemplateAdapter({
-        //                    multiRegions: false,
-        //                    histogramMultiRegions: false,
-        //                    uriTemplate: "http://bioinfodev.hpc.cam.ac.uk/hgva-1.1.0-dev/webservices/rest/v1/analysis/variant/query?region={region}&studies={studies}",
-        //                    templateVariables: {
-        //                        studies: "reference_grch37:1kG_phase3"
-        //                    },
-        //                    species: genomeViewer.species,
-        //                    cacheConfig: {
-        //                        chunkSize: 100000
-        //                    },
-        //                    parse: function(response) {
-        //                        var chunks = [];
-        //                        for(var i = 0; i< response.response.length; i++){
-        //                            var res = response.response[i].result;
-        ////                        res._sampleNames = response.response[i].samples;
-        ////
-        ////
-        ////                        for(var j = 0; j < res.length; j++){
-        ////                            res[j]["samples"] = response.response[i].samples;
-        ////                        }
-        //                            chunks.push(res);
-        //                        }
-        //                        console.log("Los chunks son:");
-        //                        console.log(chunks);
-        //                        return chunks;
-        //                    }
-        //                })
-        //            });
-        //            tracks.push(t);
-        //        };
-        //        request.onerror = function () {
-        //            console.log('Server error');
-        //        };
-        //        request.open('GET', url, false);
-        //        console.log(url);
-        //        request.send();
+
+
+        /****************************************************************************/
+        /***** Demo Variant Track using FeatureTrack and Feature-Template adapter ***/
+        /****************************************************************************/
+
+        var objectVariant ={sampleNames:[]};
+        _.extend(objectVariant, FEATURE_TYPES.variant);
+        var request = new XMLHttpRequest();
+        var url = "http://bioinfodev.hpc.cam.ac.uk/hgva-1.2.0-dev/webservices/rest/v1/analysis/variant/query?studies=reference_grch37:1kG_phase3&samplesMetadata=true&region=false";
+        request.onload = function () {
+            objectVariant.sampleNames = JSON.parse(this.response).response[0].samples;
+            console.log(objectVariant.sampleNames);
+            var t = new FeatureTrack({
+                title: 'Variant',
+                closable: true,
+                minHistogramRegionSize: 20000000,
+                maxLabelRegionSize: 10000000,
+                minTranscriptRegionSize: 200000,
+                histogramColor: '#92de47',
+                height: 100,
+//            renderer: new FeatureRenderer(),
+                renderer: new VariantRenderer(objectVariant),
+                dataAdapter: new FeatureTemplateAdapter({
+                    multiRegions: false,
+                    histogramMultiRegions: false,
+                    uriTemplate: "http://bioinfodev.hpc.cam.ac.uk/hgva-1.2.0-dev/webservices/rest/v1/analysis/variant/query?region={region}&studies={studies}&exclude={exclude}",
+                    templateVariables: {
+                        studies: "reference_grch37:1kG_phase3",
+                        exclude: "studies.files,studies.stats,annotation"
+                    },
+                    species: genomeBrowser.species,
+                    cacheConfig: {
+                        chunkSize: 100000
+                    },
+                    parse: function(response) {
+                        var chunks = [];
+                        for(var i = 0; i< response.response.length; i++){
+                            var res = response.response[i].result;
+//                        res._sampleNames = response.response[i].samples;
+//
+//                        for(var j = 0; j < res.length; j++){
+//                            res[j]["samples"] = response.response[i].samples;
+//                        }
+                            chunks.push(res);
+                        }
+                        console.log("Los chunks son:");
+                        console.log(chunks);
+                        return chunks;
+                    }
+                })
+            });
+            tracks.push(t);
+        };
+        request.onerror = function () {
+            console.log('Server error');
+        };
+        request.open('GET', url, false);
+        console.log(url);
+        request.send();
+
+
         //        var t = new FeatureTrack({
         //            title: 'test',
         //            closable: true,
@@ -408,6 +445,13 @@
         //        });
         //tracks.push(t);
         /*******************/
+
+
+        /****************************************************************************/
+        /***** Demo Alignment Track using AlignmentTrack and Opencga adapter      ***/
+        /****************************************************************************/
+
+
         /*******************/
         //        let alignment = new AlignmentTrack({
         //            title: "Alignment",
