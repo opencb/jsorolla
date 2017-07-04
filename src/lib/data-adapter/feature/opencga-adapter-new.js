@@ -113,7 +113,8 @@ debugger
                 let variants = this.client.variants().query(
                     {
                         region: groupedRegions[i],
-                        studies: studies
+                        studies: studies,
+                        exclude: "studies.files,studies.stats,annotation"
                         //exclude: "studies"
                         //study: study
                     })
