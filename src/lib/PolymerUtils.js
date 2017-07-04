@@ -35,23 +35,51 @@ class PolymerUtils {
     }
 
 
+    static show(id) {
+        PolymerUtils.addStyle(id, display, "inline");
+    }
+
+    static hide(id) {
+        PolymerUtils.addStyle(id, display, "none");
+    }
+
     static addClass(id, className) {
-        let el = this.getElementById(id)
-        if (PolymerUtils.isUndefinedOrNull(el)) {
-            el.classList.add(className);
+        if (PolymerUtils.isUndefinedOrNull(id)) {
+            let el;
+            if (id.startsWith(".")) {
+                // If starts with a dot then is a class, we use querySelector
+                el = PolymerUtils.querySelector(id);
+            } else {
+                // It is an ID
+                el = PolymerUtils.getElementById(id);
+            }
+
+            if (PolymerUtils.isUndefinedOrNull(el)) {
+                el.classList.add(className);
+            }
         }
     }
 
     static removeClass(id, className) {
-        let el = this.getElementById(id)
-        if (PolymerUtils.isUndefinedOrNull(el)) {
-            el.classList.remove(className);
+        if (PolymerUtils.isUndefinedOrNull(id)) {
+            let el;
+            if (id.startsWith(".")) {
+                // If starts with a dot then is a class, we use querySelector
+                el = PolymerUtils.querySelector(id);
+            } else {
+                // It is an ID
+                el = PolymerUtils.getElementById(id);
+            }
+            
+            if (PolymerUtils.isUndefinedOrNull(el)) {
+                el.classList.remove(className);
+            }
         }
     }
 
     static addStyle(id, key, value) {
         if (PolymerUtils.isUndefinedOrNull(key)) {
-            let el = this.getElementById(id)
+            let el = this.getElementById(id);
             if (PolymerUtils.isUndefinedOrNull(el)) {
                 el.style[key] = value;
             }
@@ -59,7 +87,7 @@ class PolymerUtils {
     }
 
     static removeStyle(id, key) {
-        let el = this.getElementById(id)
+        let el = PolymerUtils.getElementById(id);
         if (PolymerUtils.isUndefinedOrNull(el)) {
             delete el.style[key];
         }
@@ -67,7 +95,7 @@ class PolymerUtils {
 
     static setAttribute(id, key, value) {
         if (PolymerUtils.isUndefinedOrNull(key)) {
-            let el = this.getElementById(id)
+            let el = PolymerUtils.getElementById(id);
             if (PolymerUtils.isUndefinedOrNull(el)) {
                 el.setAttribute(key, value);
             }
@@ -76,7 +104,7 @@ class PolymerUtils {
 
     static removeAttribute(id, key) {
         if (PolymerUtils.isUndefinedOrNull(key)) {
-            let el = this.getElementById(id)
+            let el = PolymerUtils.getElementById(id);
             if (PolymerUtils.isUndefinedOrNull(el)) {
                 el.removeAttribute(key);
             }
