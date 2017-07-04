@@ -221,15 +221,16 @@ GeneRenderer.prototype.render = function (features, args) {
                             show: {delay: 300},
                             hide: {delay: 300}
                         });
+
                         transcriptGroup.addEventListener('click', function (e) {
-                            var query = this.getAttribute('data-widget-id');
-                            var idx = this.getAttribute("data-transcript-idx");
-                            _this.trigger('feature:click', {
-                                query: query,
-                                feature: feature.transcripts[idx],
-                                featureType: 'transcript',
-                                clickEvent: event
-                            });
+                            // var query = this.getAttribute('data-widget-id');
+                            // var idx = this.getAttribute("data-transcript-idx");
+                            // _this.trigger('feature:click', {
+                            //     query: query,
+                            //     feature: feature.transcripts[idx],
+                            //     featureType: 'transcript',
+                            //     clickEvent: event
+                            // });
                         });
 
 
@@ -265,8 +266,17 @@ GeneRenderer.prototype.render = function (features, args) {
                                 show: {delay: 300},
                                 hide: {delay: 300}
                             });
+
                             exonGroup.addEventListener('click', function (e) {
                                 // console.log(this.dataset.id);
+                                // var query = this.getAttribute('data-widget-id');
+                                // var idx = this.getAttribute("data-transcript-idx");
+                                // _this.trigger('feature:click', {
+                                //     query: query,
+                                //     feature: feature.transcripts[idx],
+                                //     featureType: 'transcript',
+                                //     clickEvent: event
+                                // });
                             });
 
 
