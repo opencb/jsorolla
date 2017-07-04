@@ -38,7 +38,7 @@ class OpencgaAdapter {
             this.options.chunkSize = 3000;
         }
 
-        _.extend(this, Backbone.Events);
+        Object.assign(this, Backbone.Events);
         this.on(this.handlers);
     }
 
@@ -46,16 +46,11 @@ class OpencgaAdapter {
     setSpecies(species) {
         // this.species = species;
     }
-    getVariant(args){
- console.log("pasando por el getVariant");
-        var _this = this;
-        var params = {};
-debugger
-        _.extend(params, this.params);
-        _.extend(params, args.params);
+
+    _checks(args){
 
         /** 1 region check **/
-        var region = args.region;
+        let region = args.region;
         if (region.start > 300000000 || region.end < 1) {
             return;
         }
@@ -63,94 +58,149 @@ debugger
         region.end = (region.end > 300000000) ? 300000000 : region.end;
 
         /** 2 category check **/
-        var categories = this.resource.toString().split(',');   // in this adapter
+        let categories = this.resource.toString().split(',');   // in this adapter
 
         /** 3 dataType check **/
-        var dataType = args.dataType;
+        let dataType = args.dataType;
         if (_.isUndefined(dataType)) {
-            console.log("dataType must be provided!!!");
+            console.error("dataType must be provided!!!");
+            return;
         }
 
         /** 4 chunkSize check **/
-        var chunkSize = params.interval ? params.interval : this.options.chunkSize; // this.cache.defaultChunkSize should be the same
+        let chunkSize = params.interval ? params.interval : this.options.chunkSize; // this.cache.defaultChunkSize should be the same
         if (this.debug) {
             console.log(chunkSize);
         }
-        /** 5 studies check **/
-        var studies = params.studies;
-        if (studies === undefined) {
-            return;
-        }
-        // Create the chunks to be retrieved
-        let start = this._getStartChunkPosition(region.start);
-        let end = this._getStartChunkPosition(region.end);
 
-        let regions = [];
-        let myRegion = start;
-        args.webServiceCallCount = 0;
+    }
 
-        do {
-            regions.push(`${region.chromosome}:${myRegion}-${myRegion + this.options.chunkSize - 1}`);
-            //regions.push(`chr${region.chromosome}:${myRegion}-${myRegion + this.options.chunkSize - 1}`);
-            myRegion += this.options.chunkSize;
-        } while(myRegion < end);
-        let groupedRegions = this._groupQueries(regions);
-        args.regions = groupedRegions;
+    getData(args){
+        console.log("In GetVariant");
+        let _this = this;
+        let params = {};
 
-        if (dataType === "features") {
+        Object.assign(params, this.params);
+        Object.assign(params, args.params);
+
+        _checks(args);
+
+        return new Promise(function(resolve, reject) {
+            // Create the chunks to be retrieved
+            let start = _this._getStartChunkPosition(region.start);
+            let end = _this._getStartChunkPosition(region.end);
+
+            let regions = [];
+            let myRegion = start;
+            args.webServiceCallCount = 0;
+
+            do {
+                regions.push(`${region.chromosome}:${myRegion}-${myRegion + _this.options.chunkSize - 1}`);
+                myRegion += _this.options.chunkSize;
+            } while(myRegion < end);
+
+            let groupedRegions = _this._groupQueries(regions);
             let chunks = [];
             for (let i = 0; i < groupedRegions.length; i++) {
                 args.webServiceCallCount++;
-                //let variants = this.client.variants().query(studies,
-                //    {
-                //        region: groupedRegions[i],
-                //        exclude: "studies"
-                //        //study: study
-                //    })
-                //    .then(function (response) {
-                //        return _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
-                //    });
-                let variants = this.client.variants().query(
-                    {
+                _this.client.get(_this.category, _this.subCategory, groupedRegions[i], _this.resource, params)
+                    .then(function (response) {
+                        let responseChunks = _this._generalOpencgaSuccess(response, dataType, chunkSize);
+                        args.webServiceCallCount--;
+
+                        chunks = chunks.concat(responseChunks);
+                        if (args.webServiceCallCount === 0) {
+                            chunks.sort(function (a, b) {
+                                return a.chunkKey.localeCompare(b.chunkKey);
+                            });
+                            resolve({items: chunks, dataType: dataType, chunkSize: chunkSize, sender: _this});
+                        }
+                    })
+                    .catch(function () {
+                        reject("Server error");
+                    });
+            }
+        });
+    }
+
+    getVariant(args){
+        console.log("In GetVariant");
+        let _this = this;
+        let params = {};
+
+        Object.assign(params, this.params);
+        Object.assign(params, args.params);
+
+        _checks(args); //TODO check the correct return
+
+        /** 5 studies check **/
+        let studies = params.studies;
+        if (studies === undefined) {
+            return;
+        }
+        return new Promise(function(resolve, reject) {
+            // Create the chunks to be retrieved
+            let start = this._getStartChunkPosition(region.start);
+            let end = this._getStartChunkPosition(region.end);
+
+            let regions = [];
+            let myRegion = start;
+            args.webServiceCallCount = 0;
+
+            do {
+                regions.push(`${region.chromosome}:${myRegion}-${myRegion + this.options.chunkSize - 1}`);
+                //regions.push(`chr${region.chromosome}:${myRegion}-${myRegion + this.options.chunkSize - 1}`);
+                myRegion += this.options.chunkSize;
+            } while (myRegion < end);
+
+            let groupedRegions = this._groupQueries(regions);
+            args.regions = groupedRegions;
+
+            if (dataType === "features") {
+                let chunks = [];
+                for (let i = 0; i < groupedRegions.length; i++) {
+                    args.webServiceCallCount++;
+
+                    this.client.variants().query({
                         region: groupedRegions[i],
                         studies: studies,
                         exclude: "studies.files,studies.stats,annotation"
-                        //exclude: "studies"
-                        //study: study
                     })
                     .then(function (response) {
                         console.log("Correctoo")
                         console.log(response)
                         //return _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
                         args.webServiceCallCount--;
-                        var responseChunks = _this._variantsuccess(response, categories, dataType, groupedRegions[i], region, chunkSize);
-
+                        let responseChunks = _this._variantsuccess(response, categories, dataType, groupedRegions[i], region, chunkSize);
 
                         chunks = chunks.concat(responseChunks);
                         if (args.webServiceCallCount === 0) {
-                            args.done({
+                            resolve({
                                 items: chunks, dataType: dataType, chunkSize: chunkSize, sender: _this
                             });
                         }
 
+                    })
+                    .catch(function () {
+                        reject("Server error");
                     });
+                }
+            } else { // histogram
+
             }
-        } else { // histogram
-
-        }
-
+        });
 
     }
 
     getAlignmentData(args) {
-        var _this = this;
-        var params = {};
+        let _this = this;
+        let params = {};
 //                    histogram: (dataType == 'histogram')
-        _.extend(params, this.params);
-        _.extend(params, args.params);
+        Object.assign(params, this.params);
+        Object.assign(params, args.params);
 
         /** 1 region check **/
-        var region = args.region;
+        let region = args.region;
         if (region.start > 300000000 || region.end < 1) {
             return;
         }
@@ -159,27 +209,27 @@ debugger
 
 
         /** 2 category check **/
-        var categories = this.resource.toString().split(',');   // in this adapter each category is each file
+        let categories = this.resource.toString().split(',');   // in this adapter each category is each file
 
         /** 3 dataType check **/
-        var dataType = args.dataType;
+        let dataType = args.dataType;
         if (_.isUndefined(dataType)) {
             console.log("dataType must be provided!!!");
         }
 
         /** 4 chunkSize check **/
-        var chunkSize = params.interval ? params.interval : this.options.chunkSize; // this.cache.defaultChunkSize should be the same
+        let chunkSize = params.interval ? params.interval : this.options.chunkSize; // this.cache.defaultChunkSize should be the same
         if (this.debug) {
             console.log(chunkSize);
         }
 
         /** 5 file check **/
-        var fileId = params.fileId;
+        let fileId = params.fileId;
         if (fileId === undefined) {
             return;
         }
 
-        var study = params.study;
+        let study = params.study;
 
         // Create the chunks to be retrieved
         let start = this._getStartChunkPosition(region.start);
@@ -296,12 +346,51 @@ debugger
         }
     }
 
-    _opencgaSuccess(data, categories, dataType, chunkSize, args) {
-        var timeId = Utils.randomString(4) + this.resource + " save";
+    _generalOpencgaSuccess (data, dataType, chunkSize) {
+        let timeId = `${Utils.randomString(4) + this.resource} save`;
         console.time(timeId);
         /** time log **/
-        var responseItems = [];
-        for (var i = 0; i < data.response.length; i++) {
+
+        let regions = [];
+        let chunks = [];
+        for (let i = 0; i < data.response.length; i++) {    // TODO test what do several responses mean
+            let queryResult = data.response[i];
+            if (dataType == "histogram") {
+                for (let j = 0; j < queryResult.result.length; j++) {
+                    let interval = queryResult.result[j];
+                    let region = new Region(interval);
+                    regions.push(region);
+                    chunks.push(interval);
+                }
+            } else {
+                regions.push(new Region(queryResult.id));
+                chunks.push(queryResult.result);
+            }
+        }
+
+        let items = [];
+        for (let i = 0; i < regions.length; i++) {
+            let chunkStartId = Math.floor(regions[i].start / this.options.chunkSize);
+            items.push({
+                chunkKey: `${regions[i].chromosome}:${chunkStartId}_${dataType}_${chunkSize}`,
+                // chunkKey: this._getChunkKey(regions[i].chromosome, chunkStartId),
+                region: regions[i],
+                value: chunks[i]
+            });
+        }
+
+        /** time log **/
+        console.timeEnd(timeId);
+
+        return items;
+    }
+
+    _opencgaSuccess(data, categories, dataType, chunkSize, args) {
+        let timeId = Utils.randomString(4) + this.resource + " save";
+        console.time(timeId);
+        /** time log **/
+        let responseItems = [];
+        for (let i = 0; i < data.response.length; i++) {
             // var chunks = [];
             // var queryResult = data.response[i].result;
             responseItems.push({
@@ -315,13 +404,12 @@ debugger
             // var items = this._adaptChunks(queryResult, categories[i], dataType, chunkSize);
             // responseItems = responseItems.concat(items);
         }
-console.log("pasando por el data");
-    console.log(data);
+        console.log("pasando por el data");
+        console.log(data);
         /** time log **/
         console.timeEnd(timeId);
 
         return responseItems;
-
     }
 
     _variantsuccess(response, categories, dataType, queryRegion, originalRegion, chunkSize) {
@@ -355,16 +443,16 @@ console.log("pasando por el data");
             } else {
                 chunks = response;
             }
-            for (var i = 0; i < chunks.length; i++) {
-                var interval = chunks[i];
-                var region = new Region(interval);
+            for (let i = 0; i < chunks.length; i++) {
+                let interval = chunks[i];
+                let region = new Region(interval);
                 region.chromosome = originalRegion.chromosome;
                 regions.push(region);
             }
         }
-    console.log(response);
-    debugger
-        var responseItems = [];
+        console.log(response);
+        debugger
+        let responseItems = [];
         responseItems.push({
             chunkKey: response.response[i].id,
             region: regions,
@@ -389,8 +477,8 @@ console.log("pasando por el data");
      * [ [r1,r2,r3,r4], [r5,r6,r7,r8] ]
      */
     _groupQueries(uncachedRegions) {
-        var groupSize = 50;
-        var queriesLists = [];
+        let groupSize = 50;
+        let queriesLists = [];
         while (uncachedRegions.length > 0) {
             queriesLists.push(uncachedRegions.splice(0, groupSize).toString());
         }
@@ -398,18 +486,18 @@ console.log("pasando por el data");
     }
 
     _adaptChunks(queryResult, category, dataType, chunkSize) {
-        var chunks;
-        var regions;
-        var items = [];
+        let chunks;
+        let regions;
+        let items = [];
 //        debugger
         if (queryResult.resultType == "org.opencb.biodata.models.variant.Variant") {
             chunks = [];
             regions = [];
-            var keyToPair = {};
-            for (var i = 0; i < queryResult.result.length; i++) {
-                var variation = queryResult.result[i];
-                var chunkId = this.cache.getChunkId(variation.start, chunkSize);
-                var key = this.cache.getChunkKey(variation.chromosome,
+            let keyToPair = {};
+            for (let i = 0; i < queryResult.result.length; i++) {
+                let variation = queryResult.result[i];
+                let chunkId = this.cache.getChunkId(variation.start, chunkSize);
+                let key = this.cache.getChunkKey(variation.chromosome,
                     chunkId,
                     dataType,
                     chunkSize);
@@ -426,7 +514,7 @@ console.log("pasando por el data");
             items = this.cache.putByRegions(regions, chunks, category, dataType, chunkSize);
         } else { //if(queryResult.resultType == "org.opencb.biodata.models.alignment.AlignmentRegion") {
             regions = [];
-            for (var j = 0; j < queryResult.result.length; j++) {
+            for (let j = 0; j < queryResult.result.length; j++) {
                 regions.push(new Region(queryResult.result[j]));
             }
             chunks = queryResult.result;

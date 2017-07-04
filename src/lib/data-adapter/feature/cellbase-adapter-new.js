@@ -34,7 +34,7 @@ class CellBaseAdapter {
         }
 
         // Extend backbone events
-        _.extend(this, Backbone.Events);
+        Object.assign(this, Backbone.Events);
         // _.extend(this, args);
         this.on(this.handlers);
     }
@@ -52,8 +52,8 @@ class CellBaseAdapter {
 
         let params = {};
         //histogram: (dataType == 'histogram')
-        _.extend(params, this.params);
-        _.extend(params, args.params);
+        Object.assign(params, this.params);
+        Object.assign(params, args.params);
 
         /** 1 region check **/
         let region = args.region;
