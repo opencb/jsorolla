@@ -27,7 +27,7 @@ class TrackListPanel { //parent is a DOM div element
         Object.assign(this, Backbone.Events);
 
         this.cellBaseHost = "http://bioinfo.hpc.cam.ac.uk/cellbase";
-        this.cellBaseVersion = "v3";
+        this.cellBaseVersion = "v4";
 
         //set default args
         this.target;
