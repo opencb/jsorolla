@@ -13,7 +13,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<!--<link rel="import" href="../opencga-message-dialog.html">-->
+<link rel="import" href="../opencga-message-dialog.html">
 
 <dom-module id="variant-clinical-upload">
     <template>
@@ -502,7 +502,7 @@
             </div>
         </div>
 
-        <!--<opencga-message-dialog opencga-client="{{opencgaClient}}" show-message-modal="{{showMessageModal}}" settings-message-modal="{{settingsMessageModal}}"></opencga-message-dialog>-->
+        <opencga-message-dialog opencga-client="{{opencgaClient}}" show-message-modal="{{showMessageModal}}" settings-message-modal="{{settingsMessageModal}}"></opencga-message-dialog>
     </template>
 
     <script>
@@ -697,17 +697,21 @@
             }
             loadICDEditor(e) {
                 $("#" + this.prefix + "errorTermDiv").html("");
-                this.$$("#" + this.prefix + "autoInput").value="";
+                //this.$$("#" + this.prefix + "autoInput").value="";
+                document.getElementById(this.prefix + "autoInput").setAttribute('value','');
                 this.icdTerms = this.getICDterms();
 
                 let _this = this;
                 $("#" + this.prefix +"ICDtree").treeview({
                     data: ICD_10,
                     onNodeSelected: function(event, node) {
-                        _this.$$("#" + _this.prefix + "autoInput").value=node.text;
+                        //_this.$$("#" + _this.prefix + "autoInput").value=node.text;
+                        document.getElementById(this.prefix + "autoInput").setAttribute('value',node.text);
+
                     },
                     onNodeUnselected: function(event, node) {
-                        _this.$$("#" + _this.prefix + "autoInput").value="";
+                        //_this.$$("#" + _this.prefix + "autoInput").value="";
+                        document.getElementById(this.prefix + "autoInput").setAttribute('value','');
                     },
                 });
 
@@ -746,7 +750,8 @@
                 if (selectedTerm !== "") { // Check that the term is correct (one of the list)
                     let _icdTermsNS = $.map(this.icdTerms, function(elem){return elem.replace(/^\s+/g, '')});
                     if ($.inArray(selectedTerm, _icdTermsNS)!= -1) {
-                        this.$$("#" + this.prefix + "diagnosis").value = selectedTerm;
+                        //this.$$("#" + this.prefix + "diagnosis").value = selectedTerm;
+                        document.getElementById(this.prefix + "diagnosis").setAttribute('value', selectedTerm);
                         $("#" + this.prefix + "icd").modal('hide');
                     }
                     else {
@@ -754,7 +759,8 @@
                     }
                 }
                 else {
-                    this.$$("#" + this.prefix + "diagnosis").value = '';
+                    //this.$$("#" + this.prefix + "diagnosis").value = '';
+                    document.getElementById(this.prefix + "diagnosis").setAttribute('value','');
                     $("#" + this.prefix + "icd").modal('hide');
                 }
             }
@@ -1062,7 +1068,8 @@
                     };
 
                     let _this = this;
-                    let _individualId = this.$$("#"+ this.prefix + "patientID").value;
+                    //let _individualId = this.$$("#"+ this.prefix + "patientID").value;
+                    let _individualId = document.getElementById(this.prefix + "patientID").value;
                     this.opencgaClient.individuals().info(_individualId, params, {"method": "GET"})
                         .then(function (response) {
                             if (response.response[0].numResults >= 1) {

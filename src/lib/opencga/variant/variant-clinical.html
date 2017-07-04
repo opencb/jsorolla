@@ -199,10 +199,6 @@
                     prefix: {
                         type: String
                     },
-                    //                mode: {
-                    //                    type: String,
-                    //                    value: "clinical"
-                    //                },
                     query: {
                         type: Object
                     },
@@ -239,12 +235,8 @@
                 }
 
                 this.mode = "clinical";
-                console.log(this);
-                debugger;
             }
             changeTool(e) {
-                console.log(this);
-                debugger;
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
                 $('.analysis-content').hide(); // hides all content divs
                 $('.analysis-button').removeClass("btn-primary").addClass("btn-success"); // Make all buttons to belong to btn-success (the same colour)

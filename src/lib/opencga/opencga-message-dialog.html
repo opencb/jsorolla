@@ -45,29 +45,38 @@
     </template>
 
     <script>
-        Polymer({
-            is: 'opencga-message-dialog',
-            properties: {
-                opencgaClient: {
-                    type: Object
-                },
-                showMessageModal: {
-                    type: Boolean,
-                    observer: "modalEvent",
-                    notify: true
-                },
-                settingsMessageModal: {
-                    type: Object
+        class OpencgaMessageDialog extends Polymer.Element{
+            static get is() { return 'opencga-message-dialog'; }
+            static get properties() {
+                return {
+                    opencgaClient: {
+                        type: Object
+                    },
+                    showMessageModal: {
+                        type: Boolean,
+                        observer: "modalEvent",
+                        notify: true
+                    },
+                    settingsMessageModal: {
+                        type: Object
+                    }
                 }
-            },
-            ready: function () {
+            }
+            constructor() {
+                super();
+            }
 
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+            ready() {
+                super.ready();
                 if (typeof this.prefix === "undefined" || this.prefix === "") {
                     this.prefix = "dialog" + Utils.randomString(6);
                 }
 
-            },
-            modalEvent: function() {
+            }
+            modalEvent() {
                 if (typeof this.showMessageModal != "undefined" && this.showMessageModal == true &&
                 typeof this.settingsMessageModal != "undefined"){
 
@@ -101,6 +110,7 @@
 
                 }
             }
-        });
+        }
+        customElements.define(OpencgaMessageDialog.is, OpencgaMessageDialog);
     </script>
 </dom-module>
