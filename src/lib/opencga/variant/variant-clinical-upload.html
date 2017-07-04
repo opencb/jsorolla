@@ -17,13 +17,11 @@
 
 <dom-module id="variant-clinical-upload">
     <template>
-        <custom-style>
-            <style include="jso-styles">
-                .title {
-                    margin: 30px 5px 25px -40px;
-                }
-            </style>
-        </custom-style>
+        <style>
+            .title {
+                margin: 30px 5px 25px -40px;
+            }
+        </style>
 
         <div class="col-md-12">
             <div style="width: 60%; margin: 0px 0px 0px 90px">
@@ -35,18 +33,23 @@
                         <label for="{{prefix}}patientID" class="col-xs-2 col-form-label">Patient ID</label>
                         <div class="col-xs-6">
                             <div class="input-group">
-                                <input type="text" class$="form-control {{prefix}}TextInput codeDis" id="{{prefix}}patientID" name="patientID" placeholder="ID or clinical record number" maxlength="75" required data-error="" pattern=".+">
+                                <input type="text" class$="form-control {{prefix}}TextInput codeDis"
+                                       id="{{prefix}}patientID" name="patientID"
+                                       placeholder="ID or clinical record number" maxlength="75" required data-error=""
+                                       pattern=".+">
                                 <span class="input-group-addon btn btn-primary" on-click="searchIndividual">
                                     <i class="fa fa-search" aria-hidden="true"></i>
                                 </span>
                             </div>
-                            <span class="glyphicon form-control-feedback" aria-hidden="true" style="padding-right:60px; z-index:5"></span>
+                            <span class="glyphicon form-control-feedback" aria-hidden="true"
+                                  style="padding-right:60px; z-index:5"></span>
                             <div class="help-block with-errors"></div>
                         </div>
                     </div>
                     <!-- CHROMOSOMAL GENDER -->
                     <div class="form-group row has-feedback">
-                        <label for="{{prefix}}chromosomalGender" class="col-xs-2 col-form-label">Chromosomal Gender</label>
+                        <label for="{{prefix}}chromosomalGender" class="col-xs-2 col-form-label">Chromosomal
+                            Gender</label>
                         <div class="col-xs-3">
                             <select class$="form-control {{prefix}}SelectInput codeDis" id="{{prefix}}chromosomalGender"
                                     name="chromosomalGender" required>
@@ -120,7 +123,11 @@
                     <div class="form-group row has-feedback" id="otherCountryDiv" style="display:none">
                         <label for="{{prefix}}otherCountry" class="col-xs-2 col-form-label"></label>
                         <div class="col-xs-3">
-                            <input type="text" class$="form-control {{prefix}}TextInput codeDis" id="{{prefix}}otherCountry" name="otherCountry" placeholder="Introduce country" maxlength="75" required data-error="Mandatory country. Only a-z characteres and spaces are allowed" pattern="^[A-Za-z]+((\\s)?([A-Za-z])+)+$">
+                            <input type="text" class$="form-control {{prefix}}TextInput codeDis"
+                                   id="{{prefix}}otherCountry" name="otherCountry" placeholder="Introduce country"
+                                   maxlength="75" required
+                                   data-error="Mandatory country. Only a-z characteres and spaces are allowed"
+                                   pattern="^[A-Za-z]+((\\s)?([A-Za-z])+)+$">
                             <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
                             <div class="help-block with-errors"></div>
                         </div>
@@ -128,7 +135,8 @@
 
                     <!-- BIRTH PLACE (PROVINCE) -->
                     <div class="form-group row has-feedback">
-                        <label for="{{prefix}}birthPlaceRegion" class="col-xs-2 col-form-label">Birth Place (province)</label>
+                        <label for="{{prefix}}birthPlaceRegion" class="col-xs-2 col-form-label">Birth Place
+                            (province)</label>
                         <div class="col-xs-3">
                             <select class$="form-control {{prefix}}SelectInput codeDis" id="{{prefix}}birthPlaceRegion"
                                     name="birthPlaceRegion" required>
@@ -163,13 +171,17 @@
                         <label for="{{prefix}}HPO" class="col-xs-2 col-form-label">HPO</label>
                         <div class="col-xs-6">
                             <div class="input-group">
-                                <textarea class$="form-control {{prefix}}TextInput codeDis" id="{{prefix}}HPO" name="HPO"
-                                          placeholder="HP:0000947" data-error="An HPO term must be selected" rows="2" style="resize:none"></textarea>
-                                <span class="input-group-addon btn btn-primary" data-toggle="modal" data-target$="#{{prefix}}hpoModal">
+                                <textarea class$="form-control {{prefix}}TextInput codeDis" id="{{prefix}}HPO"
+                                          name="HPO"
+                                          placeholder="HP:0000947" data-error="An HPO term must be selected" rows="2"
+                                          style="resize:none"></textarea>
+                                <span class="input-group-addon btn btn-primary" data-toggle="modal"
+                                      data-target$="#{{prefix}}hpoModal">
                                     <i class="fa fa-search" aria-hidden="true"></i>
                                 </span>
                             </div>
-                            <span class="glyphicon form-control-feedback" aria-hidden="true" style="padding-right:60px; padding-top:10px; z-index:5"></span>
+                            <span class="glyphicon form-control-feedback" aria-hidden="true"
+                                  style="padding-right:60px; padding-top:10px; z-index:5"></span>
                             <div class="help-block with-errors"></div>
                         </div>
                     </div>
@@ -179,14 +191,19 @@
                         <label for="{{prefix}}diagnosis" class="col-xs-2 col-form-label">Diagnosis</label>
                         <div class="col-xs-6">
                             <div class="input-group">
-                                <textarea class$="form-control {{prefix}}TextInput" id="{{prefix}}diagnosis" name="diagnosis"
-                                          placeholder="ICD-10 term" required data-error="A diagnosis term must be selected" readonly rows="2" style="resize:none"></textarea>
+                                <textarea class$="form-control {{prefix}}TextInput" id="{{prefix}}diagnosis"
+                                          name="diagnosis"
+                                          placeholder="ICD-10 term" required
+                                          data-error="A diagnosis term must be selected" readonly rows="2"
+                                          style="resize:none"></textarea>
                                 <!--<span class="input-group-addon btn btn-primary" id="{{prefix}}icdButton" data-toggle="modal" data-target$="#{{prefix}}icd">-->
-                                <span class="input-group-addon btn btn-primary" id="{{prefix}}icdButton" on-click="showICD">
+                                <span class="input-group-addon btn btn-primary" id="{{prefix}}icdButton"
+                                      on-click="showICD">
                                     <i class="fa fa-search" aria-hidden="true"></i>
                                 </span>
                             </div>
-                            <span class="glyphicon form-control-feedback" aria-hidden="true" style="padding-right:60px; padding-top:10px; z-index:5"></span>
+                            <span class="glyphicon form-control-feedback" aria-hidden="true"
+                                  style="padding-right:60px; padding-top:10px; z-index:5"></span>
                             <div class="help-block with-errors"></div>
 
                         </div>
@@ -198,8 +215,12 @@
                         <div class="col-xs-6">
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label codeDis">
-                                    <input id="{{prefix}}parentalConsanguinityno" class$="form-check-input {{prefix}}RadioInput" type="radio" name="parentalConsanguinity" value="false" checked> no
-                                    <input id="{{prefix}}parentalConsanguinityyes" class$="form-check-input {{prefix}}RadioInput" type="radio" name="parentalConsanguinity" value="true"> yes
+                                    <input id="{{prefix}}parentalConsanguinityno"
+                                           class$="form-check-input {{prefix}}RadioInput" type="radio"
+                                           name="parentalConsanguinity" value="false" checked> no
+                                    <input id="{{prefix}}parentalConsanguinityyes"
+                                           class$="form-check-input {{prefix}}RadioInput" type="radio"
+                                           name="parentalConsanguinity" value="true"> yes
                                 </label>
                             </div>
                             <div class="help-block with-errors"></div>
@@ -232,7 +253,9 @@
                             <template is="dom-repeat" items="{{config.cell_line}}">
                                 <div class="form-check form-check-inline">
                                     <label class="form-check-label">
-                                        <input id="{{prefix}}{{item.id}}" class$="form-check-input {{prefix}}RadioInput" type="radio" name="cellLine" value="{{item.title}}" checked="{{item.checked}}"> {{item.title}}
+                                        <input id="{{prefix}}{{item.id}}" class$="form-check-input {{prefix}}RadioInput"
+                                               type="radio" name="cellLine" value="{{item.title}}"
+                                               checked="{{item.checked}}"> {{item.title}}
                                     </label>
                                 </div>
                             </template>
@@ -241,7 +264,8 @@
                     </div>
 
                     <!-- SPECIFIC FIELDS FROM VARIABLE SET -->
-                    <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}" as="variable" sort="_sortVariables">
+                    <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}" as="variable"
+                              sort="_sortVariables">
 
                         <template is="dom-if" if="{{isVisible(variable,config)}}">
                             <div class="form-group row has-feedback">
@@ -262,9 +286,12 @@
                                     <template is="dom-if" if="{{checkSubType(variable, 'STRING')}}">
                                         <!-- String subtype: include an input text and add suitable regular expression for text-->
                                         <div class="col-xs-6">
-                                            <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}{{variable.name}}" name="{{variable.name}}"
-                                                   placeholder="{{variable.defaultValue}}" maxlength="{{variable.attributes.maxLength}}" required
-                                                   data-error="{{variable.attributes.errorPattern}}" pattern="{{variable.attributes.pattern}}">
+                                            <input type="text" class$="form-control {{prefix}}TextInput"
+                                                   id="{{prefix}}{{variable.name}}" name="{{variable.name}}"
+                                                   placeholder="{{variable.defaultValue}}"
+                                                   maxlength="{{variable.attributes.maxLength}}" required
+                                                   data-error="{{variable.attributes.errorPattern}}"
+                                                   pattern="{{variable.attributes.pattern}}">
                                             <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
                                             <div class="help-block with-errors"></div>
                                         </div>
@@ -273,9 +300,12 @@
                                     <template is="dom-if" if="{{checkSubType(variable, 'TEXT')}}">
                                         <!-- String subtype: include a text area and add suitable regular expression for text-->
                                         <div class="col-xs-6">
-                                            <textarea class$="form-control {{prefix}}TextInput" id="{{prefix}}{{variable.name}}" name="{{variable.name}}"
-                                                      placeholder="{{variable.defaultValue}}" maxlength="{{variable.attributes.maxLength}}" required rows="5"
-                                                      data-error="{{variable.attributes.errorPattern}}" pattern="{{variable.attributes.pattern}}"></textarea>
+                                            <textarea class$="form-control {{prefix}}TextInput"
+                                                      id="{{prefix}}{{variable.name}}" name="{{variable.name}}"
+                                                      placeholder="{{variable.defaultValue}}"
+                                                      maxlength="{{variable.attributes.maxLength}}" required rows="5"
+                                                      data-error="{{variable.attributes.errorPattern}}"
+                                                      pattern="{{variable.attributes.pattern}}"></textarea>
                                             <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
                                             <div class="help-block with-errors"></div>
                                         </div>
@@ -285,9 +315,12 @@
                                         <template is="dom-if" if="{{!checkSubType(variable, 'TEXT')}}">
                                             <!-- String subtype: include an input text and add suitable regular expression for text-->
                                             <div class="col-xs-6">
-                                                <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}{{variable.name}}" name="{{variable.name}}"
-                                                       placeholder="{{variable.defaultValue}}" maxlength="{{variable.attributes.maxLength}}" required
-                                                       data-error="{{variable.attributes.errorPattern}}" pattern="{{variable.attributes.pattern}}">
+                                                <input type="text" class$="form-control {{prefix}}TextInput"
+                                                       id="{{prefix}}{{variable.name}}" name="{{variable.name}}"
+                                                       placeholder="{{variable.defaultValue}}"
+                                                       maxlength="{{variable.attributes.maxLength}}" required
+                                                       data-error="{{variable.attributes.errorPattern}}"
+                                                       pattern="{{variable.attributes.pattern}}">
                                                 <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
                                                 <div class="help-block with-errors"></div>
                                             </div>
@@ -308,8 +341,10 @@
                                 <template is="dom-if" if="{{checkVarType(variable, 'INTEGER')}}">
                                     <!-- INTEGER type: include an input text and add suitable regular expression for numbers -->
                                     <div class="col-xs-6">
-                                        <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}{{variable.name}}" name="{{variable.name}}"
-                                               placeholder="{{variable.name}} number" pattern="^[0-9]+$" maxlength="75" required data-error="Mandatory field. Only numbers are allowed ">
+                                        <input type="text" class$="form-control {{prefix}}TextInput"
+                                               id="{{prefix}}{{variable.name}}" name="{{variable.name}}"
+                                               placeholder="{{variable.name}} number" pattern="^[0-9]+$" maxlength="75"
+                                               required data-error="Mandatory field. Only numbers are allowed ">
                                         <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
                                         <div class="help-block with-errors"></div>
                                     </div>
@@ -318,8 +353,10 @@
                                 <template is="dom-if" if="{{checkVarType(variable, 'DOUBLE')}}">
                                     <!-- DOUBLE type: include an input text and add suitable regular expression for numbers -->
                                     <div class="col-xs-6">
-                                        <input type="text" class$="form-control {{prefix}}TextInput" id="{{prefix}}{{variable.name}}" name="{{variable.name}}"
-                                               placeholder="{{variable.name}} number" pattern="^[0-9]+$" maxlength="75" required data-error="Mandatory field. Only numbers are allowed ">
+                                        <input type="text" class$="form-control {{prefix}}TextInput"
+                                               id="{{prefix}}{{variable.name}}" name="{{variable.name}}"
+                                               placeholder="{{variable.name}} number" pattern="^[0-9]+$" maxlength="75"
+                                               required data-error="Mandatory field. Only numbers are allowed ">
                                         <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
                                         <div class="help-block with-errors"></div>
                                     </div>
@@ -330,13 +367,16 @@
                                     <!-- Dropdown related to years : fill in with values contained in {{years}} -->
                                     <template is="dom-if" if="{{checkType(variable.name,'Year')}}">
                                         <div class="col-xs-6">
-                                            <select class$="form-control {{prefix}}SelectInput" id="{{prefix}}{{variable.name}}" name="{{variable.name}}" required on-change="checkYears">
+                                            <select class$="form-control {{prefix}}SelectInput"
+                                                    id="{{prefix}}{{variable.name}}" name="{{variable.name}}" required
+                                                    on-change="checkYears">
                                                 <option></option>
                                                 <template is="dom-repeat" items="{{yearsTest}}">
                                                     <option value="{{item}}">{{item}}</option>
                                                 </template>
                                             </select>
-                                            <div class="help-block with-errors" id="{{prefix}}_errorDiv_{{variable.name}}"></div>
+                                            <div class="help-block with-errors"
+                                                 id="{{prefix}}_errorDiv_{{variable.name}}"></div>
                                         </div>
                                     </template>
 
@@ -345,7 +385,9 @@
                                 <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 1, 2)}}">
                                     <!-- CATEGORICAL type, single value: check box -->
                                     <div class="col-xs-6">
-                                        <input class$="{{prefix}}CheckInput" type="checkbox" id="{{prefix}}{{variable.name}}" name="{{variable.name}}" value="{{variable.name}}" style="padding-left: 20px" required>
+                                        <input class$="{{prefix}}CheckInput" type="checkbox"
+                                               id="{{prefix}}{{variable.name}}" name="{{variable.name}}"
+                                               value="{{variable.name}}" style="padding-left: 20px" required>
                                     </div>
                                 </template>
 
@@ -356,7 +398,9 @@
                                         <template is="dom-repeat" items="{{variable.allowedValues}}" as="value">
                                             <div class="form-check form-check-inline">
                                                 <label class="form-check-label">
-                                                    <input id="{{prefix}}{{variable.name}}{{value}}" class$="form-check-input {{prefix}}RadioInput" type="radio" name="{{variable.name}}" value="{{value}}"> {{value}}
+                                                    <input id="{{prefix}}{{variable.name}}{{value}}"
+                                                           class$="form-check-input {{prefix}}RadioInput" type="radio"
+                                                           name="{{variable.name}}" value="{{value}}"> {{value}}
                                                 </label>
                                             </div>
                                         </template>
@@ -367,13 +411,16 @@
                                 <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 3, 500)}}">
                                     <!-- CATEGORICAL type: dropdown: at least three elements in variable.allowedValues -->
                                     <div class="col-xs-3">
-                                        <select class$="form-control {{prefix}}SelectInput" id="{{prefix}}{{variable.name}}" name="{{variable.name}}" required on-change="updateSelect">
+                                        <select class$="form-control {{prefix}}SelectInput"
+                                                id="{{prefix}}{{variable.name}}" name="{{variable.name}}" required
+                                                on-change="updateSelect">
                                             <option></option>
                                             <template is="dom-repeat" items="{{variable.allowedValues}}">
                                                 <option value="{{item}}">{{item}}</option>
                                             </template>
                                         </select>
-                                        <div class="help-block with-errors" id="{{prefix}}_errorDiv_{{variable.name}}"></div>
+                                        <div class="help-block with-errors"
+                                             id="{{prefix}}_errorDiv_{{variable.name}}"></div>
                                     </div>
                                 </template>
 
@@ -383,8 +430,12 @@
                                     <div class="col-xs-6">
                                         <div class="form-check form-check-inline">
                                             <label class="form-check-label">
-                                                <input id="{{prefix}}{{variable.name}}yes" class$="form-check-input {{prefix}}RadioInput" type="radio" name="{{variable.name}}" value="true"> yes
-                                                <input id="{{prefix}}{{variable.name}}no" class$="form-check-input {{prefix}}RadioInput" type="radio" name="{{variable.name}}" value="false"> no
+                                                <input id="{{prefix}}{{variable.name}}yes"
+                                                       class$="form-check-input {{prefix}}RadioInput" type="radio"
+                                                       name="{{variable.name}}" value="true"> yes
+                                                <input id="{{prefix}}{{variable.name}}no"
+                                                       class$="form-check-input {{prefix}}RadioInput" type="radio"
+                                                       name="{{variable.name}}" value="false"> no
                                             </label>
                                         </div>
                                         <div class="help-block with-errors"></div>
@@ -398,10 +449,12 @@
                         <label for="uploadInputFileVCF" class="col-xs-2 col-form-label">VCF or gVCF file</label>
                         <div class="col-xs-6">
                             <div class="input-group">
-                                <input type="text" class$="form-control {{prefix}}TextInput" id="uploadInputFileVCF" name="inputFile" readonly>
+                                <input type="text" class$="form-control {{prefix}}TextInput" id="uploadInputFileVCF"
+                                       name="inputFile" readonly>
                                 <span class="input-group-btn">
                                     <label class="btn btn-primary" for="{{prefix}}FileToUpload">
-                                        <input id="{{prefix}}FileToUpload" type="file" style="display:none;" onchange="$('#uploadInputFileVCF')[0].value=$(this).val().replace('C:\\fakepath\\','');">
+                                        <input id="{{prefix}}FileToUpload" type="file" style="display:none;"
+                                               onchange="$('#uploadInputFileVCF')[0].value=$(this).val().replace('C:\\fakepath\\','');">
                                         ...
                                     </label>
                                 </span>
@@ -413,7 +466,8 @@
                     <!--<div class="form-group row" style="float: right; width: 55%;">-->
                     <div class="form-group row" style="padding-left: 240px;">
                         <button type="button" class="btn btn-primary" on-click="_clearHtmlDom">Clear form</button>
-                        <button type="submit" class="btn btn-primary" on-click="submitForm">Upload and check sample</button>
+                        <button type="submit" class="btn btn-primary" on-click="submitForm">Upload and check sample
+                        </button>
                     </div>
                 </form>
             </div>
@@ -425,11 +479,12 @@
             <div class="modal-dialog modal-sm" role="document" style="width: 500px;">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">&times;</span></button>
                         <h4 class="modal-title" id="{{prefix}}HPOEditorLabel">HPO terms selector</h4>
                     </div>
                     <div class="modal-body" style="height: 200px">
-                        <div class="col-sm-12" >
+                        <div class="col-sm-12">
                             <label>Under progress.</label>
                             Introduce an HPO term (HP:0202564) in the upload form (HPO text input)
                         </div>
@@ -447,15 +502,17 @@
             <div class="modal-dialog modal-sm" role="document" style="width: 1300px;">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">&times;</span></button>
                         <h4 class="modal-title" id="{{prefix}}Icd10EditorLabel">Diagnosis selector (ICD-10 Terms)</h4>
                     </div>
                     <div class="modal-body" style="height: 500px">
-                        <div class="col-sm-12" >
+                        <div class="col-sm-12">
                             <label>Introduce an ICD-10 term or select it from tree</label>
                         </div>
                         <div class="col-sm-6" style="overflow-y: auto; height:400px;">
-                            <input id="{{prefix}}autoInput" list="icd_browser" class$="form-control {{prefix}}TextInput" placeholder="ICD-10 term" >
+                            <input id="{{prefix}}autoInput" list="icd_browser" class$="form-control {{prefix}}TextInput"
+                                   placeholder="ICD-10 term">
                             <datalist id="icd_browser" style="height:auto; max-height:100px; overflow-x:hidden;">
                                 <template is="dom-repeat" items="{{icdTerms}}">
                                     <option value="{{item}}">
@@ -485,11 +542,12 @@
             <div class="modal-dialog modal-sm" role="document" style="width: 500px;">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">&times;</span></button>
                         <h4 class="modal-title" id="{{prefix}}uploadLabel">VCF upload</h4>
                     </div>
                     <div class="modal-body" style="height: 200px">
-                        <div class="col-sm-12" >
+                        <div class="col-sm-12">
                             <label>VCF has been uploaded. You can now proceed to Analysis</label>
                             VCF validation is under progress.
                         </div>
@@ -502,12 +560,16 @@
             </div>
         </div>
 
-        <opencga-message-dialog opencga-client="{{opencgaClient}}" show-message-modal="{{showMessageModal}}" settings-message-modal="{{settingsMessageModal}}"></opencga-message-dialog>
+        <opencga-message-dialog opencga-client="{{opencgaClient}}" show-message-modal="{{showMessageModal}}"
+                                settings-message-modal="{{settingsMessageModal}}"></opencga-message-dialog>
     </template>
 
     <script>
         class VariantClinicalUpload extends Polymer.Element {
-            static get is() { return 'variant-clinical-upload'; }
+            static get is() {
+                return 'variant-clinical-upload';
+            }
+
             static get properties() {
                 return {
                     opencgaClient: {
@@ -552,6 +614,7 @@
                     }
                 }
             }
+
             constructor() {
                 super();
             }
@@ -559,6 +622,7 @@
             _attachDom(dom) {
                 this.appendChild(dom);
             }
+
             ready() {
                 super.ready();
 
@@ -570,20 +634,23 @@
                 let fullDate = new Date();
                 let limitYear = fullDate.getFullYear();
                 let year = 0;
-                for (year = this.minYearBirth; year<=limitYear; year++)
-                {_years.push(year);}
+                for (year = this.minYearBirth; year <= limitYear; year++) {
+                    _years.push(year);
+                }
                 // This change triggers the polymer dom-repeat
                 this.yearsBirth = _years;
 
                 _years = [];
-                for (year = this.minYearTest; year<=limitYear; year++)
-                {_years.push(year);}
+                for (year = this.minYearTest; year <= limitYear; year++) {
+                    _years.push(year);
+                }
                 // This change triggers the polymer dom-repeat
                 this.yearsTest = _years;
 
                 this._clearHtmlDom();
                 //this.set('icd10Terms', ICD_10);
             }
+
             updateVariableSets() {
                 this.variables = [];
                 let _this = this;
@@ -598,7 +665,7 @@
                             };
 
                         } else {
-                            _this.variableSets = [{name : "none"}];
+                            _this.variableSets = [{name: "none"}];
                         }
                     })
                     .catch(function (response) {
@@ -615,39 +682,51 @@
                     });
                 this.loadICDEditor();
             }
+
             _sortVariables(a, b) {
                 if (a.rank < b.rank) {
                     return -1;
                 }
                 return 1;
             }
+
             variablesChanged() {
                 this._areVariablesEmpty = (this.variables.length === 0);
             }
+
             checkCatType(myVar, type, lowerLimit, upperLimit) {
                 return (myVar.type === type && myVar.allowedValues.length >= lowerLimit && myVar.allowedValues.length < upperLimit);
             }
+
             checkVarType(myVar, type) {
                 return (myVar.type === type);
             }
+
             checkSubType(myVar, type) {
                 return (myVar.attributes.subtype === type);
             }
-            isVisible(myVar,conf){
+
+            isVisible(myVar, conf) {
                 let excludeArray = conf.variableSet.exclude
                 for (let index in excludeArray) {
                     if (excludeArray[index].webComponent == this.localName) {
                         return (!($.inArray(myVar.name, excludeArray[index].variables) != -1));
-                    } else {return true;}
+                    } else {
+                        return true;
+                    }
                 }
             }
+
             checkType(str1, str2) {
-                if (str1.search(str2) != -1)
-                {return true;}
-                else
-                {return false;}
+                if (str1.search(str2) != -1) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
 
             }
+
             checkYears(e) {
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
 
@@ -661,16 +740,15 @@
                 let pairElement = $();
                 let valuePE = '';
 
-                if (identifier.search('birthYear')!=-1) {    // Birth year element raises the event -> check Test year
+                if (identifier.search('birthYear') != -1) {    // Birth year element raises the event -> check Test year
                     // Check Year of Test
                     $("#" + this.prefix + "_errorDiv_age").html("");
-                    currentElement = $("#"+e.target.id);
+                    currentElement = $("#" + e.target.id);
                     valueCE = currentElement.find("option:selected").text();
                     pairElement = $("#" + this.prefix + "testYear");
                     valuePE = pairElement.find("option:selected").text();
 
-                    if(valuePE != '' && (parseInt(valueCE) > parseInt(valuePE)))
-                    { // Year of birth cannot be lower than Year of test
+                    if (valuePE != '' && (parseInt(valueCE) > parseInt(valuePE))) { // Year of birth cannot be lower than Year of test
                         message = "Year of Birth must be prior to year of Test. ";
                         $("#" + this.prefix + "_errorDiv_birthYear").html(message);
                     }
@@ -686,116 +764,124 @@
                 else { // Year of test element raises the event -> swap elements and check the birth year
                     currentElement = $("#" + this.prefix + "birthYear");
                     valueCE = currentElement.find("option:selected").text();
-                    pairElement = $("#"+e.target.id);
+                    pairElement = $("#" + e.target.id);
                     valuePE = pairElement.find("option:selected").text();
 
-                    if(valuePE != '' && (parseInt(valueCE) > parseInt(valuePE)))
-                    { // Year of birth cannot be lower than Year of test
+                    if (valuePE != '' && (parseInt(valueCE) > parseInt(valuePE))) { // Year of birth cannot be lower than Year of test
                         $("#" + this.prefix + "_errorDiv_testYear").html("Year of Test must be posterior to year of Birth");
                     }
                 }
             }
+
             loadICDEditor(e) {
-                $("#" + this.prefix + "errorTermDiv").html("");
+                UtilsJavascript._getElementById(this.prefix + "errorTermDiv").innerHTML = "";
                 //this.$$("#" + this.prefix + "autoInput").value="";
-                document.getElementById(this.prefix + "autoInput").setAttribute('value','');
+                UtilsJavascript._setAttribute(UtilsJavascript._getElementById(this.prefix + "autoInput"), 'value', '');
+
                 this.icdTerms = this.getICDterms();
+                //TODO cambiar todos los selectores a algo como este ejemplo
+                //console.log(UtilsJavascript._getElementById(this.prefix + "autoInput"));
 
                 let _this = this;
-                $("#" + this.prefix +"ICDtree").treeview({
+                $("#" + this.prefix + "ICDtree").treeview({
                     data: ICD_10,
-                    onNodeSelected: function(event, node) {
+                    onNodeSelected: function (event, node) {
                         //_this.$$("#" + _this.prefix + "autoInput").value=node.text;
-                        document.getElementById(this.prefix + "autoInput").setAttribute('value',node.text);
+                        UtilsJavascript._setAttribute(UtilsJavascript._getElementById(this.prefix + "autoInput"), 'value', node.text);
 
                     },
-                    onNodeUnselected: function(event, node) {
+                    onNodeUnselected: function (event, node) {
                         //_this.$$("#" + _this.prefix + "autoInput").value="";
-                        document.getElementById(this.prefix + "autoInput").setAttribute('value','');
+                        UtilsJavascript._setAttribute(UtilsJavascript._getElementById(this.prefix + "autoInput"), 'value', '');
                     },
                 });
 
-                $("#" + this.prefix + "ICDtree").treeview('collapseAll', {silent: true});
-                $("#" + this.prefix + "autoInput").on("input", function(){
-                    $("#" + _this.prefix + "ICDtree").treeview('collapseAll', {silent: true});
-                    $("#" + _this.prefix + "ICDtree").treeview('search', [ this.value, {
+                $(UtilsJavascript._getElementById(this.prefix + "ICDtree")).treeview('collapseAll', {silent: true});
+                UtilsJavascript._getElementById(this.prefix + "autoInput").addEventListener("input", function () {
+                    $(UtilsJavascript._getElementById(this.prefix + "ICDtree")).treeview('collapseAll', {silent: true});
+                    $(UtilsJavascript._getElementById(this.prefix + "ICDtree")).treeview('search', [this.value, {
                         ignoreCase: true,     // case insensitive
                         exactMatch: false,    // like or equals
                         revealResults: true,  // reveal matching nodes
                     }]);
                 });
             }
-            getICDterms(){
+
+            getICDterms() {
                 // In ICD_10 there are up to three nested levels
                 let _auxTerms = [];
-                for (let i=0; i < ICD_10.length; i++)
-                {
-                    _auxTerms.push(ICD_10[i].text);
-                    for (let j=0; j < ICD_10[i].nodes.length; j++)
-                    {
-                        _auxTerms.push('   ' + ICD_10[i].nodes[j].text);
-                        for (let k=0; k < ICD_10[i].nodes[j].nodes.length; k++)
-                        {
-                            _auxTerms.push('     ' + ICD_10[i].nodes[j].nodes[k].text);
-                        }
-                    }
 
-                }
+                ICD_10.forEach(function (item) {
+                    _auxTerms.push(item.text);
+                    item.nodes.forEach(function (biItem) {
+                        _auxTerms.push(biItem.text);
+                        biItem.nodes.forEach(function (triItem) {
+                            _auxTerms.push(triItem.text);
+
+                        });
+                    });
+                });
+
+
                 return _auxTerms;
             }
+
             selectICD(e) {
                 e.preventDefault();
 
-                selectedTerm = this.$$("#" + this.prefix + "autoInput").value.replace(/^\s+/g, '');
+                let selectedTerm = UtilsJavascript._getElementById(this.prefix + "autoInput").value.replace(/^\s+/g, '');
                 if (selectedTerm !== "") { // Check that the term is correct (one of the list)
-                    let _icdTermsNS = $.map(this.icdTerms, function(elem){return elem.replace(/^\s+/g, '')});
-                    if ($.inArray(selectedTerm, _icdTermsNS)!= -1) {
+                    let _icdTermsNS = this.icdTerms.map(function (elem) {
+                        return elem.replace(/^\s+/g, '')
+                    });
+                    if (_icdTermsNS.indexOf(selectedTerm) != -1) {
                         //this.$$("#" + this.prefix + "diagnosis").value = selectedTerm;
-                        document.getElementById(this.prefix + "diagnosis").setAttribute('value', selectedTerm);
-                        $("#" + this.prefix + "icd").modal('hide');
+                        UtilsJavascript._setAttribute(UtilsJavascript._getElementById(this.prefix + 'diagnosis'), 'value', selectedTerm);
+                        $(UtilsJavascript._getElementById(this.prefix + "icd")).modal('hide');
                     }
                     else {
-                        $("#" + this.prefix + "errorTermDiv").html("A proper ICD-10 term must be selected from the list or tree");
+                        UtilsJavascript._getElementById(this.prefix + "errorTermDiv").innerHTML = "A proper ICD-10 term must be selected from the list or tree";
                     }
                 }
                 else {
-                    //this.$$("#" + this.prefix + "diagnosis").value = '';
-                    document.getElementById(this.prefix + "diagnosis").setAttribute('value','');
-                    $("#" + this.prefix + "icd").modal('hide');
+                    //this.$$("#" º+ this.prefix + "diagnosis").value = '';
+                    UtilsJavascript._setAttribute(UtilsJavascript._getElementById(this.prefix + 'diagnosis'), 'value', '');
+                    $(UtilsJavascript._getElementById(this.prefix + "icd")).modal('hide');
                 }
             }
-            updateSelect(e){
+
+            updateSelect(e) {
                 $("#" + this.prefix + "_errorDiv_testAge").html("");
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
                 let currentElementId = e.target.id;
-                let currentElement = $("#" +  e.target.id);
+                let currentElement = $("#" + e.target.id);
                 // Dropdown related to birthplace
-                if (currentElementId == (this.prefix + 'birthPlace')){
-                    if (currentElement.val() == 'Spain'){
+                if (currentElementId == (this.prefix + 'birthPlace')) {
+                    if (currentElement.val() == 'Spain') {
                         $("#otherCountryDiv").hide();
-                        $("#" + this.prefix + "otherCountry").prop("required",false);
-                        $("#" + this.prefix + "birthPlaceRegion").prop("disabled",false);
-                        $("#" + this.prefix + "birthPlaceRegion").prop("required",true);
+                        $("#" + this.prefix + "otherCountry").prop("required", false);
+                        $("#" + this.prefix + "birthPlaceRegion").prop("disabled", false);
+                        $("#" + this.prefix + "birthPlaceRegion").prop("required", true);
                     }
                     else {
-                        $("#" + this.prefix + "birthPlaceRegion").prop("disabled",true);
-                        $("#" + this.prefix + "birthPlaceRegion").prop("selectedIndex",0);
-                        $("#" + this.prefix + "birthPlaceRegion").prop("value","unknown");
-                        $("#" + this.prefix + "birthPlaceRegion").prop("required",false);
+                        $("#" + this.prefix + "birthPlaceRegion").prop("disabled", true);
+                        $("#" + this.prefix + "birthPlaceRegion").prop("selectedIndex", 0);
+                        $("#" + this.prefix + "birthPlaceRegion").prop("value", "unknown");
+                        $("#" + this.prefix + "birthPlaceRegion").prop("required", false);
                         if (currentElement.val() == 'Other') {// Display input text to introduce country
                             $("#otherCountryDiv").show();
-                            $("#" + this.prefix + "otherCountry").prop("required",true);
+                            $("#" + this.prefix + "otherCountry").prop("required", true);
                         }
                         else {
                             $("#otherCountryDiv").hide();
-                            $("#" + this.prefix + "otherCountry").prop("required",false);
+                            $("#" + this.prefix + "otherCountry").prop("required", false);
                         }
                     }
                 } else if (currentElementId == (this.prefix + 'testAge')) {
                     // Dropdown related to age of Test -> check hat year of birth is correct
                     let pairElement = $("#" + this.prefix + "birthYear");
                     let valuePE = pairElement.find("option:selected").text();
-                    if (valuePE !='') {
+                    if (valuePE != '') {
                         let birthYear = parseInt(valuePE);
                         let fullDate = new Date();
                         if (!(parseInt(currentElement.val()) >= (fullDate.getFullYear() - birthYear - 1) && parseInt(currentElement.val()) <= fullDate.getFullYear() - birthYear)) {
@@ -804,6 +890,7 @@
                     }
                 }
             }
+
             _clearHtmlDom() {
                 $("#" + this.prefix + "uploadForm").validator('destroy');
                 // Empty everything before rendering
@@ -811,7 +898,7 @@
                 $("." + this.prefix + "TextInput").val("");
                 $("." + this.prefix + "CheckInput").prop("checked", false);
                 $("." + this.prefix + "RadioInput").prop("checked", false);
-                $("#" + this.prefix + "birthPlaceRegion").prop("disabled",true);
+                $("#" + this.prefix + "birthPlaceRegion").prop("disabled", true);
                 $('.codeDis').prop('disabled', false);
 
                 $("#" + this.prefix + "parentalConsanguinityno").prop("checked", true);
@@ -819,7 +906,8 @@
 
                 $("#" + this.prefix + "uploadForm").validator('update');
             }
-            indexVCF(fileId){
+
+            indexVCF(fileId) {
                 // Index and annotate a VCF file in openCGA
                 let params = {
                     file: fileId,
@@ -834,7 +922,7 @@
                     .then(function (response) {
                         console.log(response);
                     })
-                    .catch(function() {
+                    .catch(function () {
                         console.log("Could not index file " + _this.fileId);
                     });
 
@@ -850,6 +938,7 @@
                 this.showMessageModal = true;
                 this._clearHtmlDom();
             }
+
             uploadVCF(formFields) {
                 // Upload VCF file to openCGA
                 if (this.opencgaClient instanceof OpenCGAClient) {
@@ -875,6 +964,7 @@
                         });
                 }
             }
+
             openCGAsteps(formFields, sampleId) {
                 // The following steps are run to register the form in openCGA:
                 // 1. Create sample (given an ID) and the individual information related to that sample, together with sample annotation set
@@ -886,16 +976,16 @@
                     let hasParentalConsanguinity = (formFields.parentalConsanguinity === "true");
                     let icdTermField = formFields.diagnosis;
                     let icdName = "";
-                    let icdId="";
-                    if (icdTermField !== ""){
-                        icdId = icdTermField.split('(')[1].slice(0,-1);
+                    let icdId = "";
+                    if (icdTermField !== "") {
+                        icdId = icdTermField.split('(')[1].slice(0, -1);
                         icdName = icdTermField.split('(')[0];
                     }
                     let hpoId = formFields.HPO; // To be modified when HPO is included
                     let hpoName = formFields.HPO;
 
                     let jsonAnnotation = {};
-                    $(this.variableSets[0].variables).each(function(index, currentVariable){
+                    $(this.variableSets[0].variables).each(function (index, currentVariable) {
                         jsonAnnotation[currentVariable.name] = formFields[currentVariable.name];
                     });
 
@@ -903,7 +993,7 @@
                         study: this.study.alias
                     };
 
-                    let body= {
+                    let body = {
                         "name": sampleId,
                         "type": formFields.sampleType,
                         "somatic": isSomatic,
@@ -914,7 +1004,7 @@
                                 "annotations": jsonAnnotation
                             }
                         ],
-                        "individual" : {
+                        "individual": {
                             "name": formFields.patientID,
                             "family": "", // to be removed
                             "fatherId": -1, // To be removed
@@ -964,6 +1054,7 @@
                         });
                 }
             }
+
             submitForm(e) {
                 e.preventDefault();
 
@@ -971,12 +1062,12 @@
                 $('.codeDis').prop('disabled', false);
 
                 // Get values from form fields
-                let fields = $("#"+ this.prefix + "uploadForm").serializeArray();
+                let fields = $("#" + this.prefix + "uploadForm").serializeArray();
 
                 let formFields = {};
 
                 // fill-in variable set
-                $(fields).each(function(index, field){
+                $(fields).each(function (index, field) {
                     formFields[field.name] = field.value;
                 });
 
@@ -984,7 +1075,7 @@
                 if (window.File && window.FileReader && window.FileList && window.Blob) {
                     let vcfFile = $("#" + this.prefix + "FileToUpload").prop('files')[0];
 
-                    if(vcfFile.type ==='text/vcard' && vcfFile.name.split('.').pop() === 'vcf') {
+                    if (vcfFile.type === 'text/vcard' && vcfFile.name.split('.').pop() === 'vcf') {
 
                         let reader = new FileReader();
                         let _this = this;
@@ -1059,11 +1150,12 @@
                     this.showMessageModal = true;
                 }
             }
+
             searchIndividual() {
                 if (this.opencgaClient instanceof OpenCGAClient) {
                     // 1. Create individual
                     let params = {
-                        study: this.study.alias,
+//                        study: this.study.alias
 
                     };
 
@@ -1092,7 +1184,7 @@
                                 $("#" + _this.prefix + "HPO").val(formFields.ontologyTerms[0].name);
                                 $("#" + _this.prefix + "HPO").prop("disabled", true);
                                 $("#" + _this.prefix + "diagnosis").val(formFields.ontologyTerms[1].name);
-                                if (formFields.parentalConsanguinity === true){
+                                if (formFields.parentalConsanguinity === true) {
                                     $("#" + _this.prefix + "parentalConsanguinityyes").prop("checked", true);
                                 }
                                 else {
@@ -1114,9 +1206,10 @@
                         });
                 }
             }
-            showICD(){
+
+            showICD() {
                 let statusValue = $("#" + this.prefix + "status").find("option:selected").text();
-                if (statusValue === "Control" || statusValue === "Unaffected" ){
+                if (statusValue === "Control" || statusValue === "Unaffected") {
                     // For a control or unaffected, disable ICD and make it not mandatory
                     this.settingsMessageModal = {
                         messageHeader: "Attention",
@@ -1127,7 +1220,7 @@
                     };
                     this.showMessageModal = true;
                     $("#" + this.prefix + "diagnosis").val("");
-                    document.getElementById( this.prefix + "diagnosis").innerHTML = "";
+                    document.getElementById(this.prefix + "diagnosis").innerHTML = "";
                     $("#" + this.prefix + "diagnosis").attr("placeholder", "ICD-10 term");
                     $("#" + this.prefix + "diagnosis").attr("required", false);
 
