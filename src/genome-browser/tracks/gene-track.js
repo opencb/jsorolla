@@ -119,9 +119,15 @@ class GeneTrack extends FeatureTrack {
                         interval: this.interval,
                         exclude: this.exclude
                     },
-                    done: function (event) {
-                        _this.getDataHandler(event);
-                    }
+                    //done: function (event) {
+                    //    _this.getDataHandler(event);
+                    //}
+                })
+                .then(function (response) {
+                    _this.getDataHandler(response);
+                })
+                .catch(function(reason) {
+                    console.log("Gene Track move error: " + reason)
                 });
                 this.svgCanvasLeftLimit = parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset);
             }
@@ -141,10 +147,17 @@ class GeneTrack extends FeatureTrack {
                         histogramMax: this.histogramMax,
                         interval: this.interval,
                         exclude: this.exclude
-                    },
-                    done: function (event) {
-                        _this.getDataHandler(event);
                     }
+                    //},
+                    //done: function (event) {
+                    //    _this.getDataHandler(event);
+                    //}
+                })
+                .then(function (response) {
+                    _this.getDataHandler(response);
+                })
+                .catch(function(reason) {
+                    console.log("Gene Track move error: " + reason)
                 });
                 this.svgCanvasRightLimit = parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset);
             }

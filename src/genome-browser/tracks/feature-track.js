@@ -638,10 +638,13 @@ class FeatureTrack {
                         histogramLogarithm: this.histogramLogarithm,
                         histogramMax: this.histogramMax,
                         interval: this.interval
-                    },
-                    done: function (event) {
-                        _this.getDataHandler(event);
                     }
+                })
+                .then(function (response) {
+                    _this.getDataHandler(response);
+                })
+                .catch(function(reason) {
+                    console.log("Feature Track move error: " + reason)
                 });
                 this.svgCanvasLeftLimit = parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset);
             }
@@ -659,11 +662,13 @@ class FeatureTrack {
                         histogramLogarithm: this.histogramLogarithm,
                         histogramMax: this.histogramMax,
                         interval: this.interval
-                    },
-                    done: function (event) {
-                        _this.getDataHandler(event);
                     }
-
+                })
+                .then(function (response) {
+                    _this.getDataHandler(response);
+                })
+                .catch(function(reason) {
+                    console.log("Feature Track move error: " + reason)
                 });
                 this.svgCanvasRightLimit = parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset);
             }

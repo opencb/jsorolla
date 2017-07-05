@@ -67,11 +67,6 @@ class OpencgaAdapter {
             return;
         }
 
-        /** 4 chunkSize check **/
-        let chunkSize = params.interval ? params.interval : this.options.chunkSize; // this.cache.defaultChunkSize should be the same
-        if (this.debug) {
-            console.log(chunkSize);
-        }
 
     }
 
@@ -83,7 +78,13 @@ class OpencgaAdapter {
         Object.assign(params, this.params);
         Object.assign(params, args.params);
 
-        _checks(args);
+        this._checks(args);
+
+        /** 4 chunkSize check **/
+        let chunkSize = params.interval ? params.interval : this.options.chunkSize; // this.cache.defaultChunkSize should be the same
+        if (this.debug) {
+            console.log(chunkSize);
+        }
 
         return new Promise(function(resolve, reject) {
             // Create the chunks to be retrieved
@@ -131,29 +132,52 @@ class OpencgaAdapter {
         Object.assign(params, this.params);
         Object.assign(params, args.params);
 
-        _checks(args); //TODO check the correct return
+        /** 1 region check **/
+        let region = args.region;
+        if (region.start > 300000000 || region.end < 1) {
+            return;
+        }
+        region.start = (region.start < 1) ? 1 : region.start;
+        region.end = (region.end > 300000000) ? 300000000 : region.end;
+
+        /** 2 category check **/
+        let categories = this.resource.toString().split(',');   // in this adapter
+
+        /** 3 dataType check **/
+        let dataType = args.dataType;
+        if (_.isUndefined(dataType)) {
+            console.error("dataType must be provided!!!");
+            return;
+        }
+
+        /** 4 chunkSize check **/
+        let chunkSize = params.interval ? params.interval : this.options.chunkSize; // this.cache.defaultChunkSize should be the same
+        if (this.debug) {
+            console.log(chunkSize);
+        }
 
         /** 5 studies check **/
         let studies = params.studies;
         if (studies === undefined) {
             return;
         }
+
         return new Promise(function(resolve, reject) {
             // Create the chunks to be retrieved
-            let start = this._getStartChunkPosition(region.start);
-            let end = this._getStartChunkPosition(region.end);
+            let start = _this._getStartChunkPosition(region.start);
+            let end = _this._getStartChunkPosition(region.end);
 
             let regions = [];
             let myRegion = start;
             args.webServiceCallCount = 0;
 
             do {
-                regions.push(`${region.chromosome}:${myRegion}-${myRegion + this.options.chunkSize - 1}`);
+                regions.push(`${region.chromosome}:${myRegion}-${myRegion + _this.options.chunkSize - 1}`);
                 //regions.push(`chr${region.chromosome}:${myRegion}-${myRegion + this.options.chunkSize - 1}`);
-                myRegion += this.options.chunkSize;
+                myRegion += _this.options.chunkSize;
             } while (myRegion < end);
 
-            let groupedRegions = this._groupQueries(regions);
+            let groupedRegions = _this._groupQueries(regions);
             args.regions = groupedRegions;
 
             if (dataType === "features") {
@@ -161,7 +185,7 @@ class OpencgaAdapter {
                 for (let i = 0; i < groupedRegions.length; i++) {
                     args.webServiceCallCount++;
 
-                    this.client.variants().query({
+                    _this.client.variants().query({
                         region: groupedRegions[i],
                         studies: studies,
                         exclude: "studies.files,studies.stats,annotation"
@@ -421,7 +445,7 @@ class OpencgaAdapter {
     }
 
     _variantsuccess(response, categories, dataType, queryRegion, originalRegion, chunkSize) {
-    //var timeId = Utils.randomString(4) + this.resource + " save";
+
     //console.time(timeId);
         /** time log **/
 
@@ -435,11 +459,7 @@ class OpencgaAdapter {
             }
             console.log("Los chunks son:");
             console.log(chunks);
-            //if (typeof this.parse === 'function') {
-            //    chunks = this.parse(response, dataType);
-            //} else {
-            //    chunks = response;
-            //}
+
             var regionSplit = queryRegion.split(',');
             for (var i = 0; i < regionSplit.length; i++) {
                 var regionStr = regionSplit[i];
@@ -459,14 +479,17 @@ class OpencgaAdapter {
             }
         }
         console.log(response);
-        debugger
+
         let responseItems = [];
-        responseItems.push({
-            chunkKey: response.response[i].id,
-            region: regions,
-            value: response.response[i].result,
-            dataType: dataType
-        });
+        for (let i = 0; i < regions.length; i++) {
+            let chunkStartId = Math.floor(regions[i].start / chunkSize);
+            responseItems.push({
+                chunkKey: `${regions[i].chromosome}:${chunkStartId}_${dataType}_${chunkSize}`,
+                region: regions,
+                value: response.response[i].result,
+                dataType: dataType
+            });
+        }
        // var items = this.cache.putByRegions(regions, chunks, categories, dataType, chunkSize);
 
         /** time log **/

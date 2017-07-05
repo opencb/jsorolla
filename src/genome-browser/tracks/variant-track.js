@@ -56,11 +56,14 @@ class VariantTrack extends FeatureTrack {
                     histogramLogarithm: this.histogramLogarithm,
                     histogramMax: this.histogramMax,
                     interval: this.interval
-                },
-                done: function (event) {
-                    _this.getDataHandler(event);
-                    _this.setLoading(false);
                 }
+            })
+            .then(function (response) {
+                _this.getDataHandler(response);
+                _this.setLoading(false);
+            })
+            .catch(function(reason) {
+                console.log("Variant Track draw error: " + reason)
             });
 
             //        this.invalidZoomText.setAttribute("visibility", "hidden");
@@ -109,6 +112,12 @@ class VariantTrack extends FeatureTrack {
                     done: function (event) {
                         _this.getDataHandler(event);
                     }
+                })
+                .then(function (response) {
+                    _this.getDataHandler(response);
+                })
+                .catch(function(reason) {
+                    console.log("Variant Track move error: " + reason)
                 });
                 this.svgCanvasLeftLimit = parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset);
             }
@@ -126,10 +135,13 @@ class VariantTrack extends FeatureTrack {
                         histogramLogarithm: this.histogramLogarithm,
                         histogramMax: this.histogramMax,
                         interval: this.interval
-                    },
-                    done: function (event) {
-                        _this.getDataHandler(event);
                     }
+                })
+                .then(function (response) {
+                    _this.getDataHandler(response);
+                })
+                .catch(function(reason) {
+                    console.log("Variant Track move error: " + reason)
                 });
                 this.svgCanvasRightLimit = parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset);
             }
