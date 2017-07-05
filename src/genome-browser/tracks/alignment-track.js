@@ -66,7 +66,7 @@ class AlignmentTrack extends FeatureTrack {
 
         if (typeof this.visibleRegionSize === "undefined" || this.region.length() < this.visibleRegionSize) {
             this.setLoading(true);
-            this.dataAdapter.getAlignmentData({
+            this.dataAdapter.getData({
                 dataType: this.dataType,
                 region: new Region({
                     chromosome: this.region.chromosome,
@@ -117,7 +117,7 @@ class AlignmentTrack extends FeatureTrack {
 
             if (disp > 0 && virtualStart < this.svgCanvasLeftLimit) {
                 _this.setLoading(true);
-                this.dataAdapter.getAlignmentData({
+                this.dataAdapter.getData({
                     dataType: this.dataType,
                     region: new Region({
                         chromosome: _this.region.chromosome,
@@ -145,7 +145,7 @@ class AlignmentTrack extends FeatureTrack {
 
             if (disp < 0 && virtualEnd > this.svgCanvasRightLimit) {
                 _this.setLoading(true);
-                this.dataAdapter.getAlignmentData({
+                this.dataAdapter.getData({
                     dataType: this.dataType,
                     region: new Region({
                         chromosome: _this.region.chromosome,

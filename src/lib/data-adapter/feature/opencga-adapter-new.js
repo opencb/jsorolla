@@ -66,12 +66,25 @@ class OpencgaAdapter {
             console.error("dataType must be provided!!!");
             return;
         }
-
-
     }
 
     getData(args){
-        console.log("In GetVariant");
+        switch(this.category ) {
+            case "analysis/variant": //FIX analysis/data?
+                return this._getVariant(args);
+                break;
+            case "analysis/alignment":
+                return this._getAlignmentData(args);
+                break;
+            default:
+                return this._getExpressionData(args);
+        }
+
+    }
+
+    _getExpressionData(args){
+        //TODO check with expression data
+        console.log("In GetExpressionData");
         let _this = this;
         let params = {};
 
@@ -124,7 +137,7 @@ class OpencgaAdapter {
         });
     }
 
-    getVariant(args){
+    _getVariant(args){
         console.log("In GetVariant");
         let _this = this;
         let params = {};
@@ -168,7 +181,7 @@ class OpencgaAdapter {
             exclude = "studies,annotation"; //For FeatureRender
             //exclude= "studies.files,studies.stats,annotation" For VariantRender
         }
-debugger
+
         return new Promise(function(resolve, reject) {
             // Create the chunks to be retrieved
             let start = _this._getStartChunkPosition(region.start);
@@ -225,7 +238,7 @@ debugger
 
     }
 
-    getAlignmentData(args) {
+    _getAlignmentData(args) {
         let _this = this;
         let params = {};
 //                    histogram: (dataType == 'histogram')
