@@ -17,6 +17,7 @@ module.exports = function (grunt) {
                     //lib must exists
                     'build/<%= pkg.version %>/lib.js',
 
+                    'src/genome-browser/feature-binary-search-tree.js',
                     'src/genome-browser/navigation-bar.js',
                     'src/genome-browser/chromosome-panel.js',
                     'src/genome-browser/karyotype-panel.js',
