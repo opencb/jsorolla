@@ -78,13 +78,16 @@ class AlignmentTrack extends FeatureTrack {
                     histogramLogarithm: this.histogramLogarithm,
                     histogramMax: this.histogramMax,
                     interval: this.interval
-                },
-                done: function (event) {
-                    _this.storeRetrievedAlignments(event);
-                    _this.getDataHandler(event);
-                    _this.setLoading(false);
                 }
-            });
+            })
+                .then(function(response) {
+                    _this.storeRetrievedAlignments(response);
+                    _this.getDataHandler(response);
+                    _this.setLoading(false);
+                })
+                .catch(function(reason){
+                    console.log("Alignment Track draw error: " + reason);
+                });
             //this.invalidZoomText.setAttribute("visibility", "hidden");
         } else {
             //this.invalidZoomText.setAttribute("visibility", "visible");
@@ -126,13 +129,17 @@ class AlignmentTrack extends FeatureTrack {
                         histogramLogarithm: this.histogramLogarithm,
                         histogramMax: this.histogramMax,
                         interval: this.interval
-                    },
-                    done: function (event) {
-                        _this.addNewAlignments(event, "left");
+                    }
+                })
+                    .then(function(response){
+                        _this.addNewAlignments(response, "left");
                         _this.getDataHandler(_this.retrievedAlignments);
                         _this.setLoading(false);
-                    }
-                });
+                    })
+                    .catch(function(reason){
+                        console.log("Alignment Track move error: " + reason);
+
+                    });
                 this.svgCanvasLeftLimit = parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset);
             }
 
@@ -150,13 +157,18 @@ class AlignmentTrack extends FeatureTrack {
                         histogramLogarithm: this.histogramLogarithm,
                         histogramMax: this.histogramMax,
                         interval: this.interval
-                    },
-                    done: function (event) {
-                        _this.addNewAlignments(event, "right");
+                    }
+                })
+                    .then(function(response){
+                        _this.addNewAlignments(response, "right");
                         _this.getDataHandler(_this.retrievedAlignments);
                         _this.setLoading(false);
-                    }
-                });
+
+                    })
+                    .catch(function(reason){
+                        console.log("Alignment Track move error: " + reason);
+
+                    });
                 this.svgCanvasRightLimit = parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset);
             }
         }

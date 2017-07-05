@@ -247,103 +247,112 @@ class OpencgaAdapter {
         let groupedRegions = this._groupQueries(regions);
         args.regions = groupedRegions;
 
-        if (dataType === "features") {
-            let chunks = [];
-            for (let i = 0; i < groupedRegions.length; i++) {
-                args.webServiceCallCount++;
 
-                let alignments = this.client.alignments().query(fileId,
-                    {
-                        region: groupedRegions[i],
-                        study: study
+        return new Promise(function(resolve, reject) {
+            if (dataType === "features") {
+                let chunks = [];
+                for (let i = 0; i < groupedRegions.length; i++) {
+                    args.webServiceCallCount++;
+
+                    let alignments = _this.client.alignments().query(fileId,
+                        {
+                            region: groupedRegions[i],
+                            study: study
+                        })
+                        .then(function (response) {
+                            return _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
+                        });
+
+
+                    let coverage = _this.client.alignments().coverage(fileId,
+                        {
+                            region: groupedRegions[i],
+                            study: study
+                        })
+                        .then(function (response) {
+                            let aux = _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
+                            // We fix a little the object
+                            for (let i = 0; i < aux.length; i++) {
+                                aux[i].windowSize = aux[i].value[0].windowSize;
+                                aux[i].value = aux[i].value[0].values;
+                            }
+                            return aux;
+                        });
+
+                    Promise.all([alignments, coverage]).then(function (response) {
+                        args.webServiceCallCount--;
+                        let auxArray = [];
+                        // The array of alignments and coverage should be the same size
+                        for (let i = 0; i < response[0].length; i++) {
+                            if (response[0][i].chunkKey === response[1][i].chunkKey) {
+                                let auxObject = {
+                                    region: response[0][i].region,
+                                    chunkKey: response[0][i].chunkKey,
+                                    alignments: response[0][i].value,
+                                    coverage: {
+                                        windowSize: response[1][i].windowSize,
+                                        value: response[1][i].value
+                                    }
+                                };
+                                auxArray.push(auxObject);
+                            } else {
+                                console.log("Unexpected behaviour when retrieving alignments and coverage. Something went wrong.");
+                                console.log("Alignment chunk key: " + response[0][i].chunkKey + ". Coverage chunk key: "
+                                    + response[1][i].chunkKey);
+                                reject("Unexpected behaviour when retrieving alignments and coverage. Something went wrong.");
+                            }
+                        }
+                        chunks = chunks.concat(auxArray);
+
+                        if (args.webServiceCallCount === 0) {
+                           resolve({
+                                items: chunks, dataType: dataType, chunkSize: chunkSize, sender: _this
+                            });
+                        }
                     })
-                    .then(function (response) {
-                        return _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
+                    .catch(function(response){
+                        reject("Server alignments error");
                     });
-
-
-                let coverage = this.client.alignments().coverage(fileId,
+                }
+            } else { // histogram
+                _this.client.alignments().coverage(fileId,
                     {
-                        region: groupedRegions[i],
-                        study: study
+                        region: `chr${region.chromosome}:${start}-${end - 1}`,
+                        study: study,
+                        windowSize: Math.round((end - start) / 500)
                     })
                     .then(function (response) {
                         let aux = _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
-                        // We fix a little the object
+                        let auxArray = [];
+
                         for (let i = 0; i < aux.length; i++) {
-                            aux[i].windowSize = aux[i].value[0].windowSize;
-                            aux[i].value = aux[i].value[0].values;
-                        }
-                        return aux;
-                    });
+                            let windowSize = aux[i].value[0].windowSize;
+                            let start = aux[i].region.start;
 
-                Promise.all([alignments, coverage]).then(function (response) {
-                    args.webServiceCallCount--;
-                    let auxArray = [];
-                    // The array of alignments and coverage should be the same size
-                    for (let i = 0; i < response[0].length; i++) {
-                        if (response[0][i].chunkKey === response[1][i].chunkKey) {
-                            let auxObject = {
-                                region: response[0][i].region,
-                                chunkKey: response[0][i].chunkKey,
-                                alignments: response[0][i].value,
-                                coverage: {
-                                    windowSize: response[1][i].windowSize,
-                                    value: response[1][i].value
-                                }
-                            };
-                            auxArray.push(auxObject);
-                        } else {
-                            console.log("Unexpected behaviour when retrieving alignments and coverage. Something went wrong.");
-                            console.log("Alignment chunk key: " + response[0][i].chunkKey + ". Coverage chunk key: "
-                                + response[1][i].chunkKey);
-                            return;
-                        }
-                    }
-                    chunks = chunks.concat(auxArray);
+                            for (let j = 0; j < aux[i].value[0].values.length; j++) {
+                                auxArray.push({
+                                    value: {
+                                        start: start,
+                                        end: start + windowSize - 1,
+                                        features_count: aux[i].value[0].values[j]
+                                    }
+                                });
 
-                    if (args.webServiceCallCount === 0) {
-                        args.done({
-                            items: chunks, dataType: dataType, chunkSize: chunkSize, sender: _this
+                                start += windowSize;
+                            }
+                        }
+
+                        resolve({
+                            items: auxArray, dataType: dataType, chunkSize: chunkSize, sender: _this
                         });
-                    }
-                });
-            }
-        } else { // histogram
-            this.client.alignments().coverage(fileId,
-                {
-                    region: `chr${region.chromosome}:${start}-${end - 1}`,
-                    study: study,
-                    windowSize: Math.round((end - start)/500)
-                })
-                .then(function (response) {
-                    let aux = _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
-                    let auxArray = [];
 
-                    for (let i = 0; i < aux.length; i++) {
-                        let windowSize = aux[i].value[0].windowSize;
-                        let start = aux[i].region.start;
 
-                        for (let j = 0; j < aux[i].value[0].values.length; j++) {
-                            auxArray.push({
-                                value: {
-                                    start: start,
-                                    end: start + windowSize - 1,
-                                    features_count: aux[i].value[0].values[j]
-                                }
-                            });
-
-                            start += windowSize;
-                        }
-                    }
-
-                    args.done({
-                        items: auxArray, dataType: dataType, chunkSize: chunkSize, sender: _this
+                    })
+                    .catch(function(response){
+                        reject("Error when trying to fetch the alignment histogram");
                     });
-
-
-                });
-        }
+            }
+        });
     }
 
     _generalOpencgaSuccess (data, dataType, chunkSize) {
@@ -404,7 +413,6 @@ class OpencgaAdapter {
             // var items = this._adaptChunks(queryResult, categories[i], dataType, chunkSize);
             // responseItems = responseItems.concat(items);
         }
-        console.log("pasando por el data");
         console.log(data);
         /** time log **/
         console.timeEnd(timeId);
