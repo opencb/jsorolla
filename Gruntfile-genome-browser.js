@@ -65,7 +65,7 @@ module.exports = function (grunt) {
                     {   expand: true, cwd: './node_modules', src: ['cookies-js/src/cookies.js'], dest: '<%= def.vendorbuild %>' },
                     {   expand: true, cwd: './node_modules', src: ['crypto-js/crypto-js.js'], dest: '<%= def.vendorbuild %>' },
                     {   expand: true, cwd: './', src: ['styles/**'], dest: '<%= def.build %>/' }, // includes files in path and its subdirs
-                    {   expand: true, cwd: './src/<%= def.name %>/', src: ['gv-config.js'], dest: '<%= def.build %>/' }
+                    {   expand: true, cwd: './src/<%= def.name %>/', src: ['config.js'], dest: '<%= def.build %>/' }
                 ]
             }
         },
