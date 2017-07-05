@@ -296,7 +296,7 @@
         tracks.push(this.gene);
 
         /***************************************************************************/
-        /***** Demo SNP Track using FeatureTrack and Cellbase adapter            ***/
+        /*****   Demo SNP Track using FeatureTrack and Cellbase adapter          ***/
         /***************************************************************************/
 
 //        this.snp = new FeatureTrack({
@@ -318,7 +318,8 @@
 //        tracks.push(this.snp);
 
         /***************************************************************************/
-        /***** Demo Variant Track using VariantTrack and Opencga adapter         ***/
+        /*****   Demo Variant Track using VariantTrack and Opencga adapter       ***/
+        /***     Using FeatureRender; Visualization of variants individually     ***/
         /***************************************************************************/
 
         let variant = new VariantTrack({
@@ -333,7 +334,8 @@
             dataAdapter: new OpencgaAdapter(opencgaClient, "analysis/variant", undefined, "query",
                     {
                         studies:"reference_grch37:1kG_phase3",
-                        exclude: "studies.files,studies.stats,annotation"
+//                        exclude: "studies.files,studies.stats,annotation"
+                        exclude: "studies,annotation"
 //                        exclude: "studies"
                     }, {
                         chunkSize: 100000

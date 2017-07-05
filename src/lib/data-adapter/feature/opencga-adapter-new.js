@@ -162,6 +162,13 @@ class OpencgaAdapter {
             return;
         }
 
+        /** 6 exclude check **/
+        let exclude = params.exclude;
+        if (exclude === undefined) {
+            exclude = "studies,annotation"; //For FeatureRender
+            //exclude= "studies.files,studies.stats,annotation" For VariantRender
+        }
+debugger
         return new Promise(function(resolve, reject) {
             // Create the chunks to be retrieved
             let start = _this._getStartChunkPosition(region.start);
@@ -188,7 +195,9 @@ class OpencgaAdapter {
                     _this.client.variants().query({
                         region: groupedRegions[i],
                         studies: studies,
-                        exclude: "studies.files,studies.stats,annotation"
+                        exclude: exclude
+                        //exclude: "studies, annotation"
+                        //exclude: "studies.files,studies.stats,annotation"
                     })
                     .then(function (response) {
                         console.log("Correctoo")
