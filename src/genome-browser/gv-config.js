@@ -1,5 +1,5 @@
 
- var CELLBASE_HOST = 'bioinfo.hpc.cam.ac.uk/cellbase';
+var CELLBASE_HOST = 'bioinfo.hpc.cam.ac.uk/cellbase';
 //var CELLBASE_HOST = 'bioinfodev.hpc.cam.ac.uk/cellbase-4.5.0-rc.1.1';
 var CELLBASE_VERSION = 'v4';
 // var OPENCGA_HOST = 'localhost:8080/opencga';
@@ -138,9 +138,9 @@ FEATURE_TYPES = {
     },
     getTipCommons: function (f) {
         var strand = (f.strand != null) ? f.strand : "NA";
-        return 'start-end:&nbsp;<span style="font-weight: bold">' + f.start + '-' + f.end + '</span><br>' +
-            'strand:&nbsp;<span style="font-weight: bold">' + strand + '</span><br>' +
-            'length:&nbsp;<span style="font-weight: bold; color:#005fdb">' + (f.end - f.start + 1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + '</span><br>';
+        return `start-end:&nbsp;<span style="font-weight: bold">${f.start}-${f.end} (${strand})</span><br>` +
+            // `strand:&nbsp;<span style="font-weight: bold">${strand}</span><br>` +
+            `length:&nbsp;<span style="font-weight: bold; color:#005fdb">${(f.end - f.start + 1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")}</span><br>`;
     },
     getTipTitleCommons: function (f) {
         var tokens = [];
@@ -264,7 +264,20 @@ FEATURE_TYPES = {
             return FEATURE_TYPES.formatTitle('Exon') + ' - <span class="ok">' + name + '</span>';
         },
         tooltipText: function (e, t) {
-            return FEATURE_TYPES.getTipCommons(e) + FEATURE_TYPES._getSimpleKeys(e);
+            // return FEATURE_TYPES.getTipCommons(e) + FEATURE_TYPES._getSimpleKeys(e);
+            let color = GENE_BIOTYPE_COLORS[t.biotype];
+            return `Transcript:<br>
+                    <div style="padding-left: 10px">
+                        id:&nbsp;<span class="ssel">${t.id}</span><br>
+                        biotype:&nbsp;<span class="emph" style="color:${color};">${t.biotype}</span><br>
+                        description:&nbsp;<span class="emph">${t.description}</span><br>
+                        ${FEATURE_TYPES.getTipCommons(t)}<br>
+                    </div>
+                    Exon:<br>
+                    <div style="padding-left: 10px">
+                        ${FEATURE_TYPES.getTipCommons(e)}${FEATURE_TYPES._getSimpleKeys(e)}
+                    </div>
+                    `;
             //var ename = (e.name != null) ? e.name : e.id;
             //var tname = (t.name != null) ? t.name : t.id;
             //var color = GENE_BIOTYPE_COLORS[t.biotype];
@@ -313,20 +326,20 @@ FEATURE_TYPES = {
             var change = f.reference + ' > ' + f.alternate;
             var name = '';
             if('name' in f){
-              name += f.name;
+                name += f.name;
             }else if('id' in f){
-              name += f.id;
+                name += f.id;
             }
             return name + ' ' + change;
         },
         tooltipTitle: function (f) {
-          var change = f.reference + ' > ' + f.alternate;
-          var name = '';
-          if('name' in f){
-            name += f.name;
-          }else if('id' in f){
-            name += f.id;
-          }
+            var change = f.reference + ' > ' + f.alternate;
+            var name = '';
+            if('name' in f){
+                name += f.name;
+            }else if('id' in f){
+                name += f.id;
+            }
             return 'SNP' + ' - <span class="ok">' +  name + ' ' + change + '</span>';
         },
         tooltipText: function (f) {
