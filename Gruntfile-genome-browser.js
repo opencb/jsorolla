@@ -17,6 +17,7 @@ module.exports = function (grunt) {
                     //lib must exists
                     'build/<%= pkg.version %>/lib.js',
 
+                    'src/genome-browser/feature-binary-search-tree.js',
                     'src/genome-browser/navigation-bar.js',
                     'src/genome-browser/chromosome-panel.js',
                     'src/genome-browser/karyotype-panel.js',
@@ -32,11 +33,9 @@ module.exports = function (grunt) {
                     'src/lib/data-adapter/feature/cellbase-adapter-new.js',
                     'src/lib/data-adapter/feature/opencga-adapter-new.js',
                     'src/lib/cache/indexeddb-cache.js',
-                    'src/lib/clients/cellbase-client.js',
-                    'src/lib/clients/cellbase-client-config.js',
                     'src/lib/clients/rest-client.js',
+                    'src/lib/clients/cellbase-client.js',
                     'src/lib/clients/opencga-client.js',
-                    'src/lib/clients/opencga-client-config.js',
 
                     'src/genome-browser/genome-browser.js'
 
@@ -58,16 +57,16 @@ module.exports = function (grunt) {
             dist: {
                 files: [
 
-                    {   expand: true, cwd: './bower_components', src: ['underscore/underscore-min.js'], dest: '<%= def.vendorbuild %>' },
-                    {   expand: true, cwd: './bower_components', src: ['backbone/backbone.js'], dest: '<%= def.vendorbuild %>' },
-                    {   expand: true, cwd: './bower_components', src: ['fontawesome/**'], dest: '<%= def.vendorbuild %>' },
-                    {   expand: true, cwd: './bower_components', src: ['qtip2/**'], dest: '<%= def.vendorbuild %>' },
-                    {   expand: true, cwd: './bower_components', src: ['jquery/dist/jquery.min.js'], dest: '<%= def.vendorbuild %>' },
-                    {   expand: true, cwd: './bower_components', src: ['uri.js/src/URI.min.js'], dest: '<%= def.vendorbuild %>' },
-                    {   expand: true, cwd: './bower_components', src: ['cookies-js/src/cookies.js'], dest: '<%= def.vendorbuild %>' },
-                    {   expand: true, cwd: './bower_components', src: ['crypto-js-evanvosberg/crypto-js.js'], dest: '<%= def.vendorbuild %>' },
+                    {   expand: true, cwd: './node_modules', src: ['underscore/underscore-min.js'], dest: '<%= def.vendorbuild %>' },
+                    {   expand: true, cwd: './node_modules', src: ['backbone/backbone.js'], dest: '<%= def.vendorbuild %>' },
+                    {   expand: true, cwd: './node_modules', src: ['font-awesome/**'], dest: '<%= def.vendorbuild %>' },
+                    {   expand: true, cwd: './node_modules', src: ['qtip2/dist/**'], dest: '<%= def.vendorbuild %>' },
+                    {   expand: true, cwd: './node_modules', src: ['jquery/dist/jquery.min.js'], dest: '<%= def.vendorbuild %>' },
+                    {   expand: true, cwd: './node_modules', src: ['urijs/src/URI.min.js'], dest: '<%= def.vendorbuild %>' },
+                    {   expand: true, cwd: './node_modules', src: ['cookies-js/src/cookies.js'], dest: '<%= def.vendorbuild %>' },
+                    {   expand: true, cwd: './node_modules', src: ['crypto-js/crypto-js.js'], dest: '<%= def.vendorbuild %>' },
                     {   expand: true, cwd: './', src: ['styles/**'], dest: '<%= def.build %>/' }, // includes files in path and its subdirs
-                    {   expand: true, cwd: './src/<%= def.name %>/', src: ['gv-config.js'], dest: '<%= def.build %>/' }
+                    {   expand: true, cwd: './src/<%= def.name %>/', src: ['config.js'], dest: '<%= def.build %>/' }
                 ]
             }
         },

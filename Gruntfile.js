@@ -7,19 +7,10 @@ module.exports = function (grunt) {
                 tasks: ['default']
             },
 
-            'genome-viewer': {
-                src: ['Gruntfile-genome-viewer.js'],
-                tasks: ['default']
-            },
-            'genome-viewer-no-dep': {
-                src: ['Gruntfile-genome-viewer.js'],
-                tasks: ['no-dep']
-            },
-            'genome-browser': {
+             'genome-browser': {
                 src: ['Gruntfile-genome-browser.js'],
                 tasks: ['default']
             },
-
 
             'circular-genome-viewer': {
                 src: ['Gruntfile-circular-genome-viewer.js'],

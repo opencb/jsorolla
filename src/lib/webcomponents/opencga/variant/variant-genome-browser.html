@@ -1,0 +1,252 @@
+<!--
+  ~ Copyright 2015-2016 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<link rel="import" href="../../../../genome-browser/webcomponent/genome-browser.html">
+
+<dom-module id="variant-genome-browser">
+    <template>
+        <style is="custom-style" include="jso-styles">
+            .floating-div {
+                position: relative;
+                top: 5px;
+                right: 5px;
+                z-index: 10;
+                box-shadow: 0px 0px 5px 1px #888888;
+                float: right;
+                background-color: #FAFAFA;
+            }
+        </style>
+
+        <div class="alert alert-warning" role="alert" id="{{prefix}}Warning" style="padding: 10px">
+            <span style="font-weight: bold;font-size: 1.20em">Warning!</span>&nbsp;&nbsp;Genome Browser is not fully integrated yet, this is just a prototype.
+        </div>
+
+        <!--<div class="row">-->
+            <!--<div class="floating-div panel panel-default" style="font-size: 12px">-->
+                <!--<div class="panel-heading">Panel heading without title</div>-->
+                <!--<div class="panel-body">-->
+                    <!--<table id="{{prefix}}VariantGenomeBrowserTable" data-pagination="true" data-page-list="[]"></table>-->
+                <!--</div>-->
+            <!--</div>-->
+            <!--<div class="">-->
+                <!--<genome-browser-view cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}" region="{{region}}"></genome-browser-view>-->
+            <!--</div>-->
+        <!--</div>-->
+
+        <div>
+            <div class="" style="font-size: 11px;width: 20%;float: left;padding: 0px 0px">
+                <table id="{{prefix}}VariantGenomeBrowserTable" data-pagination="true" data-page-list="[]" style="padding: 0px 0px"></table>
+            </div>
+            <div class="" style="width: 80%;float: right;padding: 0px 5px">
+                <genome-browser cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}" region="{{region}}" tracks="[[tracks]]"></genome-browser>
+            </div>
+        </div>
+
+    </template>
+    <script>
+        Polymer({
+            is: 'variant-genome-browser',
+            properties: {
+                opencgaClient: {
+                    type: Object
+                },
+                cellbaseClient: {
+                    type: Object
+                },
+                query: {
+                    type: Object
+                },
+                search: {
+                    type: Object,
+                    observer: 'renderFromServer'
+                },
+                project: {
+                    type: Object
+                },
+                study: {
+                    type: Object,
+                    observer: 'renderFromServer'
+                },
+                region: {
+                    type: Object
+                },
+                prefix: {
+                    type: String
+                }
+            },
+            ready: function () {
+                if (typeof this.prefix === "undefined" || this.prefix === "") {
+                    this.prefix = "variantGB" + Utils.randomString(6);
+                }
+
+                this.summary = true;
+                this.tracks = ["sequence", "gene"];
+            },
+            attached: function() {
+                this.table = $('#' + this.prefix + 'VariantGenomeBrowserTable');
+            },
+            renderFromServer: function () {
+                this.variant = ""; // Empty the variant every time the grid is loaded
+                let _this = this;
+                if (typeof this.opencgaClient !== "undefined" && this.opencgaClient instanceof OpenCGAClient
+                    && typeof this.project !== "undefined" && typeof this.study !== "undefined" && typeof this.study.alias !== "undefined") {
+
+                    let urlQueryParams = this._getUrlQueryParams();
+                    let queryParams = urlQueryParams.queryParams;
+                    let _numTotal = -1;
+                    $('#' + _this.prefix + 'VariantGenomeBrowserTable').bootstrapTable('destroy');
+                    $('#' + _this.prefix + 'VariantGenomeBrowserTable').bootstrapTable({
+                        url: urlQueryParams.host,
+                        columns: [
+                            {
+                                title: 'Variant',
+                                field: 'variant',
+                                formatter: this.variantFormatter,
+                            }
+                        ],
+                        method: 'get',
+                        sidePagination: 'server',
+                        queryParams: function (params) {
+                            queryParams.limit = params.limit;
+                            queryParams.skip = params.offset;
+//                            queryParams.skipCount = true;
+                            if (typeof _this.query !== 'undefined' && typeof _this.query.gene !== 'undefined' && _this.query.gene != "") {
+                                queryParams.skipCount = false;
+                            }
+                            return queryParams;
+                        },
+                        responseHandler: function (res) {
+                            if (_numTotal == -1) {
+                                if (_this.summary
+                                    || (typeof _this.query !== 'undefined' && typeof _this.query.gene !== 'undefined' && _this.query.gene != "")) {
+                                    _numTotal = res.response[0].numTotalResults;
+//                                    _numTotal = 1150;
+                                } else {
+                                    _numTotal = 1150;
+                                }
+                            }
+                            return {total: _numTotal, rows: res.response[0].result}
+                        },
+                        onClickRow: function (row, $element) {
+                            $('.success').removeClass('success');
+                            $($element).addClass('success');
+
+//                            _this._onSelectVariant(row);
+                            _this.region = row.chromosome + ":" + row.start + "-" + row.end;
+                        },
+                        onLoadSuccess: function (data) {
+                            // The first time we mark as selected the first row that is rows[2] since the first two rows are the header
+                            Polymer.dom(_this.root).querySelector(_this.table.selector).rows[1].setAttribute('class', 'success');
+//                            _this._onSelectVariant(data.rows[0]);
+                            if (typeof data !== "undefined" && data.rows > 0) {
+                                _this.region = data.rows[0].chromosome + ":" + data.rows[0].start + "-" + data.rows[0].end;
+                            }
+                        }
+                    });
+                    $('#' + _this.prefix + 'VariantGenomeBrowserTable').bootstrapTable('showLoading');
+                }
+            },
+            _getUrlQueryParams: function() {
+                if (typeof this.opencgaClient === "undefined") {
+                    return {host: "", queryParams: {}, url: ""};
+                }
+
+                let host = "";
+                if (this.opencgaClient.getConfig().host.startsWith("https://")) {
+                    host = this.opencgaClient.getConfig().host;
+                } else {
+                    host = 'http://' + this.opencgaClient.getConfig().host;
+                }
+
+                if (typeof this.project !== "undefined" && typeof this.study.alias !== "undefined") {
+                    if (typeof this.query === "undefined") {
+                        this.query = {};
+                    }
+                    if (typeof this.query.studies === "undefined" || this.query.studies === "" || this.query.studies.split(new RegExp("[,;]")).length === 1) {
+                        this.query.studies = this.project.alias + ":" + this.study.alias;
+                    }
+                    host += '/webservices/rest/v1/analysis/variant/query';
+                } else {
+                    return {host: host, queryParams: {}, url: ""};
+                }
+
+                let queryParams = {
+                    sid: this.opencgaClient._config.sessionId,
+                    timeout: 60000,
+                    summary: this.summary
+                };
+
+                Object.assign(queryParams, this.query); // Important : Adding the query object contents to queryParams
+
+                if (typeof this.samples !== "undefined" && this.samples.length > 0) {
+                    let sampleNames = [];
+                    for (sampleIdx in this.samples) {
+                        sampleNames.push(this.samples[sampleIdx].name);
+                    }
+                    queryParams.returnedSamples = sampleNames.join();
+                } else {
+                    queryParams.exclude = "studies,annotation.xrefs,annotation.populationFrequencies,annotation.conservation,annotation.geneTraitAssociation,annotation.geneDrugInteraction";
+                }
+
+                if (typeof this.config !== "undefined" && typeof this.config.missing !== "undefined" && this.config.missing) {
+                    let keys = Object.keys(queryParams);
+                    for (let i = 0; i < keys.length; i++) {
+                        let val = queryParams[keys[i]];
+                        if (typeof val == "string") {
+                            val = val.replace(/</g, "<<");
+                            val = val.replace(/>/g, ">>");
+                            queryParams[keys[i]] = val;
+                        }
+                    }
+                }
+
+                let query = ["limit=1000"];
+                for (let key in queryParams) {
+                    // Check sid has a proper value. For public projects sid is undefined. In that case, sid must be removed from the url
+                    if (key == "sid" && queryParams[key] === undefined) {
+                        delete queryParams["sid"];
+                    } else {
+                        query.push(key + "=" + queryParams[key]);
+                    }
+                }
+                let url = host + "?" + query.join("&");
+
+                return {host: host, queryParams: queryParams, url: url};
+            },
+            variantFormatter: function (value, row) {
+                let ref = (row.reference !== "") ? row.reference : "-";
+                let alt = (row.alternate !== "") ? row.alternate : "-";
+                let html = row.chromosome + ':' + row.start + " " + ref + '/' + alt;
+                if (typeof row.id !== "undefined" && row.id !== "") {
+                    html += "&nbsp;(<a target='_blank' href='https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?type=rs&rs=" + row.id + "'>" + row.id + "</a>)"
+                }
+                if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined" && row.annotation.consequenceTypes.length > 0) {
+                    html += "<br>";
+                    let cts = new Set();
+                    let arr = [];
+                    for (let ct of row.annotation.consequenceTypes) {
+                        if (!cts.has(ct.geneName)) {
+                            arr.push(ct.geneName);
+                            cts.add(ct.geneName);
+                        }
+                    }
+                    html += "<span>" + arr.join() + "</span>";
+                }
+                return "<span style='white-space: nowrap;font-weight: bold'>" + html + "</span>";
+            }
+        });
+    </script>
+</dom-module>

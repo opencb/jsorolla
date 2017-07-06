@@ -16,13 +16,8 @@ module.exports = function (grunt) {
                     'src/lib/utils.js',
                     'src/lib/svg.js',
                     'src/lib/region.js',
-                    'src/lib/grid.js',
-                    'src/lib/feature-binary-search-tree.js',
                     'src/lib/cellbase-manager.js',
                     'src/lib/opencga-manager.js',
-                    'src/lib/ensembl-manager.js',
-
-                    '!src/lib/worker-fileupload.js',
 
                     //widgets
                     '!src/lib/widgets/widget.js',

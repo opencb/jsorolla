@@ -40,7 +40,7 @@ module.exports = function (grunt) {
                     {   expand: true, cwd: './', src: ['vendor/**'], dest: '<%= def.build %>/' },
                     {   expand: true, cwd: './', src: ['styles/**'], dest: '<%= def.build %>/' }, // includes files in path and its subdirs
                     {   expand: true, cwd: 'build/<%= pkg.version %>/genome-viewer/', src: ['genome-viewer.min.js'], dest: '<%= def.build %>/' },
-                    {   expand: true, cwd: 'build/<%= pkg.version %>/genome-viewer/', src:  ['gv-config.js'], dest: '<%= def.build %>/' }
+                    {   expand: true, cwd: 'build/<%= pkg.version %>/genome-viewer/', src:  ['config.js'], dest: '<%= def.build %>/' }
                 ]
             }
         },
