@@ -71,34 +71,32 @@
             }
             ready() {
                 super.ready();
-                if (typeof this.prefix === "undefined" || this.prefix === "") {
+                if (PolymerUtils.isUndefinedOrEmpty(this.prefix)) {
                     this.prefix = "dialog" + Utils.randomString(6);
                 }
 
             }
             modalEvent() {
-                if (typeof this.showMessageModal != "undefined" && this.showMessageModal == true &&
-                typeof this.settingsMessageModal != "undefined"){
-
+                if (this.showMessageModal === true && !PolymerUtils.isUndefined(this.settingsMessageModal)){
                     // Type of modal
                     switch(this.settingsMessageModal.type){
                         case 'success':
-                            $("#" + this.prefix + "headerDiv").addClass("alert alert-success");
+                            PolymerUtils.addClass(this.prefix + "headerDiv", "alert alert-success");
                             break;
                         case 'warning':
-                            $("#" + this.prefix + "headerDiv").addClass("alert alert-warning");
+                            PolymerUtils.addClass(this.prefix + "headerDiv", "alert alert-warning");
                             break;
                         case 'info':
-                            $("#" + this.prefix + "headerDiv").addClass("alert alert-info");
+                            PolymerUtils.addClass(this.prefix + "headerDiv", "alert alert-info");
                             break;
                         case 'danger':
-                            $("#" + this.prefix + "headerDiv").addClass("alert alert-danger");
+                            PolymerUtils.addClass(this.prefix + "headerDiv", "alert alert-danger".split(" "));
                             break;
                     }
 
                     // Width and height of modal
-                    $("#" + this.prefix + "modalDiv").css("width", this.settingsMessageModal.width)
-                    $("#" + this.prefix + "bodyDiv").css("height", this.settingsMessageModal.height)
+                    PolymerUtils.addStyle(this.prefix + "modalDiv", "width", this.settingsMessageModal.width);
+                    PolymerUtils.addStyle(this.prefix + "bodyDiv", "height", this.settingsMessageModal.height);
 
                     // Body message
                     this.messageHeader = this.settingsMessageModal.messageHeader;

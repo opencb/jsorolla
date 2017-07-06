@@ -677,6 +677,7 @@
                             height: "100px",
                             width: "500px"
                         };
+                        _this.set('settingsMessageModal', _this.settingsMessageModal);
                         _this.showMessageModal = true;
 
                     });
@@ -932,7 +933,7 @@
                     height: "100px",
                     width: "500px"
                 };
-
+                this.set('settingsMessageModal', this.settingsMessageModal);
                 this.showMessageModal = true;
                 this._clearHtmlDom();
             }
@@ -1096,6 +1097,7 @@
                                             height: "100px",
                                             width: "500px"
                                         };
+                                        this.set('settingsMessageModal', this.settingsMessageModal);
                                         this.showMessageModal = true;
                                     }
                                     else {
@@ -1119,7 +1121,7 @@
                                 height: "100px",
                                 width: "500px"
                             };
-
+                            _this.set('settingsMessageModal', _this.settingsMessageModal);
                             _this.showMessageModal = true;
                         });
 
@@ -1133,7 +1135,7 @@
                             height: "100px",
                             width: "500px"
                         };
-
+                        this.set('settingsMessageModal', this.settingsMessageModal);
                         this.showMessageModal = true;
 
                     }
@@ -1146,7 +1148,7 @@
                         height: "100px",
                         width: "500px"
                     };
-
+                    this.set('settingsMessageModal', this.settingsMessageModal);
                     this.showMessageModal = true;
                 }
             }
@@ -1204,6 +1206,7 @@
                                 height: "100px",
                                 width: "500px"
                             };
+                            _this.set('settingsMessageModal', _this.settingsMessageModal);
                             _this.showMessageModal = true;
                         });
                 }
@@ -1222,6 +1225,7 @@
                         height: "100px",
                         width: "500px"
                     };
+                    this.set('settingsMessageModal', this.settingsMessageModal);
                     this.showMessageModal = true;
                     PolymerUtils.setAttribute(this.prefix + 'diagnosis', 'value', '');
                     PolymerUtils.innerHTML(this.prefix + 'diagnosis', '');
