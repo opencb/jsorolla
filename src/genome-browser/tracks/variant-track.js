@@ -1,9 +1,44 @@
 class VariantTrack extends FeatureTrack {
+
     constructor(args) {
         super(args);
+
+        this.DEFAULT_EXCLUDE = "studies,annotation";
+
         console.log("Variant-TRack constructor");
+
+
+        // set user args
+        Object.assign(this, args);
+
+        // init dataAdapter and renderer
+        this.histogramRenderer = new HistogramRenderer(args);
+        this._init();
+
         this.resource = this.dataAdapter.resource;
         this.species = this.dataAdapter.species;
+    }
+
+    _init() {
+        // set OpenCGA adapter as default. OpenCGA Client constructor(client, category, subcategory, resource, params = {}, options = {}, handlers = {}) {
+        if (typeof this.dataAdapter === "undefined" || this.dataAdapter === null) {
+            if (typeof this.opencga !== "undefined" && this.opencga !== null) {
+                let opencgaConfig = new OpenCGAClientConfig(this.opencga.host, this.opencga.version);
+                // opencgaConfig.cache.active = false;
+                this.dataAdapter = new OpencgaAdapter(new OpenCGAClient(opencgaConfig), "analysis/variant", "", "query", {
+                    studies: this.opencga.studies,
+                    exclude: this.DEFAULT_EXCLUDE
+                }, {
+                    chunkSize: 100000
+                });
+            }
+        }
+
+        // set a default geneRenderer
+        if (typeof this.renderer === "undefined" || this.renderer === null) {
+            this.renderer = new FeatureRenderer(FEATURE_TYPES.variant);
+        }
+
     }
 
     initializeDom(targetId) {
@@ -25,21 +60,6 @@ class VariantTrack extends FeatureTrack {
         this.renderer.init();
     }
 
-    _init(args) {
-        // constructor(client, category, subcategory, resource, params = {}, options = {}, handlers = {}) {
-        // set CellBase adapter as default
-        if (typeof this.dataAdapter === "undefined") {
-            let opencgaConfig = new OpenCGAClientConfig(args.opencga.host, args.opencga.version, args.opencga.species);
-            opencgaConfig.cache.active = false;
-            this.dataAdapter = new OpencgaAdapter(new OpenCGAClient(opencgaConfig), "analysis/variant", "", "variant", {}, { chunkSize: 100000 });
-        }
-
-        // set a default geneRenderer
-        if (typeof this.renderer === "undefined") {
-            this.renderer = new FeatureRenderer({});
-        }
-    }
-    
 
 
 }

@@ -330,16 +330,21 @@
             minTranscriptRegionSize: 200000,
             visibleRegionSize: 100000000,
             height: 300,
-            renderer: new FeatureRenderer(FEATURE_TYPES.variant),
-            dataAdapter: new OpencgaAdapter(opencgaClient, "analysis/variant", undefined, "query",
-                    {
-                        studies:"reference_grch37:1kG_phase3",
-//                        exclude: "studies.files,studies.stats,annotation"
-                        exclude: "studies,annotation"
-//                        exclude: "studies"
-                    }, {
-                        chunkSize: 100000
-                    })
+            opencga: {
+                host: OPENCGA_HOST,
+                version: "v1",
+                studies: "reference_grch37:1kG_phase3"
+            },
+//            renderer: new FeatureRenderer(FEATURE_TYPES.variant),
+//            dataAdapter: new OpencgaAdapter(opencgaClient, "analysis/variant", undefined, "query",
+//                    {
+//                        studies: "reference_grch37:1kG_phase3",
+////                        exclude: "studies.files,studies.stats,annotation"
+//                        exclude: "studies,annotation"
+////                        exclude: "studies"
+//                    }, {
+//                        chunkSize: 100000
+//                    })
         });
         tracks.push(variant);
         /*******************/

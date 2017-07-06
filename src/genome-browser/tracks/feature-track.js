@@ -60,7 +60,8 @@ class FeatureTrack {
         Object.assign(this, Backbone.Events);
 
         //save default render reference;
-        this.defaultRenderer = this.renderer;
+        // this.defaultRenderer = this.renderer;
+        // this.renderer = this.renderer;
 
         this.histogramRenderer = new window[this.histogramRendererName](args);
         this.dataType = "features";
@@ -481,18 +482,20 @@ class FeatureTrack {
         console.time("Total FeatureTrack -> getDataHandler " + event.sender.resource)
 
         console.time("Chunks() FeatureTrack -> getDataHandler " + event.sender.resource)
+
+        let renderer;
         let features;
-        if (event.dataType === "histogram") {
-            this.renderer = this.histogramRenderer;
-            features = event.items;
-        } else {
-            this.renderer = this.defaultRenderer;
+        if (event.dataType !== "histogram") {
+            renderer = this.renderer;
             features = this.getFeaturesToRenderByChunk(event);
+        } else {
+            renderer = this.histogramRenderer;
+            features = event.items;
         }
         console.timeEnd("Chunks() FeatureTrack -> getDataHandler " + event.sender.resource)
 
         console.time("render() FeatureTrack -> getDataHandler " + event.sender.resource)
-        this.renderer.render(features, {
+        renderer.render(features, {
             cacheItems: event.items,
             svgCanvasFeatures: this.svgCanvasFeatures,
             featureTypes: this.featureTypes,

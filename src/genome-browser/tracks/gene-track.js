@@ -13,7 +13,7 @@ class GeneTrack extends FeatureTrack {
 
         // init dataAdapter and renderer
         this.histogramRenderer = new HistogramRenderer(args);
-        this._init(args);
+        this._init();
 
         // These variables must be fixed in this GeneTrack
         this.dataType = "features";
@@ -21,12 +21,14 @@ class GeneTrack extends FeatureTrack {
         this.species = this.dataAdapter.species;
     }
 
-    _init(args) {
+    _init() {
         // set CellBase adapter as default
         if (typeof this.dataAdapter === "undefined") {
-            let cellBaseConfig = new CellBaseClientConfig(args.cellbase.host, args.cellbase.version, args.cellbase.species);
-            cellBaseConfig.cache.active = false;
-            this.dataAdapter = new CellBaseAdapter(new CellBaseClient(cellBaseConfig), "genomic", "region", "gene", {}, { chunkSize: 100000 });
+            if (typeof this.cellbase !== "undefined" && this.cellbase !== null) {
+                let cellBaseConfig = new CellBaseClientConfig(this.cellbase.host, this.cellbase.version, this.cellbase.species);
+                cellBaseConfig.cache.active = false;
+                this.dataAdapter = new CellBaseAdapter(new CellBaseClient(cellBaseConfig), "genomic", "region", "gene", {}, { chunkSize: 100000 });
+            }
         }
 
         // set a default geneRenderer
@@ -37,9 +39,9 @@ class GeneTrack extends FeatureTrack {
 
     getDataHandler(event) {
         if (typeof event !== "undefined") {
+
             let renderer;
             let features;
-
             if (event.dataType !== "histogram") {
                 renderer = this.renderer;
                 features = this.getFeaturesToRenderByChunk(event);
