@@ -22,7 +22,7 @@ class PolymerUtils {
 
     static getElementsByClassName(className, root) {
         if (PolymerUtils.isUndefined(root)) {
-           return  document.getElementsByClassName(className);
+           return document.getElementsByClassName(className);
         } else {
             return root.getElementsByClassName(className);
         }

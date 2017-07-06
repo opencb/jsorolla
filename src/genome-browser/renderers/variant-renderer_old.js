@@ -47,97 +47,10 @@ function VariantRenderer(args) {
 
 VariantRenderer.prototype.init = function (svgGroup, sample) {
     //Prevent browser context menu
-
-    var _this = this;
-    console.log(this.track.main);
     $(svgGroup).contextmenu(function (e) {
         console.log("right click");
         e.preventDefault();
     });
-
-    var samplesname = _.isFunction(_this.sampleNames) ? _this.sampleNames(feature) : _this.sampleNames;
-    console.log("Probando el samplesnames");
-    console.log(samplesname);
-
-    var studies = Object.keys(samplesname); // is possible there are various studies
-    var y = 8;
-    for(var i = 0; i < studies.length ; i ++){
-        var samplesinstudy = samplesname[studies[i]];
-        for(var j = 0; j < samplesinstudy.length ; j ++){
-
-            var sample= SVG.addChild(this.track.main, "text", {
-                'x': 0,
-                'y': y,
-                'stroke': 'black',
-                'stroke-width': 1,
-                'font-size':"8",
-                'cursor': 'pointer'
-            });
-            y += 10;
-
-            sample.textContent = samplesinstudy[j];
-            $(sample).click(function (event) {
-               // $(this).css({"strokeWidth":"3","stroke":"#ff7200"}).hide(100).show(500).css({"stroke":"#51c000"})});
-                // amarillo FCFC92
-                var label = $(this);
-                //label.css({"stroke":"#ff7200"}).hide(100).show(500).css({"stroke":"#ff7200"});
-
-                //POSIBILIDAD 1
-                //var rect = SVG.addChild(_this.track.main,  "rect",{
-                //    'x': 0,
-                //    'y': label[0].y.baseVal[0].value-7,
-                //    'width': _this.track.width,
-                //    'height': 8,
-                //    'stroke': '#FFFF00',
-                //    'fill': '#FCFC92'
-                //});
-                //$(rect).css({"z-index": -1});
-
-                //POSIBILIDAD 2
-                var yrect = label[0].y.baseVal[0].value-7;
-                if(this.getAttribute("stroke") == "black"){
-                    label.css({"stroke":"#ff7200"}).hide(100).show(500).css({"stroke":"#ff7200"});
-                    this.setAttribute("stroke", "#ff7200");
-                    var rect =  SVG.create("rect",{
-                        'x': 0,
-                        'y': yrect,
-                        'width': _this.track.width,
-                        'height': 8,
-                        'stroke': '#FFFF00',
-                        'fill': '#F2F5A9',
-                        'opacity': 0.5
-                    });
-                    rect.setAttribute("id",this.innerHTML + "_rect" +yrect);
-                    _this.track.main.insertBefore(rect,this);
-                }else{
-                    var rect = document.getElementById(this.innerHTML + "_rect" +yrect);
-                    rect.parentNode.removeChild(rect);
-                    this.setAttribute("stroke", "black");
-                    label.css({"stroke":"black"});
-                }
-
-                //var divpadre = _this.track.main.parentNode;
-                //var selBox = $('<div id="' + this.id + 'selBox"></div>')[0];
-                //divpadre.append(selBox);
-                //$(selBox).css({
-                //    'z-index': 0,
-                //    'position': 'absolute',
-                //    'left': 0,
-                //    'top': label[0].y.baseVal[0].value-8,
-                //    'height': 8,
-                //    'width':'100%',
-                //    'border': '2px solid #FFFF00',
-                //    'opacity': 0.5,
-                //    //'visibility': 'hidden',
-                //    'background-color': '#F2F5A9'
-                //});
-                //$(selBox).click(function(event){
-                //    this.parentNode.removeChild(this);
-                //});
-            });
-        }
-    }
-
 };
 
 VariantRenderer.prototype.render = function (features, args) {
@@ -209,7 +122,7 @@ VariantRenderer.prototype.draw = function (feature, args) {
     var xs = x; // x start
     var xe = x + width; // x end
     var ys = 1; // y
-    var yi = 8; //y increment
+    var yi = 6; //y increment
     var yi2 = 10; //y increment
 
 //    debugger

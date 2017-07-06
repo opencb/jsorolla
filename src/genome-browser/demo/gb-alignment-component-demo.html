@@ -1,0 +1,95 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../webcomponent/genome-browser.html">
+
+<dom-module id="gb-alignment-component-demo">
+
+    <template>
+        <div id="gb-div" style="margin:15px 30px">
+            <genome-browser cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}"
+                            region="{{region}}" tracks="{{tracks}}" track-configs="{{trackConfigs}}"
+                            settings="{{settings}}">
+            </genome-browser>
+        </div>
+    </template>
+
+    <script>
+        Polymer({
+            is: 'gb-alignment-component-demo',
+            properties: {
+            },
+            ready: function() {
+                // We first parse URL to check (and overwrite) if a CellBase Host and Version have been provided
+                var queryParams = URI.parseQuery(window.location.search);
+                if (typeof queryParams.CELLBASE_HOST !== "undefined") {
+                    CELLBASE_HOST = queryParams.CELLBASE_HOST;
+                }
+                if (typeof queryParams.CELLBASE_VERSION !== "undefined") {
+                    CELLBASE_VERSION = queryParams.CELLBASE_VERSION;
+                }
+                console.log("CellBase Host: " + CELLBASE_HOST, " - CellBase Version: " + CELLBASE_VERSION)
+
+                var cellBaseClientConfig = new CellBaseClientConfig(hosts = CELLBASE_HOST, version = CELLBASE_VERSION);
+                cellBaseClientConfig.cache.active = false;
+                this.cellbaseClient = new CellBaseClient(cellBaseClientConfig);
+
+                // We parse the URL to check (and overwrite) the OPENCGA parameters as well
+                if (typeof queryParams.OPENCGA_HOST !== "undefined") {
+                    OPENCGA_HOST = queryParams.OPENCGA_HOST;
+                }
+                if (typeof queryParams.OPENCGA_USER !== "undefined") {
+                    OPENCGA_USER = queryParams.OPENCGA_USER;
+                }
+                if (typeof queryParams.OPENCGA_PASSWORD !== "undefined") {
+                    OPENCGA_PASSWORD = queryParams.OPENCGA_PASSWORD;
+                }
+                console.log("Opencga host: " + OPENCGA_HOST, " - User: " + OPENCGA_USER, " - Password: " + OPENCGA_PASSWORD);
+
+                var opencgaClientConfig = new OpenCGAClientConfig(OPENCGA_HOST);
+                opencgaClientConfig.setPrefix("gm");
+                this.opencgaClient = new OpenCGAClient(opencgaClientConfig);
+
+                this.opencgaClient.users().login(OPENCGA_USER, OPENCGA_PASSWORD)
+                    .then(function() {
+                        console.log("User " + OPENCGA_USER + " successfully logged in in opencga.");
+                        opencgaClient = new OpenCGAClient(opencgaClientConfig);
+                    })
+                    .catch(function(e) {
+                        console.log("Error logging in " + OPENCGA_USER, e);
+                    });
+
+                // Take the file id to show the alignment track
+                let fileIds;
+                if (typeof queryParams.BAM_NAME !== "undefined") {
+                    fileIds = queryParams.BAM_NAME;
+                }
+
+                let study;
+                if (typeof queryParams.STUDY !== "undefined") {
+                    study = queryParams.STUDY;
+                }
+
+                this.settings = {
+                    width: $("#gb-div").width() - 10
+                };
+
+                this.tracks = ['sequence', 'gene'];
+                let fileIdsSplitted = fileIds.split(",");
+                let configTracks = {};
+                for (let i in fileIdsSplitted) {
+                    let fileId = fileIdsSplitted[i];
+                    let name = "alignment" + i;
+                    this.tracks.push(name);
+                    configTracks[name] = {
+                        type: 'alignment',
+                        source: 'opencga',
+                        data: {
+                            study: study,
+                            fileId: fileId
+                        }
+                    };
+                }
+                this.trackConfigs = configTracks;
+            }
+        });
+    </script>
+</dom-module>

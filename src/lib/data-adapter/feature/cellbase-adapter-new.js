@@ -34,7 +34,7 @@ class CellBaseAdapter {
         }
 
         // Extend backbone events
-        _.extend(this, Backbone.Events);
+        Object.assign(this, Backbone.Events);
         // _.extend(this, args);
         this.on(this.handlers);
     }
@@ -48,15 +48,15 @@ class CellBaseAdapter {
     }
 
     getData (args) {
-        var _this = this;
+        let _this = this;
 
-        var params = {};
+        let params = {};
         //histogram: (dataType == 'histogram')
-        _.extend(params, this.params);
-        _.extend(params, args.params);
+        Object.assign(params, this.params);
+        Object.assign(params, args.params);
 
         /** 1 region check **/
-        var region = args.region;
+        let region = args.region;
         if (region.start > 300000000 || region.end < 1) {
             return;
         }
@@ -67,13 +67,13 @@ class CellBaseAdapter {
         // var categories = [this.category + this.subCategory + this.resource + Utils.queryString(params)];
 
         /** 3 dataType check **/
-        var dataType = args.dataType;
+        let dataType = args.dataType;
         if (_.isUndefined(dataType)) {
             console.log("dataType must be provided!!!");
         }
 
         /** 4 chunkSize check **/
-        var chunkSize = this.options.chunkSize; // this.cache.defaultChunkSize should be the same
+        let chunkSize = this.options.chunkSize; // this.cache.defaultChunkSize should be the same
         if (this.debug) {
             console.log(chunkSize);
         }
@@ -83,46 +83,42 @@ class CellBaseAdapter {
             console.log("cellbase client must be provided!!!");
         }
 
-        // Create the chunks to be retrieved
-        let start = this._getStartChunkPosition(region.start);
-        let end = this._getStartChunkPosition(region.end);
+        return new Promise(function(resolve, reject) {
+            // Create the chunks to be retrieved
+            let start = _this._getStartChunkPosition(region.start);
+            let end = _this._getStartChunkPosition(region.end);
 
-        let regions = [];
-        let myRegion = start;
-        args.webServiceCallCount = 0;
+            let regions = [];
+            let myRegion = start;
+            args.webServiceCallCount = 0;
 
-        do {
-            regions.push(`${region.chromosome}:${myRegion}-${myRegion + this.options.chunkSize - 1}`);
-            myRegion += this.options.chunkSize;
-        } while(myRegion < end);
+            do {
+                regions.push(`${region.chromosome}:${myRegion}-${myRegion + _this.options.chunkSize - 1}`);
+                myRegion += _this.options.chunkSize;
+            } while(myRegion < end);
 
-        let groupedRegions = this._groupQueries(regions);
+            let groupedRegions = _this._groupQueries(regions);
+            let chunks = [];
+            for (let i = 0; i < groupedRegions.length; i++) {
+                args.webServiceCallCount++;
+                _this.client.get(_this.category, _this.subCategory, groupedRegions[i], _this.resource, params)
+                    .then(function (response) {
+                        let responseChunks = _this._cellbaseSuccess(response, dataType, chunkSize);
+                        args.webServiceCallCount--;
 
-        let chunks = [];
-        for (let i = 0; i < groupedRegions.length; i++) {
-            args.webServiceCallCount++;
-            this.client.get(this.category, this.subCategory, groupedRegions[i], this.resource, this.params)
-                .then(function(response) {
-                    var responseChunks = _this._cellbaseSuccess(response, dataType, chunkSize);
-                    args.webServiceCallCount--;
-
-                    chunks = chunks.concat(responseChunks);
-                    if (args.webServiceCallCount === 0) {
-                        chunks.sort(function(a, b) {
-                            return a.chunkKey.localeCompare(b.chunkKey)
-                        });
-                        args.done({
-                            items: chunks, dataType: dataType, chunkSize: chunkSize, sender: _this
-                        });
-                    }
-
-                })
-                .catch(function() {
-                    console.log('Server error');
-                    args.done();
-                });
-        }
-
+                        chunks = chunks.concat(responseChunks);
+                        if (args.webServiceCallCount === 0) {
+                            chunks.sort(function (a, b) {
+                                return a.chunkKey.localeCompare(b.chunkKey);
+                            });
+                            resolve({items: chunks, dataType: dataType, chunkSize: chunkSize, sender: _this});
+                        }
+                    })
+                    .catch(function () {
+                        reject("Server error");
+                    });
+            }
+        });
     }
 
     _getStartChunkPosition (position) {
@@ -130,18 +126,18 @@ class CellBaseAdapter {
     }
 
     _cellbaseSuccess (data, dataType, chunkSize) {
-        var timeId = Utils.randomString(4) + this.resource + " save";
+        let timeId = `${Utils.randomString(4) + this.resource} save`;
         console.time(timeId);
         /** time log **/
 
-        var regions = [];
-        var chunks = [];
-        for (var i = 0; i < data.response.length; i++) {    // TODO test what do several responses mean
-            var queryResult = data.response[i];
+        let regions = [];
+        let chunks = [];
+        for (let i = 0; i < data.response.length; i++) {    // TODO test what do several responses mean
+            let queryResult = data.response[i];
             if (dataType == "histogram") {
-                for (var j = 0; j < queryResult.result.length; j++) {
-                    var interval = queryResult.result[j];
-                    var region = new Region(interval);
+                for (let j = 0; j < queryResult.result.length; j++) {
+                    let interval = queryResult.result[j];
+                    let region = new Region(interval);
                     regions.push(region);
                     chunks.push(interval);
                 }
@@ -153,8 +149,10 @@ class CellBaseAdapter {
 
         let items = [];
         for (let i = 0; i < regions.length; i++) {
+            let chunkStartId = Math.floor(regions[i].start / this.options.chunkSize);
             items.push({
-                chunkKey: `${regions[i].chromosome}:${regions[i].start}_${dataType}_${chunkSize}`,
+                chunkKey: `${regions[i].chromosome}:${chunkStartId}_${dataType}_${chunkSize}`,
+                // chunkKey: this._getChunkKey(regions[i].chromosome, chunkStartId),
                 region: regions[i],
                 value: chunks[i]
             });
@@ -172,8 +170,8 @@ class CellBaseAdapter {
      * [ [r1,r2,r3,r4], [r5,r6,r7,r8] ]
      */
     _groupQueries (uncachedRegions) {
-        var groupSize = 50;
-        var queriesLists = [];
+        let groupSize = 50;
+        let queriesLists = [];
         while (uncachedRegions.length > 0) {
             queriesLists.push(uncachedRegions.splice(0, groupSize).toString());
         }
