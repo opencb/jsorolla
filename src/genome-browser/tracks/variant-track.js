@@ -36,9 +36,31 @@ class VariantTrack extends FeatureTrack {
 
         // set a default geneRenderer
         if (typeof this.renderer === "undefined" || this.renderer === null) {
+            // this.renderer = new VariantRenderer(FEATURE_TYPES.variant);
             this.renderer = new FeatureRenderer(FEATURE_TYPES.variant);
         }
 
+        this.renderer.track = this;
+
+        // set the right
+        if (typeof this.samples !== "undefined" && this.samples !== null) {
+            // this.renderer.mode = "compact".....
+            this.exclude = "studies.files,studies.stats,annotation";
+            this.dataAdapter.params.exclude = "studies.files,studies.stats,annotation";
+            this.dataAdapter.params.returnedSamples = "HG00096,HG00097,HG00099";
+            // let opencgaConfig = new OpenCGAClientConfig(this.opencga.host, this.opencga.version);
+            // this.dataAdapter = new OpencgaAdapter(new OpenCGAClient(opencgaConfig), "analysis/variant", "", "query", {
+            //     studies: this.opencga.studies,
+            //     exclude: "studies.files,studies.stats,annotation",
+            //     outputSamples: "HG00096,HG00097,HG00099"
+            // }, {
+            //     chunkSize: 100000
+            // });
+
+            FEATURE_TYPES.variant.sampleNames = this.samples.names;
+            this.renderer = new VariantRenderer(FEATURE_TYPES.variant);
+            this.renderer.track = this;
+        }
     }
 
     initializeDom(targetId) {

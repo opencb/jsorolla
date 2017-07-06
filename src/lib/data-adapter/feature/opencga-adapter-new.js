@@ -205,31 +205,40 @@ class OpencgaAdapter {
                 for (let i = 0; i < groupedRegions.length; i++) {
                     args.webServiceCallCount++;
 
-                    _this.client.variants().query({
-                        region: groupedRegions[i],
-                        studies: studies,
-                        exclude: exclude
-                        //exclude: "studies, annotation"
-                        //exclude: "studies.files,studies.stats,annotation"
-                    })
-                    .then(function (response) {
-                        console.log("Correctoo")
-                        console.log(response)
-                        //return _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
-                        args.webServiceCallCount--;
-                        let responseChunks = _this._variantsuccess(response, categories, dataType, groupedRegions[i], region, chunkSize);
-
-                        chunks = chunks.concat(responseChunks);
-                        if (args.webServiceCallCount === 0) {
-                            resolve({
-                                items: chunks, dataType: dataType, chunkSize: chunkSize, sender: _this
-                            });
+                    // _this.client.variants().query({
+                    //     region: groupedRegions[i],
+                    //     studies: studies,
+                    //     exclude: exclude
+                    //     //exclude: "studies, annotation"
+                    //     //exclude: "studies.files,studies.stats,annotation"
+                    // })
+                    // let p = Object.assign(params, {region: groupedRegions[i]});
+                    let p = {};
+                    for (let param of Object.keys(params)) {
+                        if (typeof params[param] !== "undefined") {
+                            p[param] = params[param];
                         }
+                    }
+                    debugger
+                    _this.client.variants().query(p)
+                        .then(function (response) {
+                            console.log("Correctoo")
+                            console.log(response)
+                            //return _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
+                            args.webServiceCallCount--;
+                            let responseChunks = _this._variantsuccess(response, categories, dataType, groupedRegions[i], region, chunkSize);
 
-                    })
-                    .catch(function () {
-                        reject("Server error");
-                    });
+                            chunks = chunks.concat(responseChunks);
+                            if (args.webServiceCallCount === 0) {
+                                resolve({
+                                    items: chunks, dataType: dataType, chunkSize: chunkSize, sender: _this
+                                });
+                            }
+
+                        })
+                        .catch(function () {
+                            reject("Server error");
+                        });
                 }
             } else { // histogram
 
@@ -351,14 +360,14 @@ class OpencgaAdapter {
                         chunks = chunks.concat(auxArray);
 
                         if (args.webServiceCallCount === 0) {
-                           resolve({
+                            resolve({
                                 items: chunks, dataType: dataType, chunkSize: chunkSize, sender: _this
                             });
                         }
                     })
-                    .catch(function(response){
-                        reject("Server alignments error");
-                    });
+                        .catch(function(response){
+                            reject("Server alignments error");
+                        });
                 }
             } else { // histogram
                 _this.client.alignments().coverage(fileId,
@@ -468,7 +477,7 @@ class OpencgaAdapter {
 
     _variantsuccess(response, categories, dataType, queryRegion, originalRegion, chunkSize) {
 
-    //console.time(timeId);
+        //console.time(timeId);
         /** time log **/
 
         var regions = [];
@@ -512,7 +521,7 @@ class OpencgaAdapter {
                 dataType: dataType
             });
         }
-       // var items = this.cache.putByRegions(regions, chunks, categories, dataType, chunkSize);
+        // var items = this.cache.putByRegions(regions, chunks, categories, dataType, chunkSize);
 
         /** time log **/
         //console.timeEnd(timeId);

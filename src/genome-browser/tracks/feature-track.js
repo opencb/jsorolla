@@ -19,6 +19,7 @@ class FeatureTrack {
         this.fontClass = "ocb-font-roboto ocb-font-size-14";
         this.externalLink = "";
         this.autoRender = false;
+        this.exclude;
 
         Object.assign(this, args);
         if (this.renderer != null) {
@@ -41,7 +42,7 @@ class FeatureTrack {
 
 
         this.invalidZoomText;
-        this.exclude;
+
 
         this.renderedArea = {}; //used for renders to store binary trees
         this.chunksDisplayed = {}; //used to avoid painting multiple times features contained in more than 1 chunk
@@ -544,13 +545,19 @@ class FeatureTrack {
                 end: this.region.end + this.svgCanvasOffset * 2
             });
 
-            let params = {
+            // let params = {
+            //     histogram: this.histogram,
+            //     histogramLogarithm: this.histogramLogarithm,
+            //     histogramMax: this.histogramMax,
+            //     interval: this.interval,
+            //     exclude: this.exclude
+            // };
+            let params = Object.assign(adapter.params, {
                 histogram: this.histogram,
                 histogramLogarithm: this.histogramLogarithm,
                 histogramMax: this.histogramMax,
-                interval: this.interval,
-                exclude: this.exclude
-            };
+                interval: this.interval
+            });
 
             console.time("SuperTotal FeatureTrack -> getDataHandler")
             adapter.getData({dataType: this.dataType, region: region, params: params})
