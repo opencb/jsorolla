@@ -25,5 +25,21 @@ class VariantTrack extends FeatureTrack {
         this.renderer.init();
     }
 
+    _init(args) {
+        // constructor(client, category, subcategory, resource, params = {}, options = {}, handlers = {}) {
+        // set CellBase adapter as default
+        if (typeof this.dataAdapter === "undefined") {
+            let opencgaConfig = new OpenCGAClientConfig(args.opencga.host, args.opencga.version, args.opencga.species);
+            opencgaConfig.cache.active = false;
+            this.dataAdapter = new OpencgaAdapter(new OpenCGAClient(opencgaConfig), "analysis/variant", "", "variant", {}, { chunkSize: 100000 });
+        }
+
+        // set a default geneRenderer
+        if (typeof this.renderer === "undefined") {
+            this.renderer = new FeatureRenderer({});
+        }
+    }
+    
+
 
 }
