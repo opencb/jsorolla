@@ -25,7 +25,7 @@
 
         <div class="col-md-12">
             <div style="width: 60%; margin: 0px 0px 0px 90px">
-                <form id="{{prefix}}uploadForm" class="form-horizontal" data-toggle="validator" role="form">
+                <form id="{{prefix}}uploadForm" class="form-horizontal" data-toggle="validator"  role="form">
                     <h3 class="title">Patient Information</h3>
                     <!-- GENERAL INFORMATION -->
                     <!-- Individual ID -->
@@ -626,7 +626,7 @@
             ready() {
                 super.ready();
 
-                if (typeof this.prefix === "undefined" || this.prefix === "") {
+                if (PolymerUtils.isUndefinedOrEmpty(this.prefix)) {
                     this.prefix = "upload" + Utils.randomString(6);
                 }
 
@@ -730,8 +730,8 @@
             checkYears(e) {
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
 
-                $("#" + this.prefix + "_errorDiv_birthYear").html("");
-                $("#" + this.prefix + "_errorDiv_testYear").html("");
+                PolymerUtils.innerHTML(this.prefix + '_errorDiv_birthYear', '');
+                PolymerUtils.innerHTML(this.prefix + '_errorDiv_testYear', '');
 
                 let identifier = e.target.id;
                 let message = '';
@@ -742,64 +742,54 @@
 
                 if (identifier.search('birthYear') != -1) {    // Birth year element raises the event -> check Test year
                     // Check Year of Test
-                    $("#" + this.prefix + "_errorDiv_age").html("");
-                    currentElement = $("#" + e.target.id);
-                    valueCE = currentElement.find("option:selected").text();
-                    pairElement = $("#" + this.prefix + "testYear");
-                    valuePE = pairElement.find("option:selected").text();
+                    PolymerUtils.innerHTML(this.prefix + '_errorDiv_age', '');
+                    currentElement = PolymerUtils.getElementById(e.target.id);
+                    valueCE = PolymerUtils.querySelector('option:checked', currentElement).textContent;
+                    pairElement = PolymerUtils.getElementById(this.prefix + "testYear");
+                    valuePE = PolymerUtils.querySelector('option:checked', pairElement).textContent;
 
                     if (valuePE != '' && (parseInt(valueCE) > parseInt(valuePE))) { // Year of birth cannot be lower than Year of test
                         message = "Year of Birth must be prior to year of Test. ";
-                        $("#" + this.prefix + "_errorDiv_birthYear").html(message);
+                        PolymerUtils.innerHTML(this.prefix + '_errorDiv_birthYear', message);
                     }
                     // Check Age
-                    pairElement = $("#" + this.prefix + "age");
-                    valuePE = pairElement.find("option:selected").text();
+                    pairElement = PolymerUtils.getElementById(this.prefix + "testAge");
+                    valuePE = PolymerUtils.querySelector('option:checked', pairElement).textContent;
                     let fullDate = new Date();
                     if (valuePE != '' && !(parseInt(valuePE) >= (fullDate.getFullYear() - parseInt(valueCE) - 1) && parseInt(valuePE) <= fullDate.getFullYear() - parseInt(valueCE))) {
                         // If year of birth is 2015, person is 1 or 2 years old (assuming 2017 is current year)
-                        $("#" + this.prefix + "_errorDiv_birthYear").html(message + "Year of Birth does not match age");
+                        PolymerUtils.innerHTML(this.prefix + '_errorDiv_birthYear', message + 'Year of Birth does not match age');
                     }
                 }
-                else { // Year of test element raises the event -> swap elements and check the birth year
-                    currentElement = $("#" + this.prefix + "birthYear");
-                    valueCE = currentElement.find("option:selected").text();
-                    pairElement = $("#" + e.target.id);
-                    valuePE = pairElement.find("option:selected").text();
 
-                    if (valuePE != '' && (parseInt(valueCE) > parseInt(valuePE))) { // Year of birth cannot be lower than Year of test
-                        $("#" + this.prefix + "_errorDiv_testYear").html("Year of Test must be posterior to year of Birth");
-                    }
-                }
             }
 
             loadICDEditor(e) {
-                UtilsJavascript._getElementById(this.prefix + "errorTermDiv").innerHTML = "";
+                PolymerUtils.innerHTML(this.prefix + "errorTermDiv", "");
                 //this.$$("#" + this.prefix + "autoInput").value="";
-                UtilsJavascript._setAttribute(UtilsJavascript._getElementById(this.prefix + "autoInput"), 'value', '');
+                PolymerUtils.setAttribute(this.prefix + "autoInput", 'value', '');
 
                 this.icdTerms = this.getICDterms();
-                //TODO cambiar todos los selectores a algo como este ejemplo
-                //console.log(UtilsJavascript._getElementById(this.prefix + "autoInput"));
 
                 let _this = this;
-                $("#" + this.prefix + "ICDtree").treeview({
+                $(PolymerUtils.getElementById(this.prefix + "ICDtree")).treeview({
                     data: ICD_10,
                     onNodeSelected: function (event, node) {
                         //_this.$$("#" + _this.prefix + "autoInput").value=node.text;
-                        UtilsJavascript._setAttribute(UtilsJavascript._getElementById(this.prefix + "autoInput"), 'value', node.text);
+                        PolymerUtils.setPropertyById(_this.prefix + "autoInput", 'value', node.text);
 
                     },
                     onNodeUnselected: function (event, node) {
                         //_this.$$("#" + _this.prefix + "autoInput").value="";
-                        UtilsJavascript._setAttribute(UtilsJavascript._getElementById(this.prefix + "autoInput"), 'value', '');
+                        PolymerUtils.setPropertyById(_this.prefix + "autoInput", 'value', '');
                     },
                 });
 
-                $(UtilsJavascript._getElementById(this.prefix + "ICDtree")).treeview('collapseAll', {silent: true});
-                UtilsJavascript._getElementById(this.prefix + "autoInput").addEventListener("input", function () {
-                    $(UtilsJavascript._getElementById(this.prefix + "ICDtree")).treeview('collapseAll', {silent: true});
-                    $(UtilsJavascript._getElementById(this.prefix + "ICDtree")).treeview('search', [this.value, {
+                $(PolymerUtils.getElementById(this.prefix + "ICDtree")).treeview('collapseAll', {silent: true});
+
+                PolymerUtils.getElementById(this.prefix + "autoInput").addEventListener("input", function () {
+                    $(PolymerUtils.getElementById(this.prefix + "ICDtree")).treeview('collapseAll', {silent: true});
+                    $(PolymerUtils.getElementById(this.prefix + "ICDtree")).treeview('search', [this.value, {
                         ignoreCase: true,     // case insensitive
                         exactMatch: false,    // like or equals
                         revealResults: true,  // reveal matching nodes
@@ -829,24 +819,21 @@
             selectICD(e) {
                 e.preventDefault();
 
-                let selectedTerm = UtilsJavascript._getElementById(this.prefix + "autoInput").value.replace(/^\s+/g, '');
+                let selectedTerm = PolymerUtils.getElementById(this.prefix + "autoInput").value.replace(/^\s+/g, '');
                 if (selectedTerm !== "") { // Check that the term is correct (one of the list)
                     let _icdTermsNS = this.icdTerms.map(function (elem) {
                         return elem.replace(/^\s+/g, '')
                     });
                     if (_icdTermsNS.indexOf(selectedTerm) != -1) {
                         //this.$$("#" + this.prefix + "diagnosis").value = selectedTerm;
-                        UtilsJavascript._setAttribute(UtilsJavascript._getElementById(this.prefix + 'diagnosis'), 'value', selectedTerm);
-                        $(UtilsJavascript._getElementById(this.prefix + "icd")).modal('hide');
-                    }
-                    else {
-                        UtilsJavascript._getElementById(this.prefix + "errorTermDiv").innerHTML = "A proper ICD-10 term must be selected from the list or tree";
+                        PolymerUtils.setPropertyById(this.prefix + 'diagnosis', 'value', selectedTerm);
+                        $(PolymerUtils.getElementById(this.prefix + "icd")).modal('hide');
+                    } else {
+                        PolymerUtils.innerHTML(this.prefix + "errorTermDiv", "A proper ICD-10 term must be selected from the list or tree");
                     }
                 }
                 else {
-                    //this.$$("#" º+ this.prefix + "diagnosis").value = '';
-                    UtilsJavascript._setAttribute(UtilsJavascript._getElementById(this.prefix + 'diagnosis'), 'value', '');
-                    $(UtilsJavascript._getElementById(this.prefix + "icd")).modal('hide');
+                    //this.$$("#" º+ this.prefix + "diagnosis")PolymerUtilstilsJavascript.PolymerUtilstilsJavascript.getElementById(this.prefix + 'diagnosis'), 'vaPolymerUtilstilsJavascript.getElementById(this.prefix + "icd")).modal('hide');
                 }
             }
 
@@ -858,52 +845,63 @@
                 // Dropdown related to birthplace
                 if (currentElementId == (this.prefix + 'birthPlace')) {
                     if (currentElement.val() == 'Spain') {
-                        $("#otherCountryDiv").hide();
-                        $("#" + this.prefix + "otherCountry").prop("required", false);
-                        $("#" + this.prefix + "birthPlaceRegion").prop("disabled", false);
-                        $("#" + this.prefix + "birthPlaceRegion").prop("required", true);
-                    }
-                    else {
-                        $("#" + this.prefix + "birthPlaceRegion").prop("disabled", true);
-                        $("#" + this.prefix + "birthPlaceRegion").prop("selectedIndex", 0);
-                        $("#" + this.prefix + "birthPlaceRegion").prop("value", "unknown");
-                        $("#" + this.prefix + "birthPlaceRegion").prop("required", false);
+                        //hide
+                        PolymerUtils.hide('otherCountryDiv');
+                        PolymerUtils.removeAttribute(this.prefix + 'otherCountry', 'required', false);
+                        PolymerUtils.removeAttribute(this.prefix + 'birthPlaceRegion', 'disabled');
+                        PolymerUtils.setAttribute(this.prefix + 'birthPlaceRegion', 'require', true);
+                    } else {
+                        PolymerUtils.setAttribute(this.prefix + 'birthPlaceRegion', 'disabled', true);
+                        PolymerUtils.setAttribute(this.prefix + 'birthPlaceRegion', 'selectedIndex', 0);
+                        PolymerUtils.setAttribute(this.prefix + 'birthPlaceRegion', 'value', 'unknown');
+                        PolymerUtils.setAttribute(this.prefix + 'birthPlaceRegion', 'required', false);
                         if (currentElement.val() == 'Other') {// Display input text to introduce country
-                            $("#otherCountryDiv").show();
-                            $("#" + this.prefix + "otherCountry").prop("required", true);
+                            //show
+                            PolymerUtils.addStyle('otherCountryDiv', 'display', 'block');
+                            PolymerUtils.setAttribute(this.prefix + 'otherCountry', 'required', true);
                         }
                         else {
-                            $("#otherCountryDiv").hide();
-                            $("#" + this.prefix + "otherCountry").prop("required", false);
+                            PolymerUtils.addStyle('otherCountryDiv', 'display', 'none');
+                            PolymerUtils.setAttribute(this.prefix + 'otherCountry', 'required', false);
                         }
                     }
                 } else if (currentElementId == (this.prefix + 'testAge')) {
                     // Dropdown related to age of Test -> check hat year of birth is correct
-                    let pairElement = $("#" + this.prefix + "birthYear");
-                    let valuePE = pairElement.find("option:selected").text();
+                    let pairElement = PolymerUtils.getElementById(this.prefix + 'birthYear');
+                    let valuePE = PolymerUtils.querySelector("option:checked", pairElement).textContent;
                     if (valuePE != '') {
                         let birthYear = parseInt(valuePE);
                         let fullDate = new Date();
                         if (!(parseInt(currentElement.val()) >= (fullDate.getFullYear() - birthYear - 1) && parseInt(currentElement.val()) <= fullDate.getFullYear() - birthYear)) {
-                            $("#" + this.prefix + "_errorDiv_testAge").html("Age selected does not match year of Birth");
+                            PolymerUtils.innerHTML(this.prefix + '_errorDiv_testAge', 'Age selected does not match year of Birth');
                         }
+                    }
+                } else if (currentElementId == (this.prefix + 'testYear')) { // Year of test element raises the event -> swap elements and check the birth year
+                    let currentElement = PolymerUtils.getElementById(this.prefix + 'birthYear');
+                    let valueCE = PolymerUtils.querySelector('option:checked', currentElement).textContent;
+                    let pairElement = PolymerUtils.getElementById(e.target.id);
+                    let valuePE = PolymerUtils.querySelector('option:checked', pairElement).textContent;
+
+                    if (valuePE != '' && (parseInt(valueCE) > parseInt(valuePE))) { // Year of birth cannot be lower than Year of test
+                        PolymerUtils.innerHTML(this.prefix + '_errorDiv_testYear', 'Year of Test must be posterior to year of Birth');
                     }
                 }
             }
 
             _clearHtmlDom() {
+                //TODO Refactor
                 $("#" + this.prefix + "uploadForm").validator('destroy');
                 // Empty everything before rendering
-                $("." + this.prefix + "SelectInput").prop('selectedIndex', 0);
-                $("." + this.prefix + "TextInput").val("");
-                $("." + this.prefix + "CheckInput").prop("checked", false);
-                $("." + this.prefix + "RadioInput").prop("checked", false);
-                $("#" + this.prefix + "birthPlaceRegion").prop("disabled", true);
-                $('.codeDis').prop('disabled', false);
+                PolymerUtils.setPropertyByClassName(this.prefix + 'SelectInput', 'selectedIndex', 0);
+                PolymerUtils.setPropertyByClassName(this.prefix + 'TextInput', 'value', '');
+                PolymerUtils.setPropertyByClassName(this.prefix + 'CheckInput', 'checked', false);
+                PolymerUtils.setPropertyByClassName(this.prefix + 'RadioInput', 'checked', false);
+                PolymerUtils.setPropertyByClassName(this.prefix + 'birthPlaceRegion', 'disabled', true);
+                PolymerUtils.setPropertyByClassName('codeDis', 'disabled', false);
 
-                $("#" + this.prefix + "parentalConsanguinityno").prop("checked", true);
-                $("#" + this.prefix + "germline").prop("checked", true);
-
+                PolymerUtils.setPropertyById(this.prefix + 'parentalConsanguinityno', 'checked', true);
+                PolymerUtils.setPropertyById(this.prefix + 'germline', 'checked', true);
+                //TODO Refactor
                 $("#" + this.prefix + "uploadForm").validator('update');
             }
 
@@ -942,7 +940,7 @@
             uploadVCF(formFields) {
                 // Upload VCF file to openCGA
                 if (this.opencgaClient instanceof OpenCGAClient) {
-                    params = {
+                   let params = {
                         study: this.study.alias,
                         type: "FILE",
                         file: $("#" + this.prefix + "FileToUpload").prop('files')[0],
@@ -1059,21 +1057,23 @@
                 e.preventDefault();
 
                 // Enable those fields that needed to be enabled to submit a form
-                $('.codeDis').prop('disabled', false);
+                PolymerUtils.setPropertyByClassName('codeDis', 'disabled', false);
 
                 // Get values from form fields
+                //TODO Refactor
                 let fields = $("#" + this.prefix + "uploadForm").serializeArray();
 
                 let formFields = {};
 
                 // fill-in variable set
+                //TODO Refactor
                 $(fields).each(function (index, field) {
                     formFields[field.name] = field.value;
                 });
 
                 // Some checks before submitting VCF to Catalog
                 if (window.File && window.FileReader && window.FileList && window.Blob) {
-                    let vcfFile = $("#" + this.prefix + "FileToUpload").prop('files')[0];
+                    let vcfFile = PolymerUtils.getPropertyById(this.prefix + 'FileToUpload', 'files')[0];
 
                     if (vcfFile.type === 'text/vcard' && vcfFile.name.split('.').pop() === 'vcf') {
 
@@ -1155,41 +1155,43 @@
                 if (this.opencgaClient instanceof OpenCGAClient) {
                     // 1. Create individual
                     let params = {
-//                        study: this.study.alias
+                        study: this.study.alias
 
                     };
 
                     let _this = this;
                     //let _individualId = this.$$("#"+ this.prefix + "patientID").value;
-                    let _individualId = document.getElementById(this.prefix + "patientID").value;
+                    let _individualId = PolymerUtils.getElementById(this.prefix + "patientID").value;
                     this.opencgaClient.individuals().info(_individualId, params, {"method": "GET"})
                         .then(function (response) {
                             if (response.response[0].numResults >= 1) {
                                 let formFields = response.response[0].result[0];
-                                $("#" + _this.prefix + "patientID").prop("disabled", true);
-                                $("#" + _this.prefix + "chromosomalGender").val(formFields.karyotypicSex);
-                                $("#" + _this.prefix + "chromosomalGender").prop("disabled", true);
-                                $("#" + _this.prefix + "status").val(formFields.affectationStatus);
-                                $("#" + _this.prefix + "status").prop("disabled", true);
-                                $("#" + _this.prefix + "lifeStatus").val(formFields.lifeStatus);
-                                $("#" + _this.prefix + "lifeStatus").prop("disabled", true);
-                                $("#" + _this.prefix + "birthYear").val(formFields.dateOfBirth);
-                                $("#" + _this.prefix + "birthYear").prop("disabled", true);
-                                $("#" + _this.prefix + "birthPlace").val(formFields.population.name);
-                                $("#" + _this.prefix + "birthPlace").prop("disabled", true);
-                                $("#" + _this.prefix + "birthPlaceRegion").val(formFields.population.subpopulation);
-                                $("#" + _this.prefix + "birthPlaceRegion").prop("disabled", true);
-                                $("#" + _this.prefix + "ethnicity").val(formFields.ethnicity);
-                                $("#" + _this.prefix + "ethnicity").prop("disabled", true);
-                                $("#" + _this.prefix + "HPO").val(formFields.ontologyTerms[0].name);
-                                $("#" + _this.prefix + "HPO").prop("disabled", true);
-                                $("#" + _this.prefix + "diagnosis").val(formFields.ontologyTerms[1].name);
+
+                                PolymerUtils.setPropertyById(_this.prefix + 'patientID', 'disabled', true);
+                                PolymerUtils.setPropertyById(_this.prefix + 'chromosomalGender', 'value', formFields.karyotypicSex);
+                                PolymerUtils.setPropertyById(_this.prefix + 'chromosomalGender', 'disabled', true);
+                                PolymerUtils.setPropertyById(_this.prefix + 'status', 'value', formFields.affectationStatus);
+                                PolymerUtils.setPropertyById(_this.prefix + 'status', 'disabled', true);
+                                PolymerUtils.setPropertyById(_this.prefix + 'lifeStatus', 'value', formFields.lifeStatus);
+                                PolymerUtils.setPropertyById(_this.prefix + 'lifeStatus', 'disabled', true);
+                                PolymerUtils.setPropertyById(_this.prefix + 'birthYear', 'value', formFields.dateOfBirth);
+                                PolymerUtils.setPropertyById(_this.prefix + 'birthYear', 'disabled', true);
+                                PolymerUtils.setPropertyById(_this.prefix + 'birthPlace', 'value', formFields.population.name);
+                                PolymerUtils.setPropertyById(_this.prefix + 'birthPlace', 'disabled', true);
+                                PolymerUtils.setPropertyById(_this.prefix + 'birthPlaceRegion', 'value', formFields.population.subpopulation);
+                                PolymerUtils.setPropertyById(_this.prefix + 'birthPlaceRegion', 'disabled', true);
+                                PolymerUtils.setPropertyById(_this.prefix + 'ethnicity', 'value', formFields.ethnicity);
+                                PolymerUtils.setPropertyById(_this.prefix + 'ethnicity', 'disabled', true);
+                                PolymerUtils.setPropertyById(_this.prefix + 'HPO', 'value', formFields.ontologyTerms[0].name);
+                                PolymerUtils.setPropertyById(_this.prefix + 'HPO', 'disabled', true);
+                                PolymerUtils.setPropertyById(_this.prefix + 'diagnosis', 'value', formFields.ontologyTerms[1].name);
                                 if (formFields.parentalConsanguinity === true) {
-                                    $("#" + _this.prefix + "parentalConsanguinityyes").prop("checked", true);
+                                    PolymerUtils.setPropertyById(_this.prefix + 'parentalConsanguinityyes', 'checked', true);
                                 }
                                 else {
-                                    $("#" + _this.prefix + "parentalConsanguinityno").prop("checked", true);
+                                    PolymerUtils.setPropertyById(_this.prefix + 'parentalConsanguinityno', 'checked', true);
                                 }
+                                //TODO Refactor
                                 $("#" + _this.prefix + "uploadForm").validator('update');
                                 $("#" + _this.prefix + "uploadForm").validator('validate');
                             }
@@ -1208,7 +1210,9 @@
             }
 
             showICD() {
-                let statusValue = $("#" + this.prefix + "status").find("option:selected").text();
+                let status = PolymerUtils.getElementById(this.prefix + 'status')
+                let statusValue = PolymerUtils.querySelector("option:checked", status).textContent;
+
                 if (statusValue === "Control" || statusValue === "Unaffected") {
                     // For a control or unaffected, disable ICD and make it not mandatory
                     this.settingsMessageModal = {
@@ -1219,17 +1223,18 @@
                         width: "500px"
                     };
                     this.showMessageModal = true;
-                    $("#" + this.prefix + "diagnosis").val("");
-                    document.getElementById(this.prefix + "diagnosis").innerHTML = "";
-                    $("#" + this.prefix + "diagnosis").attr("placeholder", "ICD-10 term");
-                    $("#" + this.prefix + "diagnosis").attr("required", false);
-
+                    PolymerUtils.setAttribute(this.prefix + 'diagnosis', 'value', '');
+                    PolymerUtils.innerHTML(this.prefix + 'diagnosis', '');
+                    PolymerUtils.setAttribute(this.prefix + 'diagnosis', 'placeholder', 'ICD-10 term');
+                    PolymerUtils.setAttribute(this.prefix + 'diagnosis', 'required', false);
                 }
                 else {
+                    //TODO Refactor
                     $("#" + this.prefix + "icd").modal('show');
-                    $("#" + this.prefix + "diagnosis").attr("required", true);
+                    PolymerUtils.setAttribute(this.prefix + 'diagnosis', 'required', true);
                 }
-                $("#" + this.prefix + "diagnosis").focus();
+                PolymerUtils.getElementById(this.prefix + "diagnosis").focus();
+                //TODO Refactor
                 $("#" + this.prefix + "uploadForm").validator('update');
             }
         }
