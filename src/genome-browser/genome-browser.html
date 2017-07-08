@@ -164,7 +164,8 @@
 
     //GenomeBrowser, Region and Species:
     var genomeBrowser;
-    var region = new Region({chromosome: "13", start: 32889607, end: 32890739});
+    var region = new Region({chromosome: "13", start: 32996311, end: 33000856});
+//    var region = new Region({chromosome: "21", start: 17299927, end: 17300073});
     getSpecies(function(s) {
         AVAILABLE_SPECIES = s;
         run();
@@ -237,20 +238,20 @@
             }
         });
 
-        let gene = new FeatureTrack({
-//        title: 'Gene overview',
-            minHistogramRegionSize: 20000000,
-            maxLabelRegionSize: 10000000,
-            height: 80,
-
-            renderer: renderer,
-            dataAdapter: new CellBaseAdapter(cellbaseClient, "genomic", "region", "gene", {
-                exclude: 'transcripts,chunkIds'
-            }, {
-                chunkSize: 100000
-            })
-        });
-        genomeBrowser.addOverviewTrack(gene);
+//        let gene = new FeatureTrack({
+////        title: 'Gene overview',
+//            minHistogramRegionSize: 20000000,
+//            maxLabelRegionSize: 10000000,
+//            height: 80,
+//
+//            renderer: renderer,
+//            dataAdapter: new CellBaseAdapter(cellbaseClient, "genomic", "region", "gene", {
+//                exclude: 'transcripts,chunkIds'
+//            }, {
+//                chunkSize: 100000
+//            })
+//        });
+//        genomeBrowser.addOverviewTrack(gene);
 
         /***************************************************************************/
         /***** Demo Sequence Track using FeatureTrack and Cellbase adapter       ***/
@@ -338,7 +339,7 @@
             samples: {
                 names: { "reference_grch37:1kG_phase3": ["HG00096", "HG00097", "HG00099"]}
             },
-//            renderer: new FeatureRenderer(FEATURE_TYPES.variant),
+            renderer: new FeatureRenderer(FEATURE_TYPES.variant),
 //            dataAdapter: new OpencgaAdapter(opencgaClient, "analysis/variant", undefined, "query",
 //                    {
 //                        studies: "reference_grch37:1kG_phase3",

@@ -183,7 +183,7 @@ VariantRenderer.prototype.draw = function (feature, args) {
     var svgLabelWidth = _this.getLabelWidth(label, args);
     //calculate x to draw svg rect
     var x = _this.getFeatureX(start, args);
-
+    debugger
     var maxWidth = Math.max(width, 2);
     var textHeight = 0;
     if (args.regionSize < args.maxLabelRegionSize) {
