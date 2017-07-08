@@ -513,15 +513,15 @@ debugger
         console.log(response);
 
         let responseItems = [];
-        for (let i = 0; i < regions.length; i++) {
-            let chunkStartId = Math.floor(regions[i].start / chunkSize);
+        //for (let i = 0; i < regions.length; i++) {
+            let chunkStartId = Math.floor(regions[0].start / chunkSize);
             responseItems.push({
-                chunkKey: `${regions[i].chromosome}:${chunkStartId}_${dataType}_${chunkSize}`,
+                chunkKey: `${regions[0].chromosome}:${chunkStartId}_${dataType}_${chunkSize}`,
                 region: regions,
-                value: response.response[i].result,
+                value: response.response[0].result,
                 dataType: dataType
             });
-        }
+        //}
         // var items = this.cache.putByRegions(regions, chunks, categories, dataType, chunkSize);
 
         /** time log **/
