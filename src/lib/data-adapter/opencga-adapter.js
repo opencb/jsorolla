@@ -187,22 +187,14 @@ class OpencgaAdapter {
             let start = _this._getStartChunkPosition(region.start);
 
             let regions = [];
-            // args.webServiceCallCount = 0;
 
             do {
                 regions.push(`${region.chromosome}:${start}-${start + _this.options.chunkSize - 1}`);
-                //regions.push(`chr${region.chromosome}:${myRegion}-${myRegion + this.options.chunkSize - 1}`);
                 start += _this.options.chunkSize;
             } while (start <= region.end);
 
-            // let groupedRegions = _this._groupQueries(regions);
-            // args.regions = groupedRegions;
-            debugger
-            if (dataType === "features") {
-                let chunks = [];
-                // for (let i = 0; i < regions.length; i++) {
-                    // args.webServiceCallCount++;
 
+            if (dataType === "features") {
                     // _this.client.variants().query({
                     //     region: groupedRegions[i],
                     //     studies: studies,
@@ -210,37 +202,30 @@ class OpencgaAdapter {
                     //     //exclude: "studies, annotation"
                     //     //exclude: "studies.files,studies.stats,annotation"
                     // })
-                    // let p = Object.assign(params, {region: groupedRegions[i]});
-                    let p = {
-                        region: regions.join(",")
-                    };
-                    for (let param of Object.keys(params)) {
-                        if (typeof params[param] !== "undefined") {
-                            p[param] = params[param];
-                        }
-                    }
 
-                    _this.client.variants().query(p)
+                let p = {};
+                for (let param of Object.keys(params)) {
+                    if (typeof params[param] !== "undefined") {
+                        p[param] = params[param];
+                    }
+                }
+                let chuncksByRegion =[];
+                for (let i = 0; i < regions.length; i++) {
+                    p["region"] = regions[i];
+                    chuncksByRegion[i] =_this.client.variants().query(p)
                         .then(function (response) {
-                            // console.log("Correct")
-                            // console.log(response)
-                            //return _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
-                            // args.webServiceCallCount--;
-                            let responseChunks = _this._variantsuccess(response, categories, dataType, regions.join(","), p.region, chunkSize);
-debugger
-                            // chunks = chunks.concat(responseChunks);
-                            // if (args.webServiceCallCount === 0) {
-                            //     resolve({
-                            //         items: chunks, dataType: dataType, chunkSize: chunkSize, sender: _this
-                            //     });
-                            // }
-                            resolve({
-                                items: responseChunks, dataType: dataType, chunkSize: chunkSize, sender: _this
-                            });
+                            return  _this._variantsuccess(response, categories, dataType, p.region, p.region, chunkSize);
                         })
                         .catch(function (reason) {
-                            reject("Server error: " + reason);
+                            reject("Server error, getting variants: " + reason);
                         });
+                }
+
+                Promise.all(chuncksByRegion).then(function (response) {
+                    resolve({
+                        items: response, dataType: dataType, chunkSize: chunkSize, sender: _this
+                    });
+                });
                 // }
             } else { // histogram
 
@@ -511,23 +496,17 @@ debugger
             }
         }
         console.log(response);
-
-        let responseItems = [];
         //for (let i = 0; i < regions.length; i++) {
             let chunkStartId = Math.floor(regions[0].start / chunkSize);
-            responseItems.push({
+        return {
                 chunkKey: `${regions[0].chromosome}:${chunkStartId}_${dataType}_${chunkSize}`,
-                region: regions,
+                region: regions[0],
                 value: response.response[0].result,
                 dataType: dataType
-            });
-        //}
-        // var items = this.cache.putByRegions(regions, chunks, categories, dataType, chunkSize);
+            };
 
         /** time log **/
         //console.timeEnd(timeId);
-
-        return responseItems;
     }
 
     _getStartChunkPosition (position) {

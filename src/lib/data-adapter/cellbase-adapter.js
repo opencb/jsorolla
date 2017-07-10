@@ -18,9 +18,11 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-class CellBaseAdapter {
+class CellBaseAdapter extends FeatureAdapter {
 
     constructor (client, category, subcategory, resource, params = {}, options = {}, handlers = {}) {
+        super();
+
         this.client = client;
         this.category = category;
         this.subCategory = subcategory;
