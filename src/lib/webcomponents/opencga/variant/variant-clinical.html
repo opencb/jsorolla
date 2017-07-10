@@ -122,12 +122,14 @@
                     <i class="fa fa-sitemap" aria-hidden="true"></i> Analysis
                 </button>
                 <button id="{{prefix}}FilterButton" type="button"
-                        class="analysis-button btn btn-success btn-arrow-right" on-click="changeTool"
+                        class$="analysis-button btn {{computedClassTabs(activesTab.filterTab)}} btn-arrow-right"
+                        on-click="changeTool"
                         data-toggle="tooltip" data-placement="top" title="Filter & Prioritization">
                     <i class="fa fa-filter" aria-hidden="true"></i> Prioritization
                 </button>
                 <button id="{{prefix}}ReportButton" type="button"
-                        class="analysis-button btn btn-success btn-arrow-right" on-click="changeTool"
+                        class$="analysis-button btn {{computedClassTabs(activesTab.reportTab)}} btn-arrow-right"
+                        on-click="changeTool"
                         data-toggle="tooltip" data-placement="top" title="Generate report">
                     <i class="fa fa-file-text" aria-hidden="true"></i> Report
                 </button>
@@ -188,9 +190,8 @@
                             return {
                                 uploadTab: true,
                                 analysisTab: false,
-                                filterButton: false,
-                                reportButton: false
-
+                                filterTab: false,
+                                reportTab: false
                             };
                         }
                     },
@@ -292,11 +293,11 @@
                 }
 
                 if (e.currentTarget.id === this.prefix + "FilterButton") {
-                    this.set("activesTab.filterButton", true);
+                    this.set("activesTab.filterTab", true);
                 }
 
                 if (e.currentTarget.id === this.prefix + "ReportButton") {
-                    this.set("activesTab.reportButton", true);
+                    this.set("activesTab.reportTab", true);
                 }
             }
 
