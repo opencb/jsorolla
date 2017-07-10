@@ -9,8 +9,20 @@ class PolymerUtils {
         return typeof obj !== "undefined";
     }
 
+    static isNull(obj) {
+        return obj === null;
+    }
+
+    static isNotNull(obj) {
+        return obj !== null;
+    }
+
     static isUndefinedOrNull(obj) {
         return typeof obj === "undefined" || obj === null;
+    }
+
+    static isNotUndefinedOrNull(obj) {
+        return typeof obj !== "undefined" && obj !== null;
     }
 
 
