@@ -214,7 +214,8 @@ class OpencgaAdapter {
                     p["region"] = regions[i];
                     chuncksByRegion[i] =_this.client.variants().query(p)
                         .then(function (response) {
-                            return  _this._variantsuccess(response, categories, dataType, p.region, p.region, chunkSize);
+                            // return  _this._variantsuccess(response, categories, dataType, p.region, p.region, chunkSize);
+                            return _this._variantsuccess(response, categories, dataType, regions[i], regions[i], chunkSize);
                         })
                         .catch(function (reason) {
                             reject("Server error, getting variants: " + reason);
@@ -226,7 +227,6 @@ class OpencgaAdapter {
                         items: response, dataType: dataType, chunkSize: chunkSize, sender: _this
                     });
                 });
-                // }
             } else { // histogram
 
             }
