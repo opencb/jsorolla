@@ -20,7 +20,7 @@
 <!--<link rel="import" href="variant-prioritization-view.html">-->
 <!--<link rel="import" href="variant-sample-grid.html">-->
 <!--<link rel="import" href="variant-clinical-report.html">-->
-<!--<link rel="import" href="variant-clinical-filter.html">-->
+<link rel="import" href="variant-clinical-filter.html">
 <!--<link rel="import" href="../opencga-message-dialog.html">-->
 
 <dom-module id="variant-clinical">
@@ -126,12 +126,12 @@
                 <!--<variant-clinical-samples opencga-client="{{opencgaClient}}" project="{{project}}" study="{{study}}" samples="{{samples}}" prefix="{{prefix}}" config="{{config}}"></variant-clinical-samples>-->
             <!--</div>-->
 
-            <!--<div class="analysis-content" id="{{prefix}}FilterButtonDiv" style="display: none">-->
-                <!--<div class="col-md-2">-->
-                    <!--<variant-clinical-filter prefix="{{prefix}}" mode="{{mode}}" study="{{study}}" project="{{project}}" samples="{{samples}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"-->
-                                             <!--population-frequencies="{{populationFrequencies}}" consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}" analysis-selected="{{analysisSelected}}" style="font-size: 12px">-->
-                    <!--</variant-clinical-filter>-->
-                <!--</div>-->
+            <div class="analysis-content" id="{{prefix}}FilterButtonDiv" style="display: none">
+                <div class="col-md-2">
+                    <variant-clinical-filter mode="{{mode}}" study="{{study}}" project="{{project}}" samples="{{samples}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"
+                                             population-frequencies="{{populationFrequencies}}" consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}" analysis-selected="{{analysisSelected}}" style="font-size: 12px">
+                    </variant-clinical-filter>
+                </div>
 
                 <!--<div class="col-md-10">-->
                     <!--<variant-prioritization-view prefix="{{prefix}}" mode="clinical" title="{{title}}" project="{{project}}" study="{{study}}" samples="{{samples}}"-->
@@ -140,7 +140,7 @@
                                                  <!--query="{{query}}" search="{{search}}" on-clear="onClear" on-filterchange="onFilterChange" on-save="onSaveVariants" on-propagate="propagateGeneEvent">-->
                     <!--</variant-prioritization-view>-->
                 <!--</div>-->
-            <!--</div>-->
+            </div>
 
             <!--<div class="analysis-content" id="{{prefix}}ReportButtonDiv" style="display: none">-->
                 <!--<variant-clinical-report opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}" title="{{title}}" analysis="{{analysis}}"></variant-clinical-report>-->
@@ -152,7 +152,6 @@
     <script>
         class VariantClinical extends Polymer.Element {
             static get is() { return 'variant-clinical'; }
-
             static get properties() {
                 return {
                     host: {

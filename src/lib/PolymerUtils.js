@@ -8,13 +8,16 @@ class PolymerUtils {
     }
 
     static isUndefinedOrNull(obj) {
-        return PolymerUtils.isUndefined(obj) || obj === null;
+        return typeof obj === "undefined" || obj === null;
+    }
+
+    static isNotUndefinedAndNull(obj) {
+        return typeof obj !== "undefined" && obj !== null;
     }
 
     static isUndefinedOrEmpty(obj) {
-        return PolymerUtils.isUndefined(obj) || obj === '';
+        return typeof obj === "undefined" || obj === "";
     }
-
 
     static getElementById(id) {
         return document.getElementById(id);
