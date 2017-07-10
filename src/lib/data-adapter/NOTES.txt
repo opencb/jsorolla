@@ -1,0 +1,9 @@
+
+NOTES
+======================
+
+Folder feature and network should be treated as deprecated. New data-adapters using ES6 and new clients must be located in the data-folder itself.
+
+See this issue for more information:
+
+https://github.com/opencb/jsorolla/issues/50
