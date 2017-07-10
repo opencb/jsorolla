@@ -22,34 +22,39 @@
 
 <dom-module id="variant-clinical-samples">
     <template>
-        <style is="custom-style" include="jso-styles"></style>
 
         <!--<h3><i class="fa fa-sitemap" aria-hidden="true"></i>&nbsp;Family Selector</h3>-->
 
         <div class="panel">
             <div class="col-md-2">
                 <opencga-sample-filter study="{{study}}" config="{{config}}" samples="{{samples}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
-                                       query="{{query}}" search="{{search}}">
+                query="{{query}}" search="{{search}}">
                 </opencga-sample-filter>
             </div>
 
             <div class="col-md-10">
                 <br>
                 <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" filters="{{config.filters}}" fixed-filters="{{fixedFilters}}"
-                                        alias="{{activeFilterAlias}}" refresh="{{search}}" on-clear="onClear" on-filterchange="onFilterChange"></opencga-active-filters>
+                alias="{{activeFilterAlias}}" refresh="{{search}}" on-clear="onClear" on-filterchange="onFilterChange"></opencga-active-filters>
 
                 <h3>Sample Results</h3>
-                <variant-sample-grid opencga-client="{{opencgaClient}}" study="{{study}}" samples="{{samples}}" search="{{search}}"></variant-sample-grid>
+                <variant-sample-grid opencga-client="{{opencgaClient}}" study="{{study}}" samples="{{samples}}"
+                                     search="{{search}}"></variant-sample-grid>
 
                 <br>
                 <h3>Analysis Type</h3>
                 <div id="{{prefix}}toolbar">
                     <div class="btn-group btn-group-sm">
-                        <button id="familyButton" class="button" on-click="addAnalysis"><img src="images/analysis_family_button.png" height="60"></button>
-                        <button id="trioButton" class="button" on-click="addAnalysis"><img src="images/analysis_trio_button.png" height="60"></button>
-                        <button id="duoButton" class="button" on-click="addAnalysis"><img src="images/analysis_duo_button.png" height="60"></button>
-                        <button id="singleButton" class="button" on-click="addAnalysis"><img src="images/analysis_single_button.png" height="60"></button>
-                        <button id="autoButton" class="button" on-click="addAnalysis"><img src="images/analysis_auto_button.png" height="60"></button>
+                        <button id="familyButton" class="button" on-click="addAnalysis"><img
+                                src="[[importPath]]images/analysis_family_button.png" height="60"></button>
+                        <button id="trioButton" class="button" on-click="addAnalysis"><img
+                                src="[[importPath]]images/analysis_trio_button.png" height="60"></button>
+                        <button id="duoButton" class="button" on-click="addAnalysis"><img
+                                src="[[importPath]]images/analysis_duo_button.png" height="60"></button>
+                        <button id="singleButton" class="button" on-click="addAnalysis"><img
+                                src="[[importPath]]images/analysis_single_button.png" height="60"></button>
+                        <button id="autoButton" class="button" on-click="addAnalysis"><img
+                                src="[[importPath]]images/analysis_auto_button.png" height="60"></button>
                         <!--<button id="multiButton" class="button" on-click="addAnalysis"><img src="images/analysis_multi_button.png" height="60"></button>-->
                     </div>
                 </div>
@@ -59,15 +64,20 @@
                 <div style="padding: 10px 0px">
                     <h3>Clinical Analysis</h3>
                     <template is="dom-if" if="{{unsavedAnalysis}}">
-                        <div class="alert alert-warning" role="alert" style="margin:0 auto;">There are unsaved analyses!</div>
+                        <div class="alert alert-warning" role="alert" style="margin:0 auto;">There are unsaved
+                            analyses!
+                        </div>
                     </template>
                     <div id="toolbar">
-                        <button id="{{prefix}}DeleteAnalysisButton" class="btn btn-danger disabled" on-click="deleteAnalysis">
+                        <button id="{{prefix}}DeleteAnalysisButton" class="btn btn-danger disabled"
+                                on-click="deleteAnalysis">
                             <i class="fa fa-times"></i>&nbsp;Delete
                         </button>
                     </div>
-                    <table id="{{prefix}}tableAnalysis" data-toolbar="#toolbar" data-search="true" data-show-columns="true"
-                           data-pagination="true" data-page-size="5" data-page-list="[5, 10, 25]" data-checkbox-header="false" data-maintain-selected="true" style="cursor: pointer;">
+                    <table id="{{prefix}}tableAnalysis" data-toolbar="#toolbar" data-search="true"
+                           data-show-columns="true"
+                           data-pagination="true" data-page-size="5" data-page-list="[5, 10, 25]"
+                           data-checkbox-header="false" data-maintain-selected="true" style="cursor: pointer;">
                         <thead style="background-color: #eee"></thead>
                     </table>
                 </div>
@@ -76,18 +86,21 @@
         </div>
 
         <!-- Modal dialog for Family Editor-->
-        <div class="modal fade" id="{{prefix}}FamilyEditor" tabindex="-1" role="dialog" aria-labelledby="familyEditorLabel">
+        <div class="modal fade" id="{{prefix}}FamilyEditor" tabindex="-1" role="dialog"
+             aria-labelledby="familyEditorLabel">
             <div class="modal-dialog modal-sm" role="document" style="width: 1300px;">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">&times;</span></button>
                         <h4 class="modal-title" id="{{prefix}}FamilyEditorLabel">Family Editor</h4>
                     </div>
                     <div class="modal-body" style="height: 500px">
                         <opencga-family-editor samples="{{_samplesAnalysis}}" opencga-client="{{opencgaClient}}" on-familychange="familyChange"></opencga-family-editor>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="checkFamily">OK</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="checkFamily">OK
+                        </button>
                     </div>
                 </div>
             </div>
@@ -100,7 +113,8 @@
             <div class="modal-dialog modal-sm" role="document" style="width: 500px;">
                 <div class="modal-content">
                     <div class="modal-header alert alert-danger">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">&times;</span></button>
                         <h4 class="modal-title">Warning!</h4>
                     </div>
                     <div id="{{prefix}}warningMsgDiv" class="modal-body" style="height: 100px"></div>
@@ -111,61 +125,74 @@
             </div>
         </div>
 
-        <opencga-message-dialog opencga-client="{{opencgaClient}}" show-message-modal="{{showMessageModal}}" settings-message-modal="{{settingsMessageModal}}"></opencga-message-dialog>
+        <opencga-message-dialog opencga-client="{{opencgaClient}}" show-message-modal="{{showMessageModal}}"
+                                settings-message-modal="{{settingsMessageModal}}"></opencga-message-dialog>
 
     </template>
 
     <script>
-        Polymer({
-            is: 'variant-clinical-samples',
-            properties: {
-                opencgaClient: {
-                    type: Object,
-                    observer: "renderAnalysisTable"
-                },
-                project: {
-                    type: Object
-                },
-                study: {
-                    type: Object
-                },
-                samples: {
-                    type: Array,
-                    notify: true
-                },
-                prefix: {
-                    type: String
-                },
-                filters: {
-                    type: Object,
-                    notify: true,
-                    observer: "onFilterUpdate"
-                },
-                search: {
-                    type: Object,
-                    notify: true
-                },
-                config: {
-                    type: Object
-                },
-                showMessageModal: {
-                    type: Boolean,
-                    notify: true
-                },
-                settingsMessageModal: {
-                    type: Object,
-                    notify: true
-                },
-                analysisChanged : {
-                    type: Number,
-                    observer: "renderAnalysisTable"
+        class VariantClinicalSamples extends Polymer.Element {
+            static get is() {
+                return 'variant-clinical-samples';
+            }
+
+            static get properties() {
+                return {
+                    opencgaClient: {
+                        type: Object,
+                        observer: "renderAnalysisTable"
+                    },
+                    project: {
+                        type: Object
+                    },
+                    study: {
+                        type: Object
+                    },
+                    samples: {
+                        type: Array,
+                        notify: true
+                    },
+                    prefix: {
+                        type: String
+                    },
+                    filters: {
+                        type: Object,
+                        notify: true,
+                        observer: "onFilterUpdate"
+                    },
+                    search: {
+                        type: Object,
+                        notify: true
+                    },
+                    config: {
+                        type: Object
+                    },
+                    showMessageModal: {
+                        type: Boolean,
+                        notify: true
+                    },
+                    settingsMessageModal: {
+                        type: Object,
+                        notify: true
+                    },
+                    analysisChanged: {
+                        type: Number,
+                        observer: "renderAnalysisTable"
+                    }
                 }
-            },
-            observers: [
-                'calculateFilters(filteredVariables.variables.*)'
-            ],
-            ready: function() {
-                if (typeof this.prefix === "undefined" || this.prefix == "") {
+            }
+
+            constructor() {
+                super();
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            ready() {
+                super.ready();
+                if (PolymerUtils.isUndefinedOrEmpty(this.prefix )) {
                     this.prefix = "sample" + Utils.randomString(6);
                 }
 
@@ -176,64 +203,65 @@
                 this.unsavedAnalysis = 0;
 
                 this.fixedFilters = ["studies"];
-            },
+            }
 
-            renderAnalysisTable: function(){
+            renderAnalysisTable() {
                 let _this = this;
-                $("#" + this.prefix + "tableAnalysis").bootstrapTable('destroy');
-                $("#" + this.prefix + "tableAnalysis").bootstrapTable({
+                $(PolymerUtils.getElementById(this.prefix + "tableAnalysis")).bootstrapTable('destroy');
+                $(PolymerUtils.getElementById(this.prefix + "tableAnalysis")).bootstrapTable({
                     columns: _this._getTableColumns(),
                     data: _this._analysis,
                     onCheck: function (row, elem) {
-                        $('#' + _this.prefix + "DeleteAnalysisButton").removeClass("disabled");
+                        PolymerUtils.removeClass(_this.prefix + 'DeleteAnalysisButton', 'disabled');
                         _this._numAnalysisSelected++;
                     },
                     onUncheck: function (row, elem) {
                         _this._numAnalysisSelected--;
                         if (_this._numAnalysisSelected <= 0) {
-                            $('#' + _this.prefix + "DeleteAnalysisButton").addClass("disabled");
+                            PolymerUtils.addClass(_this.prefix + 'DeleteAnalysisButton', 'disabled');
                         }
                     },
-                    onClickCell: function (field, value, row, elem){
+                    onClickCell: function (field, value, row, elem) {
                         if (field === "editFamily") { // Only if cell related to family editor is selected, get samples for this analysis to the family editor
                             _this._samplesAnalysis = row.sampleList;
                             _this.currentAnalysis = row;
                             _this.selectedRow = elem.parent().data("index");
                         }
-                        else if (field === "action"){ // Only if cell related to save is selected
-                            if (row.family !== null ) { // If a family is not defined, save can not be achieved
+                        else if (field === "action") { // Only if cell related to save is selected
+                            if (row.family !== null) { // If a family is not defined, save can not be achieved
                                 _this.saveAnalysis(row);
                             }
                         }
                     }
                 });
 
-            },
-            attached: function () {
-                this.table = $('#' + this.prefix + "FamilySelector");
-            },
+            }
+
+            connectedCallback () {
+                this.table = PolymerUtils.getElementById(this.prefix + "FamilySelector");
+            }
 
             /**
              * If filters have been removed, clean the values from the forms.
              */
-            onFilterUpdate: function () {
+            onFilterUpdate() {
                 this.updateForms(this.filters);
-            },
+            }
 
-            updateForms: function(filters) {
+            updateForms(filters) {
                 // This is just to avoid entering here when it has just been initialized
                 if (this.prefix === undefined) {
                     return;
                 }
 
-                let sampleName = this.$$("#" + this.prefix + "NameTextarea").value;
+                let sampleName = PolymerUtils.getElementById(this.prefix + "NameTextarea").value;
                 if (!filters.hasOwnProperty("name") && sampleName !== undefined && sampleName.length > 0) {
-                    this.$$("#" + this.prefix + "NameTextarea").value = "";
+                    PolymerUtils.setPropertyById(this.prefix + "NameTextarea", "value", "");
                 }
 
-                let individual = this.$$("#" + this.prefix + "IndividualTextarea").value;
+                let individual = PolymerUtils.getElementById(this.prefix + "IndividualTextarea").value;
                 if (!filters.hasOwnProperty("individual.id") && individual !== undefined && individual.length > 0) {
-                    this.$$("#" + this.prefix + "IndividualTextarea").value = "";
+                    PolymerUtils.setPropertyById(this.prefix + "IndividualTextarea", "value", "");
                 }
 
                 if (this.filteredVariables.variables.length > 0) {
@@ -245,7 +273,7 @@
                     } else if (filters.annotation.length < this.filteredVariables.variables.length) {
 //                        debugger
                         let tmpVariables = [];
-                        filters.annotation.forEach(function(variable) {
+                        filters.annotation.forEach(function (variable) {
                             tmpVariables.push(variable);
                         });
 
@@ -258,21 +286,23 @@
 //                    }
                 }
 
-            },
+            }
 
             /**
              * Read from the values in the forms, and sets the filters.
              */
-            calculateFilters: function() {
+            calculateFilters() {
                 let filters = {};
                 let sampleName = "";
                 let individual = "";
 
-                if (this.$$("#" + this.prefix + "NameTextarea") !== null) {
-                    sampleName = this.$$("#" + this.prefix + "NameTextarea").value;
+
+                if (PolymerUtils.getElementById(this.prefix + "NameTextarea") !== null) {
+                    sampleName = PolymerUtils.setPropertyById(this.prefix + "NameTextarea", "value", "");
+
                 }
-                if (this.$$("#" + this.prefix + "IndividualTextarea") !== null) {
-                    individual = this.$$("#" + this.prefix + "IndividualTextarea").value;
+                if (PolymerUtils.getElementById(this.prefix + "IndividualTextarea") !== null) {
+                    individual = PolymerUtils.setPropertyById(this.prefix + "IndividualTextarea", "value", "");
                 }
 
                 if (sampleName !== undefined && sampleName.length > 0) {
@@ -286,15 +316,15 @@
                 if (this.filteredVariables.variables !== undefined && this.filteredVariables.variables.length > 0) {
 //                    filters["variableSetId"] = this.filteredVariables.variableSet;
                     let annotations = [];
-                    this.filteredVariables.variables.forEach(function(variable) {
+                    this.filteredVariables.variables.forEach(function (variable) {
                         annotations.push(variable);
                     });
                     filters["annotation"] = annotations;
                 }
                 this.filters = filters;
-            },
+            }
 
-            onSearch: function () {
+            onSearch() {
                 // Convert the filters to an objectParam that can be directly send to the sample search
                 let filterParams = {};
 
@@ -331,12 +361,13 @@
                 }
 
                 this.search = filterParams;
-            },
-            addAnalysis: function(e) {
+            }
+
+            addAnalysis(e) {
 
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
                 //$("#analysisListDiv").show();
-                let analysisId= Math.floor(Math.random() * 100) + 1;
+                let analysisId = Math.floor(Math.random() * 100) + 1;
                 // Get the type of analysisId
                 let analysisType = "";
                 let _properMembers = -1;
@@ -408,11 +439,11 @@
                         family: null
                     };
 
-                    if (typeof this._analysis !== "undefined"){
+                    if (typeof this._analysis !== "undefined") {
                         this.push('_analysis', _anObject);
                     }
                     else {
-                        this._analysis=[_anObject];
+                        this._analysis = [_anObject];
                     }
 
                     this.analysisChanged++;
@@ -420,8 +451,9 @@
 
                 }
 
-            },
-            deleteAnalysis: function(e) {
+            }
+
+            deleteAnalysis(e) {
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
                 let ids = $.map($('#' + this.prefix + 'tableAnalysis').bootstrapTable('getSelections'), function (row) {
                     return row.analysisID;
@@ -434,21 +466,22 @@
 
                 // Remove from property analysis.
                 // This code will be removed as soon as analysis can be saved
-/*                for (let i in ids) {
-                    let analysisToDeleteIdx = -1;
-                    for (let j in this.analysis) {
-                        if (this.analysis[j].analysisID === ids[i]) {
-                            analysisToDeleteIdx = j;
-                            break
-                        }
-                    }
-                    this.splice('analysis', analysisToDeleteIdx, 1);
-                }*/
+                /*                for (let i in ids) {
+                 let analysisToDeleteIdx = -1;
+                 for (let j in this.analysis) {
+                 if (this.analysis[j].analysisID === ids[i]) {
+                 analysisToDeleteIdx = j;
+                 break
+                 }
+                 }
+                 this.splice('analysis', analysisToDeleteIdx, 1);
+                 }*/
                 this.unsavedAnalysis--;
 
 
-            },
-            saveAnalysis: function(rowInfo) {
+            }
+
+            saveAnalysis(rowInfo) {
 
                 let children = rowInfo.family.pedigree.children;
                 let _affectedSample = "";
@@ -504,9 +537,9 @@
 
                     let _children = [];
                     let myChild = rowInfo.family.pedigree.children;
-                    let _sex="";
-                    for (let i=0 ; i< myChild.length; i++){
-                        for (let j=0; j<rowInfo.sampleList.length; j++){
+                    let _sex = "";
+                    for (let i = 0; i < myChild.length; i++) {
+                        for (let j = 0; j < rowInfo.sampleList.length; j++) {
                             if (myChild[i].name === rowInfo.sampleList[j].name) {
                                 switch (rowInfo.sampleList[j].role) {
                                     case "son":
@@ -551,7 +584,7 @@
                         .then(function (response) {
                             // Create analysis
                             let analysisInfo = {
-                                analysisID: $("#" + _this.prefix + "analysisID" + rowInfo.analysisIDinternal).val(),
+                                analysisID: PolymerUtils.getElementById(_this.prefix + "analysisID" + rowInfo.analysisIDinternal).value,
                                 type: _analysisType,
                                 familyID: rowInfo.family.name,
                                 proband: _children[0].name, // TO BE CHANGED
@@ -571,21 +604,22 @@
                             _this.showMessageModal = true;
                         });
                 }
-            },
-            createAnalysis: function(analysisInfo) {
+            }
+
+            createAnalysis(analysisInfo) {
                 let params = {
                     study: this.project.alias + ":" + this.study.alias
                 };
-                let body= {
+                let body = {
                     "name": analysisInfo.analysisID,
                     "type": analysisInfo.type,
                     "family": analysisInfo.familyID,
                     "proband": analysisInfo.proband,
                     "sample": analysisInfo.sample,
-                    "attributes" : {
+                    "attributes": {
                         "filter": false
                     }
-                 };
+                };
                 let _this = this;
                 this.opencgaClient.clinical().create(params, body)
                     .then(function (response) {
@@ -601,63 +635,70 @@
                         };
                         _this.showMessageModal = true;
                     });
-            },
-            familyFormatter: function(familyEditor, randomString) {
+            }
+
+            familyFormatter(familyEditor, randomString) {
                 if (familyEditor) {
-                    return '<button data-toggle="modal" id="' + this.prefix + 'Editor'+ randomString +'" role="button" type="button" class="btn btn-sm btn-success" data-target="#' + this.prefix + 'FamilyEditor" ><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;Edit</button>';
+                    return '<button data-toggle="modal" id="' + this.prefix + 'Editor' + randomString + '" role="button" type="button" class="btn btn-sm btn-success" data-target="#' + this.prefix + 'FamilyEditor" ><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;Edit</button>';
                 }
                 else { // Is not a family analysis -> a family cannot be edited
-                    return '<button data-toggle="modal" id="' + this.prefix + 'Editor' + randomString +'" role="button" type="button" class="btn btn-sm btn-success disabled" data-target="#' + this.prefix + 'FamilyEditor"><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;Edit</button>';
+                    return '<button data-toggle="modal" id="' + this.prefix + 'Editor' + randomString + '" role="button" type="button" class="btn btn-sm btn-success disabled" data-target="#' + this.prefix + 'FamilyEditor"><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;Edit</button>';
                 }
-            },
-            actionFormatter: function(familyEditor, randomString) {
+            }
+
+            actionFormatter(familyEditor, randomString) {
                 if (familyEditor) {
-                    return '<button type="button" id="' + this.prefix + 'Save' + randomString +'" class="btn btn-sm btn-primary" disabled><i class="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;Save</button>';
+                    return '<button type="button" id="' + this.prefix + 'Save' + randomString + '" class="btn btn-sm btn-primary" disabled><i class="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;Save</button>';
                 }
                 else { // If not a family analysis, such analysis can be saved inmediatly
-                    return '<button type="button" id="' + this.prefix + 'Save' + randomString +'" class="btn btn-sm btn-primary"><i class="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;Save</button>';
+                    return '<button type="button" id="' + this.prefix + 'Save' + randomString + '" class="btn btn-sm btn-primary"><i class="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;Save</button>';
                 }
-            },
-            analysisFormatter: function(analysisID, randomString) {
-                return '<input type="text" id="' + this.prefix + 'analysisID' + randomString +'" class="form-control" value="' + analysisID +'" maxlength="75">';
-            },
-            analysisError: function (analysisType, introducedLength, properLength){
+            }
 
-                if ((analysisType === 'Trio' || analysisType === 'Duo' || analysisType === 'Single' || analysisType === 'Auto comparative') && introducedLength != properLength){
-                    $("#" + this.prefix + "warningMsgDiv").html("Incorrect number of samples selected (" + introducedLength.toString() + ") for " + analysisType + " analysis (" + properLength.toString()+")");
-                    $("#" + this.prefix + "warningModal").modal('show');
+            analysisFormatter(analysisID, randomString) {
+                return '<input type="text" id="' + this.prefix + 'analysisID' + randomString + '" class="form-control" value="' + analysisID + '" maxlength="75">';
+            }
+
+            analysisError(analysisType, introducedLength, properLength) {
+
+                if ((analysisType === 'Trio' || analysisType === 'Duo' || analysisType === 'Single' || analysisType === 'Auto comparative') && introducedLength != properLength) {
+                    PolymerUtils.innerHTML(this.prefix + "warningMsgDiv","Incorrect number of samples selected (" + introducedLength.toString() + ") for " + analysisType + " analysis (" + properLength.toString() + ")");
+                    $(PolymerUtils.getElementById(this.prefix + "warningModal")).modal('show');
                     return false;
                 }
-                else if ((analysisType === 'Family' || analysisType === 'Multisample') && introducedLength < properLength){
-                    $("#" + this.prefix + "warningMsgDiv").html("Incorrect number of samples selected (" + introducedLength.toString() + ") for " + analysisType + " analysis (at least " + properLength.toString()+")");
-                    $("#" + this.prefix + "warningModal").modal('show');
+                else if ((analysisType === 'Family' || analysisType === 'Multisample') && introducedLength < properLength) {
+                    PolymerUtils.innerHTML(this.prefix + "warningMsgDiv", "Incorrect number of samples selected (" + introducedLength.toString() + ") for " + analysisType + " analysis (at least " + properLength.toString() + ")");
+                    $(PolymerUtils.getElementById(this.prefix + "warningModal")).modal('show');
                     return false;
                 }
                 else
                     return true;
 
-            },
-            familyChange: function (e, family) { // Event fired by opencga-family-editor web component
+            }
+
+            familyChange(e, family) { // Event fired by opencga-family-editor web component
                 this.family = family;
-            },
-            checkFamily: function(e){
+            }
+
+            checkFamily(e) {
                 e.preventDefault();
                 let ped = new Pedigree(this.family.pedigree);
 
                 if ((this.currentAnalysis.analysisType === "Duo" && ped.isDuo() && this.family.name != "") ||
                     (this.currentAnalysis.analysisType === "Trio" && ped.isTrio() && this.family.name != "") ||
-                    (this.currentAnalysis.analysisType === "Family" && ped.isFamily() && this.family.name != "")){
-                        let _this = this;
-                        $("#" + this.prefix + "tableAnalysis").bootstrapTable('updateRow', {
-                            index: _this.selectedRow, row: {
-                                family: _this.family
-                            }
-                        });
-                        $("#" + this.prefix +"Save" +  this.currentAnalysis.analysisIDinternal).prop('disabled', false);
+                    (this.currentAnalysis.analysisType === "Family" && ped.isFamily() && this.family.name != "")) {
+                    let _this = this;
+                    $(PolymerUtils.getElementById(this.prefix + "tableAnalysis")).bootstrapTable('updateRow', {
+                        index: _this.selectedRow, row: {
+                            family: _this.family
+                        }
+                    });
+                    PolymerUtils.removeAttribute(this.prefix + "Save" + this.currentAnalysis.analysisIDinternal, "disabled");
                 }
 
-            },
-            _getTableColumns: function() {
+            }
+
+            _getTableColumns() {
                 this._columns = [
                     [
                         {
@@ -709,15 +750,30 @@
                     ]
                 ];
                 return this._columns;
-            },
-            onClear: function() {
+            }
+
+            onClear() {
                 this.query = {studies: this.project.alias + ":" + this.study.alias};
                 this.search = {};
-            },
-            onFilterChange: function(e) {
+            }
+
+            onFilterChange(e) {
                 this.query = e.detail;
                 this.search = e.detail;
             }
-        });
+            static get observers() {
+                return ['calculateFilters(filteredVariables.variables.*)'];
+            }
+        }
+
+        customElements.define(VariantClinicalSamples.is, VariantClinicalSamples);
+
+        //        Polymer({
+        //
+        //            observers: [
+        //                'calculateFilters(filteredVariables.variables.*)'
+        //            ],
+        //
+        //        });
     </script>
 </dom-module>

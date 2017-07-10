@@ -16,7 +16,7 @@
 
 <dom-module id="opencga-sample-filter">
     <template>
-        <style is="custom-style" include="jso-styles">
+        <style>
             label {
                 padding-top: 10px;
             }
@@ -39,7 +39,8 @@
                 <div class="panel-heading" role="tab" id="{{prefix}}SampleSelectionHeading">
                     <h4 class="panel-title">
                         <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                           href="#{{prefix}}SampleSelection" aria-expanded="true" aria-controls="{{prefix}}SampleSelection">
+                           href="#{{prefix}}SampleSelection" aria-expanded="true"
+                           aria-controls="{{prefix}}SampleSelection">
                             Sample
                             <div style="float: right" class="tooltip-div">
                                 <a data-toggle="tooltip" title="Sample selection">
@@ -49,37 +50,51 @@
                         </a>
                     </h4>
                 </div>
-                <div id="{{prefix}}SampleSelection" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}SampleSelectionHeading">
+                <div id="{{prefix}}SampleSelection" class="panel-collapse collapse in" role="tabpanel"
+                     aria-labelledby="{{prefix}}SampleSelectionHeading">
                     <div class="panel-body">
 
                         <div class="form-group">
                             <label>Sample name</label>
-                            <input type="text" id="{{prefix}}SampleName" class$="form-control {{prefix}}FilterTextInput" placeholder="HG01879, HG01880, HG01881..." on-keyup="calculateFilters">
+                            <input type="text" id="{{prefix}}SampleName" class$="form-control {{prefix}}FilterTextInput"
+                                   placeholder="HG01879, HG01880, HG01881..." on-keyup="calculateFilters">
 
                             <label>Individual name</label>
-                            <input type="text" id="{{prefix}}IndividualName" class$="form-control {{prefix}}FilterTextInput" placeholder="Smith, Grant ..." on-keyup="calculateFilters">
+                            <input type="text" id="{{prefix}}IndividualName"
+                                   class$="form-control {{prefix}}FilterTextInput" placeholder="Smith, Grant ..."
+                                   on-keyup="calculateFilters">
                         </div>
 
                         <div class="form-group">
                             <form id="{{prefix}}DateRadioButton">
                                 <label>By Date</label>
                                 <br>
-                                <input type="radio" name="selectionButtons" id="allRadio" value="all" class$="{{prefix}}FilterRadio" checked on-change="calculateFilters" style="padding-left: 20px"> All<br>
-                                <input type="radio" name="selectionButtons" id="recentlyRadio" value="recently" class$="{{prefix}}FilterRadio" on-change="calculateFilters" style="padding-left: 20px"> Recently Uploaded<br>
-                                <input type="radio" name="selectionButtons" id="dateRadio" value="date" class$="{{prefix}}FilterRadio" on-change="calculateFilters" style="padding-left: 20px"> Date (Year-Month-Day)
+                                <input type="radio" name="selectionButtons" id="allRadio" value="all"
+                                       class$="{{prefix}}FilterRadio" checked on-change="calculateFilters"
+                                       style="padding-left: 20px"> All<br>
+                                <input type="radio" name="selectionButtons" id="recentlyRadio" value="recently"
+                                       class$="{{prefix}}FilterRadio" on-change="calculateFilters"
+                                       style="padding-left: 20px"> Recently Uploaded<br>
+                                <input type="radio" name="selectionButtons" id="dateRadio" value="date"
+                                       class$="{{prefix}}FilterRadio" on-change="calculateFilters"
+                                       style="padding-left: 20px"> Date (Year-Month-Day)
                             </form>
 
                             <div style="padding: 10px 0px 15px 25px">
                                 <form class="form-inline">
                                     <div class="form-group row">
-                                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm" id="{{prefix}}YearSelect" name="birthYear" required on-change="calculateFilters" disabled>
+                                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm"
+                                                id="{{prefix}}YearSelect" name="birthYear" required
+                                                on-change="calculateFilters" disabled>
                                             <template is="dom-repeat" items="{{yearsToSearch}}">
                                                 <option value="{{item}}">{{item}}</option>
                                             </template>
                                         </select>
 
                                         <label style="padding: 0px 2px">-</label>
-                                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm" id="{{prefix}}MonthSelect" name="birthYear" required on-change="calculateFilters" disabled>
+                                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm"
+                                                id="{{prefix}}MonthSelect" name="birthYear" required
+                                                on-change="calculateFilters" disabled>
                                             <option value="any">Any</option>
                                             <template is="dom-repeat" items="{{monthToSearch}}">
                                                 <option value="{{item}}">{{item}}</option>
@@ -87,7 +102,9 @@
                                         </select>
 
                                         <label style="padding: 0px 2px">-</label>
-                                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm" id="{{prefix}}DaySelect" name="birthYear" required on-change="calculateFilters" disabled>
+                                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm"
+                                                id="{{prefix}}DaySelect" name="birthYear" required
+                                                on-change="calculateFilters" disabled>
                                             <option value="any">Any</option>
                                             <template is="dom-repeat" items="{{daysToSearch}}">
                                                 <option value="{{item}}">{{item}}</option>
@@ -99,7 +116,9 @@
 
                             <label>Other filters</label>
                             <br>
-                            <input type="checkbox" name="selectionButtons" id="controls" value="controls" class$="{{prefix}}FilterRadio" on-change="calculateFilters" style="padding-left: 20px"> Controls
+                            <input type="checkbox" name="selectionButtons" id="controls" value="controls"
+                                   class$="{{prefix}}FilterRadio" on-change="calculateFilters"
+                                   style="padding-left: 20px"> Controls
                         </div>
                     </div>
                 </div>
@@ -111,7 +130,8 @@
                     <div class="panel-heading" role="tab" id="{{prefix}}SampleGeneralFilterHeading">
                         <h4 class="panel-title">
                             <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                               href="#{{prefix}}SampleGeneralFilter" aria-expanded="true" aria-controls="{{prefix}}SampleGeneralFilter">
+                               href="#{{prefix}}SampleGeneralFilter" aria-expanded="true"
+                               aria-controls="{{prefix}}SampleGeneralFilter">
                                 Sample Characteristics
                                 <div style="float: right" class="tooltip-div">
                                     <a data-toggle="tooltip" title="Generic sample filters">
@@ -121,7 +141,8 @@
                             </a>
                         </h4>
                     </div>
-                    <div id="{{prefix}}SampleGeneralFilter" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}SampleGeneralFilterHeading">
+                    <div id="{{prefix}}SampleGeneralFilter" class="panel-collapse collapse in" role="tabpanel"
+                         aria-labelledby="{{prefix}}SampleGeneralFilterHeading">
 
                         <div class="panel-body">
                             <!--<div class="form-group">-->
@@ -134,14 +155,16 @@
 
                             <template is="dom-if" if="{{_displayCompactCheckBox}}">
                                 <div>
-                                    <input type="checkbox" id="{{prefix}}CompactCheckbox" value="compact" checked on-change="_changeMode">&nbsp;Compact<br>
+                                    <input type="checkbox" id="{{prefix}}CompactCheckbox" value="compact" checked
+                                           on-change="_changeMode">&nbsp;Compact<br>
                                 </div>
                             </template>
 
                             <template is="dom-if" if="{{compact}}">
                                 <div class="form-group">
                                     <label for="variableSetSelect">Variable Set</label>
-                                    <select class="form-control" id="variableSetSelect" style="width: 100%" on-change="selectedVariableSet">
+                                    <select class="form-control" id="variableSetSelect" style="width: 100%"
+                                            on-change="selectedVariableSet">
                                         <template is="dom-repeat" items="{{variableSets}}">
                                             <option data-variable="{{item}}">{{item.name}}</option>
                                         </template>
@@ -150,14 +173,18 @@
 
                                 <label for="variableSetSelect">Select a Variable</label>
                                 <div class="form-group has-feedback">
-                                    <input type="text" id="{{prefix}}VariableNameText" class="form-control" placeholder="Search variable"
+                                    <input type="text" id="{{prefix}}VariableNameText" class="form-control"
+                                           placeholder="Search variable"
                                            on-keyup="renderVariableTemplate" value="{{searchVariable::input}}">
                                     <i class="fa fa-search form-control-feedback" aria-hidden="true"></i>
                                 </div>
                                 <ul class="list-unstyled" style="max-height: 150px; overflow-y: auto; padding: 5px;">
-                                    <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}" as="variable" filter="_filterVariable" sort="_sortVariables">
+                                    <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}"
+                                              as="variable" filter="_filterVariable" sort="_sortVariables">
                                         <template is="dom-if" if="{{isVisible(variable,config)}}">
-                                            <li style="cursor: pointer;" data-toggle="modal" data-target="#{{prefix}}ModalFilters" on-click="variableSelected" data-variable="{{variable}}">
+                                            <li style="cursor: pointer;" data-toggle="modal"
+                                                data-target="#{{prefix}}ModalFilters" on-click="variableSelected"
+                                                data-variable="{{variable}}">
                                                 {{variable.title}}
                                             </li>
                                         </template>
@@ -167,7 +194,8 @@
 
                             <template is="dom-if" if="{{!compact}}">
                                 <div class="form-group has-feedback">
-                                    <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}" as="variable" sort="_sortVariables">
+                                    <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}"
+                                              as="variable" sort="_sortVariables">
                                         <template is="dom-if" if="{{isVisible(variable, config)}}">
                                             <!--<label for="{{prefix}}{{variable.name}}">{{variable.title}}:</label>-->
                                             <!-- We first try to display 'title', if not present then we use 'name' -->
@@ -182,35 +210,43 @@
                                             <template is="dom-if" if="{{checkVarType(variable, 'TEXT')}}">
                                                 <!-- TEXT type: include an input text and add suitable regular expression for text-->
                                                 <!-- http://stackoverflow.com/questions/14237686/disabling-controls-in-bootstrap-->
-                                                <input type="text" class="form-control" id="{{prefix}}{{variable.name}}" placeholder="{{variable.name}} name" pattern="{{variable.attributes.pattern}}" aria-describedby="basic-addon1">
+                                                <input type="text" class="form-control" id="{{prefix}}{{variable.name}}"
+                                                       placeholder="{{variable.name}} name"
+                                                       pattern="{{variable.attributes.pattern}}"
+                                                       aria-describedby="basic-addon1">
                                             </template>
 
                                             <template is="dom-if" if="{{checkVarType(variable, 'NUMERIC')}}">
                                                 <!-- NUMERIC type: include an input text and add suitable regular expression for numbers -->
-                                                <input type="text" class="form-control" id="{{prefix}}{{variable.name}}" placeholder="{{variable.name}} number" pattern="^[0-9]+$">
+                                                <input type="text" class="form-control" id="{{prefix}}{{variable.name}}"
+                                                       placeholder="{{variable.name}} number" pattern="^[0-9]+$">
                                             </template>
 
                                             <template is="dom-if" if="{{checkVarType(variable, 'INTEGER')}}">
                                                 <!-- NUMERIC type: include an input text and add suitable regular expression for numbers -->
-                                                <input type="text" class="form-control" id="{{prefix}}{{variable.name}}" placeholder="{{variable.name}} number" pattern="^[0-9]+$">
+                                                <input type="text" class="form-control" id="{{prefix}}{{variable.name}}"
+                                                       placeholder="{{variable.name}} number" pattern="^[0-9]+$">
                                             </template>
 
                                             <template is="dom-if" if="{{checkVarType(variable, 'DOUBLE')}}">
                                                 <!-- NUMERIC type: include an input text and add suitable regular expression for numbers -->
-                                                <input type="text" class="form-control" id="{{prefix}}{{variable.name}}" placeholder="{{variable.name}} number" pattern="^[0-9]+$">
+                                                <input type="text" class="form-control" id="{{prefix}}{{variable.name}}"
+                                                       placeholder="{{variable.name}} number" pattern="^[0-9]+$">
                                             </template>
 
                                             <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 0, 1)}}">
                                                 <!-- CATEGORICAL type, no value: values to be filled in this code -->
                                                 <!-- Dropdown related to years : fill in with values contained in {{years}} -->
                                                 <template is="dom-if" if="{{checkType(variable.name,'Year')}}">
-                                                    <select class="form-control" id="{{prefix}}{{variable.name}}" on-change="checkYears">
+                                                    <select class="form-control" id="{{prefix}}{{variable.name}}"
+                                                            on-change="checkYears">
                                                         <!--<option></option>-->
                                                         <template is="dom-repeat" items="{{years}}">
                                                             <option value="{{item}}">{{item}}</option>
                                                         </template>
                                                     </select>
-                                                    <div class="help-block with-errors" id="{{prefix}}_errorDiv_{{variable.name}}"></div>
+                                                    <div class="help-block with-errors"
+                                                         id="{{prefix}}_errorDiv_{{variable.name}}"></div>
                                                 </template>
                                             </template>
 
@@ -218,7 +254,8 @@
                                                 <!-- CATEGORICAL type, single value: check box -->
                                                 <br>
                                                 <div class="col-sm-9">
-                                                    <input type="checkbox" id="{{prefix}}{{variable.name}}" style="padding-left: 20px">
+                                                    <input type="checkbox" id="{{prefix}}{{variable.name}}"
+                                                           style="padding-left: 20px">
                                                 </div>
                                             </template>
 
@@ -226,12 +263,15 @@
                                                 <!-- CATEGORICAL type, 2 values: radio buttons for selection -->
                                                 <template is="dom-repeat" items="{{variable.allowedValues}}" as="value">
                                                     <div class="form-check form-check-inline">
-                                                        <input id="{{prefix}}{{variable.name}}{{value}}" class="form-check-input" type="radio" name="{{variable.name}}Options"> {{value}}
+                                                        <input id="{{prefix}}{{variable.name}}{{value}}"
+                                                               class="form-check-input" type="radio"
+                                                               name="{{variable.name}}Options"> {{value}}
                                                     </div>
                                                 </template>
                                             </template>
 
-                                            <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 3, 500)}}">
+                                            <template is="dom-if"
+                                                      if="{{checkCatType(variable, 'CATEGORICAL', 3, 500)}}">
                                                 <!-- CATEGORICAL type: dropdown: at least three elements in variable.allowedValues -->
                                                 <select class="form-control" id="{{prefix}}{{variable.name}}">
                                                     <!--<option></option>-->
@@ -244,8 +284,10 @@
                                             <template is="dom-if" if="{{checkVarType(variable, 'BOOLEAN')}}">
                                                 <!-- BOOLEAN type, 2 values: radio buttons for selection: yes or no -->
                                                 <div class="form-check form-check-inline">
-                                                    <input id="{{prefix}}{{variable.name}}yes" class="form-check-input" type="radio" name="{{variable.name}}Options"> yes
-                                                    <input id="{{prefix}}{{variable.name}}no" class="form-check-input" type="radio" name="{{variable.name}}Options"> no
+                                                    <input id="{{prefix}}{{variable.name}}yes" class="form-check-input"
+                                                           type="radio" name="{{variable.name}}Options"> yes
+                                                    <input id="{{prefix}}{{variable.name}}no" class="form-check-input"
+                                                           type="radio" name="{{variable.name}}Options"> no
                                                 </div>
                                             </template>
                                             <!-- Close dom-if for visibility -->
@@ -265,7 +307,8 @@
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">&times;</span></button>
                         <h4 class="modal-title">Filter by {{ variable.name }}</h4>
                     </div>
 
@@ -277,7 +320,8 @@
                                     <div class="col-md-4">
                                         <div class="checkbox" style="margin: 0">
                                             <label class="category-filter-label js-label-toggle">
-                                                <input name="{{prefix}}Categorical" type="checkbox" value="{{allowedValue}}"> {{allowedValue}}
+                                                <input name="{{prefix}}Categorical" type="checkbox"
+                                                       value="{{allowedValue}}"> {{allowedValue}}
                                             </label>
                                         </div>
                                     </div>
@@ -288,14 +332,14 @@
                         <!--TEXT-->
                         <template is="dom-if" if="{{_isText}}">
                             <div class="form-group">
-                                <input type="text" name="{{prefix}}Text" class="form-control" />
+                                <input type="text" name="{{prefix}}Text" class="form-control"/>
                             </div>
                         </template>
 
                         <!--NUMERIC-->
                         <template is="dom-if" if="{{_isNumerical}}">
                             <div class="form-group">
-                                <input type="text" name="{{prefix}}Numerical" class="form-control" />
+                                <input type="text" name="{{prefix}}Numerical" class="form-control"/>
                             </div>
                         </template>
 
@@ -311,8 +355,11 @@
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default add-right-margin" data-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-primary" on-click="updateCompactFilter" data-dismiss="modal">Update filter</button>
+                        <button type="button" class="btn btn-default add-right-margin" data-dismiss="modal">Cancel
+                        </button>
+                        <button type="button" class="btn btn-primary" on-click="updateCompactFilter"
+                                data-dismiss="modal">Update filter
+                        </button>
                     </div>
                 </div>
             </div>
@@ -321,53 +368,69 @@
     </template>
 
     <script>
-        Polymer({
-            is: 'opencga-sample-filter',
-            properties: {
-                opencgaClient: {
-                    type: Object
-                },
-                study: {
-                    type: Object,
-                    observer: 'updateVariableSets'
-                },
-                samples: {
-                    type: Array,
-                    notify: true
-                },
-                prefix: {
-                    type: String
-                },
-                query: {
-                    type: Object,
-                    value: {},
-                    notify: true,
-                    observer: 'onQueryUpdate'
-                },
-                config: {
-                    type: Object
-                },
-                search: {
-                    type: Object,
-                    notify: true
-                },
-                variableSets: {
-                    type: Array
-                },
-                variables: {
-                    type: Array,
-                    observer: 'variablesChanged'
-                },
-                minYear: {
-                    type: Number,
-                    value: 1920
-                },
-                compact: {
-                    type: Boolean
+
+        class OpencgaSampleFilter extends Polymer.Element {
+            static get is() {
+                return 'opencga-sample-filter';
+            }
+
+            static get properties() {
+                return {
+                    opencgaClient: {
+                        type: Object
+                    },
+                    study: {
+                        type: Object,
+                        observer: 'updateVariableSets'
+                    },
+                    samples: {
+                        type: Array,
+                        notify: true
+                    },
+                    prefix: {
+                        type: String
+                    },
+                    query: {
+                        type: Object,
+                        value: {},
+                        notify: true,
+                        observer: 'onQueryUpdate'
+                    },
+                    config: {
+                        type: Object
+                    },
+                    search: {
+                        type: Object,
+                        notify: true
+                    },
+                    variableSets: {
+                        type: Array
+                    },
+                    variables: {
+                        type: Array,
+                        observer: 'variablesChanged'
+                    },
+                    minYear: {
+                        type: Number,
+                        value: 1920
+                    },
+                    compact: {
+                        type: Boolean
+                    }
                 }
-            },
-            ready: function() {
-                if (typeof this.prefix === "undefined" || this.prefix === "") {
+            }
+
+            constructor() {
+                super();
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            ready() {
+                super.ready();
+                if (PolymerUtils.isUndefinedOrEmpty(this.prefix)) {
                     this.prefix = "VarSampleFilter" + Utils.randomString(6);
                 }
 
@@ -397,7 +460,7 @@
                 this.daysToSearch = _days;
 
                 // If compact is not set then we set false as default and we display the checkbox
-                if (typeof this.compact === "undefined") {
+                if (PolymerUtils.isUndefined(this.compact)) {
                     this._displayCompactCheckBox = true;
                     this.compact = false;
                 } else {
@@ -405,40 +468,45 @@
                 }
                 // TODO: this must be removed
                 this._displayCompactCheckBox = false;
-            },
-            onSearch: function () {
+            }
+
+            onSearch() {
                 this.search = Object.assign({}, this.query);
-            },
-            onQueryUpdate: function () {
+            }
+
+            onQueryUpdate() {
                 if (this._reset) {
                     console.log("onQueryUpdate: calling to 'renderQueryFilters()'")
                     this.renderQueryFilters();
                 } else {
                     this._reset = true;
                 }
-            },
-            renderQueryFilters: function () {
+            }
+
+            renderQueryFilters() {
                 // Empty everything before rendering
                 this._clearHtmlDom();
 
                 // Sample
-                if (typeof this.query.name !== "undefined") {
-                    this.$$("#" + this.prefix + "SampleName").value = this.query.name;
+                if (PolymerUtils.isNotUndefined(this.query.name)) {
+                    PolymerUtils.getElementById(this.prefix + "SampleName").value = this.query.name;
                 }
-            },
-            calculateFilters: function (e) {
+            }
+
+            calculateFilters(e) {
                 let _query = {};
 
-                let name = $("#" + this.prefix + "SampleName").val();
-                if (typeof name !== "undefined" && name !== "") {
+                let name = PolymerUtils.getElementById(this.prefix + "SampleName").value;
+                if (!PolymerUtils.isUndefinedOrEmpty(name)) {
                     _query.name = name;
                 }
 
-                let individual = $("#" + this.prefix + "IndividualName").val();
-                if (typeof individual !== "undefined" && individual !== "") {
+                let individual = PolymerUtils.getElementById(this.prefix + "IndividualName").value;
+                if (!PolymerUtils.isUndefinedOrEmpty(individual)) {
                     _query.individual = individual;
                 }
 
+                //TODO Refactor
                 let dateOption = $("#" + this.prefix + "DateRadioButton input[type='radio']:checked").val();
                 switch (dateOption) {
                     case "recently":
@@ -459,30 +527,32 @@
                             dates.push("^" + da.getFullYear() + m + d + "*")
                         }
                         _query.creationDate = "~" + dates.join(",");
-                        $(".codeDis").attr("disabled", "disabled");
+                        PolymerUtils.setAttributeByClassName('codeDis','disabled', 'true');
                         break;
                     case "date":
                         let date = this._getDateFilter(e);
                         _query.creationDate = date;
-                        $(".codeDis").removeAttr("disabled");
+                        PolymerUtils.removeAttributebyclass('codeDis','disabled');
                         break;
                     case "all":
                     default:
                         delete _query.creationDate;
-                        $(".codeDis").attr("disabled", "disabled");
+                        PolymerUtils.setAttributeByClassName('codeDis','disabled', 'true');
                         break;
                 }
 
 //                this.query = _query;
                 // To prevent to call renderQueryFilters we set this to false
                 this._reset = false;
-                this.query = _query;
+                this.set("query",_query);
+//                this.query = _query;
                 this._reset = true;
-            },
-            _getDateFilter: function (e) {
-                let year = $("#" + this.prefix + "YearSelect").val();
-                let month = $("#" + this.prefix + "MonthSelect").val();
-                let day = $("#" + this.prefix + "DaySelect").val();
+            }
+
+            _getDateFilter(e) {
+                let year = PolymerUtils.getElementById(this.prefix + "YearSelect").value;
+                let month =  PolymerUtils.getElementById(this.prefix + "MonthSelect").value;
+                let day =  PolymerUtils.getElementById(this.prefix + "DaySelect").value;
                 let date;
                 if (month === "any") {
                     date = "~^" + year + "*";
@@ -501,8 +571,9 @@
                     }
                 }
                 return date;
-            },
-            updateVariableSets: function () {
+            }
+
+            updateVariableSets() {
                 this.variables = [];
                 let _this = this;
                 this.opencgaClient.studies().info(this.study.id, {include: "variableSets"})
@@ -515,20 +586,22 @@
                                 variables: []
                             };
                         } else {
-                            _this.variableSets = [{name : "none"}];
+                            _this.variableSets = [{name: "none"}];
                         }
                     })
                     .catch(function () {
                         console.log("Could not obtain the variable sets of the study " + _this.study);
                     });
-            },
-            renderVariableTemplate: function() {
-                let myTemplate = this.$$("[id='" + this.prefix + "VariableTemplate']");
+            }
+
+            renderVariableTemplate() {
+                let myTemplate = PolymerUtils.getElementById(this.prefix + 'VariableTemplate');
                 if (myTemplate !== null) {
                     myTemplate.render();
                 }
-            },
-            variableSelected: function(e) {
+            }
+
+            variableSelected(e) {
                 this.variable = e.target.dataVariable;
                 if (this.variable === undefined || Object.getOwnPropertyNames(this.variable).length === 0) {
                     return;
@@ -549,12 +622,15 @@
                 } else if (this.variable.type.toLowerCase() === "object") {
                     this._isObject = true;
                 }
+                //TODO Refactor
                 $(e.target.dataTarget).modal('show');
-            },
-            updateCompactFilter: function(e) {
+            }
+
+            updateCompactFilter(e) {
                 let myFilter = {};
                 if (this.variable.type.toLowerCase() === "categorical") {
                     let allValues = [];
+                    //TODO Refactor
                     let selected = $("input[name='" + this.prefix + "Categorical']:checked");
                     for (let i = 0; i < selected.length; i++) {
                         allValues.push(selected[i].value);
@@ -564,14 +640,16 @@
                         value: allValues.join()
                     };
                 } else if (this.variable.type.toLowerCase() === "text") {
-                    let value = this.$$("input[name='" + this.prefix + "Text']");
+                    //TODO Refactor
+                    let value = $("input[name='" + this.prefix + "Text']");
                     myFilter = {
                         name: this.variable.name,
                         value: value.value
                     };
                     value.value = "";
                 } else if (this.variable.type.toLowerCase() === "numeric") {
-                    let value = this.$$("input[name='" + this.prefix + "Numerical']");
+                    //TODO Refactor
+                    let value = $("input[name='" + this.prefix + "Numerical']");
                     myFilter = {
                         name: this.variable.name,
                         value: value.value
@@ -585,86 +663,101 @@
                 this.query[myFilter.name] = myFilter.value;
                 this.query = Object.assign({}, this.query);
                 this.fire('opencga-filter-added', myFilter);
-            },
-            variablesChanged: function () {
+            }
+
+            variablesChanged() {
                 this._areVariablesEmpty = (this.variables.length === 0);
-            },
-            checkVarType: function (myVar, type) {
+            }
+
+            checkVarType(myVar, type) {
                 return (myVar.type === type);
-            },
-            checkCatType: function (myVar, type, lowerLimit, upperLimit) {
+            }
+
+            checkCatType(myVar, type, lowerLimit, upperLimit) {
                 return (myVar.type === type && myVar.allowedValues.length >= lowerLimit && myVar.allowedValues.length < upperLimit);
-            },
-            checkYears: function(e) {
+            }
+
+            checkYears(e) {
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-                $("#" + this.prefix + "_errorDiv_birthYear").html("");
-                $("#" + this.prefix + "_errorDiv_testYear").html("");
-                let currentElement = $("#"+e.target.id);
+                PolymerUtils.innerHTML(this.prefix + '_errorDiv_birthYear', '');
+                PolymerUtils.innerHTML(this.prefix + '_errorDiv_testYear', '');
+                let currentElement =  PolymerUtils.getElementById(e.target.id);
                 let identifier = e.target.id;
                 let pairElement = '';
                 let divSuffix = '';
                 let message = '';
-                if (identifier.search('birthYear')!=-1) // Birth year element raises the event -> check Test year
+                if (identifier.search('birthYear') != -1) // Birth year element raises the event -> check Test year
                 {
-                    pairElement = $("#" + this.prefix + "testYear");
+                    pairElement =  PolymerUtils.getElementById(this.prefix + "testYear");
                     divSuffix = "birthYear";
                     message = "Year of Birth must be prior to year of Test";
                 }
                 else { // Year of test element raises the event -> swap elements and check the birth year
-                    currentElement = $("#" + this.prefix + "birthYear");
-                    pairElement = $("#"+e.target.id);
+                    currentElement =  PolymerUtils.getElementById(this.prefix + "birthYear");
+                    pairElement =  PolymerUtils.getElementById(e.target.id);
                     divSuffix = "testYear";
                     message = "Year of Test must be posterior to year of Birth";
                 }
-                if(pairElement.find("option:selected") !== ""
-                    && (parseInt(currentElement.find("option:selected").text())>parseInt(pairElement.find("option:selected").text()))) { // Year of birth cannot be lower than Year of test
-                    $("#" + this.prefix + "_errorDiv_"+divSuffix).html(message);
+                if (PolymerUtils.querySelectorAll("option:selected",pairElement) !== ""
+                    && (parseInt(PolymerUtils.querySelectorAll("option:selected", currentElement).textContent) > parseInt(PolymerUtils.querySelectorAll("option:selected", pairElement).textContent))) { // Year of birth cannot be lower than Year of test
+                    PolymerUtils.innerHTML(this.prefix + "_errorDiv_" + divSuffix, message);
                 }
-            },
-            checkType: function (str1, str2) {
+            }
+
+            checkType(str1, str2) {
                 return str1.search(str2) !== -1;
-            },
-            _filterVariable: function(variable) {
+            }
+
+            _filterVariable(variable) {
                 for (let i = 0; i < this.filteredVariables.variables.length; i++) {
                     if (variable.name === this.filteredVariables.variables[i].name) {
                         return false;
                     }
                 }
-                if (this.searchVariable !== undefined && variable.name.toLowerCase().indexOf(this.searchVariable.toLowerCase()) === -1) {
+                if (PolymerUtils.isNotUndefined(this.searchVariable) && variable.name.toLowerCase().indexOf(this.searchVariable.toLowerCase()) === -1) {
                     return false;
                 }
                 return true;
-            },
-            _sortVariables: function(a, b) {
+            }
+
+            _sortVariables(a, b) {
                 if (a.rank < b.rank) {
                     return -1;
                 }
                 return 1;
-            },
-            _changeMode: function (e) {
+            }
+
+            _changeMode(e) {
                 this.compact = !this.compact;
-            },
-            _clearHtmlDom: function() {
+            }
+
+            _clearHtmlDom() {
                 // Empty everything before rendering
-                $("." + this.prefix + "FilterSelect").prop('selectedIndex', 0);
-                $("." + this.prefix + "FilterSelect").prop("disabled", false);
-                $("." + this.prefix + "FilterTextInput").val("");
-                $("." + this.prefix + "FilterTextInput").prop("disabled", false);
-                $("." + this.prefix + "FilterCheckBox").prop("checked", false);
-                $("." + this.prefix + "FilterRadio").prop("checked", false);
+                PolymerUtils.setAttributeByClassName(this.prefix + "FilterSelect", 'selectedIndex', 0);
+                PolymerUtils.removeAttributebyclass(this.prefix + "FilterSelect", 'disabled');
+                PolymerUtils.removeAttributebyclass(this.prefix + "FilterTextInput", 'disabled');
+                PolymerUtils.setPropertyByClassName(this.prefix + "FilterTextInput", 'value', '');
+                PolymerUtils.setPropertyByClassName(this.prefix + "FilterCheckBox", 'checked', false);
+                PolymerUtils.setPropertyByClassName(this.prefix + "FilterRadio", 'checked', false);
+                PolymerUtils.setAttributeByClassName(this.prefix + "FilterRadio", 'disabled', true);
+                //TODO Refactor
                 $("." + this.prefix + "FilterRadio").filter('[value="or"]').prop('checked', true);
-                $("." + this.prefix + "FilterRadio").prop("disabled", true);
-            },
-            isVisible: function (myVar,conf){
+            }
+
+            isVisible(myVar, conf) {
                 let excludeArray = conf.variableSet.exclude;
                 for (let index in excludeArray) {
                     if (excludeArray[index].webComponent === this.localName) {
-                        return (!($.inArray(myVar.name, excludeArray[index].variables) !== -1));
+                        return (!(excludeArray[index].variable.indexOf(myVar.name)!== -1));
                     } else {
                         return true;
                     }
                 }
-            },
-        });
+            }
+        }
+
+        customElements.define(OpencgaSampleFilter.is, OpencgaSampleFilter);
+
+
     </script>
 </dom-module>

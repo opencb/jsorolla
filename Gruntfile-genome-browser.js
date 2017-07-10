@@ -30,8 +30,8 @@ module.exports = function (grunt) {
                     'src/genome-browser/renderers/renderer.js',
                     'src/genome-browser/renderers/*-renderer.js',
 
-                    'src/lib/data-adapter/feature/cellbase-adapter-new.js',
-                    'src/lib/data-adapter/feature/opencga-adapter-new.js',
+                    'src/lib/data-adapter/feature/cellbase-adapter.js',
+                    'src/lib/data-adapter/feature/opencga-adapter.js',
                     'src/lib/cache/indexeddb-cache.js',
                     'src/lib/clients/rest-client.js',
                     'src/lib/clients/cellbase-client.js',

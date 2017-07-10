@@ -28,17 +28,17 @@
     <script type="text/javascript" src="../lib/cache/indexedDB-store.js"></script>
     <script type="text/javascript" src="../lib/cache/bam-cache.js"></script>
 
-    <script type="text/javascript" src="../lib/data-adapter/feature/feature-template-adapter.js"></script>
+    <script type="text/javascript" src="../lib/data-adapter/feature-template-adapter.js"></script>
 
-    <script type="text/javascript" src="../lib/data-adapter/feature/feature-data-adapter.js"></script>
-    <script type="text/javascript" src="../lib/data-adapter/feature/vcf-data-adapter.js"></script>
-    <script type="text/javascript" src="../lib/data-adapter/feature/gff2-data-adapter.js"></script>
-    <script type="text/javascript" src="../lib/data-adapter/feature/gff3-data-adapter.js"></script>
-    <script type="text/javascript" src="../lib/data-adapter/feature/bed-data-adapter.js"></script>
+    <!--<script type="text/javascript" src="../lib/data-adapter/feature/feature-data-adapter.js"></script>-->
+    <!--<script type="text/javascript" src="../lib/data-adapter/feature/vcf-data-adapter.js"></script>-->
+    <!--<script type="text/javascript" src="../lib/data-adapter/feature/gff2-data-adapter.js"></script>-->
+    <!--<script type="text/javascript" src="../lib/data-adapter/feature/gff3-data-adapter.js"></script>-->
+    <!--<script type="text/javascript" src="../lib/data-adapter/feature/bed-data-adapter.js"></script>-->
 
-    <script type="text/javascript" src="../lib/data-source/data-source.js"></script>
-    <script type="text/javascript" src="../lib/data-source/string-data-source.js"></script>
-    <script type="text/javascript" src="../lib/data-source/file-data-source.js"></script>
+    <!--<script type="text/javascript" src="../lib/data-source/data-source.js"></script>-->
+    <!--<script type="text/javascript" src="../lib/data-source/string-data-source.js"></script>-->
+    <!--<script type="text/javascript" src="../lib/data-source/file-data-source.js"></script>-->
 
     <script type="text/javascript" src="../lib/widgets/feature/info/info-widget.js"></script>
     <script type="text/javascript" src="../lib/widgets/feature/info/gene-info-widget.js"></script>
@@ -55,16 +55,14 @@
     <script type="text/javascript" src="karyotype-panel.js"></script>
     <script type="text/javascript" src="status-bar.js"></script>
 
-    <script type="text/javascript" src="tracks/tracklist-panel.js"></script>
-    <!--<script type="text/javascript" src="tracks/track.js"></script>-->
     <script type="text/javascript" src="tracks/feature-track.js"></script>
     <script type="text/javascript" src="tracks/gene-track.js"></script>
     <script type="text/javascript" src="tracks/alignment-track.js"></script>
     <script type="text/javascript" src="tracks/variant-track.js"></script>
+    <script type="text/javascript" src="tracks/tracklist-panel.js"></script>
 
     <script type="text/javascript" src="renderers/renderer.js"></script>
     <script type="text/javascript" src="renderers/feature-renderer.js"></script>
-    <!--<script type="text/javascript" src="renderers/obsolete/feature-cluster-renderer.js"></script>-->
     <script type="text/javascript" src="renderers/sequence-renderer.js"></script>
     <script type="text/javascript" src="renderers/histogram-renderer.js"></script>
     <script type="text/javascript" src="renderers/gene-renderer.js"></script>
@@ -74,8 +72,9 @@
     <script type="text/javascript" src="genome-browser.js"></script>
 
     <!-- ES6 -->
-    <script type="text/javascript" src="../lib/data-adapter/feature/cellbase-adapter-new.js"></script>
-    <script type="text/javascript" src="../lib/data-adapter/feature/opencga-adapter-new.js"></script>
+    <script type="text/javascript" src="../lib/data-adapter/feature-adapter.js"></script>
+    <script type="text/javascript" src="../lib/data-adapter/cellbase-adapter.js"></script>
+    <script type="text/javascript" src="../lib/data-adapter/opencga-adapter.js"></script>
     <script type="text/javascript" src="../lib/cache/indexeddb-cache.js"></script>
     <script type="text/javascript" src="../lib/clients/cellbase-client.js"></script>
     <script type="text/javascript" src="../lib/clients/rest-client.js"></script>
@@ -164,7 +163,8 @@
 
     //GenomeBrowser, Region and Species:
     var genomeBrowser;
-    var region = new Region({chromosome: "13", start: 32889607, end: 32890739});
+    var region = new Region({chromosome: "13", start: 32996311, end: 33000856});
+//    var region = new Region({chromosome: "21", start: 17299927, end: 17300073});
     getSpecies(function(s) {
         AVAILABLE_SPECIES = s;
         run();
@@ -237,20 +237,20 @@
             }
         });
 
-        let gene = new FeatureTrack({
-//        title: 'Gene overview',
-            minHistogramRegionSize: 20000000,
-            maxLabelRegionSize: 10000000,
-            height: 80,
-
-            renderer: renderer,
-            dataAdapter: new CellBaseAdapter(cellbaseClient, "genomic", "region", "gene", {
-                exclude: 'transcripts,chunkIds'
-            }, {
-                chunkSize: 100000
-            })
-        });
-        genomeBrowser.addOverviewTrack(gene);
+//        let gene = new FeatureTrack({
+////        title: 'Gene overview',
+//            minHistogramRegionSize: 20000000,
+//            maxLabelRegionSize: 10000000,
+//            height: 80,
+//
+//            renderer: renderer,
+//            dataAdapter: new CellBaseAdapter(cellbaseClient, "genomic", "region", "gene", {
+//                exclude: 'transcripts,chunkIds'
+//            }, {
+//                chunkSize: 100000
+//            })
+//        });
+//        genomeBrowser.addOverviewTrack(gene);
 
         /***************************************************************************/
         /***** Demo Sequence Track using FeatureTrack and Cellbase adapter       ***/
@@ -330,16 +330,24 @@
             minTranscriptRegionSize: 200000,
             visibleRegionSize: 100000000,
             height: 300,
+            opencga: {
+                host: OPENCGA_HOST,
+                version: "v1",
+                studies: "reference_grch37:1kG_phase3"
+            },
+            samples: {
+                names: { "reference_grch37:1kG_phase3": ["HG00096", "HG00097", "HG00099"]}
+            },
             renderer: new FeatureRenderer(FEATURE_TYPES.variant),
-            dataAdapter: new OpencgaAdapter(opencgaClient, "analysis/variant", undefined, "query",
-                    {
-                        studies:"reference_grch37:1kG_phase3",
-//                        exclude: "studies.files,studies.stats,annotation"
-                        exclude: "studies,annotation"
-//                        exclude: "studies"
-                    }, {
-                        chunkSize: 100000
-                    })
+//            dataAdapter: new OpencgaAdapter(opencgaClient, "analysis/variant", undefined, "query",
+//                    {
+//                        studies: "reference_grch37:1kG_phase3",
+////                        exclude: "studies.files,studies.stats,annotation"
+//                        exclude: "studies,annotation"
+////                        exclude: "studies"
+//                    }, {
+//                        chunkSize: 100000
+//                    })
         });
         tracks.push(variant);
         /*******************/

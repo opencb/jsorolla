@@ -16,8 +16,6 @@
 
 <dom-module id="variant-sample-grid">
     <template>
-        <style is="custom-style" include="jso-styles"></style>
-
         <div>
             <div id="{{prefix}}ToolbarLeft" style="float: left;margin: 20px 0px 0px 0px">
                 <span style="font-size: 14px">Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> samples</span>
@@ -30,56 +28,75 @@
     </template>
 
     <script>
-        Polymer({
-            is: 'variant-sample-grid',
-            properties: {
-                opencgaClient: {
-                    type: Object,
-                    observer: 'renderFromServer'
-                },
-                study: {
-                    type: Object,
-                    observer: 'renderFromServer'
-                },
-                samples: {
-                    type: Array,
-                    notify: true
-                },
-                prefix: {
-                    type: String
-                },
-                filters: {
-                    type: Object,
-                    observer: "onFilterUpdate"
-                },
-                search: {
-                    type: Object,
-                    observer: 'renderFromServer'
+
+        class VariantSampleGrid extends Polymer.Element {
+            static get is() {
+                return 'variant-sample-grid';
+            }
+
+            static get properties() {
+                return {
+                    opencgaClient: {
+                        type: Object,
+                        observer: 'renderFromServer'
+                    },
+                    study: {
+                        type: Object,
+                        observer: 'renderFromServer'
+                    },
+                    samples: {
+                        type: Array,
+                        notify: true
+                    },
+                    prefix: {
+                        type: String
+                    },
+                    filters: {
+                        type: Object,
+                        observer: "onFilterUpdate"
+                    },
+                    search: {
+                        type: Object,
+                        observer: 'renderFromServer'
+                    }
                 }
-            },
-            observers: [
-                'calculateFilters(filteredVariables.variables.*)'
-            ],
-            ready: function() {
-                if (typeof this.prefix === "undefined" || this.prefix === "") {
+            }
+
+            constructor() {
+                super();
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            ready() {
+                super.ready();
+                if (PolymerUtils.isUndefinedOrEmpty(this.prefix)) {
                     this.prefix = "sample2" + Utils.randomString(6);
                 }
 
 //                this.renderFromServer();
+
                 this._initTableColumns();
-            },
-            attached: function () {
-                this.table = $('#' + this.prefix + "SampleSelector");
-            },
-            renderFromServer: function () {
+                this.dispatchEvent(new CustomEvent('clear', {detail: {}, bubbles: true, composed: true}));
+
+            }
+
+            connectedCallback () {
+                this.table = PolymerUtils.getElementById(this.prefix + "SampleSelector");
+                this.search = {};
+            }
+
+            renderFromServer() {
                 let filters = this.search;
 
                 this.from = 1;
                 this.to = 5;
 
-                if (typeof this.opencgaClient !== "undefined" && typeof this.study !== "undefined" && this.study.id > 0) {
+                if (PolymerUtils.isNotUndefined(this.opencgaClient) && PolymerUtils.isNotUndefined(this.study) && this.study.id > 0) {
                     // Make a copy of the samples (if they exist), we will use this private copy until it is assigned to this.samples
-                    if (typeof this.samples !== "undefined") {
+                    if (PolymerUtils.isNotUndefined(this.samples)) {
                         this._samples = this.samples;
                     } else {
                         this._samples = [];
@@ -93,8 +110,8 @@
                     opencgaHostUrl += '/webservices/rest/v1/samples/search';
 
                     let _this = this;
-                    $('#' + _this.prefix + 'SampleSelector').bootstrapTable('destroy');
-                    $('#' + _this.prefix + "SampleSelector").bootstrapTable({
+                    $(PolymerUtils.getElementById(this.prefix + 'SampleSelector')).bootstrapTable('destroy');
+                    $(PolymerUtils.getElementById(this.prefix + 'SampleSelector')).bootstrapTable({
                         url: opencgaHostUrl,
                         columns: _this._columns,
                         method: 'get',
@@ -134,9 +151,9 @@
                             let index = element[0].getAttribute("data-index");
                             // Check and uncheck actions trigger events that are captured below
                             if (row.state) {
-                                $('#' + _this.prefix + "SampleSelector").bootstrapTable('uncheck', index);
+                                $(PolymerUtils.getElementById(_this.prefix + 'SampleSelector')).bootstrapTable('uncheck', index);
                             } else {
-                                $('#' + _this.prefix + "SampleSelector").bootstrapTable('check', index);
+                                $(PolymerUtils.getElementById(_this.prefix + "SampleSelector")).bootstrapTable('check', index);
                             }
                         },
                         onCheck: function (row, elem) {
@@ -196,7 +213,7 @@
                                 for (let idx in _this.samples) {
                                     for (let j in data.rows) {
                                         if (_this.samples[idx].name === data.rows[j].name) {
-                                            $('#' + _this.prefix + "SampleSelector").bootstrapTable('check', j);
+                                            $(PolymerUtils.getElementById(_this.prefix + 'SampleSelector')).bootstrapTable('check', j);
                                             break;
                                         }
                                     }
@@ -218,92 +235,89 @@
                         });
                 } else {
                     // Delete table
-                    $('#' + this.prefix + "SampleSelector").bootstrapTable('destroy');
+                    $(PolymerUtils.getElementById(this.prefix + 'SampleSelector')).bootstrapTable('destroy');
                     this.numTotalResults = 0;
                 }
-            },
-            stateFormatter: function (value, row, index) {
+            }
+
+            stateFormatter(value, row, index) {
                 if (typeof this.field.context.samples != "undefined") {
                     for (let idx in this.field.context.samples) {
                         if (this.field.context.samples[idx].name == row.name) {
-                            console.log("Family Selector")
-                            console.log('#' + this.field.context.prefix + "SampleSelector")
-                            console.log($('#' + this.field.context.prefix + "SampleSelector"))
-
-//                            $('#' + this.field.context.prefix + "SampleSelector").bootstrapTable('check', index);
-//                            this.field.context.table.bootstrapTable('check', 9);
-//                            this.field.context.table.bootstrapTable('check', 7);
-//                            Polymer.dom(this.field.context.root).querySelector('#' + this.field.context.prefix + "SampleSelector").bootstrapTable('check', index);
-//                            Polymer.dom(this.field.context.root).querySelector('#' + this.field.context.prefix + "SampleSelector").rows[index].setAttribute('class', 'success');
-//                            debugger
                             break;
                         }
                     }
                 }
-            },
-            individualFormatter: function (value, row) {
-                if (typeof row.individual.name !== "undefined") {
+            }
+
+            individualFormatter(value, row) {
+                if (PolymerUtils.isNotUndefined(row.individual.name)) {
                     return row.individual.name;
                 } else {
                     return '-'
                 }
-            },
-            dateFormatter: function (value, row) {
+            }
+
+            dateFormatter(value, row) {
                 let pattern = /^(\d\d\d\d)(\d\d)(\d\d)/;
                 let matches = pattern.exec(value);
                 if (matches) {
                     let [year, month, day] = [matches[1], matches[2] - 1, matches[3]];
                     return year + "-" + month + "-" + day;
                 } else {
-//                    throw new Error("Invalid string: " + value);
                     return "Invalid date: '" + value + "'";
                 }
-            },
-            diagnosisFormatter: function (value, row) {
-                if (typeof row.individual.ontologyTerms !== "undefined" && row.individual.ontologyTerms.length > 0) {
+            }
+
+            diagnosisFormatter(value, row) {
+                if (PolymerUtils.isNotUndefined(row.individual.ontologyTerms) && row.individual.ontologyTerms.length > 0) {
                     return row.individual.ontologyTerms[1].name;
                 } else {
                     return '-';
                 }
-            },
-            fatherFormatter: function (value, row) {
+            }
+
+            fatherFormatter(value, row) {
                 if (row.individual.fatherId > 0) {
                     return row.individual.fatherId;
                 } else {
                     return '-';
                 }
-            },
-            motherFormatter: function (value, row) {
+            }
+
+            motherFormatter(value, row) {
                 if (row.individual.motherId > 0) {
                     return row.individual.motherId;
                 } else {
                     return '-';
                 }
-            },
-            cellTypeFormatter: function (value, row) {
+            }
+
+            cellTypeFormatter(value, row) {
                 return (row.somatic) ? "Somatic" : "Germline";
-            },
+            }
+
             /**
              * If filters have been removed, clean the values from the forms.
              */
-            onFilterUpdate: function () {
+            onFilterUpdate() {
                 this.updateForms(this.filters);
-            },
+            }
 
-            updateForms: function(filters) {
+            updateForms(filters) {
                 // This is just to avoid entering here when it has just been initialized
                 if (this.prefix === undefined) {
                     return;
                 }
 
-                let sampleName = this.$$("#" + this.prefix + "NameTextarea").value;
+                let sampleName = PolymerUtils.getElementById(this.prefix + "NameTextarea").value;
                 if (!filters.hasOwnProperty("name") && sampleName !== undefined && sampleName.length > 0) {
-                    this.$$("#" + this.prefix + "NameTextarea").value = "";
+                    PolymerUtils.getElementById(this.prefix + "NameTextarea").value = "";
                 }
 
-                let individual = this.$$("#" + this.prefix + "IndividualTextarea").value;
-                if (!filters.hasOwnProperty("individual.id") && individual !== undefined && individual.length > 0) {
-                    this.$$("#" + this.prefix + "IndividualTextarea").value = "";
+                let individual = PolymerUtils.getElementById(this.prefix + "IndividualTextarea").value;
+                if (!filters.hasOwnProperty("individual.id") && PolymerUtils.isNotUndefined(individual) && individual.length > 0) {
+                    PolymerUtils.getElementById(this.prefix + "IndividualTextarea").value = "";
                 }
 
                 if (this.filteredVariables.variables.length > 0) {
@@ -315,7 +329,7 @@
                     } else if (filters.annotation.length < this.filteredVariables.variables.length) {
 //                        debugger
                         let tmpVariables = [];
-                        filters.annotation.forEach(function(variable) {
+                        filters.annotation.forEach(function (variable) {
                             tmpVariables.push(variable);
                         });
 
@@ -328,43 +342,43 @@
 //                    }
                 }
 
-            },
+            }
 
             /**
              * Read from the values in the forms, and sets the filters.
              */
-            calculateFilters: function() {
+            calculateFilters() {
                 let filters = {};
                 let sampleName = "";
                 let individual = "";
 
-                if (this.$$("#" + this.prefix + "NameTextarea") !== null) {
-                    sampleName = this.$$("#" + this.prefix + "NameTextarea").value;
+                if (PolymerUtils.getElementById(this.prefix + "NameTextarea") !== null) {
+                    sampleName = PolymerUtils.getElementById(this.prefix + "NameTextarea").value;
                 }
-                if (this.$$("#" + this.prefix + "IndividualTextarea") !== null) {
-                    individual = this.$$("#" + this.prefix + "IndividualTextarea").value;
+                if (PolymerUtils.getElementById(this.prefix + "IndividualTextarea") !== null) {
+                    individual = PolymerUtils.getElementById(this.prefix + "IndividualTextarea").value;
                 }
 
-                if (sampleName !== undefined && sampleName.length > 0) {
+                if (PolymerUtils.isNotUndefined(sampleName) && sampleName.length > 0) {
                     filters["name"] = "~" + sampleName;
                 }
 
-                if (individual !== undefined && individual.length > 0) {
+                if (PolymerUtils.isNotUndefined(individual) && individual.length > 0) {
                     filters["individual.id"] = "~" + individual;
                 }
 
-                if (this.filteredVariables.variables !== undefined && this.filteredVariables.variables.length > 0) {
+                if (PolymerUtils.isNotUndefined(this.filteredVariables.variables) && this.filteredVariables.variables.length > 0) {
 //                    filters["variableSetId"] = this.filteredVariables.variableSet;
                     let annotations = [];
-                    this.filteredVariables.variables.forEach(function(variable) {
+                    this.filteredVariables.variables.forEach(function (variable) {
                         annotations.push(variable);
                     });
                     filters["annotation"] = annotations;
                 }
                 this.filters = filters;
-            },
+            }
 
-            onSearch: function () {
+            onSearch() {
                 // Convert the filters to an objectParam that can be directly send to the sample search
                 let filterParams = {};
 
@@ -401,8 +415,9 @@
                 }
 
                 this.search = filterParams;
-            },
-            _initTableColumns: function () {
+            }
+
+            _initTableColumns() {
                 this._columns = [
                     [
                         {
@@ -456,6 +471,19 @@
                 ];
                 return this._columns;
             }
-        });
+
+            static get observers() {
+                return ['calculateFilters(filteredVariables.variables.*)'];
+            }
+        }
+        //        Polymer({
+        //
+        //            observers: [
+        //                'calculateFilters(filteredVariables.variables.*)'
+        //            ],
+        //
+        //        });
+        customElements.define(VariantSampleGrid.is, VariantSampleGrid);
+
     </script>
 </dom-module>

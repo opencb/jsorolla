@@ -1,4 +1,6 @@
+
 class PolymerUtils {
+
     static isUndefined(obj) {
         return typeof obj === "undefined";
     }
@@ -7,11 +9,19 @@ class PolymerUtils {
         return typeof obj !== "undefined";
     }
 
+    static isNull(obj) {
+        return obj === null;
+    }
+
+    static isNotNull(obj) {
+        return obj !== null;
+    }
+
     static isUndefinedOrNull(obj) {
         return typeof obj === "undefined" || obj === null;
     }
 
-    static isNotUndefinedAndNull(obj) {
+    static isNotUndefinedOrNull(obj) {
         return typeof obj !== "undefined" && obj !== null;
     }
 
@@ -19,13 +29,22 @@ class PolymerUtils {
         return typeof obj === "undefined" || obj === "";
     }
 
+    static isUndefinedOrEmpty(str) {
+        return typeof str === "undefined" || str === null || str === "";
+    }
+
+    static isNotEmpty(str) {
+        return typeof str !== "undefined" && str !== null && str !== "";
+    }
+
+    
     static getElementById(id) {
         return document.getElementById(id);
     }
 
     static getElementsByClassName(className, root) {
         if (PolymerUtils.isUndefined(root)) {
-           return document.getElementsByClassName(className);
+            return document.getElementsByClassName(className);
         } else {
             return root.getElementsByClassName(className);
         }
@@ -34,7 +53,7 @@ class PolymerUtils {
     static querySelector(selectors, element) {
         if (PolymerUtils.isUndefinedOrNull(element)) {
             return document.querySelector(selectors);
-        }else{
+        } else {
             return element.querySelector(selectors);
         }
 
@@ -43,7 +62,7 @@ class PolymerUtils {
     static querySelectorAll(selectors, element) {
         if (PolymerUtils.isUndefinedOrNull(element)) {
             return document.querySelectorAll(selectors);
-        }else{
+        } else {
             return element.querySelectorAll(selectors);
         }
     }
@@ -68,10 +87,14 @@ class PolymerUtils {
                 el = PolymerUtils.getElementById(id);
             }
 
-            if (!PolymerUtils.isUndefinedOrNull(el)) {
-                className.forEach(function (item) {
-                    el.classList.add(item);
-                });
+            if (Array.isArray(className)) {
+                if (!PolymerUtils.isUndefinedOrNull(el)) {
+                    className.forEach(function (item) {
+                        el.classList.add(item);
+                    });
+                }
+            }else{
+                el.classList.add(className);
             }
         }
     }
@@ -87,10 +110,14 @@ class PolymerUtils {
                 el = PolymerUtils.getElementById(id);
             }
 
-            if (!PolymerUtils.isUndefinedOrNull(el)) {
-                className.forEach(function (item) {
-                    el.classList.remove(item);
-                });
+            if (Array.isArray(className)) {
+                if (!PolymerUtils.isUndefinedOrNull(el)) {
+                    className.forEach(function (item) {
+                        el.classList.remove(item);
+                    });
+                }
+            }else{
+                el.classList.remove(className);
             }
         }
     }
@@ -100,6 +127,18 @@ class PolymerUtils {
             let el = this.getElementById(id);
             if (!PolymerUtils.isUndefinedOrNull(el)) {
                 el.style[key] = value;
+            }
+        }
+    }
+
+
+    static addStyleByClass(className, key, value) {
+        if (!PolymerUtils.isUndefinedOrNull(className)) {
+            let els = this.getElementsByClassName(className);
+            if (!PolymerUtils.isUndefinedOrNull(els)) {
+                Array.from(els).forEach(function (element) {
+                    element.style[key] = value;
+                });
             }
         }
     }
@@ -131,6 +170,18 @@ class PolymerUtils {
         }
     }
 
+    static removeAttributebyclass(className, key) {
+        let els = PolymerUtils.getElementsByClassName(className);
+
+        if (!PolymerUtils.isUndefinedOrNull(key)) {
+            if (!PolymerUtils.isUndefinedOrNull(els)) {
+                Array.from(els).forEach(function (element) {
+                    element.removeAttribute(key);
+                });
+            }
+        }
+    }
+
     static innerHTML(id, text) {
         let el = PolymerUtils.getElementById(id);
         if (!PolymerUtils.isUndefinedOrNull(el)) {
@@ -140,13 +191,12 @@ class PolymerUtils {
     }
 
 
-
     static setPropertyByClassName(className, key, value) {
         let els = PolymerUtils.getElementsByClassName(className);
 
         if (!PolymerUtils.isUndefinedOrNull(key)) {
             if (!PolymerUtils.isUndefinedOrNull(els)) {
-                Array.from(els).forEach(function(element){
+                Array.from(els).forEach(function (element) {
                     element[key] = value;
                 });
             }
@@ -178,7 +228,7 @@ class PolymerUtils {
 
         if (!PolymerUtils.isUndefinedOrNull(key)) {
             if (!PolymerUtils.isUndefinedOrNull(els)) {
-                els.forEach(function(element){
+                Array.from(els).forEach(function (element) {
                     element.setAttribute(key, value);
                 });
             }

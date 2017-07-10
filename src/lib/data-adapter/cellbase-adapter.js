@@ -18,9 +18,11 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-class CellBaseAdapter {
+class CellBaseAdapter extends FeatureAdapter {
 
     constructor (client, category, subcategory, resource, params = {}, options = {}, handlers = {}) {
+        super();
+
         this.client = client;
         this.category = category;
         this.subCategory = subcategory;
@@ -74,9 +76,6 @@ class CellBaseAdapter {
 
         /** 4 chunkSize check **/
         let chunkSize = this.options.chunkSize; // this.cache.defaultChunkSize should be the same
-        if (this.debug) {
-            console.log(chunkSize);
-        }
 
         /** 5 client check **/
         if (_.isUndefined(this.client)) {
@@ -86,38 +85,20 @@ class CellBaseAdapter {
         return new Promise(function(resolve, reject) {
             // Create the chunks to be retrieved
             let start = _this._getStartChunkPosition(region.start);
-            let end = _this._getStartChunkPosition(region.end);
-
             let regions = [];
-            let myRegion = start;
-            args.webServiceCallCount = 0;
-
             do {
-                regions.push(`${region.chromosome}:${myRegion}-${myRegion + _this.options.chunkSize - 1}`);
-                myRegion += _this.options.chunkSize;
-            } while(myRegion < end);
+                regions.push(`${region.chromosome}:${start}-${start + _this.options.chunkSize - 1}`);
+                start += _this.options.chunkSize;
+            } while(start <= region.end);
 
-            let groupedRegions = _this._groupQueries(regions);
-            let chunks = [];
-            for (let i = 0; i < groupedRegions.length; i++) {
-                args.webServiceCallCount++;
-                _this.client.get(_this.category, _this.subCategory, groupedRegions[i], _this.resource, params)
-                    .then(function (response) {
-                        let responseChunks = _this._cellbaseSuccess(response, dataType, chunkSize);
-                        args.webServiceCallCount--;
-
-                        chunks = chunks.concat(responseChunks);
-                        if (args.webServiceCallCount === 0) {
-                            chunks.sort(function (a, b) {
-                                return a.chunkKey.localeCompare(b.chunkKey);
-                            });
-                            resolve({items: chunks, dataType: dataType, chunkSize: chunkSize, sender: _this});
-                        }
-                    })
-                    .catch(function () {
-                        reject("Server error");
-                    });
-            }
+            _this.client.get(_this.category, _this.subCategory, regions.join(","), _this.resource, params)
+                .then(function (response) {
+                    let responseChunks = _this._cellbaseSuccess(response, dataType, chunkSize);
+                    resolve({items: responseChunks, dataType: dataType, chunkSize: chunkSize, sender: _this});
+                })
+                .catch(function () {
+                    reject("Server error");
+                });
         });
     }
 
@@ -157,24 +138,8 @@ class CellBaseAdapter {
                 value: chunks[i]
             });
         }
-
         /** time log **/
         console.timeEnd(timeId);
-
         return items;
-    }
-
-    /**
-     * Transform the list on a list of lists, to limit the queries
-     * [ r1,r2,r3,r4,r5,r6,r7,r8 ]
-     * [ [r1,r2,r3,r4], [r5,r6,r7,r8] ]
-     */
-    _groupQueries (uncachedRegions) {
-        let groupSize = 50;
-        let queriesLists = [];
-        while (uncachedRegions.length > 0) {
-            queriesLists.push(uncachedRegions.splice(0, groupSize).toString());
-        }
-        return queriesLists;
     }
 }
