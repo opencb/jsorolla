@@ -768,7 +768,7 @@
             loadICDEditor(e) {
                 PolymerUtils.innerHTML(this.prefix + "errorTermDiv", "");
                 //this.$$("#" + this.prefix + "autoInput").value="";
-                PolymerUtils.setAttribute(this.prefix + "autoInput", 'value', '');
+                PolymerUtils.setPropertyById(this.prefix + "autoInput", 'value', '');
 
                 this.icdTerms = this.getICDterms();
 
@@ -848,14 +848,14 @@
                     if (currentElement.val() == 'Spain') {
                         //hide
                         PolymerUtils.hide('otherCountryDiv');
-                        PolymerUtils.removeAttribute(this.prefix + 'otherCountry', 'required', false);
+                        PolymerUtils.removeAttribute(this.prefix + 'otherCountry', 'required');
                         PolymerUtils.removeAttribute(this.prefix + 'birthPlaceRegion', 'disabled');
-                        PolymerUtils.setAttribute(this.prefix + 'birthPlaceRegion', 'require', true);
+                        PolymerUtils.setAttribute(this.prefix + 'birthPlaceRegion', 'required', true);
                     } else {
                         PolymerUtils.setAttribute(this.prefix + 'birthPlaceRegion', 'disabled', true);
                         PolymerUtils.setAttribute(this.prefix + 'birthPlaceRegion', 'selectedIndex', 0);
-                        PolymerUtils.setAttribute(this.prefix + 'birthPlaceRegion', 'value', 'unknown');
-                        PolymerUtils.setAttribute(this.prefix + 'birthPlaceRegion', 'required', false);
+                        PolymerUtils.setPropertyById(this.prefix + 'birthPlaceRegion', 'value', 'unknown');
+                        PolymerUtils.removeAttribute(this.prefix + 'birthPlaceRegion', 'required');
                         if (currentElement.val() == 'Other') {// Display input text to introduce country
                             //show
                             PolymerUtils.addStyle('otherCountryDiv', 'display', 'block');
@@ -863,7 +863,7 @@
                         }
                         else {
                             PolymerUtils.addStyle('otherCountryDiv', 'display', 'none');
-                            PolymerUtils.setAttribute(this.prefix + 'otherCountry', 'required', false);
+                            PolymerUtils.removeAttribute(this.prefix + 'otherCountry', 'required');
                         }
                     }
                 } else if (currentElementId == (this.prefix + 'testAge')) {
@@ -897,8 +897,8 @@
                 PolymerUtils.setPropertyByClassName(this.prefix + 'TextInput', 'value', '');
                 PolymerUtils.setPropertyByClassName(this.prefix + 'CheckInput', 'checked', false);
                 PolymerUtils.setPropertyByClassName(this.prefix + 'RadioInput', 'checked', false);
-                PolymerUtils.setPropertyByClassName(this.prefix + 'birthPlaceRegion', 'disabled', true);
-                PolymerUtils.setPropertyByClassName('codeDis', 'disabled', false);
+                PolymerUtils.setAttributeByClassName(this.prefix + 'birthPlaceRegion', 'disabled', true);
+                PolymerUtils.removeAttributebyclass('codeDis', 'disabled', false);
 
                 PolymerUtils.setPropertyById(this.prefix + 'parentalConsanguinityno', 'checked', true);
                 PolymerUtils.setPropertyById(this.prefix + 'germline', 'checked', true);
@@ -1058,7 +1058,7 @@
                 e.preventDefault();
 
                 // Enable those fields that needed to be enabled to submit a form
-                PolymerUtils.setPropertyByClassName('codeDis', 'disabled', false);
+                PolymerUtils.removeAttributebyclass('codeDis', 'disabled');
 
                 // Get values from form fields
                 //TODO Refactor
@@ -1169,23 +1169,23 @@
                             if (response.response[0].numResults >= 1) {
                                 let formFields = response.response[0].result[0];
 
-                                PolymerUtils.setPropertyById(_this.prefix + 'patientID', 'disabled', true);
+                                PolymerUtils.setAttribute(_this.prefix + 'patientID', 'disabled', true);
                                 PolymerUtils.setPropertyById(_this.prefix + 'chromosomalGender', 'value', formFields.karyotypicSex);
-                                PolymerUtils.setPropertyById(_this.prefix + 'chromosomalGender', 'disabled', true);
+                                PolymerUtils.setAttribute(_this.prefix + 'chromosomalGender', 'disabled', true);
                                 PolymerUtils.setPropertyById(_this.prefix + 'status', 'value', formFields.affectationStatus);
-                                PolymerUtils.setPropertyById(_this.prefix + 'status', 'disabled', true);
+                                PolymerUtils.setAttribute(_this.prefix + 'status', 'disabled', true);
                                 PolymerUtils.setPropertyById(_this.prefix + 'lifeStatus', 'value', formFields.lifeStatus);
-                                PolymerUtils.setPropertyById(_this.prefix + 'lifeStatus', 'disabled', true);
+                                PolymerUtils.setAttribute(_this.prefix + 'lifeStatus', 'disabled', true);
                                 PolymerUtils.setPropertyById(_this.prefix + 'birthYear', 'value', formFields.dateOfBirth);
-                                PolymerUtils.setPropertyById(_this.prefix + 'birthYear', 'disabled', true);
+                                PolymerUtils.setAttribute(_this.prefix + 'birthYear', 'disabled', true);
                                 PolymerUtils.setPropertyById(_this.prefix + 'birthPlace', 'value', formFields.population.name);
-                                PolymerUtils.setPropertyById(_this.prefix + 'birthPlace', 'disabled', true);
+                                PolymerUtils.setAttribute(_this.prefix + 'birthPlace', 'disabled', true);
                                 PolymerUtils.setPropertyById(_this.prefix + 'birthPlaceRegion', 'value', formFields.population.subpopulation);
-                                PolymerUtils.setPropertyById(_this.prefix + 'birthPlaceRegion', 'disabled', true);
+                                PolymerUtils.setAttribute(_this.prefix + 'birthPlaceRegion', 'disabled', true);
                                 PolymerUtils.setPropertyById(_this.prefix + 'ethnicity', 'value', formFields.ethnicity);
-                                PolymerUtils.setPropertyById(_this.prefix + 'ethnicity', 'disabled', true);
+                                PolymerUtils.setAttribute(_this.prefix + 'ethnicity', 'disabled', true);
                                 PolymerUtils.setPropertyById(_this.prefix + 'HPO', 'value', formFields.ontologyTerms[0].name);
-                                PolymerUtils.setPropertyById(_this.prefix + 'HPO', 'disabled', true);
+                                PolymerUtils.setAttribute(_this.prefix + 'HPO', 'disabled', true);
                                 PolymerUtils.setPropertyById(_this.prefix + 'diagnosis', 'value', formFields.ontologyTerms[1].name);
                                 if (formFields.parentalConsanguinity === true) {
                                     PolymerUtils.setPropertyById(_this.prefix + 'parentalConsanguinityyes', 'checked', true);
@@ -1227,7 +1227,7 @@
                     };
                     this.set('settingsMessageModal', this.settingsMessageModal);
                     this.showMessageModal = true;
-                    PolymerUtils.setAttribute(this.prefix + 'diagnosis', 'value', '');
+                    PolymerUtils.setPropertyById(this.prefix + 'diagnosis', 'value', '');
                     PolymerUtils.innerHTML(this.prefix + 'diagnosis', '');
                     PolymerUtils.setAttribute(this.prefix + 'diagnosis', 'placeholder', 'ICD-10 term');
                     PolymerUtils.setAttribute(this.prefix + 'diagnosis', 'required', false);

@@ -81,13 +81,13 @@
                     // Type of modal
                     switch(this.settingsMessageModal.type){
                         case 'success':
-                            PolymerUtils.addClass(this.prefix + "headerDiv", "alert alert-success");
+                            PolymerUtils.addClass(this.prefix + "headerDiv", "alert alert-success".split(" "));
                             break;
                         case 'warning':
-                            PolymerUtils.addClass(this.prefix + "headerDiv", "alert alert-warning");
+                            PolymerUtils.addClass(this.prefix + "headerDiv", "alert alert-warning".split(" "));
                             break;
                         case 'info':
-                            PolymerUtils.addClass(this.prefix + "headerDiv", "alert alert-info");
+                            PolymerUtils.addClass(this.prefix + "headerDiv", "alert alert-info".split(" "));
                             break;
                         case 'danger':
                             PolymerUtils.addClass(this.prefix + "headerDiv", "alert alert-danger".split(" "));
