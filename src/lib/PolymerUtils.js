@@ -1,4 +1,6 @@
+
 class PolymerUtils {
+
     static isUndefined(obj) {
         return typeof obj === "undefined";
     }
@@ -16,18 +18,22 @@ class PolymerUtils {
     }
 
     static isUndefinedOrNull(obj) {
-        return PolymerUtils.isUndefined(obj) || obj === null;
-    }
-
-    static isUndefinedOrEmpty(obj) {
-        return PolymerUtils.isUndefined(obj) || obj === '';
+        return typeof obj === "undefined" || obj === null;
     }
 
     static isNotUndefinedOrNull(obj) {
         return typeof obj !== "undefined" && obj !== null;
     }
 
+    static isUndefinedOrEmpty(str) {
+        return typeof str === "undefined" || str === null || str === "";
+    }
 
+    static isNotEmpty(str) {
+        return typeof str !== "undefined" && str !== null && str !== "";
+    }
+
+    
     static getElementById(id) {
         return document.getElementById(id);
     }
