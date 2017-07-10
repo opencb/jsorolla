@@ -7,12 +7,24 @@ class PolymerUtils {
         return typeof obj !== "undefined";
     }
 
+    static isNull(obj) {
+        return obj === null;
+    }
+
+    static isNotNull(obj) {
+        return obj !== null;
+    }
+
     static isUndefinedOrNull(obj) {
         return PolymerUtils.isUndefined(obj) || obj === null;
     }
 
     static isUndefinedOrEmpty(obj) {
         return PolymerUtils.isUndefined(obj) || obj === '';
+    }
+
+    static isNotUndefinedOrNull(obj) {
+        return typeof obj !== "undefined" && obj !== null;
     }
 
 
