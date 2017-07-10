@@ -185,52 +185,63 @@ class OpencgaAdapter {
         return new Promise(function(resolve, reject) {
             // Create the chunks to be retrieved
             let start = _this._getStartChunkPosition(region.start);
-            let end = _this._getStartChunkPosition(region.end);
 
             let regions = [];
-            let myRegion = start;
-            args.webServiceCallCount = 0;
+            // args.webServiceCallCount = 0;
 
             do {
-                regions.push(`${region.chromosome}:${myRegion}-${myRegion + _this.options.chunkSize - 1}`);
+                regions.push(`${region.chromosome}:${start}-${start + _this.options.chunkSize - 1}`);
                 //regions.push(`chr${region.chromosome}:${myRegion}-${myRegion + this.options.chunkSize - 1}`);
-                myRegion += _this.options.chunkSize;
-            } while (myRegion < end);
+                start += _this.options.chunkSize;
+            } while (start <= region.end);
 
-            let groupedRegions = _this._groupQueries(regions);
-            args.regions = groupedRegions;
-
+            // let groupedRegions = _this._groupQueries(regions);
+            // args.regions = groupedRegions;
+            debugger
             if (dataType === "features") {
                 let chunks = [];
-                for (let i = 0; i < groupedRegions.length; i++) {
-                    args.webServiceCallCount++;
+                // for (let i = 0; i < regions.length; i++) {
+                    // args.webServiceCallCount++;
 
-                    _this.client.variants().query({
-                        region: groupedRegions[i],
-                        studies: studies,
-                        exclude: exclude
-                        //exclude: "studies, annotation"
-                        //exclude: "studies.files,studies.stats,annotation"
-                    })
-                    .then(function (response) {
-                        console.log("Correctoo")
-                        console.log(response)
-                        //return _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
-                        args.webServiceCallCount--;
-                        let responseChunks = _this._variantsuccess(response, categories, dataType, groupedRegions[i], region, chunkSize);
-
-                        chunks = chunks.concat(responseChunks);
-                        if (args.webServiceCallCount === 0) {
-                            resolve({
-                                items: chunks, dataType: dataType, chunkSize: chunkSize, sender: _this
-                            });
+                    // _this.client.variants().query({
+                    //     region: groupedRegions[i],
+                    //     studies: studies,
+                    //     exclude: exclude
+                    //     //exclude: "studies, annotation"
+                    //     //exclude: "studies.files,studies.stats,annotation"
+                    // })
+                    // let p = Object.assign(params, {region: groupedRegions[i]});
+                    let p = {
+                        region: regions.join(",")
+                    };
+                    for (let param of Object.keys(params)) {
+                        if (typeof params[param] !== "undefined") {
+                            p[param] = params[param];
                         }
+                    }
 
-                    })
-                    .catch(function () {
-                        reject("Server error");
-                    });
-                }
+                    _this.client.variants().query(p)
+                        .then(function (response) {
+                            // console.log("Correct")
+                            // console.log(response)
+                            //return _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
+                            // args.webServiceCallCount--;
+                            let responseChunks = _this._variantsuccess(response, categories, dataType, regions.join(","), p.region, chunkSize);
+debugger
+                            // chunks = chunks.concat(responseChunks);
+                            // if (args.webServiceCallCount === 0) {
+                            //     resolve({
+                            //         items: chunks, dataType: dataType, chunkSize: chunkSize, sender: _this
+                            //     });
+                            // }
+                            resolve({
+                                items: responseChunks, dataType: dataType, chunkSize: chunkSize, sender: _this
+                            });
+                        })
+                        .catch(function (reason) {
+                            reject("Server error: " + reason);
+                        });
+                // }
             } else { // histogram
 
             }
@@ -293,7 +304,6 @@ class OpencgaAdapter {
         let groupedRegions = this._groupQueries(regions);
         args.regions = groupedRegions;
 
-
         return new Promise(function(resolve, reject) {
             if (dataType === "features") {
                 let chunks = [];
@@ -351,14 +361,14 @@ class OpencgaAdapter {
                         chunks = chunks.concat(auxArray);
 
                         if (args.webServiceCallCount === 0) {
-                           resolve({
+                            resolve({
                                 items: chunks, dataType: dataType, chunkSize: chunkSize, sender: _this
                             });
                         }
                     })
-                    .catch(function(response){
-                        reject("Server alignments error");
-                    });
+                        .catch(function(response){
+                            reject("Server alignments error");
+                        });
                 }
             } else { // histogram
                 _this.client.alignments().coverage(fileId,
@@ -468,9 +478,9 @@ class OpencgaAdapter {
 
     _variantsuccess(response, categories, dataType, queryRegion, originalRegion, chunkSize) {
 
-    //console.time(timeId);
+        //console.time(timeId);
         /** time log **/
-
+        debugger
         var regions = [];
         var chunks = [];
         if (dataType !== 'histogram') {
@@ -503,16 +513,16 @@ class OpencgaAdapter {
         console.log(response);
 
         let responseItems = [];
-        for (let i = 0; i < regions.length; i++) {
-            let chunkStartId = Math.floor(regions[i].start / chunkSize);
+        //for (let i = 0; i < regions.length; i++) {
+            let chunkStartId = Math.floor(regions[0].start / chunkSize);
             responseItems.push({
-                chunkKey: `${regions[i].chromosome}:${chunkStartId}_${dataType}_${chunkSize}`,
+                chunkKey: `${regions[0].chromosome}:${chunkStartId}_${dataType}_${chunkSize}`,
                 region: regions,
-                value: response.response[i].result,
+                value: response.response[0].result,
                 dataType: dataType
             });
-        }
-       // var items = this.cache.putByRegions(regions, chunks, categories, dataType, chunkSize);
+        //}
+        // var items = this.cache.putByRegions(regions, chunks, categories, dataType, chunkSize);
 
         /** time log **/
         //console.timeEnd(timeId);
@@ -529,14 +539,14 @@ class OpencgaAdapter {
      * [ r1,r2,r3,r4,r5,r6,r7,r8 ]
      * [ [r1,r2,r3,r4], [r5,r6,r7,r8] ]
      */
-    _groupQueries(uncachedRegions) {
-        let groupSize = 50;
-        let queriesLists = [];
-        while (uncachedRegions.length > 0) {
-            queriesLists.push(uncachedRegions.splice(0, groupSize).toString());
-        }
-        return queriesLists;
-    }
+    // _groupQueries(uncachedRegions) {
+    //     let groupSize = 50;
+    //     let queriesLists = [];
+    //     while (uncachedRegions.length > 0) {
+    //         queriesLists.push(uncachedRegions.splice(0, groupSize).toString());
+    //     }
+    //     return queriesLists;
+    // }
 
     _adaptChunks(queryResult, category, dataType, chunkSize) {
         let chunks;
