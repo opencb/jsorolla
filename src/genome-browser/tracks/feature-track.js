@@ -19,6 +19,7 @@ class FeatureTrack {
         this.fontClass = "ocb-font-roboto ocb-font-size-14";
         this.externalLink = "";
         this.autoRender = false;
+        this.exclude;
 
         Object.assign(this, args);
         if (this.renderer != null) {
@@ -41,7 +42,7 @@ class FeatureTrack {
 
 
         this.invalidZoomText;
-        this.exclude;
+
 
         this.renderedArea = {}; //used for renders to store binary trees
         this.chunksDisplayed = {}; //used to avoid painting multiple times features contained in more than 1 chunk
@@ -60,7 +61,8 @@ class FeatureTrack {
         Object.assign(this, Backbone.Events);
 
         //save default render reference;
-        this.defaultRenderer = this.renderer;
+        // this.defaultRenderer = this.renderer;
+        // this.renderer = this.renderer;
 
         this.histogramRenderer = new window[this.histogramRendererName](args);
         this.dataType = "features";
@@ -481,18 +483,20 @@ class FeatureTrack {
         console.time("Total FeatureTrack -> getDataHandler " + event.sender.resource)
 
         console.time("Chunks() FeatureTrack -> getDataHandler " + event.sender.resource)
+
+        let renderer;
         let features;
-        if (event.dataType === "histogram") {
-            this.renderer = this.histogramRenderer;
-            features = event.items;
-        } else {
-            this.renderer = this.defaultRenderer;
+        if (event.dataType !== "histogram") {
+            renderer = this.renderer;
             features = this.getFeaturesToRenderByChunk(event);
+        } else {
+            renderer = this.histogramRenderer;
+            features = event.items;
         }
         console.timeEnd("Chunks() FeatureTrack -> getDataHandler " + event.sender.resource)
 
         console.time("render() FeatureTrack -> getDataHandler " + event.sender.resource)
-        this.renderer.render(features, {
+        renderer.render(features, {
             cacheItems: event.items,
             svgCanvasFeatures: this.svgCanvasFeatures,
             featureTypes: this.featureTypes,
@@ -541,13 +545,19 @@ class FeatureTrack {
                 end: this.region.end + this.svgCanvasOffset * 2
             });
 
-            let params = {
+            // let params = {
+            //     histogram: this.histogram,
+            //     histogramLogarithm: this.histogramLogarithm,
+            //     histogramMax: this.histogramMax,
+            //     interval: this.interval,
+            //     exclude: this.exclude
+            // };
+            let params = Object.assign(adapter.params, {
                 histogram: this.histogram,
                 histogramLogarithm: this.histogramLogarithm,
                 histogramMax: this.histogramMax,
-                interval: this.interval,
-                exclude: this.exclude
-            };
+                interval: this.interval
+            });
 
             console.time("SuperTotal FeatureTrack -> getDataHandler")
             adapter.getData({dataType: this.dataType, region: region, params: params})
