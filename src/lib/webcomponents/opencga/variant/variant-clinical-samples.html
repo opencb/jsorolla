@@ -192,7 +192,7 @@
 
             ready() {
                 super.ready();
-                if (PolymerUtils.isUndefinedOrEmpty(this.prefix )) {
+                if (PolymerUtils.isEmpty(this.prefix )) {
                     this.prefix = "sample" + Utils.randomString(6);
                 }
 

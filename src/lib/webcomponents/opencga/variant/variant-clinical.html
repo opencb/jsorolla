@@ -18,8 +18,7 @@
 <link rel="import" href="variant-clinical-samples.html">
 <!--<link rel="import" href="variant-browser-filter.html">-->
 <!--<link rel="import" href="variant-prioritization-view.html">-->
-<!--<link rel="import" href="variant-sample-grid.html">-->
-<!--<link rel="import" href="variant-clinical-report.html">-->
+<link rel="import" href="variant-clinical-report.html">
 <!--<link rel="import" href="variant-clinical-filter.html">-->
 <!--<link rel="import" href="../opencga-message-dialog.html">-->
 
@@ -169,9 +168,12 @@
             <!--</div>-->
             <!--</div>-->
 
-            <!--<div class="analysis-content" id="{{prefix}}ReportButtonDiv" style="display: none">-->
-            <!--<variant-clinical-report opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}" title="{{title}}" analysis="{{analysis}}"></variant-clinical-report>-->
-            <!--</div>-->
+            <template is="dom-if" if="{{activesTab.reportTab}}">
+                <div class="analysis-content" id="{{prefix}}ReportButtonDiv">
+                    <variant-clinical-report opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}"
+                                             title="{{title}}" analysis="{{analysis}}"></variant-clinical-report>
+                </div>
+            </template>
         </div>
         <!--<opencga-message-dialog opencga-client="{{opencgaClient}}" show-message-modal="{{showMessageModal}}" settings-message-modal="{{settingsMessageModal}}"></opencga-message-dialog>-->
     </template>

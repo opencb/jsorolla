@@ -144,7 +144,7 @@
 
             ready() {
                 super.ready();
-                if (PolymerUtils.isUndefinedOrEmpty(this.prefix)) {
+                if (PolymerUtils.isEmpty(this.prefix)) {
                     this.prefix = "FamilyEditor" + Utils.randomString(6);
                 }
                 this._sampleExists = false;
@@ -249,12 +249,20 @@
             pedigreeRender() {
                 let ped = this._createPedigree();
 
-                let familyName = PolymerUtils.getElementById(this.prefix + 'FamilyName').value;
-                this.family = {name: familyName, pedigree: ped};
-                var event = new CustomEvent('familychange', {detail: this.family, bubbles: true, composed: true});
+                if (PolymerUtils.isNotUndefinedOrNull(PolymerUtils.getElementById(this.prefix + 'FamilyName'))) {
+                    let familyName = PolymerUtils.getElementById(this.prefix + 'FamilyName').value;
+                    this.family = {name: familyName, pedigree: ped};
+                    this.dispatchEvent(new CustomEvent('familychange', {
+                        detail: this.family,
+                        bubbles: true,
+                        composed: true
+                    }));
+
+                }
+
 
                 // Remove SVG before render new one
-                if (PolymerUtils.isNotUndefined(this.svg )) {
+                if (PolymerUtils.isNotUndefined(this.svg)) {
                     PolymerUtils.getElementById(this.prefix + "PedigreeView").removeChild(this.svg);
                 }
 

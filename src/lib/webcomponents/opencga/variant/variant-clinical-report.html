@@ -20,55 +20,79 @@
 <dom-module id="variant-clinical-report">
 
     <template>
-        <style is="custom-style" include="jso-styles"></style>
-
 
         <!-- This is where main application is rendered -->
 
         <div class="col-md-2">
-            <variant-report-filter opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}" selection="{{selection}}" exp-report="{{expReport}}" variables="{{variables}}" analysis="{{analysis}}" analysis-selected="{{analysisSelected}}"></variant-report-filter>
+            <variant-report-filter opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}"
+                                   selection="{{selection}}" exp-report="{{expReport}}" variables="{{variables}}"
+                                   analysis="{{analysis}}"
+                                   analysis-selected="{{analysisSelected}}"></variant-report-filter>
         </div>
 
         <div class="col-md-10">
-            <variant-report-view opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}" selection="{{selection}}" title="{{title}}" exp-report="{{expReport}}" variables="{{variables}}" analysis-selected="{{analysisSelected}}"></variant-report-view>
+            <variant-report-view opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}"
+                                 selection="{{selection}}" title="{{title}}" exp-report="{{expReport}}"
+                                 variables="{{variables}}"
+                                 analysis-selected="{{analysisSelected}}"></variant-report-view>
 
         </div>
 
     </template>
 
     <script>
-        Polymer({
-            is: 'variant-clinical-report',
-            properties: {
-                opencgaClient: {
-                    type: Object
-                },
-                study: {
-                    type: Object
-                },
-                config: {
-                    type: Object
-                },
-                selection: {
-                    type: Object
-                },
-                title: {
-                    type: String,
-                    value: ""
-                },
-                expReport: {
-                    type: Boolean
-                },
-                analysis: {
-                    type: Array
-                },
-                analysisSelected: {
-                    type: Object
+        class VariantClinicalReport extends Polymer.Element {
+            static get is() {
+                return 'variant-clinical-report'
+            }
+
+            static get properties() {
+                return {
+                    opencgaClient: {
+                        type: Object
+                    },
+                    study: {
+                        type: Object
+                    },
+                    config: {
+                        type: Object
+                    },
+                    selection: {
+                        type: Object
+                    },
+                    title: {
+                        type: String,
+                        value: ""
+                    },
+                    expReport: {
+                        type: Boolean
+                    },
+                    analysis: {
+                        type: Array
+                    },
+                    analysisSelected: {
+                        type: Object
+                    }
+
                 }
 
             }
 
-        });
+            constructor() {
+                super();
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            ready() {
+                super.ready();
+            }
+        }
+
+        customElements.define(VariantClinicalReport.is, VariantClinicalReport);
+
 
     </script>
 </dom-module>

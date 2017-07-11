@@ -430,7 +430,7 @@
 
             ready() {
                 super.ready();
-                if (PolymerUtils.isUndefinedOrEmpty(this.prefix)) {
+                if (PolymerUtils.isEmpty(this.prefix)) {
                     this.prefix = "VarSampleFilter" + Utils.randomString(6);
                 }
 
@@ -497,12 +497,12 @@
                 let _query = {};
 
                 let name = PolymerUtils.getElementById(this.prefix + "SampleName").value;
-                if (!PolymerUtils.isUndefinedOrEmpty(name)) {
+                if (!PolymerUtils.isEmpty(name)) {
                     _query.name = name;
                 }
 
                 let individual = PolymerUtils.getElementById(this.prefix + "IndividualName").value;
-                if (!PolymerUtils.isUndefinedOrEmpty(individual)) {
+                if (!PolymerUtils.isEmpty(individual)) {
                     _query.individual = individual;
                 }
 

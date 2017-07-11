@@ -25,8 +25,11 @@ class PolymerUtils {
         return typeof obj !== "undefined" && obj !== null;
     }
 
+    static isNotUndefinedOrEmptyArray(obj) {
+        return typeof obj !== "undefined" && obj !== null && obj.length >0;
+    }
 
-    static isUndefinedOrEmpty(str) {
+    static isEmpty(str) {
         return typeof str === "undefined" || str === null || str === "";
     }
 

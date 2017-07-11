@@ -31,7 +31,8 @@
                 <div class="panel-heading" role="tab" id="{{prefix}}AnalysisSelectionHeading">
                     <h4 class="panel-title">
                         <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                           href="#{{prefix}}AnalysisSelection" aria-expanded="true" aria-controls="{{prefix}}AnalysisSelection">
+                           href="#{{prefix}}AnalysisSelection" aria-expanded="true"
+                           aria-controls="{{prefix}}AnalysisSelection">
                             Analysis Selection
                             <div style="float: right" class="tooltip-div">
                                 <a data-toggle="tooltip" title="Analysis selection">
@@ -41,34 +42,47 @@
                         </a>
                     </h4>
                 </div>
-                <div id="{{prefix}}AnalysisSelection" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}AnalysisSelectionHeading">
+                <div id="{{prefix}}AnalysisSelection" class="panel-collapse collapse in" role="tabpanel"
+                     aria-labelledby="{{prefix}}AnalysisSelectionHeading">
                     <div class="panel-body">
                         <div class="form-group">
                             <form>
                                 <label>Select</label>
                                 <br>
-                                <input type="radio" name="selectionButtons" id="allRadio" value="all" class$="{{prefix}}FilterRadio" checked on-change="calculateFilters" style="padding-left: 20px"> All<br>
-                                <input type="radio" name="selectionButtons" id="recentlyRadio" value="recently" class$="{{prefix}}FilterRadio" on-change="calculateFilters" style="padding-left: 20px"> Recently Created<br>
-                                <input type="radio" name="selectionButtons" id="rangeRadio" value="range" class$="{{prefix}}FilterRadio" on-change="calculateFilters" style="padding-left: 20px"> Date (Year-Month-Day)
+                                <input type="radio" name="selectionButtons" id="allRadio" value="all"
+                                       class$="{{prefix}}FilterRadio" checked on-change="calculateFilters"
+                                       style="padding-left: 20px"> All<br>
+                                <input type="radio" name="selectionButtons" id="recentlyRadio" value="recently"
+                                       class$="{{prefix}}FilterRadio" on-change="calculateFilters"
+                                       style="padding-left: 20px"> Recently Created<br>
+                                <input type="radio" name="selectionButtons" id="rangeRadio" value="range"
+                                       class$="{{prefix}}FilterRadio" on-change="calculateFilters"
+                                       style="padding-left: 20px"> Date (Year-Month-Day)
                             </form>
                             <div style="padding: 15px 0px 0px 25px">
                                 <form class="form-inline">
                                     <div class="form-group row">
-                                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm" id="{{prefix}}YearSelect" name="birthYear" required on-change="checkYears" disabled>
+                                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm"
+                                                id="{{prefix}}YearSelect" name="birthYear" required
+                                                on-change="checkYears" disabled>
                                             <template is="dom-repeat" items="{{yearsToSearch}}">
                                                 <option value="{{item}}">{{item}}</option>
                                             </template>
                                         </select>
 
                                         <label style="padding: 0px 2px">-</label>
-                                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm" id="{{prefix}}MonthSelect" name="birthYear" required on-change="checkYears" disabled>
+                                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm"
+                                                id="{{prefix}}MonthSelect" name="birthYear" required
+                                                on-change="checkYears" disabled>
                                             <option></option>
                                             <template is="dom-repeat" items="{{monthToSearch}}">
                                                 <option value="{{item}}">{{item}}</option>
                                             </template>
                                         </select>
                                         <label style="padding: 0px 2px">-</label>
-                                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm" id="{{prefix}}DaySelect" name="birthYear" required on-change="checkYears" disabled>
+                                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm"
+                                                id="{{prefix}}DaySelect" name="birthYear" required
+                                                on-change="checkYears" disabled>
                                             <option></option>
                                             <template is="dom-repeat" items="{{daysToSearch}}">
                                                 <option value="{{item}}">{{item}}</option>
@@ -86,7 +100,8 @@
                 <div class="panel-heading" role="tab" id="{{prefix}}AnalysisCharacteristicsHeading">
                     <h4 class="panel-title">
                         <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                           href="#{{prefix}}AnalysisCharacteristics" aria-expanded="true" aria-controls="{{prefix}}AnalysisCharacteristics">
+                           href="#{{prefix}}AnalysisCharacteristics" aria-expanded="true"
+                           aria-controls="{{prefix}}AnalysisCharacteristics">
                             Analysis Characteristics
                             <div style="float: right" class="tooltip-div">
                                 <a data-toggle="tooltip" title="Analysis Characteristics">
@@ -96,15 +111,19 @@
                         </a>
                     </h4>
                 </div>
-                <div id="{{prefix}}AnalysisCharacteristics" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}AnalysisCharacteristicsHeading">
+                <div id="{{prefix}}AnalysisCharacteristics" class="panel-collapse collapse in" role="tabpanel"
+                     aria-labelledby="{{prefix}}AnalysisCharacteristicsHeading">
                     <div class="panel-body">
                         <div class="form-group">
-                                <label>Analysis ID</label>
-                                <input type="text" id="{{prefix}}analysisID" class="form-control input-sm" placeholder="AN-23, AN-50 ..." on-keyup="calculateFilters">
-                                <label>Samples name</label>
-                                <input type="text" id="{{prefix}}sampleID" class="form-control input-sm" placeholder="HG01881,HG00101 ..." on-keyup="calculateFilters">
-                                <label>Analysis Type</label>
-                                <input type="text" id="{{prefix}}analysisType" class="form-control input-sm" placeholder="Duo, Family ..." on-keyup="calculateFilters">
+                            <label>Analysis ID</label>
+                            <input type="text" id="{{prefix}}analysisID" class="form-control input-sm"
+                                   placeholder="AN-23, AN-50 ..." on-keyup="calculateFilters">
+                            <label>Samples name</label>
+                            <input type="text" id="{{prefix}}sampleID" class="form-control input-sm"
+                                   placeholder="HG01881,HG00101 ..." on-keyup="calculateFilters">
+                            <label>Analysis Type</label>
+                            <input type="text" id="{{prefix}}analysisType" class="form-control input-sm"
+                                   placeholder="Duo, Family ..." on-keyup="calculateFilters">
                         </div>
                     </div>
                 </div>
@@ -112,26 +131,40 @@
         </div>
     </template>
     <script>
-        Polymer({
-            is: 'opencga-analysis-filter',
-            properties: {
-                opencgaClient: {
-                    type: Object
-                },
-                study: {
-                    type: Object
-                },
-                query: {
-                    type: Object,
-                    notify: true
-                },
-                search: {
-                    type: Object,
-                    notify: true
+        class OpencgaAnalysisFilter extends Polymer.Element {
+            static get is() {
+                return 'opencga-analysis-filter';
+            }
+
+            static get properties() {
+                return {
+                    opencgaClient: {
+                        type: Object
+                    },
+                    study: {
+                        type: Object
+                    },
+                    query: {
+                        type: Object,
+                        notify: true
+                    },
+                    search: {
+                        type: Object,
+                        notify: true
+                    }
                 }
-            },
-            ready: function() {
-                if (typeof this.prefix === "undefined" || this.prefix == "") {
+            }
+            constructor() {
+                super();
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            ready() {
+                super.ready();
+                if (PolymerUtils.isEmpty(this.prefix)) {
                     this.prefix = "anFilter" + Utils.randomString(6);
                 }
                 let _years = [];
@@ -157,21 +190,27 @@
                     _days.push(i);
                 }
                 this.daysToSearch = _days;
-            },
-            calculateFilters: function (e) {
+            }
+
+            calculateFilters(e) {
                 let _query = {};
 
                 // Active/disable
                 if (e.target.defaultValue === "range" && e.target.checked) {
-                    $(".codeDis").removeAttr("disabled");
+                    PolymerUtils.removeAttributebyclass("codeDis", "disabled");
                 } else {
-                    $(".codeDis").attr("disabled", "disabled");
+                    PolymerUtils.setAttributeByClassName("codeDis", "disabled", true)
                 }
 
-                _query.name = $("#" + this.prefix + "analysisID").val();
+                _query.name = PolymerUtils.getElementById(this.prefix + "analysisID").value;
 
                 this.query = _query;
             }
-        });
+
+
+        }
+
+        customElements.define(OpencgaAnalysisFilter.is, OpencgaAnalysisFilter);
+
     </script>
 </dom-module>

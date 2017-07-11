@@ -71,7 +71,7 @@
             }
             ready() {
                 super.ready();
-                if (PolymerUtils.isUndefinedOrEmpty(this.prefix)) {
+                if (PolymerUtils.isEmpty(this.prefix)) {
                     this.prefix = "dialog" + Utils.randomString(6);
                 }
 
