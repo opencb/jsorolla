@@ -1,7 +1,7 @@
 <dom-module id="opencga-login">
     <template>
         <!--<custom-style>-->
-            <style include="jso-styles">
+            <style >
                 .basic-margin {
                     width: 300px;
                     margin-left: 20px;
@@ -68,6 +68,10 @@
 
             constructor() {
                 super();
+            }
+            
+            _attachDom(dom) {
+                this.appendChild(dom);
             }
 
             ready() {

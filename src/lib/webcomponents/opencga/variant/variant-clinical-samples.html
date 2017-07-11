@@ -238,6 +238,7 @@
             }
 
             connectedCallback () {
+                super.connectedCallback();
                 this.table = PolymerUtils.getElementById(this.prefix + "FamilySelector");
             }
 

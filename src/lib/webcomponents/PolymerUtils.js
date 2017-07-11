@@ -1,4 +1,3 @@
-
 class PolymerUtils {
 
     static isUndefined(obj) {
@@ -26,7 +25,7 @@ class PolymerUtils {
     }
 
     static isNotUndefinedOrEmptyArray(obj) {
-        return typeof obj !== "undefined" && obj !== null && obj.length >0;
+        return typeof obj !== "undefined" && obj !== null && obj.length > 0;
     }
 
     static isEmpty(str) {
@@ -37,7 +36,11 @@ class PolymerUtils {
         return typeof str !== "undefined" && str !== null && str !== "";
     }
 
-    
+    static isValueNotEmptyById(id){
+        let value = getPropertyById(id, "value");
+        return isNotEmpty(value);
+    }
+
     static getElementById(id) {
         return document.getElementById(id);
     }
@@ -71,9 +74,16 @@ class PolymerUtils {
     static show(id) {
         PolymerUtils.addStyle(id, "display", "block");
     }
+    static showByClass(className) {
+        PolymerUtils.addStyleByClass(className, "display", "block");
+    }
 
     static hide(id) {
         PolymerUtils.addStyle(id, "display", "none");
+    }
+
+    static hideByClass(className) {
+        PolymerUtils.addStyleByClass(className, "display", "none");
     }
 
     static addClass(id, className) {
@@ -93,7 +103,7 @@ class PolymerUtils {
                         el.classList.add(item);
                     });
                 }
-            }else{
+            } else {
                 el.classList.add(className);
             }
         }
@@ -116,7 +126,7 @@ class PolymerUtils {
                         el.classList.remove(item);
                     });
                 }
-            }else{
+            } else {
                 el.classList.remove(className);
             }
         }
