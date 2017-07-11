@@ -25,7 +25,7 @@
 
         <div class="col-md-12">
             <div style="width: 60%; margin: 0px 0px 0px 90px">
-                <form id="{{prefix}}uploadForm" class="form-horizontal" data-toggle="validator"  role="form">
+                <form id="{{prefix}}uploadForm" class="form-horizontal" data-toggle="validator" role="form">
                     <h3 class="title">Patient Information</h3>
                     <!-- GENERAL INFORMATION -->
                     <!-- Individual ID -->
@@ -941,7 +941,7 @@
             uploadVCF(formFields) {
                 // Upload VCF file to openCGA
                 if (this.opencgaClient instanceof OpenCGAClient) {
-                   let params = {
+                    let params = {
                         study: this.study.alias,
                         type: "FILE",
                         file: $("#" + this.prefix + "FileToUpload").prop('files')[0],

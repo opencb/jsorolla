@@ -18,63 +18,79 @@
 <link rel="import" href="../opencga-active-filters.html">
 <link rel="import" href="../opencga-message-dialog.html">
 <link rel="import" href="../catalog/samples/opencga-analysis-filter.html">
-<link rel="import" href="../opencga-message-dialog.html">
 
 <dom-module id="variant-clinical-selector">
     <template>
-        <style is="custom-style" include="jso-styles"></style>
         <!--<div class="panel">-->
-            <div class="col-md-3">
-                <opencga-analysis-filter opencga-client="{{opencgaClient}}" study="{{study}}" query="{{query}}" search="{{search}}"></opencga-analysis-filter>
-            </div>
-            <div class="col-md-9">
-                <br>
-                <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" filters="{{config.filters}}"
-                                        filter-bioformat="VARIANT" alias="{{activeFilterAlias}}">
-                </opencga-active-filters>
-                <h3>Analysis results</h3>
-                <table id="{{prefix}}tableAnalysis" data-search="true" data-show-columns="true"
-                       data-pagination="true" data-page-size="5" data-page-list="[5, 10, 25]" data-checkbox-header="false" data-maintain-selected="true" style="cursor: pointer;">
-                    <thead style="background-color: #eee"></thead>
-                </table>
+        <div class="col-md-3">
+            <opencga-analysis-filter opencga-client="{{opencgaClient}}" study="{{study}}" query="{{query}}" search="{{search}}"></opencga-analysis-filter>
+        </div>
+        <div class="col-md-9">
+            <br>
+            <!--<opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" filters="{{config.filters}}"-->
+                                    <!--filter-bioformat="VARIANT" alias="{{activeFilterAlias}}">-->
+            <!--</opencga-active-filters>-->
+            <h3>Analysis results</h3>
+            <table id="{{prefix}}tableAnalysis" data-search="true" data-show-columns="true"
+                   data-pagination="true" data-page-size="5" data-page-list="[5, 10, 25]" data-checkbox-header="false"
+                   data-maintain-selected="true" style="cursor: pointer;">
+                <thead style="background-color: #eee"></thead>
+            </table>
 
-                <div>
-                    <h4>{{pedigreeTitle}}</h4>
-                    <div id="{{prefix}}PedigreeView" style="padding: 5px 5px;font-size: 10px"></div>
-                </div>
-
+            <div>
+                <h4>{{pedigreeTitle}}</h4>
+                <div id="{{prefix}}PedigreeViewSelector" style="padding: 5px 5px;font-size: 10px"></div>
             </div>
+
+        </div>
         <!--</div>-->
     </template>
     <script>
-        Polymer({
-            is: 'variant-clinical-selector',
-            properties: {
-                opencgaClient: {
-                    type: Object
-                },
-                analysisSelected: {
-                    type: Object,
-                    notify: true
-                },
-                study: {
-                    type: Object
-                },
-                analysisModal: {
-                    type: Boolean,
-                    observer: "loadData"
-                },
-                showPedigree: {
-                    type: Boolean
+
+        class VariantClinicalSelector extends Polymer.Element {
+            static get is() {
+                return 'variant-clinical-selector';
+            }
+
+            static get properties() {
+                return {
+                    opencgaClient: {
+                        type: Object
+                    },
+                    analysisSelected: {
+                        type: Object,
+                        notify: true
+                    },
+                    study: {
+                        type: Object
+                    },
+                    analysisModal: {
+                        type: Boolean,
+                        observer: "loadData"
+                    },
+                    showPedigree: {
+                        type: Boolean
+                    }
                 }
-            },
-            ready: function() {
-                if (typeof this.prefix === "undefined" || this.prefix == "") {
+            }
+
+            constructor() {
+                super();
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            ready() {
+                super.ready();
+                if (PolymerUtils.isEmpty(this.prefix)) {
                     this.prefix = "anSelector" + Utils.randomString(6);
                 }
                 this.resetVariables();
-            },
-            loadData: function(){
+            }
+
+            loadData() {
                 this.resetVariables();
                 if (this.opencgaClient instanceof OpenCGAClient) {
                     let params = {
@@ -86,7 +102,7 @@
                         .then(function (response) {
                             let _analysis = response.response[0].result;
                             let _filterAttr = "";
-                            for (let i=0; i<_analysis.length; i++){
+                            for (let i = 0; i < _analysis.length; i++) {
                                 _analysisObj.push({
                                     analysisID: _analysis[i].name,
                                     analysisType: _analysis[i].type,
@@ -110,8 +126,9 @@
                             _this.showMessageModal = true;
                         });
                 }
-            },
-            resetVariables: function(){
+            }
+
+            resetVariables() {
                 this.analysis = [];
                 this.analysisSelected = {};
                 this._affected = {};
@@ -121,17 +138,18 @@
                 this.pedigreeTitle = "";
 
                 // If pedigree exists from a previous opened window, remove it
-                let querySelector = Polymer.dom(this.root).querySelector("#" + this.prefix + "PedigreeView");
-                if (typeof this.svg !== "undefined" && querySelector.hasChildNodes()) {
+                let querySelector = PolymerUtils.getElementById(this.prefix + "PedigreeViewSelector");
+                if (PolymerUtils.isNotUndefined(this.svg) && querySelector.hasChildNodes()) {
                     querySelector.removeChild(this.svg);
 
                 }
                 this.svg = undefined;
-            },
-            renderAnalysisTable: function(){
-                let _this=this;
-                $("#" + this.prefix + "tableAnalysis").bootstrapTable('destroy');
-                $("#" + this.prefix + "tableAnalysis").bootstrapTable({
+            }
+
+            renderAnalysisTable() {
+                let _this = this;
+                $(PolymerUtils.getElementById(this.prefix + "tableAnalysis")).bootstrapTable('destroy');
+                $(PolymerUtils.getElementById(this.prefix + "tableAnalysis")).bootstrapTable({
                     columns: _this._getTableColumns(),
                     data: this.analysis,
                     onCheck: function (row, elem) {
@@ -141,75 +159,105 @@
                         // To be modified -> take into account the case in which there are more than one sample per individual
                         // Children
                         let _samplesSelected = [];
-                        for (let i=0; i<_family.children.length; i++){
+                        for (let i = 0; i < _family.children.length; i++) {
                             _samplesSelected.push(_family.children[i].samples[0]);
                         }
                         // Father
-                        _samplesSelected.push(_family.father.samples[0]);
+                        if(PolymerUtils.isNotUndefinedOrEmptyArray(_family.father.samples)){
+                            _samplesSelected.push(_family.father.samples[0]);
+                        }
+
                         // Mother
-                        _samplesSelected.push(_family.mother.samples[0]);
+                        if(PolymerUtils.isNotUndefinedOrEmptyArray(_family.mother.samples)) {
+                            _samplesSelected.push(_family.mother.samples[0]);
+                        }
 
                         // Render pedigree
                         _this.pedigreeFromFamily(_family, row.analysisID);
-
+                        var copy_svg = _this.svg.cloneNode(true);
                         _this.analysisSelected = {
                             sampleList: _samplesSelected,
                             analysisID: row.analysisID,
                             analysisType: row.analysisType,
                             analysisDate: row.analysisDate,
                             analysis: row.analysis,
-                            pedigree: _this.svg
+                            pedigree: copy_svg
                         };
                     }
                 });
-            },
-            dateFormatter: function(date) {
-                return date.slice(6,8) + "/" + date.slice(4,6) + "/" + date.slice(0,4);
-            },
-            filterFormatter: function(filter) {
+            }
+
+            dateFormatter(date) {
+                return date.slice(6, 8) + "/" + date.slice(4, 6) + "/" + date.slice(0, 4);
+            }
+
+            filterFormatter(filter) {
                 return (filter === true) ? "YES" : "NO";
-            },
-            pedigreeRender: function () {
+            }
+
+            pedigreeRender() {
                 let ped = this.pedigree;
 
-                let familyName = $("#" + this.prefix + "FamilyName").val();
+//                let familyName = PolymerUtils.getElementById(this.prefix + "FamilyName").value;
                 // Remove SVG before render new one
-                if (typeof this.svg !== "undefined") {
-                    Polymer.dom(this.root).querySelector("#" + this.prefix + "PedigreeView").removeChild(this.svg);
+                if (PolymerUtils.isNotUndefined(this.svg)) {
+                   PolymerUtils.getElementById(this.prefix + "PedigreeViewSelector").removeChild(this.svg);
                 }
                 // Render new Pedigree
                 let pedigree = new Pedigree(ped);
                 this.svg = pedigree.render(this.pedigreeSettings);
-                let querySelector = Polymer.dom(this.root).querySelector("#" + this.prefix + "PedigreeView");
+
+                let querySelector = PolymerUtils.getElementById(this.prefix + "PedigreeViewSelector");
                 querySelector.appendChild(this.svg);
-            },
-            pedigreeFromFamily: function(family, _analysisID) {
+            }
+
+            pedigreeFromFamily(family, _analysisID) {
 
                 // Father
-                this.pedigree.father = {name: family.father.samples[0].name, gender: "male"};
-                this.pedigree.father.affected = (family.father.affectationStatus === "AFFECTED") ? true : false;
-                this.pedigree.father.deceased = (family.father.lifeStatus === "ALIVE" || family.father.lifeStatus === "UNKNOWN") ? false : true;
+                if(PolymerUtils.isNotUndefinedOrEmptyArray(family.father.samples)) {
+                    this.pedigree.father = {name: family.father.samples[0].name, gender: "male"};
+                    this.pedigree.father.affected = (family.father.affectationStatus === "AFFECTED") ? true : false;
+                    this.pedigree.father.deceased = (family.father.lifeStatus === "ALIVE" || family.father.lifeStatus === "UNKNOWN") ? false : true;
+                }
                 // Mother
-                this.pedigree.mother = {name: family.mother.samples[0].name, gender: "female"};
-                this.pedigree.mother.affected = (family.mother.affectationStatus === "AFFECTED") ? true : false;
-                this.pedigree.mother.deceased = (family.mother.lifeStatus === "ALIVE" || family.mother.lifeStatus === "UNKNOWN") ? false : true;
+                if(PolymerUtils.isNotUndefinedOrEmptyArray(family.mother.samples)) {
+
+                    this.pedigree.mother = {name: family.mother.samples[0].name, gender: "female"};
+                    this.pedigree.mother.affected = (family.mother.affectationStatus === "AFFECTED") ? true : false;
+                    this.pedigree.mother.deceased = (family.mother.lifeStatus === "ALIVE" || family.mother.lifeStatus === "UNKNOWN") ? false : true;
+                }
                 // Children
                 let _gender = "";
                 let _affected = false;
                 let _deceased = false;
-                for (let i=0; i<family.children.length; i++){
+                for (let i = 0; i < family.children.length; i++) {
                     _gender = family.children[i].sex;
                     _affected = (family.children[i].affectationStatus === "AFFECTED") ? true : false;
                     _deceased = (family.children[i].lifeStatus === "ALIVE" || family.children[i].lifeStatus === "UNKNOWN") ? false : true;
                     switch (_gender) {
                         case "MALE":
-                            this.pedigree.children.push({name: family.children[i].samples[0].name, gender: "male", affected: _affected, deceased: _deceased});
+                            this.pedigree.children.push({
+                                name: family.children[i].samples[0].name,
+                                gender: "male",
+                                affected: _affected,
+                                deceased: _deceased
+                            });
                             break;
                         case "FEMALE":
-                            this.pedigree.children.push({name: family.children[i].samples[0].name, gender: "female", affected: _affected, deceased: _deceased});
+                            this.pedigree.children.push({
+                                name: family.children[i].samples[0].name,
+                                gender: "female",
+                                affected: _affected,
+                                deceased: _deceased
+                            });
                             break;
                         case "UNKNOWN":
-                            this.pedigree.children.push({name: family.children[i].samples[0].name, gender: "undefined", affected: _affected, deceased: _deceased});
+                            this.pedigree.children.push({
+                                name: family.children[i].samples[0].name,
+                                gender: "undefined",
+                                affected: _affected,
+                                deceased: _deceased
+                            });
                             break;
                     }
                 }
@@ -219,12 +267,13 @@
                 // Parental consanguinity
                 this.pedigree.parentalConsanguinity = (family.parentalConsanguinity === true);
 
-                if (this.showPedigree){
+                if (this.showPedigree) {
                     this.pedigreeTitle = "Pedigree for " + _analysisID;
                 }
                 this.pedigreeRender();
-            },
-            _getTableColumns: function() {
+            }
+
+            _getTableColumns() {
                 this._columns = [
                     [
                         {
@@ -257,6 +306,8 @@
                 ];
                 return this._columns;
             }
-        });
+        }
+
+        customElements.define(VariantClinicalSelector.is, VariantClinicalSelector);
     </script>
 </dom-module>

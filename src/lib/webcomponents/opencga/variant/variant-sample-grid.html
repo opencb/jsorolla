@@ -84,6 +84,7 @@
             }
 
             connectedCallback () {
+                super.connectedCallback();
                 this.table = PolymerUtils.getElementById(this.prefix + "SampleSelector");
                 this.search = {};
             }

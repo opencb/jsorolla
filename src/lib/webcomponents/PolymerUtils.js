@@ -1,4 +1,3 @@
-
 class PolymerUtils {
 
     static isUndefined(obj) {
@@ -25,12 +24,21 @@ class PolymerUtils {
         return typeof obj !== "undefined" && obj !== null;
     }
 
+    static isNotUndefinedOrEmptyArray(obj) {
+        return typeof obj !== "undefined" && obj !== null && obj.length > 0;
+    }
+
     static isEmpty(str) {
         return typeof str === "undefined" || str === null || str === "";
     }
 
     static isNotEmpty(str) {
         return typeof str !== "undefined" && str !== null && str !== "";
+    }
+
+    static isNotEmptyValueById(id){
+        let value = PolymerUtils.getPropertyById(id, "value");
+        return typeof value !== "undefined" && value !== null && value !== "";
     }
 
     static getElementById(id) {
@@ -66,9 +74,16 @@ class PolymerUtils {
     static show(id) {
         PolymerUtils.addStyle(id, "display", "block");
     }
+    static showByClass(className) {
+        PolymerUtils.addStyleByClass(className, "display", "block");
+    }
 
     static hide(id) {
         PolymerUtils.addStyle(id, "display", "none");
+    }
+
+    static hideByClass(className) {
+        PolymerUtils.addStyleByClass(className, "display", "none");
     }
 
     static addClass(id, className) {
@@ -88,7 +103,7 @@ class PolymerUtils {
                         el.classList.add(item);
                     });
                 }
-            }else{
+            } else {
                 el.classList.add(className);
             }
         }
@@ -111,7 +126,7 @@ class PolymerUtils {
                         el.classList.remove(item);
                     });
                 }
-            }else{
+            } else {
                 el.classList.remove(className);
             }
         }
