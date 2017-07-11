@@ -480,9 +480,10 @@ class FeatureTrack {
     }
 
     getDataHandler(event) {
-        console.time("Total FeatureTrack -> getDataHandler " + event.sender.resource)
+        debugger
+        console.time("Total FeatureTrack -> getDataHandler " + event.sender.category)
 
-        console.time("Chunks() FeatureTrack -> getDataHandler " + event.sender.resource)
+        console.time("Chunks() FeatureTrack -> getDataHandler " + event.sender.category)
 
         let renderer;
         let features;
@@ -493,9 +494,9 @@ class FeatureTrack {
             renderer = this.histogramRenderer;
             features = event.items;
         }
-        console.timeEnd("Chunks() FeatureTrack -> getDataHandler " + event.sender.resource)
+        console.timeEnd("Chunks() FeatureTrack -> getDataHandler " + event.sender.category)
 
-        console.time("render() FeatureTrack -> getDataHandler " + event.sender.resource)
+        console.time("render() FeatureTrack -> getDataHandler " + event.sender.category)
         renderer.render(features, {
             cacheItems: event.items,
             svgCanvasFeatures: this.svgCanvasFeatures,
@@ -512,8 +513,8 @@ class FeatureTrack {
             featureType: this.featureType
         });
         this.updateHeight();
-        console.timeEnd("render() FeatureTrack -> getDataHandler " + event.sender.resource)
-        console.timeEnd("Total FeatureTrack -> getDataHandler " + event.sender.resource)
+        console.timeEnd("render() FeatureTrack -> getDataHandler " + event.sender.category)
+        console.timeEnd("Total FeatureTrack -> getDataHandler " + event.sender.category)
     }
 
     draw(adapter, renderer) {
