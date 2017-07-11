@@ -144,7 +144,7 @@
 
             ready() {
                 super.ready();
-                if (PolymerUtils.isUndefinedOrEmpty(this.prefix)) {
+                if (PolymerUtils.isEmpty(this.prefix)) {
                     this.prefix = "FamilyEditor" + Utils.randomString(6);
                 }
                 this._sampleExists = false;

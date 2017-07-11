@@ -25,11 +25,7 @@ class PolymerUtils {
         return typeof obj !== "undefined" && obj !== null;
     }
 
-    static isUndefinedOrEmpty(obj) {
-        return typeof obj === "undefined" || obj === "";
-    }
-
-    static isUndefinedOrEmpty(str) {
+    static isEmpty(str) {
         return typeof str === "undefined" || str === null || str === "";
     }
 
@@ -37,7 +33,6 @@ class PolymerUtils {
         return typeof str !== "undefined" && str !== null && str !== "";
     }
 
-    
     static getElementById(id) {
         return document.getElementById(id);
     }

@@ -187,7 +187,7 @@
             ready() {
                 super.ready();
 
-                if (PolymerUtils.isUndefinedOrEmpty(this.prefix)) {
+                if (PolymerUtils.isEmpty(this.prefix)) {
                     this.prefix = "activeFilter_" + Utils.randomString(6);
                 }
 
@@ -207,7 +207,7 @@
             }
 
             checkSid(config) {
-                return !PolymerUtils.isUndefinedOrEmpty(config.sessionId);
+                return !PolymerUtils.isEmpty(config.sessionId);
             }
 
             checkFilters(config) {
@@ -290,7 +290,7 @@
                 let name = e.target.dataFilterName;
                 let value = e.target.dataFilterValue;
 
-                if (PolymerUtils.isUndefinedOrEmpty(value)) {
+                if (PolymerUtils.isEmpty(value)) {
                     delete _queryList[name];
                 } else {
                     let filterFields = _queryList[name].split(new RegExp("[,;]"));
@@ -330,7 +330,7 @@
                 let keys = Object.keys(this.query);
                 for (let keyIdx in keys) {
                     let key = keys[keyIdx];
-                    if (!PolymerUtils.isUndefinedOrEmpty(this.query[key])) {
+                    if (!PolymerUtils.isEmpty(this.query[key])) {
                         if (keys.length === 1 && key === "studies" && this.query[key].split(new RegExp("[,;]")).length === 1) {
                             // Show warning when filters are altered
                             PolymerUtils.hide( this.prefix + 'Warning');

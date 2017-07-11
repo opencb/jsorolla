@@ -419,8 +419,8 @@
                             <br>
                             <form>
                                 <label style="font-weight: normal;">Logical Operator</label>
-                                <input type="radio" name="pss" id="pssOrRadio" value="or" class$="{{prefix}}FilterRadio" checked disabled on-change="updateQueryFilters" style="margin-left: 10px"> OR<br>
-                                <input type="radio" name="pss" id="pssAndRadio" value="and" class$="{{prefix}}FilterRadio" disabled on-change="updateQueryFilters" style="margin-left: 102px"> AND<br>
+                                <input type="radio" name="pss" id="{{prefix}}pssOrRadio" value="or" class$="{{prefix}}FilterRadio" checked disabled on-change="updateQueryFilters" style="margin-left: 10px"> OR<br>
+                                <input type="radio" name="pss" id="{{prefix}}pssAndRadio" value="and" class$="{{prefix}}FilterRadio" disabled on-change="updateQueryFilters" style="margin-left: 102px"> AND<br>
                             </form>
                         </div>
                         <br>
@@ -483,7 +483,7 @@
                             <div class="ct-tree-view ct-item">
                                 <ul id="consequenceTypeFilter">
                                     <template is="dom-repeat" items="{{consequenceTypes.categories}}" as="category">
-                                        <li id="{{category.title}}">
+                                        <li id="{{prefix}}{{category.title}}">
                                             <!--First check if there is a title for that category-->
                                             <template is="dom-if" if="{{checkTitle(category)}}">
                                                 <!--If it is a category, only title is shown as it doesn't have any SO term associated with it-->
@@ -492,7 +492,7 @@
                                                 </template>
                                                 <!--If it is not a category, SO terms should be shown along with its actual title-->
                                                 <template is="dom-if" if="{{!category.isCategory}}">
-                                                    <input type="checkbox" on-change="updateConsequenceTypeFilter" data-id="{{category.name}}" class$="soTermCheckBox {{prefix}}FilterCheckBox">
+                                                    <input type="checkbox" id={{prefix}}{{category.name}}" on-change="updateConsequenceTypeFilter" data-id="{{category.name}}" class$="soTermCheckBox {{prefix}}FilterCheckBox">
                                                     <span title="{{item.description}}">
                                                         {{category.title}} (<a href="http://www.sequenceontology.org/browser/current_svn/term/{{category.id}}" target="_blank">{{category.id}}</a>)</span>
                                                 </template>
@@ -505,14 +505,14 @@
                                                 </template>
                                                 <!--If it is not a category, SO terms should be shown along with its actual name-->
                                                 <template is="dom-if" if="{{!category.isCategory}}">
-                                                    <input type="checkbox" on-change="updateConsequenceTypeFilter" data-id="{{category.name}}" class$="soTermCheckBox {{prefix}}FilterCheckBox">
+                                                    <input type="checkbox" id="{{prefix}}{{category.name}}" on-change="updateConsequenceTypeFilter" data-id="{{category.name}}" class$="soTermCheckBox {{prefix}}FilterCheckBox">
                                                     <span title="{{item.description}}">
                                                         {{category.name}} (<a href="http://www.sequenceontology.org/browser/current_svn/term/{{category.id}}" target="_blank">{{category.id}}</a>)</span>
                                                 </template>
                                             </template>
                                             <ul>
                                                 <template is="dom-repeat" items="{{category.terms}}">
-                                                    <li><input type="checkbox" data-id="{{item.name}}" on-change="updateConsequenceTypeFilter" class$="soTermCheckBox {{prefix}}FilterCheckBox">
+                                                    <li><input type="checkbox" id="{{prefix}}{{item.name}}" data-id="{{item.name}}" on-change="updateConsequenceTypeFilter" class$="soTermCheckBox {{prefix}}FilterCheckBox">
                                                         <span title="{{item.description}}">
                                                     {{item.name}} (<a href="http://www.sequenceontology.org/browser/current_svn/term/{{item.id}}" target="_blank">{{item.id}}</a>)</span></li>
                                                 </template>
@@ -589,8 +589,8 @@
                         </div>
                         <form style="padding-top: 10px">
                             <label style="font-weight: normal;">Logical Operator</label>
-                            <input type="radio" name="conservation" id="conservationOrRadio" value="or" class$="{{prefix}}FilterRadio" checked disabled on-change="updateQueryFilters" style="margin-left: 10px"> OR<br>
-                            <input type="radio" name="conservation" id="conservationAndRadio" value="and" class$="{{prefix}}FilterRadio" disabled on-change="updateQueryFilters" style="margin-left: 102px"> AND<br>
+                            <input type="radio" name="conservation" id="{{prefix}}conservationOrRadio" value="or" class$="{{prefix}}FilterRadio" checked disabled on-change="updateQueryFilters" style="margin-left: 10px"> OR<br>
+                            <input type="radio" name="conservation" id="{{prefix}}conservationAndRadio" value="and" class$="{{prefix}}FilterRadio" disabled on-change="updateQueryFilters" style="margin-left: 102px"> AND<br>
                         </form>
 
                     </div>
@@ -725,18 +725,20 @@
             }
             ready() {
                 super.ready();
-                if (PolymerUtils.isUndefinedOrEmpty(this.prefix)) {
+                if (PolymerUtils.isEmpty(this.prefix)) {
                     this.prefix = "clinicalFilter" + Utils.randomString(6);
                 }
                 this.sampleGenotypesObj = {};
-                this.query = {};
+                this.set('query', {});
+                //this.query = {};
 
                 this.isFamilyAnalysis = true;
                 this.set('panelList', PANELS);
                 this.showPedigree = true;
             }
             onSearch() {
-                this.search = this.query;
+                //this.search = this.query;
+                this.set('search', this.query);
             }
             onQueryUpdate() {
                 if (this._reset) {
@@ -756,7 +758,7 @@
                 }
             }
             checkTitle(consequenceType) {
-                return PolymerUtils.isNotUndefinedAndNull(consequenceType.title);
+                return PolymerUtils.isNotUndefinedOrNull(consequenceType.title);
             }
             moreStudiesPresent(studies) {
                 if (PolymerUtils.isNotUndefined(studies)) {
@@ -786,12 +788,15 @@
                 }
             }
             updateConsequenceTypeFilter(e) {
+                console.log(this);
+                debugger;
                 // TO DO: To migrate to polymer utils
                 let soTerms = [];
                 if (e.target.parentNode.id != "") {
                     $("#" + e.target.parentNode.id).children('ul').children('li').children('input').prop("checked", e.target.checked);
                 }
-                let selected = $('.soTermCheckBox:checked');
+                let selected = PolymerUtils.querySelectorAll('.soTermCheckBox:checked');
+                //let selected = $('.soTermCheckBox:checked');
                 for (let i = 0; i < selected.length; i++) {
                     soTerms.push(selected[i].dataId);
                 }
@@ -1016,7 +1021,7 @@
             updateQueryFilters() {
                 let _filters = {};
                 // Adding sample genotypes filter
-                if (!PolymerUtils.isUndefinedOrNull(this.sampleGenotypes)) {
+                if (PolymerUtils.isNotEmpty(this.sampleGenotypes)) {
                     _filters.genotype = this.sampleGenotypes;
                 }
 
@@ -1050,13 +1055,14 @@
                 }*/
 
                 // Regions
-                if (this.$$("#" + this.prefix + "LocationTextarea").value !== "") {
+                if (PolymerUtils.getPropertyById(this.prefix + "LocationTextArea", "value") !== "") {
+                //if (this.$$("#" + this.prefix + "LocationTextarea").value !== "") {
                     _filter.region = PolymerUtils.getPropertyById(this.prefix + "LocationTextarea", "value");
                     //_filters.region = this.$$("#" + this.prefix + "LocationTextarea").value;
                 }
 
                 // Features: Gene, SNP ID
-                if (PolymerUtils.getPropertyById(this.prefix + "FeatureTextarea", "value")){
+                if (PolymerUtils.getPropertyById(this.prefix + "FeatureTextarea", "value") !== ""){
                 //if (this.$$("#" + this.prefix + "FeatureTextarea").value !== "") {
                     if (PolymerUtils.getPropertyById(this.prefix + "FeatureTextarea", "value").startsWith("rs") || PolymerUtils.getPropertyById(this.prefix + "FeatureTextarea", "value").split(':').length > 2){
                     //if (this.$$("#" + this.prefix + "FeatureTextarea").value.startsWith("rs") || this.$$("#" + this.prefix + "FeatureTextarea").value.split(':').length > 2) {
@@ -1158,6 +1164,7 @@
                     let pssElements = PolymerUtils.querySelectorAll("input[name=pss]");
                     pssElements.forEach(function (item) {
                         PolymerUtils.removeAttribute(item, "disabled");
+                    });
                     //$("input:radio[name=pss]").attr('disabled', false);
                 }
                 if (pss.length > 0) {
@@ -1190,7 +1197,6 @@
                     //let gerp = "gerp" + this.$$("#" + this.prefix + "GerpOperator").value + this.$$("#" + this.prefix + "GerpInput").value;
                     conserArr.push(gerp);
                 }
-                (PolymerUtils.getPropertyById(, "value") != "" && PolymerUtils.getPropertyById(, "value") != "")
                 if ((PolymerUtils.getPropertyById(this.prefix + "PhylopInput", "value") != "" && PolymerUtils.getPropertyById(this.prefix + "PhastconsInput", "value") != "") ||
                     (PolymerUtils.getPropertyById(this.prefix + "PhylopInput", "value") != "" && PolymerUtils.getPropertyById(this.prefix + "GerpInput", "value") != "") ||
                     (PolymerUtils.getPropertyById(this.prefix + "PhastconsInput", "value") != "" && PolymerUtils.getPropertyById(this.prefix + "GerpInput", "value") != "")) {
@@ -1200,6 +1206,7 @@
                     let conservationElements = PolymerUtils.querySelectorAll("input[name=conservation]");
                     conservationElements.forEach(function (item) {
                         PolymerUtils.removeAttribute(item, "disabled");
+                    });
                     //$("input:radio[name=conservation]").attr('disabled', false);
                 }
 

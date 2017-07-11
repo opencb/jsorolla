@@ -121,8 +121,8 @@
                         title="Connect, link & choose analysis of samples">
                     <i class="fa fa-sitemap" aria-hidden="true"></i> Analysis
                 </button>
-                <button id="{{prefix}}FilterButton" type="button"
-                        class$="analysis-button btn {{computedClassTabs(activesTab.filterTab)}} btn-arrow-right"
+                <button id="{{prefix}}PrioritizationButton" type="button"
+                        class$="analysis-button btn {{computedClassTabs(activesTab.prioritizationTab)}} btn-arrow-right"
                         on-click="changeTool"
                         data-toggle="tooltip" data-placement="top" title="Filter & Prioritization">
                     <i class="fa fa-filter" aria-hidden="true"></i> Prioritization
@@ -152,40 +152,24 @@
                 </div>
             </template>
 
-
-<<<<<<< HEAD
-            <div class="analysis-content" id="{{prefix}}FilterButtonDiv" style="display: none">
-                <div class="col-md-2">
-                    <variant-clinical-filter mode="{{mode}}" study="{{study}}" project="{{project}}" samples="{{samples}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"
-                                             population-frequencies="{{populationFrequencies}}" consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}" analysis-selected="{{analysisSelected}}" style="font-size: 12px">
-                    </variant-clinical-filter>
+            <template is="dom-if" if="{{activesTab.prioritizationTab}}">
+                <div class="analysis-content" id="{{prefix}}PrioritizationButtonDiv">
+                    <div class="col-md-2">
+                        <variant-clinical-filter mode="{{mode}}" study="{{study}}" project="{{project}}" samples="{{samples}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"
+                                                 population-frequencies="{{populationFrequencies}}" consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}" analysis-selected="{{analysisSelected}}" style="font-size: 12px">
+                        </variant-clinical-filter>
+                    </div>
+    
+                    <!--<div class="col-md-10">-->
+                        <!--<variant-prioritization-view prefix="{{prefix}}" mode="clinical" title="{{title}}" project="{{project}}" study="{{study}}" samples="{{samples}}"-->
+                                                     <!--opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}"-->
+                                                     <!--protein-substitution-scores="{{proteinSubstitutionScores}}" consequence-types="{{consequenceTypes}}"-->
+                                                     <!--query="{{query}}" search="{{search}}" on-clear="onClear" on-filterchange="onFilterChange" on-save="onSaveVariants" on-propagate="propagateGeneEvent">-->
+                        <!--</variant-prioritization-view>-->
+                    <!--</div>-->
                 </div>
+            </template>
 
-                <!--<div class="col-md-10">-->
-                    <!--<variant-prioritization-view prefix="{{prefix}}" mode="clinical" title="{{title}}" project="{{project}}" study="{{study}}" samples="{{samples}}"-->
-                                                 <!--opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}"-->
-                                                 <!--protein-substitution-scores="{{proteinSubstitutionScores}}" consequence-types="{{consequenceTypes}}"-->
-                                                 <!--query="{{query}}" search="{{search}}" on-clear="onClear" on-filterchange="onFilterChange" on-save="onSaveVariants" on-propagate="propagateGeneEvent">-->
-                    <!--</variant-prioritization-view>-->
-                <!--</div>-->
-            </div>
-=======
-            <!--<div class="analysis-content" id="{{prefix}}FilterButtonDiv" style="display: none">-->
-            <!--<div class="col-md-2">-->
-            <!--<variant-clinical-filter prefix="{{prefix}}" mode="{{mode}}" study="{{study}}" project="{{project}}" samples="{{samples}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"-->
-            <!--population-frequencies="{{populationFrequencies}}" consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}" analysis-selected="{{analysisSelected}}" style="font-size: 12px">-->
-            <!--</variant-clinical-filter>-->
-            <!--</div>-->
-
-            <!--<div class="col-md-10">-->
-            <!--<variant-prioritization-view prefix="{{prefix}}" mode="clinical" title="{{title}}" project="{{project}}" study="{{study}}" samples="{{samples}}"-->
-            <!--opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}"-->
-            <!--protein-substitution-scores="{{proteinSubstitutionScores}}" consequence-types="{{consequenceTypes}}"-->
-            <!--query="{{query}}" search="{{search}}" on-clear="onClear" on-filterchange="onFilterChange" on-save="onSaveVariants" on-propagate="propagateGeneEvent">-->
-            <!--</variant-prioritization-view>-->
-            <!--</div>-->
-            <!--</div>-->
->>>>>>> 991f9f64c09377632a45cd0652aeb06782381a65
 
             <!--<div class="analysis-content" id="{{prefix}}ReportButtonDiv" style="display: none">-->
             <!--<variant-clinical-report opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}" title="{{title}}" analysis="{{analysis}}"></variant-clinical-report>-->
@@ -196,14 +180,9 @@
 
     <script>
         class VariantClinical extends Polymer.Element {
-<<<<<<< HEAD
-            static get is() { return 'variant-clinical'; }
-=======
             static get is() {
                 return 'variant-clinical';
             }
-
->>>>>>> 991f9f64c09377632a45cd0652aeb06782381a65
             static get properties() {
                 return {
                     activesTab: {
@@ -212,7 +191,7 @@
                             return {
                                 uploadTab: true,
                                 analysisTab: false,
-                                filterTab: false,
+                                prioritizationTab: false,
                                 reportTab: false
                             };
                         }
@@ -314,8 +293,8 @@
                     this.set("activesTab.uploadTab", true);
                 }
 
-                if (e.currentTarget.id === this.prefix + "FilterButton") {
-                    this.set("activesTab.filterTab", true);
+                if (e.currentTarget.id === this.prefix + "PrioritizationButton") {
+                    this.set("activesTab.prioritizationTab", true);
                 }
 
                 if (e.currentTarget.id === this.prefix + "ReportButton") {
