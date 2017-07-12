@@ -1370,23 +1370,19 @@
                     }
                 }
 
-                this._reset = false;
-                this.query = _filters;
-                this._reset = true;
-                return;
-
                 // Population Frequencies
                 // Population minor allele frequency: {study}:{population}[<|>|<=|>=]{number}
                 let popFreq = [];
-                if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.studies !== "undefined" && this.populationFrequencies.studies.length > 0) {
+                if (PolymerUtils.isNotUndefinedOrNull(this.populationFrequencies) && PolymerUtils.isNotEmptyArray(this.populationFrequencies.studies)) {
                     for (let i = 0; i < this.populationFrequencies.studies.length; i++) {
                         let study = this.populationFrequencies.studies[i].id;
                         for (let j = 0; j < this.populationFrequencies.studies[i].populations.length; j++) {
                             let population = this.populationFrequencies.studies[i].populations[j].id;
-                            if ((typeof this.$[this.prefix + study + population] !== "undefined" && this.$[this.prefix + study + population].value !== "")
-                                || (typeof this.$[this.prefix + study + population + "Operator"] !== "undefined" && this.$[this.prefix + study + population + "Operator"].value !== "<")) {
-                                let operator = this.$$("#" + this.prefix + study + population + "Operator").value;
-                                let pf = study + ":" + population + operator + this.$$("#" + this.prefix + study + population).value;
+
+                            let studyTextbox = PolymerUtils.getElementById(this.prefix + study + population);
+                            if ((PolymerUtils.isNotUndefinedOrNull(studyTextbox) && PolymerUtils.isNotEmpty(studyTextbox.value))) {
+                                let operator = PolymerUtils.getElementById(this.prefix + study + population + "Operator");
+                                let pf = study + ":" + population + operator.value + studyTextbox.value;
                                 popFreq.push(pf);
                             }
                         }
@@ -1397,42 +1393,50 @@
                 }
 
                 // Protein Substitution scores
-//                let pss = [];
-//                let sift = "";
-//                if (this.$$("#" + this.prefix + "SiftValues").value === "score" && this.$$("#" + this.prefix + "SiftInput").value !== "" || this.$$("#" + this.prefix + "SiftOperator").value !== "<") {
-//                    sift = "sift" + this.$$("#" + this.prefix + "SiftOperator").value + this.$$("#" + this.prefix + "SiftInput").value;
-//                    pss.push(sift);
-//                } else if (this.$$("#" + this.prefix + "SiftValues").value !== "score") {
-//                    sift = "sift" + "==" + this.$$("#" + this.prefix + "SiftValues").value;
-//                    pss.push(sift);
-//                }
-//                let polyphen = "";
-//                if (this.$$("#" + this.prefix + "PolyphenValues").value === "score" && this.$$("#" + this.prefix + "PolyphenInput").value !== "" || this.$$("#" + this.prefix + "PolyphenOperator").value !== "<") {
-//                    polyphen = "polyphen" + this.$$("#" + this.prefix + "PolyphenOperator").value + this.$$("#" + this.prefix + "PolyphenInput").value;
-//                    pss.push(polyphen);
-//                } else if (this.$$("#" + this.prefix + "PolyphenValues").value !== "score") {
-//                    let value = this.$$("#" + this.prefix + "PolyphenValues").value;
-//                    let polyphenValues = value.split(',');
-//                    for (let i = 0; i < polyphenValues.length; i++) {
-//                        polyphen = "polyphen" + "==" + polyphenValues[i];
-//                        pss.push(polyphen);
-//                    }
-//                }
-//                if ((this.$$("#" + this.prefix + "SiftInput").value !== "" && this.$$("#" + this.prefix + "PolyphenInput").value !== "") ||
-//                    (this.$$("#" + this.prefix + "SiftValues").value !== "score" && this.$$("#" + this.prefix + "PolyphenInput").value !== "") ||
-//                    ((this.$$("#" + this.prefix + "SiftInput").value) !== "" && this.$$("#" + this.prefix + "PolyphenValues").value !== "score") ||
-//                    (this.$$("#" + this.prefix + "SiftValues").value !== "score" && this.$$("#" + this.prefix + "PolyphenValues").value !== "score")) {
-//                    $("input:radio[name=pss]").attr('disabled', false);
-//                }
-//                if (pss.length > 0) {
-//                    let filter = $('input:radio[name=pss]:checked').val();
-//                    if (filter === "and") {
-//                        _filters.protein_substitution = pss.join(';');
-//                    } else {
-//                        _filters.protein_substitution = pss.join(',');
-//                    }
-//                }
-//
+                let pss = [];
+                let sift = "";
+                if (this.$$("#" + this.prefix + "SiftValues").value === "score" && this.$$("#" + this.prefix + "SiftInput").value !== "" || this.$$("#" + this.prefix + "SiftOperator").value !== "<") {
+                    sift = "sift" + this.$$("#" + this.prefix + "SiftOperator").value + this.$$("#" + this.prefix + "SiftInput").value;
+                    pss.push(sift);
+                } else if (this.$$("#" + this.prefix + "SiftValues").value !== "score") {
+                    sift = "sift" + "==" + this.$$("#" + this.prefix + "SiftValues").value;
+                    pss.push(sift);
+                }
+                let polyphen = "";
+                if (this.$$("#" + this.prefix + "PolyphenValues").value === "score" && this.$$("#" + this.prefix + "PolyphenInput").value !== "" || this.$$("#" + this.prefix + "PolyphenOperator").value !== "<") {
+                    polyphen = "polyphen" + this.$$("#" + this.prefix + "PolyphenOperator").value + this.$$("#" + this.prefix + "PolyphenInput").value;
+                    pss.push(polyphen);
+                } else if (this.$$("#" + this.prefix + "PolyphenValues").value !== "score") {
+                    let value = this.$$("#" + this.prefix + "PolyphenValues").value;
+                    let polyphenValues = value.split(',');
+                    for (let i = 0; i < polyphenValues.length; i++) {
+                        polyphen = "polyphen" + "==" + polyphenValues[i];
+                        pss.push(polyphen);
+                    }
+                }
+                if ((this.$$("#" + this.prefix + "SiftInput").value !== "" && this.$$("#" + this.prefix + "PolyphenInput").value !== "") ||
+                    (this.$$("#" + this.prefix + "SiftValues").value !== "score" && this.$$("#" + this.prefix + "PolyphenInput").value !== "") ||
+                    ((this.$$("#" + this.prefix + "SiftInput").value) !== "" && this.$$("#" + this.prefix + "PolyphenValues").value !== "score") ||
+                    (this.$$("#" + this.prefix + "SiftValues").value !== "score" && this.$$("#" + this.prefix + "PolyphenValues").value !== "score")) {
+                    $("input:radio[name=pss]").attr('disabled', false);
+                }
+                if (pss.length > 0) {
+                    let filter = $('input:radio[name=pss]:checked').val();
+                    if (filter === "and") {
+                        _filters.protein_substitution = pss.join(';');
+                    } else {
+                        _filters.protein_substitution = pss.join(',');
+                    }
+                }
+
+
+
+                this._reset = false;
+                this.query = _filters;
+                this._reset = true;
+                return;
+
+
 //                // Conservation
 //                let conserArr = [];
 //                if (this.$$("#" + this.prefix + "PhylopInput").value !== "" || this.$$("#" + this.prefix + "PhylopOperator").value !== "<") {

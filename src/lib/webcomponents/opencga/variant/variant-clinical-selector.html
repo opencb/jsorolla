@@ -163,12 +163,12 @@
                             _samplesSelected.push(_family.children[i].samples[0]);
                         }
                         // Father
-                        if(PolymerUtils.isNotUndefinedOrEmptyArray(_family.father.samples)){
+                        if(PolymerUtils.isNotEmptyArray(_family.father.samples)){
                             _samplesSelected.push(_family.father.samples[0]);
                         }
 
                         // Mother
-                        if(PolymerUtils.isNotUndefinedOrEmptyArray(_family.mother.samples)) {
+                        if(PolymerUtils.isNotEmptyArray(_family.mother.samples)) {
                             _samplesSelected.push(_family.mother.samples[0]);
                         }
 
@@ -214,13 +214,13 @@
             pedigreeFromFamily(family, _analysisID) {
 
                 // Father
-                if(PolymerUtils.isNotUndefinedOrEmptyArray(family.father.samples)) {
+                if(PolymerUtils.isNotEmptyArray(family.father.samples)) {
                     this.pedigree.father = {name: family.father.samples[0].name, gender: "male"};
                     this.pedigree.father.affected = (family.father.affectationStatus === "AFFECTED") ? true : false;
                     this.pedigree.father.deceased = (family.father.lifeStatus === "ALIVE" || family.father.lifeStatus === "UNKNOWN") ? false : true;
                 }
                 // Mother
-                if(PolymerUtils.isNotUndefinedOrEmptyArray(family.mother.samples)) {
+                if(PolymerUtils.isNotEmptyArray(family.mother.samples)) {
 
                     this.pedigree.mother = {name: family.mother.samples[0].name, gender: "female"};
                     this.pedigree.mother.affected = (family.mother.affectationStatus === "AFFECTED") ? true : false;
