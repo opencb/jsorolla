@@ -1517,15 +1517,18 @@
             }
             addFeatureId(e) {
                 let allIds = [];
-                if (this.$$("#" + this.prefix + "FeatureTextarea").value !== "") {
-                    allIds = this.$$("#" + this.prefix + "FeatureTextarea").value.split(',');
+                let featureTextArea = PolymerUtils.getElementById(this.prefix + "FeatureTextarea");
+                if (PolymerUtils.isNotUndefinedOrNull(featureTextArea) && PolymerUtils.isNotEmpty(featureTextArea.value)) {
+                    allIds = featureTextArea.value.split(',');
                 }
-                let temp = this.$$("#" + this.prefix + "FeatureIdText").value;
-                if (allIds.indexOf(temp) == -1){
-                    allIds.push(temp);
+
+                let featureIdText = PolymerUtils.getElementById(this.prefix + "FeatureIdText");
+                if (allIds.indexOf(featureIdText.value) === -1) {
+                    allIds.push(featureIdText.value);
                 }
-                this.$$("#" + this.prefix + "FeatureIdText").value = '';
-                this.$$("#" + this.prefix + "FeatureTextarea").value = allIds;
+                featureIdText.value = "";
+                featureTextArea.value = allIds;
+
                 this.updateQueryFilters();
             }
             // Exclusive for prioritization
