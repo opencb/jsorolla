@@ -1,3 +1,4 @@
+
 class PolymerUtils {
 
     static isUndefined(obj) {
@@ -24,9 +25,6 @@ class PolymerUtils {
         return typeof obj !== "undefined" && obj !== null;
     }
 
-    static isNotUndefinedOrEmptyArray(obj) {
-        return typeof obj !== "undefined" && obj !== null && obj.length > 0;
-    }
 
     static isEmpty(str) {
         return typeof str === "undefined" || str === null || str === "";
@@ -36,10 +34,19 @@ class PolymerUtils {
         return typeof str !== "undefined" && str !== null && str !== "";
     }
 
+    static isEmptyArray(arr) {
+        return typeof arr !== "undefined" && arr !== null && arr.length === 0;
+    }
+
+    static isNotEmptyArray(arr) {
+        return typeof arr !== "undefined" && arr !== null && arr.length > 0;
+    }
+
     static isNotEmptyValueById(id) {
         let value = PolymerUtils.getValue(id);
         return typeof value !== "undefined" && value !== null && value !== "";
     }
+
 
     static getValue(id) {
         return PolymerUtils.getPropertyById(id, "value");
@@ -50,15 +57,28 @@ class PolymerUtils {
 
     }
 
+
     static getElementById(id) {
         return document.getElementById(id);
     }
 
-    static getElementsByClassName(className, root) {
-        if (PolymerUtils.isUndefined(root)) {
+    static getElementsByClassName(className, element) {
+        if (PolymerUtils.isUndefined(element)) {
             return document.getElementsByClassName(className);
         } else {
-            return root.getElementsByClassName(className);
+            // If element is a string we do first a getElementById, if it exist we execute the query
+            if (typeof element === "string") {
+                let elem = PolymerUtils.getElementById(element);
+                if (elem !== undefined) {
+                    return element.getElementsByClassName(className);
+                } else {
+                    // The given element id does not exist
+                    return undefined;
+                }
+            } else {
+                // Element exists and it is not a string, it must be a object
+                return element.getElementsByClassName(className);
+            }
         }
     }
 
@@ -92,11 +112,11 @@ class PolymerUtils {
                 if (elem !== undefined) {
                     return elem.querySelectorAll(selectors);
                 } else {
-                    // the given element id does not exist
+                    // The given element id does not exist
                     return undefined;
                 }
             } else {
-                // element exists and it is not a string, it must be a object
+                // Element exists and it is not a string, it must be a object
                 return element.querySelectorAll(selectors);
             }
         }
@@ -104,10 +124,9 @@ class PolymerUtils {
 
     static getTextOptionSelected(id) {
         if (PolymerUtils.isNotUndefinedOrNull(id)) {
-            var sel = PolymerUtils.getElementById(id);
+            let sel = PolymerUtils.getElementById(id);
             if (PolymerUtils.isNotUndefinedOrNull(sel)) {
-                var text = sel.options[sel.selectedIndex].text;
-                return text;
+                return sel.options[sel.selectedIndex].text;
             } else {
                 return undefined;
             }
@@ -130,21 +149,12 @@ class PolymerUtils {
     }
 
 
-    static show(id, type) {
-        if (PolymerUtils.isNotUndefinedOrNull(type)) {
-            PolymerUtils.addStyle(id, "display", type);
-        } else {
-            PolymerUtils.addStyle(id, "display", "block");
-        }
+    static show(id, type = "block") {
+        PolymerUtils.addStyle(id, "display", type);
     }
 
-    static showByClass(className, type) {
-        if (PolymerUtils.isNotUndefinedOrNull(type)) {
-            PolymerUtils.addStyleByClass(className, "display", type);
-        } else {
-            PolymerUtils.addStyleByClass(className, "display", "block");
-
-        }
+    static showByClass(className, type = "block") {
+        PolymerUtils.addStyleByClass(className, "display", type);
     }
 
     static hide(id) {
@@ -154,6 +164,7 @@ class PolymerUtils {
     static hideByClass(className) {
         PolymerUtils.addStyleByClass(className, "display", "none");
     }
+
 
     static addClass(id, className) {
         if (!PolymerUtils.isUndefinedOrNull(id)) {
