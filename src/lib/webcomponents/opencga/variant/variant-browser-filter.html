@@ -373,7 +373,7 @@
 
                             <div class="form-group">
                                 <span class="subsection">Gene Disease Panels</span>
-                                <select class$="form-control {{prefix}}FilterSelect" id="{{prefix}}PanelApps" on-change="updatePanel">
+                                <select class$="form-control {{prefix}}FilterSelect" id="{{prefix}}PanelApps" on-change="onGeneDiseasePanelChange">
                                     <option value="none">Select a panel...</option>
                                     <template is="dom-repeat" items="{{panelList}}" sort="sortPanelApp">
                                         <option value="{{item.name}}">{{item.title}} ({{item.genes.length}})</option>
@@ -848,9 +848,11 @@
             constructor() {
                 super();
             }
+
             _attachDom(dom) {
                 this.appendChild(dom);
             }
+
             ready() {
                 super.ready();
 
@@ -1231,12 +1233,12 @@
                     this.$$("#" + this.prefix + "ClinVarTextarea").value = this.query["clinvar"];
                 }
             }
-            updatePanel(){
-                let panelname = this.$$("#" + this.prefix + "PanelApps").value;
-                for(var i = 0; i < this.panelList.length ; i++){
-                    if(this.panelList[i].name === panelname){
+            onGeneDiseasePanelChange(){
+                let panelName = PolymerUtils.getElementById(this.prefix + "PanelApps").value;
+                for(let i = 0; i < this.panelList.length ; i++){
+                    if(this.panelList[i].name === panelName){
                         let panel = this.panelList[i];
-                        this.$$("#" + this.prefix + "PanelAppsTextarea").value = panel.genes;
+                        PolymerUtils.getElementById(this.prefix + "PanelAppsTextarea").value = panel.genes;
                         break;
                     }
                 }
@@ -1299,74 +1301,67 @@
 
                 // Studies
                 let studies = [this.project.alias + ":" + this.study.alias];
-//                if (typeof this.$$("#includeOtherStudy") !== "undefined" && this.$$("#includeOtherStudy") !== null) {
-                if (typeof this.$["includeOtherStudy"] !== "undefined" && this.$["includeOtherStudy"] !== null) {
-                    let selectedStudies = this.$$("#differentStudies").querySelectorAll("input:checked");
-                    if (selectedStudies.length > 0) {
-                        for (let i = 0; i < selectedStudies.length; i++) {
-                            if (studies.indexOf(this.project.alias + ':' + selectedStudies[i].value) === -1) {
-                                studies.push(this.project.alias + ':' + selectedStudies[i].value);
+                let selectedStudies = PolymerUtils.querySelectorAll("input:checked", "differentStudies");
+                for (let i = 0; i < selectedStudies.length; i++) {
+                    if (studies.indexOf(this.project.alias + ':' + selectedStudies[i].value) === -1) {
+                        studies.push(this.project.alias + ':' + selectedStudies[i].value);
+                    }
+                }
+                switch (PolymerUtils.getElementById("includeOtherStudy").value) {
+                    case "in":
+                        _filters.studies = studies.join(';');
+                        break;
+                    case "atleast":
+                        _filters.studies = studies.join(',');
+                        break;
+                    case "not in":
+                        let notInStudies = [];
+                        let currentStudy = this.project.alias + ':' + this.study.alias;
+                        for (let j = 0; j < studies.length; j++) {
+                            if (currentStudy === studies[j]) {
+                                // Always add the study that we are browsing currently
+                                notInStudies.push(studies[j]);
+                            } else {
+                                notInStudies.push("!" + studies[j]);
                             }
                         }
-                    }
-
-                    switch (this.$$("#includeOtherStudy").value) {
-                        case "in":
-                            _filters.studies = studies.join(';');
-                            break;
-                        case "atleast":
-                            _filters.studies = studies.join(',');
-                            break;
-                        case "not in":
-                            let notInStudies = [];
-                            let currentStudy = this.project.alias + ':' + this.study.alias;
-                            for (let j = 0; j < studies.length; j++) {
-                                if (currentStudy === studies[j]) {
-                                    // Always add the study that we are browsing currently
-                                    notInStudies.push(studies[j]);
-                                } else {
-                                    notInStudies.push("!" + studies[j]);
-                                }
-                            }
-                            _filters.studies = notInStudies.join(";");
-                            break;
-                    }
+                        _filters.studies = notInStudies.join(";");
+                        break;
                 }
 
                 // Regions
-                if (typeof $("#" + this.prefix + "LocationTextarea") !== "undefined" && $("#" + this.prefix + "LocationTextarea").val() !== "") {
-                    console.log(this);
-                    debugger;
-                    _filters.region = $("#" + this.prefix + "LocationTextarea").val();
+                let locationTextArea = PolymerUtils.getElementById(this.prefix + "LocationTextarea");
+                if (PolymerUtils.isNotUndefinedOrNull(locationTextArea) && PolymerUtils.isNotEmpty(locationTextArea.value)) {
+                    _filters.region = locationTextArea.value;
                 }
 
                 // Features: Gene, SNP ID
-                if (typeof this.$[this.prefix + "FeatureTextarea"] !== "undefined" && this.$[this.prefix + "FeatureTextarea"].value !== "") {
-//                    if (this.$$("#" + this.prefix + "FeatureTextarea").value.startsWith("rs") || this.$$("#" + this.prefix + "FeatureTextarea").value.split(':').length > 2) {
-//                        _filters.ids = this.$$("#" + this.prefix + "FeatureTextarea").value;
-//                    } else {
-//                        _filters.gene = this.$$("#" + this.prefix + "FeatureTextarea").value;
-//                    }
-                    if (this.$[this.prefix + "FeatureTextarea"].value.startsWith("rs") || this.$[this.prefix + "FeatureTextarea"].value.split(':').length > 2) {
-                        _filters["annot-xref"] = this.$$("#" + this.prefix + "FeatureTextarea").value;
+                let featureTextArea = PolymerUtils.getElementById(this.prefix + "FeatureTextarea");
+                if (PolymerUtils.isNotUndefinedOrNull(featureTextArea) && PolymerUtils.isNotEmpty(featureTextArea.value)) {
+                    if (featureTextArea.value.startsWith("rs") || featureTextArea.value.split(':').length > 2) {
+                        _filters["annot-xref"] = featureTextArea.value;
                     } else {
-                        _filters["annot-xref"] = this.$$("#" + this.prefix + "FeatureTextarea").value.toUpperCase();
+                        _filters["annot-xref"] = featureTextArea.value.toUpperCase();
                     }
                 }
 
-                // Biotype
-                if (this._isNotUndefined(this.$[this.prefix + "GeneBiotypes"]) && this.$[this.prefix + "GeneBiotypes"].value !== "none") {
-                    _filters["annot-biotype"] = this.$$("#" + this.prefix + "GeneBiotypes").value;
+                // Panel - annot-panel
+                let panelsDropdown = PolymerUtils.getElementById(this.prefix + "PanelApps");
+                let panelsTextArea = PolymerUtils.getElementById(this.prefix + "PanelAppsTextarea");
+                if (PolymerUtils.isNotUndefinedOrNull(panelsDropdown) && (panelsDropdown.value !== "none" || panelsTextArea.value !== "")) {
+                    _filters["gene"] = panelsTextArea.value;
                 }
 
-                // Panel - annot-panel
-                if (this._isNotUndefined(this.$[this.prefix + "PanelApps"]) && (this.$[this.prefix + "PanelApps"].value !== "none" || this.$[this.prefix + "PanelAppsTextarea"].value !== "")) {
-                    _filters["gene"] = this.$$("#" + this.prefix + "PanelAppsTextarea").value;
+                // Biotype
+                let biotypeDropdown = PolymerUtils.getElementById(this.prefix + "GeneBiotypes");
+                if (PolymerUtils.isNotUndefinedOrNull(biotypeDropdown) && PolymerUtils.isNotEmpty(biotypeDropdown.value) && biotypeDropdown.value !== "none") {
+                    _filters["annot-biotype"] = biotypeDropdown.value;
                 }
 
                 // Type
-                if (this._isNotUndefined(this.$[this.prefix + "Type"])) {
-                    let types = this.$[this.prefix + "Type"].querySelectorAll("input:checked");
+                let typeCheckbox = PolymerUtils.getElementById(this.prefix + "Type");
+                if (PolymerUtils.isNotUndefinedOrNull(typeCheckbox)) {
+                    let types = PolymerUtils.querySelectorAll("input:checked", typeCheckbox);
                     let typesAux = [];
                     if (types.length > 0) {
                         for (let i = 0; i < types.length; i++) {
@@ -1375,6 +1370,11 @@
                         _filters.type = typesAux.join(',');
                     }
                 }
+
+                this._reset = false;
+                this.query = _filters;
+                this._reset = true;
+                return;
 
                 // Population Frequencies
                 // Population minor allele frequency: {study}:{population}[<|>|<=|>=]{number}

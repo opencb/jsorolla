@@ -625,7 +625,6 @@
 
             ready() {
                 super.ready();
-
                 if (PolymerUtils.isEmpty(this.prefix)) {
                     this.prefix = "upload" + Utils.randomString(6);
                 }
@@ -652,6 +651,7 @@
             }
 
             updateVariableSets() {
+                super.ready();
                 this.variables = [];
                 let _this = this;
                 this.opencgaClient.studies().info(this.study.id, {include: "variableSets"})

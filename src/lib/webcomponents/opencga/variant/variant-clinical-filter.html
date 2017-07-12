@@ -14,13 +14,13 @@
   ~ limitations under the License.
   -->
 
-<!--<link rel="import" href="../../../../../../src/components/opencga-sample-browser.html">-->
-<link rel="import" href="variant-sample-grid.html">
+<!-- CHECK WHETHER variant-sample-grid IS REALLY USED -->
+<!-- <link rel="import" href="variant-sample-grid.html"> -->
 <link rel="import" href="variant-clinical-selector.html">
 
 <dom-module id="variant-clinical-filter">
     <template>
-        <style is="custom-style" include="jso-styles">
+        <style>
             .popFreqName {
                 font-size: 12px;
                 color: #797979;
@@ -123,7 +123,7 @@
                                 <button data-toggle="modal" role="button" data-placement="bottom" on-click="showClinicalSelector">
                                     Browse...
                                 </button>
-                                <div id="analysisSelectedDiv" style="display:none">
+                                <div id="{{prefix}}analysisSelectedDiv" style="display:none">
                                     <label>Analysis selected:</label>
                                     <input type="text" class$="custom-sized-input {{prefix}}FilterTextInput" placeholder="{{currentAnalysisID}}" aria-describedby="basic-addon1" disabled>
                                 </div>
@@ -419,8 +419,8 @@
                             <br>
                             <form>
                                 <label style="font-weight: normal;">Logical Operator</label>
-                                <input type="radio" name="pss" id="pssOrRadio" value="or" class$="{{prefix}}FilterRadio" checked disabled on-change="updateQueryFilters" style="margin-left: 10px"> OR<br>
-                                <input type="radio" name="pss" id="pssAndRadio" value="and" class$="{{prefix}}FilterRadio" disabled on-change="updateQueryFilters" style="margin-left: 102px"> AND<br>
+                                <input type="radio" name="{{prefix}}pss" id="{{prefix}}pssOrRadio" value="or" class$="{{prefix}}FilterRadio" checked disabled on-change="updateQueryFilters" style="margin-left: 10px"> OR<br>
+                                <input type="radio" name="{{prefix}}pss" id="{{prefix}}pssAndRadio" value="and" class$="{{prefix}}FilterRadio" disabled on-change="updateQueryFilters" style="margin-left: 102px"> AND<br>
                             </form>
                         </div>
                         <br>
@@ -483,7 +483,7 @@
                             <div class="ct-tree-view ct-item">
                                 <ul id="consequenceTypeFilter">
                                     <template is="dom-repeat" items="{{consequenceTypes.categories}}" as="category">
-                                        <li id="{{category.title}}">
+                                        <li id="{{prefix}}{{category.title}}">
                                             <!--First check if there is a title for that category-->
                                             <template is="dom-if" if="{{checkTitle(category)}}">
                                                 <!--If it is a category, only title is shown as it doesn't have any SO term associated with it-->
@@ -492,7 +492,7 @@
                                                 </template>
                                                 <!--If it is not a category, SO terms should be shown along with its actual title-->
                                                 <template is="dom-if" if="{{!category.isCategory}}">
-                                                    <input type="checkbox" on-change="updateConsequenceTypeFilter" data-id="{{category.name}}" class$="soTermCheckBox {{prefix}}FilterCheckBox">
+                                                    <input type="checkbox" id={{prefix}}{{category.name}}" on-change="updateConsequenceTypeFilter" data-id="{{category.name}}" class$="soTermCheckBox {{prefix}}FilterCheckBox">
                                                     <span title="{{item.description}}">
                                                         {{category.title}} (<a href="http://www.sequenceontology.org/browser/current_svn/term/{{category.id}}" target="_blank">{{category.id}}</a>)</span>
                                                 </template>
@@ -505,14 +505,14 @@
                                                 </template>
                                                 <!--If it is not a category, SO terms should be shown along with its actual name-->
                                                 <template is="dom-if" if="{{!category.isCategory}}">
-                                                    <input type="checkbox" on-change="updateConsequenceTypeFilter" data-id="{{category.name}}" class$="soTermCheckBox {{prefix}}FilterCheckBox">
+                                                    <input type="checkbox" id="{{prefix}}{{category.name}}" on-change="updateConsequenceTypeFilter" data-id="{{category.name}}" class$="soTermCheckBox {{prefix}}FilterCheckBox">
                                                     <span title="{{item.description}}">
                                                         {{category.name}} (<a href="http://www.sequenceontology.org/browser/current_svn/term/{{category.id}}" target="_blank">{{category.id}}</a>)</span>
                                                 </template>
                                             </template>
                                             <ul>
                                                 <template is="dom-repeat" items="{{category.terms}}">
-                                                    <li><input type="checkbox" data-id="{{item.name}}" on-change="updateConsequenceTypeFilter" class$="soTermCheckBox {{prefix}}FilterCheckBox">
+                                                    <li><input type="checkbox" id="{{prefix}}{{item.name}}" data-id="{{item.name}}" on-change="updateConsequenceTypeFilter" class$="soTermCheckBox {{prefix}}FilterCheckBox">
                                                         <span title="{{item.description}}">
                                                     {{item.name}} (<a href="http://www.sequenceontology.org/browser/current_svn/term/{{item.id}}" target="_blank">{{item.id}}</a>)</span></li>
                                                 </template>
@@ -589,8 +589,8 @@
                         </div>
                         <form style="padding-top: 10px">
                             <label style="font-weight: normal;">Logical Operator</label>
-                            <input type="radio" name="conservation" id="conservationOrRadio" value="or" class$="{{prefix}}FilterRadio" checked disabled on-change="updateQueryFilters" style="margin-left: 10px"> OR<br>
-                            <input type="radio" name="conservation" id="conservationAndRadio" value="and" class$="{{prefix}}FilterRadio" disabled on-change="updateQueryFilters" style="margin-left: 102px"> AND<br>
+                            <input type="radio" name="{{prefix}}conservation" id="{{prefix}}conservationOrRadio" value="or" class$="{{prefix}}FilterRadio" checked disabled on-change="updateQueryFilters" style="margin-left: 10px"> OR<br>
+                            <input type="radio" name="{{prefix}}conservation" id="{{prefix}}conservationAndRadio" value="and" class$="{{prefix}}FilterRadio" disabled on-change="updateQueryFilters" style="margin-left: 102px"> AND<br>
                         </form>
 
                     </div>
@@ -650,725 +650,830 @@
 
     </template>
 
-
-<script>
-    Polymer({
-        is: 'variant-clinical-filter',
-        properties: {
-            project: {
-                type: Object
-            },
-            study: {
-                type: Object,
-                observer: 'updateDifferentStudies'
-            },
-            studies: {
-                type: Array,
-                observer: 'updateDifferentStudies'
-            },
-            opencgaClient: {
-                type: Object
-            },
-            cellbaseClient: {
-                type: Object,
-                observer: 'cellbaseClientObtained'
-            },
-            config: {
-                type: Object
-            },
-            populationFrequencies: {
-                type: Object
-            },
-            consequenceTypes: {
-                type: Object
-            },
-            mode: {
-                type: String,
-                value: "browser",
-                observer: '_updateMode'
-            },
-            query: {
-                type: Object,
-                notify: true,
-                observer: 'onQueryUpdate'
-            },
-            search: {
-                type: Object,
-                notify: true
-            },
-            samples: {
-                type: Array,
-                notify: true,
-                observer: "sampleChanged"
-            },
-            segregation: {
-                type: String,
-                value: "Select Segregation",
-                observer: "segregate"
-            },
-            prefix: {
-                type: String
-            },
-            analysisSelected: {
-                type: Object,
-                notify: true // This notification will be removed (now is used in variant-clinical)
-            },
-            analysisModal: {
-                type: Boolean,
-                notify: true
+    <script>
+        class VariantClinicalFilter extends Polymer.Element {
+            static get is() { return 'variant-clinical-filter'; }
+            static get properties() {
+                return {
+                    project: {
+                        type: Object
+                    },
+                    study: {
+                        type: Object,
+                        observer: 'updateDifferentStudies'
+                    },
+                    studies: {
+                        type: Array,
+                        observer: 'updateDifferentStudies'
+                    },
+                    opencgaClient: {
+                        type: Object
+                    },
+                    cellbaseClient: {
+                        type: Object,
+                        observer: 'cellbaseClientObtained'
+                    },
+                    config: {
+                        type: Object
+                    },
+                    populationFrequencies: {
+                        type: Object
+                    },
+                    consequenceTypes: {
+                        type: Object
+                    },
+                    mode: {
+                        type: String,
+                        value: "browser",
+                        observer: '_updateMode'
+                    },
+                    query: {
+                        type: Object,
+                        notify: true,
+                        observer: 'onQueryUpdate'
+                    },
+                    search: {
+                        type: Object,
+                        notify: true
+                    },
+                    samples: {
+                        type: Array,
+                        notify: true,
+                        observer: "sampleChanged"
+                    },
+                    segregation: {
+                        type: String,
+                        value: "Select Segregation",
+                        observer: "segregate"
+                    },
+                    analysisSelected: {
+                        type: Object,
+                        notify: true // This notification will be removed (now is used in variant-clinical)
+                    },
+                    analysisModal: {
+                        type: Boolean,
+                        notify: true
+                    }
+                }
             }
-        },
-        ready: function() {
-
-
-            if (typeof this.prefix === "undefined" || this.prefix == "") {
-                this.prefix = "browser" + Utils.randomString(6);
+            constructor() {
+                super();
             }
 
-            this.sampleGenotypesObj = {};
-            this.query = {};
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+            ready() {
+                super.ready();
+                if (PolymerUtils.isEmpty(this.prefix)) {
+                    this.prefix = "clinicalFilter" + Utils.randomString(6);
+                }
+                this.sampleGenotypesObj = {};
+                this.set('query', {});
+                //this.query = {};
 
-            this.isFamilyAnalysis = true;
-            this.set('panelList', PANELS);
-            this.showPedigree = true;
-        },
-        onSearch: function () {
-            this.search = this.query;
-        },
-        onQueryUpdate: function () {
-            if (this._reset) {
-                console.log("onQueryUpdate: calling to 'renderQueryFilters()'")
-                this.renderQueryFilters();
-            } else {
+                this.isFamilyAnalysis = true;
+                this.set('panelList', PANELS);
+                this.showPedigree = true;
+            }
+            onSearch() {
+                //this.search = this.query;
+                this.set('search', this.query);
+            }
+            onQueryUpdate() {
+                if (this._reset) {
+                    console.log("onQueryUpdate: calling to 'renderQueryFilters()'")
+                    this.renderQueryFilters();
+                } else {
+                    this._reset = true;
+                }
+            }
+            handleCollapseAction(e) {
+                let elem = PolymerUtils.getElementById(e.target.dataId);
+                elem.hidden = !elem.hidden;
+                if (elem.hidden) {
+                    e.target.className = "fa fa-plus";
+                } else {
+                    e.target.className = "fa fa-minus";
+                }
+            }
+            checkTitle(consequenceType) {
+                return PolymerUtils.isNotUndefinedOrNull(consequenceType.title);
+            }
+            moreStudiesPresent(studies) {
+                if (PolymerUtils.isNotUndefined(studies)) {
+                    return studies.length > 1;
+                } else {
+                    return false;
+                }
+            }
+            cellbaseClientObtained() {
+                if (this.cellbaseClient instanceof CellBaseClient && PolymerUtils.isUndefined(this.biotypes)) {
+                    let _this = this;
+                    this.cellbaseClient.getGeneClient(null, "biotype", {}, {})
+                        .then(function (response) {
+                            _this.biotypes = response.response[0].result;
+                        });
+                }
+            }
+            updateDifferentStudies() {
+                let differentStudies = [];
+                if (PolymerUtils.isNotUndefined(this.study) && PolymerUtils.isNotUndefined(this.studies)) {
+                    for (let i = 0; i < this.studies.length; i++) {
+                        if (this.study.alias != this.studies[i].alias) {
+                            differentStudies.push(this.studies[i]);
+                        }
+                    }
+                    this.differentStudies = differentStudies;
+                }
+            }
+            updateConsequenceTypeFilter(e) {
+                // TO DO: To migrate to polymer utils
+                let soTerms = [];
+                if (e.target.parentNode.id != "") {
+                    $("#" + e.target.parentNode.id).children('ul').children('li').children('input').prop("checked", e.target.checked);
+                }
+                let selected = PolymerUtils.querySelectorAll('.soTermCheckBox:checked');
+                //let selected = $('.soTermCheckBox:checked');
+                for (let i = 0; i < selected.length; i++) {
+                    soTerms.push(selected[i].dataId);
+                }
+                this.set('ct', soTerms);
+                this.updateQueryFilters();
+            }
+            checkScore(e) {
+                if (e.target.value == "score") {
+                    PolymerUtils.setPropertyById(this.prefix + e.target.name + "Input" , "disabled", false);
+                    PolymerUtils.setPropertyById(this.prefix + e.target.name + "Operator" , "disabled", false);
+                } else {
+                    PolymerUtils.setPropertyById(this.prefix + e.target.name + "Input" , "value", "");
+                    PolymerUtils.setPropertyById(this.prefix + e.target.name + "Operator" , "value", "<");
+                    PolymerUtils.setPropertyById(this.prefix + e.target.name + "Input" , "disabled", true);
+                    PolymerUtils.setPropertyById(this.prefix + e.target.name + "Operator" , "disabled", true);
+                }
+                this.updateQueryFilters();
+            }
+            clear() {
+                // This will trigger the event that call to renderQueryFilters
+                this.query = {};
+
+                // This refresh the variant main grid
+                this.search = {};
+            }
+            renderQueryFilters() {
+                // Empty everything before rendering
+                this._clearHtmlDom();
+
+                // Position
+                if (PolymerUtils.isNotUndefined(this.query.region)){
+                    PolymerUtils.setPropertyById(this.prefix + "LocationTextarea", "value", this.query.region);
+                    //this.$$("#" + this.prefix + "LocationTextarea").value = this.query.region;
+                }
+
+                // XRefs, Gene and Variant Ids
+                if (PolymerUtils.isNotUndefined(this.query["annot-xref"])){
+                    PolymerUtils.setPropertyById(this.prefix + "FeatureTextarea", "value", this.query["annot-xref"]);
+                } else if (PolymerUtils.isNotUndefined(this.query.gene)) {
+                    PolymerUtils.setPropertyById(this.prefix + "FeatureTextarea", "value", this.query.gene);
+                } else if (PolymerUtils.isNotUndefined(this.query.ids)) {
+                    PolymerUtils.setPropertyById(this.prefix + "FeatureTextarea", "value", this.query.ids);
+                }
+
+                // Type -> DOES NOT EXIST IN THIS COMPONENT
+/*                if (PolymerUtils.isNotUndefined(this.query.type)){
+                    let types = this.query.type.split(",");
+                    //let checkBoxes = this.$$("#" + this.prefix + "Type").querySelectorAll("input");
+                    let checkBoxes = PolymerUtils.querySelectorAll("input", this.prefix + "Type");
+                    for (let i = 0; i < types.length; i++) {
+                        for (let j = 0; j < checkBoxes.length; j++) {
+                            if (checkBoxes[j].value == types[i]) {
+                                checkBoxes[j].checked = true;
+                            }
+                        }
+                    }
+                }*/
+
+                // Population Freqs
+                let pfArray = [];
+                if (PolymerUtils.isNotUndefined(this.query["annot-population-maf"])){
+                    pfArray = this.query["annot-population-maf"].split(new RegExp("[,;]"));
+                }
+                if (PolymerUtils.isNotUndefined(this.populationFrequencies) && PolymerUtils.isNotUndefined(this.populationFrequencies.studies) && this.populationFrequencies.studies.length > 0) {
+                    for (let i = 0; i < this.populationFrequencies.studies.length; i++) {
+                        let study = this.populationFrequencies.studies[i].id;
+                        for (let j = 0; j < this.populationFrequencies.studies[i].populations.length; j++) {
+                            let population = this.populationFrequencies.studies[i].populations[j].id;
+                            if (pfArray.length > 0) {
+                                for (let k = 0; k < pfArray.length; k++) {
+                                    let pf = pfArray[k];
+                                    if (pf.startsWith(study + ":" + population)) {
+                                        PolymerUtils.setPropertyById(this.prefix + study + population, "value", pf.split(/[<=>]+/)[1]);
+                                        //this.$$("#" + this.prefix + study + population).value = pf.split(/[<=>]+/)[1];
+                                        PolymerUtils.setPropertyById(this.prefix + study + population + "Operator", "value", pf.split(/[-A-Za-z0-9._:]+/)[1]);
+                                        //this.$$("#" + this.prefix + study + population + "Operator").value = pf.split(/[-A-Za-z0-9._:]+/)[1];
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Protein Substitution scores
+                if (PolymerUtils.isNotUndefined(this.query["protein_substitution"])){
+                    let pss = this.query["protein_substitution"].split(new RegExp("[,;]"));
+                    if (pss.length > 0) {
+                        for (let i = 0; i < pss.length; i++) {
+                            if (pss[i].startsWith("sift")) {
+                                let value = pss[i].split("sift")[1];
+                                if (value.startsWith("<") || value.startsWith(">")) {
+                                    PolymerUtils.setPropertyById(this.prefix + "SiftInput" , "value", value.split(/[<=>]+/)[1]);
+                                    //this.$$("#" + this.prefix + "SiftInput").value = value.split(/[<=>]+/)[1];
+                                    PolymerUtils.setPropertyById(this.prefix + "SiftOperator" , "value", value.split(/[-0-9.]+/)[0]);
+                                    //this.$$("#" + this.prefix + "SiftOperator").value = value.split(/[-0-9.]+/)[0];
+                                } else {
+                                    PolymerUtils.setPropertyById(this.prefix + "SiftValues", "value", value.split('==')[1]);
+                                    //this.$$("#" + this.prefix + "SiftValues").value = value.split('==')[1];
+                                }
+                                PolymerUtils.setAttribute(this.prefix + "SiftInput", "disabled", !(value.startsWith("<") || value.startsWith(">")));
+                                //this.$$("#" + this.prefix + "SiftInput").disabled = !(value.startsWith("<") || value.startsWith(">"));
+                                PolymerUtils.setAttribute(this.prefix + "SiftOperator", "disabled", !(value.startsWith("<") || value.startsWith(">")));
+                                //this.$$("#" + this.prefix + "SiftOperator").disabled = !(value.startsWith("<") || value.startsWith(">"));
+                            } else if (pss[i].startsWith("polyphen")) {
+                                let value = pss[i].split("polyphen")[1];
+                                if (value.startsWith("<") || value.startsWith(">")) {
+                                    PolymerUtils.setPropertyById(this.prefix + "PolyphenInput", "value", value.split(/[<=>]+/)[1]);
+                                    //this.$$("#" + this.prefix + "PolyphenInput").value = value.split(/[<=>]+/)[1];
+                                    PolymerUtils.setPropertyById(this.prefix + "PolyphenOperator", "value", value.split(/[-0-9.]+/)[0]);
+                                    //this.$$("#" + this.prefix + "PolyphenOperator").value = value.split(/[-0-9.]+/)[0];
+                                } else {
+                                    PolymerUtils.setPropertyById(this.prefix + "PolyphenValues", "value", value.split('==')[1]);
+                                    //this.$$("#" + this.prefix + "PolyphenValues").value = value.split('==')[1];
+                                }
+                                PolymerUtils.setAttribute(this.prefix + "PolyphenInput", "disabled", !(value.startsWith("<") || value.startsWith(">")));
+                                //this.$$("#" + this.prefix + "PolyphenInput").disabled = !(value.startsWith("<") || value.startsWith(">"));
+                                PolymerUtils.setAttribute(this.prefix + "PolyphenOperator", "disabled", !(value.startsWith("<") || value.startsWith(">")));
+                                //this.$$("#" + this.prefix + "PolyphenOperator").disabled = !(value.startsWith("<") || value.startsWith(">"));
+                            }
+                        }
+                    }
+                }
+
+                // Cadd scores
+                if (PolymerUtils.isNotUndefined(this.query["annot-functional-score"])) {
+                    let fields = this.query["annot-functional-score"].split(new RegExp("[,;]"));
+                    for (let i = 0; i < fields.length; i++) {
+                        let source = fields[i].split(/[<=>]+/)[0];
+                        switch(source) {
+                            case "cadd_raw":
+                                PolymerUtils.setPropertyById(this.prefix + "CaddRawInput", "value", fields[i].split(/[<=>]+/)[1]);
+                                //this.$$("#" + this.prefix + "CaddRawInput").value = fields[i].split(/[<=>]+/)[1];
+                                PolymerUtils.setPropertyById(this.prefix + "CaddRawOperator", "value", fields[i].split(/[-A-Za-z0-9_]+/)[1]);
+                                //this.$$("#" + this.prefix + "CaddRawOperator").value = fields[i].split(/[-A-Za-z0-9_]+/)[1];
+                                break;
+                            case "cadd_scaled":
+                                PolymerUtils.setPropertyById(this.prefix + "CaddScaledInput", "value", fields[i].split(/[<=>]+/)[1]);
+                                //this.$$("#" + this.prefix + "CaddScaledInput").value = fields[i].split(/[<=>]+/)[1];
+                                PolymerUtils.setPropertyById(this.prefix + "CaddScaledOperator", "value", fields[i].split(/[-A-Za-z0-9_]+/)[1]);
+                                //this.$$("#" + this.prefix + "CaddScaledOperator").value = fields[i].split(/[-A-Za-z0-9_]+/)[1];
+                                break;
+                        }
+                    }
+                }
+
+                // Conservation
+                if (PolymerUtils.isNotUndefined(this.query.conservation)) {
+                    let fields = this.query.conservation.split(new RegExp("[,;]"));
+                    for (let i = 0; i < fields.length; i++) {
+                        let source = fields[i].split(/[<=>]+/)[0];
+                        switch(source) {
+                            case "phylop":
+                                PolymerUtils.setPropertyById(this.prefix + "PhylopInput", "value", fields[i].split(/[<=>]+/)[1]);
+                                //this.$$("#" + this.prefix + "PhylopInput").value = fields[i].split(/[<=>]+/)[1];
+                                PolymerUtils.setPropertyById(this.prefix + "PhylopOperator", "value", fields[i].split(/[-A-Za-z0-9]+/)[1]);
+                                //this.$$("#" + this.prefix + "PhylopOperator").value = fields[i].split(/[-A-Za-z0-9]+/)[1];
+                                break;
+                            case "phastCons":
+                                PolymerUtils.setPropertyById(this.prefix + "PhastconsInput", "value", fields[i].split(/[<=>]+/)[1]);
+                                //this.$$("#" + this.prefix + "PhastconsInput").value = fields[i].split(/[<=>]+/)[1];
+                                PolymerUtils.setPropertyById(this.prefix + "PhastconsOperator", "value", fields[i].split(/[-A-Za-z0-9]+/)[1]);
+                                //this.$$("#" + this.prefix + "PhastconsOperator").value = fields[i].split(/[-A-Za-z0-9]+/)[1];
+                                break;
+                            case "gerp":
+                                PolymerUtils.setPropertyById(this.prefix + "GerpInput", "value", fields[i].split(/[<=>]+/)[1]);
+                                //this.$$("#" + this.prefix + "GerpInput").value = fields[i].split(/[<=>]+/)[1];
+                                PolymerUtils.setPropertyById(this.prefix + "GerpOperator", "value", fields[i].split(/[-A-Za-z0-9]+/)[1]);
+                                //this.$$("#" + this.prefix + "GerpOperator").value = fields[i].split(/[-A-Za-z0-9]+/)[1];
+                                break;
+                        }
+                    }
+                }
+
+                // Consequence Type
+                if (PolymerUtils.isNotUndefined(this.query["annot-ct"])) {
+                    let types = this.query["annot-ct"].split(",");
+                    let checkboxes = PolymerUtils.querySelectorAll("li input", "consequenceTypeFilter")
+                    //let checkBoxes = this.$$("#consequenceTypeFilter").querySelectorAll("li input");
+                    for (let i = 0; i < types.length; i++) {
+                        for (let j = 0; j < checkBoxes.length; j++) {
+                            if (checkBoxes[j].dataId == types[i]) {
+                                checkBoxes[j].checked = true;
+                            }
+                        }
+                    }
+                } else {
+                    this.set('ct', []); // Clearing the consequence type that is taken by this.query
+                }
+
+                // Gene Ontology and Human Phenotype Ontology
+                if (PolymerUtils.isNotUndefined(this.query["annot-go"])) {
+                    PolymerUtils.setPropertyById(this.prefix + "GeneOntologyTextarea", "value", this.query["annot-go"]);
+                    //this.$$("#" + this.prefix + "GeneOntologyTextarea").value = this.query["annot-go"];
+                }
+                if (PolymerUtils.isNotUndefined(this.query["annot-hpo"])) {
+                    PolymerUtils.setPropertyById(this.prefix + "HumanPhenotypeOntologyTextarea", "value", this.query["annot-hpo"]);
+                    //this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value = this.query["annot-hpo"];
+                }
+            }
+            updatePanel(){
+                console.log(this);
+                debugger;
+                let panelname = PolymerUtils.getPropertyById(this.prefix + "PanelApps", "value");
+                //let panelname = this.$$("#" + this.prefix + "PanelApps").value;
+                for(var i = 0; i < this.panelList.length ; i++){
+                    if(this.panelList[i].name == panelname){
+                        let panel = this.panelList[i];
+                        PolymerUtils.setPropertyById(this.prefix + "PanelAppsTextarea", "value", panel.genes);
+                        //this.$$("#" + this.prefix + "PanelAppsTextarea").value = panel.genes;
+                        break;
+                    }
+                }
+                this.updateQueryFilters();
+            }
+            sortPanelApp(a, b) {
+                if (a.title === b.title) {
+                    return 0;
+                }
+                return a.title < b.title ? -1 : 1;
+            }
+            updateQueryFilters() {
+                console.log(this);
+                debugger;
+                let _filters = {};
+                // Adding sample genotypes filter
+                if (PolymerUtils.isNotEmpty(this.sampleGenotypes)) {
+                    _filters.genotype = this.sampleGenotypes;
+                }
+
+                // Studies -> DOES NOT EXIST IN THIS WEBCOMPONENT
+/*                let studies = [];
+                if (typeof this.$$("#includeOtherStudy") !== "undefined" && this.$$("#includeOtherStudy") != null) {
+                    let selectedStudies = this.$$("#differentStudies").querySelectorAll("input:checked");
+                    if (selectedStudies.length > 0) {
+                        // Always add the study that we are browsing currently
+                        studies.push(this.project.alias + ':' + this.study.alias);
+                        for (let i = 0; i < selectedStudies.length; i++) {
+                            studies.push(this.project.alias + ':' + selectedStudies[i].value);
+                        }
+                    }
+
+                    switch (this.$$("#includeOtherStudy").value) {
+                        case "in":
+                            _filters.studies = studies.join(';');
+                            break;
+                        case "atleast":
+                            _filters.studies = studies.join(',');
+                            break;
+                        case "not in":
+                            let notInStudies = [];
+                            for (let j = 0; j < studies.length; j++) {
+                                notInStudies.push("!" + studies[j]);
+                            }
+                            _filters.studies = notInStudies.join(";");
+                            break;
+                    }
+                }*/
+
+                // Regions
+                if (PolymerUtils.isNotEmptyValueById(this.prefix + "LocationTextarea")) {
+                //if (this.$$("#" + this.prefix + "LocationTextarea").value !== "") {
+                    _filters.region = PolymerUtils.getPropertyById(this.prefix + "LocationTextarea", "value");
+                    //_filters.region = this.$$("#" + this.prefix + "LocationTextarea").value;
+                }
+
+                // Features: Gene, SNP ID
+                if (PolymerUtils.isNotEmptyValueById(this.prefix + "FeatureTextarea")) {
+                //if (this.$$("#" + this.prefix + "FeatureTextarea").value !== "") {
+                    if (PolymerUtils.getPropertyById(this.prefix + "FeatureTextarea", "value").startsWith("rs") || PolymerUtils.getPropertyById(this.prefix + "FeatureTextarea", "value").split(':').length > 2){
+                    //if (this.$$("#" + this.prefix + "FeatureTextarea").value.startsWith("rs") || this.$$("#" + this.prefix + "FeatureTextarea").value.split(':').length > 2) {
+                        _filters["annot-xref"] = PolymerUtils.getPropertyById(this.prefix + "FeatureTextarea", "value");
+                        //_filters["annot-xref"] = this.$$("#" + this.prefix + "FeatureTextarea").value;
+                    } else {
+                        _filters["annot-xref"] = PolymerUtils.getPropertyById(this.prefix + "FeatureTextarea", "value").toUpperCase();
+                        //_filters["annot-xref"] = this.$$("#" + this.prefix + "FeatureTextarea").value.toUpperCase();
+                    }
+                }
+
+                // Biotype
+                if (PolymerUtils.getElementById(this.prefix + "GeneBiotypes").selectedOptions.length >0) {
+                //if (this.$$("#" + this.prefix + "GeneBiotypes").value !== "none") {
+                    let _auxBiotype = [];
+                    let _allElements = PolymerUtils.getElementById(this.prefix + "GeneBiotypes").selectedOptions;
+                    for (let i = 0; i < _allElements.length; i++) {
+                        _auxBiotype.push(_allElements[i].value);
+                    }
+
+                    _filters["annot-biotype"] = _auxBiotype.join(",");
+                    // _filters["annot-biotype"] = this.$$("#" + this.prefix + "GeneBiotypes").value;
+                }
+
+                // Panel - annot-panel
+                if (PolymerUtils.isNotEmptyValueById(this.prefix + "PanelApps") || PolymerUtils.isNotEmptyValueById(this.prefix + "PanelAppsTextarea")){
+                //if (this.$$("#" + this.prefix + "PanelApps").value !== "none" || this.$$("#" + this.prefix + "PanelAppsTextarea").value !== "") {
+                    _filters["gene"] = PolymerUtils.getPropertyById(this.prefix + "PanelAppsTextarea", "value");
+                    //_filters["gene"] = this.$$("#" + this.prefix + "PanelAppsTextarea").value;
+                }
+
+
+                // Type
+    //            let types = this.$$("#" + this.prefix + "Type").querySelectorAll("input:checked");
+    //            let typesAux = [];
+    //            if (types.length > 0) {
+    //                for (let i = 0; i < types.length; i++) {
+    //                    typesAux.push(types[i].value);
+    //                }
+    //                _filters.type = typesAux.join(',');
+    //            }
+
+                // Population Frequencies
+                // Population minor allele frequency: {study}:{population}[<|>|<=|>=]{number}
+                let popFreq = [];
+                if (PolymerUtils.isNotUndefined(this.populationFrequencies) && PolymerUtils.isNotUndefined(this.populationFrequencies.studies) && this.populationFrequencies.studies.length > 0){
+                //if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.studies !== "undefined" && this.populationFrequencies.studies.length > 0) {
+                    for (let i = 0; i < this.populationFrequencies.studies.length; i++) {
+                        let study = this.populationFrequencies.studies[i].id;
+                        for (let j = 0; j < this.populationFrequencies.studies[i].populations.length; j++) {
+                            let population = this.populationFrequencies.studies[i].populations[j].id;
+                            if (PolymerUtils.isNotEmptyValueById(this.prefix + study + population) || PolymerUtils.getPropertyById(this.prefix + study + population + "Operator", "value") != "<"){
+                            //if (this.$$("#" + this.prefix + study + population).value != "" || this.$$("#" + this.prefix + study + population + "Operator").value != "<") {
+                                let operator = PolymerUtils.getPropertyById(this.prefix + study + population + "Operator", "value");
+                                //let operator = this.$$("#" + this.prefix + study + population + "Operator").value;
+                                let pf = study + ":" + population + operator + PolymerUtils.getPropertyById(this.prefix + study + population, "value");
+                                //let pf = study + ":" + population + operator + this.$$("#" + this.prefix + study + population).value;
+                                popFreq.push(pf);
+                            }
+                        }
+                    }
+                }
+                if (popFreq.length > 0) {
+                    _filters["annot-population-maf"] = popFreq.join(';');
+                }
+
+                // Protein Substitution scores
+                let pss = [];
+                let sift = "";
+                if (PolymerUtils.getPropertyById(this.prefix + "SiftValues", "value") === "score" && PolymerUtils.isNotEmptyValueById(this.prefix + "SiftInput") || PolymerUtils.getPropertyById(this.prefix + "SiftOperator", "value") != "<") {
+                    //if (this.$$("#" + this.prefix + "SiftValues").value == "score" && this.$$("#" + this.prefix + "SiftInput").value != "" || this.$$("#" + this.prefix + "SiftOperator").value != "<") {
+                    sift = "sift" + PolymerUtils.getPropertyById(this.prefix + "SiftOperator", "value") + PolymerUtils.getPropertyById(this.prefix + "SiftInput", "value");
+                    //sift = "sift" + this.$$("#" + this.prefix + "SiftOperator").value + this.$$("#" + this.prefix + "SiftInput").value;
+                    pss.push(sift);
+                } else if (PolymerUtils.getPropertyById(this.prefix + "SiftValues", "value") != "score") {
+                //} else if (this.$$("#" + this.prefix + "SiftValues").value != "score") {
+                    sift = "sift" + "==" + PolymerUtils.getPropertyById(this.prefix + "SiftValues", "value");
+                    //sift = "sift" + "==" + this.$$("#" + this.prefix + "SiftValues").value;
+                    pss.push(sift);
+                }
+                let polyphen = "";
+                if (PolymerUtils.getPropertyById(this.prefix + "PolyphenValues", "value") == "score" && PolymerUtils.isNotEmptyValueById(this.prefix + "PolyphenInput") || PolymerUtils.getPropertyById(this.prefix + "PolyphenOperator", "value") != "<") {
+                    //if (this.$$("#" + this.prefix + "PolyphenValues").value == "score" && this.$$("#" + this.prefix + "PolyphenInput").value != "" || this.$$("#" + this.prefix + "PolyphenOperator").value != "<") {
+                    polyphen = "polyphen" + PolymerUtils.getPropertyById(this.prefix + "PolyphenOperator", "value") + PolymerUtils.getPropertyById(this.prefix + "PolyphenInput", "value");
+                    //polyphen = "polyphen" + this.$$("#" + this.prefix + "PolyphenOperator").value + this.$$("#" + this.prefix + "PolyphenInput").value;
+                    pss.push(polyphen);
+                } else if (PolymerUtils.getPropertyById(this.prefix + "PolyphenValues", "value") != "score") {
+                    //} else if (this.$$("#" + this.prefix + "PolyphenValues").value != "score") {
+                    let value = PolymerUtils.getPropertyById(this.prefix + "PolyphenValues", "value");
+                    //let value = this.$$("#" + this.prefix + "PolyphenValues").value;
+                    let polyphenValues = value.split(',');
+                    for (let i = 0; i < polyphenValues.length; i++) {
+                        polyphen = "polyphen" + "==" + polyphenValues[i];
+                        pss.push(polyphen);
+                    }
+                }
+                if ((PolymerUtils.isNotEmptyValueById(this.prefix + "SiftInput") && PolymerUtils.isNotEmptyValueById(this.prefix + "PolyphenInput")) ||
+                    (PolymerUtils.getPropertyById(this.prefix + "SiftValues", "value") != "score" && PolymerUtils.isNotEmptyValueById(this.prefix + "PolyphenInput")) ||
+                    (PolymerUtils.isNotEmptyValueById(this.prefix + "SiftInput") && PolymerUtils.getPropertyById(this.prefix + "PolyphenValues", "value") != "score") ||
+                    (PolymerUtils.getPropertyById(this.prefix + "SiftValues", "value") != "score" && PolymerUtils.getPropertyById(this.prefix + "PolyphenValues", "value") != "score")){
+                //if ((this.$$("#" + this.prefix + "SiftInput").value != "" && this.$$("#" + this.prefix + "PolyphenInput").value != "") ||
+                //    (this.$$("#" + this.prefix + "SiftValues").value != "score" && this.$$("#" + this.prefix + "PolyphenInput").value != "") ||
+                //    ((this.$$("#" + this.prefix + "SiftInput").value) != "" && this.$$("#" + this.prefix + "PolyphenValues").value != "score") ||
+                //    (this.$$("#" + this.prefix + "SiftValues").value != "score" && this.$$("#" + this.prefix + "PolyphenValues").value != "score")) {
+                    let pssElements = PolymerUtils.querySelectorAll("input[name=" + this.prefix + "pss]");
+                    pssElements.forEach(function (item) {
+                        PolymerUtils.removeAttribute(item.id, "disabled");
+                    });
+                    //$("input:radio[name=pss]").attr('disabled', false);
+                }
+                else {
+                    let pssElements = PolymerUtils.querySelectorAll("input[name=" + this.prefix + "pss]");
+                    pssElements.forEach(function (item) {
+                        PolymerUtils.setAttribute(item.id, "disabled", true);
+                    });
+
+                }
+                if (pss.length > 0) {
+                    //let filter = $('input:radio[name=pss]:checked').val();
+                    let filter = PolymerUtils.querySelector("input[name=" + this.prefix + "pss]:checked").value;
+                    if (filter == "and") {
+                        _filters.protein_substitution = pss.join(';');
+                    } else {
+                        _filters.protein_substitution = pss.join(',');
+                    }
+                }
+
+                // Conservation
+                let conserArr = [];
+                if (PolymerUtils.isNotEmptyValueById(this.prefix + "PhylopInput") || PolymerUtils.getPropertyById(this.prefix + "PhylopOperator", "value") != "<") {
+                    //if (this.$$("#" + this.prefix + "PhylopInput").value != "" || this.$$("#" + this.prefix + "PhylopOperator").value != "<") {
+                    let phylop = "phylop" + PolymerUtils.getPropertyById(this.prefix + "PhylopOperator", "value") + PolymerUtils.getPropertyById(this.prefix + "PhylopInput", "value")
+                    //let phylop = "phylop" + this.$$("#" + this.prefix + "PhylopOperator").value + this.$$("#" + this.prefix + "PhylopInput").value;
+                    conserArr.push(phylop);
+                }
+                if (PolymerUtils.isNotEmptyValueById(this.prefix + "PhastconsInput") || PolymerUtils.getPropertyById(this.prefix + "PhastconsOperator", "value") != "<") {
+                //if (this.$$("#" + this.prefix + "PhastconsInput").value != "" || this.$$("#" + this.prefix + "PhastconsOperator").value != "<") {
+                    let phastCons = "phastCons" + PolymerUtils.getPropertyById(this.prefix + "PhastconsOperator", "value") + PolymerUtils.getPropertyById(this.prefix + "PhastconsInput", "value");
+                    //let phastCons = "phastCons" + this.$$("#" + this.prefix + "PhastconsOperator").value + this.$$("#" + this.prefix + "PhastconsInput").value;
+                    conserArr.push(phastCons);
+                }
+                if (PolymerUtils.isNotEmptyValueById(this.prefix + "GerpInput") || PolymerUtils.getPropertyById(this.prefix + "GerpOperator", "value") != "<") {
+                //if (this.$$("#" + this.prefix + "GerpInput").value != "" || this.$$("#" + this.prefix + "GerpOperator").value != "<") {
+                    let gerp = "gerp" + PolymerUtils.getPropertyById(this.prefix + "GerpOperator", "value") + PolymerUtils.getPropertyById(this.prefix + "GerpInput", "value");
+                    //let gerp = "gerp" + this.$$("#" + this.prefix + "GerpOperator").value + this.$$("#" + this.prefix + "GerpInput").value;
+                    conserArr.push(gerp);
+                }
+                if ((PolymerUtils.isNotEmptyValueById(this.prefix + "PhylopInput") && PolymerUtils.isNotEmptyValueById(this.prefix + "PhastconsInput")) ||
+                    (PolymerUtils.isNotEmptyValueById(this.prefix + "PhylopInput") && PolymerUtils.isNotEmptyValueById(this.prefix + "GerpInput")) ||
+                    (PolymerUtils.isNotEmptyValueById(this.prefix + "PhastconsInput") && PolymerUtils.isNotEmptyValueById(this.prefix + "GerpInput"))) {
+                //if ((this.$$("#" + this.prefix + "PhylopInput").value != "" && this.$$("#" + this.prefix + "PhastconsInput").value != "") ||
+                //    (this.$$("#" + this.prefix + "PhylopInput").value != "" && this.$$("#" + this.prefix + "GerpInput").value != "") ||
+                //    (this.$$("#" + this.prefix + "PhastconsInput").value != "" && this.$$("#" + this.prefix + "GerpInput").value != "")) {
+                    let conservationElements = PolymerUtils.querySelectorAll("input[name=" + this.prefix + "conservation]");
+                    conservationElements.forEach(function (item) {
+                        PolymerUtils.removeAttribute(item.id, "disabled");
+                    });
+                    //$("input:radio[name=conservation]").attr('disabled', false);
+                }
+                else {
+                    let conservationElements = PolymerUtils.querySelectorAll("input[name=" + this.prefix + "conservation]");
+                    conservationElements.forEach(function (item) {
+                        PolymerUtils.setAttribute(item.id, "disabled", true);
+                    });
+                }
+
+                if (conserArr.length > 0) {
+                    let filter = PolymerUtils.querySelector("input[name=" + this.prefix + "conservation]:checked").value;
+                    //let filter = $('input:radio[name=conservation]:checked').val();
+                    if (filter == "and") {
+                        _filters.conservation = conserArr.join(';');
+                    } else {
+                        _filters.conservation = conserArr.join(',');
+                    }
+                }
+
+                // Consequence Type
+                if (PolymerUtils.isNotUndefined(this.ct) && this.ct.length > 0) {
+                //if (typeof this.ct !== "undefined" && this.ct.length > 0) {
+                    _filters["annot-ct"]= this.ct.join(',');
+                }
+
+                // Gene Ontology and Human Phenotype Ontology
+                if (PolymerUtils.isNotEmptyValueById(this.prefix + "HumanPhenotypeOntologyTextarea")) {
+                // if (this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value != "") {
+                    _filters["annot-hpo"] = PolymerUtils.getElementById(this.prefix + "HumanPhenotypeOntologyTextarea", "value");
+                    //_filters["annot-hpo"] = this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value;
+                }
+                if (PolymerUtils.isNotEmptyValueById(this.prefix + "GeneOntologyTextarea")){
+                //if (this.$$("#" + this.prefix + "GeneOntologyTextarea").value != "") {
+                    _filters["annot-go"] = PolymerUtils.getElementById(this.prefix + "GeneOntologyTextarea", "value");
+                    //_filters["annot-go"] = this.$$("#" + this.prefix + "GeneOntologyTextarea").value;
+                }
+    //            if (this.$$("#" + this.prefix + "TraitsTextarea").value != "") {
+    //                _filters["traits"] = this.$$("#" + this.prefix + "TraitsTextarea").value;
+    //            }
+
+                // Cadd scores
+                let cadd = [];
+                if (PolymerUtils.isNotEmptyValueById(this.prefix + "CaddRawInput") || PolymerUtils.getPropertyById(this.prefix + "CaddRawOperator","value") != "<") {
+                //if (this.$$("#" + this.prefix + "CaddRawInput").value != "" || this.$$("#" + this.prefix + "CaddRawOperator").value != "<") {
+                    let raw = "cadd_raw" + PolymerUtils.getPropertyById(this.prefix + "CaddRawOperator","value") + PolymerUtils.getPropertyById(this.prefix + "CaddRawInput","value");
+                    //let raw = "cadd_raw" + this.$$("#" + this.prefix + "CaddRawOperator").value + this.$$("#" + this.prefix + "CaddRawInput").value;
+                    cadd.push(raw);
+                }
+                if (PolymerUtils.isNotEmptyValueById(this.prefix + "CaddScaledInput") || PolymerUtils.getPropertyById(this.prefix + "CaddScaledOperator","value") != "<") {
+                //if (this.$$("#" + this.prefix + "CaddScaledInput").value != "" || this.$$("#" + this.prefix + "CaddScaledOperator").value != "<") {
+                    let scaled = "cadd_scaled" + PolymerUtils.getPropertyById(this.prefix + "CaddScaledOperator","value") + PolymerUtils.getPropertyById(this.prefix + "CaddScaledInput","value");
+                    //let scaled = "cadd_scaled" + this.$$("#" + this.prefix + "CaddScaledOperator").value + this.$$("#" + this.prefix + "CaddScaledInput").value;
+                    cadd.push(scaled);
+                }
+                if (cadd.length > 0) {
+                    _filters["annot-functional-score"] = cadd.join(',');
+                }
+
+                // To prevent to call renderQueryFilters we set this to false
+                this._reset = false;
+                this.set('query', _filters);
+                //this.query = _filters;
                 this._reset = true;
             }
-        },
-        handleCollapseAction: function (e) {
-            let id = e.target.dataId;
-            let elem = $('#' + id)[0];
-            elem.hidden = !elem.hidden;
-            if (elem.hidden) {
-                e.target.className = "fa fa-plus";
-            } else {
-                e.target.className = "fa fa-minus";
+            // Exclusive for prioritization
+            refreshSegregationTable() {
+    //                this.samples = [];
             }
-        },
-        checkTitle: function(consequenceType) {
-            return typeof consequenceType.title !== "undefined" && consequenceType.title != null;
-        },
-        moreStudiesPresent: function (studies) {
-            if (typeof studies !== "undefined") {
-                return studies.length > 1;
-            } else {
-                return false;
-            }
-        },
-        cellbaseClientObtained: function () {
-            if (this.cellbaseClient instanceof CellBaseClient && typeof this.biotypes === "undefined") {
-                let _this = this;
-                this.cellbaseClient.getGeneClient(null, "biotype", {}, {})
-                    .then(function (response) {
-                        _this.biotypes = response.response[0].result;
-                    });
-            }
-        },
-        updateDifferentStudies: function () {
-            let differentStudies = [];
-            if (typeof this.study !== "undefined" && typeof this.studies !== "undefined") {
-                for (let i = 0; i < this.studies.length; i++) {
-                    if (this.study.alias != this.studies[i].alias) {
-                        differentStudies.push(this.studies[i]);
-                    }
+            selectAnalysisType(e) {
+                e.preventDefault();
+                this.analysisType = e.target.value;
+                this.isFamilyAnalysis = this.isCancerAnalysis = false;
+                if (this.analysisType === "family") {
+                    this.isFamilyAnalysis = true;
+                } else {
+                    this.isCancerAnalysis = true;
                 }
-                this.differentStudies = differentStudies;
             }
-        },
-        updateConsequenceTypeFilter: function(e) {
-            let soTerms = [];
-            if (e.target.parentNode.id != "") {
-                $("#" + e.target.parentNode.id).children('ul').children('li').children('input').prop("checked", e.target.checked);
+            selectSegregation(e) {
+                e.preventDefault();
+                this.segregation = e.target.innerHTML;
             }
-            let selected = $('.soTermCheckBox:checked');
-            for (let i = 0; i < selected.length; i++) {
-                soTerms.push(selected[i].dataId);
-            }
-            this.set('ct', soTerms);
-            this.updateQueryFilters();
-        },
-        checkScore: function (e) {
-            if (e.target.value == "score") {
-                $("#" + this.prefix + e.target.name +"Input").prop("disabled", false);
-                $("#" + this.prefix + e.target.name +"Operator").prop("disabled", false);
-            } else {
-                $("#" + this.prefix + e.target.name + "Input").val("");
-                $("#" + this.prefix + e.target.name + "Operator").val("<");
-                $("#" + this.prefix + e.target.name + "Input").prop("disabled", true);
-                $("#" + this.prefix + e.target.name + "Operator").prop("disabled", true);
-            }
-            this.updateQueryFilters();
-        },
-        clear: function() {
-            // This will trigger the event that call to renderQueryFilters
-            this.query = {};
+            sampleGenotypeSelected(e) {
+                // TODO coordinate manual selection and event driven selection
+    //                if (this.sampleGenotypes != "") {
+    //                    let genotypes = this.sampleGenotypes.split(';');
+    //                    this.sampleGenotypesObj = genotypes.reduce(function(result, item) {
+    //                        debugger
+    //                        let items = item.split(':');
+    //                        result[items[0]] = {};
+    //                        result[items[0]][items[1]] = true;
+    //                        return result;
+    //                    }, {});
+    //                }
+                if (PolymerUtils.isNotUndefined(e)) {
+                    if (PolymerUtils.isUndefined(this.sampleGenotypesObj[e.target.dataId])) {
+                        this.sampleGenotypesObj[e.target.dataId] = {};
+                    }
+                    this.sampleGenotypesObj[e.target.dataId][e.target.defaultValue] = e.target.checked;
 
-            // This refresh the variant main grid
-            this.search = {};
-        },
-        renderQueryFilters: function () {
-            // Empty everything before rendering
-            this._clearHtmlDom();
+                    let arr = [];
+                    for (let sampleName in this.sampleGenotypesObj) {
+                        let gts = [];
+                        for (let sampleGT in this.sampleGenotypesObj[sampleName]) {
+                            if (this.sampleGenotypesObj[sampleName][sampleGT] == true) {
+                                gts.push(sampleGT.replace('/', '|'));
+                            }
+                        }
+                        if (gts.length > 0) {
+                            arr.push(sampleName + ':' + gts.join(','));
+                        }
+                    }
+                    this.sampleGenotypes = arr.join(';');
+                    if (arr.length > 0) {
+                        this._filters.genoType = arr.join(';');
+                    } else {
+                        delete this._filters.genoType;
+                    }
+                    this._filtersCount = Object.keys(this._filters).length;
+                }
+            }
+            sampleChanged() {
+                this.segregation = "Select Segregation";
+            }
+            segregate() { // In order to make this function to work, build segregationTable table
+                let cell;
+                let samples = this.samples;
 
-            // Studies
-            if (typeof this.query.studies !== "undefined") {
-                if (this.$$("#includeOtherStudy") != null && this.$$("#differentStudies") != null) {
-                    let studies = this.query.studies.split(new RegExp("[,;]"));
-                    if (studies.length > 1) { // Checking if other studies apart from the current study are present
-                        let checkBoxes = this.$$("#differentStudies").querySelectorAll("input:checked");
-                        for (let i = 0; i < studies.length; i++) {
-                            let study = studies[i].split(':')[1];
-                            for (let j = 0; j < checkBoxes.length; j++) {
-                                if (checkBoxes[j].value == study) {
-                                    checkBoxes[j].checked = true;
+                /*if (PolymerUtils.isNotUndefined(samples) && samples != "" && samples.length >= 3) {
+                    if (this.segregation == "Autosomal Dominant") {
+                        for (let i = 0; i < samples.length; i++) {
+                            let index = i + 1;
+                            if (samples[i].status == "unaffected") {
+                                cell = $("#segregationTable tr:eq(" + index + ") td:eq(1)")[0].children[0];
+                                $(cell).prop("checked", true);
+                            } else if (samples[i].status == "affected") {
+                                for (let j = 0; j < samples.length; j++) {
+                                    if (i == j) {
+                                        continue;
+                                    }
+                                    if (samples[j].status == "unaffected" && samples[j].memberCode == "D" || samples[j].memberCode == "S") {
+                                        cell = $("#segregationTable tr:eq(" + index + ") td:eq(2)")[0].children[0];
+                                        $(cell).prop("checked", true);
+                                    } else if (samples[j].status == "affected" && samples[i].memberCode == "F") {
+                                        if (i == 0 && j == 1) {
+                                            cell = $("#segregationTable tr:eq(" + index + ") td:eq(2)")[0].children[0];
+                                            $(cell).prop("checked", true);
+                                        } else if (i == 0 && j != 1) {
+                                            cell = $("#segregationTable tr:eq(" + index + ") td:eq(2)")[0].children[0];
+                                            $(cell).prop("checked", true);
+                                            cell = $("#segregationTable tr:eq(" + index + ") td:eq(3)")[0].children[0];
+                                            $(cell).prop("checked", true);
+                                        }
+                                    } else if (samples[j].status == "affected" && samples[i].memberCode == "M") {
+                                        if (i == 1 && j == 0) {
+                                            cell = $("#segregationTable tr:eq(" + index + ") td:eq(2)")[0].children[0];
+                                            $(cell).prop("checked", true);
+                                        } else if (i == 1 && j != 0) {
+                                            cell = $("#segregationTable tr:eq(" + index + ") td:eq(2)")[0].children[0];
+                                            $(cell).prop("checked", true);
+                                            cell = $("#segregationTable tr:eq(" + index + ") td:eq(3)")[0].children[0];
+                                            $(cell).prop("checked", true);
+                                        }
+                                    } else if (samples[j].status == "affected" && samples[i].memberCode == "D" || samples[i].memberCode == "S") {
+                                        cell = $("#segregationTable tr:eq(" + index + ") td:eq(2)")[0].children[0];
+                                        $(cell).prop("checked", true);
+                                        if (samples[j + 1].status == "affected" && samples[j + 1].memberCode == "M") {
+                                            cell = $("#segregationTable tr:eq(" + index + ") td:eq(3)")[0].children[0];
+                                            $(cell).prop("checked", true);
+                                        }
+                                    }
                                 }
                             }
                         }
+                        this.sampleGenotypeManual();
                     }
-                }
+                }*/
             }
-
-            // Position
-            if (typeof this.query.region !== "undefined") {
-                this.$$("#" + this.prefix + "LocationTextarea").value = this.query.region;
-            }
-
-            // XRefs, Gene and Variant Ids
-            if (typeof this.query["annot-xref"] !== "undefined") {
-                this.$$("#" + this.prefix + "FeatureTextarea").value = this.query["annot-xref"];
-            } else if (typeof this.query.gene !== "undefined") {
-                this.$$("#" + this.prefix + "FeatureTextarea").value = this.query.gene;
-            } else if (typeof this.query.ids !== "undefined") {
-                this.$$("#" + this.prefix + "FeatureTextarea").value = this.query.ids;
-            }
-
-            // Type
-            if (typeof this.query.type !== "undefined") {
-                let types = this.query.type.split(",");
-                let checkBoxes = this.$$("#" + this.prefix + "Type").querySelectorAll("input");
-                for (let i = 0; i < types.length; i++) {
-                    for (let j = 0; j < checkBoxes.length; j++) {
-                        if (checkBoxes[j].value == types[i]) {
-                            checkBoxes[j].checked = true;
-                        }
-                    }
-                }
-            }
-
-            // Population Freqs
-            let pfArray = [];
-            if (typeof this.query["annot-population-maf"] !== "undefined") {
-                pfArray = this.query["annot-population-maf"].split(new RegExp("[,;]"));
-            }
-            if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.studies !== "undefined" && this.populationFrequencies.studies.length > 0) {
-                for (let i = 0; i < this.populationFrequencies.studies.length; i++) {
-                    let study = this.populationFrequencies.studies[i].id;
-                    for (let j = 0; j < this.populationFrequencies.studies[i].populations.length; j++) {
-                        let population = this.populationFrequencies.studies[i].populations[j].id;
-                        if (pfArray.length > 0) {
-                            for (let k = 0; k < pfArray.length; k++) {
-                                let pf = pfArray[k];
-                                if (pf.startsWith(study + ":" + population)) {
-                                    this.$$("#" + this.prefix + study + population).value = pf.split(/[<=>]+/)[1];
-                                    this.$$("#" + this.prefix + study + population + "Operator").value = pf.split(/[-A-Za-z0-9._:]+/)[1];
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Protein Substitution scores
-            if (typeof this.query["protein_substitution"] !== "undefined") {
-                let pss = this.query["protein_substitution"].split(new RegExp("[,;]"));
-                if (pss.length > 0) {
-                    for (let i = 0; i < pss.length; i++) {
-                        if (pss[i].startsWith("sift")) {
-                            let value = pss[i].split("sift")[1];
-                            if (value.startsWith("<") || value.startsWith(">")) {
-                                this.$$("#" + this.prefix + "SiftInput").value = value.split(/[<=>]+/)[1];
-                                this.$$("#" + this.prefix + "SiftOperator").value = value.split(/[-0-9.]+/)[0];
-                            } else {
-                                this.$$("#" + this.prefix + "SiftValues").value = value.split('==')[1];
-                            }
-                            this.$$("#" + this.prefix + "SiftInput").disabled = !(value.startsWith("<") || value.startsWith(">"));
-                            this.$$("#" + this.prefix + "SiftOperator").disabled = !(value.startsWith("<") || value.startsWith(">"));
-                        } else if (pss[i].startsWith("polyphen")) {
-                            let value = pss[i].split("polyphen")[1];
-                            if (value.startsWith("<") || value.startsWith(">")) {
-                                this.$$("#" + this.prefix + "PolyphenInput").value = value.split(/[<=>]+/)[1];
-                                this.$$("#" + this.prefix + "PolyphenOperator").value = value.split(/[-0-9.]+/)[0];
-                            } else {
-                                this.$$("#" + this.prefix + "PolyphenValues").value = value.split('==')[1];
-                            }
-                            this.$$("#" + this.prefix + "PolyphenInput").disabled = !(value.startsWith("<") || value.startsWith(">"));
-                            this.$$("#" + this.prefix + "PolyphenOperator").disabled = !(value.startsWith("<") || value.startsWith(">"));
-                        }
-                    }
-                }
-            }
-
-            // Cadd scores
-            if (typeof this.query["annot-functional-score"] !== "undefined") {
-                let fields = this.query["annot-functional-score"].split(new RegExp("[,;]"));
-                for (let i = 0; i < fields.length; i++) {
-                    let source = fields[i].split(/[<=>]+/)[0];
-                    switch(source) {
-                        case "cadd_raw":
-                            this.$$("#" + this.prefix + "CaddRawInput").value = fields[i].split(/[<=>]+/)[1];
-                            this.$$("#" + this.prefix + "CaddRawOperator").value = fields[i].split(/[-A-Za-z0-9_]+/)[1];
-                            break;
-                        case "cadd_scaled":
-                            this.$$("#" + this.prefix + "CaddScaledInput").value = fields[i].split(/[<=>]+/)[1];
-                            this.$$("#" + this.prefix + "CaddScaledOperator").value = fields[i].split(/[-A-Za-z0-9_]+/)[1];
-                            break;
-                    }
-                }
-            }
-
-            // Conservation
-            if (typeof this.query.conservation !== "undefined") {
-                let fields = this.query.conservation.split(new RegExp("[,;]"));
-                for (let i = 0; i < fields.length; i++) {
-                    let source = fields[i].split(/[<=>]+/)[0];
-                    switch(source) {
-                        case "phylop":
-                            this.$$("#" + this.prefix + "PhylopInput").value = fields[i].split(/[<=>]+/)[1];
-                            this.$$("#" + this.prefix + "PhylopOperator").value = fields[i].split(/[-A-Za-z0-9]+/)[1];
-                            break;
-                        case "phastCons":
-                            this.$$("#" + this.prefix + "PhastconsInput").value = fields[i].split(/[<=>]+/)[1];
-                            this.$$("#" + this.prefix + "PhastconsOperator").value = fields[i].split(/[-A-Za-z0-9]+/)[1];
-                            break;
-                        case "gerp":
-                            this.$$("#" + this.prefix + "GerpInput").value = fields[i].split(/[<=>]+/)[1];
-                            this.$$("#" + this.prefix + "GerpOperator").value = fields[i].split(/[-A-Za-z0-9]+/)[1];
-                            break;
-                    }
-                }
-            }
-
-            // Consequence Type
-            if (typeof this.query["annot-ct"] !== "undefined") {
-                let types = this.query["annot-ct"].split(",");
-                let checkBoxes = this.$$("#consequenceTypeFilter").querySelectorAll("li input");
-                for (let i = 0; i < types.length; i++) {
-                    for (let j = 0; j < checkBoxes.length; j++) {
-                        if (checkBoxes[j].dataId == types[i]) {
-                            checkBoxes[j].checked = true;
-                        }
-                    }
-                }
-            } else {
-                this.set('ct', []); // Clearing the consequence type that is taken by this.query
-            }
-
-            // Gene Ontology and Human Phenotype Ontology
-            if (typeof this.query["annot-go"] !== "undefined") {
-                this.$$("#" + this.prefix + "GeneOntologyTextarea").value = this.query["annot-go"];
-            }
-            if (typeof this.query["annot-hpo"] !== "undefined") {
-                this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value = this.query["annot-hpo"];
-            }
-        },
-        updatePanel: function(){
-            let panelname = this.$$("#" + this.prefix + "PanelApps").value;
-            for(var i = 0; i < this.panelList.length ; i++){
-                if(this.panelList[i].name == panelname){
-                    let panel = this.panelList[i];
-                    this.$$("#" + this.prefix + "PanelAppsTextarea").value = panel.genes;
-                    break;
-                }
-            }
-            this.updateQueryFilters();
-        },
-        sortPanelApp: function(a, b) {
-            if (a.title === b.title) {
-                return 0;
-            }
-            return a.title < b.title ? -1 : 1;
-        },
-        updateQueryFilters: function () {
-            let _filters = {};
-            // Adding sample genotypes filter
-            if (typeof this.sampleGenotypes !== "undefined" && this.sampleGenotypes != "") {
-                _filters.genotype = this.sampleGenotypes;
-            }
-
-            // Studies
-            let studies = [];
-            if (typeof this.$$("#includeOtherStudy") !== "undefined" && this.$$("#includeOtherStudy") != null) {
-                let selectedStudies = this.$$("#differentStudies").querySelectorAll("input:checked");
-                if (selectedStudies.length > 0) {
-                    // Always add the study that we are browsing currently
-                    studies.push(this.project.alias + ':' + this.study.alias);
-                    for (let i = 0; i < selectedStudies.length; i++) {
-                        studies.push(this.project.alias + ':' + selectedStudies[i].value);
-                    }
-                }
-
-                switch (this.$$("#includeOtherStudy").value) {
-                    case "in":
-                        _filters.studies = studies.join(';');
-                        break;
-                    case "atleast":
-                        _filters.studies = studies.join(',');
-                        break;
-                    case "not in":
-                        let notInStudies = [];
-                        for (let j = 0; j < studies.length; j++) {
-                            notInStudies.push("!" + studies[j]);
-                        }
-                        _filters.studies = notInStudies.join(";");
-                        break;
-                }
-            }
-
-            // Regions
-            if (this.$$("#" + this.prefix + "LocationTextarea").value !== "") {
-                _filters.region = this.$$("#" + this.prefix + "LocationTextarea").value;
-            }
-
-            // Features: Gene, SNP ID
-            if (this.$$("#" + this.prefix + "FeatureTextarea").value !== "") {
-                if (this.$$("#" + this.prefix + "FeatureTextarea").value.startsWith("rs") || this.$$("#" + this.prefix + "FeatureTextarea").value.split(':').length > 2) {
-                    _filters["annot-xref"] = this.$$("#" + this.prefix + "FeatureTextarea").value;
-                } else {
-                    _filters["annot-xref"] = this.$$("#" + this.prefix + "FeatureTextarea").value.toUpperCase();
-                }
-            }
-
-            // Biotype
-            if (this.$$("#" + this.prefix + "GeneBiotypes").value !== "none") {
-                _filters["annot-biotype"] = this.$$("#" + this.prefix + "GeneBiotypes").value;
-            }
-
-            // Panel - annot-panel
-            if (this.$$("#" + this.prefix + "PanelApps").value !== "none" || this.$$("#" + this.prefix + "PanelAppsTextarea").value !== "") {
-                    _filters["gene"] = this.$$("#" + this.prefix + "PanelAppsTextarea").value;
-            }
-
-
-            // Type
-//            let types = this.$$("#" + this.prefix + "Type").querySelectorAll("input:checked");
-//            let typesAux = [];
-//            if (types.length > 0) {
-//                for (let i = 0; i < types.length; i++) {
-//                    typesAux.push(types[i].value);
-//                }
-//                _filters.type = typesAux.join(',');
-//            }
-
-            // Population Frequencies
-            // Population minor allele frequency: {study}:{population}[<|>|<=|>=]{number}
-            let popFreq = [];
-            if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.studies !== "undefined" && this.populationFrequencies.studies.length > 0) {
-                for (let i = 0; i < this.populationFrequencies.studies.length; i++) {
-                    let study = this.populationFrequencies.studies[i].id;
-                    for (let j = 0; j < this.populationFrequencies.studies[i].populations.length; j++) {
-                        let population = this.populationFrequencies.studies[i].populations[j].id;
-                        if (this.$$("#" + this.prefix + study + population).value != "" || this.$$("#" + this.prefix + study + population + "Operator").value != "<") {
-                            let operator = this.$$("#" + this.prefix + study + population + "Operator").value;
-                            let pf = study + ":" + population + operator + this.$$("#" + this.prefix + study + population).value;
-                            popFreq.push(pf);
-                        }
-                    }
-                }
-            }
-            if (popFreq.length > 0) {
-                _filters["annot-population-maf"] = popFreq.join(';');
-            }
-
-            // Protein Substitution scores
-            let pss = [];
-            let sift = "";
-            if (this.$$("#" + this.prefix + "SiftValues").value == "score" && this.$$("#" + this.prefix + "SiftInput").value != "" || this.$$("#" + this.prefix + "SiftOperator").value != "<") {
-                sift = "sift" + this.$$("#" + this.prefix + "SiftOperator").value + this.$$("#" + this.prefix + "SiftInput").value;
-                pss.push(sift);
-            } else if (this.$$("#" + this.prefix + "SiftValues").value != "score") {
-                sift = "sift" + "==" + this.$$("#" + this.prefix + "SiftValues").value;
-                pss.push(sift);
-            }
-            let polyphen = "";
-            if (this.$$("#" + this.prefix + "PolyphenValues").value == "score" && this.$$("#" + this.prefix + "PolyphenInput").value != "" || this.$$("#" + this.prefix + "PolyphenOperator").value != "<") {
-                polyphen = "polyphen" + this.$$("#" + this.prefix + "PolyphenOperator").value + this.$$("#" + this.prefix + "PolyphenInput").value;
-                pss.push(polyphen);
-            } else if (this.$$("#" + this.prefix + "PolyphenValues").value != "score") {
-                let value = this.$$("#" + this.prefix + "PolyphenValues").value;
-                let polyphenValues = value.split(',');
-                for (let i = 0; i < polyphenValues.length; i++) {
-                    polyphen = "polyphen" + "==" + polyphenValues[i];
-                    pss.push(polyphen);
-                }
-            }
-            if ((this.$$("#" + this.prefix + "SiftInput").value != "" && this.$$("#" + this.prefix + "PolyphenInput").value != "") ||
-                (this.$$("#" + this.prefix + "SiftValues").value != "score" && this.$$("#" + this.prefix + "PolyphenInput").value != "") ||
-                ((this.$$("#" + this.prefix + "SiftInput").value) != "" && this.$$("#" + this.prefix + "PolyphenValues").value != "score") ||
-                (this.$$("#" + this.prefix + "SiftValues").value != "score" && this.$$("#" + this.prefix + "PolyphenValues").value != "score")) {
-                $("input:radio[name=pss]").attr('disabled', false);
-            }
-            if (pss.length > 0) {
-                let filter = $('input:radio[name=pss]:checked').val();
-                if (filter == "and") {
-                    _filters.protein_substitution = pss.join(';');
-                } else {
-                    _filters.protein_substitution = pss.join(',');
-                }
-            }
-
-            // Conservation
-            let conserArr = [];
-            if (this.$$("#" + this.prefix + "PhylopInput").value != "" || this.$$("#" + this.prefix + "PhylopOperator").value != "<") {
-                let phylop = "phylop" + this.$$("#" + this.prefix + "PhylopOperator").value + this.$$("#" + this.prefix + "PhylopInput").value;
-                conserArr.push(phylop);
-            }
-            if (this.$$("#" + this.prefix + "PhastconsInput").value != "" || this.$$("#" + this.prefix + "PhastconsOperator").value != "<") {
-                let phastCons = "phastCons" + this.$$("#" + this.prefix + "PhastconsOperator").value + this.$$("#" + this.prefix + "PhastconsInput").value;
-                conserArr.push(phastCons);
-            }
-            if (this.$$("#" + this.prefix + "GerpInput").value != "" || this.$$("#" + this.prefix + "GerpOperator").value != "<") {
-                let gerp = "gerp" + this.$$("#" + this.prefix + "GerpOperator").value + this.$$("#" + this.prefix + "GerpInput").value;
-                conserArr.push(gerp);
-            }
-            if ((this.$$("#" + this.prefix + "PhylopInput").value != "" && this.$$("#" + this.prefix + "PhastconsInput").value != "") ||
-                (this.$$("#" + this.prefix + "PhylopInput").value != "" && this.$$("#" + this.prefix + "GerpInput").value != "") ||
-                (this.$$("#" + this.prefix + "PhastconsInput").value != "" && this.$$("#" + this.prefix + "GerpInput").value != "")) {
-                $("input:radio[name=conservation]").attr('disabled', false);
-            }
-
-            if (conserArr.length > 0) {
-                let filter = $('input:radio[name=conservation]:checked').val();
-                if (filter == "and") {
-                    _filters.conservation = conserArr.join(';');
-                } else {
-                    _filters.conservation = conserArr.join(',');
-                }
-            }
-
-            // Consequence Type
-            if (typeof this.ct !== "undefined" && this.ct.length > 0) {
-                _filters["annot-ct"]= this.ct.join(',');
-            }
-
-            // Gene Ontology and Human Phenotype Ontology
-            if (this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value != "") {
-                _filters["annot-hpo"] = this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value;
-            }
-            if (this.$$("#" + this.prefix + "GeneOntologyTextarea").value != "") {
-                _filters["annot-go"] = this.$$("#" + this.prefix + "GeneOntologyTextarea").value;
-            }
-//            if (this.$$("#" + this.prefix + "TraitsTextarea").value != "") {
-//                _filters["traits"] = this.$$("#" + this.prefix + "TraitsTextarea").value;
-//            }
-
-            // Cadd scores
-            let cadd = [];
-            if (this.$$("#" + this.prefix + "CaddRawInput").value != "" || this.$$("#" + this.prefix + "CaddRawOperator").value != "<") {
-                let raw = "cadd_raw" + this.$$("#" + this.prefix + "CaddRawOperator").value + this.$$("#" + this.prefix + "CaddRawInput").value;
-                cadd.push(raw);
-            }
-            if (this.$$("#" + this.prefix + "CaddScaledInput").value != "" || this.$$("#" + this.prefix + "CaddScaledOperator").value != "<") {
-                let scaled = "cadd_scaled" + this.$$("#" + this.prefix + "CaddScaledOperator").value + this.$$("#" + this.prefix + "CaddScaledInput").value;
-                cadd.push(scaled);
-            }
-            if (cadd.length > 0) {
-                _filters["annot-functional-score"] = cadd.join(',');
-            }
-
-            // To prevent to call renderQueryFilters we set this to false
-            this._reset = false;
-            this.query = _filters;
-            this._reset = true;
-        },
-        // Exclusive for prioritization
-        refreshSegregationTable: function () {
-//                this.samples = [];
-        },
-        selectAnalysisType: function (e) {
-            e.preventDefault();
-            this.analysisType = e.target.value;
-            this.isFamilyAnalysis = this.isCancerAnalysis = false;
-            if (this.analysisType === "family") {
-                this.isFamilyAnalysis = true;
-            } else {
-                this.isCancerAnalysis = true;
-            }
-        },
-        selectSegregation: function (e) {
-            e.preventDefault();
-            this.segregation = e.target.innerHTML;
-        },
-        sampleGenotypeSelected: function (e) {
-            // TODO coordinate manual selection and event driven selection
-//                if (this.sampleGenotypes != "") {
-//                    let genotypes = this.sampleGenotypes.split(';');
-//                    this.sampleGenotypesObj = genotypes.reduce(function(result, item) {
-//                        debugger
-//                        let items = item.split(':');
-//                        result[items[0]] = {};
-//                        result[items[0]][items[1]] = true;
-//                        return result;
-//                    }, {});
-//                }
-            if (typeof e !== "undefined") {
-                if (typeof this.sampleGenotypesObj[e.target.dataId] === "undefined") {
-                    this.sampleGenotypesObj[e.target.dataId] = {};
-                }
-                this.sampleGenotypesObj[e.target.dataId][e.target.defaultValue] = e.target.checked;
-
+            sampleGenotypeManual() {
                 let arr = [];
-                for (let sampleName in this.sampleGenotypesObj) {
-                    let gts = [];
-                    for (let sampleGT in this.sampleGenotypesObj[sampleName]) {
-                        if (this.sampleGenotypesObj[sampleName][sampleGT] == true) {
-                            gts.push(sampleGT.replace('/', '|'));
+                if (this.samples != "" && this.samples.length > 1) {
+                    for (let i = 0; i < this.samples.length; i++) {
+                        let sample = this.samples[i].name;
+                        let gts = [];
+                        let children = $("#" + sample).children();
+                        for (let j = 0; j < children.length; j++) {
+                            let child = $("#" + sample).children()[j];
+                            let input = $(child).children()[0];
+                            let cb = $(input)[0];
+                            if ($(cb).is(':checked')) {
+                                gts.push($(cb).val().replace('/', '|'));
+                            }
                         }
-                    }
-                    if (gts.length > 0) {
-                        arr.push(sampleName + ':' + gts.join(','));
+                        if (gts.length > 0) {
+                            arr.push(sample + ':' + gts.join(','));
+                        }
                     }
                 }
                 this.sampleGenotypes = arr.join(';');
-                if (arr.length > 0) {
-                    this._filters.genoType = arr.join(';');
-                } else {
-                    delete this._filters.genoType;
-                }
-                this._filtersCount = Object.keys(this._filters).length;
             }
-        },
-        sampleChanged: function () {
-            this.segregation = "Select Segregation";
-        },
-        segregate: function () {
-            let cell;
-            let samples = this.samples;
+            _clearHtmlDom() {
+                // Empty everything before rendering
+                PolymerUtils.setPropertyByClassName(this.prefix + "FilterSelect", "selectedIndex", 0);
+                //$("." + this.prefix + "FilterSelect").prop('selectedIndex', 0);
+                PolymerUtils.removeAttributeByclass("FilterSelect", "disabled");
+                //$("." + this.prefix + "FilterSelect").prop("disabled", false);
+                PolymerUtils.setPropertyByClassName(this.prefix + "FilterTextInput", "value", "");
+                //$("." + this.prefix + "FilterTextInput").val("");
+                PolymerUtils.removeAttributeByclass("FilterTextInput", "disabled");
+                //$("." + this.prefix + "FilterTextInput").prop("disabled", false);
+                PolymerUtils.setPropertyByClassName(this.prefix + "FilterCheckBox", "checked", false);
+                //$("." + this.prefix + "FilterCheckBox").prop("checked", false);
+                PolymerUtils.setPropertyByClassName(this.prefix + "FilterRadio", "checked", false);
+                //$("." + this.prefix + "FilterRadio").prop("checked", false);
+                $("." + this.prefix + "FilterRadio").filter('[value="or"]').prop('checked', true);
+                PolymerUtils.removeAttributeByclass("FilterRadio", "disabled");
+                //$("." + this.prefix + "FilterRadio").prop("disabled", true);
+            }
+            _updateMode() {
 
-            if (typeof samples !== "undefined" && samples != "" && samples.length >= 3) {
-                if (this.segregation == "Autosomal Dominant") {
-                    for (let i = 0; i < samples.length; i++) {
-                        let index = i + 1;
-                        if (samples[i].status == "unaffected") {
-                            cell = $("#segregationTable tr:eq(" + index + ") td:eq(1)")[0].children[0];
-                            $(cell).prop("checked", true);
-                        } else if (samples[i].status == "affected") {
-                            for (let j = 0; j < samples.length; j++) {
-                                if (i == j) {
-                                    continue;
-                                }
-                                if (samples[j].status == "unaffected" && samples[j].memberCode == "D" || samples[j].memberCode == "S") {
-                                    cell = $("#segregationTable tr:eq(" + index + ") td:eq(2)")[0].children[0];
-                                    $(cell).prop("checked", true);
-                                } else if (samples[j].status == "affected" && samples[i].memberCode == "F") {
-                                    if (i == 0 && j == 1) {
-                                        cell = $("#segregationTable tr:eq(" + index + ") td:eq(2)")[0].children[0];
-                                        $(cell).prop("checked", true);
-                                    } else if (i == 0 && j != 1) {
-                                        cell = $("#segregationTable tr:eq(" + index + ") td:eq(2)")[0].children[0];
-                                        $(cell).prop("checked", true);
-                                        cell = $("#segregationTable tr:eq(" + index + ") td:eq(3)")[0].children[0];
-                                        $(cell).prop("checked", true);
-                                    }
-                                } else if (samples[j].status == "affected" && samples[i].memberCode == "M") {
-                                    if (i == 1 && j == 0) {
-                                        cell = $("#segregationTable tr:eq(" + index + ") td:eq(2)")[0].children[0];
-                                        $(cell).prop("checked", true);
-                                    } else if (i == 1 && j != 0) {
-                                        cell = $("#segregationTable tr:eq(" + index + ") td:eq(2)")[0].children[0];
-                                        $(cell).prop("checked", true);
-                                        cell = $("#segregationTable tr:eq(" + index + ") td:eq(3)")[0].children[0];
-                                        $(cell).prop("checked", true);
-                                    }
-                                } else if (samples[j].status == "affected" && samples[i].memberCode == "D" || samples[i].memberCode == "S") {
-                                    cell = $("#segregationTable tr:eq(" + index + ") td:eq(2)")[0].children[0];
-                                    $(cell).prop("checked", true);
-                                    if (samples[j + 1].status == "affected" && samples[j + 1].memberCode == "M") {
-                                        cell = $("#segregationTable tr:eq(" + index + ") td:eq(3)")[0].children[0];
-                                        $(cell).prop("checked", true);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    this.sampleGenotypeManual();
+                switch (this.mode) {
+                    case "browser":
+                        this.isBrowserMode = true;
+                        break;
+                    case "prioritization":
+                        this.isPrioritizationMode = true;
+                        break;
+                    case "analysis":
+                        this.isAnalysisMode = true;
+                        break;
+                    default:
+                        this.isBrowserMode = true;
+                        break;
                 }
             }
-        },
-        sampleGenotypeManual: function () {
-            let arr = [];
-            if (this.samples != "" && this.samples.length > 1) {
-                for (let i = 0; i < this.samples.length; i++) {
-                    let sample = this.samples[i].name;
-                    let gts = [];
-                    let children = $("#" + sample).children();
-                    for (let j = 0; j < children.length; j++) {
-                        let child = $("#" + sample).children()[j];
-                        let input = $(child).children()[0];
-                        let cb = $(input)[0];
-                        if ($(cb).is(':checked')) {
-                            gts.push($(cb).val().replace('/', '|'));
-                        }
-                    }
-                    if (gts.length > 0) {
-                        arr.push(sample + ':' + gts.join(','));
-                    }
-                }
-            }
-            this.sampleGenotypes = arr.join(';');
-        },
-        _clearHtmlDom: function() {
-            // Empty everything before rendering
-            $("." + this.prefix + "FilterSelect").prop('selectedIndex', 0);
-            $("." + this.prefix + "FilterSelect").prop("disabled", false);
-            $("." + this.prefix + "FilterTextInput").val("");
-            $("." + this.prefix + "FilterTextInput").prop("disabled", false);
-            $("." + this.prefix + "FilterCheckBox").prop("checked", false);
-            $("." + this.prefix + "FilterRadio").prop("checked", false);
-            $("." + this.prefix + "FilterRadio").filter('[value="or"]').prop('checked', true);
-            $("." + this.prefix + "FilterRadio").prop("disabled", true);
-        },
-        _updateMode: function () {
-            switch (this.mode) {
-                case "browser":
-                    this.isBrowserMode = true;
-                    break;
-                case "prioritization":
-                    this.isPrioritizationMode = true;
-                    break;
-                case "analysis":
-                    this.isAnalysisMode = true;
-                    break;
-                default:
-                    this.isBrowserMode = true;
-                    break;
-            }
-        },
-        loadAnalysis: function(e){
-            e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-            this.currentAnalysisID = this.analysisSelected.analysisID;
-            this.samples = this.analysisSelected.sampleList; // Samples are notified to variant-prioritization-view
-            $("#analysisSelectedDiv").show();
+            loadAnalysis(e){
+                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+                this.currentAnalysisID = this.analysisSelected.analysisID;
+                this.samples = this.analysisSelected.sampleList; // Samples are notified to variant-prioritization-view
+                PolymerUtils.show("#" + this.prefix + "analysisSelectedDiv");
+                        //$("#analysisSelectedDiv").show();
 
-        },
-        showClinicalSelector: function(e){
-            e.preventDefault();
-            if (typeof (this.analysisModal) === "undefined"){
-                this.analysisModal = true;
             }
-            else {
-                this.analysisModal = ! this.analysisModal;
+            showClinicalSelector(e){
+                e.preventDefault();
+                if (PolymerUtils.isUndefined(this.analysisModal)){
+                    this.analysisModal = true;
+                }
+                else {
+                    this.analysisModal = ! this.analysisModal;
+                }
+                $("#" + this.prefix + "AnalysisBrowser").modal('show');
             }
-            $("#" + this.prefix + "AnalysisBrowser").modal('show');
         }
-    });
-</script>
+        customElements.define(VariantClinicalFilter.is, VariantClinicalFilter);
+    </script>
 </dom-module>

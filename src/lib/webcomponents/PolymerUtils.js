@@ -47,6 +47,7 @@ class PolymerUtils {
 
     static setValue(id, value) {
         return PolymerUtils.setPropertyById(id, "value", value);
+
     }
 
     static getElementById(id) {
@@ -71,11 +72,11 @@ class PolymerUtils {
                 if (elem !== undefined) {
                     return elem.querySelector(selectors);
                 } else {
-                    // the given element id does not exist
+                    // The given element id does not exist
                     return undefined;
                 }
             } else {
-                // element exists and it is not a string, it must be a object
+                // Element exists and it is not a string, it must be a object
                 return element.querySelector(selectors);
             }
         }
@@ -111,7 +112,20 @@ class PolymerUtils {
                 return undefined;
             }
         } else {
-            return undefined;
+
+            // If element is a string we do first a getElementById, if it exist we execute the query
+            if (typeof element === "string") {
+                let elem = PolymerUtils.getElementById(element);
+                if (elem !== undefined) {
+                    return elem.querySelectorAll(selectors);
+                } else {
+                    // The given element id does not exist
+                    return undefined;
+                }
+            } else {
+                // Element exists and it is not a string, it must be a object
+                return element.querySelectorAll(selectors);
+            }
         }
     }
 
