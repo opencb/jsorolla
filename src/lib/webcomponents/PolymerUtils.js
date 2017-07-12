@@ -85,7 +85,7 @@ class PolymerUtils {
     static querySelectorAll(selectors, element) {
         if (PolymerUtils.isUndefinedOrNull(element)) {
             return document.querySelectorAll(selectors);
-        }  else {
+        } else {
             // If element is a string we do first a getElementById, if it exist we execute the query
             if (typeof element === "string") {
                 let elem = PolymerUtils.getElementById(element);
@@ -276,6 +276,16 @@ class PolymerUtils {
             el.innerHTML = text;
         }
 
+    }
+
+
+    static innerHtmlByClass(className, text) {
+        let els = PolymerUtils.getElementsByClassName(className);
+        if (!PolymerUtils.isUndefinedOrNull(els)) {
+            Array.from(els).forEach(function (element) {
+                element.innerHTML = text;
+            });
+        }
     }
 
 

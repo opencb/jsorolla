@@ -1,6 +1,5 @@
 <dom-module id="variant-beacon-network">
     <template>
-        <style is="custom-style" include="jso-styles"></style>
 
         <div>
             <i class="fa fa-spinner fa-spin" aria-hidden="true" id="{{prefix}}spinGif" style="display:none"></i>
@@ -25,34 +24,52 @@
     </template>
 
     <script>
-        Polymer({
-            is: 'variant-beacon-network',
-            properties: {
-                hosts: {
-                    type: Array
-                },
-                variant: {
-                    type: String,
-                    observer: 'searchBeaconNetwork'
-                },
-                clear: {
-                    type: String,
-                    observer: 'clearResponse'
-                },
-                prefix: {
-                    type: String
+
+        class VariantBeaconNetwork extends Polymer.Element {
+            static get is() {
+                return 'variant-beacon-network';
+            }
+
+            static get properties() {
+                return {
+                    hosts: {
+                        type: Array
+                    },
+                    variant: {
+                        type: String,
+                        observer: 'searchBeaconNetwork'
+                    },
+                    clear: {
+                        type: String,
+                        observer: 'clearResponse'
+                    },
+                    prefix: {
+                        type: String
+                    }
                 }
-            },
-            ready: function () {
-                if (typeof this.prefix === "undefined" || this.prefix === "") {
+            }
+
+            constructor() {
+                super();
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            ready() {
+                super.ready();
+                if (PolymerUtils.isEmpty(this.prefix)) {
                     this.prefix = "view" + Utils.randomString(6);
                 }
-            },
-            clearResponse: function () {
+            }
+
+            clearResponse() {
                 // Empty previous response
-                $(".beaconResponse").html("");
-            },
-            searchBeaconNetwork: function () {
+                PolymerUtils.innerHtmlByClass("beaconResponse", "");
+            }
+
+            searchBeaconNetwork() {
                 if (this.variant.split(':').length > 2) {
                     let [chromosome, position, reference, alternate] = this.variant.split(':');
 
@@ -64,7 +81,7 @@
                     for (let i = 0; i < this.hosts.length; i++) {
                         let xhr = new XMLHttpRequest();
                         // Beacon network uses zero-based numbering hence (position-1) is used in the url.
-                        let url = "https://beacon-network.org/api/responses?allele=" + alternate + "&beacon=[" + this.hosts[i] + "]&chrom=" + chromosome
+                        let url = "https://beacon-network.org/api/responses?allele=" + alternate + "&beacon=[" + _this.hosts[i] + "]&chrom=" + chromosome
                             + "&pos=" + (position - 1) + "&ref=GRCh37";
                         xhr.onload = function (event) {
                             if (xhr.readyState === xhr.DONE) {
@@ -75,24 +92,24 @@
                                         for (let j = 0; j < beaconResponse.length; j++) {
                                             if (beaconResponse[j].response != null) {
                                                 let response = beaconResponse[j].response.toString();
-                                                $("#" + _this.prefix + _this.hosts[i]).html("" + response.charAt(0).toUpperCase() + response.slice(1));
+                                                PolymerUtils.innerHTML(_this.prefix + _this.hosts[i], "" + response.charAt(0).toUpperCase() + response.slice(1));
                                                 if (response == "true") {
-                                                    $("#" + _this.prefix + _this.hosts[i]).css("color", "red"); // Highlighting the true response in the table
+                                                    PolymerUtils.addStyle(_this.prefix + _this.hosts[i], "color", "red"); // Highlighting the true response in the table
                                                 } else {
-                                                    $("#" + _this.prefix + _this.hosts[i]).css("color", "black");
+                                                    PolymerUtils.addStyle(_this.prefix + _this.hosts[i], "color", "black");
                                                 }
                                             } else {
-                                                $("#" + _this.prefix + _this.hosts[i]).html("False");
-                                                $("#" + _this.prefix + _this.hosts[i]).css("color", "black");
+                                                PolymerUtils.innerHTML(_this.prefix + _this.hosts[i], "False");
+                                                PolymerUtils.addStyle(_this.prefix + _this.hosts[i], "color", "black");
                                             }
                                         }
-                                        $('#' + _this.prefix + 'spinGif').hide();
+                                        PolymerUtils.hide(_this.prefix + 'spinGif');
                                     }
                                 } else {
-                                    $("#" + _this.prefix + _this.hosts[i]).html("False (not 200)");
+                                    PolymerUtils.innerHTML(_this.prefix + _this.hosts[i], "False (not 200)");
                                 }
                             } else {
-                                $("#" + _this.prefix + _this.hosts[i]).html("False (No response from server)");
+                                PolymerUtils.innerHTML(_this.prefix + _this.hosts[i], "False (No response from server)");
                             }
                         };
                         xhr.open("GET", url, true);
@@ -100,6 +117,9 @@
                     }
                 }
             }
-        });
+        }
+
+        customElements.define(VariantBeaconNetwork.is, VariantBeaconNetwork);
+
     </script>
 </dom-module>

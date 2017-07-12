@@ -1,10 +1,7 @@
-
 <link rel="import" href="variant-beacon-network.html">
 
 <dom-module id="variant-beacon">
     <template>
-        <style is="custom-style" include="jso-styles"></style>
-
         <div class="panel">
             <h3 style="margin: 10px 10px 10px 15px">
                 <i class="fa fa-share-alt" aria-hidden="true"></i>
@@ -50,11 +47,11 @@
                     </div>
                 </div>
                 <!--<div class="form-group row">-->
-                    <!--<label class="col-xs-2 col-form-label">Format Type</label>-->
-                    <!--<div class="col-xs-3">-->
-                        <!--<input class="form-check-input" type="checkbox" name="formatType" id="textType" value="text" checked> Text-->
-                        <!--<input class="form-check-input" type="checkbox" name="formatType" id="jsonType" value="json"> JSON-->
-                    <!--</div>-->
+                <!--<label class="col-xs-2 col-form-label">Format Type</label>-->
+                <!--<div class="col-xs-3">-->
+                <!--<input class="form-check-input" type="checkbox" name="formatType" id="textType" value="text" checked> Text-->
+                <!--<input class="form-check-input" type="checkbox" name="formatType" id="jsonType" value="json"> JSON-->
+                <!--</div>-->
                 <!--</div>-->
                 <div class="form-group row" style="padding-left: 14px">
                     <button type="reset" class="btn btn-default" on-click="clearFields">Reset</button>
@@ -78,35 +75,57 @@
         </div>
 
         <br>
-        <div  class="col-md-12">
+        <div class="col-md-12">
             <h3 style="margin: 10px 5px 15px 50px">Beacon Network</h3>
             <div style="width: 60%; margin-left: 100px">
                 <button class="btn btn-primary" type="button" on-click="triggerBeacon">Search Beacon Network</button>
-                <a data-toggle="tooltip" title="Beacon Network is a search engine across the world's public beacons. You can find it here - https://beacon-network.org/#/"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                <a data-toggle="tooltip"
+                   title="Beacon Network is a search engine across the world's public beacons. You can find it here - https://beacon-network.org/#/"><i
+                        class="fa fa-info-circle" aria-hidden="true"></i></a>
                 <br><br>
-                <variant-beacon-network hosts="{{hosts}}" variant="{{variant}}" clear="{{clear}}" prefix="beacon"></variant-beacon-network>
+                <variant-beacon-network hosts="{{hosts}}" variant="{{variant}}" clear="{{clear}}"
+                                        prefix="beacon"></variant-beacon-network>
             </div>
         </div>
     </template>
 
     <script>
-        Polymer({
-            is: 'variant-beacon',
-            properties: {
-                opencgaClient: {
-                    type: Object
-                },
-                project: {
-                    type: Object
-                },
-                studies: {
-                    type: Array
-                },
-                hosts: {
-                    type: Array
+
+        class VariantBeacon extends Polymer.Element {
+            static get is() {
+                return 'variant-beacon'
+            };
+
+            static get properties() {
+                return {
+                    opencgaClient: {
+                        type: Object
+                    },
+                    project: {
+                        type: Object
+                    },
+                    studies: {
+                        type: Array
+                    },
+                    hosts: {
+                        type: Array
+                    }
                 }
-            },
-            clearFields: function(e) {
+            }
+
+            constructor() {
+                super();
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            ready() {
+                super.ready();
+            }
+
+            clearFields(e) {
                 this.$.datasetInput.value = "";
                 this.$.refNameInput.value = "";
                 this.$.startInput.value = "";
@@ -116,15 +135,17 @@
                 this.result = "";
                 this.clear = Utils.randomString(4); // Clear beacon network response
                 this.variant = "" // reset variant to empty
-            },
-            loadExample: function() {
+            }
+
+            loadExample() {
                 this.$.datasetInput.value = this.studies[0].alias;
                 this.$.refNameInput.value = "21";
                 this.$.startInput.value = "46047686";
                 this.$.alleleInput.value = "T";
 //                this.$.jsonType.checked = true;
-            },
-            execute: function(e) {
+            }
+
+            execute(e) {
                 this.clear = Utils.randomString(4); // Clear beacon network response
                 let queryParams = {
                     chrom: this.$.refNameInput.value,
@@ -140,13 +161,18 @@
                             _this.result = exists.charAt(0).toUpperCase() + exists.slice(1);
                         })
                 }
-            },
-            triggerBeacon: function (e) {
-                this.variant = this.$.refNameInput.value + ":" + this.$.startInput.value + "::" + this.$.alleleInput.value;
-            },
-            checkResult: function (result) {
-                return result !== "";
             }
-        });
+
+            triggerBeacon(e) {
+                this.variant = this.$.refNameInput.value + ":" + this.$.startInput.value + "::" + this.$.alleleInput.value;
+            }
+
+            checkResult(result) {
+                return PolymerUtils.isNotEmpty(result);
+            }
+        }
+
+        customElements.define(VariantBeacon.is, VariantBeacon);
+
     </script>
 </dom-module>
