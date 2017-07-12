@@ -57,16 +57,39 @@ class PolymerUtils {
         if (PolymerUtils.isUndefinedOrNull(element)) {
             return document.querySelector(selectors);
         } else {
-            return element.querySelector(selectors);
+            // If element is a string we do first a getElementById, if it exist we execute the query
+            if (typeof element === "string") {
+                let elem = PolymerUtils.getElementById(element);
+                if (elem !== undefined) {
+                    return elem.querySelector(selectors);
+                } else {
+                    // The given element id does not exist
+                    return undefined;
+                }
+            } else {
+                // Element exists and it is not a string, it must be a object
+                return element.querySelector(selectors);
+            }
         }
-
     }
 
     static querySelectorAll(selectors, element) {
         if (PolymerUtils.isUndefinedOrNull(element)) {
             return document.querySelectorAll(selectors);
         } else {
-            return element.querySelectorAll(selectors);
+            // If element is a string we do first a getElementById, if it exist we execute the query
+            if (typeof element === "string") {
+                let elem = PolymerUtils.getElementById(element);
+                if (elem !== undefined) {
+                    return elem.querySelectorAll(selectors);
+                } else {
+                    // The given element id does not exist
+                    return undefined;
+                }
+            } else {
+                // Element exists and it is not a string, it must be a object
+                return element.querySelectorAll(selectors);
+            }
         }
     }
 
