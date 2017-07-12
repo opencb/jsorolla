@@ -36,9 +36,17 @@ class PolymerUtils {
         return typeof str !== "undefined" && str !== null && str !== "";
     }
 
-    static isValueNotEmptyById(id){
-        let value = getPropertyById(id, "value");
-        return isNotEmpty(value);
+    static isNotEmptyValueById(id) {
+        let value = PolymerUtils.getValue(id);
+        return typeof value !== "undefined" && value !== null && value !== "";
+    }
+
+    static getValue(id) {
+        return PolymerUtils.getPropertyById(id, "value");
+    }
+
+    static setValue(id, value) {
+        return PolymerUtils.setPropertyById(id, "value", value);
     }
 
     static getElementById(id) {
@@ -57,25 +65,72 @@ class PolymerUtils {
         if (PolymerUtils.isUndefinedOrNull(element)) {
             return document.querySelector(selectors);
         } else {
-            return element.querySelector(selectors);
+            // If element is a string we do first a getElementById, if it exist we execute the query
+            if (typeof element === "string") {
+                let elem = PolymerUtils.getElementById(element);
+                if (elem !== undefined) {
+                    return elem.querySelector(selectors);
+                } else {
+                    // the given element id does not exist
+                    return undefined;
+                }
+            } else {
+                // element exists and it is not a string, it must be a object
+                return element.querySelector(selectors);
+            }
         }
-
     }
 
     static querySelectorAll(selectors, element) {
         if (PolymerUtils.isUndefinedOrNull(element)) {
             return document.querySelectorAll(selectors);
+        }  else {
+            // If element is a string we do first a getElementById, if it exist we execute the query
+            if (typeof element === "string") {
+                let elem = PolymerUtils.getElementById(element);
+                if (elem !== undefined) {
+                    return elem.querySelectorAll(selectors);
+                } else {
+                    // the given element id does not exist
+                    return undefined;
+                }
+            } else {
+                // element exists and it is not a string, it must be a object
+                return element.querySelectorAll(selectors);
+            }
+        }
+    }
+
+    static getTextOptionSelected(id) {
+        if (PolymerUtils.isNotUndefinedOrNull(id)) {
+            var sel = PolymerUtils.getElementById(id);
+            if (PolymerUtils.isNotUndefinedOrNull(sel)) {
+                var text = sel.options[sel.selectedIndex].text;
+                return text;
+            } else {
+                return undefined;
+            }
         } else {
-            return element.querySelectorAll(selectors);
+            return undefined;
         }
     }
 
 
-    static show(id) {
-        PolymerUtils.addStyle(id, "display", "block");
+    static show(id, type) {
+        if (PolymerUtils.isNotUndefinedOrNull(type)) {
+            PolymerUtils.addStyle(id, "display", type);
+        } else {
+            PolymerUtils.addStyle(id, "display", "block");
+        }
     }
-    static showByClass(className) {
-        PolymerUtils.addStyleByClass(className, "display", "block");
+
+    static showByClass(className, type) {
+        if (PolymerUtils.isNotUndefinedOrNull(type)) {
+            PolymerUtils.addStyleByClass(className, "display", type);
+        } else {
+            PolymerUtils.addStyleByClass(className, "display", "block");
+
+        }
     }
 
     static hide(id) {
@@ -128,6 +183,15 @@ class PolymerUtils {
                 }
             } else {
                 el.classList.remove(className);
+            }
+        }
+    }
+
+    static removeElement(id) {
+        if (!PolymerUtils.isUndefinedOrNull(id)) {
+            let el = this.getElementById(id);
+            if (!PolymerUtils.isUndefinedOrNull(el)) {
+                el.parentNode.removeChild(el);
             }
         }
     }

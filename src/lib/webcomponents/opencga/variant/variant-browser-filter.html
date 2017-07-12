@@ -986,7 +986,7 @@
 
 //                let selected = $('.soTermCheckBox');
                 let soTerms = [];
-                let selected =  this.$$("#" + this.prefix + "consequenceTypeFilter").querySelectorAll("li input");
+                let selected =  PolymerUtils.querySelectorAll("li input",this.prefix + "consequenceTypeFilter");
                 for (let i = 0; i < selected.length; i++) {
                     if (selected[i].checked && typeof selected[i].dataId !== "undefined") {
                         soTerms.push(selected[i].dataId);

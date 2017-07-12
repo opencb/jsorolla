@@ -19,7 +19,6 @@
 
 <dom-module id="variant-facet">
     <template>
-        <style is="custom-style" include="jso-styles"></style>
 
         <div class="panel">
             <h3 style="margin: 10px 10px 10px 15px">
@@ -29,15 +28,19 @@
         </div>
 
         <div class="col-md-2" hidden$="{{checkProject(project)}}">
-            <variant-browser-filter study="{{study}}" project="{{project}}" studies="{{studies}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
-                                    population-frequencies="{{populationFrequencies}}" consequence-types="{{consequenceTypes}}"
+            <variant-browser-filter study="{{study}}" project="{{project}}" studies="{{studies}}"
+                                    opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+                                    population-frequencies="{{populationFrequencies}}"
+                                    consequence-types="{{consequenceTypes}}"
                                     query="{{query}}" search="{{search}}" style="font-size: 12px">
             </variant-browser-filter>
         </div>
 
         <div class="col-md-10" hidden$="{{checkProject(project)}}">
-            <variant-facet-view study="{{study}}" project="{{project}}" config="{{config}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
-                                population-frequencies="{{populationFrequencies}}" query="{{query}}" search="{{search}}" on-clear="onClear"
+            <variant-facet-view study="{{study}}" project="{{project}}" config="{{config}}"
+                                opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+                                population-frequencies="{{populationFrequencies}}" query="{{query}}" search="{{search}}"
+                                on-clear="onClear"
                                 on-filterchange="onFilterChange">
             </variant-facet-view>
         </div>
@@ -48,58 +51,83 @@
 
     </template>
     <script>
-        Polymer({
-            is: 'variant-facet',
-            properties: {
-                project: {
-                    type: Object
-                },
-                study: {
-                    type: Object
-                },
-                studies: {
-                    type: Array
-                },
-                title: {
-                    type: String,
-                    value: ""
-                },
-                config: {
-                    type: Object
-                },
-                opencgaClient: {
-                    type: Object
-                },
-                cellbaseClient: {
-                    type: Object
-                },
-                populationFrequencies: {
-                    type: Object
-                },
-                consequenceTypes: {
-                    type: Object
-                },
-                proteinSubstitutionScores: {
-                    type: Object
-                },
-                query: {
-                    type: Object
-                },
-                search: {
-                    type: Object
+
+        class VariantFacet extends Polymer.Element {
+
+            static get is() {
+                return 'variant-facet';
+            }
+
+            static get properties() {
+                return {
+                    project: {
+                        type: Object
+                    },
+                    study: {
+                        type: Object
+                    },
+                    studies: {
+                        type: Array
+                    },
+                    title: {
+                        type: String,
+                        value: ""
+                    },
+                    config: {
+                        type: Object
+                    },
+                    opencgaClient: {
+                        type: Object
+                    },
+                    cellbaseClient: {
+                        type: Object
+                    },
+                    populationFrequencies: {
+                        type: Object
+                    },
+                    consequenceTypes: {
+                        type: Object
+                    },
+                    proteinSubstitutionScores: {
+                        type: Object
+                    },
+                    query: {
+                        type: Object
+                    },
+                    search: {
+                        type: Object
+                    }
                 }
-            },
-            checkProject: function (project) {
+            }
+
+            constructor() {
+                super();
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            ready() {
+                super.ready();
+            }
+
+            checkProject(project) {
                 return Object.keys(project).length == 0;
-            },
-            onClear: function() {
+            }
+
+            onClear() {
                 this.query = {};
                 this.search = {};
-            },
-            onFilterChange: function(e) {
+            }
+
+            onFilterChange(e) {
                 this.query = e.detail;
                 this.search = e.detail;
             }
-        });
+        }
+
+        customElements.define(VariantFacet.is, VariantFacet);
+
     </script>
 </dom-module>
