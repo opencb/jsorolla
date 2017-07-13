@@ -56,74 +56,94 @@
     </template>
 
     <script>
-        Polymer({
-            is: 'variant-prioritization',
-            properties: {
-                mode: {
-                    type: String
-                },
-                host: {
-                    type: String
-                },
-                project: {
-                    type: Object
-                },
-                study: {
-                    type: Object
-                },
-                title: {
-                    type: String,
-                    value: ""
-                },
-                samples: {
-                    type: Array,
-                    notify: true
-                },
-                opencgaClient: {
-                    type: Object
-                },
-                cellbaseClient: {
-                    type: Object
-                },
-                beaconHosts: {
-                    type: Array
-                },
-                query: {
-                    type: Object
-                },
-                search: {
-                    type: Object
-                },
-                prefix: {
-                    type: String
-                },
-                populationFrequencies: {
-                    type: Object
-                },
-                consequenceTypes: {
-                    type: Object
-                },
-                config: {
-                    type: Object
-                },
-                proteinSubstitutionScores: {
-                    type: Object
+        class VariantPrioritization extends Polymer.Element {
+
+            static get is() {
+                return 'variant-prioritization';
+            }
+
+            static get properties() {
+                return {
+                    mode: {
+                        type: String
+                    },
+                    host: {
+                        type: String
+                    },
+                    project: {
+                        type: Object
+                    },
+                    study: {
+                        type: Object
+                    },
+                    title: {
+                        type: String,
+                        value: ""
+                    },
+                    samples: {
+                        type: Array,
+                        notify: true
+                    },
+                    opencgaClient: {
+                        type: Object
+                    },
+                    cellbaseClient: {
+                        type: Object
+                    },
+                    beaconHosts: {
+                        type: Array
+                    },
+                    query: {
+                        type: Object
+                    },
+                    search: {
+                        type: Object
+                    },
+                    prefix: {
+                        type: String
+                    },
+                    populationFrequencies: {
+                        type: Object
+                    },
+                    consequenceTypes: {
+                        type: Object
+                    },
+                    config: {
+                        type: Object
+                    },
+                    proteinSubstitutionScores: {
+                        type: Object
+                    }
                 }
-            },
-            ready: function () {
+            }
+
+            constructor() {
+                super();
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            ready() {
+                super.ready();
+
                 if (typeof this.prefix === "undefined" || this.prefix === "") {
                     this.prefix = "prior" + Utils.randomString(6);
                 }
 
                 this._collapsed = false;
-            },
-            checkProject: function (project) {
+            }
+
+            checkProject(project) {
                 return Object.keys(project).length === 0;
-            },
-            propagateGeneEvent: function (e) {
+            }
+
+            propagateGeneEvent(e) {
                 this.fire('gene', {gene: e.detail.gene});
-            },
-            onCollapse: function () {
+            }
+
+            onCollapse() {
                 if (this._collapsed) {
 //                    $("#" + this.prefix + "FilterMenu").css("display", "inline");
                     $("#" + this.prefix + "FilterMenu").show(400);
@@ -135,15 +155,17 @@
                 }
 
                 this._collapsed = !this._collapsed;
-            },
-            onClear: function() {
+            }
+            onClear() {
                 this.query = {studies: this.project.alias + ":" + this.study.alias};
                 this.search = {};
-            },
-            onFilterChange: function(e) {
+            }
+            onFilterChange(e) {
                 this.query = e.detail;
                 this.search = e.detail;
             }
-        });
+        }
+
+        customElements.define(VariantPrioritization.is, VariantPrioritization);
     </script>
 </dom-module>

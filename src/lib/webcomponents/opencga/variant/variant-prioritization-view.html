@@ -16,7 +16,7 @@
 
 <link rel="import" href="variant-browser-grid.html">
 <link rel="import" href="../opencga-active-filters.html">
-<link rel="import" href="../../cellbase/variation/cellbase-variantannotation-view.html">
+<!--<link rel="import" href="../../cellbase/variation/cellbase-variantannotation-view.html">-->
 <link rel="import" href="variant-beacon-network.html">
 <link rel="import" href="variant-genome-browser.html">
 
@@ -81,8 +81,8 @@
                     </span>
                     <!--<span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>-->
                     <!--<span>-->
-                        <!--<i class="fa fa-save"></i>-->
-                        <!--<a id="{{prefix}}Save" class="variant-menu-link" on-click="_savePrioritization">SAVE</a>-->
+                    <!--<i class="fa fa-save"></i>-->
+                    <!--<a id="{{prefix}}Save" class="variant-menu-link" on-click="_savePrioritization">SAVE</a>-->
                     <!--</span>-->
                 </div>
             </template>
@@ -148,62 +148,78 @@
     </template>
 
     <script>
-        Polymer({
-            is: 'variant-prioritization-view',
-            properties: {
-                mode: {
-                    type: String
-                },
-                title: {
-                    type: String
-                },
-                project: {
-                    type: Object
-                },
-                study: {
-                    type: Object
-                },
-                data: {
-                    type: Array,
-                    value: []
-                },
-                opencgaClient: {
-                    type: Object
-                },
-                cellbaseClient: {
-                    type: Object
-                },
-                samples: {
-                    type: Array
-                },
-                populationFrequencies: {
-                    type: Object
-                },
-                proteinSubstitutionScores: {
-                    type: Object
-                },
-                consequenceTypes: {
-                    type: Object
-                },
-                beaconHosts: {
-                    type: Array
-                },
-                query: {
-                    type: Object,
-                    notify: true
-                },
-                search: {
-                    type: Object
-                },
-                prefix: {
-                    type: String
-                },
-                variant: {
-                    type: String,
-                    value: "No variant selected"
+        class VariantPrioritizationView extends Polymer.Element {
+
+            static get is() {
+                return 'variant-prioritization-view';
+            }
+
+            static get properties() {
+                return {
+                    mode: {
+                        type: String
+                    },
+                    title: {
+                        type: String
+                    },
+                    project: {
+                        type: Object
+                    },
+                    study: {
+                        type: Object
+                    },
+                    data: {
+                        type: Array,
+                        value: []
+                    },
+                    opencgaClient: {
+                        type: Object
+                    },
+                    cellbaseClient: {
+                        type: Object
+                    },
+                    samples: {
+                        type: Array
+                    },
+                    populationFrequencies: {
+                        type: Object
+                    },
+                    proteinSubstitutionScores: {
+                        type: Object
+                    },
+                    consequenceTypes: {
+                        type: Object
+                    },
+                    beaconHosts: {
+                        type: Array
+                    },
+                    query: {
+                        type: Object,
+                        notify: true
+                    },
+                    search: {
+                        type: Object
+                    },
+                    prefix: {
+                        type: String
+                    },
+                    variant: {
+                        type: String,
+                        value: "No variant selected"
+                    }
                 }
-            },
-            ready: function () {
+            }
+
+            constructor() {
+                super();
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            ready() {
+                super.ready();
 
                 // To allow more than 'prioritization instance in the same web application we add a prefix to all elements ID
                 if (typeof this.prefix === "undefined" || this.prefix === "") {
@@ -229,17 +245,21 @@
                 this.showSelect = true;
 
                 this.fixedFilters = ["studies"];
-            },
-            checkVariant: function(variant) {
+            }
+
+            checkVariant(variant) {
                 return variant.split(':').length > 2;
-            },
-            onSelectVariant: function(e) {
+            }
+
+            onSelectVariant(e) {
                 this.variant = e.detail.id;
-            },
-            selectedGene: function (e) {
+            }
+
+            selectedGene (e) {
                 this.fire('propagate', {gene: e.detail.gene});
-            },
-            _changeView: function(e) {
+            }
+
+            _changeView(e) {
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
                 $('.variant-prioritization-content').hide(); // hides all content divs
                 if (typeof e.target !== "undefined" && typeof e.target.dataset.view !== "undefined") {
@@ -253,13 +273,17 @@
                 if (e.target.dataset.view === "GenomeBrowser") {
 //                    window.location.hash = "genomebrowser";
                 }
-            },
-            triggerBeacon: function (e) {
+            }
+
+            triggerBeacon (e) {
                 this.variantToBeacon = this.variant;
-            },
-            _savePrioritization: function () {
+            }
+
+            _savePrioritization () {
                 alert("Not implemented yet");
             }
-        });
+        }
+
+        customElements.define(VariantPrioritizationView.is, VariantPrioritizationView);
     </script>
 </dom-module>
