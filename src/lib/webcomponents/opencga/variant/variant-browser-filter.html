@@ -1392,32 +1392,29 @@
                     _filters["annot-population-maf"] = popFreq.join(';');
                 }
 
-                // Protein Substitution scores
+                // Protein Substitution Scores -  Sift and Polyphen
                 let pss = [];
-                let sift = "";
-                if (this.$$("#" + this.prefix + "SiftValues").value === "score" && this.$$("#" + this.prefix + "SiftInput").value !== "" || this.$$("#" + this.prefix + "SiftOperator").value !== "<") {
-                    sift = "sift" + this.$$("#" + this.prefix + "SiftOperator").value + this.$$("#" + this.prefix + "SiftInput").value;
-                    pss.push(sift);
-                } else if (this.$$("#" + this.prefix + "SiftValues").value !== "score") {
-                    sift = "sift" + "==" + this.$$("#" + this.prefix + "SiftValues").value;
-                    pss.push(sift);
-                }
-                let polyphen = "";
-                if (this.$$("#" + this.prefix + "PolyphenValues").value === "score" && this.$$("#" + this.prefix + "PolyphenInput").value !== "" || this.$$("#" + this.prefix + "PolyphenOperator").value !== "<") {
-                    polyphen = "polyphen" + this.$$("#" + this.prefix + "PolyphenOperator").value + this.$$("#" + this.prefix + "PolyphenInput").value;
-                    pss.push(polyphen);
-                } else if (this.$$("#" + this.prefix + "PolyphenValues").value !== "score") {
-                    let value = this.$$("#" + this.prefix + "PolyphenValues").value;
-                    let polyphenValues = value.split(',');
-                    for (let i = 0; i < polyphenValues.length; i++) {
-                        polyphen = "polyphen" + "==" + polyphenValues[i];
-                        pss.push(polyphen);
+                let numFilters = 0;
+                let subsScores = ["Sift", "Polyphen"];
+                for (let subsScore of subsScores) {
+                    let dropdownValues = PolymerUtils.getElementById(this.prefix + subsScore + "Values");
+                    let textboxInput = PolymerUtils.getElementById(this.prefix + subsScore + "Input");
+                    let operator = PolymerUtils.getElementById(this.prefix + subsScore + "Operator");
+                    if (dropdownValues.value === "score" && textboxInput.value !== "") {
+                        pss.push(subsScore.toLowerCase() + operator.value + textboxInput.value);
+                        numFilters++;
+                    } else if (dropdownValues.value !== "score") {
+//                        let value = dropdownValues.value;
+//                        let splitValues = value.split(',');
+//                        for (let i = 0; i < splitValues.length; i++) {
+//                            pss.push(subsScore.toLowerCase() + "==" + splitValues[i]);
+//                        }
+                        pss.push(subsScore.toLowerCase() + "==" + dropdownValues.value);
+                        numFilters++;
                     }
                 }
-                if ((this.$$("#" + this.prefix + "SiftInput").value !== "" && this.$$("#" + this.prefix + "PolyphenInput").value !== "") ||
-                    (this.$$("#" + this.prefix + "SiftValues").value !== "score" && this.$$("#" + this.prefix + "PolyphenInput").value !== "") ||
-                    ((this.$$("#" + this.prefix + "SiftInput").value) !== "" && this.$$("#" + this.prefix + "PolyphenValues").value !== "score") ||
-                    (this.$$("#" + this.prefix + "SiftValues").value !== "score" && this.$$("#" + this.prefix + "PolyphenValues").value !== "score")) {
+                // If both Sift and Polyphen are selected then we activate the AND/OR control
+                if (numFilters === 2) {
                     $("input:radio[name=pss]").attr('disabled', false);
                 }
                 if (pss.length > 0) {
@@ -1428,7 +1425,6 @@
                         _filters.protein_substitution = pss.join(',');
                     }
                 }
-
 
 
                 this._reset = false;
