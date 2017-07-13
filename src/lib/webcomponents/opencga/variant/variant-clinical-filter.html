@@ -815,10 +815,12 @@
             }
             clear() {
                 // This will trigger the event that call to renderQueryFilters
-                this.query = {};
+                this.set('query', {});
+                //this.query = {};
 
                 // This refresh the variant main grid
-                this.search = {};
+                this.set('search', {});
+                //this.search = {};
             }
             renderQueryFilters() {
                 // Empty everything before rendering
@@ -1017,8 +1019,6 @@
                 return a.title < b.title ? -1 : 1;
             }
             updateQueryFilters() {
-                console.log(this);
-                debugger;
                 let _filters = {};
                 // Adding sample genotypes filter
                 if (PolymerUtils.isNotEmpty(this.sampleGenotypes)) {
