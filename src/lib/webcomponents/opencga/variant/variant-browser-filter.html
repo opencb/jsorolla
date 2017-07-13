@@ -1426,6 +1426,20 @@
                     }
                 }
 
+                // Cadd scores
+                let cadd = [];
+                let caddInput = PolymerUtils.getElementById(this.prefix + "CaddRawInput");
+                if (PolymerUtils.isNotEmpty(caddInput.value)) {
+                    cadd.push("cadd_raw" + PolymerUtils.getElementById(this.prefix + "CaddRawOperator").value + caddInput.value);
+                }
+                caddInput = PolymerUtils.getElementById(this.prefix + "CaddScaledInput");
+                if (PolymerUtils.isNotEmpty(caddInput.value)) {
+                    cadd.push("cadd_scaled" + PolymerUtils.getElementById(this.prefix + "CaddScaledOperator").value + caddInput.value);
+                }
+                if (cadd.length > 0) {
+                    _filters["annot-functional-score"] = cadd.join(',');
+                }
+
 
                 this._reset = false;
                 this.query = _filters;
@@ -1463,7 +1477,7 @@
 //                }
 
                 // Consequence Type
-                if (typeof this.ct !== "undefined" && this.ct.length > 0) {
+                if (PolymerUtils.isNotEmptyArray(this.ct)) {
                     _filters["annot-ct"]= this.ct.join(',');
                 }
 
@@ -1481,19 +1495,6 @@
                     _filters["traits"] = this.$$("#" + this.prefix + "TraitsTextarea").value;
                 }
 
-                // Cadd scores
-//                let cadd = [];
-//                if (this.$$("#" + this.prefix + "CaddRawInput").value !== "" || this.$$("#" + this.prefix + "CaddRawOperator").value !== "<") {
-//                    let raw = "cadd_raw" + this.$$("#" + this.prefix + "CaddRawOperator").value + this.$$("#" + this.prefix + "CaddRawInput").value;
-//                    cadd.push(raw);
-//                }
-//                if (this.$$("#" + this.prefix + "CaddScaledInput").value !== "" || this.$$("#" + this.prefix + "CaddScaledOperator").value !== "<") {
-//                    let scaled = "cadd_scaled" + this.$$("#" + this.prefix + "CaddScaledOperator").value + this.$$("#" + this.prefix + "CaddScaledInput").value;
-//                    cadd.push(scaled);
-//                }
-//                if (cadd.length > 0) {
-//                    _filters["annot-functional-score"] = cadd.join(',');
-//                }
 
                 // To prevent to call renderQueryFilters we set this to false
                 this._reset = false;
