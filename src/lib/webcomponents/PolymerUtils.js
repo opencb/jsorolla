@@ -1,4 +1,3 @@
-
 class PolymerUtils {
 
     static isUndefined(obj) {
@@ -130,21 +129,6 @@ class PolymerUtils {
             } else {
                 return undefined;
             }
-        } else {
-
-            // If element is a string we do first a getElementById, if it exist we execute the query
-            if (typeof element === "string") {
-                let elem = PolymerUtils.getElementById(element);
-                if (elem !== undefined) {
-                    return elem.querySelectorAll(selectors);
-                } else {
-                    // The given element id does not exist
-                    return undefined;
-                }
-            } else {
-                // Element exists and it is not a string, it must be a object
-                return element.querySelectorAll(selectors);
-            }
         }
     }
 
@@ -167,7 +151,7 @@ class PolymerUtils {
 
 
     static addClass(id, className) {
-        if (!PolymerUtils.isUndefinedOrNull(id)) {
+        if (PolymerUtils.isNotUndefinedOrNull(id)) {
             let el;
             if (id.startsWith(".")) {
                 // If starts with a dot then is a class, we use querySelector
@@ -190,7 +174,7 @@ class PolymerUtils {
     }
 
     static removeClass(id, className) {
-        if (!PolymerUtils.isUndefinedOrNull(id)) {
+        if (PolymerUtils.isNotUndefinedOrNull(id)) {
             let el;
             if (id.startsWith(".")) {
                 // If starts with a dot then is a class, we use querySelector
@@ -201,7 +185,7 @@ class PolymerUtils {
             }
 
             if (Array.isArray(className)) {
-                if (!PolymerUtils.isUndefinedOrNull(el)) {
+                if (PolymerUtils.isNotUndefinedOrNull(el)) {
                     className.forEach(function (item) {
                         el.classList.remove(item);
                     });
@@ -213,18 +197,18 @@ class PolymerUtils {
     }
 
     static removeElement(id) {
-        if (!PolymerUtils.isUndefinedOrNull(id)) {
+        if (PolymerUtils.isNotUndefinedOrNull(id)) {
             let el = this.getElementById(id);
-            if (!PolymerUtils.isUndefinedOrNull(el)) {
+            if (PolymerUtils.isNotUndefinedOrNull(el)) {
                 el.parentNode.removeChild(el);
             }
         }
     }
 
     static addStyle(id, key, value) {
-        if (!PolymerUtils.isUndefinedOrNull(id)) {
+        if (PolymerUtils.isNotUndefinedOrNull(id)) {
             let el = this.getElementById(id);
-            if (!PolymerUtils.isUndefinedOrNull(el)) {
+            if (PolymerUtils.isNotUndefinedOrNull(el)) {
                 el.style[key] = value;
             }
         }
@@ -232,9 +216,9 @@ class PolymerUtils {
 
 
     static addStyleByClass(className, key, value) {
-        if (!PolymerUtils.isUndefinedOrNull(className)) {
+        if (PolymerUtils.isNotUndefinedOrNull(className)) {
             let els = this.getElementsByClassName(className);
-            if (!PolymerUtils.isUndefinedOrNull(els)) {
+            if (PolymerUtils.isNotUndefinedOrNull(els)) {
                 Array.from(els).forEach(function (element) {
                     element.style[key] = value;
                 });
@@ -252,18 +236,18 @@ class PolymerUtils {
     }
 
     static setAttribute(id, key, value) {
-        if (!PolymerUtils.isUndefinedOrNull(key)) {
+        if (PolymerUtils.isNotUndefinedOrNull(key)) {
             let el = PolymerUtils.getElementById(id);
-            if (!PolymerUtils.isUndefinedOrNull(el)) {
+            if (PolymerUtils.isNotUndefinedOrNull(el)) {
                 el.setAttribute(key, value);
             }
         }
     }
 
     static removeAttribute(id, key) {
-        if (!PolymerUtils.isUndefinedOrNull(key)) {
+        if (PolymerUtils.isNotUndefinedOrNull(key)) {
             let el = PolymerUtils.getElementById(id);
-            if (!PolymerUtils.isUndefinedOrNull(el)) {
+            if (PolymerUtils.isNotUndefinedOrNull(el)) {
                 el.removeAttribute(key);
             }
         }
@@ -272,8 +256,8 @@ class PolymerUtils {
     static removeAttributebyclass(className, key) {
         let els = PolymerUtils.getElementsByClassName(className);
 
-        if (!PolymerUtils.isUndefinedOrNull(key)) {
-            if (!PolymerUtils.isUndefinedOrNull(els)) {
+        if (PolymerUtils.isNotUndefinedOrNull(key)) {
+            if (PolymerUtils.isNotUndefinedOrNull(els)) {
                 Array.from(els).forEach(function (element) {
                     element.removeAttribute(key);
                 });
@@ -283,7 +267,7 @@ class PolymerUtils {
 
     static innerHTML(id, text) {
         let el = PolymerUtils.getElementById(id);
-        if (!PolymerUtils.isUndefinedOrNull(el)) {
+        if (PolymerUtils.isNotUndefinedOrNull(el)) {
             el.innerHTML = text;
         }
 
@@ -292,7 +276,7 @@ class PolymerUtils {
 
     static innerHtmlByClass(className, text) {
         let els = PolymerUtils.getElementsByClassName(className);
-        if (!PolymerUtils.isUndefinedOrNull(els)) {
+        if (PolymerUtils.isNotUndefinedOrNull(els)) {
             Array.from(els).forEach(function (element) {
                 element.innerHTML = text;
             });
@@ -303,8 +287,8 @@ class PolymerUtils {
     static setPropertyByClassName(className, key, value) {
         let els = PolymerUtils.getElementsByClassName(className);
 
-        if (!PolymerUtils.isUndefinedOrNull(key)) {
-            if (!PolymerUtils.isUndefinedOrNull(els)) {
+        if (PolymerUtils.isNotUndefinedOrNull(key)) {
+            if (PolymerUtils.isNotUndefinedOrNull(els)) {
                 Array.from(els).forEach(function (element) {
                     element[key] = value;
                 });
@@ -315,8 +299,8 @@ class PolymerUtils {
     static setPropertyById(id, key, value) {
         let element = PolymerUtils.getElementById(id);
 
-        if (!PolymerUtils.isUndefinedOrNull(key)) {
-            if (!PolymerUtils.isUndefinedOrNull(element)) {
+        if (PolymerUtils.isNotUndefinedOrNull(key)) {
+            if (PolymerUtils.isNotUndefinedOrNull(element)) {
                 element[key] = value;
             }
         }
@@ -325,8 +309,8 @@ class PolymerUtils {
     static getPropertyById(id, key) {
         let element = PolymerUtils.getElementById(id);
 
-        if (!PolymerUtils.isUndefinedOrNull(key)) {
-            if (!PolymerUtils.isUndefinedOrNull(element)) {
+        if (PolymerUtils.isNotUndefinedOrNull(key)) {
+            if (PolymerUtils.isNotUndefinedOrNull(element)) {
                 return element[key];
             }
         }
@@ -335,8 +319,8 @@ class PolymerUtils {
     static setAttributeByClassName(className, key, value) {
         let els = PolymerUtils.getElementsByClassName(className);
 
-        if (!PolymerUtils.isUndefinedOrNull(key)) {
-            if (!PolymerUtils.isUndefinedOrNull(els)) {
+        if (PolymerUtils.isNotUndefinedOrNull(key)) {
+            if (PolymerUtils.isNotUndefinedOrNull(els)) {
                 Array.from(els).forEach(function (element) {
                     element.setAttribute(key, value);
                 });

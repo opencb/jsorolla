@@ -267,12 +267,9 @@
 
                 if (this.filteredVariables.variables.length > 0) {
                     if (!filters.hasOwnProperty("annotation")) {
-                        // Remove the filter variableSetId as it won't make more sense.
-//                        delete filters.variableSetId;
                         this.set("filteredVariables.variables", []);
 
                     } else if (filters.annotation.length < this.filteredVariables.variables.length) {
-//                        debugger
                         let tmpVariables = [];
                         filters.annotation.forEach(function (variable) {
                             tmpVariables.push(variable);
@@ -280,15 +277,10 @@
 
                         this.set("filteredVariables.variables", tmpVariables);
                     }
-//                    } else if (!filters.hasOwnProperty("variableSetId")) {
-//                        // They have removed the variableSetId so all the annotations should be out
-//                        delete filters.variables;
-//                        this.filteredVariables.variables = [];
-//                    }
+
                 }
 
             }
-
             /**
              * Read from the values in the forms, and sets the filters.
              */
@@ -315,7 +307,6 @@
                 }
 
                 if (this.filteredVariables.variables !== undefined && this.filteredVariables.variables.length > 0) {
-//                    filters["variableSetId"] = this.filteredVariables.variableSet;
                     let annotations = [];
                     this.filteredVariables.variables.forEach(function (variable) {
                         annotations.push(variable);
@@ -331,8 +322,6 @@
 
                 let keys = Object.keys(this.filters);
                 for (let i = 0; i < keys.length; i++) {
-                    // Some filters can come as an array of things.
-                    // annotation = [{name: name, value: Smith}, {name: age, value: >5}]
                     if (Array.isArray(this.filters[keys[i]])) {
                         let myArray = this.filters[keys[i]];
 
@@ -367,7 +356,6 @@
             addAnalysis(e) {
 
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-                //$("#analysisListDiv").show();
                 let analysisId = Math.floor(Math.random() * 100) + 1;
                 // Get the type of analysisId
                 let analysisType = "";
@@ -440,7 +428,7 @@
                         family: null
                     };
 
-                    if (typeof this._analysis !== "undefined") {
+                    if (PolymerUtils.isNotUndefined(this._analysis)) {
                         this.push('_analysis', _anObject);
                     }
                     else {
@@ -456,30 +444,15 @@
 
             deleteAnalysis(e) {
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-                let ids = $.map($('#' + this.prefix + 'tableAnalysis').bootstrapTable('getSelections'), function (row) {
+                let ids = $.map($(PolymerUtils.getElementById(this.prefix + 'tableAnalysis')).bootstrapTable('getSelections'), function (row) {
                     return row.analysisID;
                 });
 
-                $('#' + this.prefix + 'tableAnalysis').bootstrapTable('remove', {
+                $(PolymerUtils.getElementById(this.prefix + 'tableAnalysis')).bootstrapTable('remove', {
                     field: 'analysisID',
                     values: ids
                 });
-
-                // Remove from property analysis.
-                // This code will be removed as soon as analysis can be saved
-                /*                for (let i in ids) {
-                 let analysisToDeleteIdx = -1;
-                 for (let j in this.analysis) {
-                 if (this.analysis[j].analysisID === ids[i]) {
-                 analysisToDeleteIdx = j;
-                 break
-                 }
-                 }
-                 this.splice('analysis', analysisToDeleteIdx, 1);
-                 }*/
                 this.unsavedAnalysis--;
-
-
             }
 
             saveAnalysis(rowInfo) {
@@ -515,11 +488,9 @@
                 }
 
                 if (this.opencgaClient instanceof OpenCGAClient) {
-                    // Create Family
-
                     // Get family members
                     let _father = null;
-                    if (typeof(rowInfo.family.pedigree.father) !== "undefined") {
+                    if (PolymerUtils.isNotUndefined(rowInfo.family.pedigree.father)) {
                         for (let j = 0; j < rowInfo.sampleList.length; j++) {
                             if (rowInfo.family.pedigree.father.name === rowInfo.sampleList[j].name) {
                                 _father = rowInfo.sampleList[j].individual.id;
@@ -528,7 +499,7 @@
                     }
 
                     let _mother = null;
-                    if (typeof(rowInfo.family.pedigree.mother) !== "undefined") {
+                    if (PolymerUtils.isNotUndefined(rowInfo.family.pedigree.mother)) {
                         for (let j = 0; j < rowInfo.sampleList.length; j++) {
                             if (rowInfo.family.pedigree.mother.name === rowInfo.sampleList[j].name) {
                                 _mother = rowInfo.sampleList[j].individual.id;
@@ -769,12 +740,5 @@
 
         customElements.define(VariantClinicalSamples.is, VariantClinicalSamples);
 
-        //        Polymer({
-        //
-        //            observers: [
-        //                'calculateFilters(filteredVariables.variables.*)'
-        //            ],
-        //
-        //        });
     </script>
 </dom-module>
