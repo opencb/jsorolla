@@ -23,7 +23,8 @@
             <div id="{{prefix}}modalDiv" class="modal-dialog modal-sm" role="document">
                 <div class="modal-content">
                     <div id="{{prefix}}headerDiv" class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">&times;</span></button>
                         <h4 class="modal-title" id="{{prefix}}messageLabel">{{messageHeader}}</h4>
                     </div>
                     <div id="{{prefix}}bodyDiv" class="modal-body">
@@ -45,8 +46,11 @@
     </template>
 
     <script>
-        class OpencgaMessageDialog extends Polymer.Element{
-            static get is() { return 'opencga-message-dialog'; }
+        class OpencgaMessageDialog extends Polymer.Element {
+            static get is() {
+                return 'opencga-message-dialog';
+            }
+
             static get properties() {
                 return {
                     opencgaClient: {
@@ -62,6 +66,7 @@
                     }
                 }
             }
+
             constructor() {
                 super();
             }
@@ -69,6 +74,7 @@
             _attachDom(dom) {
                 this.appendChild(dom);
             }
+
             ready() {
                 super.ready();
                 if (PolymerUtils.isEmpty(this.prefix)) {
@@ -76,10 +82,11 @@
                 }
 
             }
+
             modalEvent() {
-                if (this.showMessageModal === true && !PolymerUtils.isUndefined(this.settingsMessageModal)){
+                if (this.showMessageModal === true && !PolymerUtils.isUndefined(this.settingsMessageModal)) {
                     // Type of modal
-                    switch(this.settingsMessageModal.type){
+                    switch (this.settingsMessageModal.type) {
                         case 'success':
                             PolymerUtils.addClass(this.prefix + "headerDiv", "alert alert-success".split(" "));
                             break;
@@ -102,7 +109,7 @@
                     this.messageHeader = this.settingsMessageModal.messageHeader;
 
                     // Show modal
-                    $("#" + this.prefix + "messageModal").modal("show");
+                    $(PolymerUtils.getElementById(this.prefix + "messageModal")).modal("show");
 
                     this.showMessageModal = false;
 

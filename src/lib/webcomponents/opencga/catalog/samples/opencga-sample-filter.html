@@ -489,19 +489,19 @@
 
                 // Sample
                 if (PolymerUtils.isNotUndefined(this.query.name)) {
-                    PolymerUtils.getElementById(this.prefix + "SampleName").value = this.query.name;
+                    PolymerUtils.setValue(this.prefix + "SampleName", this.query.name);
                 }
             }
 
             calculateFilters(e) {
                 let _query = {};
 
-                let name = PolymerUtils.getElementById(this.prefix + "SampleName").value;
+                let name = PolymerUtils.getValue(this.prefix + "SampleName");
                 if (!PolymerUtils.isEmpty(name)) {
                     _query.name = name;
                 }
 
-                let individual = PolymerUtils.getElementById(this.prefix + "IndividualName").value;
+                let individual = PolymerUtils.getValue(this.prefix + "IndividualName");
                 if (!PolymerUtils.isEmpty(individual)) {
                     _query.individual = individual;
                 }
@@ -541,11 +541,9 @@
                         break;
                 }
 
-//                this.query = _query;
                 // To prevent to call renderQueryFilters we set this to false
                 this._reset = false;
                 this.set("query",_query);
-//                this.query = _query;
                 this._reset = true;
             }
 
@@ -596,14 +594,14 @@
 
             renderVariableTemplate() {
                 let myTemplate = PolymerUtils.getElementById(this.prefix + 'VariableTemplate');
-                if (myTemplate !== null) {
+                if (PolymerUtils.isNotNull(myTemplate)) {
                     myTemplate.render();
                 }
             }
 
             variableSelected(e) {
                 this.variable = e.target.dataVariable;
-                if (this.variable === undefined || Object.getOwnPropertyNames(this.variable).length === 0) {
+                if (PolymerUtils.isUndefined(this.variable) || Object.getOwnPropertyNames(this.variable).length === 0) {
                     return;
                 }
                 this._isCategorical = false;
@@ -714,7 +712,8 @@
                         return false;
                     }
                 }
-                if (PolymerUtils.isNotUndefined(this.searchVariable) && variable.name.toLowerCase().indexOf(this.searchVariable.toLowerCase()) === -1) {
+                if (PolymerUtils.isNotUndefined(this.searchVariable)
+                    && variable.name.toLowerCase().indexOf(this.searchVariable.toLowerCase()) === -1) {
                     return false;
                 }
                 return true;

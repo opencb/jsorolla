@@ -458,7 +458,7 @@
                 }
 
                 // Sample Information
-                if (typeof this.selection.sampleInfo !== "undefined") {
+                if (PolymerUtils.isNotUndefined(this.selection.sampleInfo)) {
                     for (let i = 0; i < this.selection.sampleInfo.length; i++) {
                         //this.$$("#" + this.prefix + this.selection.sampleInfo[i].name + "Div").hidden = !this.selection.sampleInfo[i].value;
                         PolymerUtils.setPropertyById(this.prefix + this.selection.sampleInfo[i].name + "Div", "hidden", !this.selection.sampleInfo[i].value);
@@ -558,7 +558,7 @@
             }
 
             updateTextArea() {
-                PolymerUtils.innerHTML(this.prefix + "conclusions", document.getElementById(this.prefix + "conclusions").value);
+                PolymerUtils.innerHTML(this.prefix + "conclusions", PolymerUtils.getValue(this.prefix + "conclusions"));
             }
 
             _getVariantsInfo(variants) {

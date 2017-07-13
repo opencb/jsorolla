@@ -76,14 +76,12 @@
                     this.prefix = "sample2" + Utils.randomString(6);
                 }
 
-//                this.renderFromServer();
-
                 this._initTableColumns();
                 this.dispatchEvent(new CustomEvent('clear', {detail: {}, bubbles: true, composed: true}));
 
             }
 
-            connectedCallback () {
+            connectedCallback() {
                 super.connectedCallback();
                 this.table = PolymerUtils.getElementById(this.prefix + "SampleSelector");
                 this.search = {};
@@ -128,7 +126,7 @@
                                 skip: params.offset
                             };
 
-                            if (typeof filters === "undefined") {
+                            if (PolymerUtils.isUndefined(filters)) {
                                 filters = {};
                             }
                             return Object.assign(filters, auxParams);
@@ -169,14 +167,6 @@
                             _this.push("_samples", row);
                             _this.set('samples', _this._samples.slice());
 
-                            // Map each sample to its associated individual
-//                            if (typeof row.individual !== "undefined" && typeof row.individual.id !== "undefined" && row.individual.id !== "-1") {
-//                                if (typeof _this.individuals[row.individual.id] === "undefined") {
-//                                    _this.individuals[row.individual.id] = [row];
-//                                } else {
-//                                    _this.individuals[row.individual.id].push(row);
-//                                }
-//                            }
                         },
                         onUncheck: function (row, elem) {
                             let sampleToDeleteIdx = -1;
@@ -190,20 +180,6 @@
                             if (sampleToDeleteIdx === -1) {
                                 return;
                             }
-
-//                            if (typeof row.individual !== "undefined" && typeof row.individual.id !== "undefined"
-//                                && row.individual.id !== "-1") {
-//                                if (row.individual.id in _this.individuals) {
-//                                    let samples = _this.individuals[row.individual.id];
-//                                    for (let i in samples) {
-//                                        if (row.name === samples[i].name) {
-//                                            samples.splice(i, 1);
-//                                            break;
-//                                        }
-//                                    }
-//                                    _this.individuals[row.individual.id] = samples;
-//                                }
-//                            }
 
                             _this.splice('_samples', sampleToDeleteIdx, 1);
                             _this.set('samples', _this._samples.slice());
@@ -307,28 +283,27 @@
 
             updateForms(filters) {
                 // This is just to avoid entering here when it has just been initialized
-                if (this.prefix === undefined) {
+                if (PolymerUtils.isUndefined(this.prefix)) {
                     return;
                 }
 
-                let sampleName = PolymerUtils.getElementById(this.prefix + "NameTextarea").value;
-                if (!filters.hasOwnProperty("name") && sampleName !== undefined && sampleName.length > 0) {
+                let sampleName = PolymerUtils.getValue(this.prefix + "NameTextarea");
+                if (!filters.hasOwnProperty("name") && PolymerUtils.isNotUndefined(sampleName) && sampleName.length > 0) {
                     PolymerUtils.getElementById(this.prefix + "NameTextarea").value = "";
                 }
 
-                let individual = PolymerUtils.getElementById(this.prefix + "IndividualTextarea").value;
+                let individual = PolymerUtils.getValue(this.prefix + "IndividualTextarea");
                 if (!filters.hasOwnProperty("individual.id") && PolymerUtils.isNotUndefined(individual) && individual.length > 0) {
-                    PolymerUtils.getElementById(this.prefix + "IndividualTextarea").value = "";
+
+                    PolymerUtils.setValue(this.prefix + "IndividualTextarea", "");
                 }
 
                 if (this.filteredVariables.variables.length > 0) {
                     if (!filters.hasOwnProperty("annotation")) {
                         // Remove the filter variableSetId as it won't make more sense.
-//                        delete filters.variableSetId;
                         this.set("filteredVariables.variables", []);
 
                     } else if (filters.annotation.length < this.filteredVariables.variables.length) {
-//                        debugger
                         let tmpVariables = [];
                         filters.annotation.forEach(function (variable) {
                             tmpVariables.push(variable);
@@ -336,11 +311,6 @@
 
                         this.set("filteredVariables.variables", tmpVariables);
                     }
-//                    } else if (!filters.hasOwnProperty("variableSetId")) {
-//                        // They have removed the variableSetId so all the annotations should be out
-//                        delete filters.variables;
-//                        this.filteredVariables.variables = [];
-//                    }
                 }
 
             }
@@ -477,13 +447,7 @@
                 return ['calculateFilters(filteredVariables.variables.*)'];
             }
         }
-        //        Polymer({
-        //
-        //            observers: [
-        //                'calculateFilters(filteredVariables.variables.*)'
-        //            ],
-        //
-        //        });
+
         customElements.define(VariantSampleGrid.is, VariantSampleGrid);
 
     </script>
