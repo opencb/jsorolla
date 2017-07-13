@@ -1,49 +1,68 @@
 
 <dom-module id="genome-browser">
+
     <template>
         <div id="{{prefix}}GenomeBrowser"></div>
     </template>
+
     <script>
-        Polymer({
-            is: 'genome-browser',
-            properties: {
-                cellbaseClient: {
-                    type: Object,
-                    observer: "init"
-                },
-                opencgaClient: {
-                    type: Object
-                },
-                project: {
-                    type: Object
-                },
-                study: {
-                    type: Object
-                },
-                region: {
-                    type: Object,
-                    observer: "changeRegion"
-                },
-                species: {
-                    type: Object
-                },
-                tracks: {
-                    type: Array,
-                    value: ['sequence', 'gene']
-                },
-                trackConfigs: {
-                    type: Object,
-                    observer: "init",
-                    value: {}
-                },
-                settings: {
-                    type: Object
-                },
-                prefix: {
-                    type: String
+        class GenomeBrowserComponent extends Polymer.Element {
+
+            static get is() {
+                return 'genome-browser';
+            }
+
+            static get properties() {
+                return {
+                    cellbaseClient: {
+                        type: Object,
+                        observer: "init"
+                    },
+                    opencgaClient: {
+                        type: Object
+                    },
+                    project: {
+                        type: Object
+                    },
+                    study: {
+                        type: Object
+                    },
+                    region: {
+                        type: Object,
+                        observer: "changeRegion"
+                    },
+                    species: {
+                        type: Object
+                    },
+                    tracks: {
+                        type: Array,
+                        value: ['sequence', 'gene']
+                    },
+                    trackConfigs: {
+                        type: Object,
+                        observer: "init",
+                        value: {}
+                    },
+                    settings: {
+                        type: Object
+                    },
+                    prefix: {
+                        type: String
+                    }
                 }
-            },
-            ready: function () {
+            }
+
+            constructor() {
+                super();
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            ready() {
+                super.ready();
+
                 if (typeof this.prefix === "undefined" || this.prefix === "") {
                     this.prefix = "gb_" + Utils.randomString(6);
                 }
@@ -52,27 +71,28 @@
 
                 this.region = new Region({chromosome: "21", start: 22859462, end: 22859610});
 //                this.region = {chromosome: "21", start: 22859462, end: 22859610};
-            },
-            init: function() {
+            }
+
+            init() {
                 if (typeof this.cellbaseClient === "undefined" || typeof this.opencgaClient === "undefined"
                     || typeof this.genomeBrowser !== "undefined") {
                     return;
                 }
                 let _this = this;
+
                 this.getSpecies().then(function (availableSpecies) {
                     _this.species = availableSpecies.vertebrates[0];
-
                     let settings = {
                         sidePanel: false,
-                            autoRender: true,
-                            resizable: true,
-                            karyotypePanelConfig: {
+                        autoRender: true,
+                        resizable: true,
+                        karyotypePanelConfig: {
                             collapsed: true,
-                                collapsible: true
+                            collapsible: true
                         },
                         chromosomePanelConfig: {
                             collapsed: true,
-                                collapsible: true
+                            collapsible: true
                         },
                         navigationBarConfig: {
                             componentsConfig: {
@@ -138,8 +158,9 @@
 
                 });
 
-            },
-            addSequenceTrack: function(settings) {
+            }
+
+            addSequenceTrack(settings) {
                 let mySettings = {
                     title: 'Sequence',
                     height: 20,
@@ -150,8 +171,9 @@
                 };
                 mySettings = Object.assign(mySettings, settings);
                 return new FeatureTrack(mySettings);
-            },
-            addGeneTrack: function(settings) {
+            }
+
+            addGeneTrack(settings) {
                 let mySettings = {
                     title: 'Gene',
                     minHistogramRegionSize: 20000000,
@@ -175,18 +197,20 @@
                 };
                 mySettings = Object.assign(mySettings, settings);
                 return new GeneTrack(mySettings);
-            },
-            addVariantTrack: function(settings) {
+            }
 
-            },
+            addVariantTrack(settings) {
+
+            }
+
             /*
-            settings is supposed to have:
-            - type: alignment...
-            - config: Configuration of the track (title, closable, height...)
-            - source: opencga, cellbase...
-            - data: data that will be used
+             settings is supposed to have:
+             - type: alignment...
+             - config: Configuration of the track (title, closable, height...)
+             - source: opencga, cellbase...
+             - data: data that will be used
              */
-            addAlignmentTrack: function(settings) {
+            addAlignmentTrack(settings) {
                 let mySettings = {
                     title: "Alignment",
                     closable: true,
@@ -201,15 +225,17 @@
                 };
                 mySettings = Object.assign(mySettings, settings.config, renderer);
                 return new AlignmentTrack(mySettings);
-            },
-            addGenericTrack: function (settings) {
+            }
+
+            addGenericTrack(settings) {
                 switch (settings.type) {
                     case 'alignment':
                     default:
                         return this.addAlignmentTrack(settings);
                 }
-            },
-            getSpecies: function() {
+            }
+
+            getSpecies() {
                 return this.cellbaseClient.getMeta("species").then(function(r) {
                     var taxonomies = r.response[0].result[0];
                     for (var taxonomy in taxonomies) {
@@ -227,12 +253,16 @@
                     }
                     return taxonomies;
                 });
-            },
-            changeRegion: function(region) {
-                if (typeof this.genomeBrowser!== "undefined") {
+            }
+
+            changeRegion(region) {
+                if (typeof this.genomeBrowser !== "undefined") {
                     this.genomeBrowser.setRegion(region);
                 }
             }
-        });
+        }
+
+        customElements.define(GenomeBrowserComponent.is, GenomeBrowserComponent);
+
     </script>
 </dom-module>

@@ -35,15 +35,15 @@
         </div>
 
         <!--<div class="row">-->
-            <!--<div class="floating-div panel panel-default" style="font-size: 12px">-->
-                <!--<div class="panel-heading">Panel heading without title</div>-->
-                <!--<div class="panel-body">-->
-                    <!--<table id="{{prefix}}VariantGenomeBrowserTable" data-pagination="true" data-page-list="[]"></table>-->
-                <!--</div>-->
-            <!--</div>-->
-            <!--<div class="">-->
-                <!--<genome-browser-view cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}" region="{{region}}"></genome-browser-view>-->
-            <!--</div>-->
+        <!--<div class="floating-div panel panel-default" style="font-size: 12px">-->
+        <!--<div class="panel-heading">Panel heading without title</div>-->
+        <!--<div class="panel-body">-->
+        <!--<table id="{{prefix}}VariantGenomeBrowserTable" data-pagination="true" data-page-list="[]"></table>-->
+        <!--</div>-->
+        <!--</div>-->
+        <!--<div class="">-->
+        <!--<genome-browser-view cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}" region="{{region}}"></genome-browser-view>-->
+        <!--</div>-->
         <!--</div>-->
 
         <div>
@@ -51,54 +51,76 @@
                 <table id="{{prefix}}VariantGenomeBrowserTable" data-pagination="true" data-page-list="[]" style="padding: 0px 0px"></table>
             </div>
             <div class="" style="width: 80%;float: right;padding: 0px 5px">
-                <genome-browser cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}" region="{{region}}" tracks="[[tracks]]"></genome-browser>
+                <genome-browser cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}" species={{species}} region="{{region}}" tracks="[[tracks]]"></genome-browser>
             </div>
         </div>
 
     </template>
     <script>
-        Polymer({
-            is: 'variant-genome-browser',
-            properties: {
-                opencgaClient: {
-                    type: Object
-                },
-                cellbaseClient: {
-                    type: Object
-                },
-                query: {
-                    type: Object
-                },
-                search: {
-                    type: Object,
-                    observer: 'renderFromServer'
-                },
-                project: {
-                    type: Object
-                },
-                study: {
-                    type: Object,
-                    observer: 'renderFromServer'
-                },
-                region: {
-                    type: Object
-                },
-                prefix: {
-                    type: String
+        class variantGenomeBrowser extends Polymer.Element {
+
+            static get is() {
+                return 'variant-genome-browser';
+            }
+
+            static get properties() {
+                return {
+                    opencgaClient: {
+                        type: Object
+                    },
+                    cellbaseClient: {
+                        type: Object
+                    },
+                    query: {
+                        type: Object
+                    },
+                    search: {
+                        type: Object,
+                        observer: 'renderFromServer'
+                    },
+                    project: {
+                        type: Object
+                    },
+                    study: {
+                        type: Object,
+                        observer: 'renderFromServer'
+                    },
+                    species: {
+                        type: Object
+                    },
+                    region: {
+                        type: Object
+                    },
+                    prefix: {
+                        type: String
+                    }
                 }
-            },
-            ready: function () {
+            }
+
+            constructor() {
+                super();
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            ready() {
+                super.ready();
+
                 if (typeof this.prefix === "undefined" || this.prefix === "") {
                     this.prefix = "variantGB" + Utils.randomString(6);
                 }
 
                 this.summary = true;
                 this.tracks = ["sequence", "gene"];
-            },
-            attached: function() {
-                this.table = $('#' + this.prefix + 'VariantGenomeBrowserTable');
-            },
-            renderFromServer: function () {
+            }
+
+            connectedCallback() {
+                this.table = PolymerUtils.getElementById(this.prefix + 'VariantGenomeBrowserTable');
+            }
+
+            renderFromServer() {
                 this.variant = ""; // Empty the variant every time the grid is loaded
                 let _this = this;
                 if (typeof this.opencgaClient !== "undefined" && this.opencgaClient instanceof OpenCGAClient
@@ -123,15 +145,15 @@
                             queryParams.limit = params.limit;
                             queryParams.skip = params.offset;
 //                            queryParams.skipCount = true;
-                            if (typeof _this.query !== 'undefined' && typeof _this.query.gene !== 'undefined' && _this.query.gene != "") {
+                            if (typeof _this.query !== 'undefined' && typeof _this.query.gene !== 'undefined' && _this.query.gene !== "") {
                                 queryParams.skipCount = false;
                             }
                             return queryParams;
                         },
                         responseHandler: function (res) {
-                            if (_numTotal == -1) {
+                            if (_numTotal === -1) {
                                 if (_this.summary
-                                    || (typeof _this.query !== 'undefined' && typeof _this.query.gene !== 'undefined' && _this.query.gene != "")) {
+                                    || (typeof _this.query !== 'undefined' && typeof _this.query.gene !== 'undefined' && _this.query.gene !== "")) {
                                     _numTotal = res.response[0].numTotalResults;
 //                                    _numTotal = 1150;
                                 } else {
@@ -149,17 +171,21 @@
                         },
                         onLoadSuccess: function (data) {
                             // The first time we mark as selected the first row that is rows[2] since the first two rows are the header
-                            Polymer.dom(_this.root).querySelector(_this.table.selector).rows[1].setAttribute('class', 'success');
+                            let table = PolymerUtils.getElementById(_this.prefix + 'VariantGenomeBrowserTable');
+                            if (PolymerUtils.isNotUndefinedOrNull(table)) {
+                                table.rows[1].setAttribute('class', 'success');
 //                            _this._onSelectVariant(data.rows[0]);
-                            if (typeof data !== "undefined" && data.rows > 0) {
-                                _this.region = data.rows[0].chromosome + ":" + data.rows[0].start + "-" + data.rows[0].end;
+                                if (typeof data !== "undefined" && data.rows > 0) {
+                                    _this.region = data.rows[0].chromosome + ":" + data.rows[0].start + "-" + data.rows[0].end;
+                                }
                             }
                         }
                     });
                     $('#' + _this.prefix + 'VariantGenomeBrowserTable').bootstrapTable('showLoading');
                 }
-            },
-            _getUrlQueryParams: function() {
+            }
+
+            _getUrlQueryParams() {
                 if (typeof this.opencgaClient === "undefined") {
                     return {host: "", queryParams: {}, url: ""};
                 }
@@ -225,8 +251,9 @@
                 let url = host + "?" + query.join("&");
 
                 return {host: host, queryParams: queryParams, url: url};
-            },
-            variantFormatter: function (value, row) {
+            }
+
+            variantFormatter(value, row) {
                 let ref = (row.reference !== "") ? row.reference : "-";
                 let alt = (row.alternate !== "") ? row.alternate : "-";
                 let html = row.chromosome + ':' + row.start + " " + ref + '/' + alt;
@@ -247,6 +274,9 @@
                 }
                 return "<span style='white-space: nowrap;font-weight: bold'>" + html + "</span>";
             }
-        });
+        }
+
+        customElements.define(variantGenomeBrowser.is, variantGenomeBrowser);
+
     </script>
 </dom-module>
