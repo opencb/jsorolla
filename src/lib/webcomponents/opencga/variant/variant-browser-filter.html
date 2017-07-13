@@ -1440,13 +1440,6 @@
                     _filters["annot-functional-score"] = cadd.join(',');
                 }
 
-
-                this._reset = false;
-                this.query = _filters;
-                this._reset = true;
-                return;
-
-
 //                // Conservation
 //                let conserArr = [];
 //                if (this.$$("#" + this.prefix + "PhylopInput").value !== "" || this.$$("#" + this.prefix + "PhylopOperator").value !== "<") {
@@ -1482,17 +1475,24 @@
                 }
 
                 // Gene Ontology and Human Phenotype Ontology
-                if (typeof this.$[this.prefix + "GeneOntologyTextarea"] !== "undefined" && this.$[this.prefix + "GeneOntologyTextarea"].value !== "") {
-                    _filters["annot-go"] = this.$$("#" + this.prefix + "GeneOntologyTextarea").value;
+                let inputTextArea = PolymerUtils.getElementById(this.prefix + "GeneOntologyTextarea");
+                if (PolymerUtils.isNotEmpty(inputTextArea.value)) {
+                    _filters["annot-go"] = inputTextArea.value;
                 }
-                if (typeof this.$[this.prefix + "HumanPhenotypeOntologyTextarea"] !== "undefined" && this.$[this.prefix + "HumanPhenotypeOntologyTextarea"].value !== "") {
-                    _filters["annot-hpo"] = this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value;
+
+                inputTextArea = PolymerUtils.getElementById(this.prefix + "HumanPhenotypeOntologyTextarea");
+                if (PolymerUtils.isNotEmpty(inputTextArea.value)) {
+                    _filters["annot-hpo"] = inputTextArea.value;
                 }
-                if (typeof this.$[this.prefix + "ClinVarTextarea"] !== "undefined" && this.$[this.prefix + "ClinVarTextarea"].value !== "") {
-                    _filters["clinvar"] = this.$$("#" + this.prefix + "ClinVarTextarea").value;
+
+                inputTextArea = PolymerUtils.getElementById(this.prefix + "ClinVarTextarea");
+                if (PolymerUtils.isNotEmpty(inputTextArea.value)) {
+                    _filters["clinvar"] = inputTextArea.value;
                 }
-                if (typeof this.$[this.prefix + "TraitsTextarea"] !== "undefined" && this.$[this.prefix + "TraitsTextarea"].value !== "") {
-                    _filters["traits"] = this.$$("#" + this.prefix + "TraitsTextarea").value;
+
+                inputTextArea = PolymerUtils.getElementById(this.prefix + "TraitsTextarea");
+                if (PolymerUtils.isNotEmpty(inputTextArea.value)) {
+                    _filters["traits"] = inputTextArea.value;
                 }
 
 
