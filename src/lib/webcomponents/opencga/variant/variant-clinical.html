@@ -17,11 +17,11 @@
 <link rel="import" href="variant-clinical-upload.html">
 <link rel="import" href="variant-clinical-samples.html">
 <!--<link rel="import" href="variant-browser-filter.html">-->
-<!--<link rel="import" href="variant-prioritization-view.html">-->
+<link rel="import" href="variant-prioritization-view.html">
 <!--<link rel="import" href="variant-sample-grid.html">-->
 <link rel="import" href="variant-clinical-report.html">
 <link rel="import" href="variant-clinical-filter.html">
-<!--<link rel="import" href="../opencga-message-dialog.html">-->
+<link rel="import" href="../opencga-message-dialog.html">
 
 
 <dom-module id="variant-clinical">
@@ -160,13 +160,13 @@
                         </variant-clinical-filter>
                     </div>
     
-                    <!--<div class="col-md-10">-->
-                        <!--<variant-prioritization-view prefix="{{prefix}}" mode="clinical" title="{{title}}" project="{{project}}" study="{{study}}" samples="{{samples}}"-->
-                                                     <!--opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}"-->
-                                                     <!--protein-substitution-scores="{{proteinSubstitutionScores}}" consequence-types="{{consequenceTypes}}"-->
-                                                     <!--query="{{query}}" search="{{search}}" on-clear="onClear" on-filterchange="onFilterChange" on-save="onSaveVariants" on-propagate="propagateGeneEvent">-->
-                        <!--</variant-prioritization-view>-->
-                    <!--</div>-->
+                    <div class="col-md-10">
+                       <variant-prioritization-view prefix="{{prefix}}" mode="clinical" title="{{title}}" project="{{project}}" study="{{study}}" samples="{{samples}}"
+                                                     opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}"
+                                                     protein-substitution-scores="{{proteinSubstitutionScores}}" consequence-types="{{consequenceTypes}}"
+                                                     query="{{query}}" search="{{search}}" on-clear="onClear" on-filterchange="onFilterChange" on-save="onSaveVariants" on-propagate="propagateGeneEvent">
+                        </variant-prioritization-view>
+                    </div>
                 </div>
             </template>
 

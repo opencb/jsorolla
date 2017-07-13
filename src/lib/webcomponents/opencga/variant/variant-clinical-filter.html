@@ -829,7 +829,6 @@
                 // Position
                 if (PolymerUtils.isNotUndefined(this.query.region)){
                     PolymerUtils.setPropertyById(this.prefix + "LocationTextarea", "value", this.query.region);
-                    //this.$$("#" + this.prefix + "LocationTextarea").value = this.query.region;
                 }
 
                 // XRefs, Gene and Variant Ids
@@ -870,9 +869,7 @@
                                     let pf = pfArray[k];
                                     if (pf.startsWith(study + ":" + population)) {
                                         PolymerUtils.setPropertyById(this.prefix + study + population, "value", pf.split(/[<=>]+/)[1]);
-                                        //this.$$("#" + this.prefix + study + population).value = pf.split(/[<=>]+/)[1];
                                         PolymerUtils.setPropertyById(this.prefix + study + population + "Operator", "value", pf.split(/[-A-Za-z0-9._:]+/)[1]);
-                                        //this.$$("#" + this.prefix + study + population + "Operator").value = pf.split(/[-A-Za-z0-9._:]+/)[1];
                                         break;
                                     }
                                 }
@@ -890,32 +887,22 @@
                                 let value = pss[i].split("sift")[1];
                                 if (value.startsWith("<") || value.startsWith(">")) {
                                     PolymerUtils.setPropertyById(this.prefix + "SiftInput" , "value", value.split(/[<=>]+/)[1]);
-                                    //this.$$("#" + this.prefix + "SiftInput").value = value.split(/[<=>]+/)[1];
                                     PolymerUtils.setPropertyById(this.prefix + "SiftOperator" , "value", value.split(/[-0-9.]+/)[0]);
-                                    //this.$$("#" + this.prefix + "SiftOperator").value = value.split(/[-0-9.]+/)[0];
                                 } else {
                                     PolymerUtils.setPropertyById(this.prefix + "SiftValues", "value", value.split('==')[1]);
-                                    //this.$$("#" + this.prefix + "SiftValues").value = value.split('==')[1];
                                 }
                                 PolymerUtils.setAttribute(this.prefix + "SiftInput", "disabled", !(value.startsWith("<") || value.startsWith(">")));
-                                //this.$$("#" + this.prefix + "SiftInput").disabled = !(value.startsWith("<") || value.startsWith(">"));
                                 PolymerUtils.setAttribute(this.prefix + "SiftOperator", "disabled", !(value.startsWith("<") || value.startsWith(">")));
-                                //this.$$("#" + this.prefix + "SiftOperator").disabled = !(value.startsWith("<") || value.startsWith(">"));
                             } else if (pss[i].startsWith("polyphen")) {
                                 let value = pss[i].split("polyphen")[1];
                                 if (value.startsWith("<") || value.startsWith(">")) {
                                     PolymerUtils.setPropertyById(this.prefix + "PolyphenInput", "value", value.split(/[<=>]+/)[1]);
-                                    //this.$$("#" + this.prefix + "PolyphenInput").value = value.split(/[<=>]+/)[1];
                                     PolymerUtils.setPropertyById(this.prefix + "PolyphenOperator", "value", value.split(/[-0-9.]+/)[0]);
-                                    //this.$$("#" + this.prefix + "PolyphenOperator").value = value.split(/[-0-9.]+/)[0];
                                 } else {
                                     PolymerUtils.setPropertyById(this.prefix + "PolyphenValues", "value", value.split('==')[1]);
-                                    //this.$$("#" + this.prefix + "PolyphenValues").value = value.split('==')[1];
                                 }
                                 PolymerUtils.setAttribute(this.prefix + "PolyphenInput", "disabled", !(value.startsWith("<") || value.startsWith(">")));
-                                //this.$$("#" + this.prefix + "PolyphenInput").disabled = !(value.startsWith("<") || value.startsWith(">"));
                                 PolymerUtils.setAttribute(this.prefix + "PolyphenOperator", "disabled", !(value.startsWith("<") || value.startsWith(">")));
-                                //this.$$("#" + this.prefix + "PolyphenOperator").disabled = !(value.startsWith("<") || value.startsWith(">"));
                             }
                         }
                     }
@@ -929,15 +916,11 @@
                         switch(source) {
                             case "cadd_raw":
                                 PolymerUtils.setPropertyById(this.prefix + "CaddRawInput", "value", fields[i].split(/[<=>]+/)[1]);
-                                //this.$$("#" + this.prefix + "CaddRawInput").value = fields[i].split(/[<=>]+/)[1];
                                 PolymerUtils.setPropertyById(this.prefix + "CaddRawOperator", "value", fields[i].split(/[-A-Za-z0-9_]+/)[1]);
-                                //this.$$("#" + this.prefix + "CaddRawOperator").value = fields[i].split(/[-A-Za-z0-9_]+/)[1];
                                 break;
                             case "cadd_scaled":
                                 PolymerUtils.setPropertyById(this.prefix + "CaddScaledInput", "value", fields[i].split(/[<=>]+/)[1]);
-                                //this.$$("#" + this.prefix + "CaddScaledInput").value = fields[i].split(/[<=>]+/)[1];
                                 PolymerUtils.setPropertyById(this.prefix + "CaddScaledOperator", "value", fields[i].split(/[-A-Za-z0-9_]+/)[1]);
-                                //this.$$("#" + this.prefix + "CaddScaledOperator").value = fields[i].split(/[-A-Za-z0-9_]+/)[1];
                                 break;
                         }
                     }
@@ -951,21 +934,15 @@
                         switch(source) {
                             case "phylop":
                                 PolymerUtils.setPropertyById(this.prefix + "PhylopInput", "value", fields[i].split(/[<=>]+/)[1]);
-                                //this.$$("#" + this.prefix + "PhylopInput").value = fields[i].split(/[<=>]+/)[1];
                                 PolymerUtils.setPropertyById(this.prefix + "PhylopOperator", "value", fields[i].split(/[-A-Za-z0-9]+/)[1]);
-                                //this.$$("#" + this.prefix + "PhylopOperator").value = fields[i].split(/[-A-Za-z0-9]+/)[1];
                                 break;
                             case "phastCons":
                                 PolymerUtils.setPropertyById(this.prefix + "PhastconsInput", "value", fields[i].split(/[<=>]+/)[1]);
-                                //this.$$("#" + this.prefix + "PhastconsInput").value = fields[i].split(/[<=>]+/)[1];
                                 PolymerUtils.setPropertyById(this.prefix + "PhastconsOperator", "value", fields[i].split(/[-A-Za-z0-9]+/)[1]);
-                                //this.$$("#" + this.prefix + "PhastconsOperator").value = fields[i].split(/[-A-Za-z0-9]+/)[1];
                                 break;
                             case "gerp":
                                 PolymerUtils.setPropertyById(this.prefix + "GerpInput", "value", fields[i].split(/[<=>]+/)[1]);
-                                //this.$$("#" + this.prefix + "GerpInput").value = fields[i].split(/[<=>]+/)[1];
                                 PolymerUtils.setPropertyById(this.prefix + "GerpOperator", "value", fields[i].split(/[-A-Za-z0-9]+/)[1]);
-                                //this.$$("#" + this.prefix + "GerpOperator").value = fields[i].split(/[-A-Za-z0-9]+/)[1];
                                 break;
                         }
                     }
@@ -974,8 +951,7 @@
                 // Consequence Type
                 if (PolymerUtils.isNotUndefined(this.query["annot-ct"])) {
                     let types = this.query["annot-ct"].split(",");
-                    let checkboxes = PolymerUtils.querySelectorAll("li input", "consequenceTypeFilter")
-                    //let checkBoxes = this.$$("#consequenceTypeFilter").querySelectorAll("li input");
+                    let checkboxes = PolymerUtils.querySelectorAll("li input", "consequenceTypeFilter");
                     for (let i = 0; i < types.length; i++) {
                         for (let j = 0; j < checkBoxes.length; j++) {
                             if (checkBoxes[j].dataId == types[i]) {
@@ -990,23 +966,19 @@
                 // Gene Ontology and Human Phenotype Ontology
                 if (PolymerUtils.isNotUndefined(this.query["annot-go"])) {
                     PolymerUtils.setPropertyById(this.prefix + "GeneOntologyTextarea", "value", this.query["annot-go"]);
-                    //this.$$("#" + this.prefix + "GeneOntologyTextarea").value = this.query["annot-go"];
                 }
                 if (PolymerUtils.isNotUndefined(this.query["annot-hpo"])) {
                     PolymerUtils.setPropertyById(this.prefix + "HumanPhenotypeOntologyTextarea", "value", this.query["annot-hpo"]);
-                    //this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value = this.query["annot-hpo"];
                 }
             }
             updatePanel(){
                 console.log(this);
                 debugger;
                 let panelname = PolymerUtils.getPropertyById(this.prefix + "PanelApps", "value");
-                //let panelname = this.$$("#" + this.prefix + "PanelApps").value;
                 for(var i = 0; i < this.panelList.length ; i++){
                     if(this.panelList[i].name == panelname){
                         let panel = this.panelList[i];
                         PolymerUtils.setPropertyById(this.prefix + "PanelAppsTextarea", "value", panel.genes);
-                        //this.$$("#" + this.prefix + "PanelAppsTextarea").value = panel.genes;
                         break;
                     }
                 }
@@ -1025,58 +997,22 @@
                     _filters.genotype = this.sampleGenotypes;
                 }
 
-                // Studies -> DOES NOT EXIST IN THIS WEBCOMPONENT
-/*                let studies = [];
-                if (typeof this.$$("#includeOtherStudy") !== "undefined" && this.$$("#includeOtherStudy") != null) {
-                    let selectedStudies = this.$$("#differentStudies").querySelectorAll("input:checked");
-                    if (selectedStudies.length > 0) {
-                        // Always add the study that we are browsing currently
-                        studies.push(this.project.alias + ':' + this.study.alias);
-                        for (let i = 0; i < selectedStudies.length; i++) {
-                            studies.push(this.project.alias + ':' + selectedStudies[i].value);
-                        }
-                    }
-
-                    switch (this.$$("#includeOtherStudy").value) {
-                        case "in":
-                            _filters.studies = studies.join(';');
-                            break;
-                        case "atleast":
-                            _filters.studies = studies.join(',');
-                            break;
-                        case "not in":
-                            let notInStudies = [];
-                            for (let j = 0; j < studies.length; j++) {
-                                notInStudies.push("!" + studies[j]);
-                            }
-                            _filters.studies = notInStudies.join(";");
-                            break;
-                    }
-                }*/
-
                 // Regions
                 if (PolymerUtils.isNotEmptyValueById(this.prefix + "LocationTextarea")) {
-                //if (this.$$("#" + this.prefix + "LocationTextarea").value !== "") {
                     _filters.region = PolymerUtils.getPropertyById(this.prefix + "LocationTextarea", "value");
-                    //_filters.region = this.$$("#" + this.prefix + "LocationTextarea").value;
                 }
 
                 // Features: Gene, SNP ID
                 if (PolymerUtils.isNotEmptyValueById(this.prefix + "FeatureTextarea")) {
-                //if (this.$$("#" + this.prefix + "FeatureTextarea").value !== "") {
                     if (PolymerUtils.getPropertyById(this.prefix + "FeatureTextarea", "value").startsWith("rs") || PolymerUtils.getPropertyById(this.prefix + "FeatureTextarea", "value").split(':').length > 2){
-                    //if (this.$$("#" + this.prefix + "FeatureTextarea").value.startsWith("rs") || this.$$("#" + this.prefix + "FeatureTextarea").value.split(':').length > 2) {
                         _filters["annot-xref"] = PolymerUtils.getPropertyById(this.prefix + "FeatureTextarea", "value");
-                        //_filters["annot-xref"] = this.$$("#" + this.prefix + "FeatureTextarea").value;
                     } else {
                         _filters["annot-xref"] = PolymerUtils.getPropertyById(this.prefix + "FeatureTextarea", "value").toUpperCase();
-                        //_filters["annot-xref"] = this.$$("#" + this.prefix + "FeatureTextarea").value.toUpperCase();
                     }
                 }
 
                 // Biotype
                 if (PolymerUtils.getElementById(this.prefix + "GeneBiotypes").selectedOptions.length >0) {
-                //if (this.$$("#" + this.prefix + "GeneBiotypes").value !== "none") {
                     let _auxBiotype = [];
                     let _allElements = PolymerUtils.getElementById(this.prefix + "GeneBiotypes").selectedOptions;
                     for (let i = 0; i < _allElements.length; i++) {
@@ -1084,14 +1020,11 @@
                     }
 
                     _filters["annot-biotype"] = _auxBiotype.join(",");
-                    // _filters["annot-biotype"] = this.$$("#" + this.prefix + "GeneBiotypes").value;
                 }
 
                 // Panel - annot-panel
                 if (PolymerUtils.isNotEmptyValueById(this.prefix + "PanelApps") || PolymerUtils.isNotEmptyValueById(this.prefix + "PanelAppsTextarea")){
-                //if (this.$$("#" + this.prefix + "PanelApps").value !== "none" || this.$$("#" + this.prefix + "PanelAppsTextarea").value !== "") {
                     _filters["gene"] = PolymerUtils.getPropertyById(this.prefix + "PanelAppsTextarea", "value");
-                    //_filters["gene"] = this.$$("#" + this.prefix + "PanelAppsTextarea").value;
                 }
 
 
@@ -1109,17 +1042,13 @@
                 // Population minor allele frequency: {study}:{population}[<|>|<=|>=]{number}
                 let popFreq = [];
                 if (PolymerUtils.isNotUndefined(this.populationFrequencies) && PolymerUtils.isNotUndefined(this.populationFrequencies.studies) && this.populationFrequencies.studies.length > 0){
-                //if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.studies !== "undefined" && this.populationFrequencies.studies.length > 0) {
                     for (let i = 0; i < this.populationFrequencies.studies.length; i++) {
                         let study = this.populationFrequencies.studies[i].id;
                         for (let j = 0; j < this.populationFrequencies.studies[i].populations.length; j++) {
                             let population = this.populationFrequencies.studies[i].populations[j].id;
                             if (PolymerUtils.isNotEmptyValueById(this.prefix + study + population) || PolymerUtils.getPropertyById(this.prefix + study + population + "Operator", "value") != "<"){
-                            //if (this.$$("#" + this.prefix + study + population).value != "" || this.$$("#" + this.prefix + study + population + "Operator").value != "<") {
                                 let operator = PolymerUtils.getPropertyById(this.prefix + study + population + "Operator", "value");
-                                //let operator = this.$$("#" + this.prefix + study + population + "Operator").value;
                                 let pf = study + ":" + population + operator + PolymerUtils.getPropertyById(this.prefix + study + population, "value");
-                                //let pf = study + ":" + population + operator + this.$$("#" + this.prefix + study + population).value;
                                 popFreq.push(pf);
                             }
                         }
@@ -1133,26 +1062,18 @@
                 let pss = [];
                 let sift = "";
                 if (PolymerUtils.getPropertyById(this.prefix + "SiftValues", "value") === "score" && PolymerUtils.isNotEmptyValueById(this.prefix + "SiftInput") || PolymerUtils.getPropertyById(this.prefix + "SiftOperator", "value") != "<") {
-                    //if (this.$$("#" + this.prefix + "SiftValues").value == "score" && this.$$("#" + this.prefix + "SiftInput").value != "" || this.$$("#" + this.prefix + "SiftOperator").value != "<") {
                     sift = "sift" + PolymerUtils.getPropertyById(this.prefix + "SiftOperator", "value") + PolymerUtils.getPropertyById(this.prefix + "SiftInput", "value");
-                    //sift = "sift" + this.$$("#" + this.prefix + "SiftOperator").value + this.$$("#" + this.prefix + "SiftInput").value;
                     pss.push(sift);
                 } else if (PolymerUtils.getPropertyById(this.prefix + "SiftValues", "value") != "score") {
-                //} else if (this.$$("#" + this.prefix + "SiftValues").value != "score") {
                     sift = "sift" + "==" + PolymerUtils.getPropertyById(this.prefix + "SiftValues", "value");
-                    //sift = "sift" + "==" + this.$$("#" + this.prefix + "SiftValues").value;
                     pss.push(sift);
                 }
                 let polyphen = "";
                 if (PolymerUtils.getPropertyById(this.prefix + "PolyphenValues", "value") == "score" && PolymerUtils.isNotEmptyValueById(this.prefix + "PolyphenInput") || PolymerUtils.getPropertyById(this.prefix + "PolyphenOperator", "value") != "<") {
-                    //if (this.$$("#" + this.prefix + "PolyphenValues").value == "score" && this.$$("#" + this.prefix + "PolyphenInput").value != "" || this.$$("#" + this.prefix + "PolyphenOperator").value != "<") {
                     polyphen = "polyphen" + PolymerUtils.getPropertyById(this.prefix + "PolyphenOperator", "value") + PolymerUtils.getPropertyById(this.prefix + "PolyphenInput", "value");
-                    //polyphen = "polyphen" + this.$$("#" + this.prefix + "PolyphenOperator").value + this.$$("#" + this.prefix + "PolyphenInput").value;
                     pss.push(polyphen);
                 } else if (PolymerUtils.getPropertyById(this.prefix + "PolyphenValues", "value") != "score") {
-                    //} else if (this.$$("#" + this.prefix + "PolyphenValues").value != "score") {
                     let value = PolymerUtils.getPropertyById(this.prefix + "PolyphenValues", "value");
-                    //let value = this.$$("#" + this.prefix + "PolyphenValues").value;
                     let polyphenValues = value.split(',');
                     for (let i = 0; i < polyphenValues.length; i++) {
                         polyphen = "polyphen" + "==" + polyphenValues[i];
@@ -1163,15 +1084,10 @@
                     (PolymerUtils.getPropertyById(this.prefix + "SiftValues", "value") != "score" && PolymerUtils.isNotEmptyValueById(this.prefix + "PolyphenInput")) ||
                     (PolymerUtils.isNotEmptyValueById(this.prefix + "SiftInput") && PolymerUtils.getPropertyById(this.prefix + "PolyphenValues", "value") != "score") ||
                     (PolymerUtils.getPropertyById(this.prefix + "SiftValues", "value") != "score" && PolymerUtils.getPropertyById(this.prefix + "PolyphenValues", "value") != "score")){
-                //if ((this.$$("#" + this.prefix + "SiftInput").value != "" && this.$$("#" + this.prefix + "PolyphenInput").value != "") ||
-                //    (this.$$("#" + this.prefix + "SiftValues").value != "score" && this.$$("#" + this.prefix + "PolyphenInput").value != "") ||
-                //    ((this.$$("#" + this.prefix + "SiftInput").value) != "" && this.$$("#" + this.prefix + "PolyphenValues").value != "score") ||
-                //    (this.$$("#" + this.prefix + "SiftValues").value != "score" && this.$$("#" + this.prefix + "PolyphenValues").value != "score")) {
-                    let pssElements = PolymerUtils.querySelectorAll("input[name=" + this.prefix + "pss]");
-                    pssElements.forEach(function (item) {
-                        PolymerUtils.removeAttribute(item.id, "disabled");
-                    });
-                    //$("input:radio[name=pss]").attr('disabled', false);
+                        let pssElements = PolymerUtils.querySelectorAll("input[name=" + this.prefix + "pss]");
+                        pssElements.forEach(function (item) {
+                            PolymerUtils.removeAttribute(item.id, "disabled");
+                        });
                 }
                 else {
                     let pssElements = PolymerUtils.querySelectorAll("input[name=" + this.prefix + "pss]");
@@ -1181,7 +1097,6 @@
 
                 }
                 if (pss.length > 0) {
-                    //let filter = $('input:radio[name=pss]:checked').val();
                     let filter = PolymerUtils.querySelector("input[name=" + this.prefix + "pss]:checked").value;
                     if (filter == "and") {
                         _filters.protein_substitution = pss.join(';');
@@ -1193,34 +1108,24 @@
                 // Conservation
                 let conserArr = [];
                 if (PolymerUtils.isNotEmptyValueById(this.prefix + "PhylopInput") || PolymerUtils.getPropertyById(this.prefix + "PhylopOperator", "value") != "<") {
-                    //if (this.$$("#" + this.prefix + "PhylopInput").value != "" || this.$$("#" + this.prefix + "PhylopOperator").value != "<") {
                     let phylop = "phylop" + PolymerUtils.getPropertyById(this.prefix + "PhylopOperator", "value") + PolymerUtils.getPropertyById(this.prefix + "PhylopInput", "value")
-                    //let phylop = "phylop" + this.$$("#" + this.prefix + "PhylopOperator").value + this.$$("#" + this.prefix + "PhylopInput").value;
                     conserArr.push(phylop);
                 }
                 if (PolymerUtils.isNotEmptyValueById(this.prefix + "PhastconsInput") || PolymerUtils.getPropertyById(this.prefix + "PhastconsOperator", "value") != "<") {
-                //if (this.$$("#" + this.prefix + "PhastconsInput").value != "" || this.$$("#" + this.prefix + "PhastconsOperator").value != "<") {
                     let phastCons = "phastCons" + PolymerUtils.getPropertyById(this.prefix + "PhastconsOperator", "value") + PolymerUtils.getPropertyById(this.prefix + "PhastconsInput", "value");
-                    //let phastCons = "phastCons" + this.$$("#" + this.prefix + "PhastconsOperator").value + this.$$("#" + this.prefix + "PhastconsInput").value;
                     conserArr.push(phastCons);
                 }
                 if (PolymerUtils.isNotEmptyValueById(this.prefix + "GerpInput") || PolymerUtils.getPropertyById(this.prefix + "GerpOperator", "value") != "<") {
-                //if (this.$$("#" + this.prefix + "GerpInput").value != "" || this.$$("#" + this.prefix + "GerpOperator").value != "<") {
                     let gerp = "gerp" + PolymerUtils.getPropertyById(this.prefix + "GerpOperator", "value") + PolymerUtils.getPropertyById(this.prefix + "GerpInput", "value");
-                    //let gerp = "gerp" + this.$$("#" + this.prefix + "GerpOperator").value + this.$$("#" + this.prefix + "GerpInput").value;
                     conserArr.push(gerp);
                 }
                 if ((PolymerUtils.isNotEmptyValueById(this.prefix + "PhylopInput") && PolymerUtils.isNotEmptyValueById(this.prefix + "PhastconsInput")) ||
                     (PolymerUtils.isNotEmptyValueById(this.prefix + "PhylopInput") && PolymerUtils.isNotEmptyValueById(this.prefix + "GerpInput")) ||
                     (PolymerUtils.isNotEmptyValueById(this.prefix + "PhastconsInput") && PolymerUtils.isNotEmptyValueById(this.prefix + "GerpInput"))) {
-                //if ((this.$$("#" + this.prefix + "PhylopInput").value != "" && this.$$("#" + this.prefix + "PhastconsInput").value != "") ||
-                //    (this.$$("#" + this.prefix + "PhylopInput").value != "" && this.$$("#" + this.prefix + "GerpInput").value != "") ||
-                //    (this.$$("#" + this.prefix + "PhastconsInput").value != "" && this.$$("#" + this.prefix + "GerpInput").value != "")) {
-                    let conservationElements = PolymerUtils.querySelectorAll("input[name=" + this.prefix + "conservation]");
-                    conservationElements.forEach(function (item) {
-                        PolymerUtils.removeAttribute(item.id, "disabled");
-                    });
-                    //$("input:radio[name=conservation]").attr('disabled', false);
+                        let conservationElements = PolymerUtils.querySelectorAll("input[name=" + this.prefix + "conservation]");
+                        conservationElements.forEach(function (item) {
+                            PolymerUtils.removeAttribute(item.id, "disabled");
+                        });
                 }
                 else {
                     let conservationElements = PolymerUtils.querySelectorAll("input[name=" + this.prefix + "conservation]");
@@ -1231,7 +1136,6 @@
 
                 if (conserArr.length > 0) {
                     let filter = PolymerUtils.querySelector("input[name=" + this.prefix + "conservation]:checked").value;
-                    //let filter = $('input:radio[name=conservation]:checked').val();
                     if (filter == "and") {
                         _filters.conservation = conserArr.join(';');
                     } else {
@@ -1241,20 +1145,15 @@
 
                 // Consequence Type
                 if (PolymerUtils.isNotUndefined(this.ct) && this.ct.length > 0) {
-                //if (typeof this.ct !== "undefined" && this.ct.length > 0) {
                     _filters["annot-ct"]= this.ct.join(',');
                 }
 
                 // Gene Ontology and Human Phenotype Ontology
                 if (PolymerUtils.isNotEmptyValueById(this.prefix + "HumanPhenotypeOntologyTextarea")) {
-                // if (this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value != "") {
                     _filters["annot-hpo"] = PolymerUtils.getElementById(this.prefix + "HumanPhenotypeOntologyTextarea", "value");
-                    //_filters["annot-hpo"] = this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value;
                 }
                 if (PolymerUtils.isNotEmptyValueById(this.prefix + "GeneOntologyTextarea")){
-                //if (this.$$("#" + this.prefix + "GeneOntologyTextarea").value != "") {
                     _filters["annot-go"] = PolymerUtils.getElementById(this.prefix + "GeneOntologyTextarea", "value");
-                    //_filters["annot-go"] = this.$$("#" + this.prefix + "GeneOntologyTextarea").value;
                 }
     //            if (this.$$("#" + this.prefix + "TraitsTextarea").value != "") {
     //                _filters["traits"] = this.$$("#" + this.prefix + "TraitsTextarea").value;
@@ -1263,15 +1162,11 @@
                 // Cadd scores
                 let cadd = [];
                 if (PolymerUtils.isNotEmptyValueById(this.prefix + "CaddRawInput") || PolymerUtils.getPropertyById(this.prefix + "CaddRawOperator","value") != "<") {
-                //if (this.$$("#" + this.prefix + "CaddRawInput").value != "" || this.$$("#" + this.prefix + "CaddRawOperator").value != "<") {
                     let raw = "cadd_raw" + PolymerUtils.getPropertyById(this.prefix + "CaddRawOperator","value") + PolymerUtils.getPropertyById(this.prefix + "CaddRawInput","value");
-                    //let raw = "cadd_raw" + this.$$("#" + this.prefix + "CaddRawOperator").value + this.$$("#" + this.prefix + "CaddRawInput").value;
                     cadd.push(raw);
                 }
                 if (PolymerUtils.isNotEmptyValueById(this.prefix + "CaddScaledInput") || PolymerUtils.getPropertyById(this.prefix + "CaddScaledOperator","value") != "<") {
-                //if (this.$$("#" + this.prefix + "CaddScaledInput").value != "" || this.$$("#" + this.prefix + "CaddScaledOperator").value != "<") {
                     let scaled = "cadd_scaled" + PolymerUtils.getPropertyById(this.prefix + "CaddScaledOperator","value") + PolymerUtils.getPropertyById(this.prefix + "CaddScaledInput","value");
-                    //let scaled = "cadd_scaled" + this.$$("#" + this.prefix + "CaddScaledOperator").value + this.$$("#" + this.prefix + "CaddScaledInput").value;
                     cadd.push(scaled);
                 }
                 if (cadd.length > 0) {
@@ -1281,7 +1176,6 @@
                 // To prevent to call renderQueryFilters we set this to false
                 this._reset = false;
                 this.set('query', _filters);
-                //this.query = _filters;
                 this._reset = true;
             }
             // Exclusive for prioritization
@@ -1423,20 +1317,13 @@
             _clearHtmlDom() {
                 // Empty everything before rendering
                 PolymerUtils.setPropertyByClassName(this.prefix + "FilterSelect", "selectedIndex", 0);
-                //$("." + this.prefix + "FilterSelect").prop('selectedIndex', 0);
                 PolymerUtils.removeAttributeByclass("FilterSelect", "disabled");
-                //$("." + this.prefix + "FilterSelect").prop("disabled", false);
                 PolymerUtils.setPropertyByClassName(this.prefix + "FilterTextInput", "value", "");
-                //$("." + this.prefix + "FilterTextInput").val("");
                 PolymerUtils.removeAttributeByclass("FilterTextInput", "disabled");
-                //$("." + this.prefix + "FilterTextInput").prop("disabled", false);
                 PolymerUtils.setPropertyByClassName(this.prefix + "FilterCheckBox", "checked", false);
-                //$("." + this.prefix + "FilterCheckBox").prop("checked", false);
                 PolymerUtils.setPropertyByClassName(this.prefix + "FilterRadio", "checked", false);
-                //$("." + this.prefix + "FilterRadio").prop("checked", false);
                 $("." + this.prefix + "FilterRadio").filter('[value="or"]').prop('checked', true);
                 PolymerUtils.removeAttributeByclass("FilterRadio", "disabled");
-                //$("." + this.prefix + "FilterRadio").prop("disabled", true);
             }
             _updateMode() {
 
@@ -1460,7 +1347,7 @@
                 this.currentAnalysisID = this.analysisSelected.analysisID;
                 this.samples = this.analysisSelected.sampleList; // Samples are notified to variant-prioritization-view
                 PolymerUtils.show("#" + this.prefix + "analysisSelectedDiv");
-                        //$("#analysisSelectedDiv").show();
+
 
             }
             showClinicalSelector(e){

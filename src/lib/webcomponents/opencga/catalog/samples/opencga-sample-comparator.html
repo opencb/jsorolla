@@ -1,6 +1,5 @@
 <dom-module id="opencga-sample-comparator">
     <template>
-        <style is="custom-style" include="jso-styles"></style>
 
         <div>
             <br>
@@ -22,56 +21,65 @@
     </template>
 
     <script>
-        Polymer({
-            is: 'opencga-sample-comparator',
-
-            properties: {
-                opencgaClient: {
-                    type: Object
-                },
-                study: {
-                    type: Object,
-                    value: {}
-                },
-                samples: {
-                    type: Array,
-                    observer: 'dataChanged'
-                },
-                variableSets: {
-                    type: Array,
-                    observer: 'variableSetChanged'
-                },
-                sampleIds: {
-                    type: Array,
-                    value: []
-                },
-                variableIds: {
-                    type: Array,
-                    value: []
-                },
-                cohortId: {
-                    type: String,
-                    value: ""
-                },
-                variableSet: {
-                    type: Object,
-                    observer: 'dataChanged'
+        class OpencgaSampleComparator extends Polymer.Element {
+            static get is() { return 'opencga-sample-comparator'; }
+            static get properties() {
+                return {
+                    opencgaClient: {
+                        type: Object
+                    },
+                    study: {
+                        type: Object,
+                        value: {}
+                    },
+                    samples: {
+                        type: Array,
+                        observer: 'dataChanged'
+                    },
+                    variableSets: {
+                        type: Array,
+                        observer: 'variableSetChanged'
+                    },
+                    sampleIds: {
+                        type: Array,
+                        value: []
+                    },
+                    variableIds: {
+                        type: Array,
+                        value: []
+                    },
+                    cohortId: {
+                        type: String,
+                        value: ""
+                    },
+                    variableSet: {
+                        type: Object,
+                        observer: 'dataChanged'
+                    }
                 }
-            },
+            }
 
-            observers: [
-                'getSamples(opencgaClient, sampleIds)',
-                'getSamples(opencgaClient, cohortId)',
-                'getVariableSets(opencgaClient, study)',
-                'getVariableSets(opencgaClient, variableIds)'
-            ],
+            static get observers() {
+                return [
+                    'getSamples(opencgaClient, sampleIds)',
+                    'getSamples(opencgaClient, cohortId)',
+                    'getVariableSets(opencgaClient, study)',
+                    'getVariableSets(opencgaClient, variableIds)'
+                    ]
+            }
+            constructor() {
+                super();
+            }
 
-            ready: function() {
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+            ready() {
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
                     this.prefix = Utils.randomString(6);
                 }
-            },
-            selectVariableSet: function (e) {
+            }
+            selectVariableSet(e) {
                 let selectedVariableSet = $("#" + e.target.id).val();
                 let _this = this;
                 for (let i in _this.variableSets) {
@@ -80,8 +88,8 @@
                         _this.variableSet = variableSet;
                     }
                 }
-            },
-            variableSetChanged: function () {
+            }
+            variableSetChanged() {
                 if (typeof this.variableSets !== "undefined") {
                     if (this.variableSets.length > 0) {
                         this.variableSet = this.variableSets[0]; // Setting first variable set by default
@@ -90,8 +98,8 @@
                     }
 
                 }
-            },
-            getSamples: function (opencgaClient, resource) {
+            }
+            getSamples(opencgaClient, resource) {
                 let _this = this;
                 if (_this.cohortId != "" && _this.opencgaClient instanceof OpenCGAClient) {
                     _this.opencgaClient.cohorts().getSamples(_this.cohortId).then(function (response) {
@@ -107,8 +115,8 @@
                         _this.samples = samples;
                     });
                 }
-            },
-            getVariableSets: function (opencgaClient, resource) {
+            }
+            getVariableSets(opencgaClient, resource) {
                 let _this = this;
                 let variableSets = [];
                 if (_this.opencgaClient instanceof OpenCGAClient) {
@@ -131,8 +139,8 @@
                         });
                     }
                 }
-            },
-            dataChanged: function () {
+            }
+            dataChanged() {
                 this.refreshVariableSetTable(); // Refreshing the table columns whenever the samples change
                 let _this = this;
                 if (typeof _this.variableSet !== "undefined" && typeof _this.variableSet.variables !== "undefined") {
@@ -154,8 +162,8 @@
                             columns: _this._variableSetColumns
                         });
                 }
-            },
-            refreshVariableSetTable: function () {
+            }
+            refreshVariableSetTable() {
                 let _this = this;
                 let cols = [
                     [
@@ -185,8 +193,8 @@
                             });
                 }
                 _this._variableSetColumns = cols;
-            },
-            variableSetFormatter: function (value, row, index) {
+            }
+            variableSetFormatter(value, row, index) {
                 let sample = this.field.sample;
                 for (let i in sample.annotationSets) {
                     let annotationSet = sample.annotationSets[i];
@@ -198,6 +206,7 @@
                     }
                 }
             }
-        });
+        }
+        customElements.define(OpencgaSampleComparator.is, OpencgaSampleComparator);
     </script>
 </dom-module>
