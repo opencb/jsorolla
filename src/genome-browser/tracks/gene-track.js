@@ -82,9 +82,9 @@ class GeneTrack extends FeatureTrack {
 
         this.dataType = "features";
 
-        if (!_.isUndefined(this.exclude)) {
-            this.dataType = "features" + this.exclude;
-        }
+        //if (!_.isUndefined(this.exclude)) {
+        //    this.dataType = "features" + this.exclude;
+        //}
 
         if (this.histogram) {
             this.dataType = "histogram";
