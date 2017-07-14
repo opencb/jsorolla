@@ -23,7 +23,7 @@
 <dom-module id="variant-browser-view">
     <template>
         <style include="jso-styles">
-            .variant-tab-title {
+            .browser-variant-tab-title {
                 font-size: 115%;
                 font-weight: bold;
             }
@@ -70,10 +70,10 @@
                         <h3>Variant: {{variant}}</h3>
                         <div style="padding-top: 20px">
                             <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
-                                <li role="presentation" class="active"><a href="#{{prefix}}Annotation" role="tab" data-toggle="tab" class="variant-tab-title">Advanced Annotation</a></li>
-                                <li role="presentation"><a href="#{{prefix}}Genotype" role="tab" data-toggle="tab" class="variant-tab-title">Genotype Stats</a></li>
-                                <!--<li role="presentation"><a href="#{{prefix}}GenomeView" role="tab" data-toggle="tab" class="variant-tab-title">Genome Context</a></li>-->
-                                <li role="presentation"><a href="#{{prefix}}Beacon" role="tab" data-toggle="tab" class="variant-tab-title">Beacon Network</a></li>
+                                <li role="presentation" class="active"><a href="#{{prefix}}Annotation" role="tab" data-toggle="tab" class="browser-variant-tab-title">Advanced Annotation</a></li>
+                                <li role="presentation"><a href="#{{prefix}}Genotype" role="tab" data-toggle="tab" class="browser-variant-tab-title">Genotype Stats</a></li>
+                                <!--<li role="presentation"><a href="#{{prefix}}GenomeView" role="tab" data-toggle="tab" class="browser-variant-tab-title">Genome Context</a></li>-->
+                                <li role="presentation"><a href="#{{prefix}}Beacon" role="tab" data-toggle="tab" class="browser-variant-tab-title">Beacon Network</a></li>
                             </ul>
 
                             <div class="tab-content" style="height: 680px">

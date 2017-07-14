@@ -20,10 +20,6 @@
 
 <dom-module id="variant-sample-selector">
     <template>
-        <style is="custom-style" include="jso-styles"></style>
-
-        <!--<h3><i class="fa fa-sitemap" aria-hidden="true"></i>&nbsp;Family Selector</h3>-->
-
         <div>
             <div class="col-md-3">
                 <opencga-sample-filter opencga-client="{{opencgaClient}}" query="{{query}}" search="{{search}}"></opencga-sample-filter>
@@ -92,7 +88,7 @@
                 'calculateFilters(filteredVariables.variables.*)'
             ],
             ready: function() {
-                if (typeof this.prefix === "undefined" || this.prefix == "") {
+                if (PolymerUtils.isEmpty(this.prefix)) {
                     this.prefix = "sample" + Utils.randomString(6);
                 }
 
@@ -114,7 +110,7 @@
                 this.fixedFilters = ["studies"];
             },
             attached: function () {
-                this.table = $('#' + this.prefix + "FamilySelector");
+                this.table = PolymerUtils.getElementById(this.prefix + "FamilySelector");
             },
 //            renderFromServer: function () {
 //                let filters = this.search;
@@ -303,18 +299,18 @@
 
             updateForms: function(filters) {
                 // This is just to avoid entering here when it has just been initialized
-                if (this.prefix === undefined) {
+                if (PolymerUtils.isUndefined(this.prefix)) {
                     return;
                 }
 
-                let sampleName = this.$$("#" + this.prefix + "NameTextarea").value;
-                if (!filters.hasOwnProperty("name") && sampleName !== undefined && sampleName.length > 0) {
-                    this.$$("#" + this.prefix + "NameTextarea").value = "";
+                let sampleName = PolymerUtils.getValue(this.prefix + "NameTextarea");
+                if (!filters.hasOwnProperty("name") && PolymerUtils.isNotUndefined(sampleName) && sampleName.length > 0) {
+                    PolymerUtils.setValue(this.prefix + "NameTextarea", "");
                 }
 
-                let individual = this.$$("#" + this.prefix + "IndividualTextarea").value;
-                if (!filters.hasOwnProperty("individual.id") && individual !== undefined && individual.length > 0) {
-                    this.$$("#" + this.prefix + "IndividualTextarea").value = "";
+                let individual =  PolymerUtils.getValue(this.prefix + "IndividualTextarea");
+                if (!filters.hasOwnProperty("individual.id") && PolymerUtils.isNotUndefined(individual) && individual.length > 0) {
+                    PolymerUtils.setValue(this.prefix + "IndividualTextarea","");
                 }
 
                 if (this.filteredVariables.variables.length > 0) {
@@ -324,7 +320,6 @@
                         this.set("filteredVariables.variables", []);
 
                     } else if (filters.annotation.length < this.filteredVariables.variables.length) {
-//                        debugger
                         let tmpVariables = [];
                         filters.annotation.forEach(function(variable) {
                             tmpVariables.push(variable);
@@ -332,11 +327,7 @@
 
                         this.set("filteredVariables.variables", tmpVariables);
                     }
-//                    } else if (!filters.hasOwnProperty("variableSetId")) {
-//                        // They have removed the variableSetId so all the annotations should be out
-//                        delete filters.variables;
-//                        this.filteredVariables.variables = [];
-//                    }
+
                 }
 
             },
@@ -349,22 +340,22 @@
                 let sampleName = "";
                 let individual = "";
 
-                if (this.$$("#" + this.prefix + "NameTextarea") !== null) {
-                    sampleName = this.$$("#" + this.prefix + "NameTextarea").value;
+                if (PolymerUtils.getElementById(this.prefix + "NameTextarea") !== null) {
+                    sampleName = PolymerUtils.getValue(this.prefix + "NameTextarea");
                 }
                 if (this.$$("#" + this.prefix + "IndividualTextarea") !== null) {
-                    individual = this.$$("#" + this.prefix + "IndividualTextarea").value;
+                    individual = PolymerUtils.getValue(this.prefix + "IndividualTextarea");
                 }
 
-                if (sampleName !== undefined && sampleName.length > 0) {
+                if (PolymerUtils.isNotUndefined(sampleName) && sampleName.length > 0) {
                     filters["name"] = "~" + sampleName;
                 }
 
-                if (individual !== undefined && individual.length > 0) {
+                if (PolymerUtils.isNotUndefined(individual) && individual.length > 0) {
                     filters["individual.id"] = "~" + individual;
                 }
 
-                if (this.filteredVariables.variables !== undefined && this.filteredVariables.variables.length > 0) {
+                if (PolymerUtils.isNotUndefined(this.filteredVariables.variables) && this.filteredVariables.variables.length > 0) {
 //                    filters["variableSetId"] = this.filteredVariables.variableSet;
                     let annotations = [];
                     this.filteredVariables.variables.forEach(function(variable) {

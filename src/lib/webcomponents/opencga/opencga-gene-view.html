@@ -5,12 +5,12 @@
     <template>
         <style is="custom-style" include="jso-styles"></style>
         <style>
-            .variant-tab-title {
+            .gene-variant-tab-title {
                 font-size: 150%;
                 font-weight: bold;
             }
 
-            .summary-title {
+            .gene-summary-title {
                 font-weight: bold;
             }
         </style>
@@ -18,7 +18,8 @@
         <div>
             <div style="float: right;padding: 10px 5px 10px 5px">
                 <button type="button" class="btn btn-primary" on-click="showBrowser">
-                    <i class="fa fa-hand-o-left" aria-hidden="true"></i> Variant Browser</button>
+                    <i class="fa fa-hand-o-left" aria-hidden="true"></i> Variant Browser
+                </button>
             </div>
 
             <h2>{{geneObj.name}}</h2>
@@ -28,25 +29,26 @@
                     <h3>Summary</h3>
                     <table width="100%">
                         <tr>
-                            <td class="summary-title" width="20%">Name</td>
+                            <td class="gene-summary-title" width="20%">Name</td>
                             <td width="80%">{{geneObj.name}} ({{geneObj.id}})</td>
                         </tr>
                         <tr>
-                            <td class="summary-title" width="20%">Biotype</td>
+                            <td class="gene-summary-title" width="20%">Biotype</td>
                             <td width="80%">{{geneObj.biotype}}</td>
                         </tr>
                         <tr>
-                            <td class="summary-title" width="20%">Description</td>
+                            <td class="gene-summary-title" width="20%">Description</td>
                             <td width="80%">{{geneObj.description}}</td>
                         </tr>
                         <tr>
-                            <td class="summary-title">Location</td>
+                            <td class="gene-summary-title">Location</td>
                             <td>{{geneObj.chromosome}}:{{geneObj.start}}-{{geneObj.end}} ({{geneObj.strand}})</td>
                         </tr>
                         <tr>
-                            <td class="summary-title">Genome Browser</td>
+                            <td class="gene-summary-title">Genome Browser</td>
                             <td>
-                                <a target="_blank" href="http://genomemaps.org/?region={{geneObj.chromosome}}:{{geneObj.start}}-{{geneObj.end}}">
+                                <a target="_blank"
+                                   href="http://genomemaps.org/?region={{geneObj.chromosome}}:{{geneObj.start}}-{{geneObj.end}}">
                                     {{geneObj.chromosome}}:{{geneObj.start}}-{{geneObj.end}}
                                 </a>
                             </td>
@@ -103,23 +105,34 @@
         </div>
 
         <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
-            <li role="presentation" class="active"><a href="#{{prefix}}Variants" role="tab" data-toggle="tab" class="variant-tab-title">Variants</a></li>
-            <li role="presentation"><a href="#{{prefix}}Protein" role="tab" data-toggle="tab" class="variant-tab-title">Protein</a></li>
+            <li role="presentation" class="active"><a href="#{{prefix}}Variants" role="tab" data-toggle="tab"
+                                                      class="gene-variant-tab-title">Variants</a></li>
+            <li role="presentation"><a href="#{{prefix}}Protein" role="tab" data-toggle="tab" class="gene-variant-tab-title">Protein</a>
+            </li>
         </ul>
 
         <div class="tab-content" style="height: 1024px">
             <div role="tabpanel" class="tab-pane active" id="{{prefix}}Variants">
                 <div class="btn-group btn-group" role="group" aria-label="..." style="padding: 15px;float: right">
-                    <button type="button" class="btn btn-default btn-warning gene-ct-buttons active" on-click="updateQuery">All</button>
-                    <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">Missense</button>
-                    <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">LoF</button>
+                    <button type="button" class="btn btn-default btn-warning gene-ct-buttons active"
+                            on-click="updateQuery">All
+                    </button>
+                    <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
+                        Missense
+                    </button>
+                    <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
+                        LoF
+                    </button>
                 </div>
 
                 <br>
                 <br>
-                <variant-browser-grid project="{{project}}" study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
-                                      population-frequencies="{{populationFrequencies}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                      consequence-types="{{consequenceTypes}}" search="{{query}}" query="{{query}}" variant="{{variant}}"
+                <variant-browser-grid project="{{project}}" study="{{study}}" prefix="{{prefix}}"
+                                      opencga-client="{{opencgaClient}}"
+                                      population-frequencies="{{populationFrequencies}}"
+                                      protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                      consequence-types="{{consequenceTypes}}" search="{{query}}" query="{{query}}"
+                                      variant="{{variant}}"
                                       on-selectvariant="onSelectVariant" style="font-size: 12px" summary="{{summary}}">
                 </variant-browser-grid>
 
@@ -131,14 +144,19 @@
                 <!-- Bottom tabs with specific variant information -->
                 <div style="padding-top: 20px; height: 400px" hidden$="{{!checkVariant(variant)}}">
                     <h3>Advanced Annotation for Variant: {{variant}}</h3>
-                    <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-client="{{cellbaseClient}}" hash-fragment-credentials="{{hashFragmentCredentials}}"
-                                                     style="font-size: 12px" population-frequencies="{{populationFrequencies}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
+                    <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}"
+                                                     cellbase-client="{{cellbaseClient}}"
+                                                     hash-fragment-credentials="{{hashFragmentCredentials}}"
+                                                     style="font-size: 12px"
+                                                     population-frequencies="{{populationFrequencies}}"
+                                                     protein-substitution-scores="{{proteinSubstitutionScores}}"
                                                      consequence-types="{{consequenceTypes}}"></cellbase-variantannotation-view>
                 </div>
             </div>
 
             <div role="tabpanel" class="tab-pane" id="{{prefix}}Protein">
-                <variant-protein-view opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" project="{{project}}" study="{{study}}"
+                <variant-protein-view opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+                                      project="{{project}}" study="{{study}}"
                                       gene="{{gene}}" config="{{config.protein}}" summary="{{summary}}">
                 </variant-protein-view>
             </div>
@@ -148,65 +166,85 @@
         </div>
     </template>
     <script>
-        Polymer({
-            is: 'opencga-gene-view',
-            properties: {
-                cellbaseClient: {
-                    type: Object
-                },
-                opencgaClient: {
-                    type: Object
-                },
-                project: {
-                    type: Object
-                },
-                study: {
-                    type: Object
-                },
-                gene: {
-                    type: String,
-                    observer: 'geneChanged'
-                },
-                populationFrequencies: {
-                    type: Array
-                },
-                proteinSubstitutionScores: {
-                    type: Object
-                },
-                consequenceTypes: {
-                    type: Object
-                },
-                variant: {
-                    type: String,
-                    value: ""
-                },
-                config: {
-                    type: Object
-                },
-                summary: {
-                    type: Boolean
+        class OpencgaGeneView extends Polymer.Element {
+            static get is() {
+                return 'opencga-gene-view';
+            }
+
+            static get properties() {
+                return {
+                    cellbaseClient: {
+                        type: Object
+                    },
+                    opencgaClient: {
+                        type: Object
+                    },
+                    project: {
+                        type: Object
+                    },
+                    study: {
+                        type: Object
+                    },
+                    gene: {
+                        type: String,
+                        observer: 'geneChanged'
+                    },
+                    populationFrequencies: {
+                        type: Array
+                    },
+                    proteinSubstitutionScores: {
+                        type: Object
+                    },
+                    consequenceTypes: {
+                        type: Object
+                    },
+                    variant: {
+                        type: String,
+                        value: ""
+                    },
+                    config: {
+                        type: Object
+                    },
+                    summary: {
+                        type: Boolean
+                    }
                 }
-            },
-            observers: [
-                'projectStudyObtained(project, study)'
-            ],
-            ready: function () {
-                if (typeof this.prefix === "undefined" || this.prefix == "") {
+            }
+
+            static get observers() {
+                return ['projectStudyObtained(project, study)'];
+            }
+
+
+            constructor() {
+                super();
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            ready() {
+                super.ready();
+                if (PolymerUtils.isEmpty(this.prefix)) {
                     this.prefix = "gene" + Utils.randomString(6);
                 }
-            },
-            projectStudyObtained: function (project, study) {
-                if (typeof this.project !== "undefined" && this.project.alias != "" && typeof this.study !== "undefined" && this.study.alias != "") {
+            }
+
+            projectStudyObtained(project, study) {
+                if (PolymerUtils.isNotUndefined(this.project) && PolymerUtils.isNotEmpty(this.project.alias)
+                    && PolymerUtils.isNotUndefined(this.study) && PolymerUtils.isNotEmpty(this.study.alias)) {
                     this.hashFragmentCredentials = {
                         project: this.project.alias,
                         study: this.study.alias
                     }
                 }
-            },
-            geneChanged: function (neo, old) {
+            }
+
+            geneChanged(neo, old) {
                 let query = {};
-                let _this= this;
-                if (typeof this.gene !== "undefined" && this.gene != "") {
+                let _this = this;
+                if (PolymerUtils.isNotEmpty(this.gene)) {
                     query.gene = this.gene;
                     this.cellbaseClient.getGeneClient(this.gene, 'info', {exclude: "annotation"}, {})
                         .then(function (response) {
@@ -214,11 +252,13 @@
                         });
                     this.query = query;
                 }
-            },
-            updateQuery: function (e) {
-                $('.gene-ct-buttons').removeClass("active");
+            }
+
+
+            updateQuery(e) {
+                PolymerUtils.removeClass(".gene-ct-buttons", "active");
                 let button = e.target;
-                $(button).addClass("active");
+                PolymerUtils.addClass(button.id, "active");
                 let query = this.query;
                 switch (e.target.textContent) {
                     case "Missense":
@@ -230,26 +270,34 @@
                         query["annot-ct"] = this.consequenceTypes.lof.join(",");
                         break;
                     default:
-                        if (typeof query["annot-ct"] !== "undefined") {
+                        if (PolymerUtils.isNotUndefined(query["annot-ct"])) {
                             delete query["annot-ct"];
                         }
                         break;
                 }
                 this.query = Object.assign({}, query);
-            },
-            checkVariant: function(variant) {
+            }
+
+
+            checkVariant(variant) {
                 return variant.split(':').length > 2;
-            },
-            showBrowser: function () {
+            }
+
+
+            showBrowser() {
                 let hash = window.location.hash.split('/');
                 let newHash = '#browser/' + hash[1] + '/' + hash[2];
                 window.location.hash = newHash;
-            },
-            onSelectVariant: function(e) {
+            }
+
+
+            onSelectVariant(e) {
                 this.variant = e.detail.id;
-//                this.V = e.detail.variant;
-//                this.display3D();
-            },
-        });
+            }
+
+
+        }
+        customElements.define(OpencgaGeneView.is, OpencgaGeneView);
+
     </script>
 </dom-module>

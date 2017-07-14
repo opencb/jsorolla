@@ -196,6 +196,7 @@ class PolymerUtils {
         }
     }
 
+
     static removeElement(id) {
         if (PolymerUtils.isNotUndefinedOrNull(id)) {
             let el = this.getElementById(id);
