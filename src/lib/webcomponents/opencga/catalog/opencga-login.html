@@ -1,17 +1,15 @@
 <dom-module id="opencga-login">
     <template>
-        <!--<custom-style>-->
-            <style >
-                .login-basic-margin {
-                    width: 300px;
-                    margin-left: 20px;
-                    margin-right: auto;
-                }
-                .login-fields {
-                    margin-top: 10px;
-                }
-            </style>
-        <!--</custom-style>-->
+        <style include="jso-styles">
+            .login-basic-margin {
+                width: 300px;
+                margin-left: 20px;
+                margin-right: auto;
+            }
+            .login-fields {
+                margin-top: 10px;
+            }
+        </style>
 
         <div class="login-basic-margin">
             <div class="input-group login-fields">
@@ -69,7 +67,7 @@
             constructor() {
                 super();
             }
-            
+
             _attachDom(dom) {
                 this.appendChild(dom);
             }
