@@ -16,8 +16,6 @@
 
 <dom-module id="opencga-message-dialog">
     <template>
-        <!--<style is="custom-style" include="jso-styles"></style>-->
-
         <div class="modal fade" id="{{prefix}}messageModal" tabindex="-1" role="dialog"
              aria-labelledby="messageLabel" data-backdrop="static" data-keyboard="false">
             <div id="{{prefix}}modalDiv" class="modal-dialog modal-sm" role="document">
@@ -41,16 +39,12 @@
                 </div>
             </div>
         </div>
-
-
     </template>
-
     <script>
         class OpencgaMessageDialog extends Polymer.Element {
             static get is() {
                 return 'opencga-message-dialog';
             }
-
             static get properties() {
                 return {
                     opencgaClient: {
@@ -66,23 +60,18 @@
                     }
                 }
             }
-
             constructor() {
                 super();
             }
-
             _attachDom(dom) {
                 this.appendChild(dom);
             }
-
             ready() {
                 super.ready();
                 if (PolymerUtils.isEmpty(this.prefix)) {
                     this.prefix = "dialog" + Utils.randomString(6);
                 }
-
             }
-
             modalEvent() {
                 if (this.showMessageModal === true && !PolymerUtils.isUndefined(this.settingsMessageModal)) {
                     // Type of modal
@@ -112,7 +101,6 @@
                     $(PolymerUtils.getElementById(this.prefix + "messageModal")).modal("show");
 
                     this.showMessageModal = false;
-
                 }
             }
         }

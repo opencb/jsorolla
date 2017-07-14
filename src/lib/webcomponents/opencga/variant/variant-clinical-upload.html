@@ -18,7 +18,7 @@
 <dom-module id="variant-clinical-upload">
     <template>
         <style>
-            .title {
+            .clinical-title {
                 margin: 30px 5px 25px -40px;
             }
         </style>
@@ -26,7 +26,7 @@
         <div class="col-md-12">
             <div style="width: 60%; margin: 0px 0px 0px 90px">
                 <form id="{{prefix}}uploadForm" class="form-horizontal" data-toggle="validator" role="form">
-                    <h3 class="title">Patient Information</h3>
+                    <h3 class="clinical-title">Patient Information</h3>
                     <!-- GENERAL INFORMATION -->
                     <!-- Individual ID -->
                     <div class="form-group row has-feedback">
@@ -228,7 +228,7 @@
                     </div>
 
 
-                    <h3 class="title">Upload and check file</h3>
+                    <h3 class="clinical-title">Upload and check file</h3>
 
                     <!-- SAMPLE TYPE -->
                     <div class="form-group row has-feedback">
@@ -921,8 +921,8 @@
 
                 this.settingsMessageModal = {
                     messageHeader: "",
-                    messageBody: ["The VCF file has successfully uploaded. You can now proceed to Analysis tab or upload another VCF file"],
-                    type: "",
+                    messageBody: ["The VCF file has successfully uploaded and annotated. You can now proceed to Analysis tab or upload another VCF file"],
+                    type: "success",
                     height: "100px",
                     width: "500px"
                 };
@@ -952,7 +952,15 @@
                             _this.indexVCF(_fileId);
                         })
                         .catch(function () {
-                            console.log("Could not upload VCF file for the study " + _this.study);
+                            _this.settingsMessageModal = {
+                                messageHeader: "Error",
+                                messageBody: [response.error],
+                                type: "danger",
+                                height: "100px",
+                                width: "500px"
+                            };
+
+                            _this.showMessageModal = true;
                         });
                 }
             }
@@ -1185,8 +1193,8 @@
                                     PolymerUtils.setPropertyById(_this.prefix + 'parentalConsanguinityno', 'checked', true);
                                 }
                                 //TODO Refactor
-                                $(PolymerUtils.getElementById(this.prefix + "uploadForm")).validator('update');
-                                $(PolymerUtils.getElementById(this.prefix + "uploadForm")).validator('validate');
+                                $(PolymerUtils.getElementById(_this.prefix + "uploadForm")).validator('update');
+                                $(PolymerUtils.getElementById(_this.prefix + "uploadForm")).validator('validate');
                             }
                         })
                         .catch(function (response) {

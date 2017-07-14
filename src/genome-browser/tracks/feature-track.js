@@ -480,7 +480,6 @@ class FeatureTrack {
     }
 
     getDataHandler(event) {
-        debugger
         console.time("Total FeatureTrack -> getDataHandler " + event.sender.category)
 
         console.time("Chunks() FeatureTrack -> getDataHandler " + event.sender.category)
@@ -590,7 +589,6 @@ class FeatureTrack {
         let feature, displayed, featureFirstChunk, featureLastChunk, features = [];
         for (let i = 0, leni = chunks.length; i < leni; i++) {
             if (this.chunksDisplayed[chunks[i].chunkKey] !== true) { //check if any chunk is already displayed and skip it
-debugger
                 for (let j = 0, lenj = chunks[i].value.length; j < lenj; j++) {
                     feature = chunks[i].value[j];
 
