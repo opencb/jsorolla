@@ -2,19 +2,19 @@
     <template>
         <!--<custom-style>-->
             <style >
-                .basic-margin {
+                .login-basic-margin {
                     width: 300px;
                     margin-left: 20px;
                     margin-right: auto;
                 }
-                .fields {
+                .login-fields {
                     margin-top: 10px;
                 }
             </style>
         <!--</custom-style>-->
 
-        <div class="basic-margin">
-            <div class="input-group fields">
+        <div class="login-basic-margin">
+            <div class="input-group login-fields">
                 <span class="input-group-addon" id="username">
                     <i class="fa fa-user fa-lg"></i>
                 </span>
@@ -22,7 +22,7 @@
                        on-keyup="checkEnterKey">
             </div>
 
-            <div class="input-group fields">
+            <div class="input-group login-fields">
                 <span class="input-group-addon" id="password">
                     <i class="fa fa-key"></i>
                 </span>
@@ -35,7 +35,7 @@
                 {{errorMessage}}
             </div>
 
-            <div class="fields">
+            <div class="login-fields">
                 <button type="button" on-click="login" class="btn btn-primary" style="text-align: center;">{{loginText}}</button>
             </div>
         </div>

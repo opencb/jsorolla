@@ -20,7 +20,7 @@
 <dom-module id="variant-prioritization">
     <template>
         <style is="custom-style" include="jso-styles">
-            .center {
+            .prioritization-center {
                 margin: auto;
                 text-align: justify;
                 width: 95%;
@@ -147,11 +147,11 @@
                 if (this._collapsed) {
 //                    $("#" + this.prefix + "FilterMenu").css("display", "inline");
                     $("#" + this.prefix + "FilterMenu").show(400);
-                    $("#" + this.prefix + "MainWindow").removeClass("center").addClass("col-md-10");
+                    $("#" + this.prefix + "MainWindow").removeClass("prioritization-center").addClass("col-md-10");
                 } else {
 //                    $("#" + this.prefix + "FilterMenu").css("display", "none");
                     $("#" + this.prefix + "FilterMenu").hide(400);
-                    $("#" + this.prefix + "MainWindow").removeClass("col-md-10").addClass("center");
+                    $("#" + this.prefix + "MainWindow").removeClass("col-md-10").addClass("prioritization-center");
                 }
 
                 this._collapsed = !this._collapsed;

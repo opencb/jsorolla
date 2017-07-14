@@ -21,12 +21,12 @@
 <dom-module id="variant-browser-filter">
     <template>
         <style >
-            .popFreqName {
+            .browser-popFreqName {
                 font-size: 12px;
                 color: #797979;
             }
 
-            .custom-sized-input {
+            .browser-custom-sized-input {
                 max-width: 60px;
                 height: 20px;
             }
@@ -35,35 +35,35 @@
                 margin-left: 10px;
             }
 
-            .ct-scroll {
+            .browser-ct-scroll {
                 max-height: 450px;
                 overflow-y: scroll;
             }
 
-            .ct-tree-view,
-            .ct-tree-view * {
+            .browser-ct-tree-view,
+            .browser-ct-tree-view * {
                 padding: 0;
                 margin: 0;
                 list-style: none;
             }
 
-            .ct-tree-view li ul {
+            .browser-ct-tree-view li ul {
                 margin: 0 0 0 22px;
             }
 
-            .ct-tree-view * {
+            .browser-ct-tree-view * {
                 vertical-align: middle;
             }
 
-            .ct-tree-view {
+            .browser-ct-tree-view {
                 /*font-size: 14px;*/
             }
 
-            .ct-tree-view input[type="checkbox"] {
+            .browser-ct-tree-view input[type="checkbox"] {
                 cursor: pointer;
             }
 
-            .ct-item {
+            .browser-ct-item {
                 white-space: nowrap;
                 display:inline
             }
@@ -88,12 +88,12 @@
                 margin-left: 10px;
             }
 
-            .subsection {
+            .browser-subsection {
                 padding: 5px 0px 5px 0px;
                 font-weight: bold;
             }
 
-            .affected {
+            .browser-affected {
                 color: red;
             }
         </style>
@@ -143,7 +143,7 @@
                             <div id="{{prefix}}Studies" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}StudiesHeading">
                                 <div class="panel-body">
                                     <template is="dom-if" if="{{cohortsPresent(_cohorts)}}">
-                                        <span class="subsection">Cohort MAF filter</span>
+                                        <span class="browser-subsection">Cohort MAF filter</span>
                                         <template is="dom-repeat" items="{{_cohorts}}" as="cohort">
                                             <div class="horizontal layout" style="padding: 4px 0px 4px 0px">
                                                 <span>{{cohort.name}}</span>
@@ -156,7 +156,7 @@
                                                 </select>
                                             </span>
                                                 <span>
-                                                <input type="text" value="" class$="custom-sized-input {{prefix}}FilterTextInput" name="{{study.alias}}_{{cohort.id}}" id="{{prefix}}{{study.alias}}{{cohort.id}}Cohort" on-keyup="updateQueryFilters">
+                                                <input type="text" value="" class$="browser-custom-sized-input {{prefix}}FilterTextInput" name="{{study.alias}}_{{cohort.id}}" id="{{prefix}}{{study.alias}}{{cohort.id}}Cohort" on-keyup="updateQueryFilters">
                                             </span>
                                             </div>
                                         </template>
@@ -164,7 +164,7 @@
                                     </template>
 
                                     <template is="dom-if" if="{{moreStudiesPresent(studies)}}">
-                                        <span class="subsection">Studies Filter</span>
+                                        <span class="browser-subsection">Studies Filter</span>
                                         <select class$="form-control {{prefix}}FilterSelect" id="includeOtherStudy" style="width: 50%;" on-change="updateQueryFilters">
                                             <option value="in" selected>In (AND)</option>
                                             <!--<option value="not in">Not In</option>-->
@@ -295,7 +295,7 @@
                                 </button>
                                 <div id="analysisSelectedDiv" style="display:none">
                                     <label>Analysis selected:</label>
-                                    <input type="text" class$="custom-sized-input {{prefix}}FilterTextInput" placeholder="AN-28" aria-describedby="basic-addon1" disabled>
+                                    <input type="text" class$="browser-custom-sized-input {{prefix}}FilterTextInput" placeholder="AN-28" aria-describedby="basic-addon1" disabled>
                                 </div>
 
                                 <div class="dropdown" id="segregationDropdownDiv" style="display: none">
@@ -335,13 +335,13 @@
                     <div id="{{prefix}}Position" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}PositionHeading">
                         <div class="panel-body">
                             <div class="form-group">
-                                <span class="subsection">Chromosomal Location</span>
+                                <span class="browser-subsection">Chromosomal Location</span>
                                 <textarea id$="{{prefix}}LocationTextarea" name="location" class$="form-control clearable {{prefix}}FilterTextInput"
                                           rows="3" placeholder="3:444-55555, 1:1-100000" on-keyup="updateQueryFilters"></textarea>
                             </div>
 
                             <div class="form-group">
-                                <span class="subsection">Feature IDs (gene, transcript, SNP, ...)</span>
+                                <span class="browser-subsection">Feature IDs (gene, transcript, SNP, ...)</span>
                                 <div class="form-row">
                                     <div class="col-sm-10" style="padding: 0px 0px 0px 0px">
                                         <input id="{{prefix}}FeatureIdText" type="text" class="form-control" list="datalist" placeholder="Search for Gene Symbols" value=""
@@ -368,11 +368,11 @@
                             <!--<textarea id="{{prefix}}FeatureTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="5" placeholder="BRCA2, ENSG00000139618, ENST00000544455, P51587, 13:19748038:C:T, rs28897700, VAR_020705, RCV000162901, COSM3468368"-->
                             <!--name="geneSnp" on-keyup="updateQueryFilters"></textarea>-->
                             <!--<br>-->
-                            <!--<span class="subsection">Gene Panels</span>-->
+                            <!--<span class="browser-subsection">Gene Panels</span>-->
                             <!--<input type="checkbox" value="" class$="{{prefix}}FilterCheckBox"> With / Without dbSNP rs IDs<br>-->
 
                             <div class="form-group">
-                                <span class="subsection">Gene Disease Panels</span>
+                                <span class="browser-subsection">Gene Disease Panels</span>
                                 <select class$="form-control {{prefix}}FilterSelect" id="{{prefix}}PanelApps" on-change="onGeneDiseasePanelChange">
                                     <option value="none">Select a panel...</option>
                                     <template is="dom-repeat" items="{{panelList}}" sort="sortPanelApp">
@@ -386,7 +386,7 @@
                             </div>
 
                             <div class="form-group">
-                                <span class="subsection">Gene Biotype</span>
+                                <span class="browser-subsection">Gene Biotype</span>
                                 <select class$="form-control {{prefix}}FilterSelect" id="{{prefix}}GeneBiotypes" on-change="updateQueryFilters">
                                     <option value="none">Select a biotype...</option>
                                     <template is="dom-repeat" items="{{biotypes}}">
@@ -396,7 +396,7 @@
                             </div>
 
                             <div class="form-group">
-                                <span class="subsection">Variant Type</span>
+                                <span class="browser-subsection">Variant Type</span>
                                 <div id="{{prefix}}Type">
                                     <input type="checkbox" value="SNV,SNP" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> SNV<br>
                                     <input type="checkbox" value="MNV" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> MNV<br>
@@ -433,7 +433,7 @@
                                 <template is="dom-if" if="{{study.populations}}">
                                     <div id="{{prefix}}{{study.id}}" hidden>
                                         <template is="dom-repeat" items="{{study.populations}}" as="popFreq">
-                                            <label class="popFreqName">{{popFreq.title}}</label>
+                                            <label class="browser-popFreqName">{{popFreq.title}}</label>
                                             <div class="horizontal layout">
                                                 <span>MAF</span>
                                                 <span>
@@ -445,7 +445,7 @@
                                                     </select>
                                                 </span>
                                                 <span>
-                                                    <input type="text" value="" class$="custom-sized-input {{prefix}}FilterTextInput" name="{{study.id}}_{{popFreq.id}}" id="{{prefix}}{{study.id}}{{popFreq.id}}" on-keyup="updateQueryFilters">
+                                                    <input type="text" value="" class$="browser-custom-sized-input {{prefix}}FilterTextInput" name="{{study.id}}_{{popFreq.id}}" id="{{prefix}}{{study.id}}{{popFreq.id}}" on-keyup="updateQueryFilters">
                                                 </span>
                                             </div>
                                         </template>
@@ -483,7 +483,7 @@
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class$="custom-sized-input {{prefix}}FilterTextInput" id="{{prefix}}SiftInput" name="Sift" on-keyup="updateQueryFilters">
+                                <input type="text" value="" class$="browser-custom-sized-input {{prefix}}FilterTextInput" id="{{prefix}}SiftInput" name="Sift" on-keyup="updateQueryFilters">
                                 <div style="float: right" class="tooltip-div">
                                     <a data-toggle="tooltip" title="Select None in the drop-down list on the left to enable the input of a specific SIFT score threshold. SIFT score takes values in the range [0, infinite[, the lower the values, the more damaging the prediction"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
                                 </div>
@@ -504,7 +504,7 @@
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class$="custom-sized-input {{prefix}}FilterTextInput" id="{{prefix}}PolyphenInput" name="Polyphen" on-keyup="updateQueryFilters">
+                                <input type="text" value="" class$="browser-custom-sized-input {{prefix}}FilterTextInput" id="{{prefix}}PolyphenInput" name="Polyphen" on-keyup="updateQueryFilters">
 
                                 <div style="float: right" class="tooltip-div">
                                     <a data-toggle="tooltip" title="Select None in the drop-down list on the left to enable the input of a specific Polyphen score threshold. Polyphen score takes values in the range [0, 1[, the closer to 2, the more damaging the prediction"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
@@ -527,7 +527,7 @@
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class$="custom-sized-input {{prefix}}FilterTextInput" id="{{prefix}}CaddRawInput" name="caddRaw" on-keyup="updateQueryFilters">
+                                <input type="text" value="" class$="browser-custom-sized-input {{prefix}}FilterTextInput" id="{{prefix}}CaddRawInput" name="caddRaw" on-keyup="updateQueryFilters">
                                 <div style="float: right" class="tooltip-div">
                                     <a data-toggle="tooltip" title="Raw values have relative meaning, with higher values indicating that a variant is more likely to be simulated (or not observed) and therefore more likely to have deleterious effects. If discovering causal variants within an individual, or small groups, of exomes or genomes te use of the scaled CADD score is recommended."><i class="fa fa-info-circle" aria-hidden="true"></i></a>
                                 </div>
@@ -540,7 +540,7 @@
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class$="custom-sized-input {{prefix}}FilterTextInput" id="{{prefix}}CaddScaledInput" name="caddScaled" on-keyup="updateQueryFilters">
+                                <input type="text" value="" class$="browser-custom-sized-input {{prefix}}FilterTextInput" id="{{prefix}}CaddScaledInput" name="caddScaled" on-keyup="updateQueryFilters">
                                 <div style="float: right" class="tooltip-div">
                                     <a data-toggle="tooltip" title="A scaled C-score of greater of equal 10 indicates that the substitution is predicted to be within the 10% most deleterious substitutions that you can do to the human genome, a score of greater or equal 20 indicates the 1% most deleterious and so on. If you would like to apply a cutoff on deleteriousness, it is suggested by the CADD authors to put a cutoff somewhere between 10 and 20. Maybe at 15, as this also happens to be the median value for all possible canonical splice site changes and non-synonymous variants"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
                                 </div>
@@ -568,7 +568,7 @@
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class$="custom-sized-input {{prefix}}FilterTextInput" id="{{prefix}}PhylopInput" name="phylop" on-keyup="updateQueryFilters">
+                                <input type="text" value="" class$="browser-custom-sized-input {{prefix}}FilterTextInput" id="{{prefix}}PhylopInput" name="phylop" on-keyup="updateQueryFilters">
                                 <div style="float: right" class="tooltip-div">
                                     <a data-toggle="tooltip" title="Positive PhyloP scores measure conservation which is slower evolution than expected, at sites that are predicted to be conserved. Negative PhyloP scores measure acceleration, which is faster evolution than expected, at sites that are predicted to be fast-evolving. Absolute values of phyloP scores represent -log p-values under a null hypothesis of neutral evolution"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
                                 </div>
@@ -581,7 +581,7 @@
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class$="custom-sized-input {{prefix}}FilterTextInput" id="{{prefix}}PhastconsInput" name="phastCons" on-keyup="updateQueryFilters">
+                                <input type="text" value="" class$="browser-custom-sized-input {{prefix}}FilterTextInput" id="{{prefix}}PhastconsInput" name="phastCons" on-keyup="updateQueryFilters">
                                 <div style="float: right" class="tooltip-div">
                                     <a data-toggle="tooltip" title="PhastCons estimates the probability that each nucleotide belongs to a conserved element. The phastCons scores represent probabilities of negative selection and range between 0 and 1."><i class="fa fa-info-circle" aria-hidden="true"></i></a>
                                 </div>
@@ -594,7 +594,7 @@
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class$="custom-sized-input {{prefix}}FilterTextInput" id="{{prefix}}GerpInput" name="gerp" on-keyup="updateQueryFilters">
+                                <input type="text" value="" class$="browser-custom-sized-input {{prefix}}FilterTextInput" id="{{prefix}}GerpInput" name="gerp" on-keyup="updateQueryFilters">
                                 <div style="float: right" class="tooltip-div">
                                     <a data-toggle="tooltip" title="Positive scores represent a substitution deficit (i.e., fewer substitutions than the average neutral site) and thus indicate that a site may be under evolutionary constraint. Negative scores indicate that a site is probably evolving neutrally. Some authors suggest that a score threshold of 2 provides high sensitivity while still strongly enriching for truly constrained sites"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
                                 </div>
@@ -619,17 +619,17 @@
                         </h4>
                     </div>
                     <div id="{{prefix}}ConsequenceType" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}consequenceTypeHeading">
-                        <div class="panel-body ct-scroll">
+                        <div class="panel-body browser-ct-scroll">
                             <div class="form-group">
-                                <span class="subsection">Select Loss-of-Function terms</span>
+                                <span class="browser-subsection">Select Loss-of-Function terms</span>
                                 <div>
                                     <input id="{{prefix}}LossOfFunctionCheckBox" type="checkbox" on-change="updateConsequenceTypeFilter" class$="{{prefix}}FilterCheckBox"> LoF terms
                                 </div>
                             </div>
 
                             <div class="form-group">
-                                <span class="subsection">Select consequence type terms</span>
-                                <div class="ct-tree-view ct-item">
+                                <span class="browser-subsection">Select consequence type terms</span>
+                                <div class="browser-ct-tree-view browser-ct-item">
                                     <ul id="{{prefix}}consequenceTypeFilter">
                                         <template is="dom-repeat" items="{{consequenceTypes.categories}}" as="category">
                                             <li id="{{category.title}}">
@@ -686,7 +686,7 @@
                     </div>
                     <div id="{{prefix}}GeneOntology" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}GeneOntologyHeading">
                         <div class="panel-body">
-                            <span class="subsection">GO Accessions</span>
+                            <span class="browser-subsection">GO Accessions</span>
                             <div class="form-group">
                                 <textarea id="{{prefix}}GeneOntologyTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="3"
                                           name="geneOntology" placeholder="GO:0000145" on-keyup="updateQueryFilters"></textarea>
@@ -708,20 +708,20 @@
                     <div id="{{prefix}}Traits" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}TraitsHeading">
                         <div class="panel-body">
                             <div class="form-group">
-                                <span class="subsection">HPO Accessions</span>
+                                <span class="browser-subsection">HPO Accessions</span>
                                 <textarea id="{{prefix}}HumanPhenotypeOntologyTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="3"
                                           name="hpo" placeholder="HP:0000001, HP:3000079" on-keyup="updateQueryFilters"></textarea>
                             </div>
 
                             <!--<br>-->
                             <div class="form-group">
-                                <span class="subsection">ClinVar Accessions</span>
+                                <span class="browser-subsection">ClinVar Accessions</span>
                                 <textarea id="{{prefix}}ClinVarTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="3"
                                           name="clinvar" placeholder="RCV000058226" on-keyup="updateQueryFilters"></textarea>
                             </div>
 
                             <div class="form-group">
-                                <span class="subsection">Full-text search on HPO, ClinVar, protein domains or keywords.
+                                <span class="browser-subsection">Full-text search on HPO, ClinVar, protein domains or keywords.
                                     Some OMIM and Orphanet IDs are also supported (<span style="color: red">New!</span>)
                                 </span>
                                 <textarea id="{{prefix}}TraitsTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="5"
@@ -875,24 +875,19 @@
                 if (typeof family.pedigree.father !== "undefined") {
                     let father = family.pedigree.father;
                     father.role = "father";
-                    father.className = father.affected === true ? "affected" : "";
-//                    if (father.affected) {
-//                        $("#" + this.prefix + father.name + " RowName").addClass("affected");
-//                    } else {
-//                        $("#" + this.prefix + father.name + " RowName").removeClass("affected");
-//                    }
+                    father.className = father.browser-affected === true ? "affected" : "";
                     samples.push(father);
                 }
                 if (typeof family.pedigree.mother !== "undefined") {
                     let mother = family.pedigree.mother;
                     mother.role = "mother";
-                    mother.className = mother.affected === true  ? "affected" : "";
+                    mother.className = mother.browser-affected === true  ? "affected" : "";
                     samples.push(mother);
                 }
 
                 for (let child of family.pedigree.children) {
                     child.role = child.gender === "male" ? "son" : "daughter";
-                    child.className = child.affected === true ? "affected" : "";
+                    child.className = child.browser-affected === true ? "affected" : "";
                     samples.push(child);
                 }
                 this._samples = samples;

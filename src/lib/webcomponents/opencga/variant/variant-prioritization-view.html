@@ -27,13 +27,13 @@
                 background: whitesmoke;
             }
 
-            .variant-menu-link:hover {
+            .prioritization-variant-menu-link:hover {
                 cursor: pointer;
                 background-color: #EEEEEE;
                 text-decoration: none;
             }
 
-            .variant-tab-title {
+            .prioritization-variant-tab-title {
                 font-size: 115%;
                 font-weight: bold;
             }
@@ -66,22 +66,22 @@
                 <div aria-label="...">
                     <span>
                         <i class="fa fa-file-text-o"></i>
-                        <a id="{{prefix}}Files" class="variant-menu-link" data-view="TableResult" on-click="_changeView">TABLE RESULT</a>
+                        <a id="{{prefix}}Files" class="prioritization-variant-menu-link" data-view="TableResult" on-click="_changeView">TABLE RESULT</a>
                     </span>
                     <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
                     <span>
                         <i class="fa fa-user-md"></i>
-                        <a id="{{prefix}}Family" class="variant-menu-link" data-view="ClinicalData" on-click="_changeView">CLINICAL DATA</a>
+                        <a id="{{prefix}}Family" class="prioritization-variant-menu-link" data-view="ClinicalData" on-click="_changeView">CLINICAL DATA</a>
                     </span>
                     <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
                     <span>
                         <i class="fa fa-list-alt"></i>
-                        <a id="{{prefix}}Browser" class="variant-menu-link" data-view="GenomeBrowser" on-click="_changeView">GENOME BROWSER (Beta)</a>
+                        <a id="{{prefix}}Browser" class="prioritization-variant-menu-link" data-view="GenomeBrowser" on-click="_changeView">GENOME BROWSER (Beta)</a>
                     </span>
                     <!--<span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>-->
                     <!--<span>-->
                     <!--<i class="fa fa-save"></i>-->
-                    <!--<a id="{{prefix}}Save" class="variant-menu-link" on-click="_savePrioritization">SAVE</a>-->
+                    <!--<a id="{{prefix}}Save" class="prioritization-variant-menu-link" on-click="_savePrioritization">SAVE</a>-->
                     <!--</span>-->
                 </div>
             </template>
@@ -102,8 +102,8 @@
                         <h3>Variant: {{variant}}</h3>
                         <div style="padding-top: 20px">
                             <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
-                                <li role="presentation" class="active"><a href="#{{prefix}}Annotation" role="tab" data-toggle="tab" class="variant-tab-title">Advanced Annotation</a></li>
-                                <li role="presentation"><a href="#{{prefix}}Beacon" role="tab" data-toggle="tab" class="variant-tab-title">Beacon Network</a></li>
+                                <li role="presentation" class="active"><a href="#{{prefix}}Annotation" role="tab" data-toggle="tab" class="prioritization-variant-tab-title">Advanced Annotation</a></li>
+                                <li role="presentation"><a href="#{{prefix}}Beacon" role="tab" data-toggle="tab" class="prioritization-variant-tab-title">Beacon Network</a></li>
                             </ul>
 
                             <div class="tab-content" style="height: 680px">

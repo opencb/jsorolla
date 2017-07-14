@@ -18,39 +18,17 @@
 <link rel="import" href="opencga-sample-comparator.html">
 <dom-module id="opencga-samples-view">
     <template>
-        <style is="custom-style" include="jso-styles"></style>
 
         <style>
             .container > .row > .table tr.active td {
                 background-color: #1f9cda;
             }
 
-            .filter-button:hover {
-                text-decoration: line-through;
-            }
         </style>
         <br>
         <!--<variant-active-filters opencga-client="{{opencgaClient}}" query="{{filters}}" search="{{search}}"></variant-active-filters>-->
         <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{filters}}" filters="{{config.filters}}"></opencga-active-filters>
 
-        <!--<div class="panel panel-default">-->
-            <!--<div class="panel-body">-->
-                <!--<button type="button" class="btn btn-primary" on-click="clear"><i class="fa fa-refresh" aria-hidden="true" style="padding-right: 5px"></i>-->
-                    <!--Clear-->
-                <!--</button>-->
-
-                <!--<span style="padding: 0px 25px 0px 25px">-->
-                    <!--<template is="dom-if" if="{{filtersEmpty}}">-->
-                        <!--<label>No filters selected</label>-->
-                    <!--</template>-->
-
-                    <!--<template is="dom-repeat" items="{{filtersList}}">-->
-                        <!--<button type="button" class="btn btn-warning btn-sm filter-button" on-click="onFilterDelete" data-filter-category="{{item.category}}"-->
-                                <!--data-filter-name="{{item.name}}" data-filter-value="{{item.text}}">{{item.name}} = {{item.text}}</button>-->
-                    <!--</template>-->
-                <!--</span>-->
-            <!--</div>-->
-        <!--</div>-->
         <table id="samplestable" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
                data-checkbox-header="false" data-maintain-selected="true" style="cursor: pointer;">
             <thead style="background-color: #eee"></thead>
