@@ -20,7 +20,7 @@
 
 <dom-module id="cellbase-variantannotation-view">
     <template>
-        <style is="custom-style" include="jso-styles"></style>
+        <style include="jso-styles"></style>
 
         <div hidden$="{{checkData(data)}}"><h3>Please click on a variant to view annotations</h3></div>
         <div hidden$="{{!checkData(data)}}" style="padding-top: 20px;padding-left: 20px">
@@ -49,7 +49,7 @@
                 </ul>
             </template>
 
-            <div id="{{prefix}}Div">
+            <div id="{{prefix}}Div" class="col-xs-10">
                 <div class="tab-content">
                     <!--Summary Tab-->
                     <div role="tabpanel" class="tab-pane active" id="{{prefix}}VariantAnnotationSummary">
@@ -88,8 +88,7 @@
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    <template is="dom-repeat"
-                                              items="{{variantAnnotation.variantTraitAssociation.clinvar}}">
+                                    <template is="dom-repeat" items="{{variantAnnotation.variantTraitAssociation.clinvar}}">
                                         <tr>
                                             <td>{{item.accession}}</td>
                                             <td>{{item.clinicalSignificance}}</td>
@@ -156,70 +155,93 @@
 
     </template>
     <script>
-        Polymer({
-            is: 'cellbase-variantannotation-view',
+        class VariantAnnotationView extends Polymer.Element {
 
-            properties: {
-                cellbaseClient: {
-                    type: Object
-                },
-                data: {
-                    type: String,
-                    value: "",
-                    observer: '_variantChanged'
-                },
-                variantAnnotation: {
-                    type: Object
-                },
-                consequenceTypes: {
-                    type: Object
-                },
-                proteinSubstitutionScores: {
-                    type: Object
-                },
-                mode: {
-                    type: String,
-                    value: "horizontal"
-                },
-                hashFragmentCredentials: {
-                    type: Object
-                },
-                prefix: {
-                    type: String
+            constructor() {
+                super();
+            }
+
+            static get is() {
+                return "cellbase-variantannotation-view";
+            }
+
+            static get properties() {
+                return {
+                    cellbaseClient: {
+                        type: Object
+                    },
+                    data: {
+                        type: String,
+                        value: "",
+                        observer: '_variantChanged'
+                    },
+                    variantAnnotation: {
+                        type: Object
+                    },
+                    consequenceTypes: {
+                        type: Object
+                    },
+                    proteinSubstitutionScores: {
+                        type: Object
+                    },
+                    mode: {
+                        type: String,
+                        value: "horizontal"
+                    },
+                    hashFragmentCredentials: {
+                        type: Object
+                    },
+                    prefix: {
+                        type: String
+                    }
                 }
+            }
 
-            },
-            ready: function () {
-                if (typeof this.prefix === "undefined" || this.prefix == "") {
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            ready() {
+                super.ready();
+
+                if (typeof this.prefix === "undefined" || this.prefix === "") {
                     this.prefix = "view" + Utils.randomString(6);
                 }
-            },
-            attached: function () {
-                if (this.mode == "vertical") {
+            }
+
+            attached() {
+                if (this.mode === "vertical") {
                     $('#' + this.prefix + 'Div').addClass('col-xs-10');
                 }
-            },
-            checkData: function(data) {
-                return data != "";
-            },
-            check: function (data) {
-                return data.variantTraitAssociation != null;
-            },
-            checkVertical: function (mode) {
-                return this.mode == "vertical";
-            },
-            checkHorizontal: function (mode) {
-                return this.mode == "horizontal";
-            },
-            checkClinvar: function (clinvar) {
+            }
+
+            checkData(data) {
+                return data !== "";
+            }
+
+            check(data) {
+                return data.variantTraitAssociation !== null;
+            }
+
+            checkVertical(mode) {
+                return this.mode === "vertical";
+            }
+
+            checkHorizontal(mode) {
+                return this.mode === "horizontal";
+            }
+
+            checkClinvar(clinvar) {
                 return typeof clinvar !== "undefined" && clinvar.length > 0;
-            },
-            checkCosmic: function (cosmic) {
+            }
+
+            checkCosmic(cosmic) {
                 return typeof cosmic !== "undefined" && cosmic.length > 0;
-            },
-            _variantChanged: function () {
+            }
+
+            _variantChanged() {
                 let _this = this;
-                if (typeof this.cellbaseClient !== "undefined" && this.data != "") {
+                if (typeof this.cellbaseClient !== "undefined" && this.data !== "") {
                     this.cellbaseClient.get('genomic', 'variant', this.data, 'annotation', {}, {})
                         .then(function (response) {
                             _this.variantAnnotation = response.response[0].result[0];
@@ -256,6 +278,8 @@
                         });
                 }
             }
-        });
+        }
+
+        customElements.define(VariantAnnotationView.is, VariantAnnotationView);
     </script>
 </dom-module>

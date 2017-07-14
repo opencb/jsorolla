@@ -164,6 +164,7 @@
                 let getUrlQueryParams = this._getUrlQueryParams();
                 return ">>" + getUrlQueryParams.url;
             }
+
             ready() {
                 super.ready();
 
@@ -176,12 +177,14 @@
 
                 this.analysisMode = "family";
             }
-            attached() {
+
+            connectedCallback() {
                 this.table = $('#' + this.prefix + 'VariantBrowserGrid');
 
                 this.downloadRefreshIcon = $("#" + this.prefix + "DownloadRefresh");
                 this.downloadIcon = $("#" + this.prefix + "DownloadIcon");
             }
+
             assignColors() {
                 if (typeof this.consequenceTypes !== "undefined") {
                     let consequenceTypeToColor = {};
@@ -219,6 +222,7 @@
                 this.from = 1;
                 this.to = 10;
 
+                let _table = $('#' + this.prefix + 'VariantBrowserGrid');
                 let _this = this;
                 if (typeof this.opencgaClient !== "undefined" && this.opencgaClient instanceof OpenCGAClient && typeof
                         this.project !== "undefined" && typeof this.study !== "undefined" && typeof this.study.alias !== "undefined") {
@@ -262,9 +266,10 @@
                         },
                         onLoadSuccess: function (data) {
                             // The first time we mark as selected the first row that is rows[2] since the first two rows are the header
-
-//                            Polymer.dom(_this.root).querySelector(_this.table.selector).rows[2].setAttribute('class', 'success');
-                            _this._onSelectVariant(data.rows[0]);
+                            if (PolymerUtils.isNotUndefinedOrNull(_table)) {
+                                PolymerUtils.querySelector(_table.selector).rows[2].setAttribute('class', 'success');
+                                _this._onSelectVariant(data.rows[0]);
+                            }
                         },
                         onPageChange: function (page, size) {
                             _this.from = (page - 1) * size + 1;
@@ -323,6 +328,7 @@
                     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('showLoading');
                 }
             }
+
             _getUrlQueryParams() {
                 if (typeof this.opencgaClient === "undefined") {
                     return {host: "", queryParams: {}, url: ""};
@@ -392,6 +398,7 @@
             }
             _onSelectVariant(row) {
                 if (typeof row !== "undefined") {
+                    debugger
                     let _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
 //                    this.fire('selectvariant', {id: _variant, variant: row});
                     this.dispatchEvent(new CustomEvent('selectvariant', {detail: {id: _variant, variant: row}}));

@@ -14,9 +14,9 @@
   ~ limitations under the License.
   -->
 
-/*
+<!--
     This Web Component requires lollipop.js from JSorolla, make sure it is added to your index.html
-*/
+-->
 <dom-module id="variant-protein-view">
     <template>
         <style is="custom-style" include="jso-styles"></style>
@@ -60,49 +60,68 @@
     </template>
 
     <script>
-        Polymer({
-            is: 'variant-protein-view',
-            properties: {
-                project: {
-                    type: Object
-                },
-                study: {
-                    type: Object
-                },
-                config: {
-                    type: Object
-                },
-                opencgaClient: {
-                    type: Object
-                },
-                cellbaseClient: {
-                    type: Object
-                },
-                query: {
-                    type: Object
-                },
-                gene: {
-                    type: String,
-                    observer: "_fetchProteins"
-                },
-                // xref ids accept protein ids, transcript ids. Eg: CCDS31418.1,Q9UL59,ENST00000278314
-                ids: {
-                    type: String,
-                    observer: "_fetchProteins"
-                },
-                prefix: {
-                    type: String
+        class VariantProteinView extends Polymer.Element {
+
+            constructor() {
+                super();
+            }
+
+            static get is() {
+                return 'variant-protein-view';
+            }
+
+            static get properties() {
+                return {
+                    project: {
+                        type: Object
+                    },
+                    study: {
+                        type: Object
+                    },
+                    config: {
+                        type: Object
+                    },
+                    opencgaClient: {
+                        type: Object
+                    },
+                    cellbaseClient: {
+                        type: Object
+                    },
+                    query: {
+                        type: Object
+                    },
+                    gene: {
+                        type: String,
+                        observer: "_fetchProteins"
+                    },
+                    // xref ids accept protein ids, transcript ids. Eg: CCDS31418.1,Q9UL59,ENST00000278314
+                    ids: {
+                        type: String,
+                        observer: "_fetchProteins"
+                    },
+                    prefix: {
+                        type: String
+                    }
                 }
-            },
-            ready: function () {
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            ready() {
+                super.ready();
+
                 if (typeof this.prefix === "undefined" || this.prefix === "") {
                     this.prefix = "protein" + Utils.randomString(6);
                 }
-            },
-            checkProteinsAvailable: function (proteins) {
+            }
+
+            checkProteinsAvailable(proteins) {
                 return proteins.length > 0;
-            },
-            _fetchProteins: function () {
+            }
+
+            _fetchProteins() {
                 this.proteins = []; // Reset the previously shown proteins svg
                 if (typeof this.cellbaseClient !== "undefined" && typeof this.opencgaClient !== "undefined") {
                     let _this = this;
@@ -165,7 +184,9 @@
                             console.log(e);
                         });
                 }
-            },
-        });
+            }
+        }
+
+        customElements.define(VariantProteinView.is, VariantProteinView);
     </script>
 </dom-module>

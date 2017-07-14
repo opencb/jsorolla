@@ -14,9 +14,9 @@
   ~ limitations under the License.
   -->
 
-<link rel="import" href="variant-browser-grid.html">
 <link rel="import" href="../opencga-active-filters.html">
-<!--<link rel="import" href="../../cellbase/variation/cellbase-variantannotation-view.html">-->
+<link rel="import" href="variant-browser-grid.html">
+<link rel="import" href="../../cellbase/variation/cellbase-variantannotation-view.html">
 <link rel="import" href="variant-beacon-network.html">
 <link rel="import" href="variant-genome-browser.html">
 
@@ -79,10 +79,10 @@
                             <div class="tab-content" style="height: 680px">
                                 <!--Annotation Tab-->
                                 <div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">
-                                    <!--<cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-client="{{cellbaseClient}}" mode="vertical"-->
-                                    <!--hash-fragment-credentials="{{hashFragmentCredentials}}" consequence-types="{{consequenceTypes}}"-->
-                                    <!--protein-substitution-scores="{{proteinSubstitutionScores}}" style="font-size: 12px">-->
-                                    <!--</cellbase-variantannotation-view>-->
+                                    <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-client="{{cellbaseClient}}" mode="vertical"
+                                                                     hash-fragment-credentials="{{hashFragmentCredentials}}" consequence-types="{{consequenceTypes}}"
+                                                                     protein-substitution-scores="{{proteinSubstitutionScores}}" style="font-size: 12px">
+                                    </cellbase-variantannotation-view>
                                 </div>
 
                                 <!--Genotypes & Files Tab-->
@@ -260,7 +260,7 @@
                     variantStudies: {
                         type: Array,
                         value: [],
-//                    observer: "variantStudiesChanged"
+                        observer: "variantStudiesChanged"
                     },
                     prefix: {
                         type: String
@@ -280,17 +280,16 @@
                 this.summary = true;
             }
 
-//            observers: [
-//                'projectStudyObtained(project, study)'
-//            ],
             static get observers() {
                 return [
                     'projectStudyObtained(project, study)'
                 ]
             }
+
             _attachDom(dom) {
                 this.appendChild(dom);
             }
+
             ready() {
                 super.ready();
 
@@ -332,21 +331,26 @@
                     };
                 }
             }
+
             checkVariant(variant) {
                 return variant.split(':').length > 2;
             }
+
             onSelectVariant(e) {
                 this.variant = e.detail.id;
 //                this.V = e.detail.variant;
 //                this.display3D();
             }
+
             selectedGene(e) {
 //                this.fire('propagate', {gene: e.detail.gene});
                 this.dispatchEvent(new CustomEvent('propagate', {gene: e.detail.gene}));
             }
+
             checkStatsAvailable(stats) {
                 return stats.length > 0;
             }
+
             variantChanged(e) {
                 if (this.variant.split(':').length > 2) {
                     let [chromosome, start, ref, alt] = this.variant.split(":");
@@ -398,7 +402,11 @@
                                     _variantStudies[i].stats = statsArray;
                                 }
                                 _this.variantStudies = _variantStudies;
+                                debugger
                             }
+                        })
+                        .catch(function(reason) {
+                            console.error(reason)
                         });
                 }
             }
@@ -512,17 +520,21 @@
                     }
                 }
             }
+
             getStudy(study) {
                 let fields = study.split(':');
                 return study.split(':')[fields.length - 1];
             }
+
             checkForGenotypes(stat) {
                 let genotypesCount = stat.value.genotypesCount;
                 return Object.keys(genotypesCount).length > 0;
             }
+
             checkForSampleData(samplesData) {
                 return samplesData.length > 0;
             }
+
             handleCollapseAction(e) {
                 let id = e.target.dataId;
                 let elem = $('#' + id)[0];
@@ -533,6 +545,7 @@
                     e.target.className = "fa fa-minus-circle";
                 }
             }
+
             _changeView(e) {
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
                 $('.variant-browser-content').hide(); // hides all content divs

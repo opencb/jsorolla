@@ -1,6 +1,6 @@
 <dom-module id="cellbase-population-frequency-grid">
     <template>
-        <style is="custom-style" include="jso-styles"></style>
+        <style include="jso-styles"></style>
 
         <div style="padding: 10px; ">
             <table id="{{prefix}}populationFreqTable" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[5, 15, 30]"
@@ -12,19 +12,30 @@
     </template>
 
     <script>
-        Polymer({
-            is: 'cellbase-population-frequency-grid',
-            properties: {
-                data: {
-                    type: Array,
-                    value: [],
-                    observer: 'render'
-                },
-                prefix: {
-                    type: String
+        class PopulationFrequencyGrid extends Polymer.Element {
+
+            constructor() {
+                super();
+            }
+
+            static get is() {
+                return "cellbase-population-frequency-grid";
+            }
+
+            static get properties() {
+                return {
+                    data: {
+                        type: Array,
+                        value: [],
+                        observer: 'render'
+                    },
+                    prefix: {
+                        type: String
+                    }
                 }
-            },
-            render: function () {
+            }
+
+            render() {
                 let popArray = [];
                 let mafArray = [];
                 if (typeof this.data !== "undefined") {
@@ -123,17 +134,21 @@
                         ]
                     ]
                 });
-            },
-            alleleFormatter: function (value, row, index) {
+            }
+
+            alleleFormatter(value, row, index) {
                 return row.refAllele + "/" + row.altAllele;
-            },
-            numFormatter: function (value, row, index) {
-                if (this.field == 'refAlleleFreq') {
+            }
+
+            numFormatter(value, row, index) {
+                if (this.field === "refAlleleFreq") {
                     return Number(row.refAlleleFreq).toFixed(3);
-                } else if (this.field == 'altAlleleFreq') {
+                } else if (this.field === "altAlleleFreq") {
                     return Number(row.altAlleleFreq).toFixed(3);
                 }
             }
-        });
+        }
+
+        customElements.define(PopulationFrequencyGrid.is, PopulationFrequencyGrid);
     </script>
 </dom-module>

@@ -14,9 +14,9 @@
   ~ limitations under the License.
   -->
 
-<link rel="import" href="variant-browser-grid.html">
 <link rel="import" href="../opencga-active-filters.html">
-<!--<link rel="import" href="../../cellbase/variation/cellbase-variantannotation-view.html">-->
+<link rel="import" href="variant-browser-grid.html">
+<link rel="import" href="../../cellbase/variation/cellbase-variantannotation-view.html">
 <link rel="import" href="variant-beacon-network.html">
 <link rel="import" href="variant-genome-browser.html">
 
@@ -109,10 +109,10 @@
                             <div class="tab-content" style="height: 680px">
                                 <!--Annotation Tab-->
                                 <div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">
-                                    <!--<cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-client="{{cellbaseClient}}" mode="vertical"-->
-                                    <!--hash-fragment-credentials="{{hashFragmentCredentials}}" consequence-types="{{consequenceTypes}}"-->
-                                    <!--protein-substitution-scores="{{proteinSubstitutionScores}}" style="font-size: 12px">-->
-                                    <!--</cellbase-variantannotation-view>-->
+                                    <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-client="{{cellbaseClient}}" mode="vertical"
+                                                                     hash-fragment-credentials="{{hashFragmentCredentials}}" consequence-types="{{consequenceTypes}}"
+                                                                     protein-substitution-scores="{{proteinSubstitutionScores}}" style="font-size: 12px">
+                                    </cellbase-variantannotation-view>
                                 </div>
 
                                 <!--Beacon network-->

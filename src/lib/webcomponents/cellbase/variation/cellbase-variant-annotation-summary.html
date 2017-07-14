@@ -1,8 +1,7 @@
 
 <dom-module id="cellbase-variant-annotation-summary">
     <template>
-        <style is="custom-style" include="jso-styles"></style>
-        <style>
+        <style include="jso-styles">
             div.block {
                 overflow:hidden;
             }
@@ -64,13 +63,13 @@
                     <!--Sift-->
                     <label style="width:10%">Sift</label>
                     <span id="{{prefix}}Sift" title="{{proteinSubScore.sift.score}}">{{proteinSubScore.sift.description}}</span>
-                        <template is="dom-if" if="{{isTranscriptAvailable(proteinSubScore.sift.transcript)}}">(<b>Gene:</b>{{proteinSubScore.sift.gene}}, <b>Transcript: </b>{{proteinSubScore.sift.transcript}})</template>
+                    <template is="dom-if" if="{{isTranscriptAvailable(proteinSubScore.sift.transcript)}}">(<b>Gene:</b>{{proteinSubScore.sift.gene}}, <b>Transcript: </b>{{proteinSubScore.sift.transcript}})</template>
                     <br>
 
                     <!--Polyphen-->
                     <label style="width:10%">Polyphen</label>
                     <span id="{{prefix}}Polyphen" title="{{proteinSubScore.polyphen.score}}">{{proteinSubScore.polyphen.description}}</span>
-                        <template is="dom-if" if="{{isTranscriptAvailable(proteinSubScore.polyphen.transcript)}}">(<b>Gene:</b>{{proteinSubScore.polyphen.gene}}, <b>Transcript: </b>{{proteinSubScore.polyphen.transcript}})</template>
+                    <template is="dom-if" if="{{isTranscriptAvailable(proteinSubScore.polyphen.transcript)}}">(<b>Gene:</b>{{proteinSubScore.polyphen.gene}}, <b>Transcript: </b>{{proteinSubScore.polyphen.transcript}})</template>
                     <br>
 
                     <!--CADD-->
@@ -82,96 +81,116 @@
 
 
             <!--<div class="block">-->
-                <!--<label class="align-left">Variant Trait Association</label>-->
-                <!--<div class="align-right">-->
-                    <!--<template is="dom-repeat" items="{{vta}}">-->
-                        <!--<label>{{item.source}}</label><br>-->
-                        <!--<template is="dom-repeat" items="{{item.traits}}" as="trait">-->
-                            <!--{{trait}} <br>-->
-                        <!--</template>-->
-                    <!--</template>-->
-                <!--</div> <br>-->
+            <!--<label class="align-left">Variant Trait Association</label>-->
+            <!--<div class="align-right">-->
+            <!--<template is="dom-repeat" items="{{vta}}">-->
+            <!--<label>{{item.source}}</label><br>-->
+            <!--<template is="dom-repeat" items="{{item.traits}}" as="trait">-->
+            <!--{{trait}} <br>-->
+            <!--</template>-->
+            <!--</template>-->
+            <!--</div> <br>-->
             <!--</div>-->
 
             <!--<div class="block">-->
-                <!--<label class="align-left">Gene Trait Association</label>-->
-                <!--<div class="align-right">This variant has <b>{{numberGTA}}</b> gene traits</div> <br>-->
+            <!--<label class="align-left">Gene Trait Association</label>-->
+            <!--<div class="align-right">This variant has <b>{{numberGTA}}</b> gene traits</div> <br>-->
             <!--</div>-->
 
             <!--<div class="block">-->
-                <!--<label class="align-left">Scores</label>-->
-                <!--<div>-->
-                    <!--<div>-->
-                        <!--<label style="width: 23%;display:block;float:left;text-align:left;">Protein Substitution Score</label>-->
-                        <!--<label style="width: 23%;display:block;float:left;text-align:left;">Conservation</label>-->
-                        <!--<label style="width: 23%;display:block;float:left;text-align:left;">Cadd</label> <br>-->
-                    <!--</div>-->
+            <!--<label class="align-left">Scores</label>-->
+            <!--<div>-->
+            <!--<div>-->
+            <!--<label style="width: 23%;display:block;float:left;text-align:left;">Protein Substitution Score</label>-->
+            <!--<label style="width: 23%;display:block;float:left;text-align:left;">Conservation</label>-->
+            <!--<label style="width: 23%;display:block;float:left;text-align:left;">Cadd</label> <br>-->
+            <!--</div>-->
 
-                    <!--<div style="margin-left: 20%;width: 23%;display:block;float:left;text-align:left;">-->
-                        <!--<div style="width: 30%;display:block;float:left;text-align:left;">Sift</div>-->
-                        <!--<div style="width: 50%;display:block;float:left;text-align:left;">{{proteinSubScore.sift.score}}-->
-                            <!--<template is="dom-if" if="{{isTranscriptAvailable(proteinSubScore.sift.transcript)}}">({{proteinSubScore.sift.transcript}})</template>-->
-                        <!--</div> <br>-->
-                        <!--<div style="width: 30%;display:block;float:left;text-align:left;">Polyphen</div>-->
-                        <!--<div style="width: 50%;display:block;float:left;text-align:left;">{{proteinSubScore.polyphen.score}}-->
-                            <!--<template is="dom-if" if="{{isTranscriptAvailable(proteinSubScore.polyphen.transcript)}}">({{proteinSubScore.polyphen.transcript}})</template>-->
-                        <!--</div> <br>-->
-                    <!--</div>-->
+            <!--<div style="margin-left: 20%;width: 23%;display:block;float:left;text-align:left;">-->
+            <!--<div style="width: 30%;display:block;float:left;text-align:left;">Sift</div>-->
+            <!--<div style="width: 50%;display:block;float:left;text-align:left;">{{proteinSubScore.sift.score}}-->
+            <!--<template is="dom-if" if="{{isTranscriptAvailable(proteinSubScore.sift.transcript)}}">({{proteinSubScore.sift.transcript}})</template>-->
+            <!--</div> <br>-->
+            <!--<div style="width: 30%;display:block;float:left;text-align:left;">Polyphen</div>-->
+            <!--<div style="width: 50%;display:block;float:left;text-align:left;">{{proteinSubScore.polyphen.score}}-->
+            <!--<template is="dom-if" if="{{isTranscriptAvailable(proteinSubScore.polyphen.transcript)}}">({{proteinSubScore.polyphen.transcript}})</template>-->
+            <!--</div> <br>-->
+            <!--</div>-->
 
-                    <!--<div style="width: 23%;display:block;float:left;text-align:left;">-->
-                        <!--<template is="dom-repeat" items="{{conservation}}">-->
-                            <!--<div style="width: 30%;display:block;float:left;text-align:left;">{{item.source}}</div>-->
-                            <!--<div style="width: 50%;display:block;float:left;text-align:left;">{{item.score}}</div> <br>-->
-                        <!--</template>-->
-                    <!--</div>-->
+            <!--<div style="width: 23%;display:block;float:left;text-align:left;">-->
+            <!--<template is="dom-repeat" items="{{conservation}}">-->
+            <!--<div style="width: 30%;display:block;float:left;text-align:left;">{{item.source}}</div>-->
+            <!--<div style="width: 50%;display:block;float:left;text-align:left;">{{item.score}}</div> <br>-->
+            <!--</template>-->
+            <!--</div>-->
 
-                    <!--<div style="width: 23%;display:block;float:left;text-align:left;">-->
-                        <!--<template is="dom-repeat" items="{{functionalScore}}">-->
-                            <!--<div style="width: 35%;display:block;float:left;text-align:left;">{{item.source}}</div>-->
-                            <!--<div style="width: 50%;display:block;float:left;text-align:left;">{{item.score}}</div> <br>-->
-                        <!--</template>-->
-                    <!--</div>-->
-                <!--</div>-->
+            <!--<div style="width: 23%;display:block;float:left;text-align:left;">-->
+            <!--<template is="dom-repeat" items="{{functionalScore}}">-->
+            <!--<div style="width: 35%;display:block;float:left;text-align:left;">{{item.source}}</div>-->
+            <!--<div style="width: 50%;display:block;float:left;text-align:left;">{{item.score}}</div> <br>-->
+            <!--</template>-->
+            <!--</div>-->
+            <!--</div>-->
             <!--</div>-->
         </div>
         <div id="{{prefix}}Traits"></div>
     </template>
     <script>
-        Polymer({
-            is: 'cellbase-variant-annotation-summary',
-            properties: {
-                data: {
-                    type: Object,
-                    value: {},
-                    observer: 'variantAnnotationChanged'
-                },
-                consequenceTypes: {
-                    type: Object,
-                    observer: 'setColors'
-                },
-                proteinSubstitutionScores: {
-                    type: Object,
-                    observer: 'setColors'
-                },
-                minimumFreq: {
-                    type: Array
-                },
-                prefix: {
-                    type: String
+        class VariantAnnotationSummary extends Polymer.Element {
+
+            constructor() {
+                super();
+            }
+
+            static get is() {
+                return "cellbase-variant-annotation-summary";
+            }
+
+            static get properties() {
+                return {
+                    data: {
+                        type: Object,
+                        value: {},
+                        observer: 'variantAnnotationChanged'
+                    },
+                    consequenceTypes: {
+                        type: Object,
+                        observer: 'setColors'
+                    },
+                    proteinSubstitutionScores: {
+                        type: Object,
+                        observer: 'setColors'
+                    },
+                    minimumFreq: {
+                        type: Array
+                    },
+                    prefix: {
+                        type: String
+                    }
                 }
-            },
-            ready: function () {
-                if (typeof this.prefix === "undefined" || this.prefix == "") {
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            ready() {
+                super.ready();
+
+                if (typeof this.prefix === "undefined" || this.prefix === "") {
                     this.prefix = "annotation" + Utils.randomString(6);
                 }
-            },
-            isTranscriptAvailable: function(item) {
-                return item != "";
-            },
-            isDataEmpty: function (data) {
+            }
+
+            isTranscriptAvailable(item) {
+                return item !== "";
+            }
+
+            isDataEmpty(data) {
                 return typeof data === "undefined";
-            },
-            setColors: function () {
+            }
+
+            setColors() {
                 if (typeof this.consequenceTypes !== "undefined") {
                     let consequenceTypeToColor = {};
                     for (let i = 0; i < this.consequenceTypes.categories.length; i++) {
@@ -196,8 +215,9 @@
                     }
                     this.pssColor = pssColor;
                 }
-            },
-            variantAnnotationChanged: function(neo, old) {
+            }
+
+            variantAnnotationChanged(neo, old) {
                 let _this = this;
 
                 if (typeof _this.data !== "undefined") {
@@ -262,13 +282,13 @@
                                 let scores = _this.data.consequenceTypes[i].proteinVariantAnnotation.substitutionScores;
                                 if (typeof scores !== "undefined") {
                                     for (let j = 0; j < scores.length; j++) {
-                                        if (scores[j].source == "sift" && scores[j].score <= min) {
+                                        if (scores[j].source === "sift" && scores[j].score <= min) {
                                             min = scores[j].score;
                                             proteinSubScore.sift = {score: scores[j].score, description: scores[j].description, gene: gene, transcript: transcript};
                                             if (typeof _this.pssColor !== "undefined" && typeof _this.pssColor.get(scores[j].description) !== "undefined") {
                                                 $('#' + _this.prefix + "Sift").css('color', _this.pssColor.get(scores[j].description));
                                             }
-                                        } else if (scores[j].source == "polyphen" && scores[j].score >= max) {
+                                        } else if (scores[j].source === "polyphen" && scores[j].score >= max) {
                                             max = scores[j].score;
                                             proteinSubScore.polyphen = {score: scores[j].score, description: scores[j].description, gene: gene, transcript: transcript};
                                             if (typeof _this.pssColor !== "undefined" && typeof _this.pssColor.get(scores[j].description) !== "undefined") {
@@ -280,7 +300,7 @@
                             }
                         }
                     }
-                    if (Object.keys(proteinSubScore).length == 0 && proteinSubScore.constructor === Object) {
+                    if (Object.keys(proteinSubScore).length === 0 && proteinSubScore.constructor === Object) {
                         proteinSubScore.sift = {score: "NA", description: "NA", transcript: ""};
                         proteinSubScore.polyphen = {score: "NA", description: "NA", transcript: ""};
                         $('#' + _this.prefix + "Sift").css('color', 'black');
@@ -383,8 +403,10 @@
 //                            }
 //                            ]
 //                        });
-                    }
+                }
             }
-        });
+        }
+
+        customElements.define(VariantAnnotationSummary.is, VariantAnnotationSummary);
     </script>
 </dom-module>

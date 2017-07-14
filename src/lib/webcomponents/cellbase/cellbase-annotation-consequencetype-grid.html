@@ -1,7 +1,7 @@
 
 <dom-module id="cellbase-annotation-consequencetype-grid">
     <template>
-        <style is="custom-style" include="jso-styles"></style>
+        <style include="jso-styles"></style>
 
         <div style="padding: 10px; ">
             <table id="{{prefix}}ConsequenceTypeTable" data-search="true" data-show-columns="true" data-pagination="true"
@@ -10,27 +10,51 @@
             </table>
         </div>
     </template>
+
     <script>
-        Polymer({
-            is: 'cellbase-annotation-consequencetype-grid',
-            properties: {
-                data: {
-                    type: Array,
-                    value: [],
-                    observer: 'render'
-                },
-                prefix: {
-                    type: String
-                },
-                consequenceTypes: {
-                    type: Object,
-                    observer: 'assignColors'
-                },
-                hashFragmentCredentials: {
-                    type: Object
+        class AnnotationConsequencetypeGrid extends Polymer.Element {
+
+            constructor() {
+                super();
+            }
+
+            static get is() {
+                return "cellbase-annotation-consequencetype-grid";
+            }
+
+            static get properties() {
+                return {
+                    data: {
+                        type: Array,
+                        value: [],
+                        observer: 'render'
+                    },
+                    consequenceTypes: {
+                        type: Object,
+                        observer: 'assignColors'
+                    },
+                    hashFragmentCredentials: {
+                        type: Object
+                    },
+                    prefix: {
+                        type: String
+                    }
                 }
-            },
-            assignColors: function () {
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            ready() {
+                super.ready();
+
+                if (typeof this.prefix === "undefined" || this.prefix === "") {
+                    this.prefix = "annotconsqgrid" + Utils.randomString(6);
+                }
+            }
+
+            assignColors() {
                 if (typeof this.consequenceTypes !== "undefined") {
                     let consequenceTypeToColor = {};
                     let consequenceTypeToImpact = {};
@@ -46,8 +70,9 @@
                     this.consequenceTypeToColor = consequenceTypeToColor;
                 }
                 this.render();
-            },
-            render: function () {
+            }
+
+            render() {
                 $('#' + this.prefix + 'ConsequenceTypeTable').bootstrapTable('destroy');
                 $('#' + this.prefix + 'ConsequenceTypeTable').bootstrapTable({
                     data: this.data,
@@ -137,21 +162,23 @@
                         ]
                     ]
                 });
-            },
-            uniprotAccessionFormatter: function (value, row, index) {
+            }
+
+            uniprotAccessionFormatter(value, row, index) {
                 if (typeof row.proteinVariantAnnotation !== 'undefined' && typeof row.proteinVariantAnnotation.uniprotAccession !== 'undefined') {
                     if (typeof this.field.context.hashFragmentCredentials !== "undefined") {
                         return '<a href="#protein/' + this.field.context.hashFragmentCredentials.project + '/' + this.field.context.hashFragmentCredentials.study + '/' +
                             row.proteinVariantAnnotation.uniprotAccession + '">' + row.proteinVariantAnnotation.uniprotAccession + '</a>';
                     } else {
                         return '<a href="http://www.uniprot.org/uniprot/' + row.proteinVariantAnnotation.uniprotAccession + '">' + row.proteinVariantAnnotation.uniprotAccession
-                           + '</a>';
+                            + '</a>';
                     }
                 } else {
                     return '-';
                 }
-            },
-            seqOntologyFormatter: function (value, row, index) {
+            }
+
+            seqOntologyFormatter(value, row, index) {
                 let soTerm = row.sequenceOntologyTerms[0];
                 if (typeof this.field.context.consequenceTypeToColor !== "undefined" && typeof this.field.context.consequenceTypeToColor[soTerm.name] !== "undefined") {
                     return '<span style="color: ' + this.field.context.consequenceTypeToColor[soTerm.name] + '">' + soTerm.name + '</span>&nbsp;'
@@ -159,17 +186,18 @@
                 } else {
                     return soTerm.name + '&nbsp;(<a target="_blank" href="http://www.sequenceontology.org/browser/current_svn/term/' + soTerm.accession + '">' + soTerm.accession + '</a>)';
                 }
-            },
-            proteinAlleleFormatter: function (value, row, index) {
+            }
+
+            proteinAlleleFormatter(value, row, index) {
                 if (typeof row.proteinVariantAnnotation !== 'undefined' && typeof row.proteinVariantAnnotation.reference !== 'undefined'
-                && typeof row.proteinVariantAnnotation.alternate !== 'undefined') {
+                    && typeof row.proteinVariantAnnotation.alternate !== 'undefined') {
                     return row.proteinVariantAnnotation.reference + "/" + row.proteinVariantAnnotation.alternate;
                 } else {
                     return '-';
                 }
-            },
+            }
 
-            detailFormatter: function (index, row) {
+            detailFormatter(index, row) {
                 if (row.biotype == "protein_coding") {
                     if (typeof row.proteinVariantAnnotation !== 'undefined') {
                         if (typeof row.proteinVariantAnnotation.uniprotVariantId !== 'undefined') {
@@ -183,7 +211,7 @@
                                     features[i].type = features[i].type || '-';
                                     features[i].description = features[i].description || '-';
                                     xxx.push('<span> ID: ' + features[i].id + ', Start:' + features[i].start + ', End:' + features[i].end +
-                                            ', Type:' + features[i].type + ', Description:' + features[i].description + ' </span> <br>');
+                                        ', Type:' + features[i].type + ', Description:' + features[i].description + ' </span> <br>');
                                 }
                                 result = xxx.join('');
                             } else {
@@ -191,8 +219,8 @@
                             }
 
                             html.push('<b>Uniprot Variant ID:</b> ' + row.proteinVariantAnnotation.uniprotVariantId +
-                                    '<br> <b>Keywords:</b> ' + row.proteinVariantAnnotation.keywords +
-                                    '<br> <b>Features:</b><br> ' + result);
+                                '<br> <b>Keywords:</b> ' + row.proteinVariantAnnotation.keywords +
+                                '<br> <b>Features:</b><br> ' + result);
                             return html.join('');
                         } else {
                             return "No Uniprot Data Available";
@@ -205,8 +233,9 @@
                     return '-';
                 }
 
-            },
-            siftScoreFormatter: function (value, row, index) {
+            }
+
+            siftScoreFormatter(value, row, index) {
                 if (typeof row.proteinVariantAnnotation !== 'undefined') {
                     let sub = row.proteinVariantAnnotation.substitutionScores;
                     for (let i in sub) {
@@ -217,8 +246,9 @@
                 } else {
                     return '-';
                 }
-            },
-            polyphenScoreFormatter: function (value, row, index) {
+            }
+
+            polyphenScoreFormatter(value, row, index) {
                 if (typeof row.proteinVariantAnnotation !== 'undefined') {
                     let sub = row.proteinVariantAnnotation.substitutionScores;
                     for (let i in sub) {
@@ -229,8 +259,9 @@
                 } else {
                     return '-';
                 }
-            },
-            siftCellStyle: function (value, row, index) {
+            }
+
+            siftCellStyle(value, row, index) {
                 if (typeof row.proteinVariantAnnotation !== 'undefined') {
                     if (typeof row.proteinVariantAnnotation.substitutionScores !== 'undefined') {
                         let sift = row.proteinVariantAnnotation.substitutionScores[0];
@@ -253,8 +284,8 @@
                     }
                 }
                 return {};
-            },
-            polyphenCellStyle: function (value, row, index) {
+            }
+            polyphenCellStyle(value, row, index) {
                 if (typeof row.proteinVariantAnnotation !== 'undefined') {
                     if (typeof row.proteinVariantAnnotation.substitutionScores !== 'undefined') {
                         let polyphen = row.proteinVariantAnnotation.substitutionScores[1];
@@ -290,6 +321,8 @@
                 }
                 return {};
             }
-        });
+        }
+
+        customElements.define(AnnotationConsequencetypeGrid.is, AnnotationConsequencetypeGrid);
     </script>
 </dom-module>
