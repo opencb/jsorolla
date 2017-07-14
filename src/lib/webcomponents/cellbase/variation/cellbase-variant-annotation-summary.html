@@ -24,7 +24,7 @@
                 <label class="align-left">ID</label>
                 <div class="align-right"><a target="_blank" href="http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v={{data.id}}">{{data.id}}</a></div> <br>
             </div>
-            <div class="block" hidden="{{isDataEmpty(data.hgvs)}}">
+            <div class="block" hidden$="{{isDataEmpty(data.hgvs)}}">
                 <label class="align-left">HGVS</label>
                 <div class="align-right">
                     <template is="dom-repeat" items="{{data.hgvs}}">
@@ -39,37 +39,41 @@
             <div class="block">
                 <label class="align-left">Location</label>
                 <div class="align-right"><a target="_blank" href="http://genomemaps.org/?region={{data.chromosome}}:{{data.start}}">
-                    {{data.chromosome}}:{{data.start}}<div hidden="{{isDataEmpty(data.end)}}">-{{data.end}}</div></a></div> <br>
+                    {{data.chromosome}}:{{data.start}}<div hidden$="{{isDataEmpty(data.end)}}">-{{data.end}}</div></a></div> <br>
             </div>
-            <div class="block" hidden="{{isDataEmpty(data.type)}}">
+            <div class="block" hidden$="{{isDataEmpty(data.type)}}">
                 <label class="align-left">Type</label>
                 <div class="align-right">{{data.type}}</div> <br>
             </div>
-            <div class="block" hidden="{{isDataEmpty(data.ancestralAllele)}}">
+            <div class="block" hidden$="{{isDataEmpty(data.ancestralAllele)}}">
                 <label class="align-left">Ancestral Allele</label>
                 <div class="align-right">{{data.ancestralAllele}}</div> <br>
             </div>
-            <div class="block" hidden="{{isDataEmpty(data.minorAlleleFreq)}}">
+            <div class="block" hidden$="{{isDataEmpty(data.minorAlleleFreq)}}">
                 <label class="align-left">MAF</label>
                 <div class="align-right">{{data.minorAlleleFreq}} ({{data.minorAllele}})</div> <br>
             </div>
             <div class="block">
                 <label class="align-left">Most Severe Consequence Type</label>
-                <div class="align-right"><span id="{{prefix}}CT">{{data.displayConsequenceType}}</span> <span hidden="{{isDataEmpty(ctGene)}}">(<b>Gene</b> : {{ctGene}}, <b>Transcript</b> : {{ctTranscript}})</span></div> <br>
+                <div class="align-right"><span id="{{prefix}}CT">{{data.displayConsequenceType}}</span> <span hidden$="{{isDataEmpty(ctGene)}}">(<b>Gene</b> : {{ctGene}}, <b>Transcript</b> : {{ctTranscript}})</span></div> <br>
             </div>
             <div class="block">
                 <label class="align-left">Most Severe Deleterious Score</label>
                 <div class="align-right">
-                    <!--Sift-->
+                    <!-- Sift -->
                     <label style="width:10%">Sift</label>
                     <span id="{{prefix}}Sift" title="{{proteinSubScore.sift.score}}">{{proteinSubScore.sift.description}}</span>
-                    <template is="dom-if" if="{{isTranscriptAvailable(proteinSubScore.sift.transcript)}}">(<b>Gene:</b>{{proteinSubScore.sift.gene}}, <b>Transcript: </b>{{proteinSubScore.sift.transcript}})</template>
+                    <template is="dom-if" if="{{isTranscriptAvailable(proteinSubScore.sift.transcript)}}">
+                        (<b>Gene:</b>{{proteinSubScore.sift.gene}}, <b>Transcript: </b>{{proteinSubScore.sift.transcript}})
+                    </template>
                     <br>
 
-                    <!--Polyphen-->
+                    <!-- Polyphen -->
                     <label style="width:10%">Polyphen</label>
                     <span id="{{prefix}}Polyphen" title="{{proteinSubScore.polyphen.score}}">{{proteinSubScore.polyphen.description}}</span>
-                    <template is="dom-if" if="{{isTranscriptAvailable(proteinSubScore.polyphen.transcript)}}">(<b>Gene:</b>{{proteinSubScore.polyphen.gene}}, <b>Transcript: </b>{{proteinSubScore.polyphen.transcript}})</template>
+                    <template is="dom-if" if="{{isTranscriptAvailable(proteinSubScore.polyphen.transcript)}}">
+                        (<b>Gene:</b>{{proteinSubScore.polyphen.gene}}, <b>Transcript: </b>{{proteinSubScore.polyphen.transcript}})
+                    </template>
                     <br>
 
                     <!--CADD-->
