@@ -363,6 +363,7 @@
 
                 if (typeof this.samples !== "undefined" && this.samples.length > 0) {
                     let sampleNames = [];
+                    let sampleIdx = {};
                     for (sampleIdx in this.samples) {
                         sampleNames.push(this.samples[sampleIdx].name);
                     }
@@ -1138,7 +1139,7 @@
             _saveLink() {
                 let saveObject = {query: this.search, variants: $('#' + this.prefix + 'VariantBrowserGrid').bootstrapTable('getAllSelections')};
 //                this.fire("save", saveObject);
-                this.dispatchEvent(new CustomEvent("save", {detail: saveObject}));
+                this.dispatchEvent(new CustomEvent("save", {detail: saveObject, bubbles: true, composed: true}));
             }
         }
 

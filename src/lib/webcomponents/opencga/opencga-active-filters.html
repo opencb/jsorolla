@@ -17,7 +17,7 @@
 <dom-module id="opencga-active-filters">
     <template>
         <style>
-            .filter-button:hover {
+            .active-filter-button:hover {
                 text-decoration: line-through;
             }
         </style>
@@ -41,7 +41,7 @@
 
                     <template is="dom-repeat" items="{{queryList}}">
                         <template is="dom-if" if="{{!_isMultiValued(item)}}">
-                            <button type="button" class="btn btn-warning btn-sm filter-button"
+                            <button type="button" class="btn btn-warning btn-sm active-filter-button"
                                     data-filter-name="{{item.name}}" data-filter-value=""
                                     on-click="onQueryFilterDelete">
                                 {{item.text}}
@@ -50,7 +50,7 @@
 
                         <template is="dom-if" if="{{_isMultiValued(item)}}">
                             <div class="btn-group">
-                                <button type="button" class="btn btn-warning btn-sm filter-button"
+                                <button type="button" class="btn btn-warning btn-sm active-filter-button"
                                         data-filter-name="{{item.name}}" data-filter-value=""
                                         on-click="onQueryFilterDelete">
                                     {{item.text}}
@@ -62,7 +62,7 @@
                                 </button>
                                 <ul class="dropdown-menu">
                                     <template is="dom-repeat" items="{{item.items}}" as="filterItem">
-                                        <li class="small filter-button" style="cursor: pointer">
+                                        <li class="small active-filter-button" style="cursor: pointer">
                                             <a on-click="onQueryFilterDelete" data-filter-name="{{item.name}}"
                                                data-filter-value="{{filterItem}}">{{filterItem}}</a>
                                         </li>

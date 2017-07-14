@@ -22,9 +22,6 @@
 
 <dom-module id="variant-clinical-samples">
     <template>
-
-        <!--<h3><i class="fa fa-sitemap" aria-hidden="true"></i>&nbsp;Family Selector</h3>-->
-
         <div class="panel">
             <div class="col-md-2">
                 <opencga-sample-filter study="{{study}}" config="{{config}}" samples="{{samples}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
@@ -181,15 +178,12 @@
                     }
                 }
             }
-
             constructor() {
                 super();
             }
-
             _attachDom(dom) {
                 this.appendChild(dom);
             }
-
             ready() {
                 super.ready();
                 if (PolymerUtils.isEmpty(this.prefix )) {
@@ -204,7 +198,6 @@
 
                 this.fixedFilters = ["studies"];
             }
-
             renderAnalysisTable() {
                 let _this = this;
                 $(PolymerUtils.getElementById(this.prefix + "tableAnalysis")).bootstrapTable('destroy');
@@ -236,7 +229,6 @@
                 });
 
             }
-
             connectedCallback () {
                 super.connectedCallback();
                 this.table = PolymerUtils.getElementById(this.prefix + "FamilySelector");
@@ -248,7 +240,6 @@
             onFilterUpdate() {
                 this.updateForms(this.filters);
             }
-
             updateForms(filters) {
                 // This is just to avoid entering here when it has just been initialized
                 if (this.prefix === undefined) {
@@ -268,7 +259,6 @@
                 if (this.filteredVariables.variables.length > 0) {
                     if (!filters.hasOwnProperty("annotation")) {
                         this.set("filteredVariables.variables", []);
-
                     } else if (filters.annotation.length < this.filteredVariables.variables.length) {
                         let tmpVariables = [];
                         filters.annotation.forEach(function (variable) {
@@ -277,9 +267,7 @@
 
                         this.set("filteredVariables.variables", tmpVariables);
                     }
-
                 }
-
             }
             /**
              * Read from the values in the forms, and sets the filters.
@@ -288,7 +276,6 @@
                 let filters = {};
                 let sampleName = "";
                 let individual = "";
-
 
                 if (PolymerUtils.getElementById(this.prefix + "NameTextarea") !== null) {
                     sampleName = PolymerUtils.setPropertyById(this.prefix + "NameTextarea", "value", "");
@@ -315,7 +302,6 @@
                 }
                 this.filters = filters;
             }
-
             onSearch() {
                 // Convert the filters to an objectParam that can be directly send to the sample search
                 let filterParams = {};
@@ -349,10 +335,8 @@
                     // Add the variable set whose annotations will be queried
                     filterParams["variableSetId"] = this.filteredVariables.variableSet;
                 }
-
                 this.search = filterParams;
             }
-
             addAnalysis(e) {
 
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
@@ -437,11 +421,8 @@
 
                     this.analysisChanged++;
                     this.unsavedAnalysis++;
-
                 }
-
             }
-
             deleteAnalysis(e) {
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
                 let ids = $.map($(PolymerUtils.getElementById(this.prefix + 'tableAnalysis')).bootstrapTable('getSelections'), function (row) {
@@ -454,9 +435,7 @@
                 });
                 this.unsavedAnalysis--;
             }
-
             saveAnalysis(rowInfo) {
-
                 let children = rowInfo.family.pedigree.children;
                 let _affectedSample = "";
                 for (let i = 0; i < children.length; i++) {
@@ -577,7 +556,6 @@
                         });
                 }
             }
-
             createAnalysis(analysisInfo) {
                 let params = {
                     study: this.project.alias + ":" + this.study.alias
@@ -608,7 +586,6 @@
                         _this.showMessageModal = true;
                     });
             }
-
             familyFormatter(familyEditor, randomString) {
                 if (familyEditor) {
                     return '<button data-toggle="modal" id="' + this.prefix + 'Editor' + randomString + '" role="button" type="button" class="btn btn-sm btn-success" data-target="#' + this.prefix + 'FamilyEditor" ><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;Edit</button>';
@@ -617,7 +594,6 @@
                     return '<button data-toggle="modal" id="' + this.prefix + 'Editor' + randomString + '" role="button" type="button" class="btn btn-sm btn-success disabled" data-target="#' + this.prefix + 'FamilyEditor"><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;Edit</button>';
                 }
             }
-
             actionFormatter(familyEditor, randomString) {
                 if (familyEditor) {
                     return '<button type="button" id="' + this.prefix + 'Save' + randomString + '" class="btn btn-sm btn-primary" disabled><i class="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;Save</button>';
@@ -626,13 +602,10 @@
                     return '<button type="button" id="' + this.prefix + 'Save' + randomString + '" class="btn btn-sm btn-primary"><i class="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;Save</button>';
                 }
             }
-
             analysisFormatter(analysisID, randomString) {
                 return '<input type="text" id="' + this.prefix + 'analysisID' + randomString + '" class="form-control" value="' + analysisID + '" maxlength="75">';
             }
-
             analysisError(analysisType, introducedLength, properLength) {
-
                 if ((analysisType === 'Trio' || analysisType === 'Duo' || analysisType === 'Single' || analysisType === 'Auto comparative') && introducedLength != properLength) {
                     PolymerUtils.innerHTML(this.prefix + "warningMsgDiv","Incorrect number of samples selected (" + introducedLength.toString() + ") for " + analysisType + " analysis (" + properLength.toString() + ")");
                     $(PolymerUtils.getElementById(this.prefix + "warningModal")).modal('show');
@@ -645,13 +618,10 @@
                 }
                 else
                     return true;
-
             }
-
             familyChange(e, family) { // Event fired by opencga-family-editor web component
                 this.family = family;
             }
-
             checkFamily(e) {
                 e.preventDefault();
                 let ped = new Pedigree(this.family.pedigree);
@@ -667,9 +637,7 @@
                     });
                     PolymerUtils.removeAttribute(this.prefix + "Save" + this.currentAnalysis.analysisIDinternal, "disabled");
                 }
-
             }
-
             _getTableColumns() {
                 this._columns = [
                     [
@@ -723,12 +691,10 @@
                 ];
                 return this._columns;
             }
-
             onClear() {
                 this.query = {studies: this.project.alias + ":" + this.study.alias};
                 this.search = {};
             }
-
             onFilterChange(e) {
                 this.query = e.detail;
                 this.search = e.detail;

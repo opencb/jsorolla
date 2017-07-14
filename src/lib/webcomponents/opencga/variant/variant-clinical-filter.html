@@ -21,12 +21,12 @@
 <dom-module id="variant-clinical-filter">
     <template>
         <style>
-            .popFreqName {
+            .clinical-popFreqName {
                 font-size: 12px;
                 color: #797979;
             }
 
-            .custom-sized-input {
+            .clinical-custom-sized-input {
                 max-width: 60px;
                 height: 20px;
             }
@@ -35,35 +35,35 @@
                 margin-left: 10px;
             }
 
-            .ct-scroll {
+            .clinical-ct-scroll {
                 max-height: 450px;
                 overflow-y: scroll;
             }
 
-            .ct-tree-view,
-            .ct-tree-view * {
+            .clinical-ct-tree-view,
+            .clinical-ct-tree-view * {
                 padding: 0;
                 margin: 0;
                 list-style: none;
             }
 
-            .ct-tree-view li ul {
+            .clinical-ct-tree-view li ul {
                 margin: 0 0 0 22px;
             }
 
-            .ct-tree-view * {
+            .clinical-ct-tree-view * {
                 vertical-align: middle;
             }
 
-            .ct-tree-view {
+            .clinical-ct-tree-view {
                 font-size: 14px;
             }
 
-            .ct-tree-view input[type="checkbox"] {
+            .clinical-ct-tree-view input[type="checkbox"] {
                 cursor: pointer;
             }
 
-            .ct-item {
+            .clinical-ct-item {
                 white-space: nowrap;
                 display:inline
             }
@@ -88,7 +88,7 @@
                 margin-left: 10px;
             }
 
-            .subsection {
+            .clinical-subsection {
                 padding: 5px 0px 5px 0px;
                 font-weight: bold;
             }
@@ -125,7 +125,7 @@
                                 </button>
                                 <div id="{{prefix}}analysisSelectedDiv" style="display:none">
                                     <label>Analysis selected:</label>
-                                    <input type="text" class$="custom-sized-input {{prefix}}FilterTextInput" placeholder="{{currentAnalysisID}}" aria-describedby="basic-addon1" disabled>
+                                    <input type="text" class$="clinical-custom-sized-input {{prefix}}FilterTextInput" placeholder="{{currentAnalysisID}}" aria-describedby="basic-addon1" disabled>
                                 </div>
                             </div>
                         </div>
@@ -185,7 +185,7 @@
                                     </select>
                                 </span>
                                 <span>
-                                    <input type="text" class$="custom-sized-input {{prefix}}FilterTextInput" value="" id="{{prefix}}{{study.id}}Depth">
+                                    <input type="text" class$="clinical-custom-sized-input {{prefix}}FilterTextInput" value="" id="{{prefix}}{{study.id}}Depth">
                                 </span>
                             </div>
                         </div>
@@ -317,7 +317,7 @@
                                     </select>
                                 </span>
                                 <span>
-                                    <input type="text" class$="custom-sized-input {{prefix}}FilterTextInput" value="" id="{{prefix}}{{study.id}}CSVS">
+                                    <input type="text" class$="clinical-custom-sized-input {{prefix}}FilterTextInput" value="" id="{{prefix}}{{study.id}}CSVS">
                                 </span>
                             </div>
                         </div>
@@ -332,7 +332,7 @@
                             <template is="dom-if" if="{{study.populations}}">
                                 <div id="{{prefix}}{{study.id}}" hidden>
                                     <template is="dom-repeat" items="{{study.populations}}" as="popFreq">
-                                        <label class="popFreqName">{{popFreq.title}}</label>
+                                        <label class="clinical-popFreqName">{{popFreq.title}}</label>
                                         <div class="horizontal layout">
                                             <span>MAF</span>
                                             <span>
@@ -344,7 +344,7 @@
                                                     </select>
                                                 </span>
                                             <span>
-                                                    <input type="text" value="" class$="custom-sized-input {{prefix}}FilterTextInput" name="{{study.id}}_{{popFreq.id}}" id="{{prefix}}{{study.id}}{{popFreq.id}}" on-keyup="updateQueryFilters">
+                                                    <input type="text" value="" class$="clinical-custom-sized-input {{prefix}}FilterTextInput" name="{{study.id}}_{{popFreq.id}}" id="{{prefix}}{{study.id}}{{popFreq.id}}" on-keyup="updateQueryFilters">
                                                 </span>
                                         </div>
                                     </template>
@@ -388,7 +388,7 @@
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class$="custom-sized-input {{prefix}}FilterTextInput" id="{{prefix}}SiftInput" name="Sift" on-keyup="updateQueryFilters">
+                                <input type="text" value="" class$="clinical-custom-sized-input {{prefix}}FilterTextInput" id="{{prefix}}SiftInput" name="Sift" on-keyup="updateQueryFilters">
                                 <div style="float: right" class="tooltip-div">
                                     <a data-toggle="tooltip" title="Select None in the drop-down list on the left to enable the input of a specific SIFT score threshold. SIFT score takes values in the range [0, infinite[, the lower the values, the more damaging the prediction"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
                                 </div>
@@ -409,7 +409,7 @@
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class$="custom-sized-input {{prefix}}FilterTextInput" id="{{prefix}}PolyphenInput" name="Polyphen" on-keyup="updateQueryFilters">
+                                <input type="text" value="" class$="clinical-custom-sized-input {{prefix}}FilterTextInput" id="{{prefix}}PolyphenInput" name="Polyphen" on-keyup="updateQueryFilters">
 
                                 <div style="float: right" class="tooltip-div">
                                     <a data-toggle="tooltip" title="Select None in the drop-down list on the left to enable the input of a specific Polyphen score threshold. Polyphen score takes values in the range [0, 1[, the closer to 2, the more damaging the prediction"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
@@ -435,7 +435,7 @@
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class$="custom-sized-input {{prefix}}FilterTextInput" id="{{prefix}}CaddRawInput" name="caddRaw" on-keyup="updateQueryFilters">
+                                <input type="text" value="" class$="clinical-custom-sized-input {{prefix}}FilterTextInput" id="{{prefix}}CaddRawInput" name="caddRaw" on-keyup="updateQueryFilters">
                                 <div style="float: right" class="tooltip-div">
                                     <a data-toggle="tooltip" title="Raw values have relative meaning, with higher values indicating that a variant is more likely to be simulated (or not observed) and therefore more likely to have deleterious effects. If discovering causal variants within an individual, or small groups, of exomes or genomes te use of the scaled CADD score is recommended."><i class="fa fa-info-circle" aria-hidden="true"></i></a>
                                 </div>
@@ -448,7 +448,7 @@
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class$="custom-sized-input {{prefix}}FilterTextInput" id="{{prefix}}CaddScaledInput" name="caddScaled" on-keyup="updateQueryFilters">
+                                <input type="text" value="" class$="clinical-custom-sized-input {{prefix}}FilterTextInput" id="{{prefix}}CaddScaledInput" name="caddScaled" on-keyup="updateQueryFilters">
                                 <div style="float: right" class="tooltip-div">
                                     <a data-toggle="tooltip" title="A scaled C-score of greater of equal 10 indicates that the substitution is predicted to be within the 10% most deleterious substitutions that you can do to the human genome, a score of greater or equal 20 indicates the 1% most deleterious and so on. If you would like to apply a cutoff on deleteriousness, it is suggested by the CADD authors to put a cutoff somewhere between 10 and 20. Maybe at 15, as this also happens to be the median value for all possible canonical splice site changes and non-synonymous variants"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
                                 </div>
@@ -479,8 +479,8 @@
                         <br>-->
 
                         <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}EffectDiv" style="cursor: pointer;"></i>&nbsp;Effect (SO)</label>
-                        <div class="panel-body ct-scroll" id="{{prefix}}EffectDiv" hidden>
-                            <div class="ct-tree-view ct-item">
+                        <div class="panel-body clinical-ct-scroll" id="{{prefix}}EffectDiv" hidden>
+                            <div class="clinical-ct-tree-view clinical-ct-item">
                                 <ul id="consequenceTypeFilter">
                                     <template is="dom-repeat" items="{{consequenceTypes.categories}}" as="category">
                                         <li id="{{prefix}}{{category.title}}">
@@ -556,7 +556,7 @@
                                 <option value=">">></option>
                                 <option value=">=">>=</option>
                             </select>
-                            <input type="text" value="" class$="custom-sized-input {{prefix}}FilterTextInput" id="{{prefix}}PhylopInput" name="phylop" on-keyup="updateQueryFilters">
+                            <input type="text" value="" class$="clinical-custom-sized-input {{prefix}}FilterTextInput" id="{{prefix}}PhylopInput" name="phylop" on-keyup="updateQueryFilters">
                             <div style="float: right" class="tooltip-div">
                                 <a data-toggle="tooltip" title="Positive PhyloP scores measure conservation which is slower evolution than expected, at sites that are predicted to be conserved. Negative PhyloP scores measure acceleration, which is faster evolution than expected, at sites that are predicted to be fast-evolving. Absolute values of phyloP scores represent -log p-values under a null hypothesis of neutral evolution"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
                             </div>
@@ -569,7 +569,7 @@
                                 <option value=">">></option>
                                 <option value=">=">>=</option>
                             </select>
-                            <input type="text" value="" class$="custom-sized-input {{prefix}}FilterTextInput" id="{{prefix}}PhastconsInput" name="phastCons" on-keyup="updateQueryFilters">
+                            <input type="text" value="" class$="clinical-custom-sized-input {{prefix}}FilterTextInput" id="{{prefix}}PhastconsInput" name="phastCons" on-keyup="updateQueryFilters">
                             <div style="float: right" class="tooltip-div">
                                 <a data-toggle="tooltip" title="PhastCons estimates the probability that each nucleotide belongs to a conserved element. The phastCons scores represent probabilities of negative selection and range between 0 and 1."><i class="fa fa-info-circle" aria-hidden="true"></i></a>
                             </div>
@@ -582,7 +582,7 @@
                                 <option value=">">></option>
                                 <option value=">=">>=</option>
                             </select>
-                            <input type="text" value="" class$="custom-sized-input {{prefix}}FilterTextInput" id="{{prefix}}GerpInput" name="gerp" on-keyup="updateQueryFilters">
+                            <input type="text" value="" class$="clinical-custom-sized-input {{prefix}}FilterTextInput" id="{{prefix}}GerpInput" name="gerp" on-keyup="updateQueryFilters">
                             <div style="float: right" class="tooltip-div">
                                 <a data-toggle="tooltip" title="Positive scores represent a substitution deficit (i.e., fewer substitutions than the average neutral site) and thus indicate that a site may be under evolutionary constraint. Negative scores indicate that a site is probably evolving neutrally. Some authors suggest that a score threshold of 2 provides high sensitivity while still strongly enriching for truly constrained sites"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
                             </div>
@@ -1346,7 +1346,7 @@
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
                 this.currentAnalysisID = this.analysisSelected.analysisID;
                 this.samples = this.analysisSelected.sampleList; // Samples are notified to variant-prioritization-view
-                PolymerUtils.show("#" + this.prefix + "analysisSelectedDiv");
+                PolymerUtils.show(this.prefix + "analysisSelectedDiv");
 
 
             }
