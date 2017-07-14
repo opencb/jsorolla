@@ -157,16 +157,20 @@
                                                      style="font-size: 12px"
                                                      population-frequencies="{{populationFrequencies}}"
                                                      protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                                     consequence-types="{{consequenceTypes}}"></cellbase-variantannotation-view>
+                                                     consequence-types="{{consequenceTypes}}">
+                    </cellbase-variantannotation-view>
                 </div>
             </div>
-
-        </div>
 
         </div>
     </template>
     <script>
         class OpencgaProteinView extends Polymer.Element {
+
+            constructor() {
+                super();
+            }
+
             static get is() {
                 return 'opencga-protein-view';
             }
@@ -217,17 +221,13 @@
                 ];
             }
 
-
-            constructor() {
-                super();
-            }
-
             _attachDom(dom) {
                 this.appendChild(dom);
             }
 
             ready() {
                 super.ready();
+
                 if (PolymerUtils.isEmpty(this.prefix)) {
                     this.prefix = "protein" + Utils.randomString(6);
                 }
@@ -273,17 +273,15 @@
                     _this.cellbaseClient.get("feature", "id", this.protein, "xref", {
                         dbname: "ensembl_transcript",
                         "Output format": "json"
-                    })
-                        .then(function (response) {
-                            let transcripts = [];
-                            let results = response.response[0].result;
-                            for (let result of results) {
-                                transcripts.push(result.id);
-                            }
-                            query["annot-xref"] = transcripts.join(",");
-                            _this.query = query;
-                        });
-
+                    }).then(function (response) {
+                        let transcripts = [];
+                        let results = response.response[0].result;
+                        for (let result of results) {
+                            transcripts.push(result.id);
+                        }
+                        query["annot-xref"] = transcripts.join(",");
+                        _this.query = query;
+                    });
 
                     _this.cellbaseClient.getProteinClient(this.protein, 'info', {}, {})
                         .then(function (response) {
@@ -360,6 +358,5 @@
         }
 
         customElements.define(OpencgaProteinView.is, OpencgaProteinView);
-
     </script>
 </dom-module>

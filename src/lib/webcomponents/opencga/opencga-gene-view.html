@@ -162,11 +162,14 @@
             </div>
 
         </div>
-
-        </div>
     </template>
     <script>
         class OpencgaGeneView extends Polymer.Element {
+
+            constructor() {
+                super();
+            }
+
             static get is() {
                 return 'opencga-gene-view';
             }
@@ -215,11 +218,6 @@
                 return ['projectStudyObtained(project, study)'];
             }
 
-
-            constructor() {
-                super();
-            }
-
             _attachDom(dom) {
                 this.appendChild(dom);
             }
@@ -254,7 +252,6 @@
                 }
             }
 
-
             updateQuery(e) {
                 PolymerUtils.removeClass(".gene-ct-buttons", "active");
                 let button = e.target;
@@ -283,21 +280,17 @@
                 return variant.split(':').length > 2;
             }
 
-
             showBrowser() {
                 let hash = window.location.hash.split('/');
                 let newHash = '#browser/' + hash[1] + '/' + hash[2];
                 window.location.hash = newHash;
             }
 
-
             onSelectVariant(e) {
                 this.variant = e.detail.id;
             }
-
-
         }
+        
         customElements.define(OpencgaGeneView.is, OpencgaGeneView);
-
     </script>
 </dom-module>

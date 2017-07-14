@@ -117,11 +117,14 @@
             </div>
 
         </div>
-
-        </div>
     </template>
     <script>
         class OpencgaTranscriptView extends Polymer.Element {
+
+            constructor() {
+                super();
+            }
+
             static get is() {
                 return 'opencga-transcript-view';
             }
@@ -170,11 +173,6 @@
                 return ['projectStudyObtained(project, study)']
             }
 
-
-            constructor() {
-                super();
-            }
-
             _attachDom(dom) {
                 this.appendChild(dom);
             }
@@ -186,7 +184,6 @@
                 }
             }
 
-
             projectStudyObtained(project, study) {
                 if (PolymerUtils.isNotUndefined(this.project) && PolymerUtils.isNotEmpty(this.project.alias)
                     && PolymerUtils.isNotUndefined(this.study) && PolymerUtils.isNotEmpty(this.study.alias)) {
@@ -196,7 +193,6 @@
                     }
                 }
             }
-
 
             transcriptChanged() {
                 // Remove the previously added SVG
@@ -220,7 +216,6 @@
                     _this.query = query;
                 }
             }
-
 
             updateQuery(e) {
                 PolymerUtils.removeClass(".transcript-ct-buttons", "active");
@@ -249,18 +244,15 @@
                 return variant.split(':').length > 2;
             }
 
-
             showBrowser() {
                 let hash = window.location.hash.split('/');
                 let newHash = '#browser/' + hash[1] + '/' + hash[2];
                 window.location.hash = newHash;
             }
 
-
             onSelectVariant(e) {
                 this.variant = e.detail.id;
             }
-
 
             _createSvgTranscript(transcriptObject) {
                 let length = transcriptObject.end - transcriptObject.start;
@@ -317,7 +309,7 @@
                 return svg;
             }
         }
-        customElements.define(OpencgaTranscriptView.is, OpencgaTranscriptView);
 
+        customElements.define(OpencgaTranscriptView.is, OpencgaTranscriptView);
     </script>
 </dom-module>
