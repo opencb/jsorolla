@@ -1435,34 +1435,30 @@
                     _filters["annot-functional-score"] = cadd.join(',');
                 }
 
-//                // Conservation
-//                let conserArr = [];
-//                if (this.$$("#" + this.prefix + "PhylopInput").value !== "" || this.$$("#" + this.prefix + "PhylopOperator").value !== "<") {
-//                    let phylop = "phylop" + this.$$("#" + this.prefix + "PhylopOperator").value + this.$$("#" + this.prefix + "PhylopInput").value;
-//                    conserArr.push(phylop);
-//                }
-//                if (this.$$("#" + this.prefix + "PhastconsInput").value !== "" || this.$$("#" + this.prefix + "PhastconsOperator").value !== "<") {
-//                    let phastCons = "phastCons" + this.$$("#" + this.prefix + "PhastconsOperator").value + this.$$("#" + this.prefix + "PhastconsInput").value;
-//                    conserArr.push(phastCons);
-//                }
-//                if (this.$$("#" + this.prefix + "GerpInput").value !== "" || this.$$("#" + this.prefix + "GerpOperator").value !== "<") {
-//                    let gerp = "gerp" + this.$$("#" + this.prefix + "GerpOperator").value + this.$$("#" + this.prefix + "GerpInput").value;
-//                    conserArr.push(gerp);
-//                }
-//                if ((this.$$("#" + this.prefix + "PhylopInput").value !== "" && this.$$("#" + this.prefix + "PhastconsInput").value !== "") ||
-//                    (this.$$("#" + this.prefix + "PhylopInput").value !== "" && this.$$("#" + this.prefix + "GerpInput").value !== "") ||
-//                    (this.$$("#" + this.prefix + "PhastconsInput").value !== "" && this.$$("#" + this.prefix + "GerpInput").value !== "")) {
-//                    $("input:radio[name=conservation]").attr('disabled', false);
-//                }
-//
-//                if (conserArr.length > 0) {
-//                    let filter = $('input:radio[name=conservation]:checked').val();
-//                    if (filter == "and") {
-//                        _filters.conservation = conserArr.join(';');
-//                    } else {
-//                        _filters.conservation = conserArr.join(',');
-//                    }
-//                }
+                // Conservation
+                let arr = {"Phylop": "phylop", "Phastcons": "phastCons", "Gerp": "gerp"};
+                let conserArr = [];
+                for (let key of Object.keys(arr)) {
+                    let inputTextArea = PolymerUtils.getElementById(this.prefix + key + "Input");
+                    if (PolymerUtils.isNotEmpty(inputTextArea.value)) {
+                        let operator = PolymerUtils.getElementById(this.prefix + key + "Operator");
+                        conserArr.push(arr[key] + operator.value + inputTextArea.value);
+                    }
+                }
+                // Disable OR/AND logical operator
+                if (conserArr.length > 1) {
+                    $("input:radio[name=conservation]").attr('disabled', false);
+                } else {
+                    $("input:radio[name=conservation]").attr('disabled', true);
+                }
+                if (conserArr.length > 0) {
+                    let filter = $('input:radio[name=conservation]:checked').val();
+                    if (filter === "and") {
+                        _filters.conservation = conserArr.join(';');
+                    } else {
+                        _filters.conservation = conserArr.join(',');
+                    }
+                }
 
                 // Consequence Type
                 if (PolymerUtils.isNotEmptyArray(this.ct)) {
