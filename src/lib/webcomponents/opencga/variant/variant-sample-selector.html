@@ -79,9 +79,6 @@
                         type: Object,
                         notify: true
                     },
-                    prefix: {
-                        type: String
-                    },
                     filters: {
                         type: Object,
                         notify: true,
@@ -93,6 +90,9 @@
                     search: {
                         type: Object,
                         notify: true
+                    },
+                    prefix: {
+                        type: String
                     }
                 }
             }
@@ -108,7 +108,7 @@
             ready() {
                 super.ready();
 
-                if (PolymerUtils.isEmpty(this.prefix)) {
+                if (typeof this.prefix === "undefined" || this.prefix === "") {
                     this.prefix = "Sample" + Utils.randomString(6);
                 }
 
@@ -130,7 +130,7 @@
                 this.fixedFilters = ["studies"];
             }
 
-            attached() {
+            connectedCallback() {
                 this.table = PolymerUtils.getElementById(this.prefix + "FamilySelector");
             }
 //            renderFromServer: function () {
