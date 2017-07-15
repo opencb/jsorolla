@@ -35,63 +35,81 @@
                 <variant-sample-grid opencga-client="{{opencgaClient}}" study="{{study}}" samples="{{samples}}" search="{{search}}"></variant-sample-grid>
 
                 <!--<template is="dom-if" if="{{isFamilyMode}}">-->
-                    <div style="padding: 20px 5px">
-                        <h3>Family editor</h3>
-                        <opencga-family-editor samples="{{samples}}" opencga-client="{{opencgaClient}}"></opencga-family-editor>
-                    </div>
+                <div style="padding: 20px 5px">
+                    <h3>Family editor</h3>
+                    <opencga-family-editor samples="{{samples}}" opencga-client="{{opencgaClient}}"></opencga-family-editor>
+                </div>
                 <!--</template>-->
             </div>
         </div>
     </template>
 
     <script>
-        Polymer({
-            is: 'variant-sample-selector',
-            properties: {
-                opencgaClient: {
-                    type: Object
-                },
-                project: {
-                    type: Object
-                },
-                study: {
-                    type: Object
+        class VariantSampleSelector extends Polymer.Element {
+
+            constructor() {
+                super();
+            }
+
+            static get is() {
+                return 'variant-sample-selector';
+            }
+
+            static get properties() {
+                return {
+                    opencgaClient: {
+                        type: Object
+                    },
+                    project: {
+                        type: Object
+                    },
+                    study: {
+                        type: Object
 //                    observer: 'renderFromServer'
-                },
-                mode: {
-                    type: String,
-                    value: "sample"
-                },
-                samples: {
-                    type: Array,
-                    notify: true
-                },
-                family: {
-                    type: Object,
-                    notify: true
-                },
-                prefix: {
-                    type: String
-                },
-                filters: {
-                    type: Object,
-                    notify: true,
-                    observer: "onFilterUpdate"
-                },
-                query: {
-                    type: Object
-                },
-                search: {
-                    type: Object,
-                    notify: true
+                    },
+                    mode: {
+                        type: String,
+                        value: "sample"
+                    },
+                    samples: {
+                        type: Array,
+                        notify: true
+                    },
+                    family: {
+                        type: Object,
+                        notify: true
+                    },
+                    prefix: {
+                        type: String
+                    },
+                    filters: {
+                        type: Object,
+                        notify: true,
+                        observer: "onFilterUpdate"
+                    },
+                    query: {
+                        type: Object
+                    },
+                    search: {
+                        type: Object,
+                        notify: true
+                    }
                 }
-            },
-            observers: [
-                'calculateFilters(filteredVariables.variables.*)'
-            ],
-            ready: function() {
+            }
+
+            static get observers() {
+                return ["calculateFilters(filteredVariables.variables.*)"];
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            ready() {
+                super.ready();
+
                 if (PolymerUtils.isEmpty(this.prefix)) {
-                    this.prefix = "sample" + Utils.randomString(6);
+                    this.prefix = "Sample" + Utils.randomString(6);
                 }
 
                 this.compact = true;
@@ -110,10 +128,11 @@
                 }
 
                 this.fixedFilters = ["studies"];
-            },
-            attached: function () {
+            }
+
+            attached() {
                 this.table = PolymerUtils.getElementById(this.prefix + "FamilySelector");
-            },
+            }
 //            renderFromServer: function () {
 //                let filters = this.search;
 //
@@ -295,11 +314,11 @@
             /**
              * If filters have been removed, clean the values from the forms.
              */
-            onFilterUpdate: function () {
+            onFilterUpdate() {
                 this.updateForms(this.filters);
-            },
+            }
 
-            updateForms: function(filters) {
+            updateForms(filters) {
                 // This is just to avoid entering here when it has just been initialized
                 if (PolymerUtils.isUndefined(this.prefix)) {
                     return;
@@ -332,12 +351,12 @@
 
                 }
 
-            },
+            }
 
             /**
              * Read from the values in the forms, and sets the filters.
              */
-            calculateFilters: function() {
+            calculateFilters() {
                 let filters = {};
                 let sampleName = "";
                 let individual = "";
@@ -366,9 +385,9 @@
                     filters["annotation"] = annotations;
                 }
                 this.filters = filters;
-            },
+            }
 
-            onSearch: function () {
+            onSearch() {
                 // Convert the filters to an objectParam that can be directly send to the sample search
                 let filterParams = {};
 
@@ -405,17 +424,19 @@
                 }
 
                 this.search = filterParams;
-            },
-            onClear: function() {
+            }
+
+            onClear() {
                 this.query = {studies: this.project.alias + ":" + this.study.alias};
                 this.search = {};
-            },
-            onFilterChange: function(e) {
+            }
+
+            onFilterChange(e) {
                 this.query = e.detail;
                 this.search = e.detail;
             }
-        });
+        }
 
-
+        customElements.define(VariantSampleSelector.is, VariantSampleSelector);
     </script>
 </dom-module>

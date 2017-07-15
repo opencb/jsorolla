@@ -14,9 +14,9 @@
   ~ limitations under the License.
   -->
 
-<!--<link rel="import" href="variant-sample-selector.html">-->
-<!--<link rel="import" href="variant-sample-grid.html">-->
-<!--<link rel="import" href="variant-clinical-selector.html">-->
+<link rel="import" href="variant-sample-selector.html">
+<link rel="import" href="variant-sample-grid.html">
+<link rel="import" href="variant-clinical-selector.html">
 
 <dom-module id="variant-browser-filter">
     <template>
@@ -743,8 +743,9 @@
                     </div>
                     <div class="modal-body" style="height: 680px">
                         <!--<opencga-family-selector opencga-client="{{opencgaClient}}" study-id="{{study.id}}" samples="{{samples}}" prefix="{{prefix}}"></opencga-family-selector>-->
-                        <!--<variant-sample-selector opencga-client="{{opencgaClient}}" project="{{project}}" study="{{study}}" mode="{{analysisType}}" samples="{{samples}}"-->
-                        <!--on-familychange="onFamilyChange"></variant-sample-selector>-->
+                        <variant-sample-selector opencga-client="{{opencgaClient}}" project="{{project}}" study="{{study}}" mode="{{analysisType}}" samples="{{samples}}"
+                                                 on-familychange="onFamilyChange">
+                        </variant-sample-selector>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>

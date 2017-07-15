@@ -32,6 +32,11 @@
     <script>
 
         class VariantSampleGrid extends Polymer.Element {
+
+            constructor() {
+                super();
+            }
+
             static get is() {
                 return 'variant-sample-grid';
             }
@@ -64,16 +69,13 @@
                 }
             }
 
-            constructor() {
-                super();
-            }
-
             _attachDom(dom) {
                 this.appendChild(dom);
             }
 
             ready() {
                 super.ready();
+
                 if (PolymerUtils.isEmpty(this.prefix)) {
                     this.prefix = "sample2" + Utils.randomString(6);
                 }
@@ -451,6 +453,5 @@
         }
 
         customElements.define(VariantSampleGrid.is, VariantSampleGrid);
-
     </script>
 </dom-module>
