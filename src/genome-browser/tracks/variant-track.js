@@ -5,9 +5,6 @@ class VariantTrack extends FeatureTrack {
 
         this.DEFAULT_EXCLUDE = "studies,annotation";
 
-        console.log("Variant-TRack constructor");
-
-
         // set user args
         Object.assign(this, args);
 
