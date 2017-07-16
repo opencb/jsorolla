@@ -64,7 +64,8 @@ class FeatureTrack {
         // this.defaultRenderer = this.renderer;
         // this.renderer = this.renderer;
 
-        this.histogramRenderer = new window[this.histogramRendererName](args);
+        //this.histogramRenderer = new window[this.histogramRendererName](args);
+        this.histogramRenderer = new HistogramRenderer(args);
         this.dataType = "features";
 
         this.featureType = "Feature"; // This only have the old class feature track
