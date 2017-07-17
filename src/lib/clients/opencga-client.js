@@ -216,7 +216,11 @@ class OpenCGAParentClass {
         let rpc = this._config.rpc;
         let method = "GET";
 
-        if (options !== undefined && options.hasOwnProperty("method")) {
+        if (typeof options === "undefined") {
+            options = {};
+        }
+
+        if (options.hasOwnProperty("method")) {
             method = options.method;
         }
 
@@ -227,8 +231,8 @@ class OpenCGAParentClass {
         // Check that sessionId is being given
         if (!params.hasOwnProperty("sid")) {
             let sid = this._getSessionId();
-            if (sid !== undefined) {
-                params["sid"] = sid;
+            if (typeof sid !== "undefined") {
+                options['sid'] = sid;
             }
         }
 

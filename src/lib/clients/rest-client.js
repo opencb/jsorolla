@@ -49,6 +49,9 @@ class RestClient {
         };
 
         request.open(method, url, async);
+        if (typeof options !== "undefined" && options.hasOwnProperty('sid')) {
+            request.setRequestHeader("Authorization", "Bearer " + options['sid']);
+        }
         // request.timeout = options.timeout || 0;
         request.send();
         return dataResponse;
@@ -69,6 +72,9 @@ class RestClient {
         return new Promise(function(resolve, reject) {
 
             let request = new XMLHttpRequest();
+            if (typeof options !== "undefined" && options.hasOwnProperty('sid')) {
+                request.setRequestHeader("Authorization", "Bearer " + options['sid']);
+            }
 
             request.onload = function(event) {
                 if (request.status === 200) {
