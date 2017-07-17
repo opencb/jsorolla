@@ -49,6 +49,9 @@ class RestClient {
         };
 
         request.open(method, url, async);
+        if (typeof options !== "undefined" && options.hasOwnProperty('sid')) {
+            request.setRequestHeader("Authorization", "Bearer " + options['sid']);
+        }
         // request.timeout = options.timeout || 0;
         request.send();
         return dataResponse;
@@ -115,6 +118,9 @@ class RestClient {
             };
 
             request.open(method, url, async);
+            if (typeof options !== "undefined" && options.hasOwnProperty('sid')) {
+                request.setRequestHeader("Authorization", "Bearer " + options['sid']);
+            }
 
             // request.timeout = options.timeout || 0;
             if (method === "POST" && options !== undefined && options.hasOwnProperty("data")) {
