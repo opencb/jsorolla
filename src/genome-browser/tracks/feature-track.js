@@ -481,6 +481,7 @@ class FeatureTrack {
     }
 
     getDataHandler(event) {
+        // debugger
         console.time("Total FeatureTrack -> getDataHandler " + event.sender.category)
 
         console.time("Chunks() FeatureTrack -> getDataHandler " + event.sender.category)

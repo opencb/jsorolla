@@ -465,7 +465,7 @@ class OpencgaAdapter {
 
         //console.time(timeId);
         /** time log **/
-        debugger
+        // debugger
         var regions = [];
         var chunks = [];
         if (dataType !== 'histogram') {

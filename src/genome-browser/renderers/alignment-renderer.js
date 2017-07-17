@@ -101,7 +101,7 @@ class AlignmentRenderer extends Renderer {
                             let x = args.pixelPosition + middle - ((args.position - (start + (i - 1))) * args.pixelBase);
                             let y = covHeight - (coverageList[i - 1] * maxValueRatio);
                             if (y < 0 || y > covHeight) {
-                                debugger
+                                // debugger
                             }
                             histogram.push(x + "," + y);
                         }
@@ -1081,6 +1081,7 @@ class AlignmentRenderer extends Renderer {
         for (let i = 0; i < differences.length; i++) {
             let difference = differences[i];
 
+            let x;
             switch (difference.op) {
                 // M 0 alignment match (can be a sequence match or mismatch)
                 // I 1 insertion to the reference
@@ -1093,7 +1094,7 @@ class AlignmentRenderer extends Renderer {
                 // X 8 sequence mismatch
 
                 case "I" :
-                    let x = mainX + (size * difference.pos) - size / 2;
+                    x = mainX + (size * difference.pos) - size / 2;
                     let t = SVG.addChild(text, "tspan", {
                         "x": x,
                         "font-weight": 'bold',
@@ -1107,7 +1108,7 @@ class AlignmentRenderer extends Renderer {
                     });
                     break;
                 case "D" :
-                    let x = mainX + (size * difference.pos);
+                    x = mainX + (size * difference.pos);
                     for (let j = 0; j < difference.length; j++) {
                         let t = SVG.addChild(text, "tspan", {
                             "x": x,
@@ -1119,7 +1120,7 @@ class AlignmentRenderer extends Renderer {
                     }
                     break;
                 case "N" :
-                    let x = mainX + (size * difference.pos);
+                    x = mainX + (size * difference.pos);
                     for (let j = 0; j < difference.length; j++) {
                         let t = SVG.addChild(text, "tspan", {
                             "x": x,
@@ -1131,7 +1132,7 @@ class AlignmentRenderer extends Renderer {
                     }
                     break;
                 case "S" :
-                    let x = mainX + (size * difference.pos);
+                    x = mainX + (size * difference.pos);
                     for (let j = 0; j < difference.length; j++) {
                         let char = difference.seq[j];
                         let t = SVG.addChild(text, "tspan", {
@@ -1144,7 +1145,7 @@ class AlignmentRenderer extends Renderer {
                     }
                     break;
                 case "H" :
-                    let x = mainX + (size * difference.pos);
+                    x = mainX + (size * difference.pos);
                     for (let j = 0; j < difference.length; j++) {
                         let t = SVG.addChild(text, "tspan", {
                             "x": x,
@@ -1157,7 +1158,7 @@ class AlignmentRenderer extends Renderer {
                     break;
                 case "X" :
                 case "M" :
-                    let x = mainX + (size * difference.pos);
+                    x = mainX + (size * difference.pos);
                     for (let j = 0; j < difference.length; j++) {
                         let char = difference.seq[j];
                         let refPos = difference.pos + j;
