@@ -328,14 +328,30 @@ class OpenCGAParentClass {
 
 }
 
+class Acls extends OpenCGAParentClass {
+
+    constructor(config) {
+        super(config);
+    }
+
+    getAcl(category, id, params) {
+        return this.get(category, id, "acl", params);
+    }
+
+    updateAcl(category, members, params, body) {
+        return this.extendedPost(category, null, "acl", members, "update", params, body);
+    }
+
+}
+
 class Users extends OpenCGAParentClass {
 
     constructor(config) {
         super(config);
     }
 
-    create(params, body, options) {
-        return this.post("users", undefined, "create", params, body, options);
+    create(params, body) {
+        return this.post("users", undefined, "create", params, body);
     }
 
     login(userId, password) {
@@ -530,7 +546,7 @@ class Projects extends OpenCGAParentClass {
 
 }
 
-class Studies extends OpenCGAParentClass {
+class Studies extends Acls {
 
     constructor(config) {
         super(config);
@@ -568,12 +584,8 @@ class Studies extends OpenCGAParentClass {
         return this.get("studies", id, "samples", params, options);
     }
 
-    getGroups(id) {
-        return this.get("studies", id, "groups");
-    }
-
-    getGroup(id, groupId) {
-        return this.extendedGet("studies", id, "groups", groupId, "info");
+    getGroups(id, params) {
+        return this.get("studies", id, "groups", params);
     }
 
     createGroup(id, params, body, options) {
@@ -602,7 +614,7 @@ class Studies extends OpenCGAParentClass {
 
 }
 
-class Files extends OpenCGAParentClass {
+class Files extends Acls {
 
     constructor(config) {
         super(config);
@@ -689,7 +701,7 @@ class Files extends OpenCGAParentClass {
     }
 }
 
-class Jobs extends OpenCGAParentClass {
+class Jobs extends Acls {
 
     constructor(config) {
         super(config);
@@ -717,7 +729,7 @@ class Jobs extends OpenCGAParentClass {
 
 }
 
-class Individuals extends OpenCGAParentClass {
+class Individuals extends Acls {
 
     constructor(config) {
         super(config);
@@ -752,7 +764,7 @@ class Individuals extends OpenCGAParentClass {
     }
 }
 
-class Families extends OpenCGAParentClass {
+class Families extends Acls {
 
     constructor(config) {
         super(config);
@@ -784,7 +796,7 @@ class Families extends OpenCGAParentClass {
 
 }
 
-class Samples extends OpenCGAParentClass {
+class Samples extends Acls {
 
     constructor(config) {
         super(config);
@@ -860,7 +872,7 @@ class Variables extends OpenCGAParentClass {
 
 }
 
-class Cohorts extends OpenCGAParentClass {
+class Cohorts extends Acls {
 
     constructor(config) {
         super(config);
@@ -903,7 +915,7 @@ class Cohorts extends OpenCGAParentClass {
     }
 }
 
-class Panels extends OpenCGAParentClass {
+class Panels extends Acls {
 
     constructor(config) {
         super(config);
@@ -919,7 +931,7 @@ class Panels extends OpenCGAParentClass {
 
 }
 
-class Clinical extends OpenCGAParentClass {
+class Clinical extends Acls {
 
     constructor(config) {
         super(config);
