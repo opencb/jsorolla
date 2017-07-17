@@ -129,7 +129,7 @@ class GeneTrack extends FeatureTrack {
                     _this.getDataHandler(response);
                 })
                 .catch(function(reason) {
-                    console.log("Gene Track move error: " + reason)
+                    console.log(`Gene Track move error: ${reason}`);
                 });
                 this.svgCanvasLeftLimit = parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset);
             }
@@ -159,7 +159,7 @@ class GeneTrack extends FeatureTrack {
                     _this.getDataHandler(response);
                 })
                 .catch(function(reason) {
-                    console.log("Gene Track move error: " + reason)
+                    console.log(`Gene Track move error: ${reason}`);
                 });
                 this.svgCanvasRightLimit = parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset);
             }
