@@ -694,13 +694,15 @@ class GenomeBrowser{
     _getSpeciesByTaxonomy(taxonomyCode) {
         //find species object
         let speciesObject = null;
-        for (let i = 0; i < this.availableSpecies.items.length; i++) {
-            for (let j = 0; j < this.availableSpecies.items[i].items.length; j++) {
-                let species = this.availableSpecies.items[i].items[j];
-                let taxonomy = Utils.getSpeciesCode(species.scientificName);
-                if (taxonomy === taxonomyCode) {
-                    speciesObject = species;
-                    break;
+        if (taxonomyCode !== undefined) {
+            for (let i = 0; i < this.availableSpecies.items.length; i++) {
+                for (let j = 0; j < this.availableSpecies.items[i].items.length; j++) {
+                    let species = this.availableSpecies.items[i].items[j];
+                    let taxonomy = Utils.getSpeciesCode(species.scientificName);
+                    if (taxonomy === taxonomyCode) {
+                        speciesObject = species;
+                        break;
+                    }
                 }
             }
         }
@@ -721,7 +723,7 @@ class GenomeBrowser{
     }
 
     setRegion(region, taxonomy) {
-        if (taxonomy !== null) {
+        if (taxonomy !== undefined && taxonomy !== null) {
             let species = this._getSpeciesByTaxonomy(taxonomy);
             this._updateSpecies(species);
         }

@@ -399,7 +399,7 @@
             }
             _onSelectVariant(row) {
                 if (typeof row !== "undefined") {
-                    debugger
+//                    debugger
                     let _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
 //                    this.fire('selectvariant', {id: _variant, variant: row});
                     this.dispatchEvent(new CustomEvent('selectvariant', {detail: {id: _variant, variant: row}}));

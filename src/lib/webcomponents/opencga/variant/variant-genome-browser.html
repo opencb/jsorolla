@@ -51,7 +51,7 @@
                 <table id="{{prefix}}VariantGenomeBrowserTable" data-pagination="true" data-page-list="[]" style="padding: 0px 0px"></table>
             </div>
             <div class="" style="width: 80%;float: right;padding: 0px 5px">
-                <genome-browser cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}" species={{species}} region="{{region}}" tracks="[[tracks]]"></genome-browser>
+                <genome-browser cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}" species={{species}} region="{{region}}" tracks="[[tracks]]" samples="{{samples}}"></genome-browser>
             </div>
         </div>
 
@@ -85,6 +85,9 @@
                         type: Object,
                         observer: 'renderFromServer'
                     },
+                    samples: {
+                        type: Array
+                    },
                     species: {
                         type: Object
                     },
@@ -113,7 +116,7 @@
                 }
 
                 this.summary = true;
-                this.tracks = ["sequence", "gene"];
+                this.tracks = ["sequence", "gene", "variant"];
             }
 
             connectedCallback() {

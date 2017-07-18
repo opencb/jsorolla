@@ -27,6 +27,10 @@
                     study: {
                         type: Object
                     },
+                    samples: {
+                        type: Array,
+                        observer: "init"
+                    },
                     region: {
                         type: Object,
                         observer: "changeRegion"
@@ -74,10 +78,14 @@
             }
 
             init() {
-                if (typeof this.cellbaseClient === "undefined" || typeof this.opencgaClient === "undefined"
-                    || typeof this.genomeBrowser !== "undefined") {
+                if (typeof this.cellbaseClient === "undefined" || typeof this.opencgaClient === "undefined") {
                     return;
                 }
+
+                if (typeof this.genomeBrowser !== "undefined") {
+                    this.genomeBrowser.destroy();
+                }
+
                 let _this = this;
 
                 this.getSpecies().then(function (availableSpecies) {
@@ -114,7 +122,6 @@
                             }
                         }
                     });
-
                     _this.genomeBrowser = new GenomeBrowser(settings);
 
                     let tracks = [];
@@ -127,9 +134,9 @@
                                 tracks.push(_this.addGeneTrack(_this.trackConfigs['gene']));
                                 break;
 //                            case 'snp':
-//                            case 'variant':
-//                                tracks.push(_this.addVariantTrack(_this.trackConfigs[_this.tracks[i]]));
-//                                break;
+                            case 'variant':
+                                tracks.push(_this._addVariantTrack(_this.trackConfigs[_this.tracks[i]]));
+                                break;
                             default:
                                 tracks.push(_this.addGenericTrack(_this.trackConfigs[_this.tracks[i]]));
                                 break;
@@ -199,8 +206,42 @@
                 return new GeneTrack(mySettings);
             }
 
-            addVariantTrack(settings) {
+            _addVariantTrack(settings) {
+                let mySettings = {
+                    title: "Variant",
+                    closable: true,
+                    minHistogramRegionSize: 20000000,
+                    maxLabelRegionSize: 10000000,
+                    minTranscriptRegionSize: 200000,
+                    visibleRegionSize: 100000000,
+                    height: 300,
+                    opencga: {
+                        host: OPENCGA_HOST,
+                        version: "v1",
+                        studies: "reference_grch37:1kG_phase3"
+                    },
+//                    samples: {
+//                        names: { "reference_grch37:1kG_phase3": ["HG00096", "HG00097", "HG00099"]}
+//                    },
+                    renderer: new FeatureRenderer(FEATURE_TYPES.variant),
+                };
 
+                console.log(this.samples)
+                debugger
+
+                if (this.samples !== undefined && this.samples.length > 0) {
+                    let _samples = [];
+                    for (let s of this.samples) {
+                        _samples.push(s.name);
+                    }
+
+                    mySettings.samples = {names: { "reference_grch37:1kG_phase3": _samples}};
+                } else {
+                    mySettings.samples = {names: { "reference_grch37:1kG_phase3": "none"}};
+                }
+
+                mySettings = Object.assign(mySettings, settings);
+                return new VariantTrack(mySettings);
             }
 
             /*
