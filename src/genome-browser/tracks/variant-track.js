@@ -44,7 +44,10 @@ class VariantTrack extends FeatureTrack {
             // this.renderer.mode = "compact".....
             this.exclude = "studies.files,studies.stats,annotation";
             this.dataAdapter.params.exclude = "studies.files,studies.stats,annotation";
-            this.dataAdapter.params.returnedSamples = "HG00096,HG00097,HG00099";
+            // this.dataAdapter.params.returnedSamples = "HG00096,HG00097,HG00099";
+            this.dataAdapter.params.returnedSamples = this.samples.names["reference_grch37:1kG_phase3"];
+
+
             // let opencgaConfig = new OpenCGAClientConfig(this.opencga.host, this.opencga.version);
             // this.dataAdapter = new OpencgaAdapter(new OpenCGAClient(opencgaConfig), "analysis/variant", "", "query", {
             //     studies: this.opencga.studies,
