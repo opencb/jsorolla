@@ -12,7 +12,7 @@ class RestClient {
         console.time("AJAX call to CellBase");
         let request = new XMLHttpRequest();
         request.onload = function(event) {
-            console.log("CellBaseClient: call to URL succeed: '" + url +"'");
+            console.log(`CellBaseClient: call to URL succeed: '${url}'`);
             let contentType = this.getResponseHeader("Content-Type");
             if (contentType === "application/json") {
                 dataResponse = JSON.parse(this.response);
@@ -27,7 +27,7 @@ class RestClient {
                     options.success(dataResponse);
                 }
                 console.timeEnd("AJAX call to CellBase");
-                console.log(options, "Size: " + event.total + " Bytes");
+                console.log(options, `Size: ${event.total} Bytes`);
             } else {
                 console.log(this.response);
             }
@@ -35,22 +35,22 @@ class RestClient {
 
         request.onerror = function(event) {
             // console.log(event)
-            console.error("CellBaseClient: an error occurred when calling to '" + url +"'");
+            console.error(`CellBaseClient: an error occurred when calling to '${url}'`);
             if (typeof options.error === "function") {
                 options.error(this);
             }
         };
 
         request.ontimeout = function(event) {
-            console.error("CellBaseClient: a timeout occurred when calling to '" + url +"'");
+            console.error(`CellBaseClient: a timeout occurred when calling to '${url}'`);
             if (typeof options.error === "function") {
                 options.error(this);
             }
         };
 
         request.open(method, url, async);
-        if (typeof options !== "undefined" && options.hasOwnProperty('sid')) {
-            request.setRequestHeader("Authorization", "Bearer " + options['sid']);
+        if (typeof options !== "undefined" && options.hasOwnProperty("sid")) {
+            request.setRequestHeader("Authorization", `Bearer ${options["sid"]}`);
         }
         // request.timeout = options.timeout || 0;
         request.send();
@@ -66,7 +66,7 @@ class RestClient {
         }
 
         let dataResponse = null;
-        console.time("REST call to " + url);
+        console.time(`REST call to ${url}`);
 
         // Creating the promise
         return new Promise(function(resolve, reject) {
@@ -89,37 +89,37 @@ class RestClient {
                         if (typeof options !== "undefined" && typeof options.success === "function" && typeof options.cacheFn === "undefined") {
                             options.success(dataResponse);
                         }
-                        console.timeEnd("REST call to " + url);
-                        console.debug("REST call query: ", options, ", Size: " + event.total + " Bytes");
+                        console.timeEnd(`REST call to ${url}`);
+                        console.debug("REST call query: ", options, `, Size: ${event.total} Bytes`);
                         resolve(dataResponse);
                     } else {
-                        console.log("Result is not JSON: " + this.response);
+                        console.log(`Result is not JSON: ${this.response}`);
                     }
                 } else {
-                    console.error("REST call to URL failed: '" + url +"'");
+                    console.error(`REST call to URL failed: '${url}'`);
                     reject(JSON.parse(request.response));
                 }
             };
 
             request.onerror = function(event) {
                 // console.log(event)
-                console.error("CellBaseClient: an error occurred when calling to '" + url +"'");
+                console.error(`CellBaseClient: an error occurred when calling to '${url}'`);
                 if (typeof options.error === "function") {
                     options.error(this);
                 }
-                reject(Error("CellBaseClient: an error occurred when calling to '" + url +"'"));
+                reject(Error(`CellBaseClient: an error occurred when calling to '${url}'`));
             };
 
             request.ontimeout = function(event) {
-                console.error("CellBaseClient: a timeout occurred when calling to '" + url +"'");
+                console.error(`CellBaseClient: a timeout occurred when calling to '${url}'`);
                 if (typeof options.error === "function") {
                     options.error(this);
                 }
             };
 
             request.open(method, url, async);
-            if (typeof options !== "undefined" && options.hasOwnProperty('sid')) {
-                request.setRequestHeader("Authorization", "Bearer " + options['sid']);
+            if (typeof options !== "undefined" && options.hasOwnProperty("sid")) {
+                request.setRequestHeader("Authorization", `Bearer ${options["sid"]}`);
             }
 
             // request.timeout = options.timeout || 0;
