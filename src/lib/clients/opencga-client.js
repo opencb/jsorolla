@@ -31,10 +31,10 @@ class OpenCGAClientConfig {
     }
 
     setPrefix(prefix) {
-        this.cookieSessionId = prefix + "_sid";
-        this.cookieUserId = prefix + "_userId";
-        this.cookiePassword = prefix + "_password";
-        this.cookieLoginResponse = prefix + "_loginResponse";
+        this.cookieSessionId = `${prefix}_sid`;
+        this.cookieUserId = `${prefix}_userId`;
+        this.cookiePassword = `${prefix}_password`;
+        this.cookieLoginResponse = `${prefix}_loginResponse`;
     }
 
 }
@@ -232,7 +232,7 @@ class OpenCGAParentClass {
         if (!params.hasOwnProperty("sid")) {
             let sid = this._getSessionId();
             if (typeof sid !== "undefined") {
-                options['sid'] = sid;
+                options["sid"] = sid;
             }
         }
 
@@ -251,7 +251,7 @@ class OpenCGAParentClass {
                     options["post-method"] = "form";
                 }
             }
-            console.debug("OpenCGA client calling to " + url);
+            console.debug(`OpenCGA client calling to ${url}`);
             // if the URL query fails we try with next host
             let response = RestClient.callPromise(url, options);
             return response;
@@ -261,24 +261,24 @@ class OpenCGAParentClass {
     _createRestUrl(host, version, category1, ids1, category2, ids2, action) {
         let url;
         if (host.startsWith("https://")) {
-            url = host + "/webservices/rest/" + version + "/" + category1 + "/";
+            url = `${host}/webservices/rest/${version}/${category1}/`;
         } else {
-            url = "http://" + host + "/webservices/rest/" + version + "/" + category1 + "/";
+            url = `http://${host}/webservices/rest/${version}/${category1}/`;
         }
 
         // Some web services do not need IDs
-        if (typeof ids1 != "undefined" && ids1 != null) {
-            url += ids1 + "/";
+        if (typeof ids1 !== "undefined" && ids1 != null) {
+            url += `${ids1}/`;
         }
 
         // Some web services do not need a second category
-        if (typeof category2 != "undefined" && category2 != null) {
-            url += category2 + "/";
+        if (typeof category2 !== "undefined" && category2 != null) {
+            url += `${category2}/`;
         }
 
         // Some web services do not need the second category of ids
-        if (typeof ids2 != "undefined" && ids2 != null) {
-            url += ids2 + "/";
+        if (typeof ids2 !== "undefined" && ids2 != null) {
+            url += `${ids2}/`;
         }
 
         url += action;
@@ -289,20 +289,20 @@ class OpenCGAParentClass {
     _addQueryParams(url, params) {
         // We add the query params formatted in URL
         let queryParamsUrl = this._createQueryParam(params);
-        if (typeof queryParamsUrl != "undefined" && queryParamsUrl != null && queryParamsUrl != "") {
-            url += "?" + queryParamsUrl;
+        if (typeof queryParamsUrl !== "undefined" && queryParamsUrl != null && queryParamsUrl != "") {
+            url += `?${queryParamsUrl}`;
         }
         return url;
     }
 
     _createQueryParam(params) {
         // Do not remove the sort! we need to sort the array to ensure that the key of the cache will be correct
-        var keyArray = _.keys(params);
-        var keyValueArray = [];
+        let keyArray = _.keys(params);
+        let keyValueArray = [];
         for (let i in keyArray) {
             // Whatever it is inside body will be sent hidden via POST
             if (keyArray[i] !== "body") {
-                keyValueArray.push(keyArray[i] + "=" + encodeURIComponent(params[keyArray[i]]));
+                keyValueArray.push(`${keyArray[i]}=${encodeURIComponent(params[keyArray[i]])}`);
             }
         }
         return keyValueArray.join("&");

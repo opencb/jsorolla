@@ -30,14 +30,14 @@ class CellBaseClientConfig {
 
         this.cache = {
             active: true,
-            database: this.species + "_" + this.version + "_cellbase_cache",
+            database: `${this.species}_${this.version}_cellbase_cache`,
             subcategories: ["genomic_chromosome", "genomic_region", "genomic_variant", "feature_gene", "feature_variation",
                 "feature_clinical", "feature_id", "feature_protein", "feature_transcript"]
         };
     }
 
     setHosts(hosts) {
-        if (typeof hosts == "string") {
+        if (typeof hosts === "string") {
             this.hosts = hosts.split(",");
         } else {
             this.hosts = hosts;
@@ -49,7 +49,7 @@ class CellBaseClientConfig {
 class CellBaseClient {
 
     constructor(config) {
-        if (typeof config == "undefined") {
+        if (typeof config === "undefined") {
             this._config = new CellBaseClientConfig();
         } else {
             this._config = config;
@@ -65,7 +65,7 @@ class CellBaseClient {
     }
 
     setHosts(hosts) {
-        if (typeof hosts != "undefined") {
+        if (typeof hosts !== "undefined") {
             this._config.setHosts(hosts);
         }
     }
@@ -90,7 +90,7 @@ class CellBaseClient {
         let version = options.version || this._config.version;
         let count = 0;
         // let response;
-        let url = "http://" + hosts[count] + "/webservices/rest/" + version + "/" + "meta" + "/" + param;
+        let url = `http://${hosts[count]}/webservices/rest/${version}/` + "meta" + `/${param}`;
         // options.error = function() {
         //     if (++count < hosts.length) {
         //         // we need a new URL
@@ -112,18 +112,18 @@ class CellBaseClient {
         let version = options.version || this._config.version;
         let species = options.species || this._config.species;
 
-        let url = "http://" + hosts[count] + "/webservices/rest/" + version + "/" + species + "/" + "files";
+        let url = `http://${hosts[count]}/webservices/rest/${version}/${species}/` + "files";
 
-        if (typeof folderId != "undefined" && folderId != null && folderId != "") {
-            url += "/" + folderId + "/" + resource;
+        if (typeof folderId !== "undefined" && folderId != null && folderId != "") {
+            url += `/${folderId}/${resource}`;
         } else {
-            url += "/" + resource;
+            url += `/${resource}`;
         }
 
         // We add the query params formatted in URL
         let queryParamsUrl = this._createSuffixKey(params, false);
-        if (typeof queryParamsUrl != "undefined" && queryParamsUrl != null && queryParamsUrl != "") {
-            url += "?" + queryParamsUrl;
+        if (typeof queryParamsUrl !== "undefined" && queryParamsUrl != null && queryParamsUrl != "") {
+            url += `?${queryParamsUrl}`;
         }
         return RestClient.callPromise(url, options);
     }
@@ -155,7 +155,7 @@ class CellBaseClient {
         }
         // we store the options from the parameter or from the default values in config
         let hosts = options.hosts || this._config.hosts;
-        if (typeof hosts == "string") {
+        if (typeof hosts === "string") {
             hosts = hosts.split(",");
         }
         let rpc = options.rpc || this._config.rpc;
@@ -164,7 +164,7 @@ class CellBaseClient {
 
         let response;
         if (cache.active) {
-            let os = category + "_" + subcategory;
+            let os = `${category}_${subcategory}`;
 
             let nonCachedIds = [];
 
@@ -175,14 +175,14 @@ class CellBaseClient {
             if (ids !== undefined && ids != null) {
                 idArray = ids.split(",");
                 for (let i = 0; i < idArray.length; i++) {
-                    cacheKeys.push(idArray[i] + "_" + resource + suffixKey);
+                    cacheKeys.push(`${idArray[i]}_${resource}${suffixKey}`);
                 }
             } else {
                 cacheKeys.push(resource + suffixKey);
             }
 
             console.time("Cache time:");
-            var _this = this;
+            let _this = this;
             response = new Promise(function(resolve, reject) {
                 _this.indexedDBCache.getAll(os, cacheKeys, function (results) {
                     let uncachedQueries = false;
@@ -216,7 +216,7 @@ class CellBaseClient {
                                     // result['data'] = dataResponse.response[i];
                                     // // Update the data time to 0
                                     result.data.dbTime = 0;
-                                    _this.indexedDBCache.add(os, idArray[i] + "_" + resource + suffixKey, result);
+                                    _this.indexedDBCache.add(os, `${idArray[i]}_${resource}${suffixKey}`, result);
                                 }
                             } else {
                                 for (let i = 0; i < dataResponse.response.length; i++) {
@@ -266,7 +266,7 @@ class CellBaseClient {
                             // response = Promise.resolve(queryResponse);
                             resolve(queryResponse);
                             // If the call is OK then we execute the success function from the user
-                            if (typeof options != "undefined" && typeof options.success === "function") {
+                            if (typeof options !== "undefined" && typeof options.success === "function") {
                                 options.success(response);
                             }
                         }
@@ -274,7 +274,7 @@ class CellBaseClient {
                         if (rpc.toLowerCase() === "grpc") {
                             response = _this._callGrpcService(hosts, category, subcategory, nonCachedIds, resource, params, options);
                         } else {
-                            console.error("No valid RPC method: " + rpc + ". Accepted values are 'rest' and 'grpc'");
+                            console.error(`No valid RPC method: ${rpc}. Accepted values are 'rest' and 'grpc'`);
                         }
                     }
                     console.timeEnd("Cache time:");
@@ -288,7 +288,7 @@ class CellBaseClient {
                 if (rpc.toLowerCase() === "grpc") {
                     response = this._callGrpcService(hosts, category, subcategory, ids, resource, params, options);
                 } else {
-                    console.error("No valid RPC method: " + rpc + ". Accepted values are 'rest' and 'grpc'");
+                    console.error(`No valid RPC method: ${rpc}. Accepted values are 'rest' and 'grpc'`);
                 }
             }
         }
@@ -305,7 +305,7 @@ class CellBaseClient {
         let url = this._createRestUrl(hosts[count], version, species, category, subcategory, ids, resource, params);
 
         let userError = options.error;
-        var _this = this;
+        let _this = this;
         // if the URL query fails we try with next host
         options.error = function() {
             if (++count < hosts.length) {
@@ -326,37 +326,37 @@ class CellBaseClient {
     _createRestUrl(host, version, species, category, subcategory, ids, resource, params) {
         let url;
         if (host.startsWith("https://")) {
-            url = host + "/webservices/rest/" + version + "/" + species + "/";
+            url = `${host}/webservices/rest/${version}/${species}/`;
         } else {
-            url = "http://" + host + "/webservices/rest/" + version + "/" + species + "/";
+            url = `http://${host}/webservices/rest/${version}/${species}/`;
         }
 
         // Some web services do not need IDs
-        if (typeof ids != "undefined" && ids != null && ids.length > 0) {
-            url += category + "/" + subcategory + "/" + ids + "/" + resource;
+        if (typeof ids !== "undefined" && ids != null && ids.length > 0) {
+            url += `${category}/${subcategory}/${ids}/${resource}`;
         } else {
-            url += category + "/" + subcategory + "/" + resource;
+            url += `${category}/${subcategory}/${resource}`;
         }
 
         // We add the query params formatted in URL
-        var queryParamsUrl = this._createSuffixKey(params, false);
-        if (typeof queryParamsUrl != "undefined" && queryParamsUrl != null && queryParamsUrl != "") {
-            url += "?" + queryParamsUrl;
+        let queryParamsUrl = this._createSuffixKey(params, false);
+        if (typeof queryParamsUrl !== "undefined" && queryParamsUrl != null && queryParamsUrl != "") {
+            url += `?${queryParamsUrl}`;
         }
         return url;
     }
 
     _createSuffixKey(params, suffix) {
         // Do not remove the sort! we need to sort the array to ensure that the key of the cache will be correct
-        var keyArray = _.keys(params).sort();
-        var keyValueArray = [];
+        let keyArray = _.keys(params).sort();
+        let keyValueArray = [];
         for (let i in keyArray) {
-            keyValueArray.push(keyArray[i] + "=" + encodeURIComponent(params[keyArray[i]]));
+            keyValueArray.push(`${keyArray[i]}=${encodeURIComponent(params[keyArray[i]])}`);
         }
         let suffixKey = keyValueArray.join("&");
         // suffixKey is preceded by '_' if suffix is true. Else it is treated as queryParam that needs to be sorted
         if (suffix && suffixKey !== "") {
-            suffixKey = "_" + suffixKey;
+            suffixKey = `_${suffixKey}`;
         }
         return suffixKey;
     }
