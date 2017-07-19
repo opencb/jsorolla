@@ -518,14 +518,14 @@ class OpencgaAdapter {
      * [ r1,r2,r3,r4,r5,r6,r7,r8 ]
      * [ [r1,r2,r3,r4], [r5,r6,r7,r8] ]
      */
-    // _groupQueries(uncachedRegions) {
-    //     let groupSize = 50;
-    //     let queriesLists = [];
-    //     while (uncachedRegions.length > 0) {
-    //         queriesLists.push(uncachedRegions.splice(0, groupSize).toString());
-    //     }
-    //     return queriesLists;
-    // }
+    _groupQueries(uncachedRegions) {
+        let groupSize = 50;
+        let queriesLists = [];
+        while (uncachedRegions.length > 0) {
+            queriesLists.push(uncachedRegions.splice(0, groupSize).toString());
+        }
+        return queriesLists;
+    }
 
     _adaptChunks(queryResult, category, dataType, chunkSize) {
         let chunks;

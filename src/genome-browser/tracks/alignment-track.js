@@ -7,30 +7,21 @@ class AlignmentTrack extends FeatureTrack {
 
         //set instantiation args, must be last
         Object.assign(this, args);
+
+        if (typeof this.renderer === "undefined") {
+            this.renderer = new AlignmentRenderer(FEATURE_TYPES.alignment);
+        }
     }
 
     getDataHandler(event) {
-        let features;
-        if (event.dataType == "histogram") {
-            this.renderer = this.histogramRenderer;
-            features = event.items;
-        } else {
-            this.renderer = this.defaultRenderer;
-            features = event;
-
-            // If we have paired-end data, we will render them as pairs
-            // for (let i = 0; i < features.items.length; i++) {
-            //     if (features.items[i].alignments.length > 0) {
-            //         if (typeof features.items[i].alignments[0].nextMatePosition !== "undefined") {
-            //             features["params"] = {
-            //                 view_as_pairs: true
-            //             };
-            //         }
-            //         break;
-            //     }
-            // }
-            // features = this._removeDisplayedChunks(event);
-        }
+        let features = event;
+        // if (event.dataType == "histogram") {
+        //     this.renderer = this.histogramRenderer;
+        //     features = event.items;
+        // } else {
+        //     this.renderer = this.defaultRenderer;
+        //     features = event;
+        // }
         this.renderedArea = {}; //<- this is only in Aligments
         this.renderer.render(features, {
             cacheItems: event.items,

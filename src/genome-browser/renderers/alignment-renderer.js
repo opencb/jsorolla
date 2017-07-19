@@ -306,7 +306,7 @@ class AlignmentRenderer extends Renderer {
             //calculate x to draw svg rect
             let x = _this.getFeatureX(start, args);
 
-            maxWidth = width;
+            let maxWidth = width;
 
             let rowHeight = 15;
             let rowY = 70;
@@ -375,7 +375,6 @@ class AlignmentRenderer extends Renderer {
                 rowY += rowHeight;
             }
         };
-
 
         let drawSingleRead = function (feature) {
             //var start = feature.start;
