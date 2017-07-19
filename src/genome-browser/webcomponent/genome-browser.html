@@ -137,9 +137,15 @@
                             case 'variant':
                                 tracks.push(_this._addVariantTrack(_this.trackConfigs[_this.tracks[i]]));
                                 break;
-                            default:
-                                tracks.push(_this.addGenericTrack(_this.trackConfigs[_this.tracks[i]]));
+                            case 'alignment':
+                                if (typeof _this.samples !== "undefined" && _this.samples.length > 0) {
+                                    _this.getFilesToVisualiseAlignmentTracks(_this.trackConfigs[_this.tracks[i]]);
+//                                    tracks.push(_this._addAlignmentTrack(_this.trackConfigs[_this.tracks[i]]));
+                                }
                                 break;
+//                            default:
+//                                tracks.push(_this.addGenericTrack(_this.trackConfigs[_this.tracks[i]]));
+//                                break;
                         }
                     }
 
@@ -160,7 +166,6 @@
 
                     _this.genomeBrowser.addOverviewTrack(gene);
                     _this.genomeBrowser.addTrack(tracks);
-
                     _this.genomeBrowser.draw();
 
                 });
@@ -214,7 +219,7 @@
                     maxLabelRegionSize: 10000000,
                     minTranscriptRegionSize: 200000,
                     visibleRegionSize: 100000000,
-                    height: 300,
+                    height: 100,
                     opencga: {
                         host: OPENCGA_HOST,
                         version: "v1",
@@ -225,9 +230,6 @@
 //                    },
                     renderer: new FeatureRenderer(FEATURE_TYPES.variant),
                 };
-
-                console.log(this.samples)
-                debugger
 
                 if (this.samples !== undefined && this.samples.length > 0) {
                     let _samples = [];
@@ -251,7 +253,7 @@
              - source: opencga, cellbase...
              - data: data that will be used
              */
-            addAlignmentTrack(settings) {
+            getAlignmentTrack(settings) {
                 let mySettings = {
                     title: "Alignment",
                     closable: true,
@@ -268,11 +270,51 @@
                 return new AlignmentTrack(mySettings);
             }
 
+            getFilesToVisualiseAlignmentTracks(settings) {
+                if (typeof settings === "undefined") {
+                    settings = {};
+                }
+                let samples = [];
+                this.samples.forEach(function(sample) {
+                    samples.push(sample.id);
+                });
+                let query = {
+                    samples: samples,
+                    study: this.study.id,
+                    format: "BAM"
+                };
+                let _this = this;
+                this.opencgaClient.files().search(query).then(function(response) {
+                    let files = [];
+                    if (response.response[0].numResults === 0) {
+                        return;
+                    }
+                    response.response[0].result.forEach(function(file) {
+                        files.push(file.id);
+                    });
+
+                    files.forEach(function(fileId) {
+                        let mySettings = {
+                            data: {
+                                fileId: fileId,
+                                study: _this.study.id
+                            }
+                        };
+                        Object.assign(settings, mySettings);
+                        let track = _this.getAlignmentTrack(settings);
+                        _this.genomeBrowser.addTrack(track);
+                    });
+
+                }).catch(function(response) {
+                    console.log(response);
+                });
+            }
+
             addGenericTrack(settings) {
                 switch (settings.type) {
                     case 'alignment':
                     default:
-                        return this.addAlignmentTrack(settings);
+                        return this.getAlignmentTrack(settings);
                 }
             }
 
