@@ -1,4 +1,4 @@
-<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../node_modules/@polymer/polymer/polymer-element.html">
 <link rel="import" href="../webcomponent/genome-browser.html">
 
 <dom-module id="gb-alignment-component-demo">
@@ -13,13 +13,27 @@
     </template>
 
     <script>
-        Polymer({
-            is: 'gb-alignment-component-demo',
-            properties: {
-            },
-            ready: function() {
+        class GbAlignmentComponentDemo extends Polymer.Element {
+            static get is() {
+                return 'gb-alignment-component-demo';
+            }
+
+            static get properties() {
+                return {};
+            }
+
+            constructor() {
+                super();
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            ready() {
+                super.ready();
                 // We first parse URL to check (and overwrite) if a CellBase Host and Version have been provided
-                var queryParams = URI.parseQuery(window.location.search);
+                let queryParams = URI.parseQuery(window.location.search);
                 if (typeof queryParams.CELLBASE_HOST !== "undefined") {
                     CELLBASE_HOST = queryParams.CELLBASE_HOST;
                 }
@@ -28,7 +42,7 @@
                 }
                 console.log("CellBase Host: " + CELLBASE_HOST, " - CellBase Version: " + CELLBASE_VERSION)
 
-                var cellBaseClientConfig = new CellBaseClientConfig(hosts = CELLBASE_HOST, version = CELLBASE_VERSION);
+                let cellBaseClientConfig = new CellBaseClientConfig(CELLBASE_HOST, CELLBASE_VERSION);
                 cellBaseClientConfig.cache.active = false;
                 this.cellbaseClient = new CellBaseClient(cellBaseClientConfig);
 
@@ -90,6 +104,8 @@
                 }
                 this.trackConfigs = configTracks;
             }
-        });
+        }
+
+        customElements.define(GbAlignmentComponentDemo.is, GbAlignmentComponentDemo);
     </script>
 </dom-module>
