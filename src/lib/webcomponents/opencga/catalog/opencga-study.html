@@ -24,25 +24,25 @@
 
             <!-- 1ST ROW: STUDY SUMMARY -->
             <!--<div>-->
-                <!--<h2>General information</h2>-->
-                <!--<dl>-->
-                    <!--<dt>Name</dt>-->
-                    <!--<dd>{{study.name}}</dd>-->
-                    <!--<dt>Alias (id)</dt>-->
-                    <!--<dd>{{study.alias}} ({{study.id}})</dd>-->
-                    <!--<template is="dom-if" if="{{_isNotEmpty(study.type)}}">-->
-                        <!--<dt>Type</dt>-->
-                        <!--<dd>{{study.type}}</dd>-->
-                    <!--</template>-->
-                    <!--<dt>Date</dt>-->
-                    <!--<dd>{{_formatDate(study.creationDate)}}</dd>-->
-                    <!--<dt>Disk usage</dt>-->
-                    <!--<dd>{{_getDiskUsage(study.diskUsage)}}</dd>-->
-                    <!--<template is="dom-if" if="{{_isNotEmpty(study.description)}}">-->
-                        <!--<dt>Description</dt>-->
-                        <!--<dd>{{study.description}}</dd>-->
-                    <!--</template>-->
-                <!--</dl>-->
+            <!--<h2>General information</h2>-->
+            <!--<dl>-->
+            <!--<dt>Name</dt>-->
+            <!--<dd>{{study.name}}</dd>-->
+            <!--<dt>Alias (id)</dt>-->
+            <!--<dd>{{study.alias}} ({{study.id}})</dd>-->
+            <!--<template is="dom-if" if="{{_isNotEmpty(study.type)}}">-->
+            <!--<dt>Type</dt>-->
+            <!--<dd>{{study.type}}</dd>-->
+            <!--</template>-->
+            <!--<dt>Date</dt>-->
+            <!--<dd>{{_formatDate(study.creationDate)}}</dd>-->
+            <!--<dt>Disk usage</dt>-->
+            <!--<dd>{{_getDiskUsage(study.diskUsage)}}</dd>-->
+            <!--<template is="dom-if" if="{{_isNotEmpty(study.description)}}">-->
+            <!--<dt>Description</dt>-->
+            <!--<dd>{{study.description}}</dd>-->
+            <!--</template>-->
+            <!--</dl>-->
             <!--</div>-->
 
             <!-- 2ND ROW -->
@@ -60,29 +60,32 @@
                         </tr>
                         </thead>
                         <tbody>
-                            <template is="dom-repeat" items="{{_users}}" as="user">
-                                <tr>
-                                    <td>
-                                        <span style="cursor: pointer;" data-toggle="modal" data-target="#{{prefix}}ModalPermissions"
-                                           on-click="_userSelectedChanged" user="{{user}}">{{user.id}}</span>
-                                    </td>
-                                    <!-- Groups -->
-                                    <td>
-                                        <template is="dom-if" if="{{_isNotEmpty(user.group)}}">
-                                            <span style="cursor: pointer;" data-toggle="modal" data-target="#{{prefix}}ModalPermissions"
-                                               on-click="_userSelectedChanged" user="{{user}}">{{user.group}}</span>
-                                        </template>
-                                        <!--No groups-->
-                                        <template is="dom-if" if="{{!_isNotEmpty(user.group)}}">
-                                            -
-                                        </template>
-                                    </td>
-                                    <td>
-                                        <span style="cursor: pointer;" data-toggle="modal" data-target="#{{prefix}}ModalPermissions"
-                                        on-click="_userSelectedChanged" user="{{user}}">Click here</span>
-                                    </td>
-                                </tr>
-                            </template>
+                        <template is="dom-repeat" items="{{_users}}" as="user">
+                            <tr>
+                                <td>
+                                        <span style="cursor: pointer;" data-toggle="modal"
+                                              data-target="#{{prefix}}ModalPermissions"
+                                              on-click="_userSelectedChanged" user="{{user}}">{{user.id}}</span>
+                                </td>
+                                <!-- Groups -->
+                                <td>
+                                    <template is="dom-if" if="{{_isNotEmpty(user.group)}}">
+                                            <span style="cursor: pointer;" data-toggle="modal"
+                                                  data-target="#{{prefix}}ModalPermissions"
+                                                  on-click="_userSelectedChanged" user="{{user}}">{{user.group}}</span>
+                                    </template>
+                                    <!--No groups-->
+                                    <template is="dom-if" if="{{!_isNotEmpty(user.group)}}">
+                                        -
+                                    </template>
+                                </td>
+                                <td>
+                                        <span style="cursor: pointer;" data-toggle="modal"
+                                              data-target="#{{prefix}}ModalPermissions"
+                                              on-click="_userSelectedChanged" user="{{user}}">Click here</span>
+                                </td>
+                            </tr>
+                        </template>
                         </tbody>
                     </table>
                 </div>
@@ -102,7 +105,8 @@
                         <tbody>
                         <template is="dom-repeat" items="{{variableSets}}" as="variableset">
                             <tr>
-                                <td><span style="font-weight: bold;">{{variableset.name}}</span> ({{variableset.id}})</td>
+                                <td><span style="font-weight: bold;">{{variableset.name}}</span> ({{variableset.id}})
+                                </td>
                                 <td>{{variableset.description}}</td>
                                 <td>{{variableset.mandatory}}</td>
                                 <td>{{variableset.total}}</td>
@@ -117,6 +121,7 @@
             <div style="clear: both; padding: 15px 0px;">
                 <div class="col-md-4" style="padding: 10px;">
                     <h3 style="margin-left: 10px;">File summary</h3>
+
                     <div id="{{prefix}}files-barplot" style="margin: 10px auto; padding: 0px 10px;"></div>
                     <div class="col-md-6" style="padding: 10px;">
                         <div id="{{prefix}}files-format-piechart" style="margin: 10px auto; padding: 0px 10px;"></div>
@@ -127,9 +132,11 @@
                 </div>
                 <div class="col-md-4" style="padding: 10px;">
                     <h3 style="margin-left: 10px;">Sample summary</h3>
+
                     <div id="{{prefix}}samples-barplot" style="margin: 10px auto; padding: 0px 10px;"></div>
                     <div class="col-md-6" style="padding: 10px;">
-                        <div id="{{prefix}}samples-annotations-piechart" style="margin: 10px auto; padding: 0px 10px;"></div>
+                        <div id="{{prefix}}samples-annotations-piechart"
+                             style="margin: 10px auto; padding: 0px 10px;"></div>
                     </div>
                     <div class="col-md-6" style="padding: 10px;">
                         <div id="{{prefix}}samples-other" style="margin: 10px auto; padding: 0px 10px;"></div>
@@ -137,6 +144,7 @@
                 </div>
                 <div class="col-md-4" style="padding: 10px;">
                     <h3 style="margin-left: 10px;">Job summary</h3>
+
                     <div id="{{prefix}}jobs-barplot" style="margin: 10px auto; padding: 0px 10px;"></div>
                     <div class="col-md-6" style="padding: 10px;">
                         <div id="{{prefix}}jobs-other2" style="margin: 10px auto; padding: 0px 10px;"></div>
@@ -148,12 +156,15 @@
             </div>
 
             <!-- Permission modal window -->
-            <div class="modal fade" id="{{prefix}}ModalPermissions" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal fade" id="{{prefix}}ModalPermissions" tabindex="-1" role="dialog"
+                 aria-labelledby="myModalLabel">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                            <h4 class="modal-title">Permissions <span class="badge">{{getTotalPermissions(_selectedUser.permissions)}}</span></h4>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                    aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">Permissions <span class="badge">{{getTotalPermissions(_selectedUser.permissions)}}</span>
+                            </h4>
                         </div>
                         <div class="modal-body">
                             <template is="dom-if" if="{{_isNotEmpty(_selectedUser.permissions)}}">
@@ -176,48 +187,64 @@
 
     </template>
     <script>
-        Polymer({
-            is: 'opencga-study',
+        class OpencgaStudy extends Polymer.Element {
 
-            properties: {
-                opencgaClient: {
-                    type: Object
-                },
-                study: {
-                    type: Object,
-                    observer: '_getStudyInfo'
-                },
-                prefix: {
-                    type: Object
-                },
-                config: {
-                    type: Object,
-                    value: {
-                        showMonthlyPlots: true,
-                        files: {
-                            formats: ["BAM", "VCF", "PED"]
+            static get is() {
+                return 'opencga-study';
+            }
+
+            static get properties() {
+                return {
+                    opencgaClient: {
+                        type: Object
+                    },
+                    study: {
+                        type: Object,
+                        observer: '_getStudyInfo'
+                    },
+                    prefix: {
+                        type: Object
+                    },
+                    config: {
+                        type: Object,
+                        value: {
+                            showMonthlyPlots: true,
+                            files: {
+                                formats: ["BAM", "VCF", "PED"]
+                            }
                         }
+                    },
+                    _selectedUser: {
+                        type: Object
+                    },
+                    _isUserSelected: {
+                        type: Boolean,
+                        value: false
                     }
-                },
-                _selectedUser: {
-                    type: Object
-                },
-                _isUserSelected: {
-                    type: Boolean,
-                    value: false
                 }
-            },
+            }
 
-            ready: function() {
+            constructor() {
+                super();
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            ready() {
+                super.ready();
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
                     this.prefix = "study" + Utils.randomString(6);
                 }
                 this.variableSets = [];
                 this.months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            },
+            }
 
-            _getStudyInfo: function() {
-                if (this.opencgaClient instanceof OpenCGAClient && this.study !== "undefined" && this.study.hasOwnProperty("id")) {
+
+
+            _getStudyInfo() {
+                if (this.opencgaClient instanceof OpenCGAClient && PolymerUtils.isNotUndefined(this.study) && this.study.hasOwnProperty("id")) {
                     this._updateVariableSetSummary();
                     this._updateFileInfo();
                     this._updateSampleInfo();
@@ -227,7 +254,9 @@
 //                    this._updateGraphics();
 
                 }
-            },
+            }
+
+        ,
 
 //            _parseStudySummary: function(response) {
 //                if (response.response[0].numResults === 1) {
@@ -235,23 +264,25 @@
 //                }
 //            },
 
-            _formatDate: function(dateStr) {
+            _formatDate(dateStr) {
                 return moment(dateStr, "YYYYMMDDHHmmss").format('D MMM YY');
-            },
+            }
 
-            getTotalPermissions: function(permissions) {
+
+            getTotalPermissions(permissions) {
                 if (permissions !== undefined) {
                     return permissions.length;
                 }
                 return 0;
-            },
+            }
 
-            _updateVariableSetSummary: function() {
+
+            _updateVariableSetSummary() {
                 let variableSets = this.study.variableSets;
                 let variabletSetsArray = [];
-                variableSets.forEach(function(variableSet) {
+                variableSets.forEach(function (variableSet) {
                     let mandatory = 0;
-                    variableSet.variables.forEach(function(variable) {
+                    variableSet.variables.forEach(function (variable) {
                         if (variable.required) {
                             mandatory += 1;
                         }
@@ -269,9 +300,11 @@
                     });
                 });
                 this.variableSets = variabletSetsArray;
-            },
+            }
 
-            _updateFileInfo: function() {
+
+
+            _updateFileInfo() {
 
                 if (this.config.showMonthlyPlots) {
                     // Files created by month
@@ -299,7 +332,7 @@
                                 if (!(date in myHash)) {
                                     myObject.push([result._id.year + result._id.month, date]);
                                     myHash[date] = {};
-                                    _this.config.files.formats.forEach(function(format) {
+                                    _this.config.files.formats.forEach(function (format) {
                                         myHash[date][format] = 0;
                                     });
                                 }
@@ -315,7 +348,7 @@
                             let acum = 0;
                             let categories = [];
                             let series = [];
-                            this.config.files.formats.forEach(function(format) {
+                            this.config.files.formats.forEach(function (format) {
                                 series.push({
                                     name: format,
                                     data: []
@@ -348,7 +381,7 @@
                             }
 
                             if (categories.length === 0) {
-                                $("#" + this.prefix + "files-barplot")[0].innerHTML = "No files found.";
+                                PolymerUtils.getElementById(this.prefix + "files-barplot")[0].innerHTML = "No files found.";
                                 return;
                             }
 
@@ -358,7 +391,7 @@
                             this._updateBarplot("#" + this.prefix + "files-barplot", params);
 
                         } else {
-                            $("#" + this.prefix + "files-barplot")[0].innerHTML = "No files found with format BAM or VCF.";
+                            PolymerUtils.getElementById(this.prefix + "files-barplot")[0].innerHTML = "No files found with format BAM or VCF.";
                         }
                     }.bind(this));
                 }
@@ -376,12 +409,12 @@
                     let myHash = {
                         OTHER: 0
                     };
-                    this.config.files.formats.forEach(function(format) {
+                    this.config.files.formats.forEach(function (format) {
                         myHash[format] = 0;
                     });
 
                     let _this = this;
-                    results.forEach(function(result) {
+                    results.forEach(function (result) {
                         total += result.count;
                         // If the format is one of the formats asked
                         if (_this.config.files.formats.indexOf(result._id.format) > -1) {
@@ -393,16 +426,16 @@
 
                     // Pass the information to the data format used by highcharts
                     let data = [];
-                    this.config.files.formats.forEach(function(format) {
+                    this.config.files.formats.forEach(function (format) {
                         data.push({
                             name: format,
-                            y: myHash[format]/total
+                            y: myHash[format] / total
                         });
                     });
                     // Add others
                     data.push({
                         name: "OTHER",
-                        y: myHash["OTHER"]/total
+                        y: myHash["OTHER"] / total
                     });
 
                     let params = {
@@ -412,9 +445,11 @@
                     this._updatePieChart("#" + this.prefix + "files-format-piechart", params);
 
                 }.bind(this));
-            },
+            }
 
-            _updateSampleInfo: function() {
+
+
+            _updateSampleInfo() {
 
                 if (this.config.showMonthlyPlots) {
                     // Samples created by month
@@ -475,7 +510,7 @@
 
                             this._updateBarplot("#" + this.prefix + "samples-barplot", params);
                         } else {
-                            $("#" + this.prefix + "samples-barplot")[0].innerHTML = "No samples found.";
+                            PolymerUtils.getElementById(this.prefix + "samples-barplot")[0].innerHTML = "No samples found.";
                         }
                     }.bind(this));
                 }
@@ -485,15 +520,15 @@
                     studyId: this.study.id,
                     include: "annotationSets.variableSetId"
                 };
-                this.opencgaClient.samples().search(params).then(function(result) {
+                this.opencgaClient.samples().search(params).then(function (result) {
                     if (result.response[0].numResults > 0) {
                         // By default, we initialize an array of 1 element to 0, meaning that we have 0 samples with 0 annotations.
                         // 1st position: 0 annotations, 2nd position: 1 annotation, 3rd position: 2 annotations...
                         // The number of positions will be added dynamically as we read the annotations from the results when needed
                         let total = [0];
-                        result.response[0].result.forEach(function(sample) {
+                        result.response[0].result.forEach(function (sample) {
                             let howMany = sample.annotationSets.length;
-                            while(howMany > (total.length - 1)) {
+                            while (howMany > (total.length - 1)) {
                                 total.push(0);
                             }
                             total[howMany] += 1;
@@ -507,7 +542,7 @@
                             }
                             data.push({
                                 name: i + text,
-                                y: total[i]/result.response[0].numResults
+                                y: total[i] / result.response[0].numResults
                             });
                         }
 
@@ -518,9 +553,10 @@
                         this._updatePieChart("#" + this.prefix + "samples-annotations-piechart", params);
                     }
                 }.bind(this));
-            },
+            }
 
-            _updateJobInfo: function() {
+
+            _updateJobInfo() {
                 if (this.config.showMonthlyPlots) {
                     // Samples created by month
                     let params = {
@@ -573,7 +609,7 @@
                             }
 
                             if (categories.length === 0) {
-                                $("#" + this.prefix + "jobs-barplot")[0].innerHTML = "No jobs found.";
+                                PolymerUtils.getElementById(this.prefix + "jobs-barplot")[0].innerHTML = "No jobs found.";
                                 return;
                             }
 
@@ -582,13 +618,15 @@
 
                             this._updateBarplot("#" + this.prefix + "jobs-barplot", params);
                         } else {
-                            $("#" + this.prefix + "jobs-barplot")[0].innerHTML = "No jobs found.";
+                            PolymerUtils.getElementById(this.prefix + "jobs-barplot")[0].innerHTML = "No jobs found.";
                         }
                     }.bind(this));
                 }
-            },
+            }
 
-            _updateBarplot: function(_id, params) {
+
+
+            _updateBarplot(_id, params) {
                 // params = { title, xAxisText, yAxisText, categories, series}
 
                 $(_id).highcharts({
@@ -628,9 +666,10 @@
                     },
                     series: params.series
                 });
-            },
+            }
 
-            _updatePieChart: function(_id, params) {
+
+            _updatePieChart(_id, params) {
                 // params = { title, data}
                 $(_id).highcharts({
                     credits: {enabled: false},
@@ -665,9 +704,10 @@
                         data: params.data
                     }]
                 });
-            },
+            }
 
-            _updateSharedUsers: function() {
+
+            _updateSharedUsers () {
                 let temporalUsers = [];
 
                 let it = 0;
@@ -714,9 +754,10 @@
 
                 // Update the variable
                 this._users = temporalUsers;
-            },
+            }
 
-            _userSelectedChanged: function(e) {
+
+            _userSelectedChanged(e) {
                 e.preventDefault();
                 if (e.target.hasOwnProperty("user")) {
                     this._selectedUser = e.target.user;
@@ -725,17 +766,19 @@
                 }
                 this._isUserSelected = true;
                 $(e.target.dataTarget).modal('show')
-            },
+            }
 
-            _isNotEmpty: function(field) {
+
+            _isNotEmpty(field) {
                 if (field !== undefined && field.length > 0) {
                     return true;
                 }
                 return false;
-            },
+            }
 
-            _getDiskUsage: function(bytes) {
-                if(bytes == 0) return '0 Byte';
+
+            _getDiskUsage(bytes) {
+                if (bytes == 0) return '0 Byte';
                 var k = 1000;
                 var dm = 3;
                 var sizes = [' Bytes', ' KB', ' MB', ' GB', ' TB', ' PB', ' EB', ' ZB', ' YB'];
@@ -743,6 +786,8 @@
                 return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + sizes[i];
             }
 
-        });
+        }
+        customElements.define(OpencgaStudy.is, OpencgaStudy);
+
     </script>
 </dom-module>

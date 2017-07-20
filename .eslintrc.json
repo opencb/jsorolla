@@ -1,20 +1,3 @@
 {
-  "parserOptions": {
-    "ecmaVersion": 6,
-    "sourceType": "module",
-    "ecmaFeatures": {
-      "jsx": true
-    }
-  },
-  "rules": {
-    "semi": 2,
-    "semi-spacing": ["error", {"before": false, "after": true}],
-    "quotes": ["warn", "double", { "avoidEscape": true }],
-    "no-eq-null": 2,
-    "eqeqeq": ["warn", "always"],
-    "no-var": "warn",
-    "no-const-assign": "error",
-    "template-curly-spacing": ["warn", "never"],
-    "prefer-template": "warn"
-  }
+  "extends": "eslint-config-google"
 }

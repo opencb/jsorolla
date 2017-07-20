@@ -41,39 +41,62 @@
         </div>
     </template>
     <script>
-        Polymer({
-            is: 'opencga-project',
-            properties: {
-                opencgaClient: {
-                    type: Object
-                },
-                project: {
-                    type: Object,
-                    observer: 'projectChanged'
-                },
-                studySummaries: {
-                    type: Array,
-                    observer: 'studySummariesChanged'
-                },
-                /*
-                 Auto property is the mode that calls to web service from this component if set to true. By default,
-                 it is false (study summaries are given preference over project)
-                 */
-                auto: {
-                    type: Boolean,
-                    value: false
+        class OpencgaProject extends Polymer.Element {
+            static get is() {
+                return 'opencga-project';
+            }
+
+            static get properties() {
+                return {
+                    opencgaClient: {
+                        type: Object
+                    },
+                    project: {
+                        type: Object,
+                        observer: 'projectChanged'
+                    },
+                    studySummaries: {
+                        type: Array,
+                        observer: 'studySummariesChanged'
+                    },
+                    /*
+                     Auto property is the mode that calls to web service from this component if set to true. By default,
+                     it is false (study summaries are given preference over project)
+                     */
+                    auto: {
+                        type: Boolean,
+                        value: false
+                    }
                 }
-            },
-            ready: function () {
+            }
+
+            constructor() {
+                super();
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            ready() {
+                super.ready();
                 this._studySummaries = [];
-            },
-            fireSelectStudy: function (e) {
+            }
+
+
+            fireSelectStudy(e) {
                 e.preventDefault();
-                this.fire('study', {study: e.target.dataStudy});
-            },
-            projectChanged: function () {
+                this.dispatchEvent(new CustomEvent('study', {
+                    detail: {study: e.target.dataStudy},
+                    bubble: true,
+                    composed: true
+                }));
+            }
+
+
+            projectChanged() {
                 if (typeof this.opencgaClient !== "undefined" && typeof this.project !== "undefined"
-                    && Object.keys(this.project).length > 0) {
+                        && Object.keys(this.project).length > 0) {
                     let _this = this;
                     if (this.auto) {
                         // Obtain the summary of the studies
@@ -97,8 +120,10 @@
                         _this.studySummariesChanged();
                     }
                 }
-            },
-            studySummariesChanged: function () {
+            }
+
+
+            studySummariesChanged() {
                 if (typeof this.studySummaries !== "undefined" && this.studySummaries.length > 0) {
                     if (!this.auto) {
                         for (let i = 0; i < this.studySummaries.length; i++) {
@@ -111,6 +136,9 @@
 
                 }
             }
-        });
+        }
+
+        customElements.define(OpencgaProject.is, OpencgaProject);
+
     </script>
 </dom-module>
