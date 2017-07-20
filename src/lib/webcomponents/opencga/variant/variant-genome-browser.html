@@ -30,8 +30,20 @@
             }
         </style>
 
-        <div class="alert alert-warning" role="alert" id="{{prefix}}Warning" style="padding: 10px">
-            <span style="font-weight: bold;font-size: 1.20em">Warning!</span>&nbsp;&nbsp;Genome Browser is not fully integrated yet, this is just a prototype.
+        <!--<div class="alert alert-warning" role="alert" id="{{prefix}}Warning" style="padding: 10px">-->
+        <!--<span style="font-weight: bold;font-size: 1.20em">Warning!</span>&nbsp;&nbsp;Genome Browser is not fully integrated yet, this is just a prototype.-->
+        <!--</div>-->
+
+        <div class="panel panel-default">
+            <div class="panel-heading">Panel heading without title</div>
+            <div class="panel-body">
+                <!--<template is="dom-repeat" items="{{samplesWithFiles}}" as="fil" index-as="sample_name">-->
+                    <!--<span>{{samples.name}}</span>-->
+                <!--</template>-->
+                <!--<template is="dom-repeat" items="{{alignments}}" as="alignment">-->
+                    <!--<span>{{alignment.name}}</span>-->
+                <!--</template>-->
+            </div>
         </div>
 
         <!--<div class="row">-->
@@ -48,11 +60,13 @@
 
         <div>
             <div class="" style="font-size: 11px;width: 20%;float: left;padding: 0px 0px">
-                <table id="{{prefix}}VariantGenomeBrowserTable" data-pagination="true" data-page-list="[]" style="padding: 0px 0px"></table>
+                <table id="{{prefix}}VariantGenomeBrowserTable" data-pagination="true" data-page-list="[]"
+                       style="padding: 0px 0px"></table>
             </div>
             <div class="" style="width: 80%;float: right;padding: 0px 5px">
-                <genome-browser cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}" species={{species}}
-                                region="{{region}}" tracks="[[tracks]]" samples="{{samples}}"
+                <genome-browser cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}"
+                                species={{species}}
+                                region="{{region}}" tracks="[[tracks]]" samples="{{_samples}}"
                                 study="{{study}}" project="{{project}}"></genome-browser>
             </div>
         </div>
@@ -88,7 +102,8 @@
                         observer: 'renderFromServer'
                     },
                     samples: {
-                        type: Array
+                        type: Array,
+                        observer: 'changeSamples'
                     },
                     species: {
                         type: Object
@@ -125,11 +140,76 @@
                 this.table = PolymerUtils.getElementById(this.prefix + 'VariantGenomeBrowserTable');
             }
 
+            changeSamples(e) {
+                this.getFilesToVisualiseAlignmentTracks();
+            }
+
+            getFilesToVisualiseAlignmentTracks(settings) {
+                if (typeof settings === "undefined") {
+                    settings = {};
+                }
+                let samples = [];
+                this.samples.forEach(function (sample) {
+                    samples.push(sample.id);
+                });
+                let query = {
+                    samples: samples,
+                    study: this.study.id,
+                    format: "BAM",
+                    include: "id,name,path,samples"
+                };
+                let _this = this;
+                this.opencgaClient.files().search(query).then(function (response) {
+                    let samplesWithFiles = new Map();
+                    console.log(response)
+                    if (PolymerUtils.isNotEmptyArray(response.response[0].result)) {
+                        _this.samples.forEach(function (sampleSelected) {
+                            let filesSamples = [];
+                            response.response[0].result.forEach(function (files) {
+                                let containSample = files.samples.some(function (sampleFile) {
+                                    return sampleFile.id === sampleSelected.id;
+                                });
+                                if (containSample) {
+                                    filesSamples.push(files.name);
+                                }
+                            });
+                            samplesWithFiles.set(sampleSelected.name, filesSamples);
+                        });
+
+                        _this.samplesWithFiles = samplesWithFiles;
+
+                    }
+//                    let files = [];
+//                    if (response.response[0].numResults === 0) {
+//                        return;
+//                    }
+//                    response.response[0].result.forEach(function(file) {
+//                        files.push(file.id);
+//                    });
+//
+//                    files.forEach(function(fileId) {
+//                        let mySettings = {
+//                            data: {
+//                                fileId: fileId,
+//                                study: _this.study.id
+//                            }
+//                        };
+//                        Object.assign(settings, mySettings);
+//                        let track = _this.getAlignmentTrack(settings);
+//                        _this.genomeBrowser.addTrack(track);
+//                    });
+
+                }).catch(function (response) {
+                    console.log(response);
+                });
+            }
+
+
             renderFromServer() {
                 this.variant = ""; // Empty the variant every time the grid is loaded
                 let _this = this;
                 if (typeof this.opencgaClient !== "undefined" && this.opencgaClient instanceof OpenCGAClient
-                    && typeof this.project !== "undefined" && typeof this.study !== "undefined" && typeof this.study.alias !== "undefined") {
+                        && typeof this.project !== "undefined" && typeof this.study !== "undefined" && typeof this.study.alias !== "undefined") {
 
                     let urlQueryParams = this._getUrlQueryParams();
                     let queryParams = urlQueryParams.queryParams;
@@ -158,7 +238,7 @@
                         responseHandler: function (res) {
                             if (_numTotal === -1) {
                                 if (_this.summary
-                                    || (typeof _this.query !== 'undefined' && typeof _this.query.gene !== 'undefined' && _this.query.gene !== "")) {
+                                        || (typeof _this.query !== 'undefined' && typeof _this.query.gene !== 'undefined' && _this.query.gene !== "")) {
                                     _numTotal = res.response[0].numTotalResults;
 //                                    _numTotal = 1150;
                                 } else {
