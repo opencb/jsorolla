@@ -35,28 +35,40 @@
         <!--</div>-->
 
         <div class="panel panel-default">
-            <div class="panel-heading">Panel heading without title</div>
-            <div class="panel-body">
-                <!--<template is="dom-repeat" items="{{samplesWithFiles}}" as="fil" index-as="sample_name">-->
-                    <!--<span>{{samples.name}}</span>-->
-                <!--</template>-->
-                <!--<template is="dom-repeat" items="{{alignments}}" as="alignment">-->
-                    <!--<span>{{alignment.name}}</span>-->
-                <!--</template>-->
+            <div class="panel-heading" role="tab" id="{{prefix}}GenomeBrowserSettings">
+                <h3 class="panel-title">
+                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
+                       href="#{{prefix}}Position" aria-expanded="true" aria-controls="{{prefix}}Position">
+                        Settings
+                        <!--<div style="float: right" class="tooltip-div">-->
+                        <!--<a data-toggle="tooltip" title="Introduce a region interval and/or gene/variant ids.-->
+                        <!--The filter will allow variants which fall within provided genomic intervals OR match the ids provided">-->
+                        <!--<i class="fa fa-info-circle" aria-hidden="true"></i>-->
+                        <!--</a>-->
+                        <!--</div>-->
+                    </a>
+                </h3>
+            </div>
+            <div id="{{prefix}}Position" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}GenomeBrowserSettings">
+                <div class="panel-body">
+                    <h4>Variant</h4>
+                        <input type="checkbox"> View extended
+
+                    <h4 style="padding-top: 5px">Alignments</h4>
+                    <div style="padding-left: 20px">
+                        <template is="dom-repeat" items="{{samplesWithFiles}}" as="sample">
+                            <template is="dom-repeat" items="{{sample.files}}" as="file">
+                                <input type="checkbox" style="padding-left: 25px" class$="{{prefix}}FileCheckbox" data-filename$="{{file}}"> <label>{{sample.name}}</label> {{file}}
+                                <br>
+                            </template>
+                        </template>
+                    </div>
+                    <div style="width: 120px;float: right;">
+                        <button type="button" class="btn btn-primary" style="width: 100%" on-click="onOk">Refresh</button>
+                    </div>
+                </div>
             </div>
         </div>
-
-        <!--<div class="row">-->
-        <!--<div class="genome-floating-div panel panel-default" style="font-size: 12px">-->
-        <!--<div class="panel-heading">Panel heading without title</div>-->
-        <!--<div class="panel-body">-->
-        <!--<table id="{{prefix}}VariantGenomeBrowserTable" data-pagination="true" data-page-list="[]"></table>-->
-        <!--</div>-->
-        <!--</div>-->
-        <!--<div class="">-->
-        <!--<genome-browser-view cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}" region="{{region}}"></genome-browser-view>-->
-        <!--</div>-->
-        <!--</div>-->
 
         <div>
             <div class="" style="font-size: 11px;width: 20%;float: left;padding: 0px 0px">
@@ -67,7 +79,8 @@
                 <genome-browser cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}"
                                 species={{species}}
                                 region="{{region}}" tracks="[[tracks]]" samples="{{_samples}}"
-                                study="{{study}}" project="{{project}}"></genome-browser>
+                                study="{{study}}" project="{{project}}">
+                </genome-browser>
             </div>
         </div>
 
@@ -133,7 +146,7 @@
                 }
 
                 this.summary = true;
-                this.tracks = ["sequence", "gene", "variant", "alignment"];
+                this.tracks = [{type: "sequence"}, {type: "gene"}, {type: "variant"}, {type: "alignment", config: {}}];
             }
 
             connectedCallback() {
@@ -159,26 +172,30 @@
                     include: "id,name,path,samples"
                 };
                 let _this = this;
-                this.opencgaClient.files().search(query).then(function (response) {
-                    let samplesWithFiles = new Map();
-                    console.log(response)
-                    if (PolymerUtils.isNotEmptyArray(response.response[0].result)) {
-                        _this.samples.forEach(function (sampleSelected) {
-                            let filesSamples = [];
-                            response.response[0].result.forEach(function (files) {
-                                let containSample = files.samples.some(function (sampleFile) {
-                                    return sampleFile.id === sampleSelected.id;
+                this.samplesWithFiles = [];
+                let _samplesWithFiles = [];
+                this.opencgaClient.files().search(query)
+                    .then(function (response) {
+
+                        console.log(response)
+                        if (PolymerUtils.isNotEmptyArray(response.response[0].result)) {
+                            _this.samples.forEach(function (sampleSelected) {
+                                let filesSamples = [];
+                                response.response[0].result.forEach(function (files) {
+                                    let containSample = files.samples.some(function (sampleFile) {
+                                        return sampleFile.id === sampleSelected.id;
+                                    });
+                                    if (containSample) {
+                                        filesSamples.push(files.name);
+                                    }
                                 });
-                                if (containSample) {
-                                    filesSamples.push(files.name);
-                                }
+//                                samplesWithFiles.set(sampleSelected.name, filesSamples);
+                                _samplesWithFiles.push({name: sampleSelected.name, files: filesSamples});
                             });
-                            samplesWithFiles.set(sampleSelected.name, filesSamples);
-                        });
 
-                        _this.samplesWithFiles = samplesWithFiles;
-
-                    }
+                            _this.samplesWithFiles = _samplesWithFiles;
+//                            _this.samplesWithFiles = samplesWithFiles;
+                        }
 //                    let files = [];
 //                    if (response.response[0].numResults === 0) {
 //                        return;
@@ -199,9 +216,10 @@
 //                        _this.genomeBrowser.addTrack(track);
 //                    });
 
-                }).catch(function (response) {
-                    console.log(response);
-                });
+                    })
+                    .catch(function (response) {
+                        console.log(response);
+                    });
             }
 
 
@@ -209,7 +227,7 @@
                 this.variant = ""; // Empty the variant every time the grid is loaded
                 let _this = this;
                 if (typeof this.opencgaClient !== "undefined" && this.opencgaClient instanceof OpenCGAClient
-                        && typeof this.project !== "undefined" && typeof this.study !== "undefined" && typeof this.study.alias !== "undefined") {
+                    && typeof this.project !== "undefined" && typeof this.study !== "undefined" && typeof this.study.alias !== "undefined") {
 
                     let urlQueryParams = this._getUrlQueryParams();
                     let queryParams = urlQueryParams.queryParams;
@@ -238,7 +256,7 @@
                         responseHandler: function (res) {
                             if (_numTotal === -1) {
                                 if (_this.summary
-                                        || (typeof _this.query !== 'undefined' && typeof _this.query.gene !== 'undefined' && _this.query.gene !== "")) {
+                                    || (typeof _this.query !== 'undefined' && typeof _this.query.gene !== 'undefined' && _this.query.gene !== "")) {
                                     _numTotal = res.response[0].numTotalResults;
 //                                    _numTotal = 1150;
                                 } else {

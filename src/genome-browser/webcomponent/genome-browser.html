@@ -40,7 +40,9 @@
                     },
                     tracks: {
                         type: Array,
-                        value: ['sequence', 'gene']
+//                        value: ['sequence', 'gene']
+                        value: [{type: "sequence", config: {}}, {type: "gene", config: {}}],
+                        observer: "init",
                     },
                     trackConfigs: {
                         type: Object,
@@ -124,31 +126,7 @@
                     });
                     _this.genomeBrowser = new GenomeBrowser(settings);
 
-                    let tracks = [];
-                    for (let i = 0; i < _this.tracks.length; i++) {
-                        switch (_this.tracks[i]) {
-                            case 'sequence':
-                                tracks.push(_this.addSequenceTrack(_this.trackConfigs['sequence']));
-                                break;
-                            case 'gene':
-                                tracks.push(_this.addGeneTrack(_this.trackConfigs['gene']));
-                                break;
-//                            case 'snp':
-                            case 'variant':
-                                tracks.push(_this._addVariantTrack(_this.trackConfigs[_this.tracks[i]]));
-                                break;
-                            case 'alignment':
-                                if (typeof _this.samples !== "undefined" && _this.samples.length > 0) {
-                                    _this.getFilesToVisualiseAlignmentTracks(_this.trackConfigs[_this.tracks[i]]);
-//                                    tracks.push(_this._addAlignmentTrack(_this.trackConfigs[_this.tracks[i]]));
-                                }
-                                break;
-//                            default:
-//                                tracks.push(_this.addGenericTrack(_this.trackConfigs[_this.tracks[i]]));
-//                                break;
-                        }
-                    }
-
+                    // Region Overview
                     let gene = new FeatureTrack({
                         minHistogramRegionSize: 20000000,
                         maxLabelRegionSize: 10000000,
@@ -163,16 +141,39 @@
                                 chunkSize: 100000
                             })
                     });
-
                     _this.genomeBrowser.addOverviewTrack(gene);
-                    _this.genomeBrowser.addTrack(tracks);
+
+
+                    let _tracks = [];
+                    for (let i = 0; i < _this.tracks.length; i++) {
+                        switch (_this.tracks[i].type) {
+                            case 'sequence':
+                                _tracks.push(_this._addSequenceTrack(_this.tracks[i].config));
+                                break;
+                            case 'gene':
+                                _tracks.push(_this._addGeneTrack(_this.tracks[i].config));
+                                break;
+//                            case 'snp':
+                            case 'variant':
+                                _tracks.push(_this._addVariantTrack(_this.tracks[i].config));
+                                break;
+                            case 'alignment':
+                                _this._getAlignmentTrack(_this.tracks[i].config);
+//                                if (typeof _this.samples !== "undefined" && _this.samples.length > 0) {
+//                                    tracks.push(_this._addAlignmentTrack(_this.trackConfigs[_this.tracks[i]]));
+//                                }
+                                break;
+//                            default:
+//                                tracks.push(_this.addGenericTrack(_this.trackConfigs[_this.tracks[i]]));
+//                                break;
+                        }
+                    }
+                    _this.genomeBrowser.addTrack(_tracks);
                     _this.genomeBrowser.draw();
-
                 });
-
             }
 
-            addSequenceTrack(settings) {
+            _addSequenceTrack(settings) {
                 let mySettings = {
                     title: 'Sequence',
                     height: 20,
@@ -185,7 +186,7 @@
                 return new FeatureTrack(mySettings);
             }
 
-            addGeneTrack(settings) {
+            _addGeneTrack(settings) {
                 let mySettings = {
                     title: 'Gene',
                     minHistogramRegionSize: 20000000,
@@ -253,7 +254,7 @@
              - source: opencga, cellbase...
              - data: data that will be used
              */
-            getAlignmentTrack(settings) {
+            _getAlignmentTrack(settings = {}) {
                 let mySettings = {
                     title: "Alignment",
                     closable: true,
@@ -270,45 +271,45 @@
                 return new AlignmentTrack(mySettings);
             }
 
-            getFilesToVisualiseAlignmentTracks(settings) {
-                if (typeof settings === "undefined") {
-                    settings = {};
-                }
-                let samples = [];
-                this.samples.forEach(function(sample) {
-                    samples.push(sample.id);
-                });
-                let query = {
-                    samples: samples,
-                    study: this.study.id,
-                    format: "BAM"
-                };
-                let _this = this;
-                this.opencgaClient.files().search(query).then(function(response) {
-                    let files = [];
-                    if (response.response[0].numResults === 0) {
-                        return;
-                    }
-                    response.response[0].result.forEach(function(file) {
-                        files.push(file.id);
-                    });
-
-                    files.forEach(function(fileId) {
-                        let mySettings = {
-                            data: {
-                                fileId: fileId,
-                                study: _this.study.id
-                            }
-                        };
-                        Object.assign(settings, mySettings);
-                        let track = _this.getAlignmentTrack(settings);
-                        _this.genomeBrowser.addTrack(track);
-                    });
-
-                }).catch(function(response) {
-                    console.log(response);
-                });
-            }
+//            getFilesToVisualiseAlignmentTracks(settings) {
+//                if (typeof settings === "undefined") {
+//                    settings = {};
+//                }
+//                let samples = [];
+//                this.samples.forEach(function(sample) {
+//                    samples.push(sample.id);
+//                });
+//                let query = {
+//                    samples: samples,
+//                    study: this.study.id,
+//                    format: "BAM"
+//                };
+//                let _this = this;
+//                this.opencgaClient.files().search(query).then(function(response) {
+//                    let files = [];
+//                    if (response.response[0].numResults === 0) {
+//                        return;
+//                    }
+//                    response.response[0].result.forEach(function(file) {
+//                        files.push(file.id);
+//                    });
+//
+//                    files.forEach(function(fileId) {
+//                        let mySettings = {
+//                            data: {
+//                                fileId: fileId,
+//                                study: _this.study.id
+//                            }
+//                        };
+//                        Object.assign(settings, mySettings);
+//                        let track = _this.getAlignmentTrack(settings);
+//                        _this.genomeBrowser.addTrack(track);
+//                    });
+//
+//                }).catch(function(response) {
+//                    console.log(response);
+//                });
+//            }
 
             addGenericTrack(settings) {
                 switch (settings.type) {
@@ -346,6 +347,5 @@
         }
 
         customElements.define(GenomeBrowserComponent.is, GenomeBrowserComponent);
-
     </script>
 </dom-module>
