@@ -14,7 +14,7 @@
     "eqeqeq": ["warn", "always"],
     "no-var": "warn",
     "no-const-assign": "error",
-    "template-curly-spacing": ["warn", "never"],
-    "prefer-template": "warn"
+    "template-curly-spacing": ["warn", "never"]
+//    "prefer-template": "warn"
   }
 }
