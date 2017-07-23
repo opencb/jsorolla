@@ -6,10 +6,10 @@ class FeatureRenderer extends Renderer {
         //Extend and add Backbone Events
         Object.assign(this, Backbone.Events);
 
-        this.fontClass = 'ocb-font-roboto ocb-font-size-11';
-        this.toolTipfontClass = 'ocb-tooltip-font';
+        this.fontClass = "ocb-font-roboto ocb-font-size-11";
+        this.toolTipfontClass = "ocb-tooltip-font";
 
-        if (args == null) {
+        if (args === null) {
             args = FEATURE_TYPES.undefined;
         }
 
@@ -24,21 +24,21 @@ class FeatureRenderer extends Renderer {
         let _this = this;
         let draw = function (feature, svgGroup) {
 
-            if ('featureType' in feature) {
+            if ("featureType" in feature) {
                 Object.assign(_this, FEATURE_TYPES[feature.featureType]);
             }
-            if ('featureClass' in feature) {
+            if ("featureClass" in feature) {
                 Object.assign(_this, FEATURE_TYPES[feature.featureClass]);
             }
 
             //Temporal fix for clinical
-            if (args.featureType == 'clinical') {
-                if ('clinvarSet' in feature) {
-                    Object.assign(_this, FEATURE_TYPES['Clinvar'])
-                } else if ('mutationID' in feature) {
-                    Object.assign(_this, FEATURE_TYPES['Cosmic'])
+            if (args.featureType === "clinical") {
+                if ("clinvarSet" in feature) {
+                    Object.assign(_this, FEATURE_TYPES["Clinvar"]);
+                } else if ("mutationID" in feature) {
+                    Object.assign(_this, FEATURE_TYPES["Cosmic"]);
                 } else {
-                    Object.assign(_this, FEATURE_TYPES['GWAS'])
+                    Object.assign(_this, FEATURE_TYPES["GWAS"]);
                 }
             }
 
@@ -58,7 +58,7 @@ class FeatureRenderer extends Renderer {
 
             //check genomic length
             length = (length < 0) ? Math.abs(length) : length;
-            length = (length == 0) ? 1 : length;
+            length = (length === 0) ? 1 : length;
 
             //transform to pixel position
             let width = length * args.pixelBase;
@@ -87,66 +87,66 @@ class FeatureRenderer extends Renderer {
                 let foundArea = args.renderedArea[rowY].add({start: x, end: x + maxWidth - 1});
 
                 if (foundArea) {
-                    let featureGroup = SVG.addChild(svgGroup, "g", {'feature_id': feature.id});
+                    let featureGroup = SVG.addChild(svgGroup, "g", {"feature_id": feature.id});
                     let rect = SVG.addChild(featureGroup, "rect", {
-                        'x': x,
-                        'y': rowY,
-                        'width': width,
-                        'height': height,
-                        'stroke': strokeColor,
-                        'stroke-width': 1,
-                        'stroke-opacity': 0.7,
-                        'fill': color,
-                        'cursor': 'pointer'
+                        "x": x,
+                        "y": rowY,
+                        "width": width,
+                        "height": height,
+                        "stroke": strokeColor,
+                        "stroke-width": 1,
+                        "stroke-opacity": 0.7,
+                        "fill": color,
+                        "cursor": "pointer"
                     });
                     if (args.maxLabelRegionSize > args.regionSize) {
                         let text = SVG.addChild(featureGroup, "text", {
-                            'i': i,
-                            'x': x,
-                            'y': textY,
-                            'font-weight': 400,
-                            'opacity': null,
-                            'fill': 'black',
-                            'cursor': 'pointer',
-                            'class': _this.fontClass
+                            "i": i,
+                            "x": x,
+                            "y": textY,
+                            "font-weight": 400,
+                            "opacity": null,
+                            "fill": "black",
+                            "cursor": "pointer",
+                            "class": _this.fontClass
                         });
                         text.textContent = label;
                     }
 
-                    if ('tooltipText' in _this) {
+                    if ("tooltipText" in _this) {
                         $(featureGroup).qtip({
                             content: {text: tooltipText, title: tooltipTitle},
                             //                        position: {target: "mouse", adjust: {x: 15, y: 0}, effect: false},
                             position: {viewport: $(window), target: "mouse", adjust: {x: 25, y: 15}},
-                            style: {width: true, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
+                            style: {width: true, classes: _this.toolTipfontClass + " ui-tooltip ui-tooltip-shadow"},
                             show: {delay: 300},
                             hide: {delay: 300}
                         });
                     }
 
                     $(featureGroup).mouseover(function (event) {
-                        _this.trigger('feature:mouseover', {
+                        _this.trigger("feature:mouseover", {
                             query: feature[infoWidgetId],
                             feature: feature,
                             featureType: feature.featureType,
                             mouseoverEvent: event
-                        })
+                        });
                     });
 
                     $(featureGroup).click(function (event) {
-                        _this.trigger('feature:click', {
+                        _this.trigger("feature:click", {
                             query: feature[infoWidgetId],
                             feature: feature,
                             featureType: feature.featureType,
                             clickEvent: event
-                        })
+                        });
                     });
                     break;
                 }
                 rowY += rowHeight;
                 textY += rowHeight;
             }
-        }
+        };
 
         /****/
         let timeId = "write dom " + Utils.randomString(4);
@@ -154,7 +154,7 @@ class FeatureRenderer extends Renderer {
         console.log(features.length);
         /****/
 
-        let svgGroup = SVG.create('g');
+        let svgGroup = SVG.create("g");
         for (let i = 0, leni = features.length; i < leni; i++) {
             draw(features[i], svgGroup);
         }

@@ -5,8 +5,8 @@ class AlignmentRenderer extends Renderer {
         //Extend and add Backbone Events
         Object.assign(this, Backbone.Events);
 
-        this.fontClass = 'ocb-font-roboto ocb-font-size-11';
-        this.toolTipfontClass = 'ocb-tooltip-font';
+        this.fontClass = "ocb-font-roboto ocb-font-size-11";
+        this.toolTipfontClass = "ocb-tooltip-font";
 
         if (_.isObject(args)) {
             Object.assign(this, args);
@@ -26,14 +26,14 @@ class AlignmentRenderer extends Renderer {
         }
 
         let viewAsPairs = false;
-        if (response.params["view_as_pairs"] != null) {
+        if (response.params["view_as_pairs"] !== null) {
             viewAsPairs = true;
         }
         console.log("viewAsPairs " + viewAsPairs);
         let insertSizeMin = 0;
         let insertSizeMax = 0;
         let variantColor = "orangered";
-        if (response.params["insert_size_interval"] != null) {
+        if (response.params["insert_size_interval"] !== null) {
             insertSizeMin = response.params["insert_size_interval"].split(",")[0];
             insertSizeMax = response.params["insert_size_interval"].split(",")[1];
         }
@@ -42,7 +42,7 @@ class AlignmentRenderer extends Renderer {
 
         //Prevent browser context menu
         $(args.svgCanvasFeatures).contextmenu(function (e) {
-            console.log("right click")
+            console.log("right click");
             //e.preventDefault();
         });
 
@@ -126,8 +126,8 @@ class AlignmentRenderer extends Renderer {
 
             let dummyRect = SVG.addChild(bamCoverGroup, "polyline", {
                 "points": points,
-                "stroke": 'lightgrey',
-                "fill": 'lightgrey',
+                "stroke": "lightgrey",
+                "fill": "lightgrey",
                 "width": pixelWidth,
                 "height": covHeight,
                 "cursor": "pointer"
@@ -135,14 +135,14 @@ class AlignmentRenderer extends Renderer {
 
             $(dummyRect).qtip({
                 content: " ",
-                position: {target: 'mouse', adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
-                style: {width: true, classes: _this.toolTipfontClass + ' ui-tooltip-shadow'},
+                position: {target: "mouse", adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
+                style: {width: true, classes: _this.toolTipfontClass + " ui-tooltip-shadow"},
                 show: {delay: 300},
                 hide: {delay: 300}
             });
 
 
-            args.trackListPanel.on('mousePosition:change', function (e) {
+            args.trackListPanel.on("mousePosition:change", function (e) {
                 let pos = e.mousePos - parseInt(start);
                 if (pos < 0 || pos >= coverageList.length) {
                     return;
@@ -153,8 +153,8 @@ class AlignmentRenderer extends Renderer {
                 //     '<span style="color:blue">C</span>: <span class="ssel">' + chunk.coverage.c[pos] + '</span><br>' +
                 //     '<span style="color:darkgoldenrod">G</span>: <span class="ssel">' + chunk.coverage.g[pos] + '</span><br>' +
                 //     '<span style="color:red">T</span>: <span class="ssel">' + chunk.coverage.t[pos] + '</span><br>';
-                let str = 'depth: <span class="ssel">' + coverageList[pos] + '</span><br>';
-                $(dummyRect).qtip('option', 'content.text', str);
+                let str = 'depth: <span class="ssel">' + coverageList[pos] + "</span><br>";
+                $(dummyRect).qtip("option", "content.text", str);
                 //}
             });
         };
@@ -294,10 +294,10 @@ class AlignmentRenderer extends Renderer {
 
             if (insertSizeMin != 0 && insertSizeMax != 0 && !mateUnmappedFlag) {
                 if (Math.abs(feature.inferredInsertSize) > insertSizeMax) {
-                    color = 'maroon';
+                    color = "maroon";
                 }
                 if (Math.abs(feature.inferredInsertSize) < insertSizeMin) {
-                    color = 'navy';
+                    color = "navy";
                 }
             }
 
@@ -312,10 +312,10 @@ class AlignmentRenderer extends Renderer {
             let rowY = 70;
             //		var textY = 12+settings.height;
             while (true) {
-                if (args.renderedArea[rowY] == null) {
+                if (args.renderedArea[rowY] === null) {
                     args.renderedArea[rowY] = new FeatureBinarySearchTree();
                 }
-                if (polyDrawing[rowY] == null) {
+                if (polyDrawing[rowY] === null) {
                     polyDrawing[rowY] = {
                         reads: [],
                         differences: {
@@ -330,7 +330,7 @@ class AlignmentRenderer extends Renderer {
                         config: {
                             height: height
                         }
-                    }
+                    };
                 }
 
                 let enc = args.renderedArea[rowY].add({start: x, end: x + maxWidth - 1, feature: feature});
@@ -511,10 +511,10 @@ class AlignmentRenderer extends Renderer {
 
             if (insertSizeMin != 0 && insertSizeMax != 0 && !mateUnmappedFlag) {
                 if (Math.abs(feature.inferredInsertSize) > insertSizeMax) {
-                    color = 'maroon';
+                    color = "maroon";
                 }
                 if (Math.abs(feature.inferredInsertSize) < insertSizeMin) {
-                    color = 'navy';
+                    color = "navy";
                 }
             }
 
@@ -538,12 +538,12 @@ class AlignmentRenderer extends Renderer {
             let rowY = 70;
             //		var textY = 12+settings.height;
             while (true) {
-                if (args.renderedArea[rowY] == null) {
+                if (args.renderedArea[rowY] === null) {
                     args.renderedArea[rowY] = new FeatureBinarySearchTree();
                 }
                 let enc = args.renderedArea[rowY].add({start: x, end: x + maxWidth - 1});
                 if (enc) {
-                    let featureGroup = SVG.addChild(bamReadGroup, "g", {'feature_id': feature.name});
+                    let featureGroup = SVG.addChild(bamReadGroup, "g", {"feature_id": feature.name});
                     let points = {
                         "Reverse": x + "," + (rowY + (height / 2)) + " " + (x + 5) + "," + rowY + " " + (x + width) + "," + rowY + " " + (x + width) + "," + (rowY + height) + " " + (x + 5) + "," + (rowY + height),
                         "Forward": (x - 1) + "," + rowY + " " + (x + width - 5) + "," + rowY + " " + (x + width) + "," + (rowY + (height / 2)) + " " + (x + width - 5) + "," + (rowY + height) + " " + (x - 1) + "," + (rowY + height)
@@ -559,9 +559,9 @@ class AlignmentRenderer extends Renderer {
                     $(featureGroup).qtip({
                         content: {text: tooltipText, title: tooltipTitle},
                         // position: {target: "mouse", adjust: {x: 25, y: 15}},
-                        style: {width: 300, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
+                        style: {width: 300, classes: _this.toolTipfontClass + " ui-tooltip ui-tooltip-shadow"},
                         show: {
-                            event: 'click',
+                            event: "click",
                             solo: true
                         },
                         // hide: {
@@ -569,17 +569,17 @@ class AlignmentRenderer extends Renderer {
                         //     delay: 300,
                         //     fixed: true
                         // }
-                        hide: 'unfocus'
+                        hide: "unfocus"
                     });
 
-                    featureGroup.addEventListener('click', function (event) {
+                    featureGroup.addEventListener("click", function (event) {
                         console.log(feature);
-                        _this.trigger('feature:click', {
+                        _this.trigger("feature:click", {
                             query: feature[infoWidgetId],
                             feature: feature,
                             featureType: feature.featureType,
                             clickEvent: event
-                        })
+                        });
                     });
 
                     //var rect = SVG.addChild(featureGroup,"rect",{
@@ -596,7 +596,7 @@ class AlignmentRenderer extends Renderer {
                     //readEls.push(rect);
 
                     //PROCESS differences
-                    // if (differences != null && args.regionSize < 400) {
+                    // if (differences !== null && args.regionSize < 400) {
                     if (args.regionSize < 400) {
                         featureGroup.appendChild(AlignmentRenderer.drawBamDifferences(differences,
                             args.pixelBase, x, rowY + height));
@@ -643,12 +643,12 @@ class AlignmentRenderer extends Renderer {
 
             if (insertSizeMin != 0 && insertSizeMax != 0) {
                 if (Math.abs(read.fragmentLength) > insertSizeMax) {
-                    readColor = 'maroon';
-                    mateColor = 'maroon';
+                    readColor = "maroon";
+                    mateColor = "maroon";
                 }
                 if (Math.abs(read.fragmentLength) < insertSizeMin) {
-                    readColor = 'navy';
-                    mateColor = 'navy';
+                    readColor = "navy";
+                    mateColor = "navy";
                 }
             }
 
@@ -676,7 +676,7 @@ class AlignmentRenderer extends Renderer {
             //		var textY = 12+settings.height;
 
             while (true) {
-                if (args.renderedArea[rowY] == null) {
+                if (args.renderedArea[rowY] === null) {
                     args.renderedArea[rowY] = new FeatureBinarySearchTree();
                 }
                 let enc = args.renderedArea[rowY].add({start: pairX, end: pairX + pairWidth - 1});
@@ -720,14 +720,14 @@ class AlignmentRenderer extends Renderer {
                     });
 
                     if (args.regionSize < 400) {
-                        if (readDiff != null) {
+                        if (readDiff !== null) {
                             let readPath = SVG.addChild(bamReadGroup, "path", {
                                 "d": Utils.genBamVariants(readDiff, args.pixelBase, readX, rowY),
                                 "fill": variantColor
                             });
                             readEls.push(readPath);
                         }
-                        if (mateDiff != null) {
+                        if (mateDiff !== null) {
                             let matePath = SVG.addChild(bamReadGroup, "path", {
                                 "d": Utils.genBamVariants(mateDiff, args.pixelBase, mateX, rowY),
                                 "fill": variantColor
@@ -739,9 +739,9 @@ class AlignmentRenderer extends Renderer {
                     $(readEls).qtip({
                         content: {text: readSettings.tooltipText(read), title: readSettings.tooltipTitle(read)},
                         position: {target: "mouse", adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
-                        style: {width: 280, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
-                        show: 'click',
-                        hide: 'click mouseleave'
+                        style: {width: 280, classes: _this.toolTipfontClass + " ui-tooltip ui-tooltip-shadow"},
+                        show: "click",
+                        hide: "click mouseleave"
                     });
                     $(readEls).click(function (event) {
                         console.log(read);
@@ -755,9 +755,9 @@ class AlignmentRenderer extends Renderer {
                     $(mateEls).qtip({
                         content: {text: mateSettings.tooltipText(mate), title: mateSettings.tooltipTitle(mate)},
                         position: {target: "mouse", adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
-                        style: {width: 280, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
-                        show: 'click',
-                        hide: 'click mouseleave'
+                        style: {width: 280, classes: _this.toolTipfontClass + " ui-tooltip ui-tooltip-shadow"},
+                        show: "click",
+                        hide: "click mouseleave"
                     });
                     $(mateEls).click(function (event) {
                         console.log(mate);
@@ -889,9 +889,9 @@ class AlignmentRenderer extends Renderer {
                     text: ""
                 },
                 position: {target: "mouse", adjust: {x: 25, y: 15}},
-                style: {width: 300, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
+                style: {width: 300, classes: _this.toolTipfontClass + " ui-tooltip ui-tooltip-shadow"},
                 hide: {
-                    event: 'mousedown mouseup mouseleave',
+                    event: "mousedown mouseup mouseleave",
                     delay: 30,
                     fixed: true
                 }
@@ -900,8 +900,8 @@ class AlignmentRenderer extends Renderer {
             svgChild.onmouseover = function () {
                 let position = _this.getFeatureX(args.trackListPanel.mousePosition, args);
                 let read = features.get({start: position, end: position}).value.feature;
-                $(svgChild).qtip('option', 'content.text', _this.tooltipText(read));
-                $(svgChild).qtip('option', 'content.title', _this.tooltipTitle(read));
+                $(svgChild).qtip("option", "content.text", _this.tooltipText(read));
+                $(svgChild).qtip("option", "content.title", _this.tooltipTitle(read));
             };
 
             // Render differences
@@ -914,7 +914,7 @@ class AlignmentRenderer extends Renderer {
             if (polyDrawing[keys[i]]["differences"]["I"].length > 0) {
                 let text = SVG.addChild(bamReadGroup, "text", {
                     "y": parseInt(keys[i]) + polyDrawing[keys[i]].config.height,
-                    "class": 'ocb-font-ubuntumono ocb-font-size-15'
+                    "class": "ocb-font-ubuntumono ocb-font-size-15"
                 });
                 for (let j = 0; j < polyDrawing[keys[i]]["differences"]["I"].length; j++) {
                     let diff = polyDrawing[keys[i]]["differences"]["I"][j];
@@ -923,11 +923,11 @@ class AlignmentRenderer extends Renderer {
                         // "font-weight": 'bold',
                         "textLength": diff.size
                     });
-                    t.textContent = '|';
+                    t.textContent = "|";
                     $(t).qtip({
-                        content: {text: diff.seq, title: 'Insertion'},
+                        content: {text: diff.seq, title: "Insertion"},
                         position: {target: "mouse", adjust: {x: 25, y: 15}},
-                        style: {classes: this.toolTipfontClass + ' qtip-dark qtip-shadow'}
+                        style: {classes: this.toolTipfontClass + " qtip-dark qtip-shadow"}
                     });
                 }
             }
@@ -1075,7 +1075,7 @@ class AlignmentRenderer extends Renderer {
         let text = SVG.create("text", {
             "x": mainX,
             "y": y,
-            "class": 'ocb-font-ubuntumono ocb-font-size-15'
+            "class": "ocb-font-ubuntumono ocb-font-size-15"
         });
         for (let i = 0; i < differences.length; i++) {
             let difference = differences[i];
@@ -1096,14 +1096,14 @@ class AlignmentRenderer extends Renderer {
                     x = mainX + (size * difference.pos) - size / 2;
                     let t = SVG.addChild(text, "tspan", {
                         "x": x,
-                        "font-weight": 'bold',
+                        "font-weight": "bold",
                         "textLength": size
                     });
-                    t.textContent = '·';
+                    t.textContent = "·";
                     $(t).qtip({
-                        content: {text: difference.seq, title: 'Insertion'},
+                        content: {text: difference.seq, title: "Insertion"},
                         position: {target: "mouse", adjust: {x: 25, y: 15}},
-                        style: {classes: this.toolTipfontClass + ' qtip-dark qtip-shadow'}
+                        style: {classes: this.toolTipfontClass + " qtip-dark qtip-shadow"}
                     });
                     break;
                 case "D" :
@@ -1111,10 +1111,10 @@ class AlignmentRenderer extends Renderer {
                     for (let j = 0; j < difference.length; j++) {
                         let t = SVG.addChild(text, "tspan", {
                             "x": x,
-                            "font-weight": 'bold',
+                            "font-weight": "bold",
                             "textLength": size
                         });
-                        t.textContent = '—';
+                        t.textContent = "—";
                         x += size;
                     }
                     break;
@@ -1126,7 +1126,7 @@ class AlignmentRenderer extends Renderer {
                             "fill": "#888",
                             "textLength": size
                         });
-                        t.textContent = '—';
+                        t.textContent = "—";
                         x += size;
                     }
                     break;
@@ -1151,7 +1151,7 @@ class AlignmentRenderer extends Renderer {
                             "fill": "#aaa",
                             "textLength": size
                         });
-                        t.textContent = 'H';
+                        t.textContent = "H";
                         x += size;
                     }
                     break;

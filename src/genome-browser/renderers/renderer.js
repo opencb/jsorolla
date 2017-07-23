@@ -24,8 +24,8 @@ class Renderer {
     getLabelWidth(label, args) {
         /* insert in dom to get the label width and then remove it*/
         let svgLabel = SVG.create("text", {
-            'font-weight': 400,
-            'class':this.fontClass
+            "font-weight": 400,
+            "class":this.fontClass
         });
         svgLabel.textContent = label;
         $(args.svgCanvasFeatures).append(svgLabel);

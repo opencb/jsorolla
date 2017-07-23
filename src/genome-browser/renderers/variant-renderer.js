@@ -13,8 +13,8 @@ class VariantRenderer extends Renderer {
         //Extend and add Backbone Events
         Object.assign(this, Backbone.Events);
 
-        this.fontClass = 'ocb-font-roboto ocb-font-size-11';
-        this.toolTipfontClass = 'ocb-tooltip-font';
+        this.fontClass = "ocb-font-roboto ocb-font-size-11";
+        this.toolTipfontClass = "ocb-tooltip-font";
 
         if (_.isObject(args)) {
             Object.assign(this, args);
@@ -45,12 +45,12 @@ class VariantRenderer extends Renderer {
             for (let j = 0; j < samplesinstudy.length; j++) {
 
                 let sample = SVG.addChild(this.track.main, "text", {
-                    'x': 0,
-                    'y': y,
-                    'stroke': 'black',
-                    'stroke-width': 1,
-                    'font-size': "8",
-                    'cursor': 'pointer'
+                    "x": 0,
+                    "y": y,
+                    "stroke": "black",
+                    "stroke-width": 1,
+                    "font-size": "8",
+                    "cursor": "pointer"
                 });
                 y += 10;
 
@@ -74,17 +74,17 @@ class VariantRenderer extends Renderer {
 
                     //POSIBILIDAD 2
                     let yrect = label[0].y.baseVal[0].value - 7;
-                    if (this.getAttribute("stroke") == "black") {
+                    if (this.getAttribute("stroke") === "black") {
                         label.css({"stroke": "#ff7200"}).hide(100).show(500).css({"stroke": "#ff7200"});
                         this.setAttribute("stroke", "#ff7200");
                         let rect = SVG.create("rect", {
-                            'x': 0,
-                            'y': yrect,
-                            'width': _this.track.width,
-                            'height': 8,
-                            'stroke': '#FFFF00',
-                            'fill': '#F2F5A9',
-                            'opacity': 0.5
+                            "x": 0,
+                            "y": yrect,
+                            "width": _this.track.width,
+                            "height": 8,
+                            "stroke": "#FFFF00",
+                            "fill": "#F2F5A9",
+                            "opacity": 0.5
                         });
                         rect.setAttribute("id", this.innerHTML + "_rect" + yrect);
                         _this.track.main.insertBefore(rect, this);
@@ -154,7 +154,7 @@ class VariantRenderer extends Renderer {
 
         //check genomic length
         length = (length < 0) ? Math.abs(length) : length;
-        length = (length == 0) ? 1 : length;
+        length = (length === 0) ? 1 : length;
 
         //transform to pixel position
         let width = length * args.pixelBase;
@@ -181,15 +181,15 @@ class VariantRenderer extends Renderer {
         //        rojo: 1/1
         //        naranja 0/1
 
-        let d00 = '';
-        let dDD = '';
-        let d11 = '';
-        let d01 = '';
-        let xs = x; // x start
+        let d00 = "";
+        let dDD = "";
+        let d11 = "";
+        let d01 = "";
+        let xs = x;         // x start
         let xe = x + width; // x end
-        let ys = 1; // y
-        let yi = 8; //y increment
-        let yi2 = 10; //y increment
+        let ys = 1;         // y
+        let yi = 8;         // y increment
+        let yi2 = 10;       // y increment
 
         //    debugger
         //    for (let i = 0, leni = feature.samples.length; i < leni; i++) {
@@ -204,27 +204,27 @@ class VariantRenderer extends Renderer {
 
                 let genotype = feature.studies[i].samplesData[j]["0"];
                 switch (genotype) {
-                    case '0|0':
-                    case '0/0':
-                        d00 += 'M' + xs + ',' + ys + ' L' + xe + ',' + ys + ' ';
-                        d00 += 'L' + xe + ',' + (ys + yi) + ' L' + xs + ',' + (ys + yi) + ' z ';
+                    case "0|0":
+                    case "0/0":
+                        d00 += "M" + xs + "," + ys + " L" + xe + "," + ys + " ";
+                        d00 += "L" + xe + "," + (ys + yi) + " L" + xs + "," + (ys + yi) + " z ";
                         break;
-                    case '.|.':
-                    case './.':
-                        dDD += 'M' + xs + ',' + ys + ' L' + xe + ',' + ys + ' ';
-                        dDD += 'L' + xe + ',' + (ys + yi) + ' L' + xs + ',' + (ys + yi) + ' z ';
+                    case ".|.":
+                    case "./.":
+                        dDD += "M" + xs + "," + ys + " L" + xe + "," + ys + " ";
+                        dDD += "L" + xe + "," + (ys + yi) + " L" + xs + "," + (ys + yi) + " z ";
                         break;
-                    case '1|1':
-                    case '1/1':
-                        d11 += 'M' + xs + ',' + ys + ' L' + xe + ',' + ys + ' ';
-                        d11 += 'L' + xe + ',' + (ys + yi) + ' L' + xs + ',' + (ys + yi) + ' z ';
+                    case "1|1":
+                    case "1/1":
+                        d11 += "M" + xs + "," + ys + " L" + xe + "," + ys + " ";
+                        d11 += "L" + xe + "," + (ys + yi) + " L" + xs + "," + (ys + yi) + " z ";
                         break;
-                    case '0|1':
-                    case '0/1':
-                    case '1|0':
-                    case '1/0':
-                        d01 += 'M' + xs + ',' + ys + ' L' + xe + ',' + ys + ' ';
-                        d01 += 'L' + xe + ',' + (ys + yi) + ' L' + xs + ',' + (ys + yi) + ' z ';
+                    case "0|1":
+                    case "0/1":
+                    case "1|0":
+                    case "1/0":
+                        d01 += "M" + xs + "," + ys + " L" + xe + "," + ys + " ";
+                        d01 += "L" + xe + "," + (ys + yi) + " L" + xs + "," + (ys + yi) + " z ";
                         break;
                 }
                 samplesCount++;
@@ -232,41 +232,41 @@ class VariantRenderer extends Renderer {
             }
         }
 
-        let featureGroup = SVG.addChild(args.svgCanvasFeatures, "g", {'feature_id': feature.id});
+        let featureGroup = SVG.addChild(args.svgCanvasFeatures, "g", {"feature_id": feature.id});
         let dummyRect = SVG.addChild(featureGroup, "rect", {
-            'x': xs,
-            'y': 1,
-            'width': width,
-            'height': ys,
-            'fill': 'transparent',
-            'cursor': 'pointer'
+            "x": xs,
+            "y": 1,
+            "width": width,
+            "height": ys,
+            "fill": "transparent",
+            "cursor": "pointer"
         });
-        if (d00 != '') {
+        if (d00 !== "") {
             let path = SVG.addChild(featureGroup, "path", {
-                'd': d00,
-                'fill': 'blue',
-                'cursor': 'pointer'
+                "d": d00,
+                "fill": "blue",
+                "cursor": "pointer"
             });
         }
-        if (dDD != '') {
+        if (dDD !== "") {
             let path = SVG.addChild(featureGroup, "path", {
-                'd': dDD,
-                'fill': 'black',
-                'cursor': 'pointer'
+                "d": dDD,
+                "fill": "black",
+                "cursor": "pointer"
             });
         }
-        if (d11 != '') {
+        if (d11 !== "") {
             let path = SVG.addChild(featureGroup, "path", {
-                'd': d11,
-                'fill': 'red',
-                'cursor': 'pointer'
+                "d": d11,
+                "fill": "red",
+                "cursor": "pointer"
             });
         }
-        if (d01 != '') {
+        if (d01 !== "") {
             let path = SVG.addChild(featureGroup, "path", {
-                'd': d01,
-                'fill': 'orange',
-                'cursor': 'pointer'
+                "d": d01,
+                "fill": "orange",
+                "cursor": "pointer"
             });
         }
 
@@ -274,30 +274,31 @@ class VariantRenderer extends Renderer {
         let lastSampleIndex = 0;
         $(featureGroup).qtip({
             //        content: {text: tooltipText + '<br>' + feature.files[lastSampleIndex], title: tooltipTitle},
-            content: {text: tooltipText + '<br>' + samplesCount + " samples", title: tooltipTitle},
+            content: {text: tooltipText + "<br>" + samplesCount + " samples", title: tooltipTitle},
             //                        position: {target: "mouse", adjust: {x: 15, y: 0}, effect: false},
             position: {target: "mouse", adjust: {x: 25, y: 15}},
-            style: {width: true, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
+            style: {width: true, classes: _this.toolTipfontClass + " ui-tooltip ui-tooltip-shadow"},
             show: {delay: 300},
             hide: {delay: 300}
         });
+
         $(featureGroup).mousemove(function (event) {
             let sampleIndex = parseInt(event.offsetY / yi2);
-            if (sampleIndex != lastSampleIndex) {
+            if (sampleIndex !== lastSampleIndex) {
                 console.log(sampleIndex);
                 samplesCount = 0;
                 let sampleName = "";
                 let found = false;
                 for (let i in feature.studies) {
                     for (let j in feature.studies[i].samplesData) {   // better search it up than storing it? memory could be an issue.
-                        if (sampleIndex == samplesCount) {
+                        if (sampleIndex === samplesCount) {
                             found = true;
                             sampleName = j;
                         }
                         samplesCount++;
                     }
                 }
-                $(featureGroup).qtip('option', 'content.text', tooltipText + '<br>' + sampleName);
+                $(featureGroup).qtip("option", "content.text", tooltipText + "<br>" + sampleName);
             }
             lastSampleIndex = sampleIndex;
         });

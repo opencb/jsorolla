@@ -7,7 +7,7 @@ class HistogramRenderer extends Renderer {
 
         //set default args
         this.histogramHeight = 75;
-        this.histogramColor = '#428bca';
+        this.histogramColor = "#428bca";
         //    this.multiplier = 7;
 
         this.maxValue = 10;
@@ -17,9 +17,9 @@ class HistogramRenderer extends Renderer {
     }
 
     _checkFeatureValue(feature) {
-        if (feature.features_count == null) {
+        if (feature.features_count === null) {
             //            var height = Math.log(features[i].absolute);
-            if (feature.absolute != 0 && feature.absolute > 0) {
+            if (feature.absolute !== 0 && feature.absolute > 0) {
                 // take care of feature.absolute==1 counts and set scaled value to 0.2 as log(2) ~= 0.3
                 feature.features_count = Math.max(0.2, Math.log(feature.absolute));
             } else {
@@ -33,11 +33,11 @@ class HistogramRenderer extends Renderer {
      * @param args
      */
     updateScale(args) {
-        if (args != null) {
-            if (args.height != null) {
+        if (args !== null) {
+            if (args.height !== null) {
                 this.histogramHeight = args.height * 0.95;
             }
-            if (args.histogramMaxFreqValue != null) {
+            if (args.histogramMaxFreqValue !== null) {
                 this.maxValue = args.histogramMaxFreqValue;
             }
         }
@@ -52,7 +52,7 @@ class HistogramRenderer extends Renderer {
 
         let middle = args.width / 2;
         //console.log(middle);
-        let points = '';
+        let points = "";
 
         this.updateScale(args);
 
@@ -64,8 +64,8 @@ class HistogramRenderer extends Renderer {
             this._checkFeatureValue(firstFeature);
             let height = firstFeature.features_count * this.multiplier;
 
-            points = (x - (width / 2)).toFixed(1) + ',' + this.histogramHeight.toFixed(1) + ' ';
-            points += (x - (width / 2)).toFixed(1) + ',' + (this.histogramHeight - height).toFixed(1) + ' ';
+            points = (x - (width / 2)).toFixed(1) + "," + this.histogramHeight.toFixed(1) + " ";
+            points += (x - (width / 2)).toFixed(1) + "," + (this.histogramHeight - height).toFixed(1) + " ";
         }
         for (let i = 0, len = features.length; i < len; i++) {
             let feature = features[i].value;
@@ -87,11 +87,11 @@ class HistogramRenderer extends Renderer {
             this._checkFeatureValue(lastFeature);
             let height = lastFeature.features_count * this.multiplier;
 
-            points += (x + (width)).toFixed(1) + ',' + (this.histogramHeight - height).toFixed(1) + ' ';
-            points += (x + (width)).toFixed(1) + ',' + this.histogramHeight.toFixed(1) + ' ';
+            points += (x + (width)).toFixed(1) + "," + (this.histogramHeight - height).toFixed(1) + " ";
+            points += (x + (width)).toFixed(1) + "," + this.histogramHeight.toFixed(1) + " ";
         }
 
-        if (points !== '') {
+        if (points !== "") {
             SVG.addChild(args.svgCanvasFeatures, "polyline", {
                 "points": points,
                 //        "stroke": "#000000",

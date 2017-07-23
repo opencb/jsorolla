@@ -5,8 +5,8 @@ class GeneRenderer extends Renderer {
         //Extend and add Backbone Events
         Object.assign(this, Backbone.Events);
 
-        this.fontClass = 'ocb-font-roboto ocb-font-size-11';
-        this.toolTipfontClass = 'ocb-tooltip-font';
+        this.fontClass = "ocb-font-roboto ocb-font-size-11";
+        this.toolTipfontClass = "ocb-tooltip-font";
 
         if (_.isObject(args)) {
             Object.assign(this, args);
@@ -77,7 +77,7 @@ class GeneRenderer extends Renderer {
                         }
                         checkRowY += rowHeight;
                     }
-                    if (foundTranscriptsArea == true) {
+                    if (foundTranscriptsArea === true) {
                         foundArea = args.renderedArea[rowY].add({start: x, end: x + maxWidth - 1});
                     }
                 } else {
@@ -87,27 +87,27 @@ class GeneRenderer extends Renderer {
                 //paint genes
                 if (foundArea) {
                     let featureGroup = SVG.addChild(args.svgCanvasFeatures, "g", {
-                        'feature_id': feature.id
+                        "feature_id": feature.id
                     });
-                    let rect = SVG.addChild(featureGroup, 'rect', {
-                        'x': x,
-                        'y': rowY,
-                        'width': width,
-                        'height': height,
-                        'stroke': '#3B0B0B',
-                        'stroke-width': 0.5,
-                        'fill': color,
-                        'cursor': 'pointer'
+                    let rect = SVG.addChild(featureGroup, "rect", {
+                        "x": x,
+                        "y": rowY,
+                        "width": width,
+                        "height": height,
+                        "stroke": "#3B0B0B",
+                        "stroke-width": 0.5,
+                        "fill": color,
+                        "cursor": "pointer"
                     });
 
                     if (args.maxLabelRegionSize > args.regionSize) {
-                        let text = SVG.addChild(featureGroup, 'text', {
-                            'i': i,
-                            'x': x,
-                            'y': textY,
-                            'fill': 'black',
-                            'cursor': 'pointer',
-                            'class': _this.fontClass
+                        let text = SVG.addChild(featureGroup, "text", {
+                            "i": i,
+                            "x": x,
+                            "y": textY,
+                            "fill": "black",
+                            "cursor": "pointer",
+                            "class": _this.fontClass
                         });
                         text.textContent = label;
                     }
@@ -116,17 +116,17 @@ class GeneRenderer extends Renderer {
                         content: {text: tooltipText, title: tooltipTitle},
                         // position: {target: "mouse", adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
                         position: {target: "mouse", adjust: {x: 25, y: 15}},
-                        style: {width: true, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
+                        style: {width: true, classes: _this.toolTipfontClass + " ui-tooltip ui-tooltip-shadow"},
                         show: {delay: 300},
                         hide: {delay: 300}
                     });
 
 
-                    featureGroup.addEventListener('click', function (e) {
-                        _this.trigger('feature:click', {
+                    featureGroup.addEventListener("click", function (e) {
+                        _this.trigger("feature:click", {
                             query: feature[infoWidgetId],
                             feature: feature,
-                            featureType: 'gene',
+                            featureType: "gene",
                             clickEvent: e
                         });
                     });
@@ -163,27 +163,27 @@ class GeneRenderer extends Renderer {
                             args.renderedArea[checkRowY].add({start: x, end: x + maxWidth - 1});
 
 
-                            let transcriptGroup = SVG.addChild(args.svgCanvasFeatures, 'g', {
+                            let transcriptGroup = SVG.addChild(args.svgCanvasFeatures, "g", {
                                 "data-widget-id": transcript[infoWidgetId],
                                 "data-transcript-idx": i
                             });
 
 
-                            let rect = SVG.addChild(transcriptGroup, 'rect', {//this rect its like a line
-                                'x': transcriptX,
-                                'y': checkRowY + 1,
-                                'width': transcriptWidth,
-                                'height': height,
-                                'fill': 'gray',
-                                'cursor': 'pointer',
-                                'feature_id': transcript.id
+                            let rect = SVG.addChild(transcriptGroup, "rect", {//this rect its like a line
+                                "x": transcriptX,
+                                "y": checkRowY + 1,
+                                "width": transcriptWidth,
+                                "height": height,
+                                "fill": "gray",
+                                "cursor": "pointer",
+                                "feature_id": transcript.id
                             });
-                            let text = SVG.addChild(transcriptGroup, 'text', {
-                                'x': transcriptX,
-                                'y': checkTextY,
-                                'fill': 'black',
-                                'cursor': 'pointer',
-                                'class': _this.fontClass
+                            let text = SVG.addChild(transcriptGroup, "text", {
+                                "x": transcriptX,
+                                "y": checkTextY,
+                                "fill": "black",
+                                "cursor": "pointer",
+                                "class": _this.fontClass
                             });
                             text.textContent = label;
 
@@ -192,12 +192,12 @@ class GeneRenderer extends Renderer {
                                 content: {text: tooltipText, title: tooltipTitle},
                                 // position: {target: 'mouse', adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
                                 position: {target: "mouse", adjust: {x: 25, y: 15}},
-                                style: {width: true, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
+                                style: {width: true, classes: _this.toolTipfontClass + " ui-tooltip ui-tooltip-shadow"},
                                 show: {delay: 300},
                                 hide: {delay: 300}
                             });
 
-                            transcriptGroup.addEventListener('click', function (e) {
+                            transcriptGroup.addEventListener("click", function (e) {
                                 // var query = this.getAttribute('data-widget-id');
                                 // var idx = this.getAttribute("data-transcript-idx");
                                 // _this.trigger('feature:click', {
@@ -239,13 +239,13 @@ class GeneRenderer extends Renderer {
                                     position: {target: "mouse", adjust: {x: 25, y: 15}},
                                     style: {
                                         width: true,
-                                        classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'
+                                        classes: _this.toolTipfontClass + " ui-tooltip ui-tooltip-shadow"
                                     },
                                     show: {delay: 300},
                                     hide: {delay: 300}
                                 });
 
-                                exonGroup.addEventListener('click', function (e) {
+                                exonGroup.addEventListener("click", function (e) {
                                     // console.log(this.dataset.id);
                                     // var query = this.getAttribute('data-widget-id');
                                     // var idx = this.getAttribute("data-transcript-idx");
@@ -287,14 +287,14 @@ class GeneRenderer extends Renderer {
                                         "fill": transcriptColor,
                                         "cursor": "pointer"
                                     });
-                                    if (args.pixelBase > 9.5 && transcript.proteinSequence != null && exon.phase != null) {
-                                        if (exon.strand == '+') {
+                                    if (args.pixelBase > 9.5 && transcript.proteinSequence !== null && exon.phase !== null) {
+                                        if (exon.strand === "+") {
                                             /* not change var x let*/
                                             var proteinString = transcript.proteinSequence.substring(Math.floor(exon.cdsStart / 3), Math.floor(exon.cdsEnd / 3));
                                             var proteinPhaseOffset = codingX - (((3 - exon.phase) % 3) * args.pixelBase);
                                             var sign = 1;
 
-                                        } else if (exon.strand == '-') {
+                                        } else if (exon.strand === "-") {
                                             var proteinString = transcript.proteinSequence.substring(Math.floor(exon.cdsStart / 3), Math.ceil(exon.cdsEnd / 3));
                                             var proteinPhaseOffset = codingReverseX - (args.pixelBase * 2) - (exon.phase * args.pixelBase);
                                             var sign = -1;
@@ -305,16 +305,16 @@ class GeneRenderer extends Renderer {
                                                 "y": checkRowY - 1,
                                                 "width": (args.pixelBase * 3),
                                                 "height": height,
-                                                'stroke': '#3B0B0B',
-                                                'stroke-width': 0.5,
+                                                "stroke": "#3B0B0B",
+                                                "stroke-width": 0.5,
                                                 "fill": CODON_CONFIG[proteinString.charAt(j)].color,
-                                                "class": 'ocb-codon'
+                                                "class": "ocb-codon"
                                             });
                                             let codonText = SVG.addChild(exonGroup, "text", {
                                                 "x": proteinPhaseOffset + (sign * args.pixelBase * j * 3) + args.pixelBase / 3,
                                                 "y": checkRowY - 3,
                                                 "width": (args.pixelBase * 3),
-                                                "class": 'ocb-font-ubuntumono ocb-font-size-16 ocb-codon'
+                                                "class": "ocb-font-ubuntumono ocb-font-size-16 ocb-codon"
                                             });
                                             codonText.textContent = CODON_CONFIG[proteinString.charAt(j)].text;
                                         }
