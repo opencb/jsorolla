@@ -1,7 +1,9 @@
 //Parent class for all renderers
 class Renderer {
-    constructor(args) {
 
+    constructor(args) {
+        this.fontClass = "ocb-font-roboto ocb-font-size-11";
+        this.toolTipfontClass = "ocb-tooltip-font";
     }
 
     init() {
