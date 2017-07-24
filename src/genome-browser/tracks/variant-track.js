@@ -17,71 +17,82 @@ class VariantTrack extends FeatureTrack {
     }
 
     _init() {
-        // set OpenCGA adapter as default. OpenCGA Client constructor(client, category, subcategory, resource, params = {}, options = {}, handlers = {}) {
+        // Set OpenCGA adapter as default. OpenCGA Client constructor(client, category, subcategory, resource, params = {}, options = {}, handlers = {}) {
         if (typeof this.dataAdapter === "undefined" || this.dataAdapter === null) {
             if (typeof this.opencga !== "undefined" && this.opencga !== null) {
-                let opencgaConfig = new OpenCGAClientConfig(this.opencga.host, this.opencga.version);
+                let opencgaClientConfig = new OpenCGAClientConfig(this.opencga.host, this.opencga.version);
                 // opencgaConfig.cache.active = false;
-                this.dataAdapter = new OpencgaAdapter(new OpenCGAClient(opencgaConfig), "analysis/variant", "", "query", {
+                this.dataAdapter = new OpencgaAdapter(new OpenCGAClient(opencgaClientConfig), "analysis/variant", "", "query", {
                     studies: this.opencga.studies,
                     exclude: this.DEFAULT_EXCLUDE
                 }, {
                     chunkSize: 20000
                 });
+
+                if (typeof this.opencga.samples !== "undefined" && this.opencga.samples !== null) {
+                    this.dataAdapter.params.exclude = "studies.files,studies.stats,annotation";
+                    this.dataAdapter.params.returnedSamples = this.opencga.samples;
+                }
+            } else {
+                console.error("No 'dataAdapter' or 'opencga' object provided");
             }
         }
 
-        // set a default geneRenderer
+        // Set FeatureRenderer as default
         if (typeof this.renderer === "undefined" || this.renderer === null) {
             // this.renderer = new VariantRenderer(FEATURE_TYPES.variant);
-            this.renderer = new FeatureRenderer(FEATURE_TYPES.variant);
+            if (typeof this.opencga.samples === "undefined" || this.opencga.samples === null) {
+                this.renderer = new FeatureRenderer(FEATURE_TYPES.variant);
+            } else {
+                FEATURE_TYPES.variant.sampleNames = this.opencga.samples;
+                this.renderer = new VariantRenderer(FEATURE_TYPES.variant);
+            }
         }
-
         this.renderer.track = this;
 
-        // set the right
-        if (typeof this.samples !== "undefined" && this.samples !== null) {
-            // this.renderer.mode = "compact".....
-            this.exclude = "studies.files,studies.stats,annotation";
-            this.dataAdapter.params.exclude = "studies.files,studies.stats,annotation";
-            // this.dataAdapter.params.returnedSamples = "HG00096,HG00097,HG00099";
-            this.dataAdapter.params.returnedSamples = this.samples.names["reference_grch37:1kG_phase3"];
-
-
-            // let opencgaConfig = new OpenCGAClientConfig(this.opencga.host, this.opencga.version);
-            // this.dataAdapter = new OpencgaAdapter(new OpenCGAClient(opencgaConfig), "analysis/variant", "", "query", {
-            //     studies: this.opencga.studies,
-            //     exclude: "studies.files,studies.stats,annotation",
-            //     outputSamples: "HG00096,HG00097,HG00099"
-            // }, {
-            //     chunkSize: 100000
-            // });
-
-            FEATURE_TYPES.variant.sampleNames = this.samples.names;
-            this.renderer = new VariantRenderer(FEATURE_TYPES.variant);
-            this.renderer.track = this;
-        }
+        // Check if samples are provided, we need to configure  the right Renderer
+        // if (typeof this.samples !== "undefined" && this.samples !== null) {
+        //     // this.renderer.mode = "compact".....
+        //     this.exclude = "studies.files,studies.stats,annotation";
+        //     this.dataAdapter.params.exclude = "studies.files,studies.stats,annotation";
+        //     // this.dataAdapter.params.returnedSamples = "HG00096,HG00097,HG00099";
+        //     this.dataAdapter.params.returnedSamples = this.samples.names["reference_grch37:1kG_phase3"];
+        //
+        //
+        //     // let opencgaConfig = new OpenCGAClientConfig(this.opencga.host, this.opencga.version);
+        //     // this.dataAdapter = new OpencgaAdapter(new OpenCGAClient(opencgaConfig), "analysis/variant", "", "query", {
+        //     //     studies: this.opencga.studies,
+        //     //     exclude: "studies.files,studies.stats,annotation",
+        //     //     outputSamples: "HG00096,HG00097,HG00099"
+        //     // }, {
+        //     //     chunkSize: 100000
+        //     // });
+        //
+        //     FEATURE_TYPES.variant.sampleNames = this.samples.names;
+        //     this.renderer = new VariantRenderer(FEATURE_TYPES.variant);
+        //     this.renderer.track = this;
+        // }
     }
 
     initializeDom(targetId) {
         //TODO Create a button for configuration
         this._initializeDom(targetId);
 
-        this.main = SVG.addChild(this.contentDiv, 'svg', {
-            'class': 'trackSvg',
-            'x': 0,
-            'y': 0,
-            'width': this.width
+        this.main = SVG.addChild(this.contentDiv, "svg", {
+            "class": "trackSvg",
+            "x": 0,
+            "y": 0,
+            "width": this.width
         });
-        this.svgCanvasFeatures = SVG.addChild(this.main, 'svg', {
-            'class': 'features',
-            'x': -this.pixelPosition,
-            'width': this.svgCanvasWidth
+
+        this.svgCanvasFeatures = SVG.addChild(this.main, "svg", {
+            "class": "features",
+            "x": -this.pixelPosition,
+            "width": this.svgCanvasWidth
         });
+
         this.updateHeight();
         this.renderer.init();
     }
-
-
 
 }
