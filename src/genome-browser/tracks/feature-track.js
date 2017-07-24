@@ -481,11 +481,9 @@ class FeatureTrack {
     }
 
     getDataHandler(event) {
-        // debugger
-        console.time("Total FeatureTrack -> getDataHandler " + event.sender.category)
+        console.time("Total FeatureTrack -> getDataHandler " + event.sender.category);
 
-        console.time("Chunks() FeatureTrack -> getDataHandler " + event.sender.category)
-
+        console.time("Chunks() FeatureTrack -> getDataHandler " + event.sender.category);
         let renderer;
         let features;
         if (event.dataType !== "histogram") {
@@ -495,9 +493,9 @@ class FeatureTrack {
             renderer = this.histogramRenderer;
             features = event.items;
         }
-        console.timeEnd("Chunks() FeatureTrack -> getDataHandler " + event.sender.category)
+        console.timeEnd("Chunks() FeatureTrack -> getDataHandler " + event.sender.category);
 
-        console.time("render() FeatureTrack -> getDataHandler " + event.sender.category)
+        console.time("render() FeatureTrack -> getDataHandler " + event.sender.category);
         renderer.render(features, {
             cacheItems: event.items,
             svgCanvasFeatures: this.svgCanvasFeatures,
@@ -513,9 +511,10 @@ class FeatureTrack {
             species: this.species,
             featureType: this.featureType
         });
+        console.timeEnd("render() FeatureTrack -> getDataHandler " + event.sender.category);
+
         this.updateHeight();
-        console.timeEnd("render() FeatureTrack -> getDataHandler " + event.sender.category)
-        console.timeEnd("Total FeatureTrack -> getDataHandler " + event.sender.category)
+        console.timeEnd("Total FeatureTrack -> getDataHandler " + event.sender.category);
     }
 
     draw(adapter, renderer) {
@@ -568,9 +567,9 @@ class FeatureTrack {
                     _this.setLoading(false);
                 })
                 .catch(function(reason) {
-                    console.log("Feature Track draw error: " + reason)
+                    console.log("Feature Track draw error: " + reason);
                 });
-            console.timeEnd("SuperTotal FeatureTrack -> getDataHandler")
+            console.timeEnd("SuperTotal FeatureTrack -> getDataHandler");
         } else {
             //        this.invalidZoomText.setAttribute("visibility", "visible");
         }
