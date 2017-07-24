@@ -28,8 +28,8 @@ class VariantTrack extends FeatureTrack {
                 }, {
                     chunkSize: 20000
                 });
-
-                if (typeof this.opencga.samples !== "undefined" && this.opencga.samples !== null) {
+                
+                if (typeof this.opencga.samples !== "undefined" && this.opencga.samples !== null && this.opencga.samples.length !== 0) {
                     this.dataAdapter.params.exclude = "studies.files,studies.stats,annotation";
                     this.dataAdapter.params.returnedSamples = this.opencga.samples;
                 }
@@ -41,7 +41,7 @@ class VariantTrack extends FeatureTrack {
         // Set FeatureRenderer as default
         if (typeof this.renderer === "undefined" || this.renderer === null) {
             // this.renderer = new VariantRenderer(FEATURE_TYPES.variant);
-            if (typeof this.opencga.samples === "undefined" || this.opencga.samples === null) {
+            if (typeof this.opencga.samples === "undefined" || this.opencga.samples === null || this.opencga.samples.length === 0) {
                 this.renderer = new FeatureRenderer(FEATURE_TYPES.variant);
             } else {
                 FEATURE_TYPES.variant.sampleNames = this.opencga.samples;
