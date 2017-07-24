@@ -16,10 +16,15 @@ class FeatureAdapter {
     }
 
     _checkRegion(region) {
+        // Check region is a valid object
+        if (region === undefined || region === null) {
+            return undefined;
+        }
+
         // Check start is >= 1
         region.start = Math.max(region.start, 1);
 
-        // Check end is >= start
+        // Check end >= start
         if (region.start > region.end) {
             console.warn("Swapping start and end positions: ", region);
             [region.start, region.end] = [region.end, region.start];
@@ -28,6 +33,7 @@ class FeatureAdapter {
         return region;
     }
 
+    // This function must be implemented by any child
     getData() {
 
     }

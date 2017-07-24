@@ -40,38 +40,10 @@ class VariantTrack extends FeatureTrack {
 
         // Set FeatureRenderer as default
         if (typeof this.renderer === "undefined" || this.renderer === null) {
-            // this.renderer = new VariantRenderer(FEATURE_TYPES.variant);
-            if (typeof this.opencga.samples === "undefined" || this.opencga.samples === null || this.opencga.samples.length === 0) {
-                this.renderer = new FeatureRenderer(FEATURE_TYPES.variant);
-            } else {
-                FEATURE_TYPES.variant.sampleNames = this.opencga.samples;
-                this.renderer = new VariantRenderer(FEATURE_TYPES.variant);
-            }
+            FEATURE_TYPES.variant.sampleNames = this.opencga.samples;
+            this.renderer = new VariantRenderer(FEATURE_TYPES.variant);
         }
         this.renderer.track = this;
-
-        // Check if samples are provided, we need to configure  the right Renderer
-        // if (typeof this.samples !== "undefined" && this.samples !== null) {
-        //     // this.renderer.mode = "compact".....
-        //     this.exclude = "studies.files,studies.stats,annotation";
-        //     this.dataAdapter.params.exclude = "studies.files,studies.stats,annotation";
-        //     // this.dataAdapter.params.returnedSamples = "HG00096,HG00097,HG00099";
-        //     this.dataAdapter.params.returnedSamples = this.samples.names["reference_grch37:1kG_phase3"];
-        //
-        //
-        //     // let opencgaConfig = new OpenCGAClientConfig(this.opencga.host, this.opencga.version);
-        //     // this.dataAdapter = new OpencgaAdapter(new OpenCGAClient(opencgaConfig), "analysis/variant", "", "query", {
-        //     //     studies: this.opencga.studies,
-        //     //     exclude: "studies.files,studies.stats,annotation",
-        //     //     outputSamples: "HG00096,HG00097,HG00099"
-        //     // }, {
-        //     //     chunkSize: 100000
-        //     // });
-        //
-        //     FEATURE_TYPES.variant.sampleNames = this.samples.names;
-        //     this.renderer = new VariantRenderer(FEATURE_TYPES.variant);
-        //     this.renderer.track = this;
-        // }
     }
 
     initializeDom(targetId) {

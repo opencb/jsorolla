@@ -22,9 +22,10 @@
  * Created by pfurio on 16/11/16.
  */
 
-class OpencgaAdapter {
+class OpencgaAdapter extends FeatureAdapter {
 
     constructor(client, category, subcategory, resource, params = {}, options = {}, handlers = {}) {
+        super();
 
         this.client = client;
         this.category = category;
@@ -34,8 +35,10 @@ class OpencgaAdapter {
         this.options = options;
         this.handlers = handlers;
 
-        if (!this.options.hasOwnProperty("chunkSize")) {
-            this.options.chunkSize = 3000;
+        const CHUNK_SIZE_DEFAULT = 2000;
+
+        if (typeof this.options.chunkSize === "undefined" || this.options.chunkSize === 0) {
+            this.options.chunkSize = CHUNK_SIZE_DEFAULT;
         }
 
         Object.assign(this, Backbone.Events);
@@ -47,26 +50,27 @@ class OpencgaAdapter {
         // this.species = species;
     }
 
-    _checks(args){
-
-        /** 1 region check **/
-        let region = args.region;
-        if (region.start > 300000000 || region.end < 1) {
-            return;
-        }
-        region.start = (region.start < 1) ? 1 : region.start;
-        region.end = (region.end > 300000000) ? 300000000 : region.end;
-
-        /** 2 category check **/
-        let categories = this.resource.toString().split(',');   // in this adapter
-
-        /** 3 dataType check **/
-        let dataType = args.dataType;
-        if (_.isUndefined(dataType)) {
-            console.error("dataType must be provided!!!");
-            return;
-        }
-    }
+    // Deprecated, moved to parent class
+    // _checks(args){
+    //
+    //     /** 1 region check **/
+    //     let region = args.region;
+    //     if (region.start > 300000000 || region.end < 1) {
+    //         return;
+    //     }
+    //     region.start = (region.start < 1) ? 1 : region.start;
+    //     region.end = (region.end > 300000000) ? 300000000 : region.end;
+    //
+    //     /** 2 category check **/
+    //     let categories = this.resource.toString().split(',');   // in this adapter
+    //
+    //     /** 3 dataType check **/
+    //     let dataType = args.dataType;
+    //     if (_.isUndefined(dataType)) {
+    //         console.error("dataType must be provided!!!");
+    //         return;
+    //     }
+    // }
 
     getData(args){
         switch(this.category ) {
@@ -88,10 +92,10 @@ class OpencgaAdapter {
         let _this = this;
         let params = {};
 
-        Object.assign(params, this.params);
-        Object.assign(params, args.params);
+        Object.assign(params, this.params, args.params);
+        // Object.assign(params, args.params);
 
-        this._checks(args);
+        // this._checks(args);
 
         /** 4 chunkSize check **/
         let chunkSize = params.interval ? params.interval : this.options.chunkSize; // this.cache.defaultChunkSize should be the same
@@ -138,23 +142,23 @@ class OpencgaAdapter {
     }
 
     _getVariant(args){
-        console.log("In GetVariant");
-        let _this = this;
-        let params = {};
+        console.debug("OpenCGA Data Adapter: fetching Variants");
 
-        Object.assign(params, this.params);
-        Object.assign(params, args.params);
+        let params = {};
+        Object.assign(params, this.params, args.params);
+        // Object.assign(params, args.params);
 
         /** 1 region check **/
-        let region = args.region;
-        if (region.start > 300000000 || region.end < 1) {
-            return;
-        }
-        region.start = (region.start < 1) ? 1 : region.start;
-        region.end = (region.end > 300000000) ? 300000000 : region.end;
+        // let region = args.region;
+        // if (region.start > 300000000 || region.end < 1) {
+        //     return;
+        // }
+        // region.start = (region.start < 1) ? 1 : region.start;
+        // region.end = (region.end > 300000000) ? 300000000 : region.end;
+        args.region = super._checkRegion(args.region);
 
         /** 2 category check **/
-        let categories = this.resource.toString().split(',');   // in this adapter
+        let categories = this.resource.toString().split(",");   // in this adapter
 
         /** 3 dataType check **/
         let dataType = args.dataType;
@@ -182,6 +186,7 @@ class OpencgaAdapter {
             //exclude= "studies.files,studies.stats,annotation" For VariantRender
         }
 
+        let _this = this;
         return new Promise(function(resolve, reject) {
             // Create the chunks to be retrieved
             let start = _this._getStartChunkPosition(region.start);
@@ -469,8 +474,8 @@ class OpencgaAdapter {
         var regions = [];
         var chunks = [];
         if (dataType !== 'histogram') {
-            for(var i = 0; i< response.response.length; i++){
-                var res = response.response[i].result;
+            for(let i = 0; i< response.response.length; i++){
+                let res = response.response[i].result;
                 chunks.push(res);
 
             }
