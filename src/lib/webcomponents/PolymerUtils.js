@@ -68,7 +68,7 @@ class PolymerUtils {
             // If element is a string we do first a getElementById, if it exist we execute the query
             if (typeof element === "string") {
                 let elem = PolymerUtils.getElementById(element);
-                if (elem !== undefined) {
+                if (elem !== undefined && elem !== null) {
                     return element.getElementsByClassName(className);
                 } else {
                     // The given element id does not exist
@@ -88,7 +88,7 @@ class PolymerUtils {
             // If element is a string we do first a getElementById, if it exist we execute the query
             if (typeof element === "string") {
                 let elem = PolymerUtils.getElementById(element);
-                if (elem !== undefined) {
+                if (elem !== undefined && elem !== null) {
                     return elem.querySelector(selectors);
                 } else {
                     // The given element id does not exist
@@ -108,7 +108,7 @@ class PolymerUtils {
             // If element is a string we do first a getElementById, if it exist we execute the query
             if (typeof element === "string") {
                 let elem = PolymerUtils.getElementById(element);
-                if (elem !== undefined) {
+                if (elem !== undefined && elem !== null) {
                     return elem.querySelectorAll(selectors);
                 } else {
                     // The given element id does not exist
