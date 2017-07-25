@@ -53,7 +53,6 @@
                 <div class="panel-body">
                     <h4>Variant</h4>
                         <input type="checkbox"> View extended
-
                     <h4 style="padding-top: 5px">Alignments</h4>
                     <div style="padding-left: 20px">
                         <template is="dom-repeat" items="{{samplesWithFiles}}" as="sample">
@@ -79,7 +78,7 @@
                 <genome-browser cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}"
                                 species={{species}}
                                 region="{{region}}" tracks="[[tracks]]" samples="{{_samples}}"
-                                study="{{study}}" project="{{project}}">
+                                study="{{study}}" project="{{project}}" files="{{files}}">
                 </genome-browser>
             </div>
         </div>
@@ -194,27 +193,30 @@
                             });
 
                             _this.samplesWithFiles = _samplesWithFiles;
-//                            _this.samplesWithFiles = samplesWithFiles;
                         }
-//                    let files = [];
-//                    if (response.response[0].numResults === 0) {
-//                        return;
-//                    }
-//                    response.response[0].result.forEach(function(file) {
-//                        files.push(file.id);
-//                    });
-//
-//                    files.forEach(function(fileId) {
-//                        let mySettings = {
-//                            data: {
-//                                fileId: fileId,
-//                                study: _this.study.id
-//                            }
-//                        };
-//                        Object.assign(settings, mySettings);
-//                        let track = _this.getAlignmentTrack(settings);
-//                        _this.genomeBrowser.addTrack(track);
-//                    });
+                        let files = [];
+                        if (response.response[0].numResults === 0) {
+                            return;
+                        }
+                        response.response[0].result.forEach(function (file) {
+                            files.push(file.id);
+                        });
+
+                        _this.files = files;
+                        _this._samples = _this.samples;
+
+
+//                        files.forEach(function (fileId) {
+//                            let mySettings = {
+//                                data: {
+//                                    fileId: fileId,
+//                                    study: _this.study.id
+//                                }
+//                            };
+//                            Object.assign(settings, mySettings);
+//                            let track = _this.getAlignmentTrack(settings);
+//                            _this.genomeBrowser.addTrack(track);
+//                        });
 
                     })
                     .catch(function (response) {

@@ -1,4 +1,3 @@
-
 <dom-module id="genome-browser">
 
     <template>
@@ -69,7 +68,7 @@
             ready() {
                 super.ready();
 
-                if (typeof this.prefix === "undefined" || this.prefix === "") {
+                if (PolymerUtils.isEmpty(this.prefix)) {
                     this.prefix = "gb_" + Utils.randomString(6);
                 }
 
@@ -105,8 +104,7 @@
                             collapsible: true
                         },
                         navigationBarConfig: {
-                            componentsConfig: {
-                            }
+                            componentsConfig: {}
                         },
                         width: 1400
                     };
@@ -119,30 +117,12 @@
                         availableSpecies: availableSpecies,
                         species: _this.species,
                         handlers: {
-                            'region:change': function(e) {
+                            'region:change': function (e) {
                                 console.log(e)
                             }
                         }
                     });
                     _this.genomeBrowser = new GenomeBrowser(settings);
-
-                    // Region Overview
-                    let gene = new FeatureTrack({
-                        minHistogramRegionSize: 20000000,
-                        maxLabelRegionSize: 10000000,
-                        height: 120,
-
-                        renderer: new FeatureRenderer(FEATURE_TYPES.gene),
-
-                        dataAdapter: new CellBaseAdapter(_this.cellbaseClient, "genomic", "region", "gene",
-                            {
-                                exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence'
-                            }, {
-                                chunkSize: 100000
-                            })
-                    });
-                    _this.genomeBrowser.addOverviewTrack(gene);
-
 
                     let _tracks = [];
                     for (let i = 0; i < _this.tracks.length; i++) {
@@ -158,7 +138,10 @@
                                 _tracks.push(_this._addVariantTrack(_this.tracks[i].config));
                                 break;
                             case 'alignment':
-                                _this._getAlignmentTrack(_this.tracks[i].config);
+                                let alignmentTracks = _this.addAlignmentTrack(_this.tracks[i].config);
+                                if (PolymerUtils.isNotEmptyArray(alignmentTracks)) {
+                                    _tracks.push(alignmentTracks);
+                                }
 //                                if (typeof _this.samples !== "undefined" && _this.samples.length > 0) {
 //                                    tracks.push(_this._addAlignmentTrack(_this.trackConfigs[_this.tracks[i]]));
 //                                }
@@ -168,6 +151,24 @@
 //                                break;
                         }
                     }
+
+                    // Region Overview
+                    let gene = new FeatureTrack({
+                        minHistogramRegionSize: 20000000,
+                        maxLabelRegionSize: 10000000,
+                        visibleRegionSize: 200,
+                        height: 120,
+
+                        renderer: new FeatureRenderer(FEATURE_TYPES.gene),
+
+                        dataAdapter: new CellBaseAdapter(_this.cellbaseClient, "genomic", "region", "gene",
+                            {
+                                exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence'
+                            }, {
+                                chunkSize: 100000
+                            })
+                    });
+                    _this.genomeBrowser.addOverviewTrack(gene);
                     _this.genomeBrowser.addTrack(_tracks);
                     _this.genomeBrowser.draw();
                 });
@@ -180,7 +181,7 @@
                     visibleRegionSize: 200,
 
                     renderer: new SequenceRenderer(),
-                    dataAdapter: new CellBaseAdapter(this.cellbaseClient, "genomic", "region", "sequence", {}, { chunkSize: 100})
+                    dataAdapter: new CellBaseAdapter(this.cellbaseClient, "genomic", "region", "sequence", {}, {chunkSize: 100})
                 };
                 mySettings = Object.assign(mySettings, settings);
                 return new FeatureTrack(mySettings);
@@ -196,7 +197,7 @@
 
                     renderer: new GeneRenderer({
                         handlers: {
-                            'feature:click': function(e) {
+                            'feature:click': function (e) {
                                 console.log(e)
                             }
                         }
@@ -213,6 +214,7 @@
             }
 
             _addVariantTrack(settings) {
+                console.log("hola" + this.project + " " + this.study);
                 let mySettings = {
                     title: "Variant",
                     closable: true,
@@ -224,7 +226,7 @@
                     opencga: {
                         host: OPENCGA_HOST,
                         version: "v1",
-                        studies: "reference_grch37:1kG_phase3"
+                        studies: "platinum:illumina_platinum"
                     },
 //                    samples: {
 //                        names: { "reference_grch37:1kG_phase3": ["HG00096", "HG00097", "HG00099"]}
@@ -238,23 +240,17 @@
                         _samples.push(s.name);
                     }
 
-                    mySettings.samples = {names: { "reference_grch37:1kG_phase3": _samples}};
+                    mySettings.opencga.samples = _samples;
                 } else {
-                    mySettings.samples = {names: { "reference_grch37:1kG_phase3": "none"}};
+                    mySettings.opencga.samples = "none";
                 }
 
                 mySettings = Object.assign(mySettings, settings);
                 return new VariantTrack(mySettings);
             }
 
-            /*
-             settings is supposed to have:
-             - type: alignment...
-             - config: Configuration of the track (title, closable, height...)
-             - source: opencga, cellbase...
-             - data: data that will be used
-             */
-            _getAlignmentTrack(settings = {}) {
+
+            getAlignmentTrack(settings) {
                 let mySettings = {
                     title: "Alignment",
                     closable: true,
@@ -269,6 +265,37 @@
                 };
                 mySettings = Object.assign(mySettings, settings.config, renderer);
                 return new AlignmentTrack(mySettings);
+            }
+
+            /*
+             settings is supposed to have:
+             - type: alignment...
+             - config: Configuration of the track (title, closable, height...)
+             - source: opencga, cellbase...
+             - data: data that will be used
+             */
+            addAlignmentTrack(settings = {}) {
+                let resTracks = [];
+
+                if (PolymerUtils.isNotEmptyArray(this.files)) {
+                    let _this = this;
+                    this.files.forEach(function (file) {
+                        let mySettings = {
+                            data: {
+                                fileId: file,
+                                study: _this.study.id
+                            }
+                        };
+
+                        Object.assign(settings, mySettings);
+                        let track = _this.getAlignmentTrack(settings);
+                        resTracks.push(track);
+//                        _this.genomeBrowser.addTrack(track);
+
+                    });
+                }
+                return resTracks
+
             }
 
 //            getFilesToVisualiseAlignmentTracks(settings) {
@@ -320,7 +347,7 @@
             }
 
             getSpecies() {
-                return this.cellbaseClient.getMeta("species").then(function(r) {
+                return this.cellbaseClient.getMeta("species").then(function (r) {
                     var taxonomies = r.response[0].result[0];
                     for (var taxonomy in taxonomies) {
                         var newSpecies = [];

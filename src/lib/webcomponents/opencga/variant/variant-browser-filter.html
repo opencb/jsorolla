@@ -65,11 +65,11 @@
 
             .browser-ct-item {
                 white-space: nowrap;
-                display:inline
+                display: inline
             }
 
             div.block {
-                overflow:hidden;
+                overflow: hidden;
             }
 
             div.block label {
@@ -131,16 +131,20 @@
                         <div class="panel panel-default">
                             <div class="panel-heading" role="tab" id="{{prefix}}StudiesHeading">
                                 <h4 class="panel-title">
-                                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
+                                    <a class="collapsed" role="button" data-toggle="collapse"
+                                       data-parent="#{{prefix}}Accordion"
                                        href="#{{prefix}}Studies" aria-expanded="true" aria-controls="{{prefix}}Studies">
                                         Study
                                         <div style="float: right" class="tooltip-div">
-                                            <a data-toggle="tooltip" title="Use this filter to find variants which are: 1) also present in all of the selected studies below, 2) not present in any of the studies selected below or 3) present in at least one of the studies selected below"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                            <a data-toggle="tooltip"
+                                               title="Use this filter to find variants which are: 1) also present in all of the selected studies below, 2) not present in any of the studies selected below or 3) present in at least one of the studies selected below"><i
+                                                    class="fa fa-info-circle" aria-hidden="true"></i></a>
                                         </div>
                                     </a>
                                 </h4>
                             </div>
-                            <div id="{{prefix}}Studies" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}StudiesHeading">
+                            <div id="{{prefix}}Studies" class="panel-collapse collapse in" role="tabpanel"
+                                 aria-labelledby="{{prefix}}StudiesHeading">
                                 <div class="panel-body">
                                     <template is="dom-if" if="{{cohortsPresent(_cohorts)}}">
                                         <span class="browser-subsection">Cohort MAF filter</span>
@@ -148,7 +152,9 @@
                                             <div class="horizontal layout" style="padding: 4px 0px 4px 0px">
                                                 <span>{{cohort.name}}</span>
                                                 <span>
-                                                <select name="{{cohort.id}}Operator" id="{{prefix}}{{study.alias}}{{cohort.id}}CohortOperator" on-change="updateQueryFilters"  class$="{{prefix}}FilterSelect">
+                                                <select name="{{cohort.id}}Operator"
+                                                        id="{{prefix}}{{study.alias}}{{cohort.id}}CohortOperator"
+                                                        on-change="updateQueryFilters" class$="{{prefix}}FilterSelect">
                                                     <option value="<" selected><</option>
                                                     <option value="<="><=</option>
                                                     <option value=">">></option>
@@ -156,7 +162,11 @@
                                                 </select>
                                             </span>
                                                 <span>
-                                                <input type="text" value="" class$="browser-custom-sized-input {{prefix}}FilterTextInput" name="{{study.alias}}_{{cohort.id}}" id="{{prefix}}{{study.alias}}{{cohort.id}}Cohort" on-keyup="updateQueryFilters">
+                                                <input type="text" value=""
+                                                       class$="browser-custom-sized-input {{prefix}}FilterTextInput"
+                                                       name="{{study.alias}}_{{cohort.id}}"
+                                                       id="{{prefix}}{{study.alias}}{{cohort.id}}Cohort"
+                                                       on-keyup="updateQueryFilters">
                                             </span>
                                             </div>
                                         </template>
@@ -165,15 +175,19 @@
 
                                     <template is="dom-if" if="{{moreStudiesPresent(studies)}}">
                                         <span class="browser-subsection">Studies Filter</span>
-                                        <select class$="form-control {{prefix}}FilterSelect" id="includeOtherStudy" style="width: 50%;" on-change="updateQueryFilters">
+                                        <select class$="form-control {{prefix}}FilterSelect" id="includeOtherStudy"
+                                                style="width: 50%;" on-change="updateQueryFilters">
                                             <option value="in" selected>In (AND)</option>
                                             <!--<option value="not in">Not In</option>-->
                                             <option value="atleast">At least (OR)</option>
                                         </select>
                                         <div id="differentStudies">
-                                            <input type="checkbox" value="{{study.alias}}" data-id="{{study.id}}" checked disabled> {{study.alias}}<br>
+                                            <input type="checkbox" value="{{study.alias}}" data-id="{{study.id}}"
+                                                   checked disabled> {{study.alias}}<br>
                                             <template is="dom-repeat" items="{{differentStudies}}">
-                                                <input type="checkbox" value="{{item.alias}}" data-id="{{item.id}}" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> {{item.alias}}<br>
+                                                <input type="checkbox" value="{{item.alias}}" data-id="{{item.id}}"
+                                                       on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox">
+                                                {{item.alias}}<br>
                                             </template>
                                         </div>
                                     </template>
@@ -188,40 +202,54 @@
                     <div class="panel panel-default">
                         <div class="panel-heading" role="tab" id="{{prefix}}SampleFilterHeading">
                             <h4 class="panel-title">
-                                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}SampleFilter"
+                                <a class="collapsed" role="button" data-toggle="collapse"
+                                   data-parent="#{{prefix}}Accordion" href="#{{prefix}}SampleFilter"
                                    aria-expanded="true" aria-controls="{{prefix}}SampleFilter">
                                     Analysis
                                 </a>
                             </h4>
                         </div>
-                        <div id="{{prefix}}SampleFilter" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}SampleFilterHeading">
+                        <div id="{{prefix}}SampleFilter" class="panel-collapse collapse in" role="tabpanel"
+                             aria-labelledby="{{prefix}}SampleFilterHeading">
                             <div class="panel-body">
 
                                 <form>
                                     <label>Select Analysis: </label>
                                     <br>
-                                    <input id="sampleRadio" type="radio" name="analysisRadioButtons" value="sample" class$="{{prefix}}FilterRadio" checked on-change="selectAnalysisType" style="padding-left: 20px"> Samples<br>
-                                    <input id="familyRadio" type="radio" name="analysisRadioButtons" value="family" class$="{{prefix}}FilterRadio" on-change="selectAnalysisType" style="padding-left: 20px"> Family<br>
-                                    <input id="cancerRadio" type="radio" name="analysisRadioButtons" value="cancer" class$="{{prefix}}FilterRadio" on-change="selectAnalysisType" style="padding-left: 20px"> Cancer<br>
+                                    <input id="sampleRadio" type="radio" name="analysisRadioButtons" value="sample"
+                                           class$="{{prefix}}FilterRadio" checked on-change="selectAnalysisType"
+                                           style="padding-left: 20px"> Samples<br>
+                                    <input id="familyRadio" type="radio" name="analysisRadioButtons" value="family"
+                                           class$="{{prefix}}FilterRadio" on-change="selectAnalysisType"
+                                           style="padding-left: 20px"> Family<br>
+                                    <input id="cancerRadio" type="radio" name="analysisRadioButtons" value="cancer"
+                                           class$="{{prefix}}FilterRadio" on-change="selectAnalysisType"
+                                           style="padding-left: 20px"> Cancer<br>
                                 </form>
                                 <br>
 
                                 <template is="dom-if" if="{{isSampleAnalysis}}">
-                                    <label><i class="fa fa-users" aria-hidden="true"></i>&nbsp;&nbsp;Sample Analysis</label>
+                                    <label><i class="fa fa-users" aria-hidden="true"></i>&nbsp;&nbsp;Sample
+                                        Analysis</label>
                                     <br>
                                     <span>Select samples: &nbsp;
-                                        <button data-toggle="modal" role="button" data-placement="bottom" data-target$="#{{prefix}}SampleBrowser" on-click="refreshSegregationTable">
+                                        <button data-toggle="modal" role="button" data-placement="bottom"
+                                                data-target$="#{{prefix}}SampleBrowser"
+                                                on-click="refreshSegregationTable">
                                             Browse...
                                         </button>
                                     </span>
                                 </template>
 
                                 <template is="dom-if" if="{{isFamilyAnalysis}}">
-                                    <label><i class="fa fa-sitemap" aria-hidden="true"></i>&nbsp;&nbsp;Family Analysis</label>
+                                    <label><i class="fa fa-sitemap" aria-hidden="true"></i>&nbsp;&nbsp;Family
+                                        Analysis</label>
                                     <br>
                                     <!--Not ready yet, work in progress.-->
                                     <span>Select family: &nbsp;
-                                        <button data-toggle="modal" role="button" data-placement="bottom" data-target$="#{{prefix}}SampleBrowser" on-click="refreshSegregationTable">
+                                        <button data-toggle="modal" role="button" data-placement="bottom"
+                                                data-target$="#{{prefix}}SampleBrowser"
+                                                on-click="refreshSegregationTable">
                                             Browse...
                                         </button>
                                     </span>
@@ -229,11 +257,14 @@
                                     <br>
                                     <div class="dropdown">
                                         <span>Inheritance mode: &nbsp;
-                                        <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="segregationPrioritizationDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                        <button class="btn btn-default btn-sm dropdown-toggle" type="button"
+                                                id="segregationPrioritizationDropdown" data-toggle="dropdown"
+                                                aria-haspopup="true" aria-expanded="true">
                                             {{segregation}}
                                             <span class="caret"></span>
                                         </button>
-                                        <ul class="dropdown-menu" aria-labelledby="segregationPrioritizationDropdown" on-click="selectSegregation">
+                                        <ul class="dropdown-menu" aria-labelledby="segregationPrioritizationDropdown"
+                                            on-click="selectSegregation">
                                             <template is="dom-repeat" items="{{config.segregation}}">
                                                 <li><a>{{item}}</a></li>
                                             </template>
@@ -253,19 +284,29 @@
                                         <tbody>
                                         <template is="dom-repeat" items="{{_samples}}" as="sample">
                                             <tr id="{{sample.name}}">
-                                                <td id="{{prefix}}{{sample.name}}RowName" class$="{{sample.className}}">{{sample.name}}&nbsp;({{sample.role}})</td>
-                                                <td><input type="checkbox" value="0|0" data-id="{{sample.name}}" on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
-                                                <td><input type="checkbox" value="0|1" data-id="{{sample.name}}" on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
-                                                <td><input type="checkbox" value="1|1" data-id="{{sample.name}}" on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
+                                                <td id="{{prefix}}{{sample.name}}RowName" class$="{{sample.className}}">
+                                                    {{sample.name}}&nbsp;({{sample.role}})
+                                                </td>
+                                                <td><input type="checkbox" value="0|0" data-id="{{sample.name}}"
+                                                           on-change="updateQueryFilters"
+                                                           class$="genotypes {{prefix}}FilterCheckBox"></td>
+                                                <td><input type="checkbox" value="0|1" data-id="{{sample.name}}"
+                                                           on-change="updateQueryFilters"
+                                                           class$="genotypes {{prefix}}FilterCheckBox"></td>
+                                                <td><input type="checkbox" value="1|1" data-id="{{sample.name}}"
+                                                           on-change="updateQueryFilters"
+                                                           class$="genotypes {{prefix}}FilterCheckBox"></td>
                                             </tr>
                                         </template>
                                         </tbody>
                                     </table>
-                                    <input type="checkbox" value="./." on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox">&nbsp;Include missing
+                                    <input type="checkbox" value="./." on-change="updateQueryFilters"
+                                           class$="genotypes {{prefix}}FilterCheckBox">&nbsp;Include missing
                                 </template>
 
                                 <template is="dom-if" if="{{isCancerAnalysis}}">
-                                    <label><i class="fa fa-user-times" aria-hidden="true"></i>&nbsp;&nbsp;Cancer Analysis</label>
+                                    <label><i class="fa fa-user-times" aria-hidden="true"></i>&nbsp;&nbsp;Cancer
+                                        Analysis</label>
                                     <br>
                                     Not ready yet, work in progress.
                                 </template>
@@ -279,31 +320,38 @@
                     <div class="panel panel-default">
                         <div class="panel-heading" role="tab" id="{{prefix}}SampleAnalysisHeading">
                             <h4 class="panel-title">
-                                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}AnalysisSelector"
+                                <a class="collapsed" role="button" data-toggle="collapse"
+                                   data-parent="#{{prefix}}Accordion" href="#{{prefix}}AnalysisSelector"
                                    aria-expanded="true" aria-controls="{{prefix}}AnalysisSelector">
                                     Analysis
                                 </a>
                             </h4>
                         </div>
 
-                        <div id="{{prefix}}AnalysisSelector" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}SampleFilterHeading">
+                        <div id="{{prefix}}AnalysisSelector" class="panel-collapse collapse in" role="tabpanel"
+                             aria-labelledby="{{prefix}}SampleFilterHeading">
                             <div class="panel-body">
                                 <label><i class="fa fa-sitemap" aria-hidden="true"></i>Select analysis:</label>
                                 <br>
-                                <button data-toggle="modal" role="button" data-placement="bottom" data-target$="#{{prefix}}AnalysisBrowser">
+                                <button data-toggle="modal" role="button" data-placement="bottom"
+                                        data-target$="#{{prefix}}AnalysisBrowser">
                                     Browse...
                                 </button>
                                 <div id="analysisSelectedDiv" style="display:none">
                                     <label>Analysis selected:</label>
-                                    <input type="text" class$="browser-custom-sized-input {{prefix}}FilterTextInput" placeholder="AN-28" aria-describedby="basic-addon1" disabled>
+                                    <input type="text" class$="browser-custom-sized-input {{prefix}}FilterTextInput"
+                                           placeholder="AN-28" aria-describedby="basic-addon1" disabled>
                                 </div>
 
                                 <div class="dropdown" id="segregationDropdownDiv" style="display: none">
-                                    <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="segregationDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                    <button class="btn btn-default btn-sm dropdown-toggle" type="button"
+                                            id="segregationDropdown" data-toggle="dropdown" aria-haspopup="true"
+                                            aria-expanded="true">
                                         {{segregation}}
                                         <span class="caret"></span>
                                     </button>
-                                    <ul class="dropdown-menu" aria-labelledby="segregationDropdown" on-click="selectSegregation">
+                                    <ul class="dropdown-menu" aria-labelledby="segregationDropdown"
+                                        on-click="selectSegregation">
                                         <template is="dom-repeat" items="{{config.segregation}}">
                                             <li><a>{{item}}</a></li>
                                         </template>
@@ -332,19 +380,23 @@
                             </a>
                         </h4>
                     </div>
-                    <div id="{{prefix}}Position" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}PositionHeading">
+                    <div id="{{prefix}}Position" class="panel-collapse collapse in" role="tabpanel"
+                         aria-labelledby="{{prefix}}PositionHeading">
                         <div class="panel-body">
                             <div class="form-group">
                                 <span class="browser-subsection">Chromosomal Location</span>
-                                <textarea id$="{{prefix}}LocationTextarea" name="location" class$="form-control clearable {{prefix}}FilterTextInput"
-                                          rows="3" placeholder="3:444-55555, 1:1-100000" on-keyup="updateQueryFilters"></textarea>
+                                <textarea id$="{{prefix}}LocationTextarea" name="location"
+                                          class$="form-control clearable {{prefix}}FilterTextInput"
+                                          rows="3" placeholder="3:444-55555, 1:1-100000"
+                                          on-keyup="updateQueryFilters"></textarea>
                             </div>
 
                             <div class="form-group">
                                 <span class="browser-subsection">Feature IDs (gene, transcript, SNP, ...)</span>
                                 <div class="form-row">
                                     <div class="col-sm-10" style="padding: 0px 0px 0px 0px">
-                                        <input id="{{prefix}}FeatureIdText" type="text" class="form-control" list="datalist" placeholder="Search for Gene Symbols" value=""
+                                        <input id="{{prefix}}FeatureIdText" type="text" class="form-control"
+                                               list="datalist" placeholder="Search for Gene Symbols" value=""
                                                on-keyup="callAutocomplete">
                                         <datalist id="datalist">
                                             <template is="dom-repeat" items="{{autocompleteData}}">
@@ -353,14 +405,17 @@
                                         </datalist>
                                     </div>
                                     <div class="col-sm-2" style="padding: 0px 0px 0px 5px">
-                                        <button type="button" class="btn btn-default btn-sm form-control" on-click="addFeatureId">
+                                        <button type="button" class="btn btn-default btn-sm form-control"
+                                                on-click="addFeatureId">
                                             <i class="fa fa-plus"></i>
                                         </button>
                                     </div>
                                 </div>
                                 <div style="padding-top: 45px">
-                                    <textarea id="{{prefix}}FeatureTextarea" name="geneSnp" class$="form-control clearable {{prefix}}FilterTextInput"
-                                              rows="3" placeholder="BRCA2, ENSG00000139618, ENST00000544455, rs28897700" on-keyup="updateQueryFilters"></textarea>
+                                    <textarea id="{{prefix}}FeatureTextarea" name="geneSnp"
+                                              class$="form-control clearable {{prefix}}FilterTextInput"
+                                              rows="3" placeholder="BRCA2, ENSG00000139618, ENST00000544455, rs28897700"
+                                              on-keyup="updateQueryFilters"></textarea>
                                 </div>
                             </div>
 
@@ -373,21 +428,25 @@
 
                             <div class="form-group">
                                 <span class="browser-subsection">Gene Disease Panels</span>
-                                <select class$="form-control {{prefix}}FilterSelect" id="{{prefix}}PanelApps" on-change="onGeneDiseasePanelChange">
+                                <select class$="form-control {{prefix}}FilterSelect" id="{{prefix}}PanelApps"
+                                        on-change="onGeneDiseasePanelChange">
                                     <option value="none">Select a panel...</option>
                                     <template is="dom-repeat" items="{{panelList}}" sort="sortPanelApp">
                                         <option value="{{item.name}}">{{item.title}} ({{item.genes.length}})</option>
                                     </template>
                                 </select>
                                 <div style="padding-top: 10px">
-                                    <textarea id="{{prefix}}PanelAppsTextarea" name="panelAppsTextarea" class$="form-control clearable {{prefix}}FilterTextInput"
-                                              rows="3" placeholder="No panel selected" on-keyup="updateQueryFilters"></textarea>
+                                    <textarea id="{{prefix}}PanelAppsTextarea" name="panelAppsTextarea"
+                                              class$="form-control clearable {{prefix}}FilterTextInput"
+                                              rows="3" placeholder="No panel selected"
+                                              on-keyup="updateQueryFilters"></textarea>
                                 </div>
                             </div>
 
                             <div class="form-group">
                                 <span class="browser-subsection">Gene Biotype</span>
-                                <select class$="form-control {{prefix}}FilterSelect" id="{{prefix}}GeneBiotypes" on-change="updateQueryFilters">
+                                <select class$="form-control {{prefix}}FilterSelect" id="{{prefix}}GeneBiotypes"
+                                        on-change="updateQueryFilters">
                                     <option value="none">Select a biotype...</option>
                                     <template is="dom-repeat" items="{{biotypes}}">
                                         <option value="{{item}}">{{item}}</option>
@@ -398,11 +457,16 @@
                             <div class="form-group">
                                 <span class="browser-subsection">Variant Type</span>
                                 <div id="{{prefix}}Type">
-                                    <input type="checkbox" value="SNV,SNP" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> SNV<br>
-                                    <input type="checkbox" value="MNV" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> MNV<br>
-                                    <input type="checkbox" value="CNV" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> CNV<br>
-                                    <input type="checkbox" value="SV" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> SV<br>
-                                    <input type="checkbox" value="INDEL" on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox"> INDEL
+                                    <input type="checkbox" value="SNV,SNP" on-change="updateQueryFilters"
+                                           class$="{{prefix}}FilterCheckBox"> SNV<br>
+                                    <input type="checkbox" value="MNV" on-change="updateQueryFilters"
+                                           class$="{{prefix}}FilterCheckBox"> MNV<br>
+                                    <input type="checkbox" value="CNV" on-change="updateQueryFilters"
+                                           class$="{{prefix}}FilterCheckBox"> CNV<br>
+                                    <input type="checkbox" value="SV" on-change="updateQueryFilters"
+                                           class$="{{prefix}}FilterCheckBox"> SV<br>
+                                    <input type="checkbox" value="INDEL" on-change="updateQueryFilters"
+                                           class$="{{prefix}}FilterCheckBox"> INDEL
                                 </div>
                             </div>
                         </div>
@@ -414,7 +478,8 @@
                     <div class="panel-heading" role="tab" id="{{prefix}}PopulationFrequencyHeading">
                         <h4 class="panel-title">
                             <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                               href="#{{prefix}}PopulationFrequency" aria-expanded="false" aria-controls="{{prefix}}PopulationFrequency">
+                               href="#{{prefix}}PopulationFrequency" aria-expanded="false"
+                               aria-controls="{{prefix}}PopulationFrequency">
                                 Population Frequency
                             </a>
                         </h4>
@@ -426,7 +491,8 @@
                             <!-- This code create the population frequencies menu filter form populationFrequencies from config.js -->
                             <template is="dom-repeat" items="{{populationFrequencies.studies}}" as="study">
                                 <label style="font-weight: bold;">
-                                    <i id="{{prefix}}{{study.id}}Icon" data-id="{{prefix}}{{study.id}}" on-click="handleCollapseAction" class="fa fa-plus" style="cursor: pointer;"></i>
+                                    <i id="{{prefix}}{{study.id}}Icon" data-id="{{prefix}}{{study.id}}"
+                                       on-click="handleCollapseAction" class="fa fa-plus" style="cursor: pointer;"></i>
                                     &nbsp;{{study.title}}
                                 </label>
                                 <!-- If there is not submenu we just display a button -->
@@ -437,7 +503,10 @@
                                             <div class="horizontal layout">
                                                 <span>MAF</span>
                                                 <span>
-                                                    <select name="{{popFreq.id}}Operator" id="{{prefix}}{{study.id}}{{popFreq.id}}Operator" on-change="updateQueryFilters"  class$="{{prefix}}FilterSelect">
+                                                    <select name="{{popFreq.id}}Operator"
+                                                            id="{{prefix}}{{study.id}}{{popFreq.id}}Operator"
+                                                            on-change="updateQueryFilters"
+                                                            class$="{{prefix}}FilterSelect">
                                                         <option value="<" selected><</option>
                                                         <option value="<="><=</option>
                                                         <option value=">">></option>
@@ -445,7 +514,11 @@
                                                     </select>
                                                 </span>
                                                 <span>
-                                                    <input type="text" value="" class$="browser-custom-sized-input {{prefix}}FilterTextInput" name="{{study.id}}_{{popFreq.id}}" id="{{prefix}}{{study.id}}{{popFreq.id}}" on-keyup="updateQueryFilters">
+                                                    <input type="text" value=""
+                                                           class$="browser-custom-sized-input {{prefix}}FilterTextInput"
+                                                           name="{{study.id}}_{{popFreq.id}}"
+                                                           id="{{prefix}}{{study.id}}{{popFreq.id}}"
+                                                           on-keyup="updateQueryFilters">
                                                 </span>
                                             </div>
                                         </template>
@@ -461,88 +534,117 @@
                 <div class="panel panel-default">
                     <div class="panel-heading" role="tab" id="{{prefix}}}ProteinSubstitutionScoreHeading">
                         <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}ProteinSubstitutionScore"
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
+                               href="#{{prefix}}ProteinSubstitutionScore"
                                aria-expanded="false" aria-controls="{{prefix}}ProteinSubstitutionScore">
                                 Deleteriousness
                             </a>
                         </h4>
                     </div>
-                    <div id="{{prefix}}ProteinSubstitutionScore" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}ProteinSubstitutionScoreHeading">
+                    <div id="{{prefix}}ProteinSubstitutionScore" class="panel-collapse collapse" role="tabpanel"
+                         aria-labelledby="{{prefix}}ProteinSubstitutionScoreHeading">
                         <div class="panel-body">
                             <b>Protein Substitution Score</b>
                             <div style="padding-top: 10px">
                                 <label style="font-weight: normal;">SIFT</label><br>
-                                <select class="options" name="Sift" id="{{prefix}}SiftValues" style="width: 90px" on-change="checkScore" class$="{{prefix}}FilterSelect">
+                                <select class="options" name="Sift" id="{{prefix}}SiftValues" style="width: 90px"
+                                        on-change="checkScore" class$="{{prefix}}FilterSelect">
                                     <option value="score" selected>Score...</option>
                                     <option value="tolerated">Tolerated</option>
                                     <option value="deleterious">Deleterious</option>
                                 </select>
-                                <select name="siftOperator" id="{{prefix}}SiftOperator" on-change="updateQueryFilters" class$="{{prefix}}FilterSelect">
+                                <select name="siftOperator" id="{{prefix}}SiftOperator" on-change="updateQueryFilters"
+                                        class$="{{prefix}}FilterSelect">
                                     <option value="<" selected><</option>
                                     <option value="<="><=</option>
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class$="browser-custom-sized-input {{prefix}}FilterTextInput" id="{{prefix}}SiftInput" name="Sift" on-keyup="updateQueryFilters">
+                                <input type="text" value=""
+                                       class$="browser-custom-sized-input {{prefix}}FilterTextInput"
+                                       id="{{prefix}}SiftInput" name="Sift" on-keyup="updateQueryFilters">
                                 <div style="float: right" class="tooltip-div">
-                                    <a data-toggle="tooltip" title="Select None in the drop-down list on the left to enable the input of a specific SIFT score threshold. SIFT score takes values in the range [0, infinite[, the lower the values, the more damaging the prediction"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                    <a data-toggle="tooltip"
+                                       title="Select None in the drop-down list on the left to enable the input of a specific SIFT score threshold. SIFT score takes values in the range [0, infinite[, the lower the values, the more damaging the prediction"><i
+                                            class="fa fa-info-circle" aria-hidden="true"></i></a>
                                 </div>
-                            </div><br>
+                            </div>
+                            <br>
                             <div>
                                 <label style="font-weight: normal;">Polyphen</label><br>
-                                <select class="options" name="Polyphen" id="{{prefix}}PolyphenValues" style="width: 90px" on-change="checkScore" class$="{{prefix}}FilterSelect">
+                                <select class="options" name="Polyphen" id="{{prefix}}PolyphenValues"
+                                        style="width: 90px" on-change="checkScore" class$="{{prefix}}FilterSelect">
                                     <option value="score" selected>Score...</option>
                                     <option value="benign">Benign</option>
                                     <option value="unknown">Unknown</option>
                                     <option value="possibly damaging">Possibly damaging</option>
                                     <option value="probably damaging">Probably damaging</option>
-                                    <option value="possibly damaging,probably damaging">Possibly & Probably damaging</option>
+                                    <option value="possibly damaging,probably damaging">Possibly & Probably damaging
+                                    </option>
                                 </select>
-                                <select name="polyphenOperator" id="{{prefix}}PolyphenOperator" on-change="updateQueryFilters" class$="{{prefix}}FilterSelect">
+                                <select name="polyphenOperator" id="{{prefix}}PolyphenOperator"
+                                        on-change="updateQueryFilters" class$="{{prefix}}FilterSelect">
                                     <option value="<" selected><</option>
                                     <option value="<="><=</option>
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class$="browser-custom-sized-input {{prefix}}FilterTextInput" id="{{prefix}}PolyphenInput" name="Polyphen" on-keyup="updateQueryFilters">
+                                <input type="text" value=""
+                                       class$="browser-custom-sized-input {{prefix}}FilterTextInput"
+                                       id="{{prefix}}PolyphenInput" name="Polyphen" on-keyup="updateQueryFilters">
 
                                 <div style="float: right" class="tooltip-div">
-                                    <a data-toggle="tooltip" title="Select None in the drop-down list on the left to enable the input of a specific Polyphen score threshold. Polyphen score takes values in the range [0, 1[, the closer to 2, the more damaging the prediction"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                    <a data-toggle="tooltip"
+                                       title="Select None in the drop-down list on the left to enable the input of a specific Polyphen score threshold. Polyphen score takes values in the range [0, 1[, the closer to 2, the more damaging the prediction"><i
+                                            class="fa fa-info-circle" aria-hidden="true"></i></a>
                                 </div>
                             </div>
                             <br>
                             <form>
                                 <label style="font-weight: normal;">Logical Operator</label>
-                                <input type="radio" name="pss" id="pssOrRadio" value="or" class$="{{prefix}}FilterRadio" checked disabled on-change="updateQueryFilters" style="margin-left: 10px"> OR<br>
-                                <input type="radio" name="pss" id="pssAndRadio" value="and" class$="{{prefix}}FilterRadio" disabled on-change="updateQueryFilters" style="margin-left: 102px"> AND<br>
+                                <input type="radio" name="pss" id="pssOrRadio" value="or" class$="{{prefix}}FilterRadio"
+                                       checked disabled on-change="updateQueryFilters" style="margin-left: 10px"> OR<br>
+                                <input type="radio" name="pss" id="pssAndRadio" value="and"
+                                       class$="{{prefix}}FilterRadio" disabled on-change="updateQueryFilters"
+                                       style="margin-left: 102px"> AND<br>
                             </form>
                             <br>
 
                             <b>CADD</b>
                             <div class="block" style="padding-top: 10px">
                                 <label>Raw</label>
-                                <select name="caddRawOperator" id="{{prefix}}CaddRawOperator" on-change="updateQueryFilters" class$="{{prefix}}FilterSelect">
+                                <select name="caddRawOperator" id="{{prefix}}CaddRawOperator"
+                                        on-change="updateQueryFilters" class$="{{prefix}}FilterSelect">
                                     <option value="<" selected><</option>
                                     <option value="<="><=</option>
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class$="browser-custom-sized-input {{prefix}}FilterTextInput" id="{{prefix}}CaddRawInput" name="caddRaw" on-keyup="updateQueryFilters">
+                                <input type="text" value=""
+                                       class$="browser-custom-sized-input {{prefix}}FilterTextInput"
+                                       id="{{prefix}}CaddRawInput" name="caddRaw" on-keyup="updateQueryFilters">
                                 <div style="float: right" class="tooltip-div">
-                                    <a data-toggle="tooltip" title="Raw values have relative meaning, with higher values indicating that a variant is more likely to be simulated (or not observed) and therefore more likely to have deleterious effects. If discovering causal variants within an individual, or small groups, of exomes or genomes te use of the scaled CADD score is recommended."><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                    <a data-toggle="tooltip"
+                                       title="Raw values have relative meaning, with higher values indicating that a variant is more likely to be simulated (or not observed) and therefore more likely to have deleterious effects. If discovering causal variants within an individual, or small groups, of exomes or genomes te use of the scaled CADD score is recommended."><i
+                                            class="fa fa-info-circle" aria-hidden="true"></i></a>
                                 </div>
                             </div>
                             <div class="block">
                                 <label>Scaled</label>
-                                <select name="caddRScaledOperator" id="{{prefix}}CaddScaledOperator" on-change="updateQueryFilters" class$="{{prefix}}FilterSelect">
+                                <select name="caddRScaledOperator" id="{{prefix}}CaddScaledOperator"
+                                        on-change="updateQueryFilters" class$="{{prefix}}FilterSelect">
                                     <option value="<" selected><</option>
                                     <option value="<="><=</option>
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class$="browser-custom-sized-input {{prefix}}FilterTextInput" id="{{prefix}}CaddScaledInput" name="caddScaled" on-keyup="updateQueryFilters">
+                                <input type="text" value=""
+                                       class$="browser-custom-sized-input {{prefix}}FilterTextInput"
+                                       id="{{prefix}}CaddScaledInput" name="caddScaled" on-keyup="updateQueryFilters">
                                 <div style="float: right" class="tooltip-div">
-                                    <a data-toggle="tooltip" title="A scaled C-score of greater of equal 10 indicates that the substitution is predicted to be within the 10% most deleterious substitutions that you can do to the human genome, a score of greater or equal 20 indicates the 1% most deleterious and so on. If you would like to apply a cutoff on deleteriousness, it is suggested by the CADD authors to put a cutoff somewhere between 10 and 20. Maybe at 15, as this also happens to be the median value for all possible canonical splice site changes and non-synonymous variants"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                    <a data-toggle="tooltip"
+                                       title="A scaled C-score of greater of equal 10 indicates that the substitution is predicted to be within the 10% most deleterious substitutions that you can do to the human genome, a score of greater or equal 20 indicates the 1% most deleterious and so on. If you would like to apply a cutoff on deleteriousness, it is suggested by the CADD authors to put a cutoff somewhere between 10 and 20. Maybe at 15, as this also happens to be the median value for all possible canonical splice site changes and non-synonymous variants"><i
+                                            class="fa fa-info-circle" aria-hidden="true"></i></a>
                                 </div>
                             </div>
                         </div>
@@ -553,56 +655,78 @@
                 <div class="panel panel-default">
                     <div class="panel-heading" role="tab" id="{{prefix}}conservationFilterHeading">
                         <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}ConservationFilter" aria-expanded="false" aria-controls="{{prefix}}ConservationFilter">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
+                               href="#{{prefix}}ConservationFilter" aria-expanded="false"
+                               aria-controls="{{prefix}}ConservationFilter">
                                 Conservation
                             </a>
                         </h4>
                     </div>
-                    <div id="{{prefix}}ConservationFilter" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}conservationFilterHeading">
+                    <div id="{{prefix}}ConservationFilter" class="panel-collapse collapse" role="tabpanel"
+                         aria-labelledby="{{prefix}}conservationFilterHeading">
                         <div class="panel-body">
                             <div class="block">
                                 <label>PhyloP</label>
-                                <select name="phylopOperator" id="{{prefix}}PhylopOperator" on-change="updateQueryFilters" class$="{{prefix}}FilterSelect">
+                                <select name="phylopOperator" id="{{prefix}}PhylopOperator"
+                                        on-change="updateQueryFilters" class$="{{prefix}}FilterSelect">
                                     <option value="<" selected><</option>
                                     <option value="<="><=</option>
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class$="browser-custom-sized-input {{prefix}}FilterTextInput" id="{{prefix}}PhylopInput" name="phylop" on-keyup="updateQueryFilters">
+                                <input type="text" value=""
+                                       class$="browser-custom-sized-input {{prefix}}FilterTextInput"
+                                       id="{{prefix}}PhylopInput" name="phylop" on-keyup="updateQueryFilters">
                                 <div style="float: right" class="tooltip-div">
-                                    <a data-toggle="tooltip" title="Positive PhyloP scores measure conservation which is slower evolution than expected, at sites that are predicted to be conserved. Negative PhyloP scores measure acceleration, which is faster evolution than expected, at sites that are predicted to be fast-evolving. Absolute values of phyloP scores represent -log p-values under a null hypothesis of neutral evolution"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                    <a data-toggle="tooltip"
+                                       title="Positive PhyloP scores measure conservation which is slower evolution than expected, at sites that are predicted to be conserved. Negative PhyloP scores measure acceleration, which is faster evolution than expected, at sites that are predicted to be fast-evolving. Absolute values of phyloP scores represent -log p-values under a null hypothesis of neutral evolution"><i
+                                            class="fa fa-info-circle" aria-hidden="true"></i></a>
                                 </div>
                             </div>
                             <div class="block">
                                 <label>PhastCons</label>
-                                <select name="phastconsOperator" id="{{prefix}}PhastconsOperator" on-change="updateQueryFilters" class$="{{prefix}}FilterSelect">
+                                <select name="phastconsOperator" id="{{prefix}}PhastconsOperator"
+                                        on-change="updateQueryFilters" class$="{{prefix}}FilterSelect">
                                     <option value="<" selected><</option>
                                     <option value="<="><=</option>
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class$="browser-custom-sized-input {{prefix}}FilterTextInput" id="{{prefix}}PhastconsInput" name="phastCons" on-keyup="updateQueryFilters">
+                                <input type="text" value=""
+                                       class$="browser-custom-sized-input {{prefix}}FilterTextInput"
+                                       id="{{prefix}}PhastconsInput" name="phastCons" on-keyup="updateQueryFilters">
                                 <div style="float: right" class="tooltip-div">
-                                    <a data-toggle="tooltip" title="PhastCons estimates the probability that each nucleotide belongs to a conserved element. The phastCons scores represent probabilities of negative selection and range between 0 and 1."><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                    <a data-toggle="tooltip"
+                                       title="PhastCons estimates the probability that each nucleotide belongs to a conserved element. The phastCons scores represent probabilities of negative selection and range between 0 and 1."><i
+                                            class="fa fa-info-circle" aria-hidden="true"></i></a>
                                 </div>
                             </div>
                             <div class="block">
                                 <label>Gerp</label>
-                                <select name="gerpOperator" id="{{prefix}}GerpOperator" on-change="updateQueryFilters" class$="{{prefix}}FilterSelect">
+                                <select name="gerpOperator" id="{{prefix}}GerpOperator" on-change="updateQueryFilters"
+                                        class$="{{prefix}}FilterSelect">
                                     <option value="<" selected><</option>
                                     <option value="<="><=</option>
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class$="browser-custom-sized-input {{prefix}}FilterTextInput" id="{{prefix}}GerpInput" name="gerp" on-keyup="updateQueryFilters">
+                                <input type="text" value=""
+                                       class$="browser-custom-sized-input {{prefix}}FilterTextInput"
+                                       id="{{prefix}}GerpInput" name="gerp" on-keyup="updateQueryFilters">
                                 <div style="float: right" class="tooltip-div">
-                                    <a data-toggle="tooltip" title="Positive scores represent a substitution deficit (i.e., fewer substitutions than the average neutral site) and thus indicate that a site may be under evolutionary constraint. Negative scores indicate that a site is probably evolving neutrally. Some authors suggest that a score threshold of 2 provides high sensitivity while still strongly enriching for truly constrained sites"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                    <a data-toggle="tooltip"
+                                       title="Positive scores represent a substitution deficit (i.e., fewer substitutions than the average neutral site) and thus indicate that a site may be under evolutionary constraint. Negative scores indicate that a site is probably evolving neutrally. Some authors suggest that a score threshold of 2 provides high sensitivity while still strongly enriching for truly constrained sites"><i
+                                            class="fa fa-info-circle" aria-hidden="true"></i></a>
                                 </div>
                             </div>
                             <form style="padding-top: 10px">
                                 <label style="font-weight: normal;">Logical Operator</label>
-                                <input type="radio" name="conservation" id="conservationOrRadio" value="or" class$="{{prefix}}FilterRadio" checked disabled on-change="updateQueryFilters" style="margin-left: 10px"> OR<br>
-                                <input type="radio" name="conservation" id="conservationAndRadio" value="and" class$="{{prefix}}FilterRadio" disabled on-change="updateQueryFilters" style="margin-left: 102px"> AND<br>
+                                <input type="radio" name="conservation" id="conservationOrRadio" value="or"
+                                       class$="{{prefix}}FilterRadio" checked disabled on-change="updateQueryFilters"
+                                       style="margin-left: 10px"> OR<br>
+                                <input type="radio" name="conservation" id="conservationAndRadio" value="and"
+                                       class$="{{prefix}}FilterRadio" disabled on-change="updateQueryFilters"
+                                       style="margin-left: 102px"> AND<br>
                             </form>
 
                         </div>
@@ -613,17 +737,22 @@
                 <div class="panel panel-default">
                     <div class="panel-heading" role="tab" id="{{prefix}}ConsequenceTypeHeading">
                         <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}ConsequenceType" aria-expanded="false" aria-controls="{{prefix}}ConsequenceType">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
+                               href="#{{prefix}}ConsequenceType" aria-expanded="false"
+                               aria-controls="{{prefix}}ConsequenceType">
                                 Consequence Type
                             </a>
                         </h4>
                     </div>
-                    <div id="{{prefix}}ConsequenceType" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}consequenceTypeHeading">
+                    <div id="{{prefix}}ConsequenceType" class="panel-collapse collapse" role="tabpanel"
+                         aria-labelledby="{{prefix}}consequenceTypeHeading">
                         <div class="panel-body browser-ct-scroll">
                             <div class="form-group">
                                 <span class="browser-subsection">Select Loss-of-Function terms</span>
                                 <div>
-                                    <input id="{{prefix}}LossOfFunctionCheckBox" type="checkbox" on-change="updateConsequenceTypeFilter" class$="{{prefix}}FilterCheckBox"> LoF terms
+                                    <input id="{{prefix}}LossOfFunctionCheckBox" type="checkbox"
+                                           on-change="updateConsequenceTypeFilter" class$="{{prefix}}FilterCheckBox">
+                                    LoF terms
                                 </div>
                             </div>
 
@@ -637,33 +766,47 @@
                                                 <template is="dom-if" if="{{checkTitle(category)}}">
                                                     <!--If it is a category, only title is shown as it doesn't have any SO term associated with it-->
                                                     <template is="dom-if" if="{{category.isCategory}}">
-                                                        <input type="checkbox" on-change="updateConsequenceTypeFilter" class$="{{prefix}}FilterCheckBox"> {{category.title}}
+                                                        <input type="checkbox" on-change="updateConsequenceTypeFilter"
+                                                               class$="{{prefix}}FilterCheckBox"> {{category.title}}
                                                     </template>
                                                     <!--If it is not a category, SO terms should be shown along with its actual title-->
                                                     <template is="dom-if" if="{{!category.isCategory}}">
-                                                        <input type="checkbox" on-change="updateConsequenceTypeFilter" data-id="{{category.name}}" class$="soTermCheckBox {{prefix}}FilterCheckBox">
+                                                        <input type="checkbox" on-change="updateConsequenceTypeFilter"
+                                                               data-id="{{category.name}}"
+                                                               class$="soTermCheckBox {{prefix}}FilterCheckBox">
                                                         <span title="{{item.description}}">
-                                                        {{category.title}} (<a href="http://www.sequenceontology.org/browser/current_svn/term/{{category.id}}" target="_blank">{{category.id}}</a>)</span>
+                                                        {{category.title}} (<a
+                                                                href="http://www.sequenceontology.org/browser/current_svn/term/{{category.id}}"
+                                                                target="_blank">{{category.id}}</a>)</span>
                                                     </template>
                                                 </template>
                                                 <!--Title is optional. Consequence type name is taken in case title is not given-->
                                                 <template is="dom-if" if="{{!checkTitle(category)}}">
                                                     <!--If it is a category, only name is shown as it doesn't have any SO term associated with it-->
                                                     <template is="dom-if" if="{{category.isCategory}}">
-                                                        <input type="checkbox" on-change="updateConsequenceTypeFilter" class$="{{prefix}}FilterCheckBox"> {{category.name}}
+                                                        <input type="checkbox" on-change="updateConsequenceTypeFilter"
+                                                               class$="{{prefix}}FilterCheckBox"> {{category.name}}
                                                     </template>
                                                     <!--If it is not a category, SO terms should be shown along with its actual name-->
                                                     <template is="dom-if" if="{{!category.isCategory}}">
-                                                        <input type="checkbox" on-change="updateConsequenceTypeFilter" data-id="{{category.name}}" class$="soTermCheckBox {{prefix}}FilterCheckBox">
+                                                        <input type="checkbox" on-change="updateConsequenceTypeFilter"
+                                                               data-id="{{category.name}}"
+                                                               class$="soTermCheckBox {{prefix}}FilterCheckBox">
                                                         <span title="{{item.description}}">
-                                                        {{category.name}} (<a href="http://www.sequenceontology.org/browser/current_svn/term/{{category.id}}" target="_blank">{{category.id}}</a>)</span>
+                                                        {{category.name}} (<a
+                                                                href="http://www.sequenceontology.org/browser/current_svn/term/{{category.id}}"
+                                                                target="_blank">{{category.id}}</a>)</span>
                                                     </template>
                                                 </template>
                                                 <ul>
                                                     <template is="dom-repeat" items="{{category.terms}}">
-                                                        <li><input type="checkbox" data-id="{{item.name}}" on-change="updateConsequenceTypeFilter" class$="soTermCheckBox {{prefix}}FilterCheckBox">
+                                                        <li><input type="checkbox" data-id="{{item.name}}"
+                                                                   on-change="updateConsequenceTypeFilter"
+                                                                   class$="soTermCheckBox {{prefix}}FilterCheckBox">
                                                             <span title="{{item.description}}">
-                                                    {{item.name}} (<a href="http://www.sequenceontology.org/browser/current_svn/term/{{item.id}}" target="_blank">{{item.id}}</a>)</span></li>
+                                                    {{item.name}} (<a
+                                                                    href="http://www.sequenceontology.org/browser/current_svn/term/{{item.id}}"
+                                                                    target="_blank">{{item.id}}</a>)</span></li>
                                                     </template>
                                                 </ul>
                                             </li>
@@ -679,17 +822,22 @@
                 <div class="panel panel-default">
                     <div class="panel-heading" role="tab" id="{{prefix}}GeneOntologyHeading">
                         <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}GeneOntology" aria-expanded="false" aria-controls="{{prefix}}GeneOntology">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
+                               href="#{{prefix}}GeneOntology" aria-expanded="false"
+                               aria-controls="{{prefix}}GeneOntology">
                                 Gene Ontology
                             </a>
                         </h4>
                     </div>
-                    <div id="{{prefix}}GeneOntology" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}GeneOntologyHeading">
+                    <div id="{{prefix}}GeneOntology" class="panel-collapse collapse" role="tabpanel"
+                         aria-labelledby="{{prefix}}GeneOntologyHeading">
                         <div class="panel-body">
                             <span class="browser-subsection">GO Accessions</span>
                             <div class="form-group">
-                                <textarea id="{{prefix}}GeneOntologyTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="3"
-                                          name="geneOntology" placeholder="GO:0000145" on-keyup="updateQueryFilters"></textarea>
+                                <textarea id="{{prefix}}GeneOntologyTextarea"
+                                          class$="form-control clearable {{prefix}}FilterTextInput" rows="3"
+                                          name="geneOntology" placeholder="GO:0000145"
+                                          on-keyup="updateQueryFilters"></textarea>
                             </div>
                         </div>
                     </div>
@@ -699,33 +847,41 @@
                 <div class="panel panel-default">
                     <div class="panel-heading" role="tab" id="{{prefix}}TraitsHeading">
                         <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}Traits" aria-expanded="false"
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
+                               href="#{{prefix}}Traits" aria-expanded="false"
                                aria-controls="{{prefix}}HumanPhenotypeOntology">
                                 Phenotype-Disease (<span style="color: red">New!</span>)
                             </a>
                         </h4>
                     </div>
-                    <div id="{{prefix}}Traits" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}TraitsHeading">
+                    <div id="{{prefix}}Traits" class="panel-collapse collapse" role="tabpanel"
+                         aria-labelledby="{{prefix}}TraitsHeading">
                         <div class="panel-body">
                             <div class="form-group">
                                 <span class="browser-subsection">HPO Accessions</span>
-                                <textarea id="{{prefix}}HumanPhenotypeOntologyTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="3"
-                                          name="hpo" placeholder="HP:0000001, HP:3000079" on-keyup="updateQueryFilters"></textarea>
+                                <textarea id="{{prefix}}HumanPhenotypeOntologyTextarea"
+                                          class$="form-control clearable {{prefix}}FilterTextInput" rows="3"
+                                          name="hpo" placeholder="HP:0000001, HP:3000079"
+                                          on-keyup="updateQueryFilters"></textarea>
                             </div>
 
                             <!--<br>-->
                             <div class="form-group">
                                 <span class="browser-subsection">ClinVar Accessions</span>
-                                <textarea id="{{prefix}}ClinVarTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="3"
-                                          name="clinvar" placeholder="RCV000058226" on-keyup="updateQueryFilters"></textarea>
+                                <textarea id="{{prefix}}ClinVarTextarea"
+                                          class$="form-control clearable {{prefix}}FilterTextInput" rows="3"
+                                          name="clinvar" placeholder="RCV000058226"
+                                          on-keyup="updateQueryFilters"></textarea>
                             </div>
 
                             <div class="form-group">
                                 <span class="browser-subsection">Full-text search on HPO, ClinVar, protein domains or keywords.
                                     Some OMIM and Orphanet IDs are also supported (<span style="color: red">New!</span>)
                                 </span>
-                                <textarea id="{{prefix}}TraitsTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="5"
-                                          name="traits" placeholder="Full-text search, e.g. *melanoma*" on-keyup="updateQueryFilters"></textarea>
+                                <textarea id="{{prefix}}TraitsTextarea"
+                                          class$="form-control clearable {{prefix}}FilterTextInput" rows="5"
+                                          name="traits" placeholder="Full-text search, e.g. *melanoma*"
+                                          on-keyup="updateQueryFilters"></textarea>
                             </div>
                         </div>
                     </div>
@@ -734,21 +890,26 @@
         </div>
 
         <!-- Modal dialog for Sample Browser in prioritization-->
-        <div class="modal fade" id="{{prefix}}SampleBrowser" tabindex="-1" role="dialog" aria-labelledby="sampleBrowserLabel">
+        <div class="modal fade" id="{{prefix}}SampleBrowser" tabindex="-1" role="dialog"
+             aria-labelledby="sampleBrowserLabel">
             <div class="modal-dialog modal-lg" role="document" style="width: 1440px;">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">&times;</span></button>
                         <h4 class="modal-title" id="{{prefix}}SampleBrowserLabel">Family Selector</h4>
                     </div>
                     <div class="modal-body" style="height: 680px">
                         <!--<opencga-family-selector opencga-client="{{opencgaClient}}" study-id="{{study.id}}" samples="{{samples}}" prefix="{{prefix}}"></opencga-family-selector>-->
-                        <variant-sample-selector opencga-client="{{opencgaClient}}" project="{{project}}" study="{{study}}" mode="{{analysisType}}" samples="{{samples}}"
+                        <variant-sample-selector opencga-client="{{opencgaClient}}" project="{{project}}"
+                                                 study="{{study}}" mode="{{analysisType}}" samples="{{samples}}"
                                                  on-familychange="onFamilyChange">
                         </variant-sample-selector>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="closeModalSample">
+                            OK
+                        </button>
                     </div>
                 </div>
             </div>
@@ -760,14 +921,17 @@
             <div class="modal-dialog modal-lg" role="document" style="width: 1280px;">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">&times;</span></button>
                         <h4 class="modal-title" id="{{prefix}}AnalysisBrowserLabel">Analysis Selector</h4>
                     </div>
                     <div class="modal-body" style="height: 780px">
                         <!--<variant-clinical-selector></variant-clinical-selector>-->
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="showSegregation">OK</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="showSegregation">
+                            OK
+                        </button>
                     </div>
                 </div>
             </div>
@@ -871,32 +1035,35 @@
                 this.family = {};
                 this._samples = [];
             }
-            onFamilyChange (e, family) {
+
+            onFamilyChange(e, family) {
                 let samples = [];
                 if (typeof family.pedigree.father !== "undefined") {
                     let father = family.pedigree.father;
                     father.role = "father";
-                    father.className = father.browser-affected === true ? "affected" : "";
+                    father.className = father.browser - affected === true ? "affected" : "";
                     samples.push(father);
                 }
                 if (typeof family.pedigree.mother !== "undefined") {
                     let mother = family.pedigree.mother;
                     mother.role = "mother";
-                    mother.className = mother.browser-affected === true  ? "affected" : "";
+                    mother.className = mother.browser - affected === true ? "affected" : "";
                     samples.push(mother);
                 }
 
                 for (let child of family.pedigree.children) {
                     child.role = child.gender === "male" ? "son" : "daughter";
-                    child.className = child.browser-affected === true ? "affected" : "";
+                    child.className = child.browser - affected === true ? "affected" : "";
                     samples.push(child);
                 }
                 this._samples = samples;
             }
-            onSearch () {
+
+            onSearch() {
                 this.search = this.query;
             }
-            onQueryUpdate () {
+
+            onQueryUpdate() {
                 if (this._reset) {
                     console.log("onQueryUpdate: calling to 'renderQueryFilters()'")
                     this.renderQueryFilters();
@@ -904,7 +1071,8 @@
                     this._reset = true;
                 }
             }
-            handleCollapseAction (e) {
+
+            handleCollapseAction(e) {
                 let id = e.target.dataId;
                 let elem = $('#' + id)[0];
                 elem.hidden = !elem.hidden;
@@ -914,24 +1082,28 @@
                     e.target.className = "fa fa-minus";
                 }
             }
+
             checkTitle(consequenceType) {
                 return typeof consequenceType.title !== "undefined" && consequenceType.title !== null;
             }
-            moreStudiesPresent (studies) {
+
+            moreStudiesPresent(studies) {
                 if (typeof studies !== "undefined") {
                     return studies.length > 1;
                 } else {
                     return false;
                 }
             }
-            cohortsPresent (cohorts) {
+
+            cohortsPresent(cohorts) {
                 if (typeof cohorts !== "undefined") {
                     return cohorts.length > 0;
                 } else {
                     return false;
                 }
             }
-            cellbaseClientObtained () {
+
+            cellbaseClientObtained() {
                 if (this.cellbaseClient instanceof CellBaseClient && typeof this.biotypes === "undefined") {
                     let _this = this;
                     this.cellbaseClient.getGeneClient(null, "biotype", {}, {})
@@ -940,7 +1112,8 @@
                         });
                 }
             }
-            updateDifferentStudies () {
+
+            updateDifferentStudies() {
                 let differentStudies = [];
                 if (typeof this.study !== "undefined" && typeof this.studies !== "undefined") {
                     for (let i = 0; i < this.studies.length; i++) {
@@ -951,7 +1124,7 @@
                     this.differentStudies = differentStudies;
 
                     // Update cohorts from config, this updates the Cohort filter MAF
-                    if (typeof this.config!== "undefined" && typeof this.config.cohorts !== "undefined") {
+                    if (typeof this.config !== "undefined" && typeof this.config.cohorts !== "undefined") {
                         this._cohorts = this.config.cohorts[this.study.alias];
                     }
 
@@ -961,6 +1134,7 @@
                     this.query = {studies: this.project.alias + ":" + this.study.alias};
                 }
             }
+
             updateConsequenceTypeFilter(e) {
                 // Select LoF term checkboxes
 //                let lofCheckBox = this.$$("#" + this.prefix + "LossOfFunctionCheckBox");
@@ -983,7 +1157,7 @@
                 }
 //                let selected = $('.soTermCheckBox');
                 let soTerms = [];
-                let selected =  PolymerUtils.querySelectorAll("li input",this.prefix + "consequenceTypeFilter");
+                let selected = PolymerUtils.querySelectorAll("li input", this.prefix + "consequenceTypeFilter");
                 for (let i = 0; i < selected.length; i++) {
                     if (selected[i].checked && typeof selected[i].dataId !== "undefined") {
                         soTerms.push(selected[i].dataId);
@@ -998,9 +1172,10 @@
                 this.set('ct', soTerms);
                 this.updateQueryFilters();
             }
-            checkScore (e) {
+
+            checkScore(e) {
                 let inputElement = $("#" + this.prefix + e.target.name + "Input");
-                let operatorElement = $("#" + this.prefix + e.target.name +"Operator");
+                let operatorElement = $("#" + this.prefix + e.target.name + "Operator");
                 if (e.target.value === "score") {
                     inputElement.prop("disabled", false);
                     operatorElement.prop("disabled", false);
@@ -1012,6 +1187,7 @@
                 }
                 this.updateQueryFilters();
             }
+
             clear() {
                 // This will trigger the event that call to renderQueryFilters
                 this.query = {};
@@ -1019,7 +1195,8 @@
                 // This refresh the variant main grid
                 this.search = {};
             }
-            renderQueryFilters () {
+
+            renderQueryFilters() {
                 // Empty everything before rendering
                 this._clearHtmlDom();
 
@@ -1167,7 +1344,7 @@
                     let fields = this.query["annot-functional-score"].split(new RegExp("[,;]"));
                     for (let i = 0; i < fields.length; i++) {
                         let source = fields[i].split(/[<=>]+/)[0];
-                        switch(source) {
+                        switch (source) {
                             case "cadd_raw":
                                 this.$$("#" + this.prefix + "CaddRawInput").value = fields[i].split(/[<=>]+/)[1];
                                 this.$$("#" + this.prefix + "CaddRawOperator").value = fields[i].split(/[-A-Za-z0-9_]+/)[1];
@@ -1185,7 +1362,7 @@
                     let fields = this.query.conservation.split(new RegExp("[,;]"));
                     for (let i = 0; i < fields.length; i++) {
                         let source = fields[i].split(/[<=>]+/)[0];
-                        switch(source) {
+                        switch (source) {
                             case "phylop":
                                 this.$$("#" + this.prefix + "PhylopInput").value = fields[i].split(/[<=>]+/)[1];
                                 this.$$("#" + this.prefix + "PhylopOperator").value = fields[i].split(/[-A-Za-z0-9]+/)[1];
@@ -1228,10 +1405,11 @@
                     this.$$("#" + this.prefix + "ClinVarTextarea").value = this.query["clinvar"];
                 }
             }
-            onGeneDiseasePanelChange(){
+
+            onGeneDiseasePanelChange() {
                 let panelName = PolymerUtils.getElementById(this.prefix + "PanelApps").value;
-                for(let i = 0; i < this.panelList.length ; i++){
-                    if(this.panelList[i].name === panelName){
+                for (let i = 0; i < this.panelList.length; i++) {
+                    if (this.panelList[i].name === panelName) {
                         let panel = this.panelList[i];
                         PolymerUtils.getElementById(this.prefix + "PanelAppsTextarea").value = panel.genes;
                         break;
@@ -1239,13 +1417,15 @@
                 }
                 this.updateQueryFilters();
             }
+
             sortPanelApp(a, b) {
                 if (a.title === b.title) {
                     return 0;
                 }
                 return a.title < b.title ? -1 : 1;
             }
-            updateQueryFilters () {
+
+            updateQueryFilters() {
                 let _filters = {};
 
                 // Adding sample genotypes filter
@@ -1463,7 +1643,7 @@
 
                 // Consequence Type
                 if (PolymerUtils.isNotEmptyArray(this.ct)) {
-                    _filters["annot-ct"]= this.ct.join(',');
+                    _filters["annot-ct"] = this.ct.join(',');
                 }
 
                 // Gene Ontology and Human Phenotype Ontology
@@ -1493,6 +1673,7 @@
                 this.query = _filters;
                 this._reset = true;
             }
+
             callAutocomplete(e) {
                 // Only gene symbols are going to be searched and not ensembl ids
 //                if (this.$$("#" + this.prefix + "FeatureIdText").value.length > 2 && !this.$$("#" + this.prefix + "FeatureIdText").value.startsWith("ENS")) {
@@ -1504,6 +1685,7 @@
                         });
                 }
             }
+
             addFeatureId(e) {
                 let allIds = [];
                 let featureTextArea = PolymerUtils.getElementById(this.prefix + "FeatureTextarea");
@@ -1520,11 +1702,13 @@
 
                 this.updateQueryFilters();
             }
+
             // Exclusive for prioritization
-            refreshSegregationTable () {
+            refreshSegregationTable() {
 //                this.samples = [];
             }
-            selectAnalysisType (e) {
+
+            selectAnalysisType(e) {
                 e.preventDefault();
                 this.analysisType = e.target.value;
                 this.isSampleAnalysis = this.isFamilyAnalysis = this.isCancerAnalysis = false;
@@ -1539,14 +1723,17 @@
                     }
                 }
             }
-            selectSegregation (e) {
+
+            selectSegregation(e) {
                 e.preventDefault();
                 this.segregation = e.target.innerHTML;
             }
-            sampleChanged () {
+
+            sampleChanged() {
                 this.segregation = "Select Segregation";
             }
-            segregate () {
+
+            segregate() {
                 let cell;
                 let samples = this.samples;
 
@@ -1600,7 +1787,8 @@
                     }
                 }
             }
-            sampleGenotypeManual () {
+
+            sampleGenotypeManual() {
                 let arr = [];
                 if (this.samples != "" && this.samples.length > 1) {
                     for (let i = 0; i < this.samples.length; i++) {
@@ -1622,6 +1810,7 @@
                 }
                 this.sampleGenotypes = arr.join(';');
             }
+
             _clearHtmlDom() {
                 // Empty everything before rendering
                 $("." + this.prefix + "FilterSelect").prop('selectedIndex', 0);
@@ -1633,7 +1822,8 @@
                 $("." + this.prefix + "FilterRadio").filter('[value="or"]').prop('checked', true);
                 $("." + this.prefix + "FilterRadio").prop("disabled", true);
             }
-            _updateMode () {
+
+            _updateMode() {
                 switch (this.mode) {
                     case "browser":
                         this.isBrowserMode = true;
@@ -1650,7 +1840,8 @@
                         break;
                 }
             }
-            showSegregation(e){
+
+            showSegregation(e) {
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
                 $("#analysisSelectedDiv").show();
                 $("#segregationDropdownDiv").show();
@@ -1659,6 +1850,10 @@
 
             _isNotUndefined(obj) {
                 return typeof obj !== "undefined"
+            }
+
+            closeModalSample(e) {
+                this.dispatchEvent(new CustomEvent("closemodalsample", {detail: {}, bubbles: true, composed: true}));
             }
         }
 
