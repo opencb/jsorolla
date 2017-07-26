@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="../../styles/css/style.css">
 
     <script type="text/javascript" src="../../node_modules/underscore/underscore-min.js"></script>
-    <script type="text/javascript" src="../../node_modules/backbone/backbone.js"></script>
+    <script type="text/javascript" src="../../node_modules/backbone/backbone-min.js"></script>
     <script type="text/javascript" src="../../node_modules/jquery/dist/jquery.min.js"></script>
     <script type="text/javascript" src="../../node_modules/qtip2/dist/jquery.qtip.min.js"></script>
     <script type="text/javascript" src="../../node_modules/urijs/src/URI.min.js"></script>
@@ -320,9 +320,11 @@
             visibleRegionSize: 100000000,
             height: 300,
             opencga: {
-                host: OPENCGA_HOST,
-                version: "v1",
-                studies: "reference_grch37:1kG_phase3"
+//                host: OPENCGA_HOST,
+//                version: "v1",
+                client: opencgaClient,
+//                studies: "reference_grch37:1kG_phase3"
+                studies: "platinum:illumina_platinum"
 //                samples: ["HG00096", "HG00097", "HG00099"]
 //                samples: []
             },
