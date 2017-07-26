@@ -20,15 +20,17 @@ class VariantTrack extends FeatureTrack {
         // Set OpenCGA adapter as default. OpenCGA Client constructor(client, category, subcategory, resource, params = {}, options = {}, handlers = {}) {
         if (typeof this.dataAdapter === "undefined" || this.dataAdapter === null) {
             if (typeof this.opencga !== "undefined" && this.opencga !== null) {
-                let opencgaClientConfig = new OpenCGAClientConfig(this.opencga.host, this.opencga.version);
+                // let opencgaClientConfig = new OpenCGAClientConfig(this.opencga.host, this.opencga.version);
                 // opencgaConfig.cache.active = false;
-                this.dataAdapter = new OpencgaAdapter(new OpenCGAClient(opencgaClientConfig), "analysis/variant", "", "query", {
-                    studies: this.opencga.studies,
-                    exclude: this.DEFAULT_EXCLUDE
-                }, {
-                    chunkSize: 20000
-                });
-                
+                if (this.opencga.client !== undefined && this.opencga.client !== null) {
+                    this.dataAdapter = new OpencgaAdapter(this.opencga.client, "analysis/variant", "", "query", {
+                        studies: this.opencga.studies,
+                        exclude: this.DEFAULT_EXCLUDE
+                    }, {
+                        chunkSize: 20000
+                    });
+                }
+
                 if (typeof this.opencga.samples !== "undefined" && this.opencga.samples !== null && this.opencga.samples.length !== 0) {
                     this.dataAdapter.params.exclude = "studies.files,studies.stats,annotation";
                     this.dataAdapter.params.returnedSamples = this.opencga.samples;
