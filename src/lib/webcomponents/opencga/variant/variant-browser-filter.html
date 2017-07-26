@@ -143,8 +143,7 @@
                                     </a>
                                 </h4>
                             </div>
-                            <div id="{{prefix}}Studies" class="panel-collapse collapse in" role="tabpanel"
-                                 aria-labelledby="{{prefix}}StudiesHeading">
+                            <div id="{{prefix}}Studies" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}StudiesHeading">
                                 <div class="panel-body">
                                     <template is="dom-if" if="{{cohortsPresent(_cohorts)}}">
                                         <span class="browser-subsection">Cohort MAF filter</span>
@@ -181,7 +180,7 @@
                                             <!--<option value="not in">Not In</option>-->
                                             <option value="atleast">At least (OR)</option>
                                         </select>
-                                        <div id="differentStudies">
+                                        <div id="{{prefix}}DifferentStudies">
                                             <input type="checkbox" value="{{study.alias}}" data-id="{{study.id}}"
                                                    checked disabled> {{study.alias}}<br>
                                             <template is="dom-repeat" items="{{differentStudies}}">
@@ -1474,34 +1473,36 @@
                     _filters["maf"] = cohortFreq.join(';');
                 }
 
-                // Studies
+                // Studies - This section is not renderer when only study exists
                 let studies = [this.project.alias + ":" + this.study.alias];
-                let selectedStudies = PolymerUtils.querySelectorAll("input:checked", "differentStudies");
-                for (let i = 0; i < selectedStudies.length; i++) {
-                    if (studies.indexOf(this.project.alias + ':' + selectedStudies[i].value) === -1) {
-                        studies.push(this.project.alias + ':' + selectedStudies[i].value);
-                    }
-                }
-                switch (PolymerUtils.getElementById("includeOtherStudy").value) {
-                    case "in":
-                        _filters.studies = studies.join(';');
-                        break;
-                    case "atleast":
-                        _filters.studies = studies.join(',');
-                        break;
-                    case "not in":
-                        let notInStudies = [];
-                        let currentStudy = this.project.alias + ':' + this.study.alias;
-                        for (let j = 0; j < studies.length; j++) {
-                            if (currentStudy === studies[j]) {
-                                // Always add the study that we are browsing currently
-                                notInStudies.push(studies[j]);
-                            } else {
-                                notInStudies.push("!" + studies[j]);
-                            }
+                let selectedStudies = PolymerUtils.querySelectorAll("input:checked", this.prefix + "DifferentStudies");
+                if (PolymerUtils.isNotUndefinedOrNull(selectedStudies)) {
+                    for (let i = 0; i < selectedStudies.length; i++) {
+                        if (studies.indexOf(this.project.alias + ':' + selectedStudies[i].value) === -1) {
+                            studies.push(this.project.alias + ':' + selectedStudies[i].value);
                         }
-                        _filters.studies = notInStudies.join(";");
-                        break;
+                    }
+                    switch (PolymerUtils.getElementById("includeOtherStudy").value) {
+                        case "in":
+                            _filters.studies = studies.join(';');
+                            break;
+                        case "atleast":
+                            _filters.studies = studies.join(',');
+                            break;
+                        case "not in":
+                            let notInStudies = [];
+                            let currentStudy = this.project.alias + ':' + this.study.alias;
+                            for (let j = 0; j < studies.length; j++) {
+                                if (currentStudy === studies[j]) {
+                                    // Always add the study that we are browsing currently
+                                    notInStudies.push(studies[j]);
+                                } else {
+                                    notInStudies.push("!" + studies[j]);
+                                }
+                            }
+                            _filters.studies = notInStudies.join(";");
+                            break;
+                    }
                 }
 
                 // Regions
