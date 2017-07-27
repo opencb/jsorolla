@@ -214,7 +214,7 @@
             }
 
             _addVariantTrack(settings) {
-                console.log("hola" + this.project + " " + this.study);
+//                console.log("Study credentials: " + this.project.alias + ":" + this.study.alias);
                 let mySettings = {
                     title: "Variant",
                     closable: true,
@@ -224,14 +224,12 @@
                     visibleRegionSize: 100000000,
                     height: 100,
                     opencga: {
-                        host: OPENCGA_HOST,
-                        version: "v1",
+                        client: this.opencgaClient,
                         studies: "platinum:illumina_platinum"
+//                        studies: "reference_grch37:1kG_phase3"
+//                        "HG00096", "HG00097", "HG00099"
                     },
-//                    samples: {
-//                        names: { "reference_grch37:1kG_phase3": ["HG00096", "HG00097", "HG00099"]}
-//                    },
-                    renderer: new FeatureRenderer(FEATURE_TYPES.variant),
+//                    renderer: new FeatureRenderer(FEATURE_TYPES.variant),
                 };
 
                 if (this.samples !== undefined && this.samples.length > 0) {
@@ -242,7 +240,7 @@
 
                     mySettings.opencga.samples = _samples;
                 } else {
-                    mySettings.opencga.samples = "none";
+                    mySettings.opencga.samples = [];
                 }
 
                 mySettings = Object.assign(mySettings, settings);
