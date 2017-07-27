@@ -280,6 +280,7 @@ class VariantRenderer extends Renderer {
     _renderCompactVariants(features, args) {
         console.time("Variant Compact Renderer");
 
+        let _this = this;
         let svgGroup = SVG.create("g");
         for (let i = 0; i < features.length; i++) {
             let feature = features[i];
@@ -386,7 +387,7 @@ class VariantRenderer extends Renderer {
                     }
 
                     $(featureGroup).mouseover(function (event) {
-                        this.trigger("feature:mouseover", {
+                        _this.trigger("feature:mouseover", {
                             query: feature[infoWidgetId],
                             feature: feature,
                             featureType: feature.featureType,
@@ -395,7 +396,7 @@ class VariantRenderer extends Renderer {
                     });
 
                     $(featureGroup).click(function (event) {
-                        this.trigger("feature:click", {
+                        _this.trigger("feature:click", {
                             query: feature[infoWidgetId],
                             feature: feature,
                             featureType: feature.featureType,
