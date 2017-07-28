@@ -73,7 +73,7 @@ class OpencgaAdapter extends FeatureAdapter {
     // }
 
     getData(args){
-        switch(this.category ) {
+        switch(this.category) {
             case "analysis/variant": //FIX analysis/data?
                 return this._getVariant(args);
                 break;
@@ -83,7 +83,6 @@ class OpencgaAdapter extends FeatureAdapter {
             default:
                 return this._getExpressionData(args);
         }
-
     }
 
     _getExpressionData(args){
@@ -149,13 +148,13 @@ class OpencgaAdapter extends FeatureAdapter {
         // Object.assign(params, args.params);
 
         /** 1 region check **/
-        // let region = args.region;
+        let region = args.region;
         // if (region.start > 300000000 || region.end < 1) {
         //     return;
         // }
         // region.start = (region.start < 1) ? 1 : region.start;
         // region.end = (region.end > 300000000) ? 300000000 : region.end;
-        args.region = super._checkRegion(args.region);
+        region = super._checkRegion(region);
 
         /** 2 category check **/
         let categories = this.resource.toString().split(",");   // in this adapter
@@ -190,14 +189,11 @@ class OpencgaAdapter extends FeatureAdapter {
         return new Promise(function(resolve, reject) {
             // Create the chunks to be retrieved
             let start = _this._getStartChunkPosition(region.start);
-
             let regions = [];
-
             do {
                 regions.push(`${region.chromosome}:${start}-${start + _this.options.chunkSize - 1}`);
                 start += _this.options.chunkSize;
             } while (start <= region.end);
-
 
             if (dataType === "features") {
                     // _this.client.variants().query({
@@ -215,6 +211,7 @@ class OpencgaAdapter extends FeatureAdapter {
                     }
                 }
                 let chuncksByRegion =[];
+
                 for (let i = 0; i < regions.length; i++) {
                     p["region"] = regions[i];
                     chuncksByRegion[i] =_this.client.variants().query(p)

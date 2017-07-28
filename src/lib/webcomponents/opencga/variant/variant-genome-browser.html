@@ -52,7 +52,7 @@
             <div id="{{prefix}}Position" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}GenomeBrowserSettings">
                 <div class="panel-body">
                     <h4>Variant</h4>
-                        <input type="checkbox"> View extended
+                    <input type="checkbox"> View extended
                     <h4 style="padding-top: 5px">Alignments</h4>
                     <div style="padding-left: 20px">
                         <template is="dom-repeat" items="{{samplesWithFiles}}" as="sample">
@@ -257,10 +257,8 @@
                         },
                         responseHandler: function (res) {
                             if (_numTotal === -1) {
-                                if (_this.summary
-                                    || (typeof _this.query !== 'undefined' && typeof _this.query.gene !== 'undefined' && _this.query.gene !== "")) {
+                                if (_this.summary || (typeof _this.query !== 'undefined' && typeof _this.query.gene !== 'undefined' && _this.query.gene !== "")) {
                                     _numTotal = res.response[0].numTotalResults;
-//                                    _numTotal = 1150;
                                 } else {
                                     _numTotal = 1150;
                                 }
@@ -270,9 +268,9 @@
                         onClickRow: function (row, $element) {
                             $('.success').removeClass('success');
                             $($element).addClass('success');
-
 //                            _this._onSelectVariant(row);
-                            _this.region = row.chromosome + ":" + row.start + "-" + row.end;
+                            _this.region = new Region({chromosome: row.chromosome, start: row.start, end: row.end});
+//                            _this.set("region", new Region({chromosome: row.chromosome, start: row.start, end: row.end}));
                         },
                         onLoadSuccess: function (data) {
                             // The first time we mark as selected the first row that is rows[2] since the first two rows are the header
@@ -280,8 +278,9 @@
                             if (PolymerUtils.isNotUndefinedOrNull(table)) {
                                 table.rows[1].setAttribute('class', 'success');
 //                            _this._onSelectVariant(data.rows[0]);
-                                if (typeof data !== "undefined" && data.rows > 0) {
-                                    _this.region = data.rows[0].chromosome + ":" + data.rows[0].start + "-" + data.rows[0].end;
+                                if (typeof data !== "undefined" && data.rows.length > 0) {
+                                    _this.region = new Region({chromosome: data.rows[0].chromosome, start: data.rows[0].start, end: data.rows[0].end});
+//                                    _this.set('region', new Region({chromosome: data.rows[0].chromosome, start: data.rows[0].start, end: data.rows[0].end}));
                                 }
                             }
                         }

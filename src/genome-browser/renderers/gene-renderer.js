@@ -288,6 +288,11 @@ class GeneRenderer extends Renderer {
                                         "cursor": "pointer"
                                     });
                                     if (args.pixelBase > 9.5 && transcript.proteinSequence !== null && exon.phase !== null) {
+                                        // FIXME This fixes a Cellbase bug, phase=0 are not returned, we have to remove this when fixed
+                                        if (typeof exon.phase === "undefined") {
+                                            exon.phase = 0;
+                                        }
+
                                         if (exon.strand === "+") {
                                             /* not change var x let*/
                                             var proteinString = transcript.proteinSequence.substring(Math.floor(exon.cdsStart / 3), Math.floor(exon.cdsEnd / 3));
@@ -299,6 +304,7 @@ class GeneRenderer extends Renderer {
                                             var proteinPhaseOffset = codingReverseX - (args.pixelBase * 2) - (exon.phase * args.pixelBase);
                                             var sign = -1;
                                         }
+
                                         for (let j = 0; j < proteinString.length; j++) {
                                             let codonRect = SVG.addChild(exonGroup, "rect", {
                                                 "x": proteinPhaseOffset + (sign * args.pixelBase * 3 * j ),

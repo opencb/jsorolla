@@ -50,7 +50,7 @@
             <div id="{{prefix}}MainWindow" class="col-md-10" hidden$="{{checkProject(project)}}">
                 <variant-browser-view title="{{title}}" project="{{project}}" study="{{study}}" cohorts="{{cohorts}}"
                                       prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
-                                      cellbase-client="{{cellbaseClient}}" active="{{active}}"
+                                      cellbase-client="{{cellbaseClient}}"
                                       population-frequencies="{{populationFrequencies}}"
                                       protein-substitution-scores="{{proteinSubstitutionScores}}"
                                       consequence-types="{{consequenceTypes}}" beacon-hosts="{{beaconHosts}}"
@@ -59,6 +59,7 @@
                                       on-filterchange="onFilterChange" summary="{{summary}}">
                 </variant-browser-view>
             </div>
+
 
         <template is="dom-if" if="{{checkProject(project)}}">
             <span style="text-align: center"><h3>No public projects available to browse. Please login to continue</h3></span>

@@ -3,7 +3,7 @@ class GeneTrack extends FeatureTrack {
     constructor(args) {
         super(args);
 
-        this.DEFAULT_EXCLUDE = "transcripts.tfbs,transcripts.xrefs,transcripts.proteinSequence,transcripts.cDnaSequence,transcripts.exons.sequence,annotation";
+        this.DEFAULT_EXCLUDE = "transcripts.tfbs,transcripts.xrefs,transcripts.cDnaSequence,transcripts.exons.sequence,annotation";
 
         // set default values
         this.minTranscriptRegionSize = 200000;
