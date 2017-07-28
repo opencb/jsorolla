@@ -717,7 +717,7 @@ class TrackListPanel { //parent is a DOM div element
         let insertPosition = length - 1;
         this.tracksIndex[track.id] = insertPosition;
 
-
+debugger
         if (typeof track.dataAdapter.host === "undefined") {
             track.dataAdapter.host = this.cellBaseHost;
         }

@@ -140,7 +140,9 @@
                             case 'alignment':
                                 let alignmentTracks = _this.addAlignmentTrack(_this.tracks[i].config);
                                 if (PolymerUtils.isNotEmptyArray(alignmentTracks)) {
-                                    _tracks.push(alignmentTracks);
+                                    for (let track of alignmentTracks) {
+                                        _tracks.push(track);
+                                    }
                                 }
 //                                if (typeof _this.samples !== "undefined" && _this.samples.length > 0) {
 //                                    tracks.push(_this._addAlignmentTrack(_this.trackConfigs[_this.tracks[i]]));
@@ -255,13 +257,19 @@
                     minHistogramRegionSize: 5000,
                     maxLabelRegionSize: 3000,
                     visibleRegionSize: 100000000,
-                    height: 300
+                    height: 300,
+                    opencga: {
+                        client: this.opencgaClient,
+                        studies: "platinum:illumina_platinum"
+//                        studies: "reference_grch37:1kG_phase3"
+//                        "HG00096", "HG00097", "HG00099"
+                    }
                 };
-                let renderer = {
-                    renderer: new AlignmentRenderer(FEATURE_TYPES.alignment),
-                    dataAdapter: new OpencgaAdapter(this.opencgaClient, "analysis/alignment", undefined, "query", settings.data)
-                };
-                mySettings = Object.assign(mySettings, settings.config, renderer);
+//                let renderer = {
+//                    renderer: new AlignmentRenderer(FEATURE_TYPES.alignment),
+//                    dataAdapter: new OpencgaAdapter(this.opencgaClient, "analysis/alignment", undefined, "query", settings.data)
+//                };
+                mySettings = Object.assign(mySettings, settings.config);
                 return new AlignmentTrack(mySettings);
             }
 
