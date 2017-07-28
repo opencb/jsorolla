@@ -95,6 +95,12 @@
             ready() {
                 super.ready();
                 this._studies = [];
+
+            }
+
+            connectedCallback() {
+                super.connectedCallback();
+                this.summariesChanged();
             }
 
             projectsChanged() {

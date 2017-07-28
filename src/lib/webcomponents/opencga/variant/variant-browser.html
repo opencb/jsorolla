@@ -26,31 +26,39 @@
                 width: 95%;
             }
         </style>
-
-        <div class="panel">
-            <h3 style="margin: 10px 10px 10px 15px">
+            <div class="panel">
+                <h3 style="margin: 10px 10px 10px 15px">
                 <span on-click="onCollapse" style="cursor: pointer;margin: 0px 30px 0px 0px">
                     <i class="fa fa-bars" aria-hidden="true"></i>
                 </span>
-                <i class="fa fa-search" aria-hidden="true"></i>&nbsp;{{title}}
-            </h3>
-        </div>
+                    <i class="fa fa-search" aria-hidden="true"></i>&nbsp;{{title}}
+                </h3>
+            </div>
 
-        <div id="{{prefix}}FilterMenu" class="col-md-2" hidden$="{{checkProject(project)}}">
-            <variant-browser-filter study="{{study}}" project="{{project}}" studies="{{studies}}" cohorts="{{cohorts}}" config="{{config}}"
-                                    samples="{{samples}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
-                                    cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}"
-                                    consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}" style="font-size: 12px">
-            </variant-browser-filter>
-        </div>
+            <div id="{{prefix}}FilterMenu" class="col-md-2" hidden$="{{checkProject(project)}}">
+                <variant-browser-filter study="{{study}}" project="{{project}}" studies="{{studies}}"
+                                        cohorts="{{cohorts}}" config="{{config}}"
+                                        samples="{{samples}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
+                                        cellbase-client="{{cellbaseClient}}"
+                                        population-frequencies="{{populationFrequencies}}"
+                                        consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}"
+                                        style="font-size: 12px">
+                </variant-browser-filter>
+            </div>
 
-        <div id="{{prefix}}MainWindow" class="col-md-10" hidden$="{{checkProject(project)}}">
-            <variant-browser-view title="{{title}}" project="{{project}}" study="{{study}}" cohorts="{{cohorts}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
-                                  cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                  consequence-types="{{consequenceTypes}}" beacon-hosts="{{beaconHosts}}" query="{{query}}" search="[[search]]"
-                                  on-propagate="propagateGeneEvent" config="{{config}}" on-clear="onClear" on-filterchange="onFilterChange" summary="{{summary}}">
-            </variant-browser-view>
-        </div>
+
+            <div id="{{prefix}}MainWindow" class="col-md-10" hidden$="{{checkProject(project)}}">
+                <variant-browser-view title="{{title}}" project="{{project}}" study="{{study}}" cohorts="{{cohorts}}"
+                                      prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
+                                      cellbase-client="{{cellbaseClient}}" active="{{active}}"
+                                      population-frequencies="{{populationFrequencies}}"
+                                      protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                      consequence-types="{{consequenceTypes}}" beacon-hosts="{{beaconHosts}}"
+                                      query="{{query}}" search="[[search]]"
+                                      on-propagate="propagateGeneEvent" config="{{config}}" on-clear="onClear"
+                                      on-filterchange="onFilterChange" summary="{{summary}}">
+                </variant-browser-view>
+            </div>
 
         <template is="dom-if" if="{{checkProject(project)}}">
             <span style="text-align: center"><h3>No public projects available to browse. Please login to continue</h3></span>
@@ -138,6 +146,10 @@
                 this._collapsed = false;
             }
 
+            connectedCallback(){
+                super.connectedCallback();
+            }
+
             onCollapse() {
                 if (this._collapsed) {
 //                    $("#" + this.prefix + "FilterMenu").css("display", "inline");
@@ -168,6 +180,7 @@
 
             onStudyUpdate() {
                 // Update cohorts from config, this updates the Cohort filter MAF
+                //TODO polymerUtils
                 if (typeof this.config !== "undefined" && typeof this.config.cohorts !== "undefined" && Object.keys(this.config.cohorts).length > 0) {
                     this.cohorts = this.config.cohorts;
                 }
@@ -178,6 +191,7 @@
             }
 
             propagateGeneEvent(e) {
+                //TODO cambiar por dispatchEvent
                 this.fire('gene', {gene: e.detail.gene});
             }
 
@@ -185,8 +199,8 @@
                 this.query = {studies: this.project.alias + ":" + this.study.alias};
                 this.search = {};
             }
+
             onFilterChange(e) {
-                debugger
                 this.query = e.detail;
                 this.search = e.detail;
             }

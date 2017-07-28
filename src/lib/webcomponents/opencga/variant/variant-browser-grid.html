@@ -117,8 +117,8 @@
                         observer: 'assignColors'
                     },
                     query: {
-                        type: Object
-//                    observer: 'renderFromServer'
+                        type: Object,
+                    observer: 'renderFromServer'
                     },
                     search: {
                         type: Object,
@@ -168,21 +168,21 @@
             ready() {
                 super.ready();
 
-                // TO BE REMOVED!
-                this._refreshTableColumns();
-
                 if (typeof this.prefix === "undefined" || this.prefix === "") {
                     this.prefix = "table" + Utils.randomString(6);
                 }
-
                 this.analysisMode = "family";
+
             }
 
             connectedCallback() {
-                this.table = $('#' + this.prefix + 'VariantBrowserGrid');
+                super.connectedCallback();
 
+                // TODO Refactor
+                this.table = $('#' + this.prefix + 'VariantBrowserGrid');
                 this.downloadRefreshIcon = $("#" + this.prefix + "DownloadRefresh");
                 this.downloadIcon = $("#" + this.prefix + "DownloadIcon");
+                this._refreshTableColumns();
             }
 
             assignColors() {
@@ -217,6 +217,7 @@
                 this.renderFromServer();
             }
             renderFromServer() {
+
                 this.variant = ""; // Empty the variant every time the grid is loaded
 
                 this.from = 1;
@@ -269,6 +270,7 @@
                             if (PolymerUtils.isNotUndefinedOrNull(_table)) {
                                 PolymerUtils.querySelector(_table.selector).rows[2].setAttribute('class', 'success');
                                 _this._onSelectVariant(data.rows[0]);
+
                             }
                         },
                         onPageChange: function (page, size) {
@@ -327,6 +329,7 @@
                     });
                     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('showLoading');
                 }
+
             }
 
             _getUrlQueryParams() {

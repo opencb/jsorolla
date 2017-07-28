@@ -83,6 +83,10 @@
                 this._studySummaries = [];
             }
 
+            connectedCallback(){
+                super.connectedCallback();
+                this.projectChanged();
+            }
 
             fireSelectStudy(e) {
                 e.preventDefault();

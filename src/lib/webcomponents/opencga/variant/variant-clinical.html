@@ -27,18 +27,18 @@
     <template>
         <style include="jso-styles">
             /* From http://code-chunk.com/chunks/543df4c394758/bootstrap-arrow-shaped-buttons */
-            .btn-arrow-right,
-            .btn-arrow-left {
+            .analysis-button.btn-arrow-right,
+            .analysis-button.btn-arrow-left {
                 position: relative;
                 padding-left: 18px;
                 padding-right: 18px;
             }
 
-            .btn-arrow-right {
+            .analysis-button.btn-arrow-right {
                 padding-left: 36px;
             }
 
-            .btn-arrow-left {
+            .analysis-button.btn-arrow-left {
                 padding-right: 36px;
             }
 
@@ -97,6 +97,15 @@
             .btn-arrow-left:after { /* hide arrow tails background */
                 background-color: white;
             }
+            .btn:focus,
+            .btn:active {
+                box-shadow: none;
+            }
+
+            .analysis-button {
+                outline: none!important;
+            }
+
         </style>
 
         <div class="panel">
@@ -116,7 +125,7 @@
                 <button id="{{prefix}}SamplesButton" type="button"
                         class$="analysis-button btn {{computedClassTabs(activesTab.analysisTab)}} btn-arrow-right"
                         on-click="changeTool" data-toggle="tooltip" data-placement="top"
-                        title="Connect, link & choose analysis of samples">
+                        title="Connect, link & choose analysis of samples" >
                     <i class="fa fa-sitemap" aria-hidden="true"></i> Analysis
                 </button>
                 <button id="{{prefix}}PrioritizationButton" type="button"

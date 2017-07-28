@@ -178,7 +178,7 @@ class PolymerUtils {
             let el;
             if (id.startsWith(".")) {
                 // If starts with a dot then is a class, we use querySelector
-                el = PolymerUtils.querySelector(id);
+                el = PolymerUtils.querySelectorAll(id);
             } else {
                 // It is an ID
                 el = PolymerUtils.getElementById(id);
@@ -191,7 +191,13 @@ class PolymerUtils {
                     });
                 }
             } else {
-                el.classList.remove(className);
+                if (PolymerUtils.isNotUndefinedOrNull(el.length) && el.length > 1) {
+                    el.forEach(function (element) {
+                        element.classList.remove(className);
+                    });
+                } else {
+                    el.classList.remove(className);
+                }
             }
         }
     }
