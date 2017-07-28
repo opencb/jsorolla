@@ -532,6 +532,10 @@ class Projects extends OpenCGAParentClass {
         return this.get("projects", ids, "info", params, options);
     }
 
+    search(params, options) {
+        return this.get("projects", undefined, "search", params, options);
+    }
+
     getStudies(id, params, options) {
         return this.get("projects", id, "studies", params, options);
     }
