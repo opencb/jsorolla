@@ -35,13 +35,13 @@
                     study: {
                         type: Object
                     },
+                    region: {
+                        type: Object,
+                        observer: "_setRegion"
+                    },
                     samples: {
                         type: Array,
                         observer: "init"
-                    },
-                    region: {
-                        type: Object,
-                        observer: "changeRegion"
                     },
                     species: {
                         type: Object,
@@ -55,7 +55,12 @@
                         type: Array,
 //                        value: ['sequence', 'gene']
                         value: [{type: "sequence", config: {}}, {type: "gene", config: {}}],
-                        observer: "init",
+                        observer: "init"
+                    },
+                    width: {
+                        type: Number,
+                        value: 1400,
+                        observer: "_setWidth"
                     },
                     settings: {
                         type: Object
@@ -78,9 +83,10 @@
                 if (typeof this.cellbaseClient === "undefined" || typeof this.opencgaClient === "undefined" || typeof this.region === "undefined") {
                     return;
                 }
-//                if (typeof this.genomeBrowser !== "undefined") {
-//                    this.genomeBrowser.destroy();
-//                }
+
+                if (typeof this.genomeBrowser !== "undefined") {
+                    this.genomeBrowser.destroy();
+                }
 
                 let defaultSettings = {
                     client: this.cellbaseClient,
@@ -88,7 +94,7 @@
                     region: this.region,
                     availableSpecies: {vertebrates: [this.species]},
                     species: this.species,
-                    width: 1400,
+                    width: this.width,
 //                    zoom: 80,
                     sidePanel: false,
                     autoRender: true,
@@ -289,7 +295,6 @@
                     });
                 }
                 return resTracks
-
             }
 
             addGenericTrack(settings) {
@@ -300,13 +305,25 @@
                 }
             }
 
-            changeRegion(region) {
+            _setRegion(region) {
                 if (typeof this.genomeBrowser === "undefined") {
                     this.init();
                 }
 
                 if (typeof this.genomeBrowser !== "undefined") {
                     this.genomeBrowser.setRegion(region);
+                }
+            }
+
+//            _setSamples(samples) {
+//                if (typeof this.genomeBrowser === "undefined") {
+//                    this.init();
+//                }
+//            }
+
+            _setWidth(width) {
+                if (typeof this.genomeBrowser !== "undefined") {
+                    this.genomeBrowser.setWidth(width);
                 }
             }
         }
