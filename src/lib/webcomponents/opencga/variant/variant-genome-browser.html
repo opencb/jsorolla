@@ -18,17 +18,7 @@
 
 <dom-module id="variant-genome-browser">
     <template>
-        <style include="jso-styles">
-            .genome-floating-div {
-                position: relative;
-                top: 5px;
-                right: 5px;
-                z-index: 10;
-                box-shadow: 0px 0px 5px 1px #888888;
-                float: right;
-                background-color: #FAFAFA;
-            }
-        </style>
+        <style include="jso-styles"></style>
 
         <!--<div class="alert alert-warning" role="alert" id="{{prefix}}Warning" style="padding: 10px">-->
         <!--<span style="font-weight: bold;font-size: 1.20em">Warning!</span>&nbsp;&nbsp;Genome Browser is not fully integrated yet, this is just a prototype.-->
@@ -87,6 +77,14 @@
     <script>
         class variantGenomeBrowser extends Polymer.Element {
 
+            constructor() {
+                super();
+
+                if (PolymerUtils.isEmpty(this.prefix)) {
+                    this.prefix = "VarGenBrowser" + Utils.randomString(6);
+                }
+            }
+
             static get is() {
                 return 'variant-genome-browser';
             }
@@ -104,14 +102,14 @@
                     },
                     search: {
                         type: Object,
-                        observer: 'renderFromServer'
+                        observer: 'render'
                     },
                     project: {
                         type: Object
                     },
                     study: {
                         type: Object,
-                        observer: 'renderFromServer'
+                        observer: 'render'
                     },
                     samples: {
                         type: Array,
@@ -122,33 +120,25 @@
                     },
                     region: {
                         type: Object
-                    },
-                    prefix: {
-                        type: String
                     }
                 }
             }
 
-            constructor() {
-                super();
+            ready() {
+                super.ready();
+
+                this.summary = true;
+                this.tracks = [{type: "sequence"}, {type: "gene"}, {type: "variant"}, {type: "alignment", config: {}}];
             }
 
             _attachDom(dom) {
                 this.appendChild(dom);
             }
 
-            ready() {
-                super.ready();
-
-                if (typeof this.prefix === "undefined" || this.prefix === "") {
-                    this.prefix = "variantGB" + Utils.randomString(6);
-                }
-
-                this.summary = true;
-                this.tracks = [{type: "sequence"}, {type: "gene"}, {type: "variant"}, {type: "alignment", config: {}}];
-            }
-
             connectedCallback() {
+                super.connectedCallback();
+
+                this.render();
                 this.table = PolymerUtils.getElementById(this.prefix + 'VariantGenomeBrowserTable');
             }
 
@@ -225,15 +215,15 @@
             }
 
 
-            renderFromServer() {
+            render() {
                 this.variant = ""; // Empty the variant every time the grid is loaded
-                let _this = this;
                 if (typeof this.opencgaClient !== "undefined" && this.opencgaClient instanceof OpenCGAClient
                     && typeof this.project !== "undefined" && typeof this.study !== "undefined" && typeof this.study.alias !== "undefined") {
 
                     let urlQueryParams = this._getUrlQueryParams();
                     let queryParams = urlQueryParams.queryParams;
                     let _numTotal = -1;
+                    let _this = this;
                     $('#' + _this.prefix + 'VariantGenomeBrowserTable').bootstrapTable('destroy');
                     $('#' + _this.prefix + 'VariantGenomeBrowserTable').bootstrapTable({
                         url: urlQueryParams.host,
@@ -381,6 +371,5 @@
         }
 
         customElements.define(variantGenomeBrowser.is, variantGenomeBrowser);
-
     </script>
 </dom-module>

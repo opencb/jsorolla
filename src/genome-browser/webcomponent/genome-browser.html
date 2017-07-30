@@ -7,6 +7,15 @@
     <script>
         class GenomeBrowserComponent extends Polymer.Element {
 
+            constructor() {
+                super();
+
+                if (PolymerUtils.isEmpty(this.prefix)) {
+                    this.prefix = "gb_" + Utils.randomString(6);
+                }
+//                this.region = new Region({chromosome: "21", start: 22859462, end: 22859610});
+            }
+
             static get is() {
                 return 'genome-browser';
             }
@@ -14,8 +23,8 @@
             static get properties() {
                 return {
                     cellbaseClient: {
-                        type: Object,
-                        observer: "init"
+                        type: Object
+//                        observer: "init"
                     },
                     opencgaClient: {
                         type: Object
@@ -35,7 +44,12 @@
                         observer: "changeRegion"
                     },
                     species: {
-                        type: Object
+                        type: Object,
+                        value: {
+                            id: "hsapiens",
+                            scientificName: "Homo sapiens",
+                            assembly: {name: "GRCh37"}
+                        }
                     },
                     tracks: {
                         type: Array,
@@ -43,137 +57,111 @@
                         value: [{type: "sequence", config: {}}, {type: "gene", config: {}}],
                         observer: "init",
                     },
-                    trackConfigs: {
-                        type: Object,
-                        observer: "init",
-                        value: {}
-                    },
                     settings: {
                         type: Object
-                    },
-                    prefix: {
-                        type: String
                     }
                 }
             }
 
-            constructor() {
-                super();
+            ready() {
+                super.ready();
+
+                this.init();
+//                this.region = {chromosome: "21", start: 22859462, end: 22859610};
             }
 
             _attachDom(dom) {
                 this.appendChild(dom);
             }
 
-            ready() {
-                super.ready();
-
-                if (PolymerUtils.isEmpty(this.prefix)) {
-                    this.prefix = "gb_" + Utils.randomString(6);
-                }
-
-                this.init();
-
-                this.region = new Region({chromosome: "21", start: 22859462, end: 22859610});
-//                this.region = {chromosome: "21", start: 22859462, end: 22859610};
-            }
-
             init() {
-                if (typeof this.cellbaseClient === "undefined" || typeof this.opencgaClient === "undefined") {
+                if (typeof this.cellbaseClient === "undefined" || typeof this.opencgaClient === "undefined" || typeof this.region === "undefined") {
                     return;
                 }
+//                if (typeof this.genomeBrowser !== "undefined") {
+//                    this.genomeBrowser.destroy();
+//                }
 
-                if (typeof this.genomeBrowser !== "undefined") {
-                    this.genomeBrowser.destroy();
+                let defaultSettings = {
+                    client: this.cellbaseClient,
+                    target: this.prefix + "GenomeBrowser",
+                    region: this.region,
+                    availableSpecies: {vertebrates: [this.species]},
+                    species: this.species,
+                    width: 1400,
+//                    zoom: 80,
+                    sidePanel: false,
+                    autoRender: true,
+                    resizable: true,
+                    karyotypePanelConfig: {
+                        collapsed: true,
+                        collapsible: true
+                    },
+                    chromosomePanelConfig: {
+                        collapsed: true,
+                        collapsible: true
+                    },
+                    navigationBarConfig: {
+                        componentsConfig: {}
+                    },
+                    handlers: {
+                        'region:change': function (e) {
+                            console.log(e)
+                        }
+                    },
+                };
+
+                let settings = Object.assign(defaultSettings, this.settings);
+                this.genomeBrowser = new GenomeBrowser(settings);
+
+                let _tracks = [];
+                for (let i = 0; i < this.tracks.length; i++) {
+                    switch (this.tracks[i].type) {
+                        case 'sequence':
+                            _tracks.push(this._addSequenceTrack(this.tracks[i].config));
+                            break;
+                        case 'gene':
+                            _tracks.push(this._addGeneTrack(this.tracks[i].config));
+                            break;
+//                            case 'snp':
+                        case 'variant':
+                            _tracks.push(this._addVariantTrack(this.tracks[i].config));
+                            break;
+                        case 'alignment':
+                            // One track per file
+                            let alignmentTracks = this.addAlignmentTrack(this.tracks[i].config);
+                            if (PolymerUtils.isNotEmptyArray(alignmentTracks)) {
+                                for (let track of alignmentTracks) {
+                                    _tracks.push(track);
+                                }
+                            }
+//                                if (typeof this.samples !== "undefined" && this.samples.length > 0) {
+//                                    tracks.push(this._addAlignmentTrack(this.trackConfigs[this.tracks[i]]));
+//                                }
+                            break;
+//                            default:
+//                                tracks.push(this.addGenericTrack(this.trackConfigs[this.tracks[i]]));
+//                                break;
+                    }
                 }
 
-                let _this = this;
-
-                this.getSpecies().then(function (availableSpecies) {
-                    _this.species = availableSpecies.vertebrates[0];
-                    let settings = {
-                        sidePanel: false,
-                        autoRender: true,
-                        resizable: true,
-                        karyotypePanelConfig: {
-                            collapsed: true,
-                            collapsible: true
-                        },
-                        chromosomePanelConfig: {
-                            collapsed: true,
-                            collapsible: true
-                        },
-                        navigationBarConfig: {
-                            componentsConfig: {}
-                        },
-                        width: 1400
-                    };
-
-                    settings = Object.assign(settings, _this.settings);
-                    settings = Object.assign(settings, {
-                        client: _this.cellbaseClient,
-                        target: _this.prefix + "GenomeBrowser",
-                        region: _this.region,
-                        availableSpecies: availableSpecies,
-                        species: _this.species,
-                        handlers: {
-                            'region:change': function (e) {
-                                console.log(e)
-                            }
-                        }
-                    });
-                    _this.genomeBrowser = new GenomeBrowser(settings);
-
-                    let _tracks = [];
-                    for (let i = 0; i < _this.tracks.length; i++) {
-                        switch (_this.tracks[i].type) {
-                            case 'sequence':
-                                _tracks.push(_this._addSequenceTrack(_this.tracks[i].config));
-                                break;
-                            case 'gene':
-                                _tracks.push(_this._addGeneTrack(_this.tracks[i].config));
-                                break;
-//                            case 'snp':
-                            case 'variant':
-                                _tracks.push(_this._addVariantTrack(_this.tracks[i].config));
-                                break;
-                            case 'alignment':
-                                let alignmentTracks = _this.addAlignmentTrack(_this.tracks[i].config);
-                                if (PolymerUtils.isNotEmptyArray(alignmentTracks)) {
-                                    for (let track of alignmentTracks) {
-                                        _tracks.push(track);
-                                    }
-                                }
-//                                if (typeof _this.samples !== "undefined" && _this.samples.length > 0) {
-//                                    tracks.push(_this._addAlignmentTrack(_this.trackConfigs[_this.tracks[i]]));
-//                                }
-                                break;
-//                            default:
-//                                tracks.push(_this.addGenericTrack(_this.trackConfigs[_this.tracks[i]]));
-//                                break;
-                        }
-                    }
-
-                    // Region Overview
-                    let gene = new FeatureTrack({
-                        minHistogramRegionSize: 20000000,
-                        maxLabelRegionSize: 10000000,
-                        visibleRegionSize: 200,
-                        height: 120,
-
-                        renderer: new FeatureRenderer(FEATURE_TYPES.gene),
-
-                        dataAdapter: new CellBaseAdapter(_this.cellbaseClient, "genomic", "region", "gene",
-                            {
-                                exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence'
-                            }, {
-                                chunkSize: 100000
-                            })
-                    });
-                    _this.genomeBrowser.addOverviewTrack(gene);
-                    _this.genomeBrowser.addTrack(_tracks);
-                    _this.genomeBrowser.draw();
+                // Region Overview
+                let gene = new FeatureTrack({
+                    minHistogramRegionSize: 20000000,
+                    maxLabelRegionSize: 10000000,
+                    visibleRegionSize: 200,
+                    height: 120,
+                    renderer: new FeatureRenderer(FEATURE_TYPES.gene),
+                    dataAdapter: new CellBaseAdapter(this.cellbaseClient, "genomic", "region", "gene",
+                        {
+                            exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence'
+                        }, {
+                            chunkSize: 100000
+                        })
                 });
+                this.genomeBrowser.addOverviewTrack(gene);
+                this.genomeBrowser.addTrack(_tracks);
+                this.genomeBrowser.draw();
             }
 
             _addSequenceTrack(settings) {
@@ -304,46 +292,6 @@
 
             }
 
-//            getFilesToVisualiseAlignmentTracks(settings) {
-//                if (typeof settings === "undefined") {
-//                    settings = {};
-//                }
-//                let samples = [];
-//                this.samples.forEach(function(sample) {
-//                    samples.push(sample.id);
-//                });
-//                let query = {
-//                    samples: samples,
-//                    study: this.study.id,
-//                    format: "BAM"
-//                };
-//                let _this = this;
-//                this.opencgaClient.files().search(query).then(function(response) {
-//                    let files = [];
-//                    if (response.response[0].numResults === 0) {
-//                        return;
-//                    }
-//                    response.response[0].result.forEach(function(file) {
-//                        files.push(file.id);
-//                    });
-//
-//                    files.forEach(function(fileId) {
-//                        let mySettings = {
-//                            data: {
-//                                fileId: fileId,
-//                                study: _this.study.id
-//                            }
-//                        };
-//                        Object.assign(settings, mySettings);
-//                        let track = _this.getAlignmentTrack(settings);
-//                        _this.genomeBrowser.addTrack(track);
-//                    });
-//
-//                }).catch(function(response) {
-//                    console.log(response);
-//                });
-//            }
-
             addGenericTrack(settings) {
                 switch (settings.type) {
                     case 'alignment':
@@ -352,27 +300,11 @@
                 }
             }
 
-            getSpecies() {
-                return this.cellbaseClient.getMeta("species").then(function (r) {
-                    var taxonomies = r.response[0].result[0];
-                    for (var taxonomy in taxonomies) {
-                        var newSpecies = [];
-                        for (var i = 0; i < taxonomies[taxonomy].length; i++) {
-                            var species = taxonomies[taxonomy][i];
-                            for (var j = 0; j < species.assemblies.length; j++) {
-                                var s = Utils.clone(species)
-                                s.assembly = species.assemblies[j];
-                                delete s.assemblies;
-                                newSpecies.push(s)
-                            }
-                        }
-                        taxonomies[taxonomy] = newSpecies;
-                    }
-                    return taxonomies;
-                });
-            }
-
             changeRegion(region) {
+                if (typeof this.genomeBrowser === "undefined") {
+                    this.init();
+                }
+
                 if (typeof this.genomeBrowser !== "undefined") {
                     this.genomeBrowser.setRegion(region);
                 }
