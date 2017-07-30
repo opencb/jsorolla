@@ -68,7 +68,7 @@
                 <genome-browser cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}"
                                 species={{species}}
                                 region="{{region}}" tracks="[[tracks]]" samples="{{_samples}}"
-                                study="{{study}}" project="{{project}}" files="{{files}}">
+                                study="{{study}}" project="{{project}}" files="{{files}}" active="{{active}}">
                 </genome-browser>
             </div>
         </div>
@@ -120,6 +120,10 @@
                     },
                     region: {
                         type: Object
+                    },
+                    active: {
+                        type: Boolean,
+                        value: false
                     }
                 }
             }

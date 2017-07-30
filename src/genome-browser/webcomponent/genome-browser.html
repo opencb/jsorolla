@@ -62,6 +62,11 @@
                         value: 1400,
                         observer: "_setWidth"
                     },
+                    active: {
+                        type: Boolean,
+                        value: false,
+                        observer: "_setActive"
+                    },
                     settings: {
                         type: Object
                     }
@@ -81,6 +86,10 @@
 
             init() {
                 if (typeof this.cellbaseClient === "undefined" || typeof this.opencgaClient === "undefined" || typeof this.region === "undefined") {
+                    return;
+                }
+
+                if (!this.active) {
                     return;
                 }
 
@@ -310,7 +319,7 @@
                     this.init();
                 }
 
-                if (typeof this.genomeBrowser !== "undefined") {
+                if (typeof this.genomeBrowser !== "undefined" && this.active) {
                     this.genomeBrowser.setRegion(region);
                 }
             }
@@ -324,6 +333,12 @@
             _setWidth(width) {
                 if (typeof this.genomeBrowser !== "undefined") {
                     this.genomeBrowser.setWidth(width);
+                }
+            }
+
+            _setActive(active) {
+                if (active) {
+                    this.init();
                 }
             }
         }

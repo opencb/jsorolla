@@ -214,7 +214,7 @@
                     <variant-genome-browser project="{{project}}" study="{{study}}" opencga-client="{{opencgaClient}}"
                                             cellbase-client="{{cellbaseClient}}"
                                             query={{query}} search={{search}} species={{config.species}}
-                                            region="{{region}}">
+                                            region="{{region}}" active="{{_genomeBrowserActive}}">
                     </variant-genome-browser>
                 </div>
 
@@ -606,6 +606,9 @@
 
                 if (e.target.dataset.view === "GenomeBrowser") {
 //                    window.location.hash = "genomebrowser";
+                    this._genomeBrowserActive = true;
+                } else {
+                    this._genomeBrowserActive = false;
                 }
             }
 
