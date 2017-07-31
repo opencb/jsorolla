@@ -168,7 +168,7 @@
                     <br>
                     <variant-genome-browser project="{{project}}" study="{{study}}" samples="{{samples}}"
                                             opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
-                                            query={{query}} search={{search}} region="{{region}}">
+                                            query={{query}} search={{search}} region="{{region}}" active="{{_genomeBrowserActive}}" full-screen="{{fullScreen}}">
                     </variant-genome-browser>
                 </div>
             </div>
@@ -230,6 +230,9 @@
                     },
                     prefix: {
                         type: String
+                    },
+                    fullScreen: {
+                        type: Boolean
                     },
                     variant: {
                         type: String,
@@ -308,6 +311,9 @@
 
                 if (e.target.dataset.view === "GenomeBrowser") {
 //                    window.location.hash = "genomebrowser";
+                    this._genomeBrowserActive = true;
+                } else {
+                    this._genomeBrowserActive = false;
                 }
             }
 

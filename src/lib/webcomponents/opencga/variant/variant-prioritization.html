@@ -55,7 +55,7 @@
                                              consequence-types="{{consequenceTypes}}"
                                              beacon-hosts="{{beaconHosts}}" query="{{query}}" search="{{search}}"
                                              on-clear="onClear" on-filterchange="onFilterChange"
-                                             on-propagate="propagateGeneEvent">
+                                             on-propagate="propagateGeneEvent" full-screen="{{_collapsed}}">
                 </variant-prioritization-view>
             </div>
         <template is="dom-if" if="{{checkProject(project)}}">
