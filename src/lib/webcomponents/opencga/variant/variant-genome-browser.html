@@ -66,9 +66,8 @@
             </div>
             <div class="" style="width: 80%;float: right;padding: 0px 5px">
                 <genome-browser cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}"
-                                species={{species}}
-                                region="{{region}}" tracks="[[tracks]]" samples="{{_samples}}"
-                                study="{{study}}" project="{{project}}" files="{{files}}" active="{{active}}">
+                                species={{species}} region="{{region}}" tracks="[[tracks]]" samples="{{_samples}}"
+                                study="{{study}}" project="{{project}}" files="{{files}}" active="{{active}}" width="{{genomeBrowserWidth}}">
                 </genome-browser>
             </div>
         </div>
@@ -124,6 +123,10 @@
                     active: {
                         type: Boolean,
                         value: false
+                    },
+                    fullScreen: {
+                        type: Boolean,
+                        observer: "onFullScreen"
                     }
                 }
             }
@@ -371,6 +374,14 @@
                     html += "<span>" + arr.join() + "</span>";
                 }
                 return "<span style='white-space: nowrap;font-weight: bold'>" + html + "</span>";
+            }
+
+            onFullScreen() {
+                if (this.fullScreen) {
+                    this.genomeBrowserWidth = -1;
+                } else {
+                    this.genomeBrowserWidth = -2;
+                }
             }
         }
 

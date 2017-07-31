@@ -13,7 +13,6 @@
                 if (PolymerUtils.isEmpty(this.prefix)) {
                     this.prefix = "gb_" + Utils.randomString(6);
                 }
-//                this.region = new Region({chromosome: "21", start: 22859462, end: 22859610});
             }
 
             static get is() {
@@ -59,8 +58,8 @@
                     },
                     width: {
                         type: Number,
-                        value: 1400,
-                        observer: "_setWidth"
+//                        value: 1400,
+                        observer: "_updateWidth"
                     },
                     active: {
                         type: Boolean,
@@ -78,6 +77,9 @@
 
                 this.init();
 //                this.region = {chromosome: "21", start: 22859462, end: 22859610};
+
+                // We need to listen to Window resize
+                window.addEventListener('resize', e => this._updateWidth());
             }
 
             _attachDom(dom) {
@@ -96,6 +98,8 @@
                 if (typeof this.genomeBrowser !== "undefined") {
                     this.genomeBrowser.destroy();
                 }
+
+                this.width = $("#" + this.prefix + "GenomeBrowser").width();
 
                 let defaultSettings = {
                     client: this.cellbaseClient,
@@ -330,8 +334,14 @@
 //                }
 //            }
 
-            _setWidth(width) {
+            _updateWidth(width) {
                 if (typeof this.genomeBrowser !== "undefined") {
+                    // Check if width has been passed, otherwise we calculate the max for the current DIV size
+                    if (width === undefined || width === null || width < 0) {
+                        width = $("#" + this.prefix + "GenomeBrowser").width();
+                    }
+
+                    // Set the with to the genome browser
                     this.genomeBrowser.setWidth(width);
                 }
             }

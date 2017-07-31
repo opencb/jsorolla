@@ -214,7 +214,7 @@
                     <variant-genome-browser project="{{project}}" study="{{study}}" opencga-client="{{opencgaClient}}"
                                             cellbase-client="{{cellbaseClient}}"
                                             query={{query}} search={{search}} species={{config.species}}
-                                            region="{{region}}" active="{{_genomeBrowserActive}}">
+                                            region="{{region}}" active="{{_genomeBrowserActive}}" full-screen="{{fullScreen}}">
                     </variant-genome-browser>
                 </div>
 
@@ -303,6 +303,9 @@
                         type: String
                     },
                     summary: {
+                        type: Boolean
+                    },
+                    fullScreen: {
                         type: Boolean
                     },
                     config: {
