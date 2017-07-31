@@ -99,11 +99,6 @@
         </style>
 
         <div>
-            <!--<table id="{{prefix}}SampleSelector" data-search="true" data-show-columns="true" data-pagination="true" data-page-size="5" data-page-list="[5, 10, 25]"-->
-            <!--data-checkbox-header="false" data-maintain-selected="true" style="cursor: pointer;">-->
-            <!--<thead style="background-color: #eee"></thead>-->
-            <!--</table>-->
-
             <div style="width: 60%;margin: 0 auto">
                 <button type="button" class="btn btn-primary btn-lg" style="width: 100%" on-click="onSearch">
                     <i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px"></i>
@@ -202,19 +197,16 @@
                     <div class="panel panel-default">
                         <div class="panel-heading" role="tab" id="{{prefix}}SampleFilterHeading">
                             <h4 class="panel-title">
-                                <a class="collapsed" role="button" data-toggle="collapse"
-                                   data-parent="#{{prefix}}Accordion" href="#{{prefix}}SampleFilter"
-                                   aria-expanded="true" aria-controls="{{prefix}}SampleFilter">
+                                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
+                                   href="#{{prefix}}SampleFilter" aria-expanded="true" aria-controls="{{prefix}}SampleFilter">
                                     Analysis
                                 </a>
                             </h4>
                         </div>
-                        <div id="{{prefix}}SampleFilter" class="panel-collapse collapse in" role="tabpanel"
-                             aria-labelledby="{{prefix}}SampleFilterHeading">
-                            <div class="panel-body">
-
-                                <form>
-                                    <label>Select Analysis: </label>
+                        <div id="{{prefix}}SampleFilter" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}SampleFilterHeading">
+                            <div class="panel-body" style="padding-top: 5px">
+                                <div class="form-group" style="margin-bottom: 5px">
+                                    <label>Select Analysis Type:</label>
                                     <br>
                                     <input id="sampleRadio" type="radio" name="analysisRadioButtons" value="sample"
                                            class$="{{prefix}}FilterRadio" checked on-change="selectAnalysisType"
@@ -225,53 +217,64 @@
                                     <input id="cancerRadio" type="radio" name="analysisRadioButtons" value="cancer"
                                            class$="{{prefix}}FilterRadio" on-change="selectAnalysisType"
                                            style="padding-left: 20px"> Cancer<br>
-                                </form>
-                                <br>
+                                </div>
 
-                                <template is="dom-if" if="{{isSampleAnalysis}}">
-                                    <label><i class="fa fa-users" aria-hidden="true"></i>&nbsp;&nbsp;Sample
-                                        Analysis</label>
+                                <div style="padding-left: 5px">
+                                    <label><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;&nbsp;Analysis Settings</label>
                                     <br>
-                                    <span>Select samples: &nbsp;
-                                        <button data-toggle="modal" role="button" data-placement="bottom"
-                                                data-target$="#{{prefix}}SampleBrowser"
-                                                on-click="refreshSegregationTable">
-                                            Browse...
-                                        </button>
-                                    </span>
-                                </template>
+                                    <template is="dom-if" if="{{isSampleAnalysis}}">
+                                        <!--<label><i class="fa fa-users" aria-hidden="true"></i>&nbsp;&nbsp;Sample Analysis Settings</label>-->
+                                        <!--<br>-->
+                                        <div style="padding-left: 5px">Select samples: &nbsp;
+                                            <button data-toggle="modal" role="button" data-placement="bottom"
+                                                    data-target$="#{{prefix}}SampleBrowser" on-click="refreshSegregationTable">
+                                                Browse...
+                                            </button>
+                                            <br>
+                                            <input type="checkbox" value="./." on-change="updateQueryFilters"
+                                                   class$="genotypes {{prefix}}FilterCheckBox">&nbsp;Only variants form samples
+                                        </div>
+                                    </template>
 
-                                <template is="dom-if" if="{{isFamilyAnalysis}}">
-                                    <label><i class="fa fa-sitemap" aria-hidden="true"></i>&nbsp;&nbsp;Family
-                                        Analysis</label>
-                                    <br>
-                                    <!--Not ready yet, work in progress.-->
-                                    <span>Select family: &nbsp;
-                                        <button data-toggle="modal" role="button" data-placement="bottom"
-                                                data-target$="#{{prefix}}SampleBrowser"
-                                                on-click="refreshSegregationTable">
-                                            Browse...
-                                        </button>
-                                    </span>
-                                    <br>
-                                    <br>
-                                    <div class="dropdown">
-                                        <span>Inheritance mode: &nbsp;
-                                        <button class="btn btn-default btn-sm dropdown-toggle" type="button"
-                                                id="segregationPrioritizationDropdown" data-toggle="dropdown"
-                                                aria-haspopup="true" aria-expanded="true">
-                                            {{segregation}}
-                                            <span class="caret"></span>
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="segregationPrioritizationDropdown"
-                                            on-click="selectSegregation">
-                                            <template is="dom-repeat" items="{{config.segregation}}">
-                                                <li><a>{{item}}</a></li>
-                                            </template>
-                                        </ul>
-                                        </span>
-                                    </div>
+                                    <template is="dom-if" if="{{isFamilyAnalysis}}">
+                                        <!--<label><i class="fa fa-sitemap" aria-hidden="true"></i>&nbsp;&nbsp;Family Analysis Settings</label>-->
+                                        <!--<br>-->
+                                        <!--Not ready yet, work in progress.-->
+                                        <div style="padding-left: 5px">Select family: &nbsp;
+                                            <button data-toggle="modal" role="button" data-placement="bottom"
+                                                    data-target$="#{{prefix}}SampleBrowser" on-click="refreshSegregationTable">
+                                                Browse...
+                                            </button>
+                                        </div>
+                                        <div style="padding-left: 5px">Segregation: &nbsp;
+                                            <div class="btn-group">
+                                                <button class="btn btn-default btn-sm dropdown-toggle" type="button"
+                                                        id="segregationPrioritizationDropdown" data-toggle="dropdown"
+                                                        aria-haspopup="true" aria-expanded="true">
+                                                    {{segregation}}
+                                                    <span class="caret"></span>
+                                                </button>
+                                                <ul class="dropdown-menu" aria-labelledby="segregationPrioritizationDropdown"
+                                                    on-click="selectSegregation">
+                                                    <template is="dom-repeat" items="{{config.segregation}}">
+                                                        <li><a>{{item}}</a></li>
+                                                    </template>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </template>
 
+                                    <template is="dom-if" if="{{isCancerAnalysis}}">
+                                        <!--<label><i class="fa fa-user-times" aria-hidden="true"></i>&nbsp;&nbsp;Cancer Analysis Settings</label>-->
+                                        <!--<br>-->
+                                        Not ready yet, work in progress.
+                                    </template>
+                                </div>
+
+                                <div>
+                                    <br>
+                                    <label>Sample Genotypes:</label>
+                                    <br>
                                     <table class="table table-hover" id="segregationTable">
                                         <thead>
                                         <tr>
@@ -282,86 +285,76 @@
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        <template is="dom-repeat" items="{{_samples}}" as="sample">
+                                        <template is="dom-repeat" items="{{samples}}" as="sample">
                                             <tr id="{{sample.name}}">
                                                 <td id="{{prefix}}{{sample.name}}RowName" class$="{{sample.className}}">
                                                     {{sample.name}}&nbsp;({{sample.role}})
                                                 </td>
                                                 <td><input type="checkbox" value="0|0" data-id="{{sample.name}}"
-                                                           on-change="updateQueryFilters"
-                                                           class$="genotypes {{prefix}}FilterCheckBox"></td>
+                                                           on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
                                                 <td><input type="checkbox" value="0|1" data-id="{{sample.name}}"
-                                                           on-change="updateQueryFilters"
-                                                           class$="genotypes {{prefix}}FilterCheckBox"></td>
+                                                           on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
                                                 <td><input type="checkbox" value="1|1" data-id="{{sample.name}}"
-                                                           on-change="updateQueryFilters"
-                                                           class$="genotypes {{prefix}}FilterCheckBox"></td>
+                                                           on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
                                             </tr>
                                         </template>
                                         </tbody>
                                     </table>
                                     <input type="checkbox" value="./." on-change="updateQueryFilters"
                                            class$="genotypes {{prefix}}FilterCheckBox">&nbsp;Include missing
-                                </template>
-
-                                <template is="dom-if" if="{{isCancerAnalysis}}">
-                                    <label><i class="fa fa-user-times" aria-hidden="true"></i>&nbsp;&nbsp;Cancer
-                                        Analysis</label>
-                                    <br>
-                                    Not ready yet, work in progress.
-                                </template>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </template>
 
                 <!-- CLINICAL filters -->
-                <template is="dom-if" if="{{isClinicalMode}}">
-                    <div class="panel panel-default">
-                        <div class="panel-heading" role="tab" id="{{prefix}}SampleAnalysisHeading">
-                            <h4 class="panel-title">
-                                <a class="collapsed" role="button" data-toggle="collapse"
-                                   data-parent="#{{prefix}}Accordion" href="#{{prefix}}AnalysisSelector"
-                                   aria-expanded="true" aria-controls="{{prefix}}AnalysisSelector">
-                                    Analysis
-                                </a>
-                            </h4>
-                        </div>
+                <!--<template is="dom-if" if="{{isClinicalMode}}">-->
+                <!--<div class="panel panel-default">-->
+                <!--<div class="panel-heading" role="tab" id="{{prefix}}SampleAnalysisHeading">-->
+                <!--<h4 class="panel-title">-->
+                <!--<a class="collapsed" role="button" data-toggle="collapse"-->
+                <!--data-parent="#{{prefix}}Accordion" href="#{{prefix}}AnalysisSelector"-->
+                <!--aria-expanded="true" aria-controls="{{prefix}}AnalysisSelector">-->
+                <!--Analysis-->
+                <!--</a>-->
+                <!--</h4>-->
+                <!--</div>-->
 
-                        <div id="{{prefix}}AnalysisSelector" class="panel-collapse collapse in" role="tabpanel"
-                             aria-labelledby="{{prefix}}SampleFilterHeading">
-                            <div class="panel-body">
-                                <label><i class="fa fa-sitemap" aria-hidden="true"></i>Select analysis:</label>
-                                <br>
-                                <button data-toggle="modal" role="button" data-placement="bottom"
-                                        data-target$="#{{prefix}}AnalysisBrowser">
-                                    Browse...
-                                </button>
-                                <div id="analysisSelectedDiv" style="display:none">
-                                    <label>Analysis selected:</label>
-                                    <input type="text" class$="browser-custom-sized-input {{prefix}}FilterTextInput"
-                                           placeholder="AN-28" aria-describedby="basic-addon1" disabled>
-                                </div>
+                <!--<div id="{{prefix}}AnalysisSelector" class="panel-collapse collapse in" role="tabpanel"-->
+                <!--aria-labelledby="{{prefix}}SampleFilterHeading">-->
+                <!--<div class="panel-body">-->
+                <!--<label><i class="fa fa-sitemap" aria-hidden="true"></i>Select analysis:</label>-->
+                <!--<br>-->
+                <!--<button data-toggle="modal" role="button" data-placement="bottom"-->
+                <!--data-target$="#{{prefix}}AnalysisBrowser">-->
+                <!--Browse...-->
+                <!--</button>-->
+                <!--<div id="analysisSelectedDiv" style="display:none">-->
+                <!--<label>Analysis selected:</label>-->
+                <!--<input type="text" class$="browser-custom-sized-input {{prefix}}FilterTextInput"-->
+                <!--placeholder="AN-28" aria-describedby="basic-addon1" disabled>-->
+                <!--</div>-->
 
-                                <div class="dropdown" id="segregationDropdownDiv" style="display: none">
-                                    <button class="btn btn-default btn-sm dropdown-toggle" type="button"
-                                            id="segregationDropdown" data-toggle="dropdown" aria-haspopup="true"
-                                            aria-expanded="true">
-                                        {{segregation}}
-                                        <span class="caret"></span>
-                                    </button>
-                                    <ul class="dropdown-menu" aria-labelledby="segregationDropdown"
-                                        on-click="selectSegregation">
-                                        <template is="dom-repeat" items="{{config.segregation}}">
-                                            <li><a>{{item}}</a></li>
-                                        </template>
-                                    </ul>
-                                </div>
+                <!--<div class="dropdown" id="segregationDropdownDiv" style="display: none">-->
+                <!--<button class="btn btn-default btn-sm dropdown-toggle" type="button"-->
+                <!--id="segregationDropdown" data-toggle="dropdown" aria-haspopup="true"-->
+                <!--aria-expanded="true">-->
+                <!--{{segregation}}-->
+                <!--<span class="caret"></span>-->
+                <!--</button>-->
+                <!--<ul class="dropdown-menu" aria-labelledby="segregationDropdown"-->
+                <!--on-click="selectSegregation">-->
+                <!--<template is="dom-repeat" items="{{config.segregation}}">-->
+                <!--<li><a>{{item}}</a></li>-->
+                <!--</template>-->
+                <!--</ul>-->
+                <!--</div>-->
 
-                            </div>
-                        </div>
-                    </div>
-                </template>
+                <!--</div>-->
+                <!--</div>-->
+                <!--</div>-->
+                <!--</template>-->
 
                 <br>
                 <!-- Region filter -->
@@ -380,15 +373,14 @@
                             </a>
                         </h4>
                     </div>
-                    <div id="{{prefix}}Position" class="panel-collapse collapse in" role="tabpanel"
-                         aria-labelledby="{{prefix}}PositionHeading">
+                    <div id="{{prefix}}Position" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}PositionHeading">
                         <div class="panel-body">
                             <div class="form-group">
                                 <span class="browser-subsection">Chromosomal Location</span>
                                 <textarea id$="{{prefix}}LocationTextarea" name="location"
                                           class$="form-control clearable {{prefix}}FilterTextInput"
-                                          rows="3" placeholder="3:444-55555, 1:1-100000"
-                                          on-keyup="updateQueryFilters"></textarea>
+                                          rows="3" placeholder="3:444-55555, 1:1-100000" on-keyup="updateQueryFilters">
+                                </textarea>
                             </div>
 
                             <div class="form-group">
@@ -901,9 +893,8 @@
                     </div>
                     <div class="modal-body" style="height: 680px">
                         <!--<opencga-family-selector opencga-client="{{opencgaClient}}" study-id="{{study.id}}" samples="{{samples}}" prefix="{{prefix}}"></opencga-family-selector>-->
-                        <variant-sample-selector opencga-client="{{opencgaClient}}" project="{{project}}"
-                                                 study="{{study}}" mode="{{analysisType}}" samples="{{samples}}"
-                                                 on-familychange="onFamilyChange">
+                        <variant-sample-selector opencga-client="{{opencgaClient}}" project="{{project}}" study="{{study}}"
+                                                 mode="{{analysisType}}" samples="{{samples}}" on-familychange="onFamilyChange">
                         </variant-sample-selector>
                     </div>
                     <div class="modal-footer">
@@ -916,30 +907,36 @@
         </div>
 
         <!-- Modal dialog for Analysis Browser-->
-        <div class="modal fade" id="{{prefix}}AnalysisBrowser" tabindex="-1" role="dialog"
-             aria-labelledby="sampleBrowserLabel">
-            <div class="modal-dialog modal-lg" role="document" style="width: 1280px;">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                                aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title" id="{{prefix}}AnalysisBrowserLabel">Analysis Selector</h4>
-                    </div>
-                    <div class="modal-body" style="height: 780px">
-                        <!--<variant-clinical-selector></variant-clinical-selector>-->
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="showSegregation">
-                            OK
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!--<div class="modal fade" id="{{prefix}}AnalysisBrowser" tabindex="-1" role="dialog"-->
+        <!--aria-labelledby="sampleBrowserLabel">-->
+        <!--<div class="modal-dialog modal-lg" role="document" style="width: 1280px;">-->
+        <!--<div class="modal-content">-->
+        <!--<div class="modal-header">-->
+        <!--<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span-->
+        <!--aria-hidden="true">&times;</span></button>-->
+        <!--<h4 class="modal-title" id="{{prefix}}AnalysisBrowserLabel">Analysis Selector</h4>-->
+        <!--</div>-->
+        <!--<div class="modal-body" style="height: 780px">-->
+        <!--&lt;!&ndash;<variant-clinical-selector></variant-clinical-selector>&ndash;&gt;-->
+        <!--</div>-->
+        <!--<div class="modal-footer">-->
+        <!--<button type="button" class="btn btn-primary" data-dismiss="modal" on-click="showSegregation">-->
+        <!--OK-->
+        <!--</button>-->
+        <!--</div>-->
+        <!--</div>-->
+        <!--</div>-->
+        <!--</div>-->
     </template>
 
     <script>
         class VariantBrowserFilter extends Polymer.Element {
+
+            constructor() {
+                super();
+
+                this.prefix = "browser" + Utils.randomString(6);
+            }
 
             static get is() {
                 return 'variant-browser-filter';
@@ -962,8 +959,7 @@
                         type: Object
                     },
                     cellbaseClient: {
-                        type: Object,
-                        observer: 'cellbaseClientObtained'
+                        type: Object
                     },
                     config: {
                         type: Object
@@ -1001,17 +997,10 @@
                     },
                     segregation: {
                         type: String,
-                        value: "Select Segregation",
+                        value: "Select...",
                         observer: "segregate"
-                    },
-                    prefix: {
-                        type: String
                     }
                 }
-            }
-
-            constructor() {
-                super();
             }
 
             _attachDom(dom) {
@@ -1020,10 +1009,6 @@
 
             ready() {
                 super.ready();
-
-                if (typeof this.prefix === "undefined" || this.prefix === "") {
-                    this.prefix = "browser" + Utils.randomString(6);
-                }
 
                 this.sampleGenotypesObj = {};
                 this.query = {};
@@ -1034,6 +1019,8 @@
 
                 this.family = {};
                 this._samples = [];
+
+                this.cellbaseClientObtained();
             }
 
             onFamilyChange(e, family) {
@@ -1848,10 +1835,6 @@
                 $("#analysisSelectedDiv").show();
                 $("#segregationDropdownDiv").show();
 
-            }
-
-            _isNotUndefined(obj) {
-                return typeof obj !== "undefined"
             }
 
             closeModalSample(e) {

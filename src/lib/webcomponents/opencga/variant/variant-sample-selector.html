@@ -28,9 +28,10 @@
             </div>
 
             <div class="col-md-9">
-                <br>
                 <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" fixed-filters="{{fixedFilters}}"
-                                        alias="{{activeFilterAlias}}" refresh="{{search}}" on-clear="onClear" on-filterchange="onFilterChange"></opencga-active-filters>
+                                        alias="{{activeFilterAlias}}" refresh="{{search}}" on-clear="onClear" on-filterchange="onFilterChange">
+                </opencga-active-filters>
+
                 <!--<h3>Sample results</h3>-->
                 <variant-sample-grid opencga-client="{{opencgaClient}}" study="{{study}}" samples="{{samples}}" search="{{search}}"></variant-sample-grid>
 
@@ -49,6 +50,8 @@
 
             constructor() {
                 super();
+
+                this.prefix = "VarSampleSel" + Utils.randomString(6);
             }
 
             static get is() {
@@ -90,9 +93,6 @@
                     search: {
                         type: Object,
                         notify: true
-                    },
-                    prefix: {
-                        type: String
                     }
                 }
             }
@@ -107,10 +107,6 @@
 
             ready() {
                 super.ready();
-
-                if (typeof this.prefix === "undefined" || this.prefix === "") {
-                    this.prefix = "Sample" + Utils.randomString(6);
-                }
 
                 this.compact = true;
 
@@ -131,6 +127,8 @@
             }
 
             connectedCallback() {
+                super.connectedCallback();
+
                 this.table = PolymerUtils.getElementById(this.prefix + "FamilySelector");
             }
 //            renderFromServer: function () {

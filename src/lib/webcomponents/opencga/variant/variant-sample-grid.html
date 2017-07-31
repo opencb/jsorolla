@@ -23,7 +23,7 @@
                 <span style="font-size: 14px">Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> samples</span>
             </div>
             <table id="{{prefix}}SampleSelector" data-search="true" data-show-columns="true"
-                   data-page-size="10" data-pagination="true" data-page-list="[5, 10]" style="cursor: pointer">
+                   data-page-size="5" data-pagination="true" data-page-list="[5, 10]" style="cursor: pointer">
                 <thead style="background-color: #eee"></thead>
             </table>
         </div>
@@ -35,6 +35,8 @@
 
             constructor() {
                 super();
+
+                this.prefix = "sample2" + Utils.randomString(6);
             }
 
             static get is() {
@@ -55,9 +57,6 @@
                         type: Array,
                         notify: true
                     },
-                    prefix: {
-                        type: String
-                    },
                     filters: {
                         type: Object,
                         observer: "onFilterUpdate"
@@ -69,24 +68,24 @@
                 }
             }
 
-            _attachDom(dom) {
-                this.appendChild(dom);
+            static get observers() {
+                return ['calculateFilters(filteredVariables.variables.*)'];
             }
 
             ready() {
                 super.ready();
 
-                if (PolymerUtils.isEmpty(this.prefix)) {
-                    this.prefix = "sample2" + Utils.randomString(6);
-                }
-
                 this._initTableColumns();
                 this.dispatchEvent(new CustomEvent('clear', {detail: {}, bubbles: true, composed: true}));
+            }
 
+            _attachDom(dom) {
+                this.appendChild(dom);
             }
 
             connectedCallback() {
                 super.connectedCallback();
+
                 this.table = PolymerUtils.getElementById(this.prefix + "SampleSelector");
                 this.search = {};
             }
@@ -113,8 +112,8 @@
                     opencgaHostUrl += '/webservices/rest/v1/samples/search';
 
                     let _this = this;
-                    $(PolymerUtils.getElementById(this.prefix + 'SampleSelector')).bootstrapTable('destroy');
-                    $(PolymerUtils.getElementById(this.prefix + 'SampleSelector')).bootstrapTable({
+                    $("#" + this.prefix + 'SampleSelector').bootstrapTable('destroy');
+                    $("#" + this.prefix + 'SampleSelector').bootstrapTable({
                         url: opencgaHostUrl,
                         columns: _this._columns,
                         method: 'get',
@@ -445,10 +444,6 @@
                     ]
                 ];
                 return this._columns;
-            }
-
-            static get observers() {
-                return ['calculateFilters(filteredVariables.variables.*)'];
             }
         }
 
