@@ -27,7 +27,7 @@ class VariantTrack extends FeatureTrack {
                         studies: this.opencga.studies,
                         exclude: this.DEFAULT_EXCLUDE
                     }, {
-                        chunkSize: 20000
+                        chunkSize: 10000
                     });
                 }
 

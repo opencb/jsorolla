@@ -337,7 +337,7 @@
             }
 
             _setActive(active) {
-                if (active) {
+                if (active && typeof this.genomeBrowser === "undefined") {
                     this.init();
                 }
             }
