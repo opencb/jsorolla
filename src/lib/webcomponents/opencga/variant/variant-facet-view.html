@@ -355,7 +355,7 @@
 
             ready() {
                 super.ready();
-                if (PolymerUtils.isEmpty(this.prefix)) {
+                if (UtilsNew.isEmpty(this.prefix)) {
                     this.prefix = "facet" + Utils.randomString(6);
                 }
 
@@ -485,7 +485,7 @@
                 if (PolymerUtils.isNotEmptyValueById(this.prefix + "ChromosomeInput")) {
                     this.chromosome = PolymerUtils.getValue(this.prefix + "ChromosomeInput");
                     let _this = this;
-                    if (PolymerUtils.isNotUndefined(this.cellbaseClient) && this.cellbaseClient instanceof CellBaseClient) {
+                    if (UtilsNew.isNotUndefined(this.cellbaseClient) && this.cellbaseClient instanceof CellBaseClient) {
                         this.cellbaseClient.get("genomic", "chromosome", this.chromosome, "info", {})
                             .then(function (response) {
                                 let chromosome = response.response[0].result[0].chromosomes[0];
@@ -526,7 +526,7 @@
             }
 
             render() {
-                if (PolymerUtils.isUndefined(this.opencgaClient)) {
+                if (UtilsNew.isUndefined(this.opencgaClient)) {
                     return;
                 }
 
@@ -558,15 +558,15 @@
                 };
                 Object.assign(queryParams, this.query);
 
-                if (PolymerUtils.isNotEmpty(queryParams.sid)) {
+                if (UtilsNew.isNotEmpty(queryParams.sid)) {
                     delete queryParams["sid"];
                 }
 
-                if (PolymerUtils.isEmpty(queryParams.studies) || queryParams.studies.split(new RegExp("[,;]")).length === 1) {
+                if (UtilsNew.isEmpty(queryParams.studies) || queryParams.studies.split(new RegExp("[,;]")).length === 1) {
                     queryParams.studies = this.project.alias + ":" + this.study.alias;
                 }
 
-                if (PolymerUtils.isNotEmpty(this.chromosome)) {
+                if (UtilsNew.isNotEmpty(this.chromosome)) {
                     queryParams.region = this.chromosome;
                 }
                 if (this.facetFields.length > 0) {
@@ -590,7 +590,7 @@
                         for (let field of response.fields) {
                             let _name;
                             let _subField = "";
-                            if (PolymerUtils.isUndefined(field.counts[0].field)) {
+                            if (UtilsNew.isUndefined(field.counts[0].field)) {
                                 _name = field.name;
                             } else {
                                 _name = field.name + "-" + field.counts[0].field.name;
@@ -659,7 +659,7 @@
             }
 
             clearPlots() {
-                if (PolymerUtils.isNotUndefined(this.results) && this.results.length > 0) {
+                if (UtilsNew.isNotUndefined(this.results) && this.results.length > 0) {
                     for (let result of this.results) {
                         PolymerUtils.removeElement(this.prefix + result.name + "Plot");
                     }
@@ -753,7 +753,7 @@
             renderPieChart(div, id) {
                 let params;
                 let renderDonut = false;
-                if (PolymerUtils.isNotUndefined(this.facetResults[id]) && PolymerUtils.isNotUndefined(this.facetResults[id].counts[0].field)) {
+                if (UtilsNew.isNotUndefined(this.facetResults[id]) && UtilsNew.isNotUndefined(this.facetResults[id].counts[0].field)) {
                     params = this._getDonutData(id);
                     renderDonut = true;
                 } else {
@@ -831,10 +831,10 @@
                     for (let i = 0; i < field.counts.length; i++) {
                         let countObj = field.counts[i];
                         obj.categories.push(countObj.value);
-                        if (PolymerUtils.isNotUndefined(countObj.field)) {
+                        if (UtilsNew.isNotUndefined(countObj.field)) {
                             obj.nestedField = countObj.field.name;
                             for (let nestedCountObj of countObj.field.counts) {
-                                if (PolymerUtils.isUndefined(series[nestedCountObj.value])) {
+                                if (UtilsNew.isUndefined(series[nestedCountObj.value])) {
                                     series[nestedCountObj.value] = [];
                                 }
                                 // It is important to push 'index' as we need to take care of the missing values
@@ -852,7 +852,7 @@
                                 data[countIndex.index] = countIndex.count;
                             }
                             for (let i = 0; i < data.length; i++) {
-                                if (PolymerUtils.isUndefined(data[i])) {
+                                if (UtilsNew.isUndefined(data[i])) {
                                     data[i] = 0; // Setting '0' for missing fields
                                 }
                             }
@@ -1004,7 +1004,7 @@
             }
 
             fetchVariants() {
-                if (PolymerUtils.isNotUndefined(this.opencgaClient)) {
+                if (UtilsNew.isNotUndefined(this.opencgaClient)) {
                     let queryParams = {
                         sid: this.opencgaClient._config.sessionId,
                         timeout: 60000,
@@ -1013,7 +1013,7 @@
                     };
                     Object.assign(queryParams, this.query);
 
-                    if (PolymerUtils.isEmpty(queryParams.studies) || queryParams.studies.split(new RegExp("[,;]")).length == 1) {
+                    if (UtilsNew.isEmpty(queryParams.studies) || queryParams.studies.split(new RegExp("[,;]")).length == 1) {
                         queryParams.studies = this.project.alias + ":" + this.study.alias;
                     }
 
@@ -1030,11 +1030,11 @@
             }
 
             subFieldExists(field) {
-                return PolymerUtils.isNotEmpty(field);
+                return UtilsNew.isNotEmpty(field);
             }
 
             fieldExists(countObj) {
-                return PolymerUtils.isNotUndefined(countObj.field);
+                return UtilsNew.isNotUndefined(countObj.field);
             }
 
             countSubFields(countObj) {

@@ -104,8 +104,8 @@
             }
 
             projectsChanged() {
-                if (PolymerUtils.isNotUndefined(this.opencgaClient) && this.opencgaClient instanceof OpenCGAClient
-                        && PolymerUtils.isNotUndefined(this.projects) && this.projects.length > 0) {
+                if (UtilsNew.isNotUndefined(this.opencgaClient) && this.opencgaClient instanceof OpenCGAClient
+                        && UtilsNew.isNotUndefined(this.projects) && this.projects.length > 0) {
                     let _this = this;
 
                     if (this.auto) {

@@ -355,7 +355,7 @@
 
             ready() {
                 super.ready();
-                if (PolymerUtils.isEmpty(this.prefix)) {
+                if (UtilsNew.isEmpty(this.prefix)) {
                     this.prefix = "repView" + Utils.randomString(6);
                 }
 
@@ -369,7 +369,7 @@
 
                 // Remove content of all elements here before rendering -> TO BE DONE
 
-                if (PolymerUtils.isNotUndefined(this.analysisSelected.analysis)) {
+                if (UtilsNew.isNotUndefined(this.analysisSelected.analysis)) {
 
                     // Analysis ID and analysis resume
                     PolymerUtils.setPropertyById(this.prefix + "analysisID", "value", this.analysisSelected.analysisID);
@@ -412,7 +412,7 @@
                     let _prioritization = this.analysisSelected.analysis.family.children[0].samples[0].attributes.PRIORITIZATION;
                     let _dataTable = [];
                     let _query = undefined;
-                    if (PolymerUtils.isNotUndefined(_prioritization)) {
+                    if (UtilsNew.isNotUndefined(_prioritization)) {
                         _dataTable = this._getVariantsInfo(_prioritization.variants);
                         _query = _prioritization.query;
                     }
@@ -425,7 +425,7 @@
                     });
 
                     // Filter information
-                    if (PolymerUtils.isNotUndefined(_query)) {
+                    if (UtilsNew.isNotUndefined(_query)) {
                         let _filters = $.map(_query, function (value, key) {
                             if (value !== "") {
                                 return [{id: key, value: value}];
@@ -448,18 +448,18 @@
 
             showSelection() {
                 // Analysis ID
-                if (PolymerUtils.isNotUndefined(this.analysisSelected)) {
+                if (UtilsNew.isNotUndefined(this.analysisSelected)) {
                     PolymerUtils.removeAttribute(this.prefix + "sampleInformationDiv", "hidden")
                 }
 
                 // Analysis resume
-                if (PolymerUtils.isNotUndefined(this.selection.analysisResume)) {
+                if (UtilsNew.isNotUndefined(this.selection.analysisResume)) {
                     PolymerUtils.setPropertyById(this.prefix + "analysisInformationResume", "hidden", !this.selection.analysisResume)
 
                 }
 
                 // Sample Information
-                if (PolymerUtils.isNotUndefined(this.selection.sampleInfo)) {
+                if (UtilsNew.isNotUndefined(this.selection.sampleInfo)) {
                     for (let i = 0; i < this.selection.sampleInfo.length; i++) {
                         //this.$$("#" + this.prefix + this.selection.sampleInfo[i].name + "Div").hidden = !this.selection.sampleInfo[i].value;
                         PolymerUtils.setPropertyById(this.prefix + this.selection.sampleInfo[i].name + "Div", "hidden", !this.selection.sampleInfo[i].value);
@@ -472,7 +472,7 @@
                 }
 
                 // Prioritization Information
-                if (PolymerUtils.isNotUndefined(this.selection.prioritizationInfo)) {
+                if (UtilsNew.isNotUndefined(this.selection.prioritizationInfo)) {
                     let _numFalseElements = 0;
                     for (let i = 0; i < this.selection.prioritizationInfo.length; i++) {
                         if (this.selection.prioritizationInfo[i].name == 'variantsTable' && this.selection.prioritizationInfo[i].value &&
@@ -495,7 +495,7 @@
                 }
 
                 // Editable conclusions
-                if (PolymerUtils.isNotUndefined(this.selection.conclusions)) {
+                if (UtilsNew.isNotUndefined(this.selection.conclusions)) {
                     PolymerUtils.setPropertyById(this.prefix + "conclusionsDiv", "hidden", !this.selection.conclusions);
 
                 }

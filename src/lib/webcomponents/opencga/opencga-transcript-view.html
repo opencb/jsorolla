@@ -179,14 +179,14 @@
 
             ready() {
                 super.ready();
-                if (PolymerUtils.isEmpty(this.prefix)) {
+                if (UtilsNew.isEmpty(this.prefix)) {
                     this.prefix = "transcript" + Utils.randomString(6);
                 }
             }
 
             projectStudyObtained(project, study) {
-                if (PolymerUtils.isNotUndefined(this.project) && PolymerUtils.isNotEmpty(this.project.alias)
-                    && PolymerUtils.isNotUndefined(this.study) && PolymerUtils.isNotEmpty(this.study.alias)) {
+                if (UtilsNew.isNotUndefined(this.project) && UtilsNew.isNotEmpty(this.project.alias)
+                    && UtilsNew.isNotUndefined(this.study) && UtilsNew.isNotEmpty(this.study.alias)) {
                     this.hashFragmentCredentials = {
                         project: this.project.alias,
                         study: this.study.alias
@@ -204,7 +204,7 @@
 
                 let query = {};
                 let _this = this;
-                if (PolymerUtils.isNotEmpty(this.transcript)) {
+                if (UtilsNew.isNotEmpty(this.transcript)) {
                     query["annot-xref"] = this.transcript;
                     _this.cellbaseClient.getTranscriptClient(this.transcript, 'info', {}, {})
                         .then(function (response) {
@@ -231,7 +231,7 @@
                             "stop_lost,start_lost,transcript_amplification,inframe_insertion,inframe_deletion";
                         break;
                     default:
-                        if (PolymerUtils.isNotUndefined(query["annot-ct"])) {
+                        if (UtilsNew.isNotUndefined(query["annot-ct"])) {
                             delete query["annot-ct"];
                         }
                         break;

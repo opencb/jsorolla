@@ -84,7 +84,7 @@
 
             ready() {
                 super.ready();
-                if (PolymerUtils.isEmpty(this.prefix)) {
+                if (UtilsNew.isEmpty(this.prefix)) {
                     this.prefix = "anSelector" + Utils.randomString(6);
                 }
                 this.resetVariables();
@@ -139,7 +139,7 @@
 
                 // If pedigree exists from a previous opened window, remove it
                 let querySelector = PolymerUtils.getElementById(this.prefix + "PedigreeViewSelector");
-                if (PolymerUtils.isNotUndefined(this.svg) && querySelector.hasChildNodes()) {
+                if (UtilsNew.isNotUndefined(this.svg) && querySelector.hasChildNodes()) {
                     querySelector.removeChild(this.svg);
 
                 }
@@ -163,12 +163,12 @@
                             _samplesSelected.push(_family.children[i].samples[0]);
                         }
                         // Father
-                        if(PolymerUtils.isNotEmptyArray(_family.father.samples)){
+                        if(UtilsNew.isNotEmptyArray(_family.father.samples)){
                             _samplesSelected.push(_family.father.samples[0]);
                         }
 
                         // Mother
-                        if(PolymerUtils.isNotEmptyArray(_family.mother.samples)) {
+                        if(UtilsNew.isNotEmptyArray(_family.mother.samples)) {
                             _samplesSelected.push(_family.mother.samples[0]);
                         }
 
@@ -200,7 +200,7 @@
 
 //                let familyName = PolymerUtils.getElementById(this.prefix + "FamilyName").value;
                 // Remove SVG before render new one
-                if (PolymerUtils.isNotUndefined(this.svg)) {
+                if (UtilsNew.isNotUndefined(this.svg)) {
                    PolymerUtils.getElementById(this.prefix + "PedigreeViewSelector").removeChild(this.svg);
                 }
                 // Render new Pedigree
@@ -214,13 +214,13 @@
             pedigreeFromFamily(family, _analysisID) {
 
                 // Father
-                if(PolymerUtils.isNotEmptyArray(family.father.samples)) {
+                if(UtilsNew.isNotEmptyArray(family.father.samples)) {
                     this.pedigree.father = {name: family.father.samples[0].name, gender: "male"};
                     this.pedigree.father.affected = (family.father.affectationStatus === "AFFECTED") ? true : false;
                     this.pedigree.father.deceased = (family.father.lifeStatus === "ALIVE" || family.father.lifeStatus === "UNKNOWN") ? false : true;
                 }
                 // Mother
-                if(PolymerUtils.isNotEmptyArray(family.mother.samples)) {
+                if(UtilsNew.isNotEmptyArray(family.mother.samples)) {
 
                     this.pedigree.mother = {name: family.mother.samples[0].name, gender: "female"};
                     this.pedigree.mother.affected = (family.mother.affectationStatus === "AFFECTED") ? true : false;

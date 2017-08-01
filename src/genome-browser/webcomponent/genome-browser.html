@@ -10,7 +10,7 @@
             constructor() {
                 super();
 
-                if (PolymerUtils.isEmpty(this.prefix)) {
+                if (UtilsNew.isEmpty(this.prefix)) {
                     this.prefix = "gb_" + Utils.randomString(6);
                 }
             }
@@ -40,6 +40,10 @@
                     },
                     samples: {
                         type: Array,
+                        observer: "init"
+                    },
+                    files: {
+                        type: Set,
                         observer: "init"
                     },
                     species: {
@@ -149,7 +153,7 @@
                         case 'alignment':
                             // One track per file
                             let alignmentTracks = this.addAlignmentTrack(this.tracks[i].config);
-                            if (PolymerUtils.isNotEmptyArray(alignmentTracks)) {
+                            if (UtilsNew.isNotEmptyArray(alignmentTracks)) {
                                 for (let track of alignmentTracks) {
                                     _tracks.push(track);
                                 }
@@ -272,11 +276,11 @@
 //                        "HG00096", "HG00097", "HG00099"
                     }
                 };
-//                let renderer = {
-//                    renderer: new AlignmentRenderer(FEATURE_TYPES.alignment),
-//                    dataAdapter: new OpencgaAdapter(this.opencgaClient, "analysis/alignment", undefined, "query", settings.data)
-//                };
-                mySettings = Object.assign(mySettings, settings.config);
+                let renderer = {
+                    renderer: new AlignmentRenderer(FEATURE_TYPES.alignment),
+                    dataAdapter: new OpencgaAdapter(this.opencgaClient, "analysis/alignment", undefined, "query", settings.data)
+                };
+                mySettings = Object.assign(mySettings, settings.config, renderer);
                 return new AlignmentTrack(mySettings);
             }
 
@@ -290,7 +294,7 @@
             addAlignmentTrack(settings = {}) {
                 let resTracks = [];
 
-                if (PolymerUtils.isNotEmptyArray(this.files)) {
+                if (UtilsNew.isNotUndefinedOrNull(this.files) && this.files.size > 0) {
                     let _this = this;
                     this.files.forEach(function (file) {
                         let mySettings = {

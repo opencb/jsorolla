@@ -39,21 +39,26 @@
                     </a>
                 </h3>
             </div>
-            <div id="{{prefix}}Position" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}GenomeBrowserSettings">
+            <div id="{{prefix}}Position" class="panel-collapse collapse in" role="tabpanel"
+                 aria-labelledby="{{prefix}}GenomeBrowserSettings">
                 <div class="panel-body">
                     <h4>Variant</h4>
                     <input type="checkbox"> View extended
                     <h4 style="padding-top: 5px">Alignments</h4>
                     <div style="padding-left: 20px">
+
                         <template is="dom-repeat" items="{{samplesWithFiles}}" as="sample">
                             <template is="dom-repeat" items="{{sample.files}}" as="file">
-                                <input type="checkbox" style="padding-left: 25px" class$="{{prefix}}FileCheckbox" data-filename$="{{file}}"> <label>{{sample.name}}</label> {{file}}
+                                <input type="checkbox" style="padding-left: 25px" class$="{{prefix}}FileCheckbox"
+                                       data-file-id$="{{file.id}}" on-change="toggleSelection">
+                                <label>{{sample.name}}</label> {{file.name}}
                                 <br>
                             </template>
                         </template>
                     </div>
                     <div style="width: 120px;float: right;">
-                        <button type="button" class="btn btn-primary" style="width: 100%" on-click="onOk">Refresh</button>
+                        <button type="button" class="btn btn-primary" style="width: 100%" on-click="onRefresh">Refresh
+                        </button>
                     </div>
                 </div>
             </div>
@@ -67,7 +72,8 @@
             <div class="" style="width: 80%;float: right;padding: 0px 5px">
                 <genome-browser cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}"
                                 species={{species}} region="{{region}}" tracks="[[tracks]]" samples="{{_samples}}"
-                                study="{{study}}" project="{{project}}" files="{{files}}" active="{{active}}" width="{{genomeBrowserWidth}}">
+                                study="{{study}}" project="{{project}}" files="{{_files}}" active="{{active}}"
+                                width="{{genomeBrowserWidth}}">
                 </genome-browser>
             </div>
         </div>
@@ -79,7 +85,7 @@
             constructor() {
                 super();
 
-                if (PolymerUtils.isEmpty(this.prefix)) {
+                if (UtilsNew.isEmpty(this.prefix)) {
                     this.prefix = "VarGenBrowser" + Utils.randomString(6);
                 }
             }
@@ -154,7 +160,7 @@
             }
 
             getFilesToVisualiseAlignmentTracks(settings) {
-                if (typeof settings === "undefined") {
+                if (UtilsNew.isUndefined(settings)) {
                     settings = {};
                 }
                 let samples = [];
@@ -169,52 +175,26 @@
                 };
                 let _this = this;
                 this.samplesWithFiles = [];
-                let _samplesWithFiles = [];
+                this._filesSelectedAlignment = new Set([]);
                 this.opencgaClient.files().search(query)
                     .then(function (response) {
-
-                        console.log(response)
-                        if (PolymerUtils.isNotEmptyArray(response.response[0].result)) {
+                        if (UtilsNew.isNotEmptyArray(response.response[0].result)) {
                             _this.samples.forEach(function (sampleSelected) {
                                 let filesSamples = [];
-                                response.response[0].result.forEach(function (files) {
-                                    let containSample = files.samples.some(function (sampleFile) {
+                                response.response[0].result.forEach(function (file) {
+                                    let containSample = file.samples.some(function (sampleFile) {
                                         return sampleFile.id === sampleSelected.id;
                                     });
                                     if (containSample) {
-                                        filesSamples.push(files.name);
+                                        filesSamples.push(file);
                                     }
                                 });
-//                                samplesWithFiles.set(sampleSelected.name, filesSamples);
-                                _samplesWithFiles.push({name: sampleSelected.name, files: filesSamples});
+                                // Push linked filename list with sampleSelected using polymer array mutation method to update dom-repeat
+                                _this.push('samplesWithFiles', {name: sampleSelected.name, files: filesSamples});
                             });
-
-                            _this.samplesWithFiles = _samplesWithFiles;
                         }
-                        let files = [];
-                        if (response.response[0].numResults === 0) {
-                            return;
-                        }
-                        response.response[0].result.forEach(function (file) {
-                            files.push(file.id);
-                        });
-
-                        _this.files = files;
+                        //Update samples and pass to genomeBrowser to draw tracks samples.
                         _this._samples = _this.samples;
-
-
-//                        files.forEach(function (fileId) {
-//                            let mySettings = {
-//                                data: {
-//                                    fileId: fileId,
-//                                    study: _this.study.id
-//                                }
-//                            };
-//                            Object.assign(settings, mySettings);
-//                            let track = _this.getAlignmentTrack(settings);
-//                            _this.genomeBrowser.addTrack(track);
-//                        });
-
                     })
                     .catch(function (response) {
                         console.log(response);
@@ -272,11 +252,15 @@
                         onLoadSuccess: function (data) {
                             // The first time we mark as selected the first row that is rows[2] since the first two rows are the header
                             let table = PolymerUtils.getElementById(_this.prefix + 'VariantGenomeBrowserTable');
-                            if (PolymerUtils.isNotUndefinedOrNull(table)) {
+                            if (UtilsNew.isNotUndefinedOrNull(table)) {
                                 table.rows[1].setAttribute('class', 'success');
 //                            _this._onSelectVariant(data.rows[0]);
                                 if (typeof data !== "undefined" && data.rows.length > 0) {
-                                    _this.region = new Region({chromosome: data.rows[0].chromosome, start: data.rows[0].start, end: data.rows[0].end});
+                                    _this.region = new Region({
+                                        chromosome: data.rows[0].chromosome,
+                                        start: data.rows[0].start,
+                                        end: data.rows[0].end
+                                    });
 //                                    _this.set('region', new Region({chromosome: data.rows[0].chromosome, start: data.rows[0].start, end: data.rows[0].end}));
                                 }
                             }
@@ -383,7 +367,26 @@
                     this.genomeBrowserWidth = -2;
                 }
             }
+
+            onRefresh(e) {
+                this.set("_files", new Set(this._filesSelectedAlignment));
+            }
+
+            toggleSelection(e) {
+                if (UtilsNew.isNotUndefinedOrNull(e.target)) {
+                    let idFile = e.target.getAttribute("data-file-id")
+                    if (UtilsNew.isNotUndefinedOrNull(idFile)) {
+                        if (this._filesSelectedAlignment.has(idFile)) {
+                            this._filesSelectedAlignment.delete(idFile);
+                        } else {
+                            this._filesSelectedAlignment.add(idFile);
+                        }
+                    }
+                }
+
+            }
         }
+
 
         customElements.define(variantGenomeBrowser.is, variantGenomeBrowser);
     </script>

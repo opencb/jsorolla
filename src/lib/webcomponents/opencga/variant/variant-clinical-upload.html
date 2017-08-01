@@ -615,7 +615,7 @@
 
             ready() {
                 super.ready();
-                if (PolymerUtils.isEmpty(this.prefix)) {
+                if (UtilsNew.isEmpty(this.prefix)) {
                     this.prefix = "upload" + Utils.randomString(6);
                 }
 
@@ -751,7 +751,7 @@
                     pairElement = PolymerUtils.getElementById(this.prefix + "testYear");
                     valuePE = PolymerUtils.querySelector('option:checked', pairElement).textContent;
 
-                    if (PolymerUtils.isNotEmpty(valuePE) && (parseInt(valueCE) > parseInt(valuePE))) { // Year of birth cannot be lower than Year of test
+                    if (UtilsNew.isNotEmpty(valuePE) && (parseInt(valueCE) > parseInt(valuePE))) { // Year of birth cannot be lower than Year of test
                         message = "Year of Birth must be prior to year of Test. ";
                         PolymerUtils.innerHTML(this.prefix + '_errorDiv_birthYear', message);
                     }
@@ -759,7 +759,7 @@
                     pairElement = PolymerUtils.getElementById(this.prefix + "testAge");
                     valuePE = PolymerUtils.querySelector('option:checked', pairElement).textContent;
                     let fullDate = new Date();
-                    if (PolymerUtils.isNotEmpty(valuePE) && !(parseInt(valuePE) >= (fullDate.getFullYear() - parseInt(valueCE) - 1)
+                    if (UtilsNew.isNotEmpty(valuePE) && !(parseInt(valuePE) >= (fullDate.getFullYear() - parseInt(valueCE) - 1)
                         && parseInt(valuePE) <= fullDate.getFullYear() - parseInt(valueCE))) {
                         // If year of birth is 2015, person is 1 or 2 years old (assuming 2017 is current year)
                         PolymerUtils.innerHTML(this.prefix + '_errorDiv_birthYear', message + 'Year of Birth does not match age');
@@ -868,7 +868,7 @@
                     // Dropdown related to age of Test -> check hat year of birth is correct
                     let pairElement = PolymerUtils.getElementById(this.prefix + 'birthYear');
                     let valuePE = PolymerUtils.querySelector("option:checked", pairElement).textContent;
-                    if (PolymerUtils.isNotEmpty(valuePE)) {
+                    if (UtilsNew.isNotEmpty(valuePE)) {
                         let birthYear = parseInt(valuePE);
                         let fullDate = new Date();
                         if (!(parseInt(PolymerUtils.getValue(currentElementId)) >= (fullDate.getFullYear() - birthYear - 1)

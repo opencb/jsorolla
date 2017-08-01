@@ -48,78 +48,78 @@ class AlignmentTrack extends FeatureTrack {
         this.renderer.track = this;
     }
 
-    // getDataHandler(event) {
-    //     let features = event;
-    //     // if (event.dataType == "histogram") {
-    //     //     this.renderer = this.histogramRenderer;
-    //     //     features = event.items;
-    //     // } else {
-    //     //     this.renderer = this.defaultRenderer;
-    //     //     features = event;
-    //     // }
-    //     this.renderedArea = {}; //<- this is only in Aligments
-    //     this.renderer.render(features, {
-    //         cacheItems: event.items,
-    //         svgCanvasFeatures: this.svgCanvasFeatures,
-    //         featureTypes: this.featureTypes,
-    //         renderedArea: this.renderedArea,
-    //         pixelBase: this.pixelBase,
-    //         position: this.region.center(),
-    //         regionSize: this.region.length(),
-    //         maxLabelRegionSize: this.maxLabelRegionSize,
-    //         width: this.width,
-    //         pixelPosition: this.pixelPosition,
-    //         region: this.region,
-    //         trackListPanel: this.trackListPanel
-    //     });
-    //     this.updateHeight();
-    // }
+    getDataHandler(event) {
+        let features = event;
+        // if (event.dataType == "histogram") {
+        //     this.renderer = this.histogramRenderer;
+        //     features = event.items;
+        // } else {
+        //     this.renderer = this.defaultRenderer;
+        //     features = event;
+        // }
+        this.renderedArea = {}; //<- this is only in Aligments
+        this.renderer.render(features, {
+            cacheItems: event.items,
+            svgCanvasFeatures: this.svgCanvasFeatures,
+            featureTypes: this.featureTypes,
+            renderedArea: this.renderedArea,
+            pixelBase: this.pixelBase,
+            position: this.region.center(),
+            regionSize: this.region.length(),
+            maxLabelRegionSize: this.maxLabelRegionSize,
+            width: this.width,
+            pixelPosition: this.pixelPosition,
+            region: this.region,
+            trackListPanel: this.trackListPanel
+        });
+        this.updateHeight();
+    }
 
-    // draw() {
-    //     let _this = this;
-    //
-    //     this.svgCanvasOffset = (this.width * 3 / 2) / this.pixelBase;
-    //     this.svgCanvasLeftLimit = this.region.start - this.svgCanvasOffset * 2;
-    //     this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset * 2;
-    //
-    //     this.updateHistogramParams();
-    //     this.clean();
-    //
-    //     this.dataType = "features";
-    //     if (this.histogram) {
-    //         this.dataType = "histogram";
-    //     }
-    //
-    //     if (typeof this.visibleRegionSize === "undefined" || this.region.length() < this.visibleRegionSize) {
-    //         this.setLoading(true);
-    //         this.dataAdapter.getData({
-    //             dataType: this.dataType,
-    //             region: new Region({
-    //                 chromosome: this.region.chromosome,
-    //                 start: this.region.start - this.svgCanvasOffset * 2,
-    //                 end: this.region.end + this.svgCanvasOffset * 2
-    //             }),
-    //             params: {
-    //                 histogram: this.histogram,
-    //                 histogramLogarithm: this.histogramLogarithm,
-    //                 histogramMax: this.histogramMax,
-    //                 interval: this.interval
-    //             }
-    //         })
-    //             .then(function(response) {
-    //                 _this.storeRetrievedAlignments(response);
-    //                 _this.getDataHandler(response);
-    //                 _this.setLoading(false);
-    //             })
-    //             .catch(function(reason){
-    //                 console.log("Alignment Track draw error: " + reason);
-    //             });
-    //         //this.invalidZoomText.setAttribute("visibility", "hidden");
-    //     } else {
-    //         //this.invalidZoomText.setAttribute("visibility", "visible");
-    //     }
-    //     _this.updateHeight();
-    // }
+    draw() {
+        let _this = this;
+
+        this.svgCanvasOffset = (this.width * 3 / 2) / this.pixelBase;
+        this.svgCanvasLeftLimit = this.region.start - this.svgCanvasOffset * 2;
+        this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset * 2;
+
+        this.updateHistogramParams();
+        this.clean();
+
+        this.dataType = "features";
+        if (this.histogram) {
+            this.dataType = "histogram";
+        }
+
+        if (typeof this.visibleRegionSize === "undefined" || this.region.length() < this.visibleRegionSize) {
+            this.setLoading(true);
+            this.dataAdapter.getData({
+                dataType: this.dataType,
+                region: new Region({
+                    chromosome: this.region.chromosome,
+                    start: this.region.start - this.svgCanvasOffset * 2,
+                    end: this.region.end + this.svgCanvasOffset * 2
+                }),
+                params: {
+                    histogram: this.histogram,
+                    histogramLogarithm: this.histogramLogarithm,
+                    histogramMax: this.histogramMax,
+                    interval: this.interval
+                }
+            })
+                .then(function(response) {
+                    _this.storeRetrievedAlignments(response);
+                    _this.getDataHandler(response);
+                    _this.setLoading(false);
+                })
+                .catch(function(reason){
+                    console.log("Alignment Track draw error: " + reason);
+                });
+            //this.invalidZoomText.setAttribute("visibility", "hidden");
+        } else {
+            //this.invalidZoomText.setAttribute("visibility", "visible");
+        }
+        _this.updateHeight();
+    }
 
     move(disp) {
         let _this = this;

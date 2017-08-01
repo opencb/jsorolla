@@ -96,9 +96,9 @@
                 this.from = 1;
                 this.to = 5;
 
-                if (PolymerUtils.isNotUndefined(this.opencgaClient) && PolymerUtils.isNotUndefined(this.study) && this.study.id > 0) {
+                if (UtilsNew.isNotUndefined(this.opencgaClient) && UtilsNew.isNotUndefined(this.study) && this.study.id > 0) {
                     // Make a copy of the samples (if they exist), we will use this private copy until it is assigned to this.samples
-                    if (PolymerUtils.isNotUndefined(this.samples)) {
+                    if (UtilsNew.isNotUndefined(this.samples)) {
                         this._samples = this.samples;
                     } else {
                         this._samples = [];
@@ -129,7 +129,7 @@
                                 skip: params.offset
                             };
 
-                            if (PolymerUtils.isUndefined(filters)) {
+                            if (UtilsNew.isUndefined(filters)) {
                                 filters = {};
                             }
                             return Object.assign(filters, auxParams);
@@ -231,7 +231,7 @@
             }
 
             individualFormatter(value, row) {
-                if (PolymerUtils.isNotUndefined(row.individual.name)) {
+                if (UtilsNew.isNotUndefined(row.individual.name)) {
                     return row.individual.name;
                 } else {
                     return '-'
@@ -250,7 +250,7 @@
             }
 
             diagnosisFormatter(value, row) {
-                if (PolymerUtils.isNotUndefined(row.individual.ontologyTerms) && row.individual.ontologyTerms.length > 0) {
+                if (UtilsNew.isNotUndefined(row.individual.ontologyTerms) && row.individual.ontologyTerms.length > 0) {
                     return row.individual.ontologyTerms[1].name;
                 } else {
                     return '-';
@@ -286,17 +286,17 @@
 
             updateForms(filters) {
                 // This is just to avoid entering here when it has just been initialized
-                if (PolymerUtils.isUndefined(this.prefix)) {
+                if (UtilsNew.isUndefined(this.prefix)) {
                     return;
                 }
 
                 let sampleName = PolymerUtils.getValue(this.prefix + "NameTextarea");
-                if (!filters.hasOwnProperty("name") && PolymerUtils.isNotUndefined(sampleName) && sampleName.length > 0) {
+                if (!filters.hasOwnProperty("name") && UtilsNew.isNotUndefined(sampleName) && sampleName.length > 0) {
                     PolymerUtils.getElementById(this.prefix + "NameTextarea").value = "";
                 }
 
                 let individual = PolymerUtils.getValue(this.prefix + "IndividualTextarea");
-                if (!filters.hasOwnProperty("individual.id") && PolymerUtils.isNotUndefined(individual) && individual.length > 0) {
+                if (!filters.hasOwnProperty("individual.id") && UtilsNew.isNotUndefined(individual) && individual.length > 0) {
 
                     PolymerUtils.setValue(this.prefix + "IndividualTextarea", "");
                 }
@@ -333,15 +333,15 @@
                     individual = PolymerUtils.getElementById(this.prefix + "IndividualTextarea").value;
                 }
 
-                if (PolymerUtils.isNotUndefined(sampleName) && sampleName.length > 0) {
+                if (UtilsNew.isNotUndefined(sampleName) && sampleName.length > 0) {
                     filters["name"] = "~" + sampleName;
                 }
 
-                if (PolymerUtils.isNotUndefined(individual) && individual.length > 0) {
+                if (UtilsNew.isNotUndefined(individual) && individual.length > 0) {
                     filters["individual.id"] = "~" + individual;
                 }
 
-                if (PolymerUtils.isNotUndefined(this.filteredVariables.variables) && this.filteredVariables.variables.length > 0) {
+                if (UtilsNew.isNotUndefined(this.filteredVariables.variables) && this.filteredVariables.variables.length > 0) {
 //                    filters["variableSetId"] = this.filteredVariables.variableSet;
                     let annotations = [];
                     this.filteredVariables.variables.forEach(function (variable) {
