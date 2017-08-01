@@ -144,7 +144,7 @@
             ready() {
                 super.ready();
 
-                if (PolymerUtils.isEmpty(this.prefix)) {
+                if (UtilsNew.isEmpty(this.prefix)) {
                     this.prefix = "FamilyEditor" + Utils.randomString(6);
                 }
                 this._sampleExists = false;
@@ -193,14 +193,14 @@
                         switch (role) {
                             case "father":
                             case "Father":
-                                if (PolymerUtils.isNotUndefined(this.pedigree.father)) {
+                                if (UtilsNew.isNotUndefined(this.pedigree.father)) {
                                     PolymerUtils.setPropertyById(this.prefix + this.pedigree.father.name + "Role", 'value', 'none');
                                 }
                                 this.pedigree.father = {name: sampleName, gender: "male"};
                                 break;
                             case "mother":
                             case "Mother":
-                                if (PolymerUtils.isNotUndefined(this.pedigree.mother)) {
+                                if (UtilsNew.isNotUndefined(this.pedigree.mother)) {
                                     PolymerUtils.setPropertyById(this.prefix + this.pedigree.mother.name + "Role", 'value', 'none');
                                 }
                                 this.pedigree.mother = {name: sampleName, gender: "female"};
@@ -229,15 +229,15 @@
 
             _createPedigree() {
                 // Complete the pedigree with the affected and deceased status
-                if (PolymerUtils.isNotUndefined(this.pedigree.father)) {
+                if (UtilsNew.isNotUndefined(this.pedigree.father)) {
                     this.pedigree.father.affected = this._affected[this.pedigree.father.name];
                     this.pedigree.father.deceased = this._deceased[this.pedigree.father.name];
                 }
-                if (PolymerUtils.isNotUndefined(this.pedigree.mother)) {
+                if (UtilsNew.isNotUndefined(this.pedigree.mother)) {
                     this.pedigree.mother.affected = this._affected[this.pedigree.mother.name];
                     this.pedigree.mother.deceased = this._deceased[this.pedigree.mother.name];
                 }
-                if (PolymerUtils.isNotUndefined(this.pedigree.children)) {
+                if (UtilsNew.isNotUndefined(this.pedigree.children)) {
                     for (let child of this.pedigree.children) {
                         child.affected = this._affected[child.name];
                         child.deceased = this._deceased[child.name];
@@ -249,7 +249,7 @@
             pedigreeRender() {
                 let ped = this._createPedigree();
 
-                if (PolymerUtils.isNotUndefinedOrNull(PolymerUtils.getElementById(this.prefix + 'FamilyName'))) {
+                if (UtilsNew.isNotUndefinedOrNull(PolymerUtils.getElementById(this.prefix + 'FamilyName'))) {
                     let familyName = PolymerUtils.getElementById(this.prefix + 'FamilyName').value;
                     this.family = {name: familyName, pedigree: ped};
                     this.dispatchEvent(new CustomEvent('familychange', {
@@ -262,7 +262,7 @@
 
 
                 // Remove SVG before render new one
-                if (PolymerUtils.isNotUndefined(this.svg)) {
+                if (UtilsNew.isNotUndefined(this.svg)) {
                     PolymerUtils.getElementById(this.prefix + "PedigreeView").removeChild(this.svg);
                 }
 
@@ -274,7 +274,7 @@
             }
 
             _updateSamples() {
-                if (!PolymerUtils.isUndefinedOrNull(this.samples)) {
+                if (!UtilsNew.isUndefinedOrNull(this.samples)) {
 
                     if (this.samples.length > 0) {
                         this._sampleExists = true;
@@ -283,7 +283,7 @@
                     } else {
                         this._sampleExists = false;
                         this.pedigreeTitle = "";
-                        if (PolymerUtils.isNotUndefined(this.svg)) {
+                        if (UtilsNew.isNotUndefined(this.svg)) {
                             PolymerUtils.getElementById(this.prefix + "PedigreeView").removeChild(this.svg);
                             this.svg = undefined;
                         }
@@ -293,13 +293,13 @@
 
             _removeSampleFromPedigree(sampleName) {
                 // Remove the sample from pedigree
-                if (PolymerUtils.isNotUndefined(this.pedigree.father) && this.pedigree.father.name === sampleName) {
+                if (UtilsNew.isNotUndefined(this.pedigree.father) && this.pedigree.father.name === sampleName) {
                     this.pedigree.father = undefined;
                 }
-                if (PolymerUtils.isNotUndefined(this.pedigree.mother) && this.pedigree.mother.name === sampleName) {
+                if (UtilsNew.isNotUndefined(this.pedigree.mother) && this.pedigree.mother.name === sampleName) {
                     this.pedigree.mother = undefined;
                 }
-                if (PolymerUtils.isNotUndefined(this.pedigree.children)) {
+                if (UtilsNew.isNotUndefined(this.pedigree.children)) {
                     let indexToRemove = -1;
                     for (let i = 0; i < this.pedigree.children.length; i++) {
                         if (this.pedigree.children[i].name === sampleName) {

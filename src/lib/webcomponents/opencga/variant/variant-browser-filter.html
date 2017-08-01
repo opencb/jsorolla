@@ -1476,7 +1476,7 @@
                 // Studies - This section is not renderer when only study exists
                 let studies = [this.project.alias + ":" + this.study.alias];
                 let selectedStudies = PolymerUtils.querySelectorAll("input:checked", this.prefix + "DifferentStudies");
-                if (PolymerUtils.isNotUndefinedOrNull(selectedStudies)) {
+                if (UtilsNew.isNotUndefinedOrNull(selectedStudies)) {
                     for (let i = 0; i < selectedStudies.length; i++) {
                         if (studies.indexOf(this.project.alias + ':' + selectedStudies[i].value) === -1) {
                             studies.push(this.project.alias + ':' + selectedStudies[i].value);
@@ -1507,13 +1507,13 @@
 
                 // Regions
                 let locationTextArea = PolymerUtils.getElementById(this.prefix + "LocationTextarea");
-                if (PolymerUtils.isNotUndefinedOrNull(locationTextArea) && PolymerUtils.isNotEmpty(locationTextArea.value)) {
+                if (UtilsNew.isNotUndefinedOrNull(locationTextArea) && UtilsNew.isNotEmpty(locationTextArea.value)) {
                     _filters.region = locationTextArea.value;
                 }
 
                 // Features: Gene, SNP ID
                 let featureTextArea = PolymerUtils.getElementById(this.prefix + "FeatureTextarea");
-                if (PolymerUtils.isNotUndefinedOrNull(featureTextArea) && PolymerUtils.isNotEmpty(featureTextArea.value)) {
+                if (UtilsNew.isNotUndefinedOrNull(featureTextArea) && UtilsNew.isNotEmpty(featureTextArea.value)) {
                     if (featureTextArea.value.startsWith("rs") || featureTextArea.value.split(':').length > 2) {
                         _filters["annot-xref"] = featureTextArea.value;
                     } else {
@@ -1524,19 +1524,19 @@
                 // Panel - annot-panel
                 let panelsDropdown = PolymerUtils.getElementById(this.prefix + "PanelApps");
                 let panelsTextArea = PolymerUtils.getElementById(this.prefix + "PanelAppsTextarea");
-                if (PolymerUtils.isNotUndefinedOrNull(panelsDropdown) && (panelsDropdown.value !== "none" || panelsTextArea.value !== "")) {
+                if (UtilsNew.isNotUndefinedOrNull(panelsDropdown) && (panelsDropdown.value !== "none" || panelsTextArea.value !== "")) {
                     _filters["gene"] = panelsTextArea.value;
                 }
 
                 // Biotype
                 let biotypeDropdown = PolymerUtils.getElementById(this.prefix + "GeneBiotypes");
-                if (PolymerUtils.isNotUndefinedOrNull(biotypeDropdown) && PolymerUtils.isNotEmpty(biotypeDropdown.value) && biotypeDropdown.value !== "none") {
+                if (UtilsNew.isNotUndefinedOrNull(biotypeDropdown) && UtilsNew.isNotEmpty(biotypeDropdown.value) && biotypeDropdown.value !== "none") {
                     _filters["annot-biotype"] = biotypeDropdown.value;
                 }
 
                 // Type
                 let typeCheckbox = PolymerUtils.getElementById(this.prefix + "Type");
-                if (PolymerUtils.isNotUndefinedOrNull(typeCheckbox)) {
+                if (UtilsNew.isNotUndefinedOrNull(typeCheckbox)) {
                     let types = PolymerUtils.querySelectorAll("input:checked", typeCheckbox);
                     let typesAux = [];
                     if (types.length > 0) {
@@ -1550,14 +1550,14 @@
                 // Population Frequencies
                 // Population minor allele frequency: {study}:{population}[<|>|<=|>=]{number}
                 let popFreq = [];
-                if (PolymerUtils.isNotUndefinedOrNull(this.populationFrequencies) && PolymerUtils.isNotEmptyArray(this.populationFrequencies.studies)) {
+                if (UtilsNew.isNotUndefinedOrNull(this.populationFrequencies) && UtilsNew.isNotEmptyArray(this.populationFrequencies.studies)) {
                     for (let i = 0; i < this.populationFrequencies.studies.length; i++) {
                         let study = this.populationFrequencies.studies[i].id;
                         for (let j = 0; j < this.populationFrequencies.studies[i].populations.length; j++) {
                             let population = this.populationFrequencies.studies[i].populations[j].id;
 
                             let studyTextbox = PolymerUtils.getElementById(this.prefix + study + population);
-                            if ((PolymerUtils.isNotUndefinedOrNull(studyTextbox) && PolymerUtils.isNotEmpty(studyTextbox.value))) {
+                            if ((UtilsNew.isNotUndefinedOrNull(studyTextbox) && UtilsNew.isNotEmpty(studyTextbox.value))) {
                                 let operator = PolymerUtils.getElementById(this.prefix + study + population + "Operator");
                                 let pf = study + ":" + population + operator.value + studyTextbox.value;
                                 popFreq.push(pf);
@@ -1606,11 +1606,11 @@
                 // Cadd scores
                 let cadd = [];
                 let caddInput = PolymerUtils.getElementById(this.prefix + "CaddRawInput");
-                if (PolymerUtils.isNotEmpty(caddInput.value)) {
+                if (UtilsNew.isNotEmpty(caddInput.value)) {
                     cadd.push("cadd_raw" + PolymerUtils.getElementById(this.prefix + "CaddRawOperator").value + caddInput.value);
                 }
                 caddInput = PolymerUtils.getElementById(this.prefix + "CaddScaledInput");
-                if (PolymerUtils.isNotEmpty(caddInput.value)) {
+                if (UtilsNew.isNotEmpty(caddInput.value)) {
                     cadd.push("cadd_scaled" + PolymerUtils.getElementById(this.prefix + "CaddScaledOperator").value + caddInput.value);
                 }
                 if (cadd.length > 0) {
@@ -1622,7 +1622,7 @@
                 let conserArr = [];
                 for (let key of Object.keys(arr)) {
                     let inputTextArea = PolymerUtils.getElementById(this.prefix + key + "Input");
-                    if (PolymerUtils.isNotEmpty(inputTextArea.value)) {
+                    if (UtilsNew.isNotEmpty(inputTextArea.value)) {
                         let operator = PolymerUtils.getElementById(this.prefix + key + "Operator");
                         conserArr.push(arr[key] + operator.value + inputTextArea.value);
                     }
@@ -1643,28 +1643,28 @@
                 }
 
                 // Consequence Type
-                if (PolymerUtils.isNotEmptyArray(this.ct)) {
+                if (UtilsNew.isNotEmptyArray(this.ct)) {
                     _filters["annot-ct"] = this.ct.join(',');
                 }
 
                 // Gene Ontology and Human Phenotype Ontology
                 let inputTextArea = PolymerUtils.getElementById(this.prefix + "GeneOntologyTextarea");
-                if (PolymerUtils.isNotEmpty(inputTextArea.value)) {
+                if (UtilsNew.isNotEmpty(inputTextArea.value)) {
                     _filters["annot-go"] = inputTextArea.value;
                 }
 
                 inputTextArea = PolymerUtils.getElementById(this.prefix + "HumanPhenotypeOntologyTextarea");
-                if (PolymerUtils.isNotEmpty(inputTextArea.value)) {
+                if (UtilsNew.isNotEmpty(inputTextArea.value)) {
                     _filters["annot-hpo"] = inputTextArea.value;
                 }
 
                 inputTextArea = PolymerUtils.getElementById(this.prefix + "ClinVarTextarea");
-                if (PolymerUtils.isNotEmpty(inputTextArea.value)) {
+                if (UtilsNew.isNotEmpty(inputTextArea.value)) {
                     _filters["clinvar"] = inputTextArea.value;
                 }
 
                 inputTextArea = PolymerUtils.getElementById(this.prefix + "TraitsTextarea");
-                if (PolymerUtils.isNotEmpty(inputTextArea.value)) {
+                if (UtilsNew.isNotEmpty(inputTextArea.value)) {
                     _filters["traits"] = inputTextArea.value;
                 }
 
@@ -1690,7 +1690,7 @@
             addFeatureId(e) {
                 let allIds = [];
                 let featureTextArea = PolymerUtils.getElementById(this.prefix + "FeatureTextarea");
-                if (PolymerUtils.isNotUndefinedOrNull(featureTextArea) && PolymerUtils.isNotEmpty(featureTextArea.value)) {
+                if (UtilsNew.isNotUndefinedOrNull(featureTextArea) && UtilsNew.isNotEmpty(featureTextArea.value)) {
                     allIds = featureTextArea.value.split(',');
                 }
 

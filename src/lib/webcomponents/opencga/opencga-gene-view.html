@@ -223,14 +223,14 @@
 
             ready() {
                 super.ready();
-                if (PolymerUtils.isEmpty(this.prefix)) {
+                if (UtilsNew.isEmpty(this.prefix)) {
                     this.prefix = "gene" + Utils.randomString(6);
                 }
             }
 
             projectStudyObtained(project, study) {
-                if (PolymerUtils.isNotUndefined(this.project) && PolymerUtils.isNotEmpty(this.project.alias)
-                    && PolymerUtils.isNotUndefined(this.study) && PolymerUtils.isNotEmpty(this.study.alias)) {
+                if (UtilsNew.isNotUndefined(this.project) && UtilsNew.isNotEmpty(this.project.alias)
+                    && UtilsNew.isNotUndefined(this.study) && UtilsNew.isNotEmpty(this.study.alias)) {
                     this.hashFragmentCredentials = {
                         project: this.project.alias,
                         study: this.study.alias
@@ -241,7 +241,7 @@
             geneChanged(neo, old) {
                 let query = {};
                 let _this = this;
-                if (PolymerUtils.isNotEmpty(this.gene)) {
+                if (UtilsNew.isNotEmpty(this.gene)) {
                     query.gene = this.gene;
                     this.cellbaseClient.getGeneClient(this.gene, 'info', {exclude: "annotation"}, {})
                         .then(function (response) {
@@ -266,7 +266,7 @@
                         query["annot-ct"] = this.consequenceTypes.lof.join(",");
                         break;
                     default:
-                        if (PolymerUtils.isNotUndefined(query["annot-ct"])) {
+                        if (UtilsNew.isNotUndefined(query["annot-ct"])) {
                             delete query["annot-ct"];
                         }
                         break;

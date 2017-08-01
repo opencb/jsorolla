@@ -26,14 +26,14 @@ class AlignmentRenderer extends Renderer {
         }
 
         let viewAsPairs = false;
-        if (response.params["view_as_pairs"] !== null) {
+        if (response.params["view_as_pairs"] != null) {
             viewAsPairs = true;
         }
         console.log("viewAsPairs " + viewAsPairs);
         let insertSizeMin = 0;
         let insertSizeMax = 0;
         let variantColor = "orangered";
-        if (response.params["insert_size_interval"] !== null) {
+        if (response.params["insert_size_interval"] != null) {
             insertSizeMin = response.params["insert_size_interval"].split(",")[0];
             insertSizeMax = response.params["insert_size_interval"].split(",")[1];
         }
@@ -312,10 +312,10 @@ class AlignmentRenderer extends Renderer {
             let rowY = 70;
             //		var textY = 12+settings.height;
             while (true) {
-                if (args.renderedArea[rowY] === null) {
+                if (args.renderedArea[rowY] == null) {
                     args.renderedArea[rowY] = new FeatureBinarySearchTree();
                 }
-                if (polyDrawing[rowY] === null) {
+                if (polyDrawing[rowY] == null) {
                     polyDrawing[rowY] = {
                         reads: [],
                         differences: {
@@ -527,7 +527,7 @@ class AlignmentRenderer extends Renderer {
             //		}catch(e){
             //			var maxWidth = 72;
             //		}
-            maxWidth = width;
+           let maxWidth = width;
             //if(length <0){
             //    debugger
             //}

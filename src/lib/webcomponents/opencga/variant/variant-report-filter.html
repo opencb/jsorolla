@@ -288,7 +288,7 @@
 
             ready() {
                 super.ready();
-                if (PolymerUtils.isEmpty(this.prefix)) {
+                if (UtilsNew.isEmpty(this.prefix)) {
                     this.prefix = "repFilter" + Utils.randomString(6);
                 }
                 this.showPedigree = false;
@@ -426,7 +426,7 @@
 
             showClinicalSelector(e) {
                 e.preventDefault();
-                if (PolymerUtils.isUndefined(this.analysisModal)) {
+                if (UtilsNew.isUndefined(this.analysisModal)) {
                     this.analysisModal = true;
                 }
                 else {

@@ -187,7 +187,7 @@
             ready() {
                 super.ready();
 
-                if (PolymerUtils.isEmpty(this.prefix)) {
+                if (UtilsNew.isEmpty(this.prefix)) {
                     this.prefix = "activeFilter_" + Utils.randomString(6);
                 }
 
@@ -207,17 +207,17 @@
             }
 
             checkSid(config) {
-                return !PolymerUtils.isEmpty(config.sessionId);
+                return !UtilsNew.isEmpty(config.sessionId);
             }
 
             checkFilters(config) {
                 let _this = this;
-                if (this.opencgaClient instanceof OpenCGAClient && PolymerUtils.isNotUndefined(config.value.sessionId)) {
+                if (this.opencgaClient instanceof OpenCGAClient && UtilsNew.isNotUndefined(config.value.sessionId)) {
                     this.opencgaClient.users().getFilters({}, {})
                         .then(function (response) {
                             let result = response.response[0].result;
                             if (result.length > 0) {
-                                if (PolymerUtils.isUndefined(this.filters)) {
+                                if (UtilsNew.isUndefined(this.filters)) {
                                     _this.filters = [];
                                 }
                                 for (let obj of result) {
@@ -262,7 +262,7 @@
             }
 
             onFilterChange(e) {
-                if (!PolymerUtils.isUndefinedOrNull(this.filters)) {
+                if (!UtilsNew.isUndefinedOrNull(this.filters)) {
                     // We look for the filter name in the filters array
                     for (let f of this.filters) {
                         if (f.name === e.target.dataFilterName) {
@@ -290,7 +290,7 @@
                 let name = e.target.dataFilterName;
                 let value = e.target.dataFilterValue;
 
-                if (PolymerUtils.isEmpty(value)) {
+                if (UtilsNew.isEmpty(value)) {
                     delete _queryList[name];
                 } else {
                     let filterFields = _queryList[name].split(new RegExp("[,;]"));
@@ -311,7 +311,7 @@
                 }
 
                 // When you delete any query filter we are not longer using any known Filter
-                if (PolymerUtils.isNotUndefined(PolymerUtils.getElementById('filtersList'))) {
+                if (UtilsNew.isNotUndefined(PolymerUtils.getElementById('filtersList'))) {
                     //TODO Refactor
                     $("#filtersList option[value='none']").prop('selected', true);
                 }
@@ -330,7 +330,7 @@
                 let keys = Object.keys(this.query);
                 for (let keyIdx in keys) {
                     let key = keys[keyIdx];
-                    if (!PolymerUtils.isEmpty(this.query[key])) {
+                    if (!UtilsNew.isEmpty(this.query[key])) {
                         if (keys.length === 1 && key === "studies" && this.query[key].split(new RegExp("[,;]")).length === 1) {
                             // Show warning when filters are altered
                             PolymerUtils.hide( this.prefix + 'Warning');
@@ -341,7 +341,7 @@
 
                         // We use the alias to rename the key
                         let title = key;
-                        if (PolymerUtils.isNotUndefined(this.alias) && PolymerUtils.isNotUndefined(this.alias[key])) {
+                        if (UtilsNew.isNotUndefined(this.alias) && UtilsNew.isNotUndefined(this.alias[key])) {
                             title = this.alias[key];
                         }
                         // We convert the Query object into an array of small objects (queryList)
@@ -353,7 +353,7 @@
                         } else {
                             if (filterFields.length === 1) {
                                 // Check if the filter is one among the fixed filters
-                                if (PolymerUtils.isNotUndefined(this.fixedFilters) && this.fixedFilters.indexOf(key) !== -1) {
+                                if (UtilsNew.isNotUndefined(this.fixedFilters) && this.fixedFilters.indexOf(key) !== -1) {
                                     this.showFixedFilters = true;
 
                                     // Push into Fixed filter list only if it is not present before
@@ -369,7 +369,7 @@
                                 }
                             } else {
                                 _queryList.push({name: key, text: title, items: filterFields});
-                                if (PolymerUtils.isNotUndefined(this.fixedFilters) && this.fixedFilters.indexOf(key) !== -1) {
+                                if (UtilsNew.isNotUndefined(this.fixedFilters) && this.fixedFilters.indexOf(key) !== -1) {
                                     this.showFixedFilters = false;
                                 }
                             }
@@ -394,7 +394,7 @@
             }
 
             _isMultiValued(item) {
-                return PolymerUtils.isNotUndefined(item.items);
+                return UtilsNew.isNotUndefined(item.items);
             }
         }
 

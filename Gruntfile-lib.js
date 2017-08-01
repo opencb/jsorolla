@@ -14,6 +14,7 @@ module.exports = function (grunt) {
                 src: [
                     //
                     'src/lib/utils.js',
+                    'src/lib/utilsNew.js',
                     'src/lib/svg.js',
                     'src/lib/region.js',
                     'src/lib/cellbase-manager.js',

@@ -725,7 +725,7 @@
             }
             ready() {
                 super.ready();
-                if (PolymerUtils.isEmpty(this.prefix)) {
+                if (UtilsNew.isEmpty(this.prefix)) {
                     this.prefix = "clinicalFilter" + Utils.randomString(6);
                 }
                 this.sampleGenotypesObj = {};
@@ -758,17 +758,17 @@
                 }
             }
             checkTitle(consequenceType) {
-                return PolymerUtils.isNotUndefinedOrNull(consequenceType.title);
+                return UtilsNew.isNotUndefinedOrNull(consequenceType.title);
             }
             moreStudiesPresent(studies) {
-                if (PolymerUtils.isNotUndefined(studies)) {
+                if (UtilsNew.isNotUndefined(studies)) {
                     return studies.length > 1;
                 } else {
                     return false;
                 }
             }
             cellbaseClientObtained() {
-                if (this.cellbaseClient instanceof CellBaseClient && PolymerUtils.isUndefined(this.biotypes)) {
+                if (this.cellbaseClient instanceof CellBaseClient && UtilsNew.isUndefined(this.biotypes)) {
                     let _this = this;
                     this.cellbaseClient.getGeneClient(null, "biotype", {}, {})
                         .then(function (response) {
@@ -778,7 +778,7 @@
             }
             updateDifferentStudies() {
                 let differentStudies = [];
-                if (PolymerUtils.isNotUndefined(this.study) && PolymerUtils.isNotUndefined(this.studies)) {
+                if (UtilsNew.isNotUndefined(this.study) && UtilsNew.isNotUndefined(this.studies)) {
                     for (let i = 0; i < this.studies.length; i++) {
                         if (this.study.alias != this.studies[i].alias) {
                             differentStudies.push(this.studies[i]);
@@ -827,21 +827,21 @@
                 this._clearHtmlDom();
 
                 // Position
-                if (PolymerUtils.isNotUndefined(this.query.region)){
+                if (UtilsNew.isNotUndefined(this.query.region)){
                     PolymerUtils.setPropertyById(this.prefix + "LocationTextarea", "value", this.query.region);
                 }
 
                 // XRefs, Gene and Variant Ids
-                if (PolymerUtils.isNotUndefined(this.query["annot-xref"])){
+                if (UtilsNew.isNotUndefined(this.query["annot-xref"])){
                     PolymerUtils.setPropertyById(this.prefix + "FeatureTextarea", "value", this.query["annot-xref"]);
-                } else if (PolymerUtils.isNotUndefined(this.query.gene)) {
+                } else if (UtilsNew.isNotUndefined(this.query.gene)) {
                     PolymerUtils.setPropertyById(this.prefix + "FeatureTextarea", "value", this.query.gene);
-                } else if (PolymerUtils.isNotUndefined(this.query.ids)) {
+                } else if (UtilsNew.isNotUndefined(this.query.ids)) {
                     PolymerUtils.setPropertyById(this.prefix + "FeatureTextarea", "value", this.query.ids);
                 }
 
                 // Type -> DOES NOT EXIST IN THIS COMPONENT
-/*                if (PolymerUtils.isNotUndefined(this.query.type)){
+/*                if (UtilsNew.isNotUndefined(this.query.type)){
                     let types = this.query.type.split(",");
                     //let checkBoxes = this.$$("#" + this.prefix + "Type").querySelectorAll("input");
                     let checkBoxes = PolymerUtils.querySelectorAll("input", this.prefix + "Type");
@@ -856,10 +856,10 @@
 
                 // Population Freqs
                 let pfArray = [];
-                if (PolymerUtils.isNotUndefined(this.query["annot-population-maf"])){
+                if (UtilsNew.isNotUndefined(this.query["annot-population-maf"])){
                     pfArray = this.query["annot-population-maf"].split(new RegExp("[,;]"));
                 }
-                if (PolymerUtils.isNotUndefined(this.populationFrequencies) && PolymerUtils.isNotUndefined(this.populationFrequencies.studies) && this.populationFrequencies.studies.length > 0) {
+                if (UtilsNew.isNotUndefined(this.populationFrequencies) && UtilsNew.isNotUndefined(this.populationFrequencies.studies) && this.populationFrequencies.studies.length > 0) {
                     for (let i = 0; i < this.populationFrequencies.studies.length; i++) {
                         let study = this.populationFrequencies.studies[i].id;
                         for (let j = 0; j < this.populationFrequencies.studies[i].populations.length; j++) {
@@ -879,7 +879,7 @@
                 }
 
                 // Protein Substitution scores
-                if (PolymerUtils.isNotUndefined(this.query["protein_substitution"])){
+                if (UtilsNew.isNotUndefined(this.query["protein_substitution"])){
                     let pss = this.query["protein_substitution"].split(new RegExp("[,;]"));
                     if (pss.length > 0) {
                         for (let i = 0; i < pss.length; i++) {
@@ -909,7 +909,7 @@
                 }
 
                 // Cadd scores
-                if (PolymerUtils.isNotUndefined(this.query["annot-functional-score"])) {
+                if (UtilsNew.isNotUndefined(this.query["annot-functional-score"])) {
                     let fields = this.query["annot-functional-score"].split(new RegExp("[,;]"));
                     for (let i = 0; i < fields.length; i++) {
                         let source = fields[i].split(/[<=>]+/)[0];
@@ -927,7 +927,7 @@
                 }
 
                 // Conservation
-                if (PolymerUtils.isNotUndefined(this.query.conservation)) {
+                if (UtilsNew.isNotUndefined(this.query.conservation)) {
                     let fields = this.query.conservation.split(new RegExp("[,;]"));
                     for (let i = 0; i < fields.length; i++) {
                         let source = fields[i].split(/[<=>]+/)[0];
@@ -949,7 +949,7 @@
                 }
 
                 // Consequence Type
-                if (PolymerUtils.isNotUndefined(this.query["annot-ct"])) {
+                if (UtilsNew.isNotUndefined(this.query["annot-ct"])) {
                     let types = this.query["annot-ct"].split(",");
                     let checkboxes = PolymerUtils.querySelectorAll("li input", "consequenceTypeFilter");
                     for (let i = 0; i < types.length; i++) {
@@ -964,10 +964,10 @@
                 }
 
                 // Gene Ontology and Human Phenotype Ontology
-                if (PolymerUtils.isNotUndefined(this.query["annot-go"])) {
+                if (UtilsNew.isNotUndefined(this.query["annot-go"])) {
                     PolymerUtils.setPropertyById(this.prefix + "GeneOntologyTextarea", "value", this.query["annot-go"]);
                 }
-                if (PolymerUtils.isNotUndefined(this.query["annot-hpo"])) {
+                if (UtilsNew.isNotUndefined(this.query["annot-hpo"])) {
                     PolymerUtils.setPropertyById(this.prefix + "HumanPhenotypeOntologyTextarea", "value", this.query["annot-hpo"]);
                 }
             }
@@ -993,7 +993,7 @@
             updateQueryFilters() {
                 let _filters = {};
                 // Adding sample genotypes filter
-                if (PolymerUtils.isNotEmpty(this.sampleGenotypes)) {
+                if (UtilsNew.isNotEmpty(this.sampleGenotypes)) {
                     _filters.genotype = this.sampleGenotypes;
                 }
 
@@ -1041,7 +1041,7 @@
                 // Population Frequencies
                 // Population minor allele frequency: {study}:{population}[<|>|<=|>=]{number}
                 let popFreq = [];
-                if (PolymerUtils.isNotUndefined(this.populationFrequencies) && PolymerUtils.isNotUndefined(this.populationFrequencies.studies) && this.populationFrequencies.studies.length > 0){
+                if (UtilsNew.isNotUndefined(this.populationFrequencies) && UtilsNew.isNotUndefined(this.populationFrequencies.studies) && this.populationFrequencies.studies.length > 0){
                     for (let i = 0; i < this.populationFrequencies.studies.length; i++) {
                         let study = this.populationFrequencies.studies[i].id;
                         for (let j = 0; j < this.populationFrequencies.studies[i].populations.length; j++) {
@@ -1144,7 +1144,7 @@
                 }
 
                 // Consequence Type
-                if (PolymerUtils.isNotUndefined(this.ct) && this.ct.length > 0) {
+                if (UtilsNew.isNotUndefined(this.ct) && this.ct.length > 0) {
                     _filters["annot-ct"]= this.ct.join(',');
                 }
 
@@ -1208,8 +1208,8 @@
     //                        return result;
     //                    }, {});
     //                }
-                if (PolymerUtils.isNotUndefined(e)) {
-                    if (PolymerUtils.isUndefined(this.sampleGenotypesObj[e.target.dataId])) {
+                if (UtilsNew.isNotUndefined(e)) {
+                    if (UtilsNew.isUndefined(this.sampleGenotypesObj[e.target.dataId])) {
                         this.sampleGenotypesObj[e.target.dataId] = {};
                     }
                     this.sampleGenotypesObj[e.target.dataId][e.target.defaultValue] = e.target.checked;
@@ -1242,7 +1242,7 @@
                 let cell;
                 let samples = this.samples;
 
-                /*if (PolymerUtils.isNotUndefined(samples) && samples != "" && samples.length >= 3) {
+                /*if (UtilsNew.isNotUndefined(samples) && samples != "" && samples.length >= 3) {
                     if (this.segregation == "Autosomal Dominant") {
                         for (let i = 0; i < samples.length; i++) {
                             let index = i + 1;
@@ -1352,7 +1352,7 @@
             }
             showClinicalSelector(e){
                 e.preventDefault();
-                if (PolymerUtils.isUndefined(this.analysisModal)){
+                if (UtilsNew.isUndefined(this.analysisModal)){
                     this.analysisModal = true;
                 }
                 else {

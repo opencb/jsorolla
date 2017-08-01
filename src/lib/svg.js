@@ -19,7 +19,7 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//Element.prototype.addChildSVG = function(elementName, attributes, index){
+// Element.prototype.addChildSVG = function(elementName, attributes, index){
 //	var el = document.createElementNS('http://www.w3.org/2000/svg', elementName);
 //	for ( var key in attributes){
 //		el.setAttribute(key, attributes[key]);
@@ -43,125 +43,120 @@
 //      }
 //    }
 //    return el;
-//};
-//Element.prototype.initSVG = function(attributes){
+// };
+// Element.prototype.initSVG = function(attributes){
 //	return this.addChildSVG("svg", attributes);
-//};
+// };
 
-var SVG = {
-	
-	create : function (elementName, attributes){
-		var el = document.createElementNS('http://www.w3.org/2000/svg', elementName);
-		for ( var key in attributes){
-			el.setAttribute(key, attributes[key]);
-		}
-		return el;
-	},
+const SVG = {
 
-	addChild : function (parent, elementName, attributes, index){
-		var el = document.createElementNS('http://www.w3.org/2000/svg', elementName);
-		for ( var key in attributes){
-			el.setAttribute(key, attributes[key]);
-		}
-		return this._insert(parent, el, index);
-	},
-	
-	addChildImage : function (parent, attributes, index){
-		var el = document.createElementNS('http://www.w3.org/2000/svg', "image");
-		for ( var key in attributes){
-			if(key == "xlink:href"){
-				el.setAttributeNS('http://www.w3.org/1999/xlink','href',attributes[key]);
-			}else{
+  create(elementName, attributes) {
+    const el = document.createElementNS('http://www.w3.org/2000/svg', elementName);
+    for (const key in attributes) {
+      el.setAttribute(key, attributes[key]);
+    }
+    return el;
+  },
+
+  addChild(parent, elementName, attributes, index) {
+    const el = document.createElementNS('http://www.w3.org/2000/svg', elementName);
+    for (const key in attributes) {
+      el.setAttribute(key, attributes[key]);
+    }
+    return this._insert(parent, el, index);
+  },
+
+  addChildImage(parent, attributes, index) {
+    const el = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+    for (const key in attributes) {
+      if (key == 'xlink:href') {
+        el.setAttributeNS('http://www.w3.org/1999/xlink', 'href', attributes[key]);
+      } else {
 			    el.setAttribute(key, attributes[key]);
-            }
-		}
-		return this._insert(parent, el, index);
-	},
-	
-	_insert : function (parent, el, index){
-		// insert child at requested index, or as last child if index is too high or no index is specified
-	    if ( null == index ) {
-	    	parent.appendChild( el );
-	    }
-	    else {
-	      var targetIndex = index + 1;
-	      if ( 0 == index ) {
+      }
+    }
+    return this._insert(parent, el, index);
+  },
+
+  _insert(parent, el, index) {
+    // insert child at requested index, or as last child if index is too high or no index is specified
+	    if (index == null) {
+	    	parent.appendChild(el);
+	    } else {
+	      let targetIndex = index + 1;
+	      if (index == 0) {
 	        targetIndex = 0;
 	      }
-	      var targetEl = parent.childNodes[ targetIndex ];
-	      if ( targetEl ) {
-	    	  parent.insertBefore( el, targetEl ); 
-	      }
-	      else {
-	    	  parent.appendChild( el );
+	      const targetEl = parent.childNodes[targetIndex];
+	      if (targetEl) {
+	    	  parent.insertBefore(el, targetEl);
+	      } else {
+	    	  parent.appendChild(el);
 	      }
 	    }
 	    return el;
-	},
+  },
 
-	init : function (parent, attributes){
-		return this.addChild(parent, "svg", attributes);
-	},
+  init(parent, attributes) {
+    return this.addChild(parent, 'svg', attributes);
+  },
 
 
+  //
+  /* Functions to generate arcs with PATH element  */
+  //
 
-    //
-    /* Functions to generate arcs with PATH element  */
-    //
+  _polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+    const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
 
-    _polarToCartesian : function (centerX, centerY, radius, angleInDegrees) {
-        var angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
+    return {
+      x: centerX + (radius * Math.cos(angleInRadians)),
+      y: centerY + (radius * Math.sin(angleInRadians)),
+    };
+  },
 
-        return {
-            x: centerX + (radius * Math.cos(angleInRadians)),
-            y: centerY + (radius * Math.sin(angleInRadians))
-        };
-    },
+  describeArc(x, y, radius, startAngle, endAngle) {
+    const start = this._polarToCartesian(x, y, radius, endAngle);
+    const end = this._polarToCartesian(x, y, radius, startAngle);
 
-    describeArc : function (x, y, radius, startAngle, endAngle) {
+    const arcSweep = endAngle - startAngle <= 180 ? '0' : '1';
+    const d = [
+      'M', start.x, start.y,
+      'A', radius, radius, 0, arcSweep, 0, end.x, end.y,
+    ].join(' ');
 
-        var start = this._polarToCartesian(x, y, radius, endAngle);
-        var end = this._polarToCartesian(x, y, radius, startAngle);
-
-        var arcSweep = endAngle - startAngle <= 180 ? "0" : "1";
-        var d = [
-            "M", start.x, start.y,
-            "A", radius, radius, 0, arcSweep, 0, end.x, end.y
-        ].join(" ");
-
-        return d;
-    }
+    return d;
+  },
 };
 
-//createSVG = function(elementName, attributes){
+// createSVG = function(elementName, attributes){
 //	var el = document.createElementNS('http://www.w3.org/2000/svg', elementName);
 //	for ( var key in attributes){
 //		el.setAttribute(key, attributes[key]);
 //	}
 //	return el;
-//};
+// };
 
 
-
-//var SVG =
-//{
+// var SVG =
+// {
 //		svgns : 'http://www.w3.org/2000/svg',
 //		xlinkns : "http://www.w3.org/1999/xlink",
 //
-////	createSVGCanvas: function(parentNode, attributes)
-////	{
-//////		attributes['xmlns'] = SVG.svgns;
-//////		attributes['xmlns:xlink'] = SVG.xlinkns;
-//////		attributes.push( ['xmlns', SVG.svgns], ['xmlns:xlink', 'http://www.w3.org/1999/xlink']);
-////		var svg = document.createElementNS(SVG.svgns, "svg");
-////		
-////		for ( var key in attributes){
-////			svg.setAttribute(key, attributes[key]);
-////		}
-////		
-////		parentNode.appendChild(svg);
-////		return svg;
-////	}, 
+// //	createSVGCanvas: function(parentNode, attributes)
+// //	{
+// ////		attributes['xmlns'] = SVG.svgns;
+// ////		attributes['xmlns:xlink'] = SVG.xlinkns;
+// ////		attributes.push( ['xmlns', SVG.svgns], ['xmlns:xlink', 'http://www.w3.org/1999/xlink']);
+// //		var svg = document.createElementNS(SVG.svgns, "svg");
+// //		
+// //		for ( var key in attributes){
+// //			svg.setAttribute(key, attributes[key]);
+// //		}
+// //		
+// //		parentNode.appendChild(svg);
+// //		return svg;
+// //	}, 
 //	
 //	//Shape types : rect, circle, ellipse, line, polyline, polygon , path
 //	createElement : function (svgNode, shapeName, attributes) {
@@ -189,11 +184,11 @@ var SVG = {
 //		}
 //		return shape;
 //	}
-//};
+// };
 //
 //
 //
-//var CanvasToSVG = {
+// var CanvasToSVG = {
 //		
 //	convert: function(sourceCanvas, targetSVG, x, y, id, attributes) {
 //		
@@ -238,9 +233,9 @@ var SVG = {
 //
 //	    var img = new Image();
 //	    img.src = "data:image/svg+xml;base64," + btoa(svg_xml);
-////	    img.onload = function() {
+// //	    img.onload = function() {
 //	        ctx.drawImage(img, 0, 0);
-////	    };
+// //	    };
 //	}
 //	
-//};
+// };

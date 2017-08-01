@@ -188,7 +188,7 @@
             }
             ready() {
                 super.ready();
-                if (PolymerUtils.isEmpty(this.prefix )) {
+                if (UtilsNew.isEmpty(this.prefix )) {
                     this.prefix = "sample" + Utils.randomString(6);
                 }
 
@@ -415,7 +415,7 @@
                         family: null
                     };
 
-                    if (PolymerUtils.isNotUndefined(this._analysis)) {
+                    if (UtilsNew.isNotUndefined(this._analysis)) {
                         this.push('_analysis', _anObject);
                     }
                     else {
@@ -472,7 +472,7 @@
                 if (this.opencgaClient instanceof OpenCGAClient) {
                     // Get family members
                     let _father = null;
-                    if (PolymerUtils.isNotUndefined(rowInfo.family.pedigree.father)) {
+                    if (UtilsNew.isNotUndefined(rowInfo.family.pedigree.father)) {
                         for (let j = 0; j < rowInfo.sampleList.length; j++) {
                             if (rowInfo.family.pedigree.father.name === rowInfo.sampleList[j].name) {
                                 _father = rowInfo.sampleList[j].individual.id;
@@ -481,7 +481,7 @@
                     }
 
                     let _mother = null;
-                    if (PolymerUtils.isNotUndefined(rowInfo.family.pedigree.mother)) {
+                    if (UtilsNew.isNotUndefined(rowInfo.family.pedigree.mother)) {
                         for (let j = 0; j < rowInfo.sampleList.length; j++) {
                             if (rowInfo.family.pedigree.mother.name === rowInfo.sampleList[j].name) {
                                 _mother = rowInfo.sampleList[j].individual.id;

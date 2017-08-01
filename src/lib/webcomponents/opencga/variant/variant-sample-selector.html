@@ -320,17 +320,17 @@
 
             updateForms(filters) {
                 // This is just to avoid entering here when it has just been initialized
-                if (PolymerUtils.isUndefined(this.prefix)) {
+                if (UtilsNew.isUndefined(this.prefix)) {
                     return;
                 }
 
                 let sampleName = PolymerUtils.getValue(this.prefix + "NameTextarea");
-                if (!filters.hasOwnProperty("name") && PolymerUtils.isNotUndefined(sampleName) && sampleName.length > 0) {
+                if (!filters.hasOwnProperty("name") && UtilsNew.isNotUndefined(sampleName) && sampleName.length > 0) {
                     PolymerUtils.setValue(this.prefix + "NameTextarea", "");
                 }
 
                 let individual =  PolymerUtils.getValue(this.prefix + "IndividualTextarea");
-                if (!filters.hasOwnProperty("individual.id") && PolymerUtils.isNotUndefined(individual) && individual.length > 0) {
+                if (!filters.hasOwnProperty("individual.id") && UtilsNew.isNotUndefined(individual) && individual.length > 0) {
                     PolymerUtils.setValue(this.prefix + "IndividualTextarea","");
                 }
 
@@ -368,15 +368,15 @@
                     individual = PolymerUtils.getValue(this.prefix + "IndividualTextarea");
                 }
 
-                if (PolymerUtils.isNotUndefined(sampleName) && sampleName.length > 0) {
+                if (UtilsNew.isNotUndefined(sampleName) && sampleName.length > 0) {
                     filters["name"] = "~" + sampleName;
                 }
 
-                if (PolymerUtils.isNotUndefined(individual) && individual.length > 0) {
+                if (UtilsNew.isNotUndefined(individual) && individual.length > 0) {
                     filters["individual.id"] = "~" + individual;
                 }
 
-                if (PolymerUtils.isNotUndefined(this.filteredVariables.variables) && this.filteredVariables.variables.length > 0) {
+                if (UtilsNew.isNotUndefined(this.filteredVariables.variables) && this.filteredVariables.variables.length > 0) {
 //                    filters["variableSetId"] = this.filteredVariables.variableSet;
                     let annotations = [];
                     this.filteredVariables.variables.forEach(function(variable) {
