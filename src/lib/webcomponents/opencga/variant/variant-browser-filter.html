@@ -92,10 +92,6 @@
                 padding: 5px 0px 5px 0px;
                 font-weight: bold;
             }
-
-            .browser-affected {
-                color: red;
-            }
         </style>
 
         <div>
@@ -126,14 +122,13 @@
                         <div class="panel panel-default">
                             <div class="panel-heading" role="tab" id="{{prefix}}StudiesHeading">
                                 <h4 class="panel-title">
-                                    <a class="collapsed" role="button" data-toggle="collapse"
-                                       data-parent="#{{prefix}}Accordion"
+                                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
                                        href="#{{prefix}}Studies" aria-expanded="true" aria-controls="{{prefix}}Studies">
                                         Study
                                         <div style="float: right" class="tooltip-div">
                                             <a data-toggle="tooltip"
-                                               title="Use this filter to find variants which are: 1) also present in all of the selected studies below, 2) not present in any of the studies selected below or 3) present in at least one of the studies selected below"><i
-                                                    class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                               title="Use this filter to find variants which are: 1) also present in all of the selected studies below, 2) not present in any of the studies selected below or 3) present in at least one of the studies selected below">
+                                                <i class="fa fa-info-circle" aria-hidden="true"></i></a>
                                         </div>
                                     </a>
                                 </h4>
@@ -146,9 +141,8 @@
                                             <div class="horizontal layout" style="padding: 4px 0px 4px 0px">
                                                 <span>{{cohort.name}}</span>
                                                 <span>
-                                                <select name="{{cohort.id}}Operator"
-                                                        id="{{prefix}}{{study.alias}}{{cohort.id}}CohortOperator"
-                                                        on-change="updateQueryFilters" class$="{{prefix}}FilterSelect">
+                                                <select id="{{prefix}}{{study.alias}}{{cohort.id}}CohortOperator" name="{{cohort.id}}Operator"
+                                                        class$="{{prefix}}FilterSelect" on-change="updateQueryFilters">
                                                     <option value="<" selected><</option>
                                                     <option value="<="><=</option>
                                                     <option value=">">></option>
@@ -156,12 +150,10 @@
                                                 </select>
                                             </span>
                                                 <span>
-                                                <input type="text" value=""
-                                                       class$="browser-custom-sized-input {{prefix}}FilterTextInput"
-                                                       name="{{study.alias}}_{{cohort.id}}"
-                                                       id="{{prefix}}{{study.alias}}{{cohort.id}}Cohort"
-                                                       on-keyup="updateQueryFilters">
-                                            </span>
+                                                    <input type="text" value="" class$="browser-custom-sized-input {{prefix}}FilterTextInput"
+                                                           name="{{study.alias}}_{{cohort.id}}" id="{{prefix}}{{study.alias}}{{cohort.id}}Cohort"
+                                                           on-keyup="updateQueryFilters">
+                                                </span>
                                             </div>
                                         </template>
                                         <br>
@@ -181,7 +173,8 @@
                                             <template is="dom-repeat" items="{{differentStudies}}">
                                                 <input type="checkbox" value="{{item.alias}}" data-id="{{item.id}}"
                                                        on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox">
-                                                {{item.alias}}<br>
+                                                {{item.alias}}
+                                                <br>
                                             </template>
                                         </div>
                                     </template>
@@ -219,7 +212,7 @@
                                            style="padding-left: 20px"> Cancer<br>
                                 </div>
 
-                                <div style="padding-left: 5px">
+                                <div style="padding-left: 7px">
                                     <label><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;&nbsp;Analysis Settings</label>
                                     <br>
                                     <template is="dom-if" if="{{isSampleAnalysis}}">
@@ -246,12 +239,12 @@
                                                 Browse...
                                             </button>
                                         </div>
-                                        <div style="padding-left: 5px">Segregation: &nbsp;
+                                        <div style="margin: 5px 5px">Segregation: &nbsp;
                                             <div class="btn-group">
                                                 <button class="btn btn-default btn-sm dropdown-toggle" type="button"
                                                         id="segregationPrioritizationDropdown" data-toggle="dropdown"
                                                         aria-haspopup="true" aria-expanded="true">
-                                                    {{segregation}}
+                                                    Select ...
                                                     <span class="caret"></span>
                                                 </button>
                                                 <ul class="dropdown-menu" aria-labelledby="segregationPrioritizationDropdown"
@@ -287,14 +280,12 @@
                                         <tbody>
                                         <template is="dom-repeat" items="{{samples}}" as="sample">
                                             <tr id="{{sample.name}}">
-                                                <td id="{{prefix}}{{sample.name}}RowName" class$="{{sample.className}}">
-                                                    {{sample.name}}&nbsp;({{sample.role}})
-                                                </td>
-                                                <td><input type="checkbox" value="0|0" data-id="{{sample.name}}"
+                                                <td id="{{prefix}}{{sample.name}}RowName" class$="{{sample.className}}">{{sample.name}}</td>
+                                                <td><input type="checkbox" value="0|0" data-id$="{{sample.name}}"
                                                            on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
-                                                <td><input type="checkbox" value="0|1" data-id="{{sample.name}}"
+                                                <td><input type="checkbox" value="0|1" data-id$="{{sample.name}}"
                                                            on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
-                                                <td><input type="checkbox" value="1|1" data-id="{{sample.name}}"
+                                                <td><input type="checkbox" value="1|1" data-id$="{{sample.name}}"
                                                            on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
                                             </tr>
                                         </template>
@@ -377,8 +368,7 @@
                         <div class="panel-body">
                             <div class="form-group">
                                 <span class="browser-subsection">Chromosomal Location</span>
-                                <textarea id$="{{prefix}}LocationTextarea" name="location"
-                                          class$="form-control clearable {{prefix}}FilterTextInput"
+                                <textarea id$="{{prefix}}LocationTextarea" name="location" class$="form-control clearable {{prefix}}FilterTextInput"
                                           rows="3" placeholder="3:444-55555, 1:1-100000" on-keyup="updateQueryFilters">
                                 </textarea>
                             </div>
@@ -397,17 +387,16 @@
                                         </datalist>
                                     </div>
                                     <div class="col-sm-2" style="padding: 0px 0px 0px 5px">
-                                        <button type="button" class="btn btn-default btn-sm form-control"
-                                                on-click="addFeatureId">
+                                        <button type="button" class="btn btn-default btn-sm form-control" on-click="addFeatureId">
                                             <i class="fa fa-plus"></i>
                                         </button>
                                     </div>
                                 </div>
                                 <div style="padding-top: 45px">
-                                    <textarea id="{{prefix}}FeatureTextarea" name="geneSnp"
-                                              class$="form-control clearable {{prefix}}FilterTextInput"
+                                    <textarea id="{{prefix}}FeatureTextarea" name="geneSnp" class$="form-control clearable {{prefix}}FilterTextInput"
                                               rows="3" placeholder="BRCA2, ENSG00000139618, ENST00000544455, rs28897700"
-                                              on-keyup="updateQueryFilters"></textarea>
+                                              on-keyup="updateQueryFilters">
+                                    </textarea>
                                 </div>
                             </div>
 
@@ -420,8 +409,7 @@
 
                             <div class="form-group">
                                 <span class="browser-subsection">Gene Disease Panels</span>
-                                <select class$="form-control {{prefix}}FilterSelect" id="{{prefix}}PanelApps"
-                                        on-change="onGeneDiseasePanelChange">
+                                <select class$="form-control {{prefix}}FilterSelect" id="{{prefix}}PanelApps" on-change="onGeneDiseasePanelChange">
                                     <option value="none">Select a panel...</option>
                                     <template is="dom-repeat" items="{{panelList}}" sort="sortPanelApp">
                                         <option value="{{item.name}}">{{item.title}} ({{item.genes.length}})</option>
@@ -430,15 +418,14 @@
                                 <div style="padding-top: 10px">
                                     <textarea id="{{prefix}}PanelAppsTextarea" name="panelAppsTextarea"
                                               class$="form-control clearable {{prefix}}FilterTextInput"
-                                              rows="3" placeholder="No panel selected"
-                                              on-keyup="updateQueryFilters"></textarea>
+                                              rows="3" placeholder="No panel selected" on-keyup="updateQueryFilters">
+                                    </textarea>
                                 </div>
                             </div>
 
                             <div class="form-group">
                                 <span class="browser-subsection">Gene Biotype</span>
-                                <select class$="form-control {{prefix}}FilterSelect" id="{{prefix}}GeneBiotypes"
-                                        on-change="updateQueryFilters">
+                                <select class$="form-control {{prefix}}FilterSelect" id="{{prefix}}GeneBiotypes" on-change="updateQueryFilters">
                                     <option value="none">Select a biotype...</option>
                                     <template is="dom-repeat" items="{{biotypes}}">
                                         <option value="{{item}}">{{item}}</option>
@@ -495,10 +482,8 @@
                                             <div class="horizontal layout">
                                                 <span>MAF</span>
                                                 <span>
-                                                    <select name="{{popFreq.id}}Operator"
-                                                            id="{{prefix}}{{study.id}}{{popFreq.id}}Operator"
-                                                            on-change="updateQueryFilters"
-                                                            class$="{{prefix}}FilterSelect">
+                                                    <select id="{{prefix}}{{study.id}}{{popFreq.id}}Operator" name="{{popFreq.id}}Operator"
+                                                            on-change="updateQueryFilters" class$="{{prefix}}FilterSelect">
                                                         <option value="<" selected><</option>
                                                         <option value="<="><=</option>
                                                         <option value=">">></option>
@@ -506,10 +491,8 @@
                                                     </select>
                                                 </span>
                                                 <span>
-                                                    <input type="text" value=""
-                                                           class$="browser-custom-sized-input {{prefix}}FilterTextInput"
-                                                           name="{{study.id}}_{{popFreq.id}}"
-                                                           id="{{prefix}}{{study.id}}{{popFreq.id}}"
+                                                    <input type="text" value="" class$="browser-custom-sized-input {{prefix}}FilterTextInput"
+                                                           name="{{study.id}}_{{popFreq.id}}" id="{{prefix}}{{study.id}}{{popFreq.id}}"
                                                            on-keyup="updateQueryFilters">
                                                 </span>
                                             </div>
@@ -539,22 +522,19 @@
                             <b>Protein Substitution Score</b>
                             <div style="padding-top: 10px">
                                 <label style="font-weight: normal;">SIFT</label><br>
-                                <select class="options" name="Sift" id="{{prefix}}SiftValues" style="width: 90px"
-                                        on-change="checkScore" class$="{{prefix}}FilterSelect">
+                                <select class="options" name="Sift" id="{{prefix}}SiftValues" style="width: 90px" on-change="checkScore" class$="{{prefix}}FilterSelect">
                                     <option value="score" selected>Score...</option>
                                     <option value="tolerated">Tolerated</option>
                                     <option value="deleterious">Deleterious</option>
                                 </select>
-                                <select name="siftOperator" id="{{prefix}}SiftOperator" on-change="updateQueryFilters"
-                                        class$="{{prefix}}FilterSelect">
+                                <select name="siftOperator" id="{{prefix}}SiftOperator" on-change="updateQueryFilters" class$="{{prefix}}FilterSelect">
                                     <option value="<" selected><</option>
                                     <option value="<="><=</option>
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value=""
-                                       class$="browser-custom-sized-input {{prefix}}FilterTextInput"
-                                       id="{{prefix}}SiftInput" name="Sift" on-keyup="updateQueryFilters">
+                                <input id="{{prefix}}SiftInput" name="Sift" type="text" value=""
+                                       class$="browser-custom-sized-input {{prefix}}FilterTextInput" on-keyup="updateQueryFilters">
                                 <div style="float: right" class="tooltip-div">
                                     <a data-toggle="tooltip"
                                        title="Select None in the drop-down list on the left to enable the input of a specific SIFT score threshold. SIFT score takes values in the range [0, infinite[, the lower the values, the more damaging the prediction"><i
@@ -574,15 +554,13 @@
                                     <option value="possibly damaging,probably damaging">Possibly & Probably damaging
                                     </option>
                                 </select>
-                                <select name="polyphenOperator" id="{{prefix}}PolyphenOperator"
-                                        on-change="updateQueryFilters" class$="{{prefix}}FilterSelect">
+                                <select name="polyphenOperator" id="{{prefix}}PolyphenOperator" on-change="updateQueryFilters" class$="{{prefix}}FilterSelect">
                                     <option value="<" selected><</option>
                                     <option value="<="><=</option>
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value=""
-                                       class$="browser-custom-sized-input {{prefix}}FilterTextInput"
+                                <input type="text" value="" class$="browser-custom-sized-input {{prefix}}FilterTextInput"
                                        id="{{prefix}}PolyphenInput" name="Polyphen" on-keyup="updateQueryFilters">
 
                                 <div style="float: right" class="tooltip-div">
@@ -648,8 +626,7 @@
                     <div class="panel-heading" role="tab" id="{{prefix}}conservationFilterHeading">
                         <h4 class="panel-title">
                             <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                               href="#{{prefix}}ConservationFilter" aria-expanded="false"
-                               aria-controls="{{prefix}}ConservationFilter">
+                               href="#{{prefix}}ConservationFilter" aria-expanded="false" aria-controls="{{prefix}}ConservationFilter">
                                 Conservation
                             </a>
                         </h4>
@@ -659,15 +636,13 @@
                         <div class="panel-body">
                             <div class="block">
                                 <label>PhyloP</label>
-                                <select name="phylopOperator" id="{{prefix}}PhylopOperator"
-                                        on-change="updateQueryFilters" class$="{{prefix}}FilterSelect">
+                                <select name="phylopOperator" id="{{prefix}}PhylopOperator" on-change="updateQueryFilters" class$="{{prefix}}FilterSelect">
                                     <option value="<" selected><</option>
                                     <option value="<="><=</option>
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value=""
-                                       class$="browser-custom-sized-input {{prefix}}FilterTextInput"
+                                <input type="text" value="" class$="browser-custom-sized-input {{prefix}}FilterTextInput"
                                        id="{{prefix}}PhylopInput" name="phylop" on-keyup="updateQueryFilters">
                                 <div style="float: right" class="tooltip-div">
                                     <a data-toggle="tooltip"
@@ -684,8 +659,7 @@
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value=""
-                                       class$="browser-custom-sized-input {{prefix}}FilterTextInput"
+                                <input type="text" value="" class$="browser-custom-sized-input {{prefix}}FilterTextInput"
                                        id="{{prefix}}PhastconsInput" name="phastCons" on-keyup="updateQueryFilters">
                                 <div style="float: right" class="tooltip-div">
                                     <a data-toggle="tooltip"
@@ -702,8 +676,7 @@
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value=""
-                                       class$="browser-custom-sized-input {{prefix}}FilterTextInput"
+                                <input type="text" value="" class$="browser-custom-sized-input {{prefix}}FilterTextInput"
                                        id="{{prefix}}GerpInput" name="gerp" on-keyup="updateQueryFilters">
                                 <div style="float: right" class="tooltip-div">
                                     <a data-toggle="tooltip"
@@ -851,8 +824,7 @@
                         <div class="panel-body">
                             <div class="form-group">
                                 <span class="browser-subsection">HPO Accessions</span>
-                                <textarea id="{{prefix}}HumanPhenotypeOntologyTextarea"
-                                          class$="form-control clearable {{prefix}}FilterTextInput" rows="3"
+                                <textarea id="{{prefix}}HumanPhenotypeOntologyTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="3"
                                           name="hpo" placeholder="HP:0000001, HP:3000079"
                                           on-keyup="updateQueryFilters"></textarea>
                             </div>
@@ -860,8 +832,7 @@
                             <!--<br>-->
                             <div class="form-group">
                                 <span class="browser-subsection">ClinVar Accessions</span>
-                                <textarea id="{{prefix}}ClinVarTextarea"
-                                          class$="form-control clearable {{prefix}}FilterTextInput" rows="3"
+                                <textarea id="{{prefix}}ClinVarTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="3"
                                           name="clinvar" placeholder="RCV000058226"
                                           on-keyup="updateQueryFilters"></textarea>
                             </div>
@@ -870,8 +841,7 @@
                                 <span class="browser-subsection">Full-text search on HPO, ClinVar, protein domains or keywords.
                                     Some OMIM and Orphanet IDs are also supported (<span style="color: red">New!</span>)
                                 </span>
-                                <textarea id="{{prefix}}TraitsTextarea"
-                                          class$="form-control clearable {{prefix}}FilterTextInput" rows="5"
+                                <textarea id="{{prefix}}TraitsTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="5"
                                           name="traits" placeholder="Full-text search, e.g. *melanoma*"
                                           on-keyup="updateQueryFilters"></textarea>
                             </div>
@@ -997,8 +967,8 @@
                     },
                     segregation: {
                         type: String,
-                        value: "Select...",
-                        observer: "segregate"
+                        value: "Select ..."
+//                        observer: "segregate"
                     }
                 }
             }
@@ -1018,32 +988,49 @@
                 this.set('panelList', PANELS);
 
                 this.family = {};
-                this._samples = [];
+//                this._samples = [];
 
                 this.cellbaseClientObtained();
             }
 
-            onFamilyChange(e, family) {
-                let samples = [];
-                if (typeof family.pedigree.father !== "undefined") {
-                    let father = family.pedigree.father;
-                    father.role = "father";
-                    father.className = father.browser - affected === true ? "affected" : "";
-                    samples.push(father);
-                }
-                if (typeof family.pedigree.mother !== "undefined") {
-                    let mother = family.pedigree.mother;
-                    mother.role = "mother";
-                    mother.className = mother.browser - affected === true ? "affected" : "";
-                    samples.push(mother);
-                }
+            sampleChanged(family) {
+//                console.log("SAMPLE")
+//                debugger
+            }
 
-                for (let child of family.pedigree.children) {
-                    child.role = child.gender === "male" ? "son" : "daughter";
-                    child.className = child.browser - affected === true ? "affected" : "";
-                    samples.push(child);
+            onFamilyChange(e, family) {
+//                console.log("FAMILY - Browser Filter")
+//                debugger
+                if (PolymerUtils.isNotUndefinedOrNull(family)) {
+                    // First we prepare the family info in a helper object
+                    let sampleInfo = {};
+                    if (typeof family.pedigree.father !== "undefined") {
+                        let father = family.pedigree.father;
+                        sampleInfo[father.name] = {role: "father", title: father.name, affected: father.affected};
+                    }
+                    if (typeof family.pedigree.mother !== "undefined") {
+                        let mother = family.pedigree.mother;
+                        sampleInfo[mother.name] = {role: "mother", title: mother.name, affected: mother.affected};
+                    }
+
+                    for (let child of family.pedigree.children) {
+                        let role = child.gender === "male" ? "son" : "daughter";
+                        sampleInfo[child.name] = {role: role, title: child.name, affected: child.affected};
+                    }
+
+                    // Second
+                    if (PolymerUtils.isNotUndefinedOrNull(this.samples)) {
+                        for (let sample of this.samples) {
+                            if (typeof sampleInfo[sample.name] === "undefined") {
+                                PolymerUtils.getElementById(this.prefix + sample.name + "RowName").innerHTML = "<span>" + sample.name + "</span>";
+                            } else {
+                                let affectationColor = (sampleInfo[sample.name].affected) ? "red": "blue";
+                                PolymerUtils.getElementById(this.prefix + sample.name + "RowName").innerHTML
+                                    = sample.name + "<span style='color:" + affectationColor + "'>" + " (" + sampleInfo[sample.name].role + ")" + "</span>";
+                            }
+                        }
+                    }
                 }
-                this._samples = samples;
             }
 
             onSearch() {
@@ -1718,68 +1705,9 @@
                 this.segregation = e.target.innerHTML;
             }
 
-            sampleChanged() {
-                this.segregation = "Select Segregation";
-            }
-
-            segregate() {
-                let cell;
-                let samples = this.samples;
-
-                if (typeof samples !== "undefined" && samples != "" && samples.length >= 3) {
-                    if (this.segregation == "Autosomal Dominant") {
-                        for (let i = 0; i < samples.length; i++) {
-                            let index = i + 1;
-                            if (samples[i].status == "unaffected") {
-                                cell = $("#segregationTable tr:eq(" + index + ") td:eq(1)")[0].children[0];
-                                $(cell).prop("checked", true);
-                            } else if (samples[i].status == "affected") {
-                                for (let j = 0; j < samples.length; j++) {
-                                    if (i == j) {
-                                        continue;
-                                    }
-                                    if (samples[j].status == "unaffected" && samples[j].memberCode == "D" || samples[j].memberCode == "S") {
-                                        cell = $("#segregationTable tr:eq(" + index + ") td:eq(2)")[0].children[0];
-                                        $(cell).prop("checked", true);
-                                    } else if (samples[j].status == "affected" && samples[i].memberCode == "F") {
-                                        if (i == 0 && j == 1) {
-                                            cell = $("#segregationTable tr:eq(" + index + ") td:eq(2)")[0].children[0];
-                                            $(cell).prop("checked", true);
-                                        } else if (i == 0 && j != 1) {
-                                            cell = $("#segregationTable tr:eq(" + index + ") td:eq(2)")[0].children[0];
-                                            $(cell).prop("checked", true);
-                                            cell = $("#segregationTable tr:eq(" + index + ") td:eq(3)")[0].children[0];
-                                            $(cell).prop("checked", true);
-                                        }
-                                    } else if (samples[j].status == "affected" && samples[i].memberCode == "M") {
-                                        if (i == 1 && j == 0) {
-                                            cell = $("#segregationTable tr:eq(" + index + ") td:eq(2)")[0].children[0];
-                                            $(cell).prop("checked", true);
-                                        } else if (i == 1 && j != 0) {
-                                            cell = $("#segregationTable tr:eq(" + index + ") td:eq(2)")[0].children[0];
-                                            $(cell).prop("checked", true);
-                                            cell = $("#segregationTable tr:eq(" + index + ") td:eq(3)")[0].children[0];
-                                            $(cell).prop("checked", true);
-                                        }
-                                    } else if (samples[j].status == "affected" && samples[i].memberCode == "D" || samples[i].memberCode == "S") {
-                                        cell = $("#segregationTable tr:eq(" + index + ") td:eq(2)")[0].children[0];
-                                        $(cell).prop("checked", true);
-                                        if (samples[j + 1].status == "affected" && samples[j + 1].memberCode == "M") {
-                                            cell = $("#segregationTable tr:eq(" + index + ") td:eq(3)")[0].children[0];
-                                            $(cell).prop("checked", true);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        this.sampleGenotypeManual();
-                    }
-                }
-            }
-
             sampleGenotypeManual() {
                 let arr = [];
-                if (this.samples != "" && this.samples.length > 1) {
+                if (this.samples !== "" && this.samples.length > 1) {
                     for (let i = 0; i < this.samples.length; i++) {
                         let sample = this.samples[i].name;
                         let gts = [];
@@ -1834,7 +1762,6 @@
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
                 $("#analysisSelectedDiv").show();
                 $("#segregationDropdownDiv").show();
-
             }
 
             closeModalSample(e) {

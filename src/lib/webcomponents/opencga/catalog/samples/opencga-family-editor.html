@@ -108,6 +108,13 @@
 
     <script>
         class OpencgaFamilyEditor extends Polymer.Element {
+
+            constructor() {
+                super();
+
+                this.prefix = "FamEditor" + Utils.randomString(6);
+            }
+
             static get is() {
                 return 'opencga-family-editor';
             }
@@ -126,15 +133,8 @@
                     },
                     settings: {
                         type: Object
-                    },
-                    prefix: {
-                        type: String
                     }
                 }
-            }
-
-            constructor() {
-                super();
             }
 
             _attachDom(dom) {
@@ -144,9 +144,6 @@
             ready() {
                 super.ready();
 
-                if (PolymerUtils.isEmpty(this.prefix)) {
-                    this.prefix = "FamilyEditor" + Utils.randomString(6);
-                }
                 this._sampleExists = false;
 
                 this._affected = {};
@@ -218,7 +215,8 @@
                                 break;
                             case "none":
                                 // Remove sample from pedigree
-                                this._removeSampleFromPedigree(sampleName);
+//                                this._removeSampleFromPedigree(sampleName);
+                                this.pedigree.children.push({name: sampleName, gender: "undefined"});
                                 break;
                         }
                         break;
@@ -249,17 +247,17 @@
             pedigreeRender() {
                 let ped = this._createPedigree();
 
+                let familyName = "";
                 if (PolymerUtils.isNotUndefinedOrNull(PolymerUtils.getElementById(this.prefix + 'FamilyName'))) {
-                    let familyName = PolymerUtils.getElementById(this.prefix + 'FamilyName').value;
-                    this.family = {name: familyName, pedigree: ped};
-                    this.dispatchEvent(new CustomEvent('familychange', {
-                        detail: this.family,
-                        bubbles: true,
-                        composed: true
-                    }));
-
+                    familyName = PolymerUtils.getElementById(this.prefix + 'FamilyName').value;
                 }
 
+                this.family = {name: familyName, pedigree: ped};
+                this.dispatchEvent(new CustomEvent('familychange', {
+                    detail: this.family,
+                    bubbles: true,
+                    composed: true
+                }));
 
                 // Remove SVG before render new one
                 if (PolymerUtils.isNotUndefined(this.svg)) {
@@ -274,8 +272,7 @@
             }
 
             _updateSamples() {
-                if (!PolymerUtils.isUndefinedOrNull(this.samples)) {
-
+                if (PolymerUtils.isNotUndefinedOrNull(this.samples)) {
                     if (this.samples.length > 0) {
                         this._sampleExists = true;
                         this.pedigreeTitle = "Pedigree";
@@ -315,7 +312,5 @@
         }
 
         customElements.define(OpencgaFamilyEditor.is, OpencgaFamilyEditor);
-
-
     </script>
 </dom-module>
