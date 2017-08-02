@@ -1001,7 +1001,7 @@
             onFamilyChange(e, family) {
 //                console.log("FAMILY - Browser Filter")
 //                debugger
-                if (PolymerUtils.isNotUndefinedOrNull(family)) {
+                if (UtilsNew.isNotUndefinedOrNull(family)) {
                     // First we prepare the family info in a helper object
                     let sampleInfo = {};
                     if (typeof family.pedigree.father !== "undefined") {
@@ -1019,7 +1019,7 @@
                     }
 
                     // Second
-                    if (PolymerUtils.isNotUndefinedOrNull(this.samples)) {
+                    if (UtilsNew.isNotUndefinedOrNull(this.samples)) {
                         for (let sample of this.samples) {
                             if (typeof sampleInfo[sample.name] === "undefined") {
                                 PolymerUtils.getElementById(this.prefix + sample.name + "RowName").innerHTML = "<span>" + sample.name + "</span>";
