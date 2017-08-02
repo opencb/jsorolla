@@ -238,7 +238,7 @@
                     height: 100,
                     opencga: {
                         client: this.opencgaClient,
-                        studies: "platinum:illumina_platinum"
+                        studies: `${this.project.alias}:${this.study.alias}`
 //                        studies: "reference_grch37:1kG_phase3"
 //                        "HG00096", "HG00097", "HG00099"
                     },
@@ -271,7 +271,8 @@
                     height: 300,
                     opencga: {
                         client: this.opencgaClient,
-                        studies: "platinum:illumina_platinum"
+                        studies: `${this.project.alias}:${this.study.alias}`
+
 //                        studies: "reference_grch37:1kG_phase3"
 //                        "HG00096", "HG00097", "HG00099"
                     }
