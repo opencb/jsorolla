@@ -81,67 +81,66 @@
     </template>
     <script>
         class variantGenomeBrowser extends Polymer.Element {
-
             constructor() {
                 super();
 
                 if (UtilsNew.isEmpty(this.prefix)) {
-                    this.prefix = "VarGenBrowser" + Utils.randomString(6);
+                    this.prefix = `VarGenBrowser${Utils.randomString(6)}`;
                 }
             }
 
             static get is() {
-                return 'variant-genome-browser';
+                return "variant-genome-browser";
             }
 
             static get properties() {
                 return {
                     opencgaClient: {
-                        type: Object
+                        type: Object,
                     },
                     cellbaseClient: {
-                        type: Object
+                        type: Object,
                     },
                     query: {
-                        type: Object
+                        type: Object,
                     },
                     search: {
                         type: Object,
-                        observer: 'render'
+                        observer: "render",
                     },
                     project: {
-                        type: Object
+                        type: Object,
                     },
                     study: {
                         type: Object,
-                        observer: 'render'
+                        observer: "render",
                     },
                     samples: {
                         type: Array,
-                        observer: 'changeSamples'
+                        observer: "changeSamples",
                     },
                     species: {
-                        type: Object
+                        type: Object,
                     },
                     region: {
-                        type: Object
+                        type: Object,
                     },
                     active: {
                         type: Boolean,
-                        value: false
+                        value: false,
                     },
                     fullScreen: {
                         type: Boolean,
-                        observer: "onFullScreen"
-                    }
-                }
+                        observer: "onFullScreen",
+                    },
+                };
             }
 
             ready() {
                 super.ready();
 
                 this.summary = true;
-                this.tracks = [{type: "sequence"}, {type: "gene"}, {type: "variant"}, {type: "alignment", config: {}}];
+                this.tracks = [{ type: "sequence" }, { type: "gene" }, { type: "variant" }, { type: "alignment", config: {} }];
             }
 
             _attachDom(dom) {
@@ -152,7 +151,7 @@
                 super.connectedCallback();
 
                 this.render();
-                this.table = PolymerUtils.getElementById(this.prefix + 'VariantGenomeBrowserTable');
+                this.table = PolymerUtils.getElementById(`${this.prefix}VariantGenomeBrowserTable`);
             }
 
             changeSamples(e) {
@@ -160,45 +159,45 @@
             }
 
             getFilesToVisualiseAlignmentTracks(settings) {
-                if (UtilsNew.isUndefined(settings)) {
-                    settings = {};
-                }
-                let samples = [];
-                this.samples.forEach(function (sample) {
-                    samples.push(sample.id);
-                });
-                let query = {
-                    samples: samples,
-                    study: this.study.id,
-                    format: "BAM",
-                    include: "id,name,path,samples"
-                };
-                let _this = this;
-                this.samplesWithFiles = [];
-                this._filesSelectedAlignment = new Set([]);
-                this.opencgaClient.files().search(query)
-                    .then(function (response) {
-                        if (UtilsNew.isNotEmptyArray(response.response[0].result)) {
-                            _this.samples.forEach(function (sampleSelected) {
-                                let filesSamples = [];
-                                response.response[0].result.forEach(function (file) {
-                                    let containSample = file.samples.some(function (sampleFile) {
-                                        return sampleFile.id === sampleSelected.id;
-                                    });
-                                    if (containSample) {
-                                        filesSamples.push(file);
-                                    }
-                                });
-                                // Push linked filename list with sampleSelected using polymer array mutation method to update dom-repeat
-                                _this.push('samplesWithFiles', {name: sampleSelected.name, files: filesSamples});
-                            });
-                        }
-                        //Update samples and pass to genomeBrowser to draw tracks samples.
-                        _this._samples = _this.samples;
-                    })
-                    .catch(function (response) {
-                        console.log(response);
+                if (UtilsNew.isNotEmptyArray(this.samples)) {
+                    if (UtilsNew.isUndefined(settings)) {
+                        settings = {};
+                    }
+                    const samples = [];
+                    this.samples.forEach((sample) => {
+                        samples.push(sample.id);
                     });
+                    const query = {
+                        samples,
+                        study: this.study.id,
+                        format: "BAM",
+                        include: "id,name,path,samples",
+                    };
+                    const _this = this;
+                    this.samplesWithFiles = [];
+                    this._filesSelectedAlignment = new Set([]);
+                    this.opencgaClient.files().search(query)
+                        .then((response) => {
+                            if (UtilsNew.isNotEmptyArray(response.response[0].result)) {
+                                _this.samples.forEach((sampleSelected) => {
+                                    const filesSamples = [];
+                                    response.response[0].result.forEach((file) => {
+                                        const containSample = file.samples.some(sampleFile => sampleFile.id === sampleSelected.id);
+                                        if (containSample) {
+                                            filesSamples.push(file);
+                                        }
+                                    });
+                                    // Push linked filename list with sampleSelected using polymer array mutation method to update dom-repeat
+                                    _this.push("samplesWithFiles", { name: sampleSelected.name, files: filesSamples });
+                                });
+                            }
+                            // Update samples and pass to genomeBrowser to draw tracks samples.
+                            _this._samples = _this.samples;
+                        })
+                        .catch((response) => {
+                            console.log(response);
+                        });
+                }
             }
 
 
@@ -206,80 +205,79 @@
                 this.variant = ""; // Empty the variant every time the grid is loaded
                 if (typeof this.opencgaClient !== "undefined" && this.opencgaClient instanceof OpenCGAClient
                     && typeof this.project !== "undefined" && typeof this.study !== "undefined" && typeof this.study.alias !== "undefined") {
-
-                    let urlQueryParams = this._getUrlQueryParams();
-                    let queryParams = urlQueryParams.queryParams;
+                    const urlQueryParams = this._getUrlQueryParams();
+                    const queryParams = urlQueryParams.queryParams;
                     let _numTotal = -1;
-                    let _this = this;
-                    $('#' + _this.prefix + 'VariantGenomeBrowserTable').bootstrapTable('destroy');
-                    $('#' + _this.prefix + 'VariantGenomeBrowserTable').bootstrapTable({
+                    const _this = this;
+                    $(`#${_this.prefix}VariantGenomeBrowserTable`).bootstrapTable("destroy");
+                    $(`#${_this.prefix}VariantGenomeBrowserTable`).bootstrapTable({
                         url: urlQueryParams.host,
                         columns: [
                             {
-                                title: 'Variant',
-                                field: 'variant',
+                                title: "Variant",
+                                field: "variant",
                                 formatter: this.variantFormatter,
-                            }
+                            },
                         ],
-                        method: 'get',
-                        sidePagination: 'server',
-                        queryParams: function (params) {
+                        method: "get",
+                        sidePagination: "server",
+                        queryParams(params) {
                             queryParams.limit = params.limit;
                             queryParams.skip = params.offset;
-//                            queryParams.skipCount = true;
-                            if (typeof _this.query !== 'undefined' && typeof _this.query.gene !== 'undefined' && _this.query.gene !== "") {
+                            //                            queryParams.skipCount = true;
+                            if (typeof _this.query !== "undefined" && typeof _this.query.gene !== "undefined" && _this.query.gene !== "") {
                                 queryParams.skipCount = false;
                             }
                             return queryParams;
                         },
-                        responseHandler: function (res) {
+                        responseHandler(res) {
                             if (_numTotal === -1) {
-                                if (_this.summary || (typeof _this.query !== 'undefined' && typeof _this.query.gene !== 'undefined' && _this.query.gene !== "")) {
+                                if (_this.summary || (typeof _this.query !== "undefined" && typeof _this.query.gene !== "undefined" && _this.query.gene !== "")) {
                                     _numTotal = res.response[0].numTotalResults;
                                 } else {
                                     _numTotal = 1150;
                                 }
                             }
-                            return {total: _numTotal, rows: res.response[0].result}
+                            return { total: _numTotal, rows: res.response[0].result };
                         },
-                        onClickRow: function (row, $element) {
-                            $('.success').removeClass('success');
-                            $($element).addClass('success');
-//                            _this._onSelectVariant(row);
-                            _this.region = new Region({chromosome: row.chromosome, start: row.start, end: row.end});
-//                            _this.set("region", new Region({chromosome: row.chromosome, start: row.start, end: row.end}));
+                        onClickRow(row, $element) {
+                            $(".success").removeClass("success");
+                            $($element).addClass("success");
+                            //                            _this._onSelectVariant(row);
+                            _this.region = new Region({ chromosome: row.chromosome, start: row.start, end: row.end });
+                            //                            _this.set("region", new Region({chromosome: row.chromosome, start: row.start, end: row.end}));
                         },
-                        onLoadSuccess: function (data) {
+                        onLoadSuccess(data) {
                             // The first time we mark as selected the first row that is rows[2] since the first two rows are the header
-                            let table = PolymerUtils.getElementById(_this.prefix + 'VariantGenomeBrowserTable');
+                            const table = PolymerUtils.getElementById(`${_this.prefix}VariantGenomeBrowserTable`);
                             if (UtilsNew.isNotUndefinedOrNull(table)) {
-                                table.rows[1].setAttribute('class', 'success');
-//                            _this._onSelectVariant(data.rows[0]);
+                                table.rows[1].setAttribute("class", "success");
+                                //                            _this._onSelectVariant(data.rows[0]);
                                 if (typeof data !== "undefined" && data.rows.length > 0) {
                                     _this.region = new Region({
                                         chromosome: data.rows[0].chromosome,
                                         start: data.rows[0].start,
-                                        end: data.rows[0].end
+                                        end: data.rows[0].end,
                                     });
-//                                    _this.set('region', new Region({chromosome: data.rows[0].chromosome, start: data.rows[0].start, end: data.rows[0].end}));
+                                    //                                    _this.set('region', new Region({chromosome: data.rows[0].chromosome, start: data.rows[0].start, end: data.rows[0].end}));
                                 }
                             }
-                        }
+                        },
                     });
-                    $('#' + _this.prefix + 'VariantGenomeBrowserTable').bootstrapTable('showLoading');
+                    $(`#${_this.prefix}VariantGenomeBrowserTable`).bootstrapTable("showLoading");
                 }
             }
 
             _getUrlQueryParams() {
                 if (typeof this.opencgaClient === "undefined") {
-                    return {host: "", queryParams: {}, url: ""};
+                    return { host: "", queryParams: {}, url: "" };
                 }
 
                 let host = "";
                 if (this.opencgaClient.getConfig().host.startsWith("https://")) {
                     host = this.opencgaClient.getConfig().host;
                 } else {
-                    host = 'http://' + this.opencgaClient.getConfig().host;
+                    host = `http://${this.opencgaClient.getConfig().host}`;
                 }
 
                 if (typeof this.project !== "undefined" && typeof this.study.alias !== "undefined") {
@@ -287,24 +285,24 @@
                         this.query = {};
                     }
                     if (typeof this.query.studies === "undefined" || this.query.studies === "" || this.query.studies.split(new RegExp("[,;]")).length === 1) {
-                        this.query.studies = this.project.alias + ":" + this.study.alias;
+                        this.query.studies = `${this.project.alias}:${this.study.alias}`;
                     }
-                    host += '/webservices/rest/v1/analysis/variant/query';
+                    host += "/webservices/rest/v1/analysis/variant/query";
                 } else {
-                    return {host: host, queryParams: {}, url: ""};
+                    return { host, queryParams: {}, url: "" };
                 }
 
-                let queryParams = {
+                const queryParams = {
                     sid: this.opencgaClient._config.sessionId,
                     timeout: 60000,
-                    summary: this.summary
+                    summary: this.summary,
                 };
 
                 Object.assign(queryParams, this.query); // Important : Adding the query object contents to queryParams
 
                 if (typeof this.samples !== "undefined" && this.samples.length > 0) {
-                    let sampleNames = [];
-                    for (sampleIdx in this.samples) {
+                    const sampleNames = [];
+                    for (const sampleIdx in this.samples) {
                         sampleNames.push(this.samples[sampleIdx].name);
                     }
                     queryParams.returnedSamples = sampleNames.join();
@@ -313,10 +311,10 @@
                 }
 
                 if (typeof this.config !== "undefined" && typeof this.config.missing !== "undefined" && this.config.missing) {
-                    let keys = Object.keys(queryParams);
+                    const keys = Object.keys(queryParams);
                     for (let i = 0; i < keys.length; i++) {
                         let val = queryParams[keys[i]];
-                        if (typeof val == "string") {
+                        if (typeof val === "string") {
                             val = val.replace(/</g, "<<");
                             val = val.replace(/>/g, ">>");
                             queryParams[keys[i]] = val;
@@ -324,40 +322,40 @@
                     }
                 }
 
-                let query = ["limit=1000"];
-                for (let key in queryParams) {
+                const query = ["limit=1000"];
+                for (const key in queryParams) {
                     // Check sid has a proper value. For public projects sid is undefined. In that case, sid must be removed from the url
                     if (key == "sid" && queryParams[key] === undefined) {
-                        delete queryParams["sid"];
+                        delete queryParams.sid;
                     } else {
-                        query.push(key + "=" + queryParams[key]);
+                        query.push(`${key}=${queryParams[key]}`);
                     }
                 }
-                let url = host + "?" + query.join("&");
+                const url = `${host}?${query.join("&")}`;
 
-                return {host: host, queryParams: queryParams, url: url};
+                return { host, queryParams, url };
             }
 
             variantFormatter(value, row) {
-                let ref = (row.reference !== "") ? row.reference : "-";
-                let alt = (row.alternate !== "") ? row.alternate : "-";
-                let html = row.chromosome + ':' + row.start + " " + ref + '/' + alt;
+                const ref = (row.reference !== "") ? row.reference : "-";
+                const alt = (row.alternate !== "") ? row.alternate : "-";
+                let html = `${row.chromosome}:${row.start} ${ref}/${alt}`;
                 if (typeof row.id !== "undefined" && row.id !== "") {
-                    html += "&nbsp;(<a target='_blank' href='https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?type=rs&rs=" + row.id + "'>" + row.id + "</a>)"
+                    html += `&nbsp;(<a target='_blank' href='https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?type=rs&rs=${row.id}'>${row.id}</a>)`;
                 }
                 if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined" && row.annotation.consequenceTypes.length > 0) {
                     html += "<br>";
-                    let cts = new Set();
-                    let arr = [];
-                    for (let ct of row.annotation.consequenceTypes) {
+                    const cts = new Set();
+                    const arr = [];
+                    for (const ct of row.annotation.consequenceTypes) {
                         if (!cts.has(ct.geneName)) {
                             arr.push(ct.geneName);
                             cts.add(ct.geneName);
                         }
                     }
-                    html += "<span>" + arr.join() + "</span>";
+                    html += `<span>${arr.join()}</span>`;
                 }
-                return "<span style='white-space: nowrap;font-weight: bold'>" + html + "</span>";
+                return `<span style='white-space: nowrap;font-weight: bold'>${html}</span>`;
             }
 
             onFullScreen() {
@@ -374,7 +372,7 @@
 
             toggleSelection(e) {
                 if (UtilsNew.isNotUndefinedOrNull(e.target)) {
-                    let idFile = e.target.getAttribute("data-file-id")
+                    const idFile = e.target.getAttribute("data-file-id");
                     if (UtilsNew.isNotUndefinedOrNull(idFile)) {
                         if (this._filesSelectedAlignment.has(idFile)) {
                             this._filesSelectedAlignment.delete(idFile);
@@ -383,11 +381,8 @@
                         }
                     }
                 }
-
             }
         }
-
-
         customElements.define(variantGenomeBrowser.is, variantGenomeBrowser);
     </script>
 </dom-module>
