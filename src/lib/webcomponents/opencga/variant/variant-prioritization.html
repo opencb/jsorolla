@@ -40,7 +40,7 @@
                 <variant-browser-filter mode="{{mode}}" study="{{study}}" project="{{project}}" samples="{{samples}}"
                                         prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
                                         cellbase-client="{{cellbaseClient}}" config="{{config}}"
-                                        population-frequencies="{{populationFrequencies}}"
+                                        population-frequencies="{{populationFrequencies}}" biotypes="{{biotypes}}"
                                         consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}"
                                         on-closemodalsample="onCloseModalSample" style="font-size: 12px">
                 </variant-browser-filter>
@@ -48,7 +48,7 @@
 
             <div id="{{prefix}}MainWindow" class="col-md-10" hidden$="{{checkProject(project)}}">
                 <variant-prioritization-view mode="{{mode}}" title="{{title}}" project="{{project}}" study="{{study}}"
-                                             samples="{{samples}}" prefix="{{prefix}}"
+                                             samples="{{_samples}}" prefix="{{prefix}}"
                                              opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
                                              population-frequencies="{{populationFrequencies}}"
                                              protein-substitution-scores="{{proteinSubstitutionScores}}"

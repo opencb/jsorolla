@@ -669,10 +669,6 @@
                     opencgaClient: {
                         type: Object
                     },
-                    cellbaseClient: {
-                        type: Object,
-                        observer: 'cellbaseClientObtained'
-                    },
                     config: {
                         type: Object
                     },
@@ -767,15 +763,7 @@
                     return false;
                 }
             }
-            cellbaseClientObtained() {
-                if (this.cellbaseClient instanceof CellBaseClient && UtilsNew.isUndefined(this.biotypes)) {
-                    let _this = this;
-                    this.cellbaseClient.getGeneClient(null, "biotype", {}, {})
-                        .then(function (response) {
-                            _this.biotypes = response.response[0].result;
-                        });
-                }
-            }
+
             updateDifferentStudies() {
                 let differentStudies = [];
                 if (UtilsNew.isNotUndefined(this.study) && UtilsNew.isNotUndefined(this.studies)) {

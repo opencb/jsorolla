@@ -988,9 +988,7 @@
                 this.set('panelList', PANELS);
 
                 this.family = {};
-//                this._samples = [];
 
-                this.cellbaseClientObtained();
             }
 
             sampleChanged(family) {
@@ -1074,16 +1072,6 @@
                     return cohorts.length > 0;
                 } else {
                     return false;
-                }
-            }
-
-            cellbaseClientObtained() {
-                if (this.cellbaseClient instanceof CellBaseClient && typeof this.biotypes === "undefined") {
-                    let _this = this;
-                    this.cellbaseClient.getGeneClient(null, "biotype", {}, {})
-                        .then(function (response) {
-                            _this.biotypes = response.response[0].result;
-                        });
                 }
             }
 
