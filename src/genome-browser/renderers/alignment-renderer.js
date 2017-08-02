@@ -311,12 +311,12 @@ class AlignmentRenderer extends Renderer {
 
             const rowHeight = 15;
             let rowY = 70;
-            //		var textY = 12+settings.height;
+            // var textY = 12+settings.height;
             while (true) {
-                if (args.renderedArea[rowY] == null) {
+                if (UtilsNew.isUndefinedOrNull(args.renderedArea[rowY])) {
                     args.renderedArea[rowY] = new FeatureBinarySearchTree();
                 }
-                if (polyDrawing[rowY] == null) {
+                if (UtilsNew.isUndefinedOrNull(polyDrawing[rowY])) {
                     polyDrawing[rowY] = {
                         reads: [],
                         differences: {
@@ -605,7 +605,8 @@ class AlignmentRenderer extends Renderer {
                         //     done: function (event) {
                         //         debugger;
                         //         var referenceString = AlignmentRenderer._getReferenceString(event.items, region);
-                        //         featureGroup.appendChild(AlignmentRenderer.drawBamDifferences(referenceString, differences, args.pixelBase, x, rowY + height));
+                        //         featureGroup.appendChild(AlignmentRenderer.
+                        // drawBamDifferences(referenceString, differences, args.pixelBase, x, rowY + height));
                         //     }
                         // });
                     }
@@ -613,7 +614,7 @@ class AlignmentRenderer extends Renderer {
                     break;
                 }
                 rowY += rowHeight;
-                //			textY += rowHeight;
+                // textY += rowHeight;
             }
         };
 
@@ -672,7 +673,7 @@ class AlignmentRenderer extends Renderer {
 
             const rowHeight = 12;
             let rowY = 70;
-            //		var textY = 12+settings.height;
+            // var textY = 12+settings.height;
 
             while (true) {
                 if (args.renderedArea[rowY] === null) {
@@ -770,7 +771,7 @@ class AlignmentRenderer extends Renderer {
                     break;
                 }
                 rowY += rowHeight;
-                //			textY += rowHeight;
+                // textY += rowHeight;
             }
         };
 
