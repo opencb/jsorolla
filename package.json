@@ -32,6 +32,11 @@
     "async": "^2.1.2"
   },
   "devDependencies": {
+    "eslint": "~4.3.0",
+    "eslint-config-airbnb": "~15.1.0",
+    "eslint-plugin-jsx-a11y": "^5.1.1",
+    "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-react": "^7.1.0",
     "grunt": "^0.4.5",
     "grunt-contrib-clean": "~1.0.0",
     "grunt-contrib-concat": "~1.0.0",
