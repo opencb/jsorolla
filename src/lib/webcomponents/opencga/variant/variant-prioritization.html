@@ -66,6 +66,12 @@
     <script>
         class VariantPrioritization extends Polymer.Element {
 
+            constructor() {
+                super();
+
+                this.prefix = "prior" + Utils.randomString(6);
+            }
+
             static get is() {
                 return 'variant-prioritization';
             }
@@ -107,27 +113,22 @@
                     search: {
                         type: Object
                     },
-                    prefix: {
-                        type: String
-                    },
                     populationFrequencies: {
+                        type: Object
+                    },
+                    proteinSubstitutionScores: {
                         type: Object
                     },
                     consequenceTypes: {
                         type: Object
                     },
-                    config: {
-                        type: Object
+                    biotypes: {
+                        type: Array
                     },
-                    proteinSubstitutionScores: {
+                    config: {
                         type: Object
                     }
                 }
-            }
-
-
-            constructor() {
-                super();
             }
 
             _attachDom(dom) {
@@ -136,10 +137,6 @@
 
             ready() {
                 super.ready();
-
-                if (typeof this.prefix === "undefined" || this.prefix === "") {
-                    this.prefix = "prior" + Utils.randomString(6);
-                }
 
                 this._collapsed = false;
             }

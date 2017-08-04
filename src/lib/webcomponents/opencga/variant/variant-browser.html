@@ -37,7 +37,7 @@
 
             <div id="{{prefix}}FilterMenu" class="col-md-2" hidden$="{{checkProject(project)}}">
                 <variant-browser-filter study="{{study}}" project="{{project}}" studies="{{studies}}"
-                                        cohorts="{{cohorts}}" config="{{config}}"
+                                        cohorts="{{cohorts}}" biotypes={{biotypes}} config="{{config}}"
                                         samples="{{samples}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
                                         cellbase-client="{{cellbaseClient}}"
                                         population-frequencies="{{populationFrequencies}}"
@@ -123,8 +123,8 @@
                     summary: {
                         type: Boolean
                     },
-                    prefix: {
-                        type: String
+                    biotypes: {
+                        type: Array
                     }
                 }
             }

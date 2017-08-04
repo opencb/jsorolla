@@ -368,18 +368,16 @@
                         <div class="panel-body">
                             <div class="form-group">
                                 <span class="browser-subsection">Chromosomal Location</span>
-                                <textarea id$="{{prefix}}LocationTextarea" name="location" class$="form-control clearable {{prefix}}FilterTextInput"
-                                          rows="3" placeholder="3:444-55555, 1:1-100000" on-keyup="updateQueryFilters">
-                                </textarea>
+                                <textarea id="{{prefix}}LocationTextarea" name="location" class$="form-control clearable {{prefix}}FilterTextInput"
+                                          rows="3" placeholder="3:444-55555,1:1-100000" on-keyup="updateQueryFilters"></textarea>
                             </div>
 
                             <div class="form-group">
                                 <span class="browser-subsection">Feature IDs (gene, transcript, SNP, ...)</span>
                                 <div class="form-row">
                                     <div class="col-sm-10" style="padding: 0px 0px 0px 0px">
-                                        <input id="{{prefix}}FeatureIdText" type="text" class="form-control"
-                                               list="datalist" placeholder="Search for Gene Symbols" value=""
-                                               on-keyup="callAutocomplete">
+                                        <input id="{{prefix}}FeatureIdText" type="text" class="form-control" list="datalist"
+                                               placeholder="Search for Gene Symbols" value="" on-keyup="callAutocomplete">
                                         <datalist id="datalist">
                                             <template is="dom-repeat" items="{{autocompleteData}}">
                                                 <option value="{{item.name}}">
@@ -394,9 +392,8 @@
                                 </div>
                                 <div style="padding-top: 45px">
                                     <textarea id="{{prefix}}FeatureTextarea" name="geneSnp" class$="form-control clearable {{prefix}}FilterTextInput"
-                                              rows="3" placeholder="BRCA2, ENSG00000139618, ENST00000544455, rs28897700"
-                                              on-keyup="updateQueryFilters">
-                                    </textarea>
+                                              rows="3" placeholder="BRCA2,ENSG00000139618,ENST00000544455,rs28897700"
+                                              on-keyup="updateQueryFilters"></textarea>
                                 </div>
                             </div>
 
@@ -418,8 +415,7 @@
                                 <div style="padding-top: 10px">
                                     <textarea id="{{prefix}}PanelAppsTextarea" name="panelAppsTextarea"
                                               class$="form-control clearable {{prefix}}FilterTextInput"
-                                              rows="3" placeholder="No panel selected" on-keyup="updateQueryFilters">
-                                    </textarea>
+                                              rows="3" placeholder="No panel selected" on-keyup="updateQueryFilters"></textarea>
                                 </div>
                             </div>
 
@@ -457,8 +453,7 @@
                     <div class="panel-heading" role="tab" id="{{prefix}}PopulationFrequencyHeading">
                         <h4 class="panel-title">
                             <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                               href="#{{prefix}}PopulationFrequency" aria-expanded="false"
-                               aria-controls="{{prefix}}PopulationFrequency">
+                               href="#{{prefix}}PopulationFrequency" aria-expanded="false" aria-controls="{{prefix}}PopulationFrequency">
                                 Population Frequency
                             </a>
                         </h4>
@@ -687,13 +682,10 @@
                             <form style="padding-top: 10px">
                                 <label style="font-weight: normal;">Logical Operator</label>
                                 <input type="radio" name="conservation" id="conservationOrRadio" value="or"
-                                       class$="{{prefix}}FilterRadio" checked disabled on-change="updateQueryFilters"
-                                       style="margin-left: 10px"> OR<br>
+                                       class$="{{prefix}}FilterRadio" checked disabled on-change="updateQueryFilters" style="margin-left: 10px"> OR<br>
                                 <input type="radio" name="conservation" id="conservationAndRadio" value="and"
-                                       class$="{{prefix}}FilterRadio" disabled on-change="updateQueryFilters"
-                                       style="margin-left: 102px"> AND<br>
+                                       class$="{{prefix}}FilterRadio" disabled on-change="updateQueryFilters" style="margin-left: 102px"> AND<br>
                             </form>
-
                         </div>
                     </div>
                 </div>
@@ -788,8 +780,7 @@
                     <div class="panel-heading" role="tab" id="{{prefix}}GeneOntologyHeading">
                         <h4 class="panel-title">
                             <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                               href="#{{prefix}}GeneOntology" aria-expanded="false"
-                               aria-controls="{{prefix}}GeneOntology">
+                               href="#{{prefix}}GeneOntology" aria-expanded="false" aria-controls="{{prefix}}GeneOntology">
                                 Gene Ontology
                             </a>
                         </h4>
@@ -799,10 +790,8 @@
                         <div class="panel-body">
                             <span class="browser-subsection">GO Accessions</span>
                             <div class="form-group">
-                                <textarea id="{{prefix}}GeneOntologyTextarea"
-                                          class$="form-control clearable {{prefix}}FilterTextInput" rows="3"
-                                          name="geneOntology" placeholder="GO:0000145"
-                                          on-keyup="updateQueryFilters"></textarea>
+                                <textarea id="{{prefix}}GeneOntologyTextarea" class$="form-control clearable {{prefix}}FilterTextInput"
+                                          rows="3" name="geneOntology" placeholder="GO:0000145" on-keyup="updateQueryFilters"></textarea>
                             </div>
                         </div>
                     </div>
@@ -813,8 +802,7 @@
                     <div class="panel-heading" role="tab" id="{{prefix}}TraitsHeading">
                         <h4 class="panel-title">
                             <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                               href="#{{prefix}}Traits" aria-expanded="false"
-                               aria-controls="{{prefix}}HumanPhenotypeOntology">
+                               href="#{{prefix}}Traits" aria-expanded="false" aria-controls="{{prefix}}HumanPhenotypeOntology">
                                 Phenotype-Disease (<span style="color: red">New!</span>)
                             </a>
                         </h4>
@@ -824,9 +812,8 @@
                         <div class="panel-body">
                             <div class="form-group">
                                 <span class="browser-subsection">HPO Accessions</span>
-                                <textarea id="{{prefix}}HumanPhenotypeOntologyTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="3"
-                                          name="hpo" placeholder="HP:0000001, HP:3000079"
-                                          on-keyup="updateQueryFilters"></textarea>
+                                <textarea id="{{prefix}}HumanPhenotypeOntologyTextarea" class$="form-control clearable {{prefix}}FilterTextInput"
+                                          rows="3" name="hpo" placeholder="HP:0000001, HP:3000079" on-keyup="updateQueryFilters"></textarea>
                             </div>
 
                             <!--<br>-->
@@ -964,6 +951,9 @@
                     },
                     cohorts: {
                         type: Object
+                    },
+                    biotypes: {
+                        type: Array
                     },
                     segregation: {
                         type: String,
@@ -1639,11 +1629,11 @@
             }
 
             callAutocomplete(e) {
-                // Only gene symbols are going to be searched and not ensembl ids
-//                if (this.$$("#" + this.prefix + "FeatureIdText").value.length > 2 && !this.$$("#" + this.prefix + "FeatureIdText").value.startsWith("ENS")) {
-                if (typeof this.$[this.prefix + "FeatureIdText"] !== "undefined" && this.$[this.prefix + "FeatureIdText"].value.length > 2 && !this.$[this.prefix + "FeatureIdText"].value.startsWith("ENS")) {
+                // Only gene symbols are going to be searched and not Ensembl IDs
+                let featureId = PolymerUtils.getElementById(this.prefix  + "FeatureIdText").value;
+                if (UtilsNew.isNotUndefinedOrNull(featureId) && featureId.length >= 3 && !featureId.startsWith("ENS")) {
                     let _this = this;
-                    _this.cellbaseClient.get('feature', 'id', this.$$("#" + this.prefix + "FeatureIdText").value.toUpperCase(), 'starts_with', {}, {})
+                    _this.cellbaseClient.get('feature', 'id', featureId.toUpperCase(), 'starts_with', {}, {})
                         .then(function (response) {
                             _this.autocompleteData = response.response[0].result;
                         });
