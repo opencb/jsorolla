@@ -9,6 +9,7 @@ class AlignmentRenderer extends Renderer {
 
         if (_.isObject(args)) {
             Object.assign(this, args);
+            Object.assign(this, this._getDefaultConfig(), this.config);
         }
 
         this.on(this.handlers);
@@ -1306,5 +1307,100 @@ class AlignmentRenderer extends Renderer {
         const substr = str.substring(i1, i2);
 
         return substr;
+    }
+
+    _getDefaultConfig() {
+        return {
+            explainFlags(f) {
+                var summary = '<div style="background:#FFEF93;font-weight:bold;margin:0 15px 0 0;">flags </div>';
+                if (f.numberReads > 1) {
+                    summary += "read paired<br>";
+                }
+                if (!f.improperPlacement) {
+                    summary += "read mapped in proper pair<br>";
+                }
+                if (typeof f.nextMatePosition === "undefined") {
+                    summary += "mate unmapped<br>";
+                }
+                if (f.readNumber === 0) {
+                    summary += "first in pair<br>";
+                }
+                if (f.readNumber === (f.numberReads - 1)) {
+                    summary += "second in pair<br>";
+                }
+                if (f.secondaryAlignment) {
+                    summary += "not primary alignment<br>";
+                }
+                if (f.failedVendorQualityChecks) {
+                    summary += "read fails platform/vendor quality checks<br>";
+                }
+                if (f.duplicateFragment) {
+                    summary += "read is PCR or optical duplicate<br>";
+                }
+                return summary;
+            },
+            label(f) {
+                return "Alignment  " + f.fragmentName + ":" + f.alignment.position.position + "-"
+                    + (f.alignment.position.position + f.alignedSequence.length - 1);
+            },
+            tooltipTitle(f) {
+                return 'Alignment' + ' - <span class="ok">' + f.id + '</span>';
+            },
+            tooltipText(f) {
+                f.strand = this.strand(f);
+
+                var strand = (f.strand != null) ? f.strand : "NA";
+                const region = `start-end:&nbsp;<span style="font-weight: bold">${f.start}-${f.end} (${strand})</span><br>` +
+                    // `strand:&nbsp;<span style="font-weight: bold">${strand}</span><br>` +
+                    `length:&nbsp;<span style="font-weight: bold; color:#005fdb">${(f.end - f.start + 1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")}</span><br>`;
+                var one =
+                    'cigar:&nbsp;<span class="ssel">' + f.cigar + '</span><br>' +
+                    'insert size:&nbsp;<span class="ssel">' + f.fragmentLength + '</span><br>' +
+                    region + '<br>' +
+                    // this.explainFlags(f.flags);
+                    this.explainFlags(f);
+
+                var three = '<div style="background:#FFEF93;font-weight:bold;">attributes</div>';
+                let keys = Object.keys(f.info);
+                for (let i in keys) {
+                    three += keys[i] + " : " + f.info[keys[i]][0] + " : " + f.info[keys[i]][1] + "<br>";
+                }
+                // delete f.attributes["BQ"];//for now because is too long
+                // for (var key in f.attributes) {
+                //     three += key + ":" + f.attributes[key] + "<br>";
+                // }
+                var style = "background:#FFEF93;font-weight:bold;";
+                return '<div style="float:left">' + one + '</div>' +
+                    '<div style="float:right">' + three + '</div>';
+            },
+            color(f, chr) {
+                if (f.nextMatePosition.referenceName != chr) {
+                    return "DarkGray";
+                }
+                return f.alignment.position.strand === "POS_STRAND" ? "DarkGray" : "LightGray";
+                /**/
+            },
+            strokeColor(f) {
+                if (this.mateUnmappedFlag(f)) {
+                    return "tomato"
+                }
+                return f.alignment.position.strand === "POS_STRAND" ? "LightGray" : "DarkGray";
+            },
+            strand(f) {
+                return f.alignment.position.strand === "POS_STRAND" ? "Forward" : "Reverse";
+            },
+            readPairedFlag(f) {
+                return (parseInt(f.flags) & (0x1)) == 0 ? false : true;
+            },
+            firstOfPairFlag(f) {
+                return (parseInt(f.flags) & (0x40)) == 0 ? false : true;
+            },
+            mateUnmappedFlag(f) {
+                return f.nextMatePosition === undefined;
+            },
+            infoWidgetId: "id",
+            height: 10,
+            histogramColor: "grey",
+        };
     }
 }

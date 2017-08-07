@@ -186,7 +186,7 @@ FEATURE_TYPES = {
         color: "#aaa",
         infoWidgetId: "id",
         height: 10,
-        histogramColor: "lightgray"
+        histogramColor: "lightgray",
     },
     gene: {
         label: function (f) {
@@ -219,83 +219,83 @@ FEATURE_TYPES = {
         height: 4,
         histogramColor: "lightblue"
     },
-    transcript: {
-        label: function (f) {
-            var name = (f.name != null) ? f.name : f.id;
-            var str = "";
-            str += (f.strand < 0) ? "<" : "";
-            str += " " + name + " ";
-            str += (f.strand > 0) ? ">" : "";
-            if (f.biotype != null && f.biotype != '') {
-                str += " [" + f.biotype + "]";
-            }
-            return str;
-        },
-        tooltipTitle: function (f) {
-            var name = (f.name != null) ? f.name : f.id;
-            return FEATURE_TYPES.formatTitle('Transcript') +
-                ' - <span class="ok">' + name + '</span>';
-        },
-        tooltipText: function (f) {
-            var color = GENE_BIOTYPE_COLORS[f.biotype];
-            return 'id:&nbsp;<span class="ssel">' + f.id + '</span><br>' +
-                'biotype:&nbsp;<span class="emph" style="color:' + color + ';">' + f.biotype + '</span><br>' +
-                'description:&nbsp;<span class="emph">' + f.description + '</span><br>' +
-                FEATURE_TYPES.getTipCommons(f);
-        },
-        color: function (f) {
-            return GENE_BIOTYPE_COLORS[f.biotype];
-        },
-        infoWidgetId: "id",
-        height: 1,
-        histogramColor: "lightblue"
-    },
-    exon: {//not yet
-        label: function (f) {
-            var name = (f.name != null) ? f.name : f.id;
-            return name;
-        },
-        tooltipTitle: function (f) {
-            var name = (f.name != null) ? f.name : f.id;
-            if (name == null) {
-                name = ''
-            }
-            return FEATURE_TYPES.formatTitle('Exon') + ' - <span class="ok">' + name + '</span>';
-        },
-        tooltipText: function (e, t) {
-            // return FEATURE_TYPES.getTipCommons(e) + FEATURE_TYPES._getSimpleKeys(e);
-            let color = GENE_BIOTYPE_COLORS[t.biotype];
-            return `Transcript:<br>
-                    <div style="padding-left: 10px">
-                        id:&nbsp;<span class="ssel">${t.id}</span><br>
-                        biotype:&nbsp;<span class="emph" style="color:${color};">${t.biotype}</span><br>
-                        description:&nbsp;<span class="emph">${t.description}</span><br>
-                        ${FEATURE_TYPES.getTipCommons(t)}<br>
-                    </div>
-                    Exon:<br>
-                    <div style="padding-left: 10px">
-                        ${FEATURE_TYPES.getTipCommons(e)}${FEATURE_TYPES._getSimpleKeys(e)}
-                    </div>
-                    `;
-            //var ename = (e.name != null) ? e.name : e.id;
-            //var tname = (t.name != null) ? t.name : t.id;
-            //var color = GENE_BIOTYPE_COLORS[t.biotype];
-            //return 'transcript name:&nbsp;<span class="ssel">' + t.name + '</span><br>' +
-            //    'transcript Ensembl&nbsp;ID:&nbsp;<span class="ssel">' + t.id + '</span><br>' +
-            //    'transcript biotype:&nbsp;<span class="emph" style="color:' + color + ';">' + t.biotype + '</span><br>' +
-            //    'transcript description:&nbsp;<span class="emph">' + t.description + '</span><br>' +
-            //    'transcript start-end:&nbsp;<span class="emph">' + t.start + '-' + t.end + '</span><br>' +
-            //    'exon start-end:&nbsp;<span class="emph">' + e.start + '-' + e.end + '</span><br>' +
-            //    'strand:&nbsp;<span class="emph">' + t.strand + '</span><br>' +
-            //    'length:&nbsp;<span class="info">' + (e.end - e.start + 1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + '</span><br>';
-        },
-        color: function (f) {
-            return "black";
-        },
-        infoWidgetId: "id",
-        height: 7,
-        histogramColor: "lightblue"
-    },
+    // transcript: {
+    //     label: function (f) {
+    //         var name = (f.name != null) ? f.name : f.id;
+    //         var str = "";
+    //         str += (f.strand < 0) ? "<" : "";
+    //         str += " " + name + " ";
+    //         str += (f.strand > 0) ? ">" : "";
+    //         if (f.biotype != null && f.biotype != '') {
+    //             str += " [" + f.biotype + "]";
+    //         }
+    //         return str;
+    //     },
+    //     tooltipTitle: function (f) {
+    //         var name = (f.name != null) ? f.name : f.id;
+    //         return FEATURE_TYPES.formatTitle('Transcript') +
+    //             ' - <span class="ok">' + name + '</span>';
+    //     },
+    //     tooltipText: function (f) {
+    //         var color = GENE_BIOTYPE_COLORS[f.biotype];
+    //         return 'id:&nbsp;<span class="ssel">' + f.id + '</span><br>' +
+    //             'biotype:&nbsp;<span class="emph" style="color:' + color + ';">' + f.biotype + '</span><br>' +
+    //             'description:&nbsp;<span class="emph">' + f.description + '</span><br>' +
+    //             FEATURE_TYPES.getTipCommons(f);
+    //     },
+    //     color: function (f) {
+    //         return GENE_BIOTYPE_COLORS[f.biotype];
+    //     },
+    //     infoWidgetId: "id",
+    //     height: 1,
+    //     histogramColor: "lightblue"
+    // },
+    // exon: {//not yet
+    //     label: function (f) {
+    //         var name = (f.name != null) ? f.name : f.id;
+    //         return name;
+    //     },
+    //     tooltipTitle: function (f) {
+    //         var name = (f.name != null) ? f.name : f.id;
+    //         if (name == null) {
+    //             name = ''
+    //         }
+    //         return FEATURE_TYPES.formatTitle('Exon') + ' - <span class="ok">' + name + '</span>';
+    //     },
+    //     tooltipText: function (e, t) {
+    //         // return FEATURE_TYPES.getTipCommons(e) + FEATURE_TYPES._getSimpleKeys(e);
+    //         let color = GENE_BIOTYPE_COLORS[t.biotype];
+    //         return `Transcript:<br>
+    //                 <div style="padding-left: 10px">
+    //                     id:&nbsp;<span class="ssel">${t.id}</span><br>
+    //                     biotype:&nbsp;<span class="emph" style="color:${color};">${t.biotype}</span><br>
+    //                     description:&nbsp;<span class="emph">${t.description}</span><br>
+    //                     ${FEATURE_TYPES.getTipCommons(t)}<br>
+    //                 </div>
+    //                 Exon:<br>
+    //                 <div style="padding-left: 10px">
+    //                     ${FEATURE_TYPES.getTipCommons(e)}${FEATURE_TYPES._getSimpleKeys(e)}
+    //                 </div>
+    //                 `;
+    //         //var ename = (e.name != null) ? e.name : e.id;
+    //         //var tname = (t.name != null) ? t.name : t.id;
+    //         //var color = GENE_BIOTYPE_COLORS[t.biotype];
+    //         //return 'transcript name:&nbsp;<span class="ssel">' + t.name + '</span><br>' +
+    //         //    'transcript Ensembl&nbsp;ID:&nbsp;<span class="ssel">' + t.id + '</span><br>' +
+    //         //    'transcript biotype:&nbsp;<span class="emph" style="color:' + color + ';">' + t.biotype + '</span><br>' +
+    //         //    'transcript description:&nbsp;<span class="emph">' + t.description + '</span><br>' +
+    //         //    'transcript start-end:&nbsp;<span class="emph">' + t.start + '-' + t.end + '</span><br>' +
+    //         //    'exon start-end:&nbsp;<span class="emph">' + e.start + '-' + e.end + '</span><br>' +
+    //         //    'strand:&nbsp;<span class="emph">' + t.strand + '</span><br>' +
+    //         //    'length:&nbsp;<span class="info">' + (e.end - e.start + 1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + '</span><br>';
+    //     },
+    //     color: function (f) {
+    //         return "black";
+    //     },
+    //     infoWidgetId: "id",
+    //     height: 7,
+    //     histogramColor: "lightblue"
+    // },
     snp: {
         label: function (f) {
 // <<<<<<< HEAD
@@ -529,125 +529,125 @@ FEATURE_TYPES = {
             }
         }
     },
-    alignment: {
-        explainFlags: function (f) {
-            var summary = '<div style="background:#FFEF93;font-weight:bold;margin:0 15px 0 0;">flags </div>';
-            if (f.numberReads > 1) {
-                summary += "read paired<br>";
-            }
-            if (!f.improperPlacement) {
-                summary += "read mapped in proper pair<br>";
-            }
-            if (typeof f.nextMatePosition === "undefined" ) {
-                summary += "mate unmapped<br>";
-            }
-            if (f.readNumber === 0) {
-                summary += "first in pair<br>";
-            }
-            if (f.readNumber === (f.numberReads - 1)) {
-                summary += "second in pair<br>";
-            }
-            if (f.secondaryAlignment) {
-                summary += "not primary alignment<br>";
-            }
-            if (f.failedVendorQualityChecks) {
-                summary += "read fails platform/vendor quality checks<br>";
-            }
-            if (f.duplicateFragment) {
-                summary += "read is PCR or optical duplicate<br>";
-            }
-            // if (f.numberReads > 0) {
-            //     summary += "read paired<br>";
-            // }
-            // if (!f.improperPlacement) {
-            //     summary += "read mapped in proper pair<br>";
-            // }
-            // // TODO: Check this if. Not sure if it is this way
-            // if (typeof f.alignment === "undefined") {
-            //     summary += "read unmapped<br>";
-            // }
-            // if (typeof f.nextMatePosition !== "undefined" ) {
-            //     summary += "read unmapped<br>";
-            // }
-            // if (!f.improperPlacement) {
-            //     summary += "read mapped in proper pair<br>";
-            // }
-            // if (!f.improperPlacement) {
-            //     summary += "read mapped in proper pair<br>";
-            // }
-            //
-            // for (var i = 0; i < SAM_FLAGS.length; i++) {
-            //     if (SAM_FLAGS[i][1] & flags) {
-            //         summary += SAM_FLAGS[i][0] + "<br>";
-            //     }
-            // }
-            return summary;
-        },
-        label: function (f) {
-            return "Alignment  " + f.fragmentName + ":" + f.alignment.position.position + "-"
-                + (f.alignment.position.position + f.alignedSequence.length - 1);
-        },
-        tooltipTitle: function (f) {
-            return 'Alignment' + ' - <span class="ok">' + f.id + '</span>';
-        },
-        tooltipText: function (f) {
-            f.strand = FEATURE_TYPES.alignment.strand(f);
-            // var cigar = '';
-            // debugger
-            // for (var i = 0; i < f.differences.length; i++) {
-            //     var d = f.differences[i];
-            //     cigar += d.length + d.op
-            // }
-
-            var one =
-                'cigar:&nbsp;<span class="ssel">' + f.cigar + '</span><br>' +
-                'insert size:&nbsp;<span class="ssel">' + f.fragmentLength + '</span><br>' +
-                FEATURE_TYPES.getTipCommons(f) + '<br>' +
-                // this.explainFlags(f.flags);
-                this.explainFlags(f);
-
-            var three = '<div style="background:#FFEF93;font-weight:bold;">attributes</div>';
-            let keys = Object.keys(f.info);
-            for (let i in keys) {
-                three += keys[i] + " : " + f.info[keys[i]][0] + " : " + f.info[keys[i]][1] + "<br>";
-            }
-            // delete f.attributes["BQ"];//for now because is too long
-            // for (var key in f.attributes) {
-            //     three += key + ":" + f.attributes[key] + "<br>";
-            // }
-            var style = "background:#FFEF93;font-weight:bold;";
-            return '<div style="float:left">' + one + '</div>' +
-                '<div style="float:right">' + three + '</div>';
-        },
-        color: function (f, chr) {
-            if (f.nextMatePosition.referenceName != chr) {
-                return "DarkGray";
-            }
-            return f.alignment.position.strand === "POS_STRAND" ? "DarkGray" : "LightGray";
-            /**/
-        },
-        strokeColor: function (f) {
-            if (this.mateUnmappedFlag(f)) {
-                return "tomato"
-            }
-            return f.alignment.position.strand === "POS_STRAND" ? "LightGray" : "DarkGray";
-        },
-        strand: function (f) {
-            return f.alignment.position.strand === "POS_STRAND" ? "Forward" : "Reverse";
-        },
-        readPairedFlag: function (f) {
-            return (parseInt(f.flags) & (0x1)) == 0 ? false : true;
-        },
-        firstOfPairFlag: function (f) {
-            return (parseInt(f.flags) & (0x40)) == 0 ? false : true;
-        },
-        mateUnmappedFlag: function (f) {
-            return f.nextMatePosition === undefined;
-        },
-        infoWidgetId: "id",
-        height: 10,
-        histogramColor: "grey"
-    },
+    // alignment: {
+    //     explainFlags: function (f) {
+    //         var summary = '<div style="background:#FFEF93;font-weight:bold;margin:0 15px 0 0;">flags </div>';
+    //         if (f.numberReads > 1) {
+    //             summary += "read paired<br>";
+    //         }
+    //         if (!f.improperPlacement) {
+    //             summary += "read mapped in proper pair<br>";
+    //         }
+    //         if (typeof f.nextMatePosition === "undefined" ) {
+    //             summary += "mate unmapped<br>";
+    //         }
+    //         if (f.readNumber === 0) {
+    //             summary += "first in pair<br>";
+    //         }
+    //         if (f.readNumber === (f.numberReads - 1)) {
+    //             summary += "second in pair<br>";
+    //         }
+    //         if (f.secondaryAlignment) {
+    //             summary += "not primary alignment<br>";
+    //         }
+    //         if (f.failedVendorQualityChecks) {
+    //             summary += "read fails platform/vendor quality checks<br>";
+    //         }
+    //         if (f.duplicateFragment) {
+    //             summary += "read is PCR or optical duplicate<br>";
+    //         }
+    //         // if (f.numberReads > 0) {
+    //         //     summary += "read paired<br>";
+    //         // }
+    //         // if (!f.improperPlacement) {
+    //         //     summary += "read mapped in proper pair<br>";
+    //         // }
+    //         // // TODO: Check this if. Not sure if it is this way
+    //         // if (typeof f.alignment === "undefined") {
+    //         //     summary += "read unmapped<br>";
+    //         // }
+    //         // if (typeof f.nextMatePosition !== "undefined" ) {
+    //         //     summary += "read unmapped<br>";
+    //         // }
+    //         // if (!f.improperPlacement) {
+    //         //     summary += "read mapped in proper pair<br>";
+    //         // }
+    //         // if (!f.improperPlacement) {
+    //         //     summary += "read mapped in proper pair<br>";
+    //         // }
+    //         //
+    //         // for (var i = 0; i < SAM_FLAGS.length; i++) {
+    //         //     if (SAM_FLAGS[i][1] & flags) {
+    //         //         summary += SAM_FLAGS[i][0] + "<br>";
+    //         //     }
+    //         // }
+    //         return summary;
+    //     },
+    //     label: function (f) {
+    //         return "Alignment  " + f.fragmentName + ":" + f.alignment.position.position + "-"
+    //             + (f.alignment.position.position + f.alignedSequence.length - 1);
+    //     },
+    //     tooltipTitle: function (f) {
+    //         return 'Alignment' + ' - <span class="ok">' + f.id + '</span>';
+    //     },
+    //     tooltipText: function (f) {
+    //         f.strand = FEATURE_TYPES.alignment.strand(f);
+    //         // var cigar = '';
+    //         // debugger
+    //         // for (var i = 0; i < f.differences.length; i++) {
+    //         //     var d = f.differences[i];
+    //         //     cigar += d.length + d.op
+    //         // }
+    //
+    //         var one =
+    //             'cigar:&nbsp;<span class="ssel">' + f.cigar + '</span><br>' +
+    //             'insert size:&nbsp;<span class="ssel">' + f.fragmentLength + '</span><br>' +
+    //             FEATURE_TYPES.getTipCommons(f) + '<br>' +
+    //             // this.explainFlags(f.flags);
+    //             this.explainFlags(f);
+    //
+    //         var three = '<div style="background:#FFEF93;font-weight:bold;">attributes</div>';
+    //         let keys = Object.keys(f.info);
+    //         for (let i in keys) {
+    //             three += keys[i] + " : " + f.info[keys[i]][0] + " : " + f.info[keys[i]][1] + "<br>";
+    //         }
+    //         // delete f.attributes["BQ"];//for now because is too long
+    //         // for (var key in f.attributes) {
+    //         //     three += key + ":" + f.attributes[key] + "<br>";
+    //         // }
+    //         var style = "background:#FFEF93;font-weight:bold;";
+    //         return '<div style="float:left">' + one + '</div>' +
+    //             '<div style="float:right">' + three + '</div>';
+    //     },
+    //     color: function (f, chr) {
+    //         if (f.nextMatePosition.referenceName != chr) {
+    //             return "DarkGray";
+    //         }
+    //         return f.alignment.position.strand === "POS_STRAND" ? "DarkGray" : "LightGray";
+    //         /**/
+    //     },
+    //     strokeColor: function (f) {
+    //         if (this.mateUnmappedFlag(f)) {
+    //             return "tomato"
+    //         }
+    //         return f.alignment.position.strand === "POS_STRAND" ? "LightGray" : "DarkGray";
+    //     },
+    //     strand: function (f) {
+    //         return f.alignment.position.strand === "POS_STRAND" ? "Forward" : "Reverse";
+    //     },
+    //     readPairedFlag: function (f) {
+    //         return (parseInt(f.flags) & (0x1)) == 0 ? false : true;
+    //     },
+    //     firstOfPairFlag: function (f) {
+    //         return (parseInt(f.flags) & (0x40)) == 0 ? false : true;
+    //     },
+    //     mateUnmappedFlag: function (f) {
+    //         return f.nextMatePosition === undefined;
+    //     },
+    //     infoWidgetId: "id",
+    //     height: 10,
+    //     histogramColor: "grey"
+    // },
     bam: {
         explainFlags: function (flags) {
             var summary = '<div style="background:#FFEF93;font-weight:bold;">flags : <span>' + flags + '</span></div>';
@@ -772,22 +772,22 @@ FEATURE_TYPES = {
         height: 10,
         histogramColor: "gray"
     },
-    variant: {
-        label: function (f) {
-            return FEATURE_TYPES.getLabelCommons(f);
-        },
-        tooltipTitle: function (f) {
-            return FEATURE_TYPES.getTipTitleCommons(f);
-        },
-        tooltipText: function (f) {
-            return FEATURE_TYPES.getTipCommons(f) + FEATURE_TYPES._getSimpleKeys(f);
-        },
-        color: "#8BC34A",
-        strokeColor: "#555",
-        infoWidgetId: "id",
-        height: 10,
-        histogramColor: "#58f3f0"
-    },
+    // variant: {
+    //     label: function (f) {
+    //         return FEATURE_TYPES.getLabelCommons(f);
+    //     },
+    //     tooltipTitle: function (f) {
+    //         return FEATURE_TYPES.getTipTitleCommons(f);
+    //     },
+    //     tooltipText: function (f) {
+    //         return FEATURE_TYPES.getTipCommons(f) + FEATURE_TYPES._getSimpleKeys(f);
+    //     },
+    //     color: "#8BC34A",
+    //     strokeColor: "#555",
+    //     infoWidgetId: "id",
+    //     height: 10,
+    //     histogramColor: "#58f3f0"
+    // },
     'TF_binding_site': {
         label: function (f) {
             return FEATURE_TYPES.getLabelCommons(f);

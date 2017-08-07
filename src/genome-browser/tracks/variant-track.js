@@ -18,11 +18,11 @@ class VariantTrack extends FeatureTrack {
 
     _init() {
         // Set OpenCGA adapter as default. OpenCGA Client constructor(client, category, subcategory, resource, params = {}, options = {}, handlers = {}) {
-        if (typeof this.dataAdapter === "undefined" || this.dataAdapter === null) {
-            if (typeof this.opencga !== "undefined" && this.opencga !== null) {
+        if (UtilsNew.isUndefinedOrNull(this.dataAdapter)) {
+            if (UtilsNew.isNotUndefinedOrNull(this.opencga)) {
                 // let opencgaClientConfig = new OpenCGAClientConfig(this.opencga.host, this.opencga.version);
                 // opencgaConfig.cache.active = false;
-                if (this.opencga.client !== undefined && this.opencga.client !== null) {
+                if (UtilsNew.isNotUndefinedOrNull(this.opencga.client)) {
                     this.dataAdapter = new OpencgaAdapter(this.opencga.client, "analysis/variant", "", "query", {
                         studies: this.opencga.studies,
                         exclude: this.DEFAULT_EXCLUDE
@@ -31,7 +31,7 @@ class VariantTrack extends FeatureTrack {
                     });
                 }
 
-                if (typeof this.opencga.samples !== "undefined" && this.opencga.samples !== null && this.opencga.samples.length !== 0) {
+                if (UtilsNew.isNotUndefinedOrNull(this.opencga.samples) && this.opencga.samples.length !== 0) {
                     this.dataAdapter.params.exclude = "studies.files,studies.stats,annotation";
                     this.dataAdapter.params.returnedSamples = this.opencga.samples;
                 }
@@ -41,9 +41,16 @@ class VariantTrack extends FeatureTrack {
         }
 
         // Set FeatureRenderer as default
-        if (typeof this.renderer === "undefined" || this.renderer === null) {
-            FEATURE_TYPES.variant.sampleNames = this.opencga.samples;
-            this.renderer = new VariantRenderer(FEATURE_TYPES.variant);
+        if (UtilsNew.isUndefinedOrNull(this.renderer)) {
+            let customConfig = {};
+            if (UtilsNew.isNotUndefinedOrNull(this.opencga)) {
+                customConfig = Object.assign(customConfig, this.opencga.config);
+                customConfig.sampleNames = this.opencga.samples;
+            }
+
+            this.renderer = new VariantRenderer(
+                { config: customConfig },
+            );
         }
         this.renderer.track = this;
     }

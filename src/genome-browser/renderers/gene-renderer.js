@@ -22,8 +22,8 @@ class GeneRenderer extends Renderer {
     render(features, args) {
         let _this = this;
         let draw = function (feature) {
-            //get feature render configuration
-            _this.setFeatureConfig(FEATURE_TYPES.gene);
+            // get feature render configuration
+            _this.setFeatureConfig(_this._getDefaultConfigGene().gene);
             let color = _.isFunction(_this.color) ? _this.color(feature) : _this.color;
             let label = _.isFunction(_this.label) ? _this.label(feature) : _this.label;
             let height = _.isFunction(_this.height) ? _this.height(feature) : _this.height;
@@ -31,18 +31,18 @@ class GeneRenderer extends Renderer {
             let tooltipText = _.isFunction(_this.tooltipText) ? _this.tooltipText(feature) : _this.tooltipText;
             let infoWidgetId = _.isFunction(_this.infoWidgetId) ? _this.infoWidgetId(feature) : _this.infoWidgetId;
 
-            //get feature genomic information
+            // get feature genomic information
             let start = feature.start;
             let end = feature.end;
             let length = (end - start) + 1;
 
-            //transform to pixel position
+            // transform to pixel position
             let width = length * args.pixelBase;
 
             // var svgLabelWidth = _this.getLabelWidth(label, args);
             let svgLabelWidth = label.length * 6.4;
 
-            //calculate x to draw svg rect
+            // calculate x to draw svg rect
             let x = _this.getFeatureX(start, args);
 
             let maxWidth = Math.max(width, 2);
@@ -63,7 +63,7 @@ class GeneRenderer extends Renderer {
 
                 let foundArea;//if true, i can paint
 
-                //check if gene transcripts can be painted
+                // check if gene transcripts can be painted
                 let checkRowY = rowY;
                 let foundTranscriptsArea = true;
                 if (!_.isEmpty(feature.transcripts)) {
@@ -84,7 +84,7 @@ class GeneRenderer extends Renderer {
                     foundArea = args.renderedArea[rowY].add({start: x, end: x + maxWidth - 1});
                 }
 
-                //paint genes
+                // paint genes
                 if (foundArea) {
                     let featureGroup = SVG.addChild(args.svgCanvasFeatures, "g", {
                         "feature_id": feature.id
@@ -145,9 +145,9 @@ class GeneRenderer extends Renderer {
                             let transcriptWidth = (transcript.end - transcript.start + 1) * ( args.pixelBase);
 
                             //get type settings object
-                            _this.setFeatureConfig(FEATURE_TYPES.transcript);
+                            _this.setFeatureConfig(_this._getDefaultConfigGene().transcript);
                             let transcriptColor = _.isFunction(_this.color) ? _this.color(transcript) : _this.color;
-                            let label = _.isFunction(_this.label) ? _this.label(transcript) : _this.label;
+                            let label = _.isFunction(_this.labelTrancript) ? _this.label(transcript) : _this.label;
                             let height = _.isFunction(_this.height) ? _this.height(transcript) : _this.height;
                             let tooltipTitle = _.isFunction(_this.tooltipTitle) ? _this.tooltipTitle(transcript) : _this.tooltipTitle;
                             let tooltipText = _.isFunction(_this.tooltipText) ? _this.tooltipText(transcript) : _this.tooltipText;
@@ -220,7 +220,7 @@ class GeneRenderer extends Renderer {
                                 let exonWidth = (exonEnd - exonStart + 1) * ( args.pixelBase);
 
 
-                                _this.setFeatureConfig(FEATURE_TYPES.exon);
+                                _this.setFeatureConfig(_this._getDefaultConfigGene().exon);
                                 let color = _.isFunction(_this.color) ? _this.color(exon) : _this.color;
                                 let label = _.isFunction(_this.label) ? _this.label(exon) : _this.label;
                                 let height = _.isFunction(_this.height) ? _this.height(exon) : _this.height;
@@ -359,5 +359,146 @@ class GeneRenderer extends Renderer {
         for (let i = 0, leni = features.length; i < leni; i++) {
             draw(features[i]);
         }
+    }
+
+    _getDefaultConfigGene() {
+        return {
+            gene: {
+                label(f) {
+                    var name = (f.name != null) ? f.name : f.id;
+                    var str = "";
+                    str += (f.strand < 0 || f.strand == '-') ? "<" : "";
+                    str += " " + name + " ";
+                    str += (f.strand > 0 || f.strand == '+') ? ">" : "";
+                    if (f.biotype != null && f.biotype != '') {
+                        str += " [" + f.biotype + "]";
+                    }
+                    return str;
+                },
+                tooltipTitle(f) {
+                    var name = (f.name != null) ? f.name : f.id;
+                    var formatTitle = 'Gene';
+                    if (formatTitle) {
+                        formatTitle.replace(/_/gi, " ");
+                        formatTitle = formatTitle.charAt(0).toUpperCase() + formatTitle.slice(1);
+                    }
+
+                    return formatTitle + ' - <span class="ok">' + name + '</span>';
+                },
+                tooltipText(f) {
+                    var color = GENE_BIOTYPE_COLORS[f.biotype];
+                    var strand = (f.strand != null) ? f.strand : "NA";
+                    const region = `start-end:&nbsp;<span style="font-weight: bold">${f.start}-${f.end} (${strand})</span><br>` +
+                        `length:&nbsp;<span style="font-weight: bold; color:#005fdb">${(f.end - f.start + 1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")}</span><br>`;
+                    return 'id:&nbsp;<span class="ssel">' + f.id + '</span><br>' +
+                        'biotype:&nbsp;<span class="emph" style="color:' + color + ';">' + f.biotype + '</span><br>' +
+                        region +
+                        'source:&nbsp;<span class="ssel">' + f.source + '</span><br><br>' +
+                        'description:&nbsp;<span class="emph">' + f.description + '</span><br>';
+                },
+                color(f) {
+                    return GENE_BIOTYPE_COLORS[f.biotype];
+                },
+                infoWidgetId: "id",
+                height: 4,
+                histogramColor: "lightblue",
+            },
+            transcript: {
+                label(f) {
+                    var name = (f.name != null) ? f.name : f.id;
+                    var str = "";
+                    str += (f.strand < 0) ? "<" : "";
+                    str += " " + name + " ";
+                    str += (f.strand > 0) ? ">" : "";
+                    if (f.biotype != null && f.biotype != '') {
+                        str += " [" + f.biotype + "]";
+                    }
+                    return str;
+                },
+                tooltipTitle(f) {
+                    var name = (f.name != null) ? f.name : f.id;
+                    var formatTitle = 'Transcript';
+                    if (formatTitle) {
+                        formatTitle.replace(/_/gi, " ");
+                        formatTitle = formatTitle.charAt(0).toUpperCase() + formatTitle.slice(1);
+                    }
+                    return formatTitle +
+                        ' - <span class="ok">' + name + '</span>';
+                },
+                tooltipText(f) {
+                    var color = GENE_BIOTYPE_COLORS[f.biotype];
+                    var strand = (f.strand != null) ? f.strand : "NA";
+                    const region = `start-end:&nbsp;<span style="font-weight: bold">${f.start}-${f.end} (${strand})</span><br>` +
+                        `length:&nbsp;<span style="font-weight: bold; color:#005fdb">${(f.end - f.start + 1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")}</span><br>`;
+                    return 'id:&nbsp;<span class="ssel">' + f.id + '</span><br>' +
+                        'biotype:&nbsp;<span class="emph" style="color:' + color + ';">' + f.biotype + '</span><br>' +
+                        'description:&nbsp;<span class="emph">' + f.description + '</span><br>' +
+                        region;
+                },
+                color(f) {
+                    return GENE_BIOTYPE_COLORS[f.biotype];
+                },
+                infoWidgetId: "id",
+                height: 1,
+                histogramColor: "lightblue",
+            },
+            exon: {
+                label(f) {
+                    var name = (f.name != null) ? f.name : f.id;
+                    return name;
+                },
+                tooltipTitle(f) {
+                    var name = (f.name != null) ? f.name : f.id;
+                    if (name == null) {
+                        name = '';
+                    }
+                    var formatTitle = 'Exon';
+                    if (formatTitle) {
+                        formatTitle.replace(/_/gi, " ");
+                        formatTitle = formatTitle.charAt(0).toUpperCase() + formatTitle.slice(1);
+                    }
+                    return formatTitle + ' - <span class="ok">' + name + '</span>';
+                },
+                tooltipText(e, t) {
+                    // return FEATURE_TYPES.getTipCommons(e) + FEATURE_TYPES._getSimpleKeys(e);
+                    let color = GENE_BIOTYPE_COLORS[t.biotype];
+                    var strandE = (e.strand != null) ? e.strand : "NA";
+                    const region = `start-end:&nbsp;<span style="font-weight: bold">${e.start}-${e.end} (${strandE})</span><br>` +
+                        `length:&nbsp;<span style="font-weight: bold; color:#005fdb">${(e.end - e.start + 1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")}</span><br>`;
+                    var strandT = (t.strand != null) ? t.strand : "NA";
+                    const regionT = `start-end:&nbsp;<span style="font-weight: bold">${t.start}-${t.end} (${strandT})</span><br>` +
+                        `length:&nbsp;<span style="font-weight: bold; color:#005fdb">${(t.end - t.start + 1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")}</span><br>`;
+
+                    var simpleKey = '';
+                    for (let key in e) {
+                        if (key == 'start' || key == 'end' || key == 'id' || key == 'name' || key == 'length') {
+                            continue;
+                        }
+                        if (_.isNumber(e[key]) || _.isString(e[key])) {
+                            simpleKey += key + ':&nbsp;<span style="font-weight: bold">' + e[key] + '</span><br>'
+                        }
+                    }
+
+                    return `Transcript:<br>
+                    <div style="padding-left: 10px">
+                        id:&nbsp;<span class="ssel">${t.id}</span><br>
+                        biotype:&nbsp;<span class="emph" style="color:${color};">${t.biotype}</span><br>
+                        description:&nbsp;<span class="emph">${t.description}</span><br>
+                        ${regionT}<br>
+                    </div>
+                    Exon:<br>
+                    <div style="padding-left: 10px">
+                        ${region}${simpleKey}
+                    </div>
+                    `;
+                },
+                color(f) {
+                    return "black";
+                },
+                infoWidgetId: "id",
+                height: 7,
+                histogramColor: "lightblue"
+            },
+        };
     }
 }

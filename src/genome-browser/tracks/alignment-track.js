@@ -25,9 +25,9 @@ class AlignmentTrack extends FeatureTrack {
                 if (this.opencga.client !== undefined && this.opencga.client !== null) {
                     this.dataAdapter = new OpencgaAdapter(this.opencga.client, "analysis/alignment", "", "query", {
                         studies: this.opencga.studies,
-                        exclude: this.DEFAULT_EXCLUDE
+                        exclude: this.DEFAULT_EXCLUDE,
                     }, {
-                        chunkSize: 5000
+                        chunkSize: 5000,
                     });
                 }
 
@@ -41,9 +41,14 @@ class AlignmentTrack extends FeatureTrack {
         }
 
         // Set FeatureRenderer as default
-        if (typeof this.renderer === "undefined" || this.renderer === null) {
-            // FEATURE_TYPES.variant.sampleNames = this.opencga.samples;
-            this.renderer = new AlignmentRenderer(FEATURE_TYPES.alignment);
+        if (UtilsNew.isUndefinedOrNull(this.renderer)) {
+            let customConfig = {};
+            if (UtilsNew.isNotUndefinedOrNull(this.opencga)) {
+                customConfig = Object.assign(customConfig, this.opencga.config);
+            }
+            this.renderer = new AlignmentRenderer(
+                { config: customConfig },
+            );
         }
         this.renderer.track = this;
     }
