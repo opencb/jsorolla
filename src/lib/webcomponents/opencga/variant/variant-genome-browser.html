@@ -39,6 +39,7 @@
                     </a>
                 </h3>
             </div>
+
             <div id="{{prefix}}Position" class="panel-collapse collapse in" role="tabpanel"
                  aria-labelledby="{{prefix}}GenomeBrowserSettings">
                 <div class="panel-body">
@@ -46,22 +47,31 @@
                     <input type="checkbox"> View extended
                     <h4 style="padding-top: 5px">Alignments</h4>
                     <div style="padding-left: 20px">
+                        <template is="dom-if" if="{{existsSamplesWithfiles}}">
 
-                        <template is="dom-repeat" items="{{samplesWithFiles}}" as="sample">
-                            <template is="dom-repeat" items="{{sample.files}}" as="file">
-                                <input type="checkbox" style="padding-left: 25px" class$="{{prefix}}FileCheckbox"
-                                       data-file-id$="{{file.id}}" on-change="toggleSelection">
-                                <label>{{sample.name}}</label> {{file.name}}
-                                <br>
+
+                            <template is="dom-repeat" items="{{samplesWithFiles}}" as="sample">
+                                <template is="dom-repeat" items="{{sample.files}}" as="file">
+                                    <input type="checkbox" style="padding-left: 25px" class$="{{prefix}}FileCheckbox"
+                                           data-file-id$="{{file.id}}" on-change="toggleSelection">
+                                    <label>{{sample.name}}</label> {{file.name}}
+                                    <br>
+                                </template>
                             </template>
                         </template>
+                        <template is="dom-if" if="{{!existsSamplesWithfiles}}">
+                            <label>No samples selected</label>
+                        </template>
                     </div>
+
+
                     <div style="width: 120px;float: right;">
-                        <button type="button" class="btn btn-primary" style="width: 100%" on-click="onRefresh">Refresh
+                        <button type="button" class="btn btn-primary" style="width: 100%" on-click="onRefreshAlignmentRender">Refresh
                         </button>
                     </div>
                 </div>
             </div>
+
         </div>
 
         <div>
@@ -136,11 +146,15 @@
                 };
             }
 
+            static get observers() {
+                return ["_hasFilesSamples(samplesWithFiles.*)"]
+            }
+
             ready() {
                 super.ready();
 
                 this.summary = true;
-                this.tracks = [{ type: "sequence" }, { type: "gene" }, { type: "variant" }, { type: "alignment", config: {} }];
+                this.tracks = [{type: "sequence"}, {type: "gene"}, {type: "variant"}, {type: "alignment", config: {}}];
             }
 
             _attachDom(dom) {
@@ -150,6 +164,7 @@
             connectedCallback() {
                 super.connectedCallback();
 
+                this.existsSamplesWithfiles = false;
                 this.render();
                 this.table = PolymerUtils.getElementById(`${this.prefix}VariantGenomeBrowserTable`);
             }
@@ -158,7 +173,22 @@
                 this.getFilesToVisualiseAlignmentTracks();
             }
 
+            _hasFilesSamples() {
+                let result = false;
+                if (UtilsNew.isNotEmptyArray(this.samplesWithFiles)) {
+                    let someWithfiles = this.samplesWithFiles.some((element) => {
+                        return UtilsNew.isNotEmptyArray(element.files)
+                    });
+                    result = someWithfiles;
+                }
+
+                this.existsSamplesWithfiles = result;
+
+            }
+
             getFilesToVisualiseAlignmentTracks(settings) {
+                this.samplesWithFiles = [];
+                this._filesSelectedAlignment = new Set([]);
                 if (UtilsNew.isNotEmptyArray(this.samples)) {
                     if (UtilsNew.isUndefined(settings)) {
                         settings = {};
@@ -174,8 +204,8 @@
                         include: "id,name,path,samples",
                     };
                     const _this = this;
-                    this.samplesWithFiles = [];
-                    this._filesSelectedAlignment = new Set([]);
+                    let _samplesWithFiles = [];
+
                     this.opencgaClient.files().search(query)
                         .then((response) => {
                             if (UtilsNew.isNotEmptyArray(response.response[0].result)) {
@@ -188,16 +218,22 @@
                                         }
                                     });
                                     // Push linked filename list with sampleSelected using polymer array mutation method to update dom-repeat
-                                    _this.push("samplesWithFiles", { name: sampleSelected.name, files: filesSamples });
+
+                                    _samplesWithFiles.push({name: sampleSelected.name, files: filesSamples});
                                 });
                             }
-                            // Update samples and pass to genomeBrowser to draw tracks samples.
-                            _this._samples = _this.samples;
+
+                            // Update sampleswithfiles to show in checkbox
+                            _this.samplesWithFiles = _samplesWithFiles;
+//                            // Update _samples to render variant track
+//                            this._samples = this.samples;
+
                         })
                         .catch((response) => {
                             console.log(response);
                         });
                 }
+
             }
 
 
@@ -238,13 +274,13 @@
                                     _numTotal = 1150;
                                 }
                             }
-                            return { total: _numTotal, rows: res.response[0].result };
+                            return {total: _numTotal, rows: res.response[0].result};
                         },
                         onClickRow(row, $element) {
                             $(".success").removeClass("success");
                             $($element).addClass("success");
                             //                            _this._onSelectVariant(row);
-                            _this.region = new Region({ chromosome: row.chromosome, start: row.start, end: row.end });
+                            _this.region = new Region({chromosome: row.chromosome, start: row.start, end: row.end});
                             //                            _this.set("region", new Region({chromosome: row.chromosome, start: row.start, end: row.end}));
                         },
                         onLoadSuccess(data) {
@@ -270,7 +306,7 @@
 
             _getUrlQueryParams() {
                 if (typeof this.opencgaClient === "undefined") {
-                    return { host: "", queryParams: {}, url: "" };
+                    return {host: "", queryParams: {}, url: ""};
                 }
 
                 let host = "";
@@ -289,7 +325,7 @@
                     }
                     host += "/webservices/rest/v1/analysis/variant/query";
                 } else {
-                    return { host, queryParams: {}, url: "" };
+                    return {host, queryParams: {}, url: ""};
                 }
 
                 const queryParams = {
@@ -333,7 +369,7 @@
                 }
                 const url = `${host}?${query.join("&")}`;
 
-                return { host, queryParams, url };
+                return {host, queryParams, url};
             }
 
             variantFormatter(value, row) {
@@ -366,7 +402,9 @@
                 }
             }
 
-            onRefresh(e) {
+            onRefreshAlignmentRender(e) {
+                // Update _samples to render variant track and _files to render alignment track
+                this.set("_samples", this.samples);
                 this.set("_files", new Set(this._filesSelectedAlignment));
             }
 
