@@ -141,23 +141,23 @@
                 for (let i = 0; i < this.tracks.length; i++) {
                     switch (this.tracks[i].type) {
                         case 'sequence':
-//                            _tracks.push(this._addSequenceTrack(this.tracks[i].config));
+                            _tracks.push(this._addSequenceTrack(this.tracks[i].config));
                             break;
                         case 'gene':
-//                            _tracks.push(this._addGeneTrack(this.tracks[i].config));
+                            _tracks.push(this._addGeneTrack(this.tracks[i].config));
                             break;
 //                            case 'snp':
                         case 'variant':
-//                            _tracks.push(this._addVariantTrack(this.tracks[i].config));
+                            _tracks.push(this._addVariantTrack(this.tracks[i].config));
                             break;
                         case 'alignment':
                             // One track per file
-//                            let alignmentTracks = this.addAlignmentTrack(this.tracks[i].config);
-//                            if (UtilsNew.isNotEmptyArray(alignmentTracks)) {
-//                                for (let track of alignmentTracks) {
-//                                    _tracks.push(track);
-//                                }
-//                            }
+                            let alignmentTracks = this.addAlignmentTrack(this.tracks[i].config);
+                            if (UtilsNew.isNotEmptyArray(alignmentTracks)) {
+                                for (let track of alignmentTracks) {
+                                    _tracks.push(track);
+                                }
+                            }
 //                                if (typeof this.samples !== "undefined" && this.samples.length > 0) {
 //                                    tracks.push(this._addAlignmentTrack(this.trackConfigs[this.tracks[i]]));
 //                                }
