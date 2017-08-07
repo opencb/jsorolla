@@ -43,21 +43,6 @@ class OpenCGAClient {
 
     constructor(config) {
         this._config = config;
-        this._users;
-        this._projects;
-        this._studies;
-        this._files;
-        this._samples;
-        this._individuals;
-        this._cohorts;
-        this._jobs;
-        this._families;
-        this._panels;
-        this._variables;
-        this._alignments;
-        this._variants;
-        this._clinical;
-        this._ga4gh;
     }
 
     getConfig() {
@@ -193,16 +178,18 @@ class OpenCGAParentClass {
     }
 
     extendedPost(category1, ids1, category2, ids2, action, params, body, options) {
-        if (typeof options === "undefined") {
-            options = {};
+        let _options = options;
+        if (typeof _options === "undefined") {
+            _options = {};
         }
-        options["method"] = "POST";
+        _options.method = "POST";
+        let _params = params;
 
-        if (typeof params === "undefined") {
-            params = {};
+        if (typeof _params === "undefined") {
+            _params = {};
         }
-        params["body"] = body;
-        return this.extendedGet(category1, ids1, category2, ids2, action, params, options);
+        _params.body = body;
+        return this.extendedGet(category1, ids1, category2, ids2, action, _params, _options);
     }
 
     get(category, ids, action, params, options) {
@@ -211,28 +198,30 @@ class OpenCGAParentClass {
 
     extendedGet(category1, ids1, category2, ids2, action, params, options) {
         // we store the options from the parameter or from the default values in config
-        let host = this._config.host;
-        let version = this._config.version;
-        let rpc = this._config.rpc;
+        const host = this._config.host;
+        const version = this._config.version;
+        const rpc = this._config.rpc;
         let method = "GET";
-
-        if (typeof options === "undefined") {
-            options = {};
+        let _options = options;
+        if (typeof _options === "undefined") {
+            _options = {};
         }
 
-        if (options.hasOwnProperty("method")) {
-            method = options.method;
+        if (_options.hasOwnProperty("method")) {
+            method = _options.method;
         }
 
-        if (params === undefined || params === null || params === "") {
-            params = {};
+        let _params = params;
+
+        if (_params === undefined || _params === null || _params === "") {
+            _params = {};
         }
 
         // Check that sessionId is being given
-        if (!params.hasOwnProperty("sid")) {
-            let sid = this._getSessionId();
+        if (!_params.hasOwnProperty("sid")) {
+            const sid = this._getSessionId();
             if (typeof sid !== "undefined") {
-                options["sid"] = sid;
+                _options.sid = sid;
             }
         }
 
@@ -244,16 +233,16 @@ class OpenCGAParentClass {
         if (rpc.toLowerCase() === "rest") {
             let url = this._createRestUrl(host, version, category1, ids1, category2, ids2, action);
             // if (method === "GET") {
-            url = this._addQueryParams(url, params);
+            url = this._addQueryParams(url, _params);
             if (method === "POST") {
-                options["data"] = params["body"];
+                _options.data = _params.body;
                 if (action === "upload") {
-                    options["post-method"] = "form";
+                    _options["post-method"] = "form";
                 }
             }
             console.debug(`OpenCGA client calling to ${url}`);
             // if the URL query fails we try with next host
-            let response = RestClient.callPromise(url, options);
+            const response = RestClient.callPromise(url, _options);
             return response;
         }
     }
@@ -288,11 +277,12 @@ class OpenCGAParentClass {
 
     _addQueryParams(url, params) {
         // We add the query params formatted in URL
-        let queryParamsUrl = this._createQueryParam(params);
-        if (typeof queryParamsUrl !== "undefined" && queryParamsUrl != null && queryParamsUrl != "") {
-            url += `?${queryParamsUrl}`;
+        const queryParamsUrl = this._createQueryParam(params);
+        let _url = url;
+        if (typeof queryParamsUrl !== "undefined" && queryParamsUrl != null && queryParamsUrl !== "") {
+            _url += `?${queryParamsUrl}`;
         }
-        return url;
+        return _url;
     }
 
     _createQueryParam(params) {
@@ -977,11 +967,12 @@ class Alignment extends OpenCGAParentClass {
     }
 
     coverage(id, params, options) {
-        if (params === undefined) {
-            params = {};
+        let _params = params;
+        if (_params === undefined) {
+            _params = {};
         }
-        params["file"] = id;
-        return this.get("analysis/alignment", undefined, "coverage", params, options);
+        _params.file = id;
+        return this.get("analysis/alignment", undefined, "coverage", _params, options);
     }
 }
 

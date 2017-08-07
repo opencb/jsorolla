@@ -50,35 +50,35 @@
 
 const SVG = {
 
-  create(elementName, attributes) {
-    const el = document.createElementNS('http://www.w3.org/2000/svg', elementName);
-    for (const key in attributes) {
-      el.setAttribute(key, attributes[key]);
-    }
-    return el;
-  },
+    create(elementName, attributes) {
+        const el = document.createElementNS("http://www.w3.org/2000/svg", elementName);
+        for (const key in attributes) {
+            el.setAttribute(key, attributes[key]);
+        }
+        return el;
+    },
 
-  addChild(parent, elementName, attributes, index) {
-    const el = document.createElementNS('http://www.w3.org/2000/svg', elementName);
-    for (const key in attributes) {
-      el.setAttribute(key, attributes[key]);
-    }
-    return this._insert(parent, el, index);
-  },
+    addChild(parent, elementName, attributes, index) {
+        const el = document.createElementNS("http://www.w3.org/2000/svg", elementName);
+        for (const key in attributes) {
+            el.setAttribute(key, attributes[key]);
+        }
+        return this._insert(parent, el, index);
+    },
 
-  addChildImage(parent, attributes, index) {
-    const el = document.createElementNS('http://www.w3.org/2000/svg', 'image');
-    for (const key in attributes) {
-      if (key == 'xlink:href') {
-        el.setAttributeNS('http://www.w3.org/1999/xlink', 'href', attributes[key]);
-      } else {
+    addChildImage(parent, attributes, index) {
+        const el = document.createElementNS("http://www.w3.org/2000/svg", "image");
+        for (const key in attributes) {
+            if (key == "xlink:href") {
+                el.setAttributeNS("http://www.w3.org/1999/xlink", "href", attributes[key]);
+            } else {
 			    el.setAttribute(key, attributes[key]);
-      }
-    }
-    return this._insert(parent, el, index);
-  },
+            }
+        }
+        return this._insert(parent, el, index);
+    },
 
-  _insert(parent, el, index) {
+    _insert(parent, el, index) {
     // insert child at requested index, or as last child if index is too high or no index is specified
 	    if (index == null) {
 	    	parent.appendChild(el);
@@ -95,38 +95,38 @@ const SVG = {
 	      }
 	    }
 	    return el;
-  },
+    },
 
-  init(parent, attributes) {
-    return this.addChild(parent, 'svg', attributes);
-  },
+    init(parent, attributes) {
+        return this.addChild(parent, "svg", attributes);
+    },
 
 
-  //
-  /* Functions to generate arcs with PATH element  */
-  //
+    //
+    /* Functions to generate arcs with PATH element  */
+    //
 
-  _polarToCartesian(centerX, centerY, radius, angleInDegrees) {
-    const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
+    _polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+        const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
 
-    return {
-      x: centerX + (radius * Math.cos(angleInRadians)),
-      y: centerY + (radius * Math.sin(angleInRadians)),
-    };
-  },
+        return {
+            x: centerX + (radius * Math.cos(angleInRadians)),
+            y: centerY + (radius * Math.sin(angleInRadians)),
+        };
+    },
 
-  describeArc(x, y, radius, startAngle, endAngle) {
-    const start = this._polarToCartesian(x, y, radius, endAngle);
-    const end = this._polarToCartesian(x, y, radius, startAngle);
+    describeArc(x, y, radius, startAngle, endAngle) {
+        const start = this._polarToCartesian(x, y, radius, endAngle);
+        const end = this._polarToCartesian(x, y, radius, startAngle);
 
-    const arcSweep = endAngle - startAngle <= 180 ? '0' : '1';
-    const d = [
-      'M', start.x, start.y,
-      'A', radius, radius, 0, arcSweep, 0, end.x, end.y,
-    ].join(' ');
+        const arcSweep = endAngle - startAngle <= 180 ? "0" : "1";
+        const d = [
+            "M", start.x, start.y,
+            "A", radius, radius, 0, arcSweep, 0, end.x, end.y,
+        ].join(" ");
 
-    return d;
-  },
+        return d;
+    },
 };
 
 // createSVG = function(elementName, attributes){
