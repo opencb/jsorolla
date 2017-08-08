@@ -160,6 +160,7 @@ class OpenCGAClient {
         }
         return this._ga4gh;
     }
+
 }
 
 // parent class
@@ -240,10 +241,9 @@ class OpenCGAParentClass {
                     _options["post-method"] = "form";
                 }
             }
-            console.debug(`OpenCGA client calling to ${url}`);
+            console.log(`OpenCGA client calling to ${url}`);
             // if the URL query fails we try with next host
-            const response = RestClient.callPromise(url, _options);
-            return response;
+            return RestClient.callPromise(url, _options);
         }
     }
 
@@ -256,17 +256,17 @@ class OpenCGAParentClass {
         }
 
         // Some web services do not need IDs
-        if (typeof ids1 !== "undefined" && ids1 != null) {
+        if (typeof ids1 !== "undefined" && ids1 !== null) {
             url += `${ids1}/`;
         }
 
         // Some web services do not need a second category
-        if (typeof category2 !== "undefined" && category2 != null) {
+        if (typeof category2 !== "undefined" && category2 !== null) {
             url += `${category2}/`;
         }
 
         // Some web services do not need the second category of ids
-        if (typeof ids2 !== "undefined" && ids2 != null) {
+        if (typeof ids2 !== "undefined" && ids2 !== null) {
             url += `${ids2}/`;
         }
 
@@ -279,7 +279,7 @@ class OpenCGAParentClass {
         // We add the query params formatted in URL
         const queryParamsUrl = this._createQueryParam(params);
         let _url = url;
-        if (typeof queryParamsUrl !== "undefined" && queryParamsUrl != null && queryParamsUrl !== "") {
+        if (typeof queryParamsUrl !== "undefined" && queryParamsUrl !== null && queryParamsUrl !== "") {
             _url += `?${queryParamsUrl}`;
         }
         return _url;
@@ -442,37 +442,29 @@ class Users extends OpenCGAParentClass {
     }
 
     createFilter(params, options) {
-        if (options === undefined) {
-            options = {};
-        }
-        if (params === undefined) {
-            params = {};
-        }
-        if (!params.hasOwnProperty("body")) {
-            let aux = {
-                body: params
+        let _params = Object.assign({}, params);
+        let _options = Object.assign({}, options);
+
+        if (!_params.hasOwnProperty("body")) {
+            _params = {
+                body: _params
             };
-            params = aux;
         }
-        options["method"] = "POST";
-        return this.extendedGet("users", this._getUserId(), "configs/filters", undefined, "create", params, options);
+        _options["method"] = "POST";
+        return this.extendedGet("users", this._getUserId(), "configs/filters", undefined, "create", _params, _options);
     }
 
     updateFilter(filter, params, options) {
-        if (options === undefined) {
-            options = {};
-        }
-        if (params === undefined) {
-            params = {};
-        }
-        if (!params.hasOwnProperty("body")) {
-            let aux = {
-                body: params
+        let _params = Object.assign({}, params);
+        let _options = Object.assign({}, options);
+
+        if (!_params.hasOwnProperty("body")) {
+            _params = {
+                body: _params
             };
-            params = aux;
         }
-        options["method"] = "POST";
-        return this.extendedGet("users", this._getUserId(), "configs/filters", filter, "update", params, options);
+        _options["method"] = "POST";
+        return this.extendedGet("users", this._getUserId(), "configs/filters", filter, "update", _params, _options);
     }
 
     deleteFilter(filter) {
@@ -485,21 +477,17 @@ class Users extends OpenCGAParentClass {
     }
 
     updateConfig(name, params, options) {
-        if (options === undefined) {
-            options = {};
-        }
-        if (params === undefined) {
-            params = {};
-        }
-        if (!params.hasOwnProperty("body")) {
-            let aux = {
-                body: params
+        let _params = Object.assign({}, params);
+        let _options = Object.assign({}, options);
+
+        if (!_params.hasOwnProperty("body")) {
+            _params = {
+                body: _params
             };
-            params = aux;
         }
-        params["name"] = name;
-        options["method"] = "POST";
-        return this.extendedGet("users", this._getUserId(), "configs", undefined, "create", params, options);
+        _params.name = name;
+        _options.method = "POST";
+        return this.extendedGet("users", this._getUserId(), "configs", undefined, "create", _params, _options);
     }
 
     deleteConfig(name) {
@@ -693,6 +681,7 @@ class Files extends Acls {
     upload(params, options) {
         return this.post("files", undefined, "upload", undefined, params, options);
     }
+
 }
 
 class Jobs extends Acls {
@@ -756,6 +745,7 @@ class Individuals extends Acls {
     annotationsetsUpdate(id, name, params, body, options) {
         return this.extendedPost("individuals", id, "annotationsets", name, "update", params, body, options);
     }
+
 }
 
 class Families extends Acls {
@@ -907,6 +897,7 @@ class Cohorts extends Acls {
     annotationsetsUpdate(id, name, params, body, options) {
         return this.extendedPost("cohorts", id, "annotationsets", name, "update", params, body, options);
     }
+
 }
 
 class Panels extends Acls {
@@ -946,6 +937,7 @@ class Clinical extends Acls {
 }
 
 class Alignment extends OpenCGAParentClass {
+
     constructor(config) {
         super(config);
     }
@@ -974,9 +966,11 @@ class Alignment extends OpenCGAParentClass {
         _params.file = id;
         return this.get("analysis/alignment", undefined, "coverage", _params, options);
     }
+
 }
 
 class Variant extends OpenCGAParentClass {
+
     constructor(config) {
         super(config);
     }
@@ -992,9 +986,11 @@ class Variant extends OpenCGAParentClass {
     index(params, options) {
         return this.get("analysis/variant", undefined, "index", params, options);
     }
+
 }
 
 class Ga4gh extends OpenCGAParentClass {
+
     constructor(config) {
         super(config);
     }
@@ -1002,4 +998,5 @@ class Ga4gh extends OpenCGAParentClass {
     beacon(params, options) {
         return this.get("ga4gh", undefined, "responses", params, options);
     }
+
 }

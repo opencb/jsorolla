@@ -86,11 +86,12 @@ class RestClient {
 
                         // If the call is OK then we execute the success function from the user
                         // console.log(options)
-                        if (typeof options !== "undefined" && typeof options.success === "function" && typeof options.cacheFn === "undefined") {
+                        if (typeof options !== "undefined" && typeof options.success === "function"
+                            && typeof options.cacheFn === "undefined") {
                             options.success(dataResponse);
                         }
                         console.timeEnd(`REST call to ${url}`);
-                        console.debug("REST call query: ", options, `, Size: ${event.total} Bytes`);
+                        console.log("REST call query: ", options, `, Size: ${event.total} Bytes`);
                         resolve(dataResponse);
                     } else {
                         console.log(`Result is not JSON: ${this.response}`);
@@ -145,5 +146,5 @@ class RestClient {
             }
         });
     }
-}
 
+}
