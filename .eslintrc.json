@@ -1,12 +1,18 @@
 {
-  "extends": "airbnb",
+  "extends": "eslint:recommended",
+  "env": {
+    "browser": true
+  },
   "rules": {
-    // enable additional rules
     "indent": ["error", 4],
-    "quotes": ["warn", "double"],
     "max-len": ["error", 140],
+    "no-console": ["error", { "allow": ["log", "warn", "error", "time", "timeEnd"] }],
+    "no-param-reassign": ["warn", { "props": true }],
+    "no-undef": ["warn"],
     "no-underscore-dangle": [0, { "allowAfterThis": true }],
-    "no-use-before-define": ["error", { "classes": false }]
-
+    "no-unused-vars": ["warn", { "varsIgnorePattern": "^[A-Za-z]+$" }],
+    "no-use-before-define": ["error", { "classes": false }],
+    "padded-blocks": ["error", { "classes": "always" }],
+    "quotes": ["warn", "double"]
   }
 }
