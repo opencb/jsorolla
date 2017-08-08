@@ -1,6 +1,3 @@
-/**
- * Created by swaathi on 13/04/16.
- */
 
 class RestClient {
 

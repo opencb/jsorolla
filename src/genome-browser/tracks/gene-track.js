@@ -27,7 +27,8 @@ class GeneTrack extends FeatureTrack {
             if (typeof this.cellbase !== "undefined" && this.cellbase !== null) {
                 let cellBaseConfig = new CellBaseClientConfig(this.cellbase.host, this.cellbase.version, this.cellbase.species);
                 cellBaseConfig.cache.active = false;
-                this.dataAdapter = new CellBaseAdapter(new CellBaseClient(cellBaseConfig), "genomic", "region", "gene", {}, { chunkSize: 100000 });
+                this.dataAdapter = new CellBaseAdapter(new CellBaseClient(cellBaseConfig), "genomic", "region", "gene", {},
+                    { chunkSize: 100000 });
             }
         }
 
@@ -124,11 +125,9 @@ class GeneTrack extends FeatureTrack {
                     //done: function (event) {
                     //    _this.getDataHandler(event);
                     //}
-                })
-                .then(function (response) {
+                }).then(function (response) {
                     _this.getDataHandler(response);
-                })
-                .catch(function(reason) {
+                }).catch(function(reason) {
                     console.log(`Gene Track move error: ${reason}`);
                 });
                 this.svgCanvasLeftLimit = parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset);
@@ -154,11 +153,9 @@ class GeneTrack extends FeatureTrack {
                     //done: function (event) {
                     //    _this.getDataHandler(event);
                     //}
-                })
-                .then(function (response) {
+                }).then(function (response) {
                     _this.getDataHandler(response);
-                })
-                .catch(function(reason) {
+                }).catch(function(reason) {
                     console.log(`Gene Track move error: ${reason}`);
                 });
                 this.svgCanvasRightLimit = parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset);
@@ -169,4 +166,5 @@ class GeneTrack extends FeatureTrack {
             this.updateHeight();
         }
     }
+
 }

@@ -1,4 +1,6 @@
+
 class AlignmentRenderer extends Renderer {
+
     constructor(args) {
         super(args);
         // Extend and add Backbone Events
@@ -141,7 +143,7 @@ class AlignmentRenderer extends Renderer {
             });
 
 
-            args.trackListPanel.on("mousePosition:change", (e) => {
+            args.trackListPanel.on('mousePosition:change', (e) => {
                 const pos = e.mousePos - parseInt(start);
                 if (pos < 0 || pos >= coverageList.length) {
                     return;
