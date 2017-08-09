@@ -5,11 +5,11 @@
     <title>Genome Viewer Demo</title>
 
     <!-- build:[href] vendor/fontawesome/css/ -->
-    <link rel="stylesheet" href="../../bower_components/fontawesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../../../node_modules/font-awesome/css/font-awesome.min.css">
     <!-- /build -->
 
     <!-- build:[href] vendor/qtip2/ -->
-    <link rel="stylesheet" href="../../bower_components/qtip2/jquery.qtip.min.css">
+    <link rel="stylesheet" href="../../../node_modules/qtip2/dist/jquery.qtip.min.css">
     <!-- /build -->
 
     <!-- build:[href] styles/css/ -->
@@ -18,31 +18,31 @@
 
 
     <!-- build:[src] vendor/underscore/ -->
-    <script type="text/javascript" src="../../bower_components/underscore/underscore-min.js"></script>
+    <script type="text/javascript" src="../../../node_modules/underscore/underscore-min.js"></script>
     <!-- /build -->
 
     <!-- build:[src] vendor/backbone/ -->
-    <script type="text/javascript" src="../../bower_components/backbone/backbone.js"></script>
+    <script type="text/javascript" src="../../../node_modules/backbone/backbone.js"></script>
     <!-- /build -->
 
     <!-- build:[src] vendor/jquery/dist/ -->
-    <script type="text/javascript" src="../../bower_components/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="../../../node_modules/jquery/dist/jquery.min.js"></script>
     <!-- /build -->
 
     <!-- build:[src] vendor/qtip2/ -->
-    <script type="text/javascript" src="../../bower_components/qtip2/jquery.qtip.min.js"></script>
+    <script type="text/javascript" src="../../../node_modules/qtip2/dist/jquery.qtip.min.js"></script>
     <!-- /build -->
 
     <!-- build:[src] vendor/uri.js/src/ -->
-    <script type="text/javascript" src="../../bower_components/uri.js/src/URI.min.js"></script>
+    <script type="text/javascript" src="../../../node_modules/urijs/src/URI.min.js"></script>
     <!-- /build -->
 
     <!-- build:[src] vendor/cookies.js/src/ -->
-    <script type="text/javascript" src="../../bower_components/cookies-js/src/cookies.js"></script>
+    <script type="text/javascript" src="../../../bower_components/cookies-js/src/cookies.js"></script>
     <!-- /build -->
 
     <!-- build:[src] vendor/crypto.js/src/ -->
-    <script type="text/javascript" src="../../bower_components/crypto-js-evanvosberg/crypto-js.js"></script>
+    <script type="text/javascript" src="../../../node_modules/crypto-js/crypto-js.js"></script>
     <!-- /build -->
 
 
@@ -101,7 +101,7 @@
     <script type="text/javascript" src="../status-bar.js"></script>
 
     <script type="text/javascript" src="../tracks/tracklist-panel.js"></script>
-    <script type="text/javascript" src="tracks/track.js"></script>
+    <!--&lt;!&ndash;<script type="text/javascript" src="tracks/track.js"></script>&ndash;&gt;   !!!!!!!!!!!!!!!!!!!!!!!!! mirrarrrr-->
     <script type="text/javascript" src="../tracks/feature-track.js"></script>
     <script type="text/javascript" src="../tracks/gene-track.js"></script>
     <script type="text/javascript" src="../tracks/alignment-track.js"></script>
@@ -125,6 +125,7 @@
 
 
     <!-- ES6 -->
+    <script type="text/javascript" src="../../lib/data-adapter/feature-adapter.js"></script>
     <script type="text/javascript" src="../../lib/data-adapter/cellbase-adapter.js"></script>
     <script type="text/javascript" src="../../lib/data-adapter/opencga-adapter.js"></script>
     <script type="text/javascript" src="../../lib/cache/indexeddb-cache.js"></script>
@@ -367,11 +368,11 @@
         _.extend(objectVariant, FEATURE_TYPES.variant);
         var request = new XMLHttpRequest();
 
-        var url = "http://bioinfodev.hpc.cam.ac.uk/hgva-1.2.0-dev/webservices/rest/v1/analysis/variant/query?studies=reference_grch37:1kG_phase3&samplesMetadata=true&region=false";
+        var url = "http://bioinfo.hpc.cam.ac.uk/hgva/webservices/rest/v1/analysis/variant/query?studies=reference_grch37:1kG_phase3&samplesMetadata=true&region=false";
 
         request.onload = function () {
             objectVariant.sampleNames = JSON.parse(this.response).response[0].samples;
-            console.log("Imprimiendo nombres: ");
+            console.log("Samples Names: ");
             console.log(objectVariant.sampleNames);
 
             var t = new VariantTrack({
@@ -455,7 +456,7 @@
             dataAdapter: new FeatureTemplateAdapter({
                 multiRegions: false,
                 histogramMultiRegions: false,
-                uriTemplate: "http://bioinfodev.hpc.cam.ac.uk/hgva-1.2.0-dev/webservices/rest/v1/analysis/variant/query?region={region}&studies={studies}",
+                uriTemplate: "http://bioinfo.hpc.cam.ac.uk/hgva/webservices/rest/v1/analysis/variant/query?region={region}&studies={studies}",
                 templateVariables: {
                     studies: "reference_grch37:1kG_phase3"
                 },
@@ -484,32 +485,6 @@
         });
         //tracks.push(t);
 
-
-
-
-        /*******************/
-        /*******************/
-
-
-
-
-
-
-//        let alignment = new AlignmentTrack({
-//            title: "Alignment",
-//            closable: true,
-//            minHistogramRegionSize: 5000,
-//            maxLabelRegionSize: 3000,
-//            visibleRegionSize: 100000000,
-//            height: 300,
-//            renderer: new AlignmentRenderer(FEATURE_TYPES.alignment),
-//            dataAdapter: new OpencgaAdapter(opencgaClient, "analysis/alignment", undefined, "query",
-//                    {
-//                        fileId: fileId,
-//                        study: study
-//                    })
-//        });
-//        tracks.push(alignment);
 
 
 //
