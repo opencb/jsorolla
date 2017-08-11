@@ -46,6 +46,10 @@
                         type: Set,
                         observer: "init"
                     },
+                    filesName: {
+                        type: Array,
+                        observer: "init"
+                    },
                     species: {
                         type: Object,
                         value: {
@@ -262,8 +266,12 @@
 
 
             getAlignmentTrack(settings) {
+                let title = "Aligment";
+                if (UtilsNew.isNotUndefinedOrNull(settings.data.name))
+                    title = `Aligment ${settings.data.name}`;
+
                 let mySettings = {
-                    title: "Alignment",
+                    title: title,
                     closable: true,
                     minHistogramRegionSize: 5000,
                     maxLabelRegionSize: 3000,
@@ -303,13 +311,21 @@
 
                 if (UtilsNew.isNotUndefinedOrNull(this.files) && this.files.size > 0) {
                     let _this = this;
+                    let i = 0;
                     this.files.forEach(function (file) {
+
                         let mySettings = {
                             data: {
                                 fileId: file,
                                 study: _this.study.id
                             }
                         };
+                        if (UtilsNew.isNotUndefinedOrNull(_this.filesName) && _this.filesName.length > 0) {
+                            if (UtilsNew.isNotUndefinedOrNull(_this.filesName[i])){
+                                mySettings.data.name = _this.filesName[i];
+                            }
+                        }
+                            i++;
 
                         Object.assign(settings, mySettings);
                         let track = _this.getAlignmentTrack(settings);
@@ -318,7 +334,7 @@
 
                     });
                 }
-                return resTracks
+                return resTracks;
             }
 
             addGenericTrack(settings) {

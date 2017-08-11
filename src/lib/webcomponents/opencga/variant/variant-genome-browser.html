@@ -53,7 +53,8 @@
                             <template is="dom-repeat" items="{{samplesWithFiles}}" as="sample">
                                 <template is="dom-repeat" items="{{sample.files}}" as="file">
                                     <input type="checkbox" style="padding-left: 25px" class$="{{prefix}}FileCheckbox"
-                                           data-file-id$="{{file.id}}" on-change="toggleSelection">
+                                           data-file-id$="{{file.id}}" data-file-name$={{file.name}}
+                                           on-change="toggleSelection">
                                     <label>{{sample.name}}</label> {{file.name}}
                                     <br>
                                 </template>
@@ -82,8 +83,8 @@
             <div class="" style="width: 80%;float: right;padding: 0px 5px">
                 <genome-browser cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}"
                                 species={{species}} region="{{region}}" tracks="[[tracks]]" samples="{{_samples}}"
-                                study="{{study}}" project="{{project}}" files="{{_files}}" active="{{active}}"
-                                width="{{genomeBrowserWidth}}">
+                                study="{{study}}" project="{{project}}" files="{{_files}}" files-name="{{_filesName}}"
+                                active="{{active}}" width="{{genomeBrowserWidth}}">
                 </genome-browser>
             </div>
         </div>
@@ -189,6 +190,7 @@
             getFilesToVisualiseAlignmentTracks(settings) {
                 this.samplesWithFiles = [];
                 this._filesSelectedAlignment = new Set([]);
+                this._filesNameSelectedAlignment = [];
                 if (UtilsNew.isNotEmptyArray(this.samples)) {
                     if (UtilsNew.isUndefined(settings)) {
                         settings = {};
@@ -406,17 +408,22 @@
                 // Update _samples to render variant track and _files to render alignment track
                 this.set("_samples", this.samples);
                 this.set("_files", new Set(this._filesSelectedAlignment));
+                this.set("_filesName", this._filesNameSelectedAlignment);
             }
 
             toggleSelection(e) {
                 if (UtilsNew.isNotUndefinedOrNull(e.target)) {
                     const idFile = e.target.getAttribute("data-file-id");
                     if (UtilsNew.isNotUndefinedOrNull(idFile)) {
+                        const fileName = e.target.getAttribute("data-file-name");
                         if (this._filesSelectedAlignment.has(idFile)) {
                             this._filesSelectedAlignment.delete(idFile);
+                            this._filesNameSelectedAlignment.delete(fileName);
                         } else {
                             this._filesSelectedAlignment.add(idFile);
+                            this._filesNameSelectedAlignment.push(fileName);
                         }
+
                     }
                 }
             }
