@@ -38,14 +38,6 @@
                         type: Object,
                         observer: "_setRegion"
                     },
-                    samples: {
-                        type: Array,
-                        observer: "init"
-                    },
-                    files: {
-                        type: Set,
-                        observer: "init"
-                    },
                     filesName: {
                         type: Array,
                         observer: "init"
@@ -61,7 +53,12 @@
                     tracks: {
                         type: Array,
 //                        value: ['sequence', 'gene']
-                        value: [{type: "sequence", config: {}}, {type: "gene", config: {}}],
+                        value: {
+                            sequence: {type: "sequence"},
+                            gene: {type: "gene"},
+                            variant: {type: "variant"},
+                            alignment: {type: "alignment", config: {}}
+                        },
                         observer: "init"
                     },
                     width: {
@@ -77,7 +74,7 @@
                     settings: {
                         type: Object
                     }
-                }
+                };
             }
 
             ready() {
@@ -142,24 +139,25 @@
                 this.genomeBrowser = new GenomeBrowser(settings);
 
                 let _tracks = [];
-                for (let i = 0; i < this.tracks.length; i++) {
-                    switch (this.tracks[i].type) {
+
+                for(let track of Object.values(this.tracks)){
+                    switch (track.type) {
                         case 'sequence':
-                            _tracks.push(this._addSequenceTrack(this.tracks[i].config));
+                            _tracks.push(this._addSequenceTrack(track.config));
                             break;
                         case 'gene':
-                            _tracks.push(this._addGeneTrack(this.tracks[i].config));
+                            _tracks.push(this._addGeneTrack(track.config));
                             break;
 //                            case 'snp':
                         case 'variant':
-                            _tracks.push(this._addVariantTrack(this.tracks[i].config));
+                            _tracks.push(this._addVariantTrack(track.config));
                             break;
                         case 'alignment':
                             // One track per file
-                            let alignmentTracks = this.addAlignmentTrack(this.tracks[i].config);
+                            let alignmentTracks = this.addAlignmentTrack(track.config);
                             if (UtilsNew.isNotEmptyArray(alignmentTracks)) {
-                                for (let track of alignmentTracks) {
-                                    _tracks.push(track);
+                                for (let alignmentTrack of alignmentTracks) {
+                                    _tracks.push(alignmentTrack);
                                 }
                             }
 //                                if (typeof this.samples !== "undefined" && this.samples.length > 0) {
@@ -179,11 +177,11 @@
                     height: 120,
                     renderer: new FeatureRenderer(FEATURE_TYPES.gene),
                     dataAdapter: new CellBaseAdapter(this.cellbaseClient, "genomic", "region", "gene",
-                        {
-                            exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence'
-                        }, {
-                            chunkSize: 100000
-                        })
+                            {
+                                exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence'
+                            }, {
+                                chunkSize: 100000
+                            })
                 });
                 this.genomeBrowser.addOverviewTrack(gene);
                 this.genomeBrowser.addTrack(_tracks);
@@ -219,11 +217,11 @@
                         }
                     }),
                     dataAdapter: new CellBaseAdapter(this.cellbaseClient, "genomic", "region", "gene",
-                        {
-                            exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence'
-                        }, {
-                            chunkSize: 100000
-                        })
+                            {
+                                exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence'
+                            }, {
+                                chunkSize: 100000
+                            })
                 };
                 mySettings = Object.assign(mySettings, settings);
                 return new GeneTrack(mySettings);
@@ -249,9 +247,9 @@
 //                    renderer: new FeatureRenderer(FEATURE_TYPES.variant),
                 };
 
-                if (this.samples !== undefined && this.samples.length > 0) {
+                if (settings.samples !== undefined && settings.samples.length > 0) {
                     let _samples = [];
-                    for (let s of this.samples) {
+                    for (let s of settings.samples) {
                         _samples.push(s.name);
                     }
 
@@ -260,16 +258,16 @@
                     mySettings.opencga.samples = [];
                 }
 
-                mySettings = Object.assign(mySettings, settings);
+                //mySettings = Object.assign(mySettings, settings);
                 return new VariantTrack(mySettings);
             }
 
 
             getAlignmentTrack(settings) {
                 let title = "Aligment";
-                if (UtilsNew.isNotUndefinedOrNull(settings.data.name))
+                if (UtilsNew.isNotUndefinedOrNull(settings.data.name)) {
                     title = `Aligment ${settings.data.name}`;
-
+                }
                 let mySettings = {
                     title: title,
                     closable: true,
@@ -291,7 +289,6 @@
 
                 // You have to pass opencga.config to renderer if you use your own renderer. If you customize config yo have to change opencga.config.
                 let renderer = {
-
                     renderer: new AlignmentRenderer({config: mySettings.opencga.config}),
                     dataAdapter: new OpencgaAdapter(this.opencgaClient, "analysis/alignment", undefined, "query", settings.data)
                 };
@@ -309,32 +306,28 @@
             addAlignmentTrack(settings = {}) {
                 let resTracks = [];
 
-                if (UtilsNew.isNotUndefinedOrNull(this.files) && this.files.size > 0) {
+                if (UtilsNew.isNotUndefinedOrNull(settings.files) && settings.files.size > 0) {
                     let _this = this;
-                    let i = 0;
-                    this.files.forEach(function (file) {
-
+                    settings.files.forEach(function (file) {
                         let mySettings = {
                             data: {
                                 fileId: file,
                                 study: _this.study.id
                             }
                         };
-                        if (UtilsNew.isNotUndefinedOrNull(_this.filesName) && _this.filesName.length > 0) {
-                            if (UtilsNew.isNotUndefinedOrNull(_this.filesName[i])){
-                                mySettings.data.name = _this.filesName[i];
-                            }
+
+                        if (UtilsNew.isNotEmptyArray(settings.filesName) && settings.filesName.length > 0) {
+                            mySettings.data.name = settings.filesName[file];
+
                         }
-                            i++;
 
                         Object.assign(settings, mySettings);
                         let track = _this.getAlignmentTrack(settings);
                         resTracks.push(track);
-//                        _this.genomeBrowser.addTrack(track);
 
                     });
                 }
-                return resTracks;
+                return resTracks
             }
 
             addGenericTrack(settings) {
@@ -378,6 +371,7 @@
                     this.init();
                 }
             }
+
         }
 
         customElements.define(GenomeBrowserComponent.is, GenomeBrowserComponent);
