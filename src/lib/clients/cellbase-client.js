@@ -114,7 +114,7 @@ class CellBaseClient {
 
         let url = `http://${hosts[count]}/webservices/rest/${version}/${species}/` + "files";
 
-        if (typeof folderId !== "undefined" && folderId != null && folderId != "") {
+        if (typeof folderId !== "undefined" && folderId !== null && folderId !== "") {
             url += `/${folderId}/${resource}`;
         } else {
             url += `/${resource}`;
@@ -122,7 +122,7 @@ class CellBaseClient {
 
         // We add the query params formatted in URL
         let queryParamsUrl = this._createSuffixKey(params, false);
-        if (typeof queryParamsUrl !== "undefined" && queryParamsUrl != null && queryParamsUrl != "") {
+        if (typeof queryParamsUrl !== "undefined" && queryParamsUrl !== null && queryParamsUrl !== "") {
             url += `?${queryParamsUrl}`;
         }
         return RestClient.callPromise(url, options);
@@ -148,7 +148,6 @@ class CellBaseClient {
         return this.get("feature", "regulatory", id, resource, params, options);
     }
 
-
     get(category, subcategory, ids, resource, params, options) {
         if (options === undefined) {
             options = {};
@@ -172,7 +171,7 @@ class CellBaseClient {
             let suffixKey = this._createSuffixKey(params, true);
 
             let idArray = [];
-            if (ids !== undefined && ids != null) {
+            if (ids !== undefined && ids !== null) {
                 idArray = ids.split(",");
                 for (let i = 0; i < idArray.length; i++) {
                     cacheKeys.push(`${idArray[i]}_${resource}${suffixKey}`);
@@ -203,7 +202,7 @@ class CellBaseClient {
                             let query = {};
                             for (let i in dataResponse) {
                                 query[i] = dataResponse[i];
-                            };
+                            }
                             // And remove the key response
                             delete query["response"];
 
@@ -332,7 +331,7 @@ class CellBaseClient {
         }
 
         // Some web services do not need IDs
-        if (typeof ids !== "undefined" && ids != null && ids.length > 0) {
+        if (typeof ids !== "undefined" && ids !== null && ids.length > 0) {
             url += `${category}/${subcategory}/${ids}/${resource}`;
         } else {
             url += `${category}/${subcategory}/${resource}`;
@@ -362,7 +361,7 @@ class CellBaseClient {
     }
 
     _callGrpcService(params) {
-
+        console.warn("Not implemented yet, params: " + params)
     }
 
 }
