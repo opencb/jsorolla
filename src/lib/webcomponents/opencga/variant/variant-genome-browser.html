@@ -53,8 +53,8 @@
                             <template is="dom-repeat" items="{{samplesWithFiles}}" as="sample">
                                 <template is="dom-repeat" items="{{sample.files}}" as="file">
                                     <input type="checkbox" style="padding-left: 25px" class$="{{prefix}}FileCheckbox"
-                                           data-file-id$="{{file.id}}" data-file-name$={{file.name}}
-                                           on-change="toggleSelection">
+                                           data-file-id$="{{file.id}}" on-change="toggleSelection"
+                                           checked="{{file.checked}}" data-file-name$="{{file.name}}" >
                                     <label>{{sample.name}}</label> {{file.name}}
                                     <br>
                                 </template>
@@ -67,7 +67,8 @@
 
 
                     <div style="width: 120px;float: right;">
-                        <button type="button" class="btn btn-primary" style="width: 100%" on-click="onRefreshAlignmentRender">Refresh
+                        <button type="button" class="btn btn-primary" style="width: 100%"
+                                on-click="onRefreshAlignmentRender">Refresh
                         </button>
                     </div>
                 </div>
@@ -82,9 +83,9 @@
             </div>
             <div class="" style="width: 80%;float: right;padding: 0px 5px">
                 <genome-browser cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}"
-                                species={{species}} region="{{region}}" tracks="[[tracks]]" samples="{{_samples}}"
-                                study="{{study}}" project="{{project}}" files="{{_files}}" files-name="{{_filesName}}"
-                                active="{{active}}" width="{{genomeBrowserWidth}}">
+                                species={{species}} region="{{region}}" tracks="[[tracks]]"
+                                study="{{study}}" project="{{project}}" active="{{active}}"
+                                width="{{genomeBrowserWidth}}">
                 </genome-browser>
             </div>
         </div>
@@ -155,7 +156,12 @@
                 super.ready();
 
                 this.summary = true;
-                this.tracks = [{type: "sequence"}, {type: "gene"}, {type: "variant"}, {type: "alignment", config: {}}];
+                this.tracks = {
+                    sequence: {type: "sequence"},
+                    gene: {type: "gene"},
+                    variant: {type: "variant", config: {}},
+                    alignment: {type: "alignment", config: {}}
+                };
             }
 
             _attachDom(dom) {
@@ -164,7 +170,6 @@
 
             connectedCallback() {
                 super.connectedCallback();
-
                 this.existsSamplesWithfiles = false;
                 this.render();
                 this.table = PolymerUtils.getElementById(`${this.prefix}VariantGenomeBrowserTable`);
@@ -184,13 +189,14 @@
                 }
 
                 this.existsSamplesWithfiles = result;
-
             }
 
             getFilesToVisualiseAlignmentTracks(settings) {
                 this.samplesWithFiles = [];
-                this._filesSelectedAlignment = new Set([]);
-                this._filesNameSelectedAlignment = [];
+                if (UtilsNew.isUndefinedOrNull(this._filesSelectedAlignment)) {
+                    this._filesSelectedAlignment = new Set();
+                    this._filesSelectedAlignmentName = [];
+                }
                 if (UtilsNew.isNotEmptyArray(this.samples)) {
                     if (UtilsNew.isUndefined(settings)) {
                         settings = {};
@@ -207,33 +213,63 @@
                     };
                     const _this = this;
                     let _samplesWithFiles = [];
-
+                    let currentFilesSelectedAlignment = new Set();
+                    let currentFilesSelectedNameAlignment = [];
                     this.opencgaClient.files().search(query)
-                        .then((response) => {
-                            if (UtilsNew.isNotEmptyArray(response.response[0].result)) {
-                                _this.samples.forEach((sampleSelected) => {
-                                    const filesSamples = [];
-                                    response.response[0].result.forEach((file) => {
-                                        const containSample = file.samples.some(sampleFile => sampleFile.id === sampleSelected.id);
-                                        if (containSample) {
-                                            filesSamples.push(file);
+                            .then((response) => {
+                        if (UtilsNew.isNotEmptyArray(response.response[0].result)) {
+
+                            _this.samples.forEach((sampleSelected) => {
+                                const filesSamples = [];
+                                response.response[0].result.forEach((file) => {
+                                    const containSample = file.samples.some(sampleFile => sampleFile.id === sampleSelected.id);
+                                    if (containSample) {
+                                        file.checked = false;
+                                        if (_this._filesSelectedAlignment.has(file.id)) {
+                                            file.checked = true;
+                                            // this file id is which is selected from previous selection.
+                                            currentFilesSelectedAlignment.add(file.id);
+                                            currentFilesSelectedNameAlignment[file.id] = file.name
+
                                         }
-                                    });
-                                    // Push linked filename list with sampleSelected using polymer array mutation method to update dom-repeat
-
-                                    _samplesWithFiles.push({name: sampleSelected.name, files: filesSamples});
+                                        filesSamples.push(file);
+                                    }
                                 });
-                            }
+                                // Push linked filename list with sampleSelected using polymer array mutation method to update dom-repeat
+                                _samplesWithFiles.push({name: sampleSelected.name, files: filesSamples});
+                            });
+                        }
 
-                            // Update sampleswithfiles to show in checkbox
-                            _this.samplesWithFiles = _samplesWithFiles;
-//                            // Update _samples to render variant track
-//                            this._samples = this.samples;
+                        // Re-assign selected files after select samples and update files to remove alignment track that are not selected after remove its samples
+                        _this._filesSelectedAlignment = currentFilesSelectedAlignment;
+                        _this._filesSelectedAlignmentName = currentFilesSelectedNameAlignment;
+                        _this.samplesWithFiles = _samplesWithFiles;
 
-                        })
-                        .catch((response) => {
-                            console.log(response);
-                        });
+//                            _this._files = currentFilesSelectedAlignment;
+                        _this.tracks.alignment.config.files = _this._filesSelectedAlignment
+                        _this.tracks.alignment.config.filesName = _this._filesSelectedAlignmentName
+                        _this.tracks.variant.config.samples = _this.samples;
+
+                        _this.set("tracks", Object.assign({},_this.tracks));
+                        // Update sampleswithfiles to show in checkbox
+
+                        // Update _samples to render variant track
+//                            _this._samples = _this.samples;
+
+                    })
+                .catch((response) => {
+                        console.log(response);
+                    });
+                } else {
+//                    this._samples = [];
+//                    this._files = [];
+                    let _tracks = {
+                        sequence: {type: "sequence"},
+                        gene: {type: "gene"},
+                        variant: {type: "variant"},
+                        alignment: {type: "alignment", config: {}}
+                    };
+                    this.set("tracks", _tracks);
                 }
 
             }
@@ -242,7 +278,7 @@
             render() {
                 this.variant = ""; // Empty the variant every time the grid is loaded
                 if (typeof this.opencgaClient !== "undefined" && this.opencgaClient instanceof OpenCGAClient
-                    && typeof this.project !== "undefined" && typeof this.study !== "undefined" && typeof this.study.alias !== "undefined") {
+                        && typeof this.project !== "undefined" && typeof this.study !== "undefined" && typeof this.study.alias !== "undefined") {
                     const urlQueryParams = this._getUrlQueryParams();
                     const queryParams = urlQueryParams.queryParams;
                     let _numTotal = -1;
@@ -260,48 +296,48 @@
                         method: "get",
                         sidePagination: "server",
                         queryParams(params) {
-                            queryParams.limit = params.limit;
-                            queryParams.skip = params.offset;
-                            //                            queryParams.skipCount = true;
-                            if (typeof _this.query !== "undefined" && typeof _this.query.gene !== "undefined" && _this.query.gene !== "") {
-                                queryParams.skipCount = false;
+                        queryParams.limit = params.limit;
+                        queryParams.skip = params.offset;
+                        //                            queryParams.skipCount = true;
+                        if (typeof _this.query !== "undefined" && typeof _this.query.gene !== "undefined" && _this.query.gene !== "") {
+                            queryParams.skipCount = false;
+                        }
+                        return queryParams;
+                    },
+                    responseHandler(res) {
+                        if (_numTotal === -1) {
+                            if (_this.summary || (typeof _this.query !== "undefined" && typeof _this.query.gene !== "undefined" && _this.query.gene !== "")) {
+                                _numTotal = res.response[0].numTotalResults;
+                            } else {
+                                _numTotal = 1150;
                             }
-                            return queryParams;
-                        },
-                        responseHandler(res) {
-                            if (_numTotal === -1) {
-                                if (_this.summary || (typeof _this.query !== "undefined" && typeof _this.query.gene !== "undefined" && _this.query.gene !== "")) {
-                                    _numTotal = res.response[0].numTotalResults;
-                                } else {
-                                    _numTotal = 1150;
-                                }
+                        }
+                        return {total: _numTotal, rows: res.response[0].result};
+                    },
+                    onClickRow(row, $element) {
+                        $(".success").removeClass("success");
+                        $($element).addClass("success");
+                        //                            _this._onSelectVariant(row);
+                        _this.region = new Region({chromosome: row.chromosome, start: row.start, end: row.end});
+                        //                            _this.set("region", new Region({chromosome: row.chromosome, start: row.start, end: row.end}));
+                    },
+                    onLoadSuccess(data) {
+                        // The first time we mark as selected the first row that is rows[2] since the first two rows are the header
+                        const table = PolymerUtils.getElementById(`${_this.prefix}VariantGenomeBrowserTable`);
+                        if (UtilsNew.isNotUndefinedOrNull(table)) {
+                            table.rows[1].setAttribute("class", "success");
+                            //                            _this._onSelectVariant(data.rows[0]);
+                            if (typeof data !== "undefined" && data.rows.length > 0) {
+                                _this.region = new Region({
+                                    chromosome: data.rows[0].chromosome,
+                                    start: data.rows[0].start,
+                                    end: data.rows[0].end,
+                                });
+                                //                                    _this.set('region', new Region({chromosome: data.rows[0].chromosome, start: data.rows[0].start, end: data.rows[0].end}));
                             }
-                            return {total: _numTotal, rows: res.response[0].result};
-                        },
-                        onClickRow(row, $element) {
-                            $(".success").removeClass("success");
-                            $($element).addClass("success");
-                            //                            _this._onSelectVariant(row);
-                            _this.region = new Region({chromosome: row.chromosome, start: row.start, end: row.end});
-                            //                            _this.set("region", new Region({chromosome: row.chromosome, start: row.start, end: row.end}));
-                        },
-                        onLoadSuccess(data) {
-                            // The first time we mark as selected the first row that is rows[2] since the first two rows are the header
-                            const table = PolymerUtils.getElementById(`${_this.prefix}VariantGenomeBrowserTable`);
-                            if (UtilsNew.isNotUndefinedOrNull(table)) {
-                                table.rows[1].setAttribute("class", "success");
-                                //                            _this._onSelectVariant(data.rows[0]);
-                                if (typeof data !== "undefined" && data.rows.length > 0) {
-                                    _this.region = new Region({
-                                        chromosome: data.rows[0].chromosome,
-                                        start: data.rows[0].start,
-                                        end: data.rows[0].end,
-                                    });
-                                    //                                    _this.set('region', new Region({chromosome: data.rows[0].chromosome, start: data.rows[0].start, end: data.rows[0].end}));
-                                }
-                            }
-                        },
-                    });
+                        }
+                    },
+                });
                     $(`#${_this.prefix}VariantGenomeBrowserTable`).bootstrapTable("showLoading");
                 }
             }
@@ -405,25 +441,32 @@
             }
 
             onRefreshAlignmentRender(e) {
-                // Update _samples to render variant track and _files to render alignment track
-                this.set("_samples", this.samples);
-                this.set("_files", new Set(this._filesSelectedAlignment));
-                this.set("_filesName", this._filesNameSelectedAlignment);
+                this.tracks.alignment.config.files = this._filesSelectedAlignment;
+                this.tracks.alignment.config.filesName = this._filesSelectedAlignmentName;
+                this.set("tracks", Object.assign({},this.tracks));
             }
 
             toggleSelection(e) {
                 if (UtilsNew.isNotUndefinedOrNull(e.target)) {
-                    const idFile = e.target.getAttribute("data-file-id");
+                    let idFile = e.target.getAttribute("data-file-id");
+                    let filename = e.target.getAttribute("data-file-name");
                     if (UtilsNew.isNotUndefinedOrNull(idFile)) {
-                        const fileName = e.target.getAttribute("data-file-name");
+                        idFile = parseInt(idFile);
                         if (this._filesSelectedAlignment.has(idFile)) {
                             this._filesSelectedAlignment.delete(idFile);
-                            this._filesNameSelectedAlignment.delete(fileName);
+                            let filesSelectedAlignmentName = [];
+                            this._filesSelectedAlignmentName.forEach((element, index) => {
+                                if(idFile !== index){
+                                    filesSelectedAlignmentName[index] = element;
+                                }
+                            });
+                            this._filesSelectedAlignmentName = filesSelectedAlignmentName;
+
                         } else {
                             this._filesSelectedAlignment.add(idFile);
-                            this._filesNameSelectedAlignment.push(fileName);
-                        }
+                            this._filesSelectedAlignmentName[idFile] = filename;
 
+                        }
                     }
                 }
             }
