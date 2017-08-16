@@ -3,16 +3,12 @@
  */
 class ChromosomePanel {
     constructor(args) {
-        // Using Underscore 'extend' function to extend and add Backbone Events
         Object.assign(this, Backbone.Events);
 
         this.id = Utils.genId('ChromosomePanel');
         this.target;
         this.autoRender = true;
         this.client;
-        //DEPRECATED
-        //this.cellBaseHost = 'http://bioinfo.hpc.cam.ac.uk/cellbase';
-        //this.cellBaseVersion = 'v4';
 
         this.pixelBase;
         this.species = 'hsapiens'; // change to config species
@@ -39,14 +35,6 @@ class ChromosomePanel {
         if (this.autoRender) {
             this.render();
         }
-
-        //if (typeof this.dataAdapter === "undefined") {
-        //    if (typeof this.cellBaseHost !== "undefined" && this.cellBaseHost !== null) {
-        //        let cellBaseConfig = new CellBaseClientConfig(this.cellBaseHost, this.cellBaseVersion, this.species.id);
-        //        cellBaseConfig.cache.active = false;
-        //        this.dataAdapter = new CellBaseAdapter(new CellBaseClient(cellBaseConfig), "genomic", "chromosome",this.region.chromosome, "info", {}, { chunkSize: 100000 });
-        //    }
-        //}
     }
 
     show() {
@@ -101,7 +89,7 @@ class ChromosomePanel {
     }
 
     render() {
-        var _this = this;
+        let _this = this;
 
         this.div = $('<div id="chromosome-panel"></div>')[0];
 
@@ -177,9 +165,6 @@ class ChromosomePanel {
         } else{
             _this._drawSvg(_this.data);
         }
-
-
-
 
         this.lastChromosome = this.region.chromosome;
 

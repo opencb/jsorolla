@@ -2,20 +2,15 @@
  * Created by agaor on 14/08/17.
  */
 class KaryotypePanel {
-    constructor(args) {
-    // Using Underscore 'extend' function to extend and add Backbone Events
 
-        _.extend(this, Backbone.Events);
+    constructor(args) {
+        Object.assign(this, Backbone.Events);
 
         this.target;
         this.autoRender = true;
         this.id = Utils.genId('KaryotypePanel');
 
         this.client;
-
-        //DEPRECATED
-        //this.cellBaseHost = 'http://bioinfo.hpc.cam.ac.uk/cellbase';
-        //this.cellBaseVersion = 'v4';
 
         this.pixelBase;
         this.species;
@@ -25,9 +20,8 @@ class KaryotypePanel {
         this.collapsible = true;
         this.hidden = false;
 
-
-    //set instantiation args, must be last
-        _.extend(this, args);
+        //set instantiation args, must be last
+        Object.assign(this, args);
 
         //set own region object
         this.region = new Region(this.region);
