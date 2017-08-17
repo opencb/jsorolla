@@ -395,7 +395,6 @@ class GenomeBrowser{
 
     _drawChromosomePanel(target) {
         let _this = this;
-
         let chromosomePanel = new ChromosomePanel({
             target: target,
             client: this.client,
