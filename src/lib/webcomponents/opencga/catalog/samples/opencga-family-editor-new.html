@@ -1,0 +1,471 @@
+<dom-module id="opencga-family-editor-new">
+    <template>
+        <style include="jso-styles"></style>
+
+        <template is="dom-if" if="{{!_sampleExists}}">
+            <div class="alert alert-warning" role="alert"><h4>No samples selected, please select some samples. {{_sampleExists}}</h4>
+            </div>
+        </template>
+        <template is="dom-if" if="{{_sampleExists}}">
+            <div id="{{prefix}}FilterMenu1" class="col-md-7">
+                <form class="form-inline">
+                    <div class="form-group row" style="padding: 15px 10px">
+                        <label style="padding: 0px 10px">Family name</label>
+                        <input type="text" class="form-control" id="{{prefix}}FamilyName" placeholder="" maxlength="100"
+                               on-change="_changeName" value="{{data.name}}">
+                        <label style="padding: 0px 10px">Description</label>
+                        <textarea class="form-control" id="{{prefix}}FamilyDescription"
+                                  on-change="_changeDescription">{{data.description}}</textarea>
+                    </div>
+                </form>
+
+                <table class="table hover">
+                    <thead>
+                    <tr class="active">
+                        <th>Sample ID</th>
+                        <th>Affected</th>
+                        <th>Deceased</th>
+                        <th>Parental Consanguinity</th>
+                        <th>Mother</th>
+                        <th>Father</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <template is="dom-repeat" items="{{data.samples}}" as="sample">
+                        <tr>
+                            <td>{{sample.name}}</td>
+                            <td>
+                                <template is="dom-repeat" items="{{data.diseases}}" as="disease" index-as="i">
+                                    <input id="{{prefix}}{{disease.id}}Affected" data-sample-id$="{{sample.id}}"
+                                           data-disease-id$="{{disease.id}}"
+                                           checked$="{{isCheckedDisease(sample.id, disease.id)}}"
+                                           type="checkbox" on-change="_selectAffected">
+                                    {{disease.name}}({{disease.id}})
+                                    <br>
+
+                                </template>
+                            </td>
+                            <td>
+                                <input id="{{prefix}}{{sample.name}}Deceased" data-sample-id$="{{sample.id}}"
+                                       type="checkbox" on-change="_selectDeceased" checked$="{{isCheckedDeceased(sample.id)}}"
+                                >
+                            </td>
+                            <td>
+                                <input id="{{prefix}}{{sample.name}}ParentalConsanguinity"
+                                       data-sample-id$="{{sample.id}}" checked$="{{isCheckedParentalConsanguinity(sample.id)}}"
+                                       type="checkbox" on-change="_selectParentalConsanguinity">
+                            </td>
+                            <td>
+                                <div class="dropdown">
+                                    <select class="form-control" id="{{prefix}}{{sample.name}}Mother"
+                                            data-sample-id$="{{sample.id}}" data-is-mother="true"
+                                            on-change="_selectParent">
+                                        <option value="none">Select a sample...</option>
+                                        <template is="dom-repeat" items="{{data.samples}}" as="sampleMother">
+                                            <template is="dom-if" if="{{isSelectedParent(1, sampleMother.id, sample.id)}}">
+                                                <option value="{{sampleMother.id}}" selected>
+                                                    {{sampleMother.name}}
+                                                </option>
+                                            </template>
+                                            <template is="dom-if" if="{{!isSelectedParent(1, sampleMother.id, sample.id)}}">
+                                                <option value="{{sampleMother.id}}">
+                                                    {{sampleMother.name}}
+                                                </option>
+                                            </template>
+                                        </template>
+                                    </select>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="dropdown">
+                                    <select class="form-control" id="{{prefix}}{{sample.name}}Father"
+                                            data-sample-id$="{{sample.id}}" data-is-father="true"
+                                            on-change="_selectParent">
+                                        <option value="none">Select a sample...</option>
+                                        <template is="dom-repeat" items="{{samples}}" as="sampleFather">
+                                            <template is="dom-if" if="{{isSelectedParent(0, sampleFather.id, sample.id)}}">
+                                                <option value="{{sampleFather.id}}" selected>
+                                                    {{sampleFather.name}}
+                                                </option>
+                                            </template>
+                                            <template is="dom-if" if="{{!isSelectedParent(0, sampleFather.id, sample.id)}}">
+                                                <option value="{{sampleFather.id}}">
+                                                    {{sampleFather.name}}
+                                                </option>
+                                            </template>
+                                        </template>
+                                    </select>
+                                </div>
+                            </td>
+                        </tr>
+                    </template>
+                    </tbody>
+                </table>
+            </div>
+        </template>
+
+
+        <div id="{{prefix}}FilterMenu2" class="col-md-5">
+            <div style="padding: 15px 0px">
+                <!--<template is="dom-if" if="{{settings.save}}">-->
+                <!--<template is="dom-if" if="{{_sampleExists}}">-->
+                <!--<div style="width: 80%">-->
+                <!--<button class="btn btn-primary" type="button" style="float: right; padding: 5px 10px"-->
+                <!--data-toggle="tooltip" title="Save pedigree in OpenCGA server">-->
+                <!--<i class="fa fa-floppy-o" aria-hidden="true" style="padding-right: 5px"></i>-->
+                <!--Save-->
+                <!--</button>-->
+                <!--</div>-->
+                <!--</template>-->
+                <!--</template>-->
+
+                <div style="padding: 50px 15px">
+                    <h4>{{pedigreeTitle}}</h4>
+                    <div id="{{prefix}}PedigreeView" style="padding: 5px 5px;font-size: 10px"></div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        class OpencgaFamilyEditorNew extends Polymer.Element {
+
+            constructor() {
+                super();
+
+//                this.prefix = "FamEditor" + Utils.randomString(6);
+            }
+
+            static get is() {
+                return 'opencga-family-editor-new';
+            }
+
+            static get properties() {
+                return {
+//                    opencgaClient: {
+//                        type: Object
+//                    },
+//                    study: {
+//                        type: Object
+//                    },
+                    samples: {
+                        type: Array,
+                        observer: '_updateSamples'
+                    },
+                    diseases: {
+                        type: Array
+                    },
+                    family: {
+                        type: Object
+                    }
+//                    settings: {
+//                        type: Object
+//                    }
+                }
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            ready() {
+                super.ready();
+            }
+
+            connectedCallback() {
+                super.connectedCallback();
+            }
+
+            initData() {
+                this.data = {};
+                if (UtilsNew.isNotUndefinedOrNull(this.samples)) {
+                    this.data.name = this.family.name;
+                    this.data.description = this.family.description;
+                    this.data.diseases = this.diseases;
+                    let _samples = [];
+                    let _this = this;
+                    this.samples.forEach((sample) => {
+                        sample.member = _this.family.members[sample.id];
+                       _samples.push(sample);
+                    });
+                    if (UtilsNew.isNotUndefinedOrNull(this.samples)) {
+                        this._sampleExists = true;
+                    }else{
+                        this._sampleExists = false;
+                    }
+                    _this.data.samples = _samples;
+
+                }
+                this.data = Object.assign({}, this.data);
+            }
+
+            findSample(sampleId) {
+                return this.data.samples.find((sample) => {
+                        return parseInt(sampleId) === sample.id;
+                });
+            }
+
+            isCheckedDisease(sampleId, diseaseId) {
+
+                let sampleSelected = this.findSample(sampleId);
+
+
+                return sampleSelected.member.diseases.has(diseaseId);
+            }
+
+            isCheckedParentalConsanguinity(sampleId) {
+
+                let sampleSelected = this.findSample(sampleId);
+
+
+                return sampleSelected.member.parentalConsanguinity;
+            }
+
+            isCheckedDeceased(sampleId) {
+
+                let sampleSelected = this.findSample(sampleId);
+
+
+                return sampleSelected.member.deceased;
+            }
+
+            isSelectedParent(isMother, sampleParentId, sampleId) {
+
+                let sampleSelected = this.findSample(sampleId);
+                let parentSelected = false;
+                if(isMother){
+                    parentSelected = sampleSelected.member.mother.id === sampleParentId;
+                }else{
+                    parentSelected = sampleSelected.member.father.id === sampleParentId;
+
+                }
+                return parentSelected;
+            }
+
+            _updateSamples() {
+                this.initData();
+                if (UtilsNew.isNotUndefinedOrNull(this.samples)) {
+                    this._sampleExists = true;
+                }else{
+                    this._sampleExists = false;
+                }
+            }
+
+            _changeName(e) {
+                this.data.name = e.target.value;
+                this.family.name = this.data.name;
+                this._updateFamily();
+            }
+
+            _changeDescription(e) {
+                this.data.description = e.target.value;
+                this.family.description = this.data.description;
+                this._updateFamily();
+            }
+
+            _selectAffected(e) {
+                console.log(e);
+                let sampleId = e.target.getAttribute("data-sample-id");
+                let diseaseId = e.target.getAttribute("data-disease-id");
+                let sampleSelected = this.findSample(sampleId);
+
+                if (!sampleSelected.member.diseases.has(diseaseId)) {
+                    sampleSelected.member.diseases.add(diseaseId);
+                } else {
+                    sampleSelected.member.diseases.delete(diseaseId);
+
+                }
+
+                this.family.members[sampleId].diseases = sampleSelected.member.diseases;
+                this._updateFamily();
+            }
+
+            _selectDeceased(e) {
+                console.log(e);
+                console.log(e);
+
+                let sampleId = e.target.getAttribute("data-sample-id");
+                let sampleSelected = this.findSample(sampleId);
+
+                sampleSelected.member.deceased = e.target.checked;
+                this.family.members[sampleId].deceased = sampleSelected.member.deceased;
+                this._updateFamily();
+            }
+
+
+            _selectParentalConsanguinity(e) {
+                console.log(e);
+
+                let sampleId = e.target.getAttribute("data-sample-id");
+                let sampleSelected = this.findSample(sampleId);
+
+                sampleSelected.member.parentalConsanguinity = e.target.checked;
+                this.family.members[sampleId].parentalConsanguinity = sampleSelected.member.parentalConsanguinity;
+                this._updateFamily();
+            }
+
+            _selectParent(e) {
+                console.log(e);
+                let sampleId = e.target.getAttribute("data-sample-id");
+                let isFather = e.target.getAttribute("data-is-father");
+                let isMother = e.target.getAttribute("data-is-mother");
+                let sampleSelected = this.samples.find((sample) => {
+                        return sample.id === parseInt(e.target.value);
+                });
+
+                if (UtilsNew.isNotUndefinedOrNull(sampleSelected)) {
+                    let parent = {
+                        id: sampleSelected.id,
+                        name: sampleSelected.name
+                    };
+
+                    if (isMother === "true") {
+                        sampleSelected.member.mother = parent;
+                        this.family.members[sampleId].mother = parent;
+                    } else if (isFather === "true") {
+                        sampleSelected.member.father = parent;
+                        this.family.members[sampleId].father = parent;
+                    }
+                }
+                this._updateFamily();
+            }
+
+            _updateFamily() {
+                this.dispatchEvent(new CustomEvent('familychange', {
+                    detail: this.family,
+                    bubbles: true,
+                    composed: true
+                }));
+            }
+
+//
+//            selectShowSampleName(e) {
+//                this.pedigreeSettings.selectShowSampleNames = e.currentTarget.checked;
+//                this.pedigreeRender();
+//            }
+//
+//            selectRole(e) {
+//                let role = PolymerUtils.getElementById(this.prefix + e.target.dataSample + "Role").value;
+//                this._samples = this.samples;
+//
+//                let sampleName = e.target.dataSample;
+//                if (role !== "none") {
+//                    this._removeSampleFromPedigree(sampleName);
+//                }
+//
+//                for (let i = 0; i < this._samples.length; i++) {
+//                    if (this._samples[i].name === sampleName) {
+//                        this._samples[i].role = role;
+//                        switch (role) {
+//                            case "father":
+//                            case "Father":
+//                                if (UtilsNew.isNotUndefined(this.pedigree.father)) {
+//                                    PolymerUtils.setPropertyById(this.prefix + this.pedigree.father.name + "Role", 'value', 'none');
+//                                }
+//                                this.pedigree.father = {name: sampleName, gender: "male"};
+//                                break;
+//                            case "mother":
+//                            case "Mother":
+//                                if (UtilsNew.isNotUndefined(this.pedigree.mother)) {
+//                                    PolymerUtils.setPropertyById(this.prefix + this.pedigree.mother.name + "Role", 'value', 'none');
+//                                }
+//                                this.pedigree.mother = {name: sampleName, gender: "female"};
+//                                break;
+//                            case "son":
+//                            case "Son":
+//                                this.pedigree.children.push({name: sampleName, gender: "male"});
+//                                break;
+//                            case "daughter":
+//                            case "Daughter":
+//                                this.pedigree.children.push({name: sampleName, gender: "female"});
+//                                break;
+//                            case "undefined":
+//                                this.pedigree.children.push({name: sampleName, gender: "undefined"});
+//                                break;
+//                            case "none":
+//                                // Remove sample from pedigree
+////                                this._removeSampleFromPedigree(sampleName);
+//                                this.pedigree.children.push({name: sampleName, gender: "undefined"});
+//                                break;
+//                        }
+//                        break;
+//                    }
+//                }
+//                this.pedigreeRender();
+//            }
+//
+//            _createPedigree() {
+//                // Complete the pedigree with the affected and deceased status
+//                if (UtilsNew.isNotUndefined(this.pedigree.father)) {
+//                    this.pedigree.father.affected = this._affected[this.pedigree.father.name];
+//                    this.pedigree.father.deceased = this._deceased[this.pedigree.father.name];
+//                }
+//                if (UtilsNew.isNotUndefined(this.pedigree.mother)) {
+//                    this.pedigree.mother.affected = this._affected[this.pedigree.mother.name];
+//                    this.pedigree.mother.deceased = this._deceased[this.pedigree.mother.name];
+//                }
+//                if (UtilsNew.isNotUndefined(this.pedigree.children)) {
+//                    for (let child of this.pedigree.children) {
+//                        child.affected = this._affected[child.name];
+//                        child.deceased = this._deceased[child.name];
+//                    }
+//                }
+//                return this.pedigree;
+//            }
+//
+//            pedigreeRender() {
+//                let ped = this._createPedigree();
+//
+//                let familyName = "";
+//                if (UtilsNew.isNotUndefinedOrNull(PolymerUtils.getElementById(this.prefix + 'FamilyName'))) {
+//                    familyName = PolymerUtils.getElementById(this.prefix + 'FamilyName').value;
+//                }
+//
+//                this.family = {name: familyName, pedigree: ped};
+//                this.dispatchEvent(new CustomEvent('familychange', {
+//                    detail: this.family,
+//                    bubbles: true,
+//                    composed: true
+//                }));
+//
+//                // Remove SVG before render new one
+//                if (UtilsNew.isNotUndefined(this.svg)) {
+//                    PolymerUtils.getElementById(this.prefix + "PedigreeView").removeChild(this.svg);
+//                }
+//
+//                // Render new Pedigree
+//                let pedigree = new Pedigree(ped);
+//                this.svg = pedigree.render(this.pedigreeSettings);
+//                let querySelector = PolymerUtils.getElementById(this.prefix + "PedigreeView");
+//                querySelector.appendChild(this.svg);
+//            }
+//
+//
+//
+//            _removeSampleFromPedigree(sampleName) {
+//                // Remove the sample from pedigree
+//                if (UtilsNew.isNotUndefined(this.pedigree.father) && this.pedigree.father.name === sampleName) {
+//                    this.pedigree.father = undefined;
+//                }
+//                if (UtilsNew.isNotUndefined(this.pedigree.mother) && this.pedigree.mother.name === sampleName) {
+//                    this.pedigree.mother = undefined;
+//                }
+//                if (UtilsNew.isNotUndefined(this.pedigree.children)) {
+//                    let indexToRemove = -1;
+//                    for (let i = 0; i < this.pedigree.children.length; i++) {
+//                        if (this.pedigree.children[i].name === sampleName) {
+//                            indexToRemove = i;
+//                            break;
+//                        }
+//                    }
+//                    if (indexToRemove !== -1) {
+//                        this.pedigree.children.splice(indexToRemove, 1);
+//                    }
+//                }
+//            }
+        }
+
+        customElements.define(OpencgaFamilyEditorNew.is, OpencgaFamilyEditorNew);
+    </script>
+</dom-module>

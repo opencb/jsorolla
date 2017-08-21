@@ -16,7 +16,7 @@
 
 <link rel="import" href="variant-sample-grid.html">
 <link rel="import" href="../catalog/samples/opencga-sample-filter.html">
-<link rel="import" href="../catalog/samples/opencga-family-editor.html">
+<link rel="import" href="../catalog/samples/opencga-family-editor-new.html">
 <link rel="import" href="../opencga-active-filters.html">
 <link rel="import" href="../opencga-message-dialog.html">
 
@@ -26,15 +26,18 @@
 
         <div class="panel">
             <div class="col-md-2">
-                <opencga-sample-filter study="{{study}}" config="{{config}}" samples="{{samples}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
-                query="{{query}}" search="{{search}}">
+                <opencga-sample-filter study="{{study}}" config="{{config}}" samples="{{samples}}" prefix="{{prefix}}"
+                                       opencga-client="{{opencgaClient}}"
+                                       query="{{query}}" search="{{search}}">
                 </opencga-sample-filter>
             </div>
 
             <div class="col-md-10">
                 <br>
-                <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" filters="{{config.filters}}" fixed-filters="{{fixedFilters}}"
-                alias="{{activeFilterAlias}}" refresh="{{search}}" on-clear="onClear" on-filterchange="onFilterChange"></opencga-active-filters>
+                <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}"
+                                        filters="{{config.filters}}" fixed-filters="{{fixedFilters}}"
+                                        alias="{{activeFilterAlias}}" refresh="{{search}}" on-clear="onClear"
+                                        on-filterchange="onFilterChange"></opencga-active-filters>
 
                 <h3>Sample Results</h3>
                 <variant-sample-grid opencga-client="{{opencgaClient}}" study="{{study}}" samples="{{samples}}"
@@ -85,25 +88,31 @@
         </div>
 
         <!-- Modal dialog for Family Editor-->
-        <div class="modal fade" id="{{prefix}}FamilyEditor" tabindex="-1" role="dialog"
-             aria-labelledby="familyEditorLabel">
-            <div class="modal-dialog modal-sm" role="document" style="width: 1300px;">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                                aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title" id="{{prefix}}FamilyEditorLabel">Family Editor</h4>
-                    </div>
-                    <div class="modal-body" style="height: 500px">
-                        <opencga-family-editor samples="{{_samplesAnalysis}}" opencga-client="{{opencgaClient}}" on-familychange="familyChange"></opencga-family-editor>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="checkFamily">OK
-                        </button>
+            <div class="modal fade" id="{{prefix}}FamilyEditor" tabindex="-1" role="dialog"
+                 aria-labelledby="familyEditorLabel">
+                <div class="modal-dialog modal-sm" role="document" style="width: 1300px;">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                    aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="{{prefix}}FamilyEditorLabel">Family Editor</h4>
+                        </div>
+                        <div class="modal-body" style="height: 500px">
+                            <template is="dom-if" if="{{showModalFamilyEditor}}" restamp="true">
+
+                            <opencga-family-editor-new samples="{{_samplesAnalysis}}" diseases="{{diseasesSamples}}"
+                                                       opencga-client="{{opencgaClient}}" family="{{family}}"
+                                                       on-familychange="familyChange"></opencga-family-editor-new>
+                            </template>
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="checkFamily">OK
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
 
         <!-- Modal dialog for warnings -->
@@ -180,15 +189,18 @@
                     }
                 }
             }
+
             constructor() {
                 super();
             }
+
             _attachDom(dom) {
                 this.appendChild(dom);
             }
+
             ready() {
                 super.ready();
-                if (UtilsNew.isEmpty(this.prefix )) {
+                if (UtilsNew.isEmpty(this.prefix)) {
                     this.prefix = "sample" + Utils.randomString(6);
                 }
 
@@ -197,9 +209,10 @@
                 this.currentAnalysis = {};
                 this.selectedRow = -1;
                 this.unsavedAnalysis = 0;
-
+                this.diseasesSamples = [{id: '11', name: 'enfermedad'}, {id: '22', name: 'enfermedad2'}];
                 this.fixedFilters = ["studies"];
             }
+
             renderAnalysisTable() {
                 let _this = this;
                 $(PolymerUtils.getElementById(this.prefix + "tableAnalysis")).bootstrapTable('destroy');
@@ -218,6 +231,11 @@
                     },
                     onClickCell: function (field, value, row, elem) {
                         if (field === "editFamily") { // Only if cell related to family editor is selected, get samples for this analysis to the family editor
+                            if (UtilsNew.isNotUndefinedOrNull(row.family)) {
+                                _this.family = row.family;
+                            } else {
+                                _this.initFamily();
+                            }
                             _this._samplesAnalysis = row.sampleList;
                             _this.currentAnalysis = row;
                             _this.selectedRow = elem.parent().data("index");
@@ -231,10 +249,45 @@
                 });
 
             }
-            connectedCallback () {
+
+            initFamily() {
+                if (UtilsNew.isNotUndefinedOrNull(this.samples)) {
+                    this.family = {};
+                    this.family.name = "";
+                    this.family.description = "";
+                    this.family.diseases = this.diseases;
+                    this.family.members = [];
+                    this.family.annotation = [];
+                    this.family.createDate = new Date();
+                    this.family.attributes = [];
+                    let _this = this;
+                    this.samples.forEach((sample) => {
+                        _this.family.members[sample.id] = {
+                        member: {id: sample.id},
+                        father: {},
+                        mother: {},
+                        diseases: new Set(),
+                        carrier: [],
+                        parentalConsanguinity: false
+                    }
+                })
+                    ;
+                }
+            }
+
+
+            connectedCallback() {
                 super.connectedCallback();
                 this.table = PolymerUtils.getElementById(this.prefix + "FamilySelector");
                 this.renderAnalysisTable();
+                let _this = this;
+                $("#"+this.prefix + "FamilyEditor").on('shown.bs.modal', function (e) {
+                    _this.showModalFamilyEditor = true;
+                });
+
+                $("#"+this.prefix + "FamilyEditor").on('hidden.bs.modal', function() {
+                    _this.showModalFamilyEditor = false;
+                });
             }
 
             /**
@@ -243,6 +296,7 @@
             onFilterUpdate() {
                 this.updateForms(this.filters);
             }
+
             updateForms(filters) {
                 // This is just to avoid entering here when it has just been initialized
                 if (this.prefix === undefined) {
@@ -272,6 +326,7 @@
                     }
                 }
             }
+
             /**
              * Read from the values in the forms, and sets the filters.
              */
@@ -305,6 +360,7 @@
                 }
                 this.filters = filters;
             }
+
             onSearch() {
                 // Convert the filters to an objectParam that can be directly send to the sample search
                 let filterParams = {};
@@ -340,6 +396,7 @@
                 }
                 this.search = filterParams;
             }
+
             addAnalysis(e) {
 
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
@@ -426,6 +483,7 @@
                     this.unsavedAnalysis++;
                 }
             }
+
             deleteAnalysis(e) {
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
                 let ids = $.map($(PolymerUtils.getElementById(this.prefix + 'tableAnalysis')).bootstrapTable('getSelections'), function (row) {
@@ -438,6 +496,7 @@
                 });
                 this.unsavedAnalysis--;
             }
+
             saveAnalysis(rowInfo) {
                 let children = rowInfo.family.pedigree.children;
                 let _affectedSample = "";
@@ -559,6 +618,7 @@
                         });
                 }
             }
+
             createAnalysis(analysisInfo) {
                 let params = {
                     study: this.project.alias + ":" + this.study.alias
@@ -589,6 +649,7 @@
                         _this.showMessageModal = true;
                     });
             }
+
             familyFormatter(familyEditor, randomString) {
                 if (familyEditor) {
                     return '<button data-toggle="modal" id="' + this.prefix + 'Editor' + randomString + '" role="button" type="button" class="btn btn-sm btn-success" data-target="#' + this.prefix + 'FamilyEditor" ><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;Edit</button>';
@@ -597,6 +658,7 @@
                     return '<button data-toggle="modal" id="' + this.prefix + 'Editor' + randomString + '" role="button" type="button" class="btn btn-sm btn-success disabled" data-target="#' + this.prefix + 'FamilyEditor"><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;Edit</button>';
                 }
             }
+
             actionFormatter(familyEditor, randomString) {
                 if (familyEditor) {
                     return '<button type="button" id="' + this.prefix + 'Save' + randomString + '" class="btn btn-sm btn-primary" disabled><i class="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;Save</button>';
@@ -605,12 +667,14 @@
                     return '<button type="button" id="' + this.prefix + 'Save' + randomString + '" class="btn btn-sm btn-primary"><i class="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;Save</button>';
                 }
             }
+
             analysisFormatter(analysisID, randomString) {
                 return '<input type="text" id="' + this.prefix + 'analysisID' + randomString + '" class="form-control" value="' + analysisID + '" maxlength="75">';
             }
+
             analysisError(analysisType, introducedLength, properLength) {
                 if ((analysisType === 'Trio' || analysisType === 'Duo' || analysisType === 'Single' || analysisType === 'Auto comparative') && introducedLength != properLength) {
-                    PolymerUtils.innerHTML(this.prefix + "warningMsgDiv","Incorrect number of samples selected (" + introducedLength.toString() + ") for " + analysisType + " analysis (" + properLength.toString() + ")");
+                    PolymerUtils.innerHTML(this.prefix + "warningMsgDiv", "Incorrect number of samples selected (" + introducedLength.toString() + ") for " + analysisType + " analysis (" + properLength.toString() + ")");
                     $(PolymerUtils.getElementById(this.prefix + "warningModal")).modal('show');
                     return false;
                 }
@@ -622,25 +686,32 @@
                 else
                     return true;
             }
+
             familyChange(e, family) { // Event fired by opencga-family-editor web component
                 this.family = family;
+
             }
+
             checkFamily(e) {
                 e.preventDefault();
-                let ped = new Pedigree(this.family.pedigree);
+                console.log(this.family);
 
-                if ((this.currentAnalysis.analysisType === "Duo" && ped.isDuo() && this.family.name != "") ||
-                    (this.currentAnalysis.analysisType === "Trio" && ped.isTrio() && this.family.name != "") ||
-                    (this.currentAnalysis.analysisType === "Family" && ped.isFamily() && this.family.name != "")) {
-                    let _this = this;
-                    $(PolymerUtils.getElementById(this.prefix + "tableAnalysis")).bootstrapTable('updateRow', {
-                        index: _this.selectedRow, row: {
-                            family: _this.family
-                        }
-                    });
-                    PolymerUtils.removeAttribute(this.prefix + "Save" + this.currentAnalysis.analysisIDinternal, "disabled");
-                }
+
+//                let ped = new Pedigree(this.family.pedigree);
+                let _this = this;
+                $(PolymerUtils.getElementById(this.prefix + "tableAnalysis")).bootstrapTable('updateRow', {
+                    index: _this.selectedRow, row: {
+                        family: _this.family
+                    }
+                });
+                PolymerUtils.removeAttribute(this.prefix + "Save" + this.currentAnalysis.analysisIDinternal, "disabled");
+//                if ((this.currentAnalysis.analysisType === "Duo" && ped.isDuo() && this.family.name != "") ||
+//                    (this.currentAnalysis.analysisType === "Trio" && ped.isTrio() && this.family.name != "") ||
+//                    (this.currentAnalysis.analysisType === "Family" && ped.isFamily() && this.family.name != "")) {
+//
+//                }
             }
+
             _getTableColumns() {
                 this._columns = [
                     [
@@ -694,14 +765,17 @@
                 ];
                 return this._columns;
             }
+
             onClear() {
                 this.query = {studies: this.project.alias + ":" + this.study.alias};
                 this.search = {};
             }
+
             onFilterChange(e) {
                 this.query = e.detail;
                 this.search = e.detail;
             }
+
             static get observers() {
                 return ['calculateFilters(filteredVariables.variables.*)'];
             }
