@@ -177,7 +177,7 @@
                             <div class="input-group">
                                 <textarea class$="form-control {{prefix}}TextInput codeDis" id="{{prefix}}HPO"
                                           name="HPO"
-                                          placeholder="HP:0000947" data-error="An HPO term must be selected" rows="2"
+                                          placeholder="HP:0000947" data-error="An HPO term must be selected" readonly rows="2"
                                           style="resize:none"></textarea>
                                 <span class="input-group-addon btn btn-primary" data-toggle="modal"
                                       data-target$="#{{prefix}}hpoModal">
@@ -958,10 +958,10 @@
 
                 json.response.docs.forEach((elem) => {
                     let el = document.createElement("option");
-                el.label = elem.obo_id;
-                el.value = elem.label;
-//                                el.addEventListener("change", (e) => {alert(e);});
-                hpo_browser.appendChild(el);
+                    el.label = elem.obo_id;
+                    el.value = elem.label;
+    //                                el.addEventListener("change", (e) => {alert(e);});
+                    hpo_browser.appendChild(el);
             });
 
                 if (json.response.numFound > rowsPerPage) {
@@ -1011,7 +1011,7 @@
             }
 
             clickOkModalHPO(e) {
-                PolymerUtils.setValue(this.prefix + 'HPO', this.selectedHPOTerm.label);
+                PolymerUtils.setValue(this.prefix + 'HPO', this.selectedHPOTerm.label + "("+ this.selectedHPOTerm.obo_id +")");
                 $(PolymerUtils.getElementById(this.prefix + "hpoModal")).modal('hide');
             }
 
