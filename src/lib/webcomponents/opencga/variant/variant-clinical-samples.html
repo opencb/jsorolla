@@ -48,15 +48,15 @@
                 <div id="{{prefix}}toolbar">
                     <div class="btn-group btn-group-sm">
                         <button id="familyButton" class="button" on-click="addAnalysis"><img
-                                src="[[importPath]]images/analysis_family_button.png" height="60"></button>
+                                src="[[importPath]]img/analysis_family_button.png" height="60"></button>
                         <button id="trioButton" class="button" on-click="addAnalysis"><img
-                                src="[[importPath]]images/analysis_trio_button.png" height="60"></button>
+                                src="[[importPath]]img/analysis_trio_button.png" height="60"></button>
                         <button id="duoButton" class="button" on-click="addAnalysis"><img
-                                src="[[importPath]]images/analysis_duo_button.png" height="60"></button>
+                                src="[[importPath]]img/analysis_duo_button.png" height="60"></button>
                         <button id="singleButton" class="button" on-click="addAnalysis"><img
-                                src="[[importPath]]images/analysis_single_button.png" height="60"></button>
+                                src="[[importPath]]img/analysis_single_button.png" height="60"></button>
                         <button id="autoButton" class="button" on-click="addAnalysis"><img
-                                src="[[importPath]]images/analysis_auto_button.png" height="60"></button>
+                                src="[[importPath]]img/analysis_auto_button.png" height="60"></button>
                         <!--<button id="multiButton" class="button" on-click="addAnalysis"><img src="images/analysis_multi_button.png" height="60"></button>-->
                     </div>
                 </div>
@@ -239,8 +239,7 @@
                             _this._samplesAnalysis = row.sampleList;
                             _this.currentAnalysis = row;
                             _this.selectedRow = elem.parent().data("index");
-                        }
-                        else if (field === "action") { // Only if cell related to save is selected
+                        } else if (field === "action") { // Only if cell related to save is selected
                             if (row.family !== null) { // If a family is not defined, save can not be achieved
                                 _this.saveAnalysis(row);
                             }
@@ -263,15 +262,14 @@
                     let _this = this;
                     this.samples.forEach((sample) => {
                         _this.family.members[sample.id] = {
-                        member: {id: sample.id},
-                        father: {},
-                        mother: {},
-                        diseases: new Set(),
-                        carrier: [],
-                        parentalConsanguinity: false
-                    }
-                })
-                    ;
+                            member: {id: sample.id},
+                            father: {},
+                            mother: {},
+                            diseases: new Set(),
+                            carrier: [],
+                            parentalConsanguinity: false
+                        }
+                    });
                 }
             }
 

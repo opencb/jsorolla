@@ -35,10 +35,10 @@
                 <!--<h3>Sample results</h3>-->
                 <variant-sample-grid opencga-client="{{opencgaClient}}" study="{{study}}" samples="{{samples}}" search="{{search}}"></variant-sample-grid>
 
-                <template is="dom-if" if="{{isFamilyMode}}">
+                <template is="dom-if" if="{{isFamilyMode}}" >
                     <div style="padding: 20px 5px">
                         <h3>Family editor</h3>
-                        <opencga-family-editor samples="{{samples}}" opencga-client="{{opencgaClient}}"></opencga-family-editor>
+                        <opencga-family-editor-new samples="{{_samples}}" family="{{family}}"></opencga-family-editor-new>
                     </div>
                 </template>
             </div>
@@ -75,7 +75,8 @@
                     },
                     samples: {
                         type: Array,
-                        notify: true
+                        notify: true,
+                        observer: "sampleChanged"
                     },
                     family: {
                         type: Object,
@@ -112,6 +113,7 @@
 //                this._onUpdateMode();
 
                 this.fixedFilters = ["studies"];
+                this.initFamily();
             }
 
             connectedCallback() {
@@ -119,6 +121,59 @@
 
                 this.table = PolymerUtils.getElementById(this.prefix + "FamilySelector");
             }
+
+            initFamily() {
+                let family = {};
+                if (UtilsNew.isNotUndefinedOrNull(this.samples)) {
+                    family.name = "";
+                    family.description = "";
+                    family.diseases = this.diseases;
+                    family.members = [];
+                    family.annotation = [];
+                    family.createDate = new Date();
+                    family.attributes = [];
+                    let _this = this;
+                    this.samples.forEach((sample) => {
+                        family.members[sample.id] = {
+                            member: {id: sample.id},
+                            father: {},
+                            mother: {},
+                            diseases: new Set(),
+                            carrier: [],
+                            parentalConsanguinity: false
+                        }
+                    });
+
+                }
+                return family;
+            }
+
+            sampleChanged(e) {
+                if(UtilsNew.isUndefinedOrNull(this.family)) {
+                    this.family = this.initFamily();
+                }else{
+                    let members = [];
+                    this.samples.forEach((sample) => {
+                       if(this.family.members[sample.id]!=null){
+                               members[sample.id] = this.family.members[sample.id];
+                        } else {
+                            members[sample.id] = {
+                                member: {id: sample.id},
+                                father: {},
+                                mother: {},
+                                diseases: new Set(),
+                                carrier: [],
+                                parentalConsanguinity: false
+                            }
+                        }
+                    });
+                    this.family.members = members;
+                    this.family = Object.assign({}, this.family);
+                }
+
+                this._samples = this.samples;
+            }
+
 
             _onUpdateMode() {
                 switch (this.mode) {
