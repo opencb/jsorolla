@@ -100,7 +100,7 @@
                         <div class="modal-body" style="height: 500px">
                             <template is="dom-if" if="{{showModalFamilyEditor}}" restamp="true">
 
-                            <opencga-family-editor-new samples="{{_samplesAnalysis}}" diseases="{{diseasesSamples}}"
+                            <opencga-family-editor-new samples="{{_samplesAnalysis}}"
                                                        opencga-client="{{opencgaClient}}" family="{{family}}"
                                                        on-familychange="familyChange"></opencga-family-editor-new>
                             </template>
@@ -209,7 +209,6 @@
                 this.currentAnalysis = {};
                 this.selectedRow = -1;
                 this.unsavedAnalysis = 0;
-                this.diseasesSamples = [{id: '11', name: 'enfermedad'}, {id: '22', name: 'enfermedad2'}];
                 this.fixedFilters = ["studies"];
             }
 
@@ -254,7 +253,7 @@
                     this.family = {};
                     this.family.name = "";
                     this.family.description = "";
-                    this.family.diseases = this.diseases;
+                    this.family.diseases = [];
                     this.family.members = [];
                     this.family.annotation = [];
                     this.family.createDate = new Date();

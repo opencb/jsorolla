@@ -9,13 +9,39 @@
         <template is="dom-if" if="{{_sampleExists}}">
             <div id="{{prefix}}FilterMenu1" class="col-md-7">
                 <form class="form-inline">
-                    <div class="form-group row" style="padding: 15px 10px">
-                        <label style="padding: 0px 10px">Family name</label>
-                        <input type="text" class="form-control" id="{{prefix}}FamilyName" placeholder="" maxlength="100"
+                    <div class="row" style="padding: 15px 10px">
+                        <div class="input-group">
+                            <span class="input-group-addon">Name</span>
+                            <input type="text" class="form-control" id="{{prefix}}FamilyName" placeholder="Family name" maxlength="100"
                                on-change="_changeName" value="{{data.name}}">
-                        <label style="padding: 0px 10px">Description</label>
-                        <textarea class="form-control" id="{{prefix}}FamilyDescription"
+                        </div>
+                    </div>
+                        <div class="row" style="padding: 15px 10px">
+                            <div class="input-group">
+                                <span class="input-group-addon">Description</span>
+                                <textarea class="form-control" id="{{prefix}}FamilyDescription"
                                   on-change="_changeDescription">{{data.description}}</textarea>
+                            </div>
+                    </div>
+                    <h3>Add new disease</h3>
+                    <div class="row" style="padding: 15px 10px">
+                        <div class="input-group">
+                            <span class="input-group-addon">Id</span>
+                            <input type="text" class="form-control" id="{{prefix}}idDisease" placeholder="" maxlength="100">
+                        </div>
+                    </div>
+                        <div class="row" style="padding: 15px 10px">
+                            <div class="input-group">
+                                <span class="input-group-addon">Name</span>
+                                <input type="text" class="form-control" id="{{prefix}}nameDisease" placeholder="" maxlength="100">
+                            </div>
+                        </div>
+                    <div class="row" style="padding: 15px 10px">
+                        <div class="input-group">
+                            <span class="input-group-addon">Src</span>
+                            <input type="text" class="form-control" id="{{prefix}}srcDisease" placeholder="" maxlength="100">
+                        </div>
+                        <button type="button" class="btn btn-secondary" on-click="addDisease">Add</button>
                     </div>
                 </form>
 
@@ -36,7 +62,7 @@
                         <tr>
                             <td>{{sample.name}}</td>
                             <td style="width: 150px;">
-                                <template is="dom-repeat" items="{{data.diseases}}" as="disease" index-as="i">
+                                <template is="dom-repeat" items="{{data.diseases}}" as="disease">
                                     <input id="{{prefix}}{{disease.id}}Affected" data-sample-id$="{{sample.id}}"
                                            data-disease-id$="{{disease.id}}"
                                            checked$="{{isCheckedDisease(sample.id, disease.id)}}"
@@ -183,7 +209,7 @@
 
             connectedCallback() {
                 super.connectedCallback();
-                let drawTable = false;
+                this.newDisease = {};
             }
 
             initData() {
@@ -194,7 +220,7 @@
                 if (UtilsNew.isNotUndefinedOrNull(this.samples)) {
                     this.data.name = this.family.name;
                     this.data.description = this.family.description;
-                    this.data.diseases = this.diseases;
+                    this.data.diseases = this.family.diseases;
                     let _samples = [];
                     let _this = this;
                     this.samples.forEach((sample) => {
@@ -269,11 +295,6 @@
             }
 
             _updateSamples() {
-//                this.drawTable = false;
-//                PolymerUtils.removeElement("samplesTableTr");
-
-
-
                 this.initData();
 
                 if (UtilsNew.isNotUndefinedOrNull(this.samples)) {
@@ -281,12 +302,10 @@
                 } else {
                     this._sampleExists = false;
                 }
-//                this.drawTable = true
 
-                if(PolymerUtils.getElementById("samplesTable")!=null){
-                PolymerUtils.getElementById("samplesTable").render();
+                if(UtilsNew.isNotUndefinedOrNull(PolymerUtils.getElementById("samplesTable"))){
+                    PolymerUtils.getElementById("samplesTable").render();
                 }
-
             }
 
             _changeName(e) {
@@ -371,7 +390,29 @@
                 }
             }
 
+            addDisease(e){
+                this.newDisease.id = PolymerUtils.getValue(this.prefix + "idDisease");
+                PolymerUtils.setValue(this.prefix + "idDisease", "");
+                this.newDisease.name = PolymerUtils.getValue(this.prefix + "nameDisease");
+                PolymerUtils.setValue(this.prefix + "nameDisease", "");
+                this.newDisease.src = PolymerUtils.getValue(this.prefix + "srcDisease");
+                PolymerUtils.setValue(this.prefix + "srcDisease", "");
+
+                this.push("data.diseases",{
+                    id: this.newDisease.id,
+                    name: this.newDisease.name,
+                    src: this.newDisease.src
+                });
+
+                this.diseases = this.data.diseases;
+                this.newDisease = {};
+                this.push("data.diseases");
+                this._updateFamily();
+
+            }
+
             _updateFamily() {
+                // Updating family in parents sending an event.
                 this.dispatchEvent(new CustomEvent('familychange', {
                     detail: this.family,
                     bubbles: true,
