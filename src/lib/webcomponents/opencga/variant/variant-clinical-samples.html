@@ -495,13 +495,13 @@
             }
 
             saveAnalysis(rowInfo) {
-                let children = rowInfo.family.pedigree.children;
-                let _affectedSample = "";
-                for (let i = 0; i < children.length; i++) {
-                    if (children[i].affected) {
-                        _affectedSample = children[i].name;
-                    }
-                }
+//                let children = rowInfo.family.pedigree.children;
+//                let _affectedSample = "";
+//                for (let i = 0; i < children.length; i++) {
+//                    if (children[i].affected) {
+//                        _affectedSample = children[i].name;
+//                    }
+//                }
 
                 let _analysisType = "";
                 switch (rowInfo.analysisType) {
@@ -527,92 +527,80 @@
 
                 if (this.opencgaClient instanceof OpenCGAClient) {
                     // Get family members
-                    let _father = null;
-                    if (UtilsNew.isNotUndefined(rowInfo.family.pedigree.father)) {
-                        for (let j = 0; j < rowInfo.sampleList.length; j++) {
-                            if (rowInfo.family.pedigree.father.name === rowInfo.sampleList[j].name) {
-                                _father = rowInfo.sampleList[j].individual.id;
-                            }
-                        }
-                    }
-
-                    let _mother = null;
-                    if (UtilsNew.isNotUndefined(rowInfo.family.pedigree.mother)) {
-                        for (let j = 0; j < rowInfo.sampleList.length; j++) {
-                            if (rowInfo.family.pedigree.mother.name === rowInfo.sampleList[j].name) {
-                                _mother = rowInfo.sampleList[j].individual.id;
-                            }
-                        }
-                    }
-
-                    let _children = [];
-                    let myChild = rowInfo.family.pedigree.children;
-                    let _sex = "";
-                    for (let i = 0; i < myChild.length; i++) {
-                        for (let j = 0; j < rowInfo.sampleList.length; j++) {
-                            if (myChild[i].name === rowInfo.sampleList[j].name) {
-                                switch (rowInfo.sampleList[j].role) {
-                                    case "son":
-                                        _sex = "MALE";
-                                        break;
-                                    case "daughter":
-                                        _sex = "FEMALE";
-                                        break;
-                                    case "undefined":
-                                        _sex = "UNKNOWN";
-                                        break;
-                                }
-                                _children.push({
-                                    "name": rowInfo.sampleList[j].individual.id,
-                                    "sex": _sex,
-                                    "fatherId": _father,
-                                    "motherId": _mother
-                                });
-                            }
-                        }
-                    }
+//                    let _father = null;
+//                    if (UtilsNew.isNotUndefined(rowInfo.family.pedigree.father)) {
+//                        for (let j = 0; j < rowInfo.sampleList.length; j++) {
+//                            if (rowInfo.family.pedigree.father.name === rowInfo.sampleList[j].name) {
+//                                _father = rowInfo.sampleList[j].individual.id;
+//                            }
+//                        }
+//                    }
+//
+//                    let _mother = null;
+//                    if (UtilsNew.isNotUndefined(rowInfo.family.pedigree.mother)) {
+//                        for (let j = 0; j < rowInfo.sampleList.length; j++) {
+//                            if (rowInfo.family.pedigree.mother.name === rowInfo.sampleList[j].name) {
+//                                _mother = rowInfo.sampleList[j].individual.id;
+//                            }
+//                        }
+//                    }
+//
+//                    let _children = [];
+//                    let myChild = rowInfo.family.pedigree.children;
+//                    let _sex = "";
+//                    for (let i = 0; i < myChild.length; i++) {
+//                        for (let j = 0; j < rowInfo.sampleList.length; j++) {
+//                            if (myChild[i].name === rowInfo.sampleList[j].name) {
+//                                switch (rowInfo.sampleList[j].role) {
+//                                    case "son":
+//                                        _sex = "MALE";
+//                                        break;
+//                                    case "daughter":
+//                                        _sex = "FEMALE";
+//                                        break;
+//                                    case "undefined":
+//                                        _sex = "UNKNOWN";
+//                                        break;
+//                                }
+//                                _children.push({
+//                                    "name": rowInfo.sampleList[j].individual.id,
+//                                    "sex": _sex,
+//                                    "fatherId": _father,
+//                                    "motherId": _mother
+//                                });
+//                            }
+//                        }
+//                    }
 
                     let params = {
                         study: this.project.alias + ":" + this.study.alias
                     };
-                    let body = {
-                        "name": rowInfo.family.name,
-                        "parentalConsanguinity": rowInfo.family.pedigree.parentalConsanguinity,
-                        "mother": {
-                            "name": _mother,
-                            "sex": "FEMALE"
-                        },
-                        "father": {
-                            "name": _father,
-                            "sex": "MALE"
-                        },
-                        "children": _children
-                    };
+                    let body = rowInfo.family;
 
                     let _this = this;
-                    this.opencgaClient.families().create(params, body)
-                        .then(function (response) {
-                            // Create analysis
-                            let analysisInfo = {
-                                analysisID: PolymerUtils.getElementById(_this.prefix + "analysisID" + rowInfo.analysisIDinternal).value,
-                                type: _analysisType,
-                                familyID: rowInfo.family.name,
-                                proband: _children[0].name, // TO BE CHANGED
-                                sample: _affectedSample // TO BE CHANGED
-                            };
-                            _this.createAnalysis(analysisInfo);
-                        })
-                        .catch(function (response) {
-                            _this.settingsMessageModal = {
-                                messageHeader: "Error",
-                                messageBody: [response.error],
-                                type: "danger",
-                                height: "100px",
-                                width: "500px"
-                            };
-
-                            _this.showMessageModal = true;
-                        });
+//                    this.opencgaClient.families().create(params, body)
+//                        .then(function (response) {
+//                            // Create analysis
+//                            let analysisInfo = {
+//                                analysisID: PolymerUtils.getElementById(_this.prefix + "analysisID" + rowInfo.analysisIDinternal).value,
+//                                type: _analysisType,
+//                                familyID: rowInfo.family.name,
+//                                proband: _children[0].name, // TO BE CHANGED
+//                                sample: _affectedSample // TO BE CHANGED
+//                            };
+//                            _this.createAnalysis(analysisInfo);
+//                        })
+//                        .catch(function (response) {
+//                            _this.settingsMessageModal = {
+//                                messageHeader: "Error",
+//                                messageBody: [response.error],
+//                                type: "danger",
+//                                height: "100px",
+//                                width: "500px"
+//                            };
+//
+//                            _this.showMessageModal = true;
+//                        });
                 }
             }
 
