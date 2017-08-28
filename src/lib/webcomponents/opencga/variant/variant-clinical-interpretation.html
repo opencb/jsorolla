@@ -185,8 +185,8 @@
                             <li role="presentation"><a href="#{{prefix}}Genotype" role="tab" data-toggle="tab"
                                                        class="browser-variant-tab-title">Genotype Stats</a></li>
                             <!--<li role="presentation"><a href="#{{prefix}}GenomeView" role="tab" data-toggle="tab" class="browser-variant-tab-title">Genome Context</a></li>-->
-                            <li role="presentation"><a href="#{{prefix}}Beacon" role="tab" data-toggle="tab"
-                                                       class="browser-variant-tab-title">Beacon Network</a></li>
+                            <li role="presentation"><a href="#{{prefix}}GenomeViewer" role="tab" data-toggle="tab"
+                                                       class="browser-variant-tab-title">Genome Viewer</a></li>
                         </ul>
 
                         <div class="tab-content" style="height: 680px">
@@ -208,8 +208,12 @@
                             </div>
 
                             <!--Beacon network-->
-                            <div role="tabpanel" class="tab-pane" id="{{prefix}}Beacon">
-                              beac
+                            <div role="tabpanel" class="tab-pane" id="{{prefix}}GenomeViewer">
+                                <div class="" style="padding: 0px 5px">
+                                    <variant-genome-browser project="{{project}}" study="{{study}}" samples="{{samples}}" active="{{_genomeBrowserActive}}"
+                                                            opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" region="{{regionGenomeBrowser}}">
+                                    </variant-genome-browser>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -259,6 +263,7 @@
                 super.connectedCallback();
                 console.log(this.data);
                 this.cols = this.loadMainTableColumns();
+                this._genomeBrowserActive = false;
                 let _this = this;
                 $("#" + this.prefix + "mainTable").bootstrapTable({
 //                    url: "http://localhost/iva-babelomics/src/conf/interpretation.json",
@@ -273,6 +278,9 @@
                     onClickRow: function (row, $element) {
                         console.log("onClickRow");
                         _this.variant = row.id;
+
+                        _this._genomeBrowserActive = true;
+                        _this.regionGenomeBrowser = new Region({chromosome: row.chromosome, start: row.start, end: row.end});
                     },
                     onLoadSuccess: function (data) {
                         console.log("onLoadSuccess");
@@ -437,7 +445,9 @@
                             colspan: 1,
                             rowspan: 1,
                             formatter: function (value, row, index) {
-                                return  "<span>Comments(" + _this.computedLengthComments(row.comments) + ")</span>"
+                                let res = "<button type='button' class='btn btn-info'>Add to Report</button>";
+
+                                return res + "<br><span>Comments(" + _this.computedLengthComments(row.comments) + ")</span>"
                             },
                             halign: 'center'
 
