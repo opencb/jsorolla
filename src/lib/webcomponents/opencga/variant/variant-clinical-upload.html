@@ -502,8 +502,16 @@
                                     <li class="list-group-item"><strong>IRI: </strong>{{selectedHPOTerm.iri}}</li>
                                     <li class="list-group-item"><strong>Description: </strong>{{selectedHPOTerm.description}}
                                     </li>
+                                    <li class="list-group-item">  <button type="button" class="btn btn-info" on-click="addSelectedTermToList" data-selected-term$="{{selectedHPOTerm}}">Add Term</button>
+                                    </li>
                                 </ul>
                             </template>
+
+                            <ul class="list-group">
+                                <template is="dom-repeat" items="{{listSelectedHPO}}">
+                                    <li class="list-group-item">{{item.label}} <button type="button" class="btn danger" on-click="deletedTermFromList" data-selected-term$="{{item}}">X</button></li>
+                                </template>
+                            </ul>
 
                         </div>
                         <div class="col-sm-6" style="overflow-y: auto; height:400px;">
@@ -875,7 +883,7 @@
                 })
                 .catch((error) => {
                         console.error("ERROR");
-                })
+                });
 
                 return [];
             }
@@ -1004,16 +1012,51 @@
             }
 
             selectHPO(e) {
-                this.selectedHPOTerm = this.hpoFullTerms.find((elem) => {
-                            return elem.label == e.target.value
-                        });
+                if(UtilsNew.isNotUndefinedOrNull(this.hpoFullTerms)){
+                    this.selectedHPOTerm = this.hpoFullTerms.find((elem) => {
+                                return elem.label == e.target.value
+                            });
+                }
+
+            }
+
+            addSelectedTermToList(e){
+                let selectedTerm = JSON.parse(e.target.getAttribute("data-selected-term"));
+                if(UtilsNew.isUndefinedOrNull(this.listSelectedHPO)){
+                    this.listSelectedHPO = [];
+                }
+
+                let containsSelectedElement = this.listSelectedHPO.find((element) => {
+                    return element.label === selectedTerm.label;
+                });
+
+                if(UtilsNew.isUndefinedOrNull(containsSelectedElement)) {
+                    this.push("listSelectedHPO", selectedTerm);
+                }
+            }
+
+            deletedTermFromList(e){
+                let deletedTerm = JSON.parse(e.target.getAttribute("data-selected-term"));
+
+                let listWithoutDeletedTerm = this.listSelectedHPO.filter((element) => {
+                        return element.label !== deletedTerm.label;
+                });
+
+                this.listSelectedHPO = listWithoutDeletedTerm;
 
             }
 
             clickOkModalHPO(e) {
-                PolymerUtils.setValue(this.prefix + 'HPO', this.selectedHPOTerm.label + "("+ this.selectedHPOTerm.obo_id +")");
+                let result = this.listSelectedHPO.map((element) => {
+                    return element.label + "(" + element.obo_id + ")";
+                });
+
+                console.log(result);
+                PolymerUtils.setValue(this.prefix + 'HPO', result.join(","));
                 $(PolymerUtils.getElementById(this.prefix + "hpoModal")).modal('hide');
             }
+
+
 
             updateSelect(e) {
                 PolymerUtils.innerHTML(this.prefix + "_errorDiv_testAge", "");

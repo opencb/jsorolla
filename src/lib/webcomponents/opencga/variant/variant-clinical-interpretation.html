@@ -1,0 +1,301 @@
+<dom-module id="variant-clinical-interpretation">
+
+    <template>
+        <style include="jso-styles">
+            /*
+       * See it in action here: http://jsfiddle.net/seydoggy/6s92p51a/
+       */
+            .panel-table {
+                display: table;
+            }
+
+            .panel-table > .panel-heading {
+                display: table-header-group;
+                background: transparent;
+            }
+
+            .panel-table > .panel-body {
+                display: table-row-group;
+            }
+
+            .panel-table > .panel-body:before,
+            .panel-table > .panel-body:after {
+                content: none;
+            }
+
+            .panel-table > .panel-footer {
+                display: table-footer-group;
+                background: transparent;
+            }
+
+            .panel-table > div > .tr {
+                display: table-row;
+            }
+
+            .panel-table > div:last-child > .tr:last-child > .td {
+                border-bottom: none;
+            }
+
+            .panel-table .td {
+                display: table-cell;
+                padding: 15px;
+                border: 1px solid #ddd;
+                border-top: none;
+                border-left: none;
+            }
+
+            .panel-table .td:last-child {
+                border-right: none;
+            }
+
+            .panel-table > .panel-heading > .tr > .td,
+            .panel-table > .panel-footer > .tr > .td {
+                background-color: #f5f5f5;
+            }
+
+            .panel-table > .panel-heading > .tr > .td:first-child {
+                border-radius: 4px 0 0 0;
+            }
+
+            .panel-table > .panel-heading > .tr > .td:last-child {
+                border-radius: 0 4px 0 0;
+            }
+
+            .panel-table > .panel-footer > .tr > .td:first-child {
+                border-radius: 0 0 0 4px;
+            }
+
+            .panel-table > .panel-footer > .tr > .td:last-child {
+                border-radius: 0 0 4px 0;
+            }
+            .containerDiv{
+                margin-top: 20px;
+            }
+
+        </style>
+        <div class="containerDiv">
+            <div class="row">
+
+                <div class="col-xs-9 col-sm-9 col-md-9 col-lg-9 col-xs-offset-0 col-sm-offset-0 col-md-offset-2 col-lg-offset-2 toppad">
+                    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+
+
+                        <div class="panel panel-default">
+                            <div class="panel-heading" role="tab" id="headingOne">
+                                <h4 class="panel-title">
+                                    <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"
+                                       aria-expanded="true" aria-controls="collapseOne">
+                                        Cases {{data.name}}
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel"
+                                 aria-labelledby="headingOne">
+                                <div class="panel-body">
+
+                                    <table class="table">
+                                        <thead>
+                                        <tr>
+                                            <th colspan="2">Case</th>
+                                            <th colspan="2">Software</th>
+                                            <th colspan="2">Subject</th>
+                                            <th colspan="2">Family</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr>
+                                            <th scope="row">Id</th>
+                                            <td>{{data.id}}</td>
+                                            <th scope="row">Name</th>
+                                            <td>{{data.software.name}}</td>
+                                            <th scope="row">Subject</th>
+                                            <td>{{data.clinicalAnalysis.subject.id}}</td>
+                                            <th scope="row">Family ID</th>
+                                            <td>{{data.clinicalAnalysis.family.id}}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">Name</th>
+                                            <td>{{data.name}}</td>
+                                            <th scope="row">Version</th>
+                                            <td>{{data.software.version}}</td>
+                                            <th scope="row">Name</th>
+                                            <td>{{data.clinicalAnalysis.subject.name}}</td>
+                                            <th scope="row">Name</th>
+                                            <td>{{data.clinicalAnalysis.family.name}}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">Creation date</th>
+                                            <td>{{data.creationDate}}</td>
+                                            <th scope="row">Commit</th>
+                                            <td>{{data.software.commit}}</td>
+                                            <th scope="row">Sex</th>
+                                            <td>{{data.clinicalAnalysis.subject.sex}}</td>
+                                            <th scope="row">Status</th>
+                                            <td>{{data.clinicalAnalysis.family.status.name}}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">Interpreter</th>
+                                            <td>{{data.interpreter.author}}</td>
+                                            <th scope="row">Website</th>
+                                            <td>{{data.software.website}}</td>
+                                            <th scope="row">Date of birth</th>
+                                            <td>{{data.clinicalAnalysis.subject.dateOfBirth}}</td>
+                                            <th scope="row">Creation date</th>
+                                            <td>{{data.clinicalAnalysis.family.creationDate}}</td>
+                                        </tr>
+
+                                        <tr>
+                                            <th scope="row">Comments</th>
+                                            <td colspan="7">filename</td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="panel panel-default">
+                            <div class="panel-heading" role="tab" id="headingTwo">
+                                <h4 class="panel-title">
+                                    <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo"
+                                       aria-expanded="true" aria-controls="collapseTwo">
+                                        SNV/Models
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="collapseTwo" class="panel-collapse collapse in" role="tabpanel"
+                                 aria-labelledby="headingTwo">
+                                <div class="panel-body">
+                                    <div class="panel panel-default panel-table">
+                                        <div class="panel-heading">
+                                            <div class="tr">
+                                                <div class="td">Variant</div>
+                                                <div class="td">Gene</div>
+                                                <div class="td">Consequence/Allele</div>
+                                                <div class="td">Associations</div>
+                                                <div class="td">Zigosity</div>
+                                                <div class="td">Max Allele freq</div>
+                                                <div class="td">Read</div>
+                                                <div class="td">Custon Annotations</div>
+                                                <div class="td">Interpretation</div>
+                                            </div>
+                                        </div>
+                                        <div class="panel-body">
+                                            <template is="dom-repeat" items="{{data.reportedVariants}}">
+                                                <div class="tr">
+                                                    <div class="td">
+                                                        <label>{{item.id}}</label>
+                                                        <label>{{item.chromosome}}</label>
+                                                        <label>{{item.start}}</label>
+                                                        <label>{{item.end}}</label>
+                                                        <label>{{item.type}}</label>
+                                                    </div>
+                                                    <div class="td">Lorem ipsum dolor sit amet, consectetur adipisicing
+                                                        elit.
+                                                        Excepturi aliquam placeat odit quasi autem distinctio veritatis
+                                                        ex
+                                                        numquam nihil
+                                                    </div>
+                                                    <div class="td">Lorem ipsum dolor sit amet, consectetur adipisicing
+                                                        elit.
+                                                        Excepturi aliquam placeat odit quasi autem distinctio veritatis
+                                                        ex
+                                                        numquam nihil nulla tempora a dolorem omnis beatae facilis
+                                                        perspiciatis
+                                                        doloribus? Error dolore!
+                                                    </div>
+                                                    <div class="td">
+                                                        <template is="dom-repeat" items="{{item.reportEvents}}"
+                                                                  as="itemReportEvent">
+                                                            <label>{{itemReportEvent.prediction}}</label>
+                                                            <label>{{itemReportEvent.score}}</label>
+                                                        </template>
+                                                    </div>
+                                                    <div class="td">
+                                                        <template is="dom-repeat" items="{{item.calledGenotypes}}"
+                                                                  as="itemZigosity">
+                                                            <label>{{itemZigosity.genotype}}</label>
+                                                            <label>{{itemZigosity.zigosity}}</label>
+                                                        </template>
+                                                    </div>
+                                                    <div class="td">Lorem ipsum dolor sit amet, consectetur adipisicing
+                                                        elit.
+                                                        Excepturi aliquam placeat odit quasi autem distinctio veritatis
+                                                        ex
+                                                        numquam nihil nulla tempora a dolorem omnis beatae facilis
+                                                        perspiciatis
+                                                        doloribus? Error dolore!
+                                                    </div>
+                                                    <div class="td">Lorem ipsum dolor sit amet, consectetur adipisicing
+                                                        elit.
+                                                        Excepturi aliquam placeat odit quasi autem distinctio veritatis
+                                                        ex
+                                                        numquam nihil nulla tempora a dolorem omnis beatae facilis
+                                                        perspiciatis
+                                                        doloribus? Error dolore!
+                                                    </div>
+                                                    <div class="td">
+                                                    </div>
+                                                    <div class="td">
+                                                        <button type="button" class="btn btn-primary">Add to Report
+                                                        </button>
+                                                        <hr>
+                                                        <button type="button" class="btn btn-info">Case Intepretation
+                                                        </button>
+                                                        <hr>
+                                                        Comments({{computedLengthComments(item.comments)}})
+                                                    </div>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        class VariantClinicalInterpretation extends Polymer.Element {
+
+            constructor() {
+                super();
+            }
+
+            static get is() {
+                return "variant-clinical-interpretation";
+            }
+
+            static get properties() {
+                return {
+                    data: {
+                        type: Object
+                    }
+                };
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            ready() {
+                super.ready();
+            }
+
+            connectedCallback() {
+                super.connectedCallback();
+                console.log(this.data);
+            }
+
+            computedLengthComments(comments) {
+                return comments.length;
+            }
+        }
+
+        customElements.define(VariantClinicalInterpretation.is, VariantClinicalInterpretation);
+
+    </script>
+</dom-module>
