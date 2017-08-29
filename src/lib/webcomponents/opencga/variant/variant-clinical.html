@@ -162,9 +162,17 @@
             <template is="dom-if" if="{{activesTab.prioritizationTab}}">
                 <div class="analysis-content" id="{{prefix}}PrioritizationButtonDiv">
                     <div class="col-md-2">
-                        <variant-clinical-filter mode="{{mode}}" study="{{study}}" project="{{project}}" samples="{{samples}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"
+                    <!--    <variant-clinical-filter mode="{{mode}}" study="{{study}}" project="{{project}}" samples="{{samples}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"
                                                  population-frequencies="{{populationFrequencies}}" biotypes="{{biotypes}}" consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}" analysis-selected="{{analysisSelected}}" style="font-size: 12px">
-                        </variant-clinical-filter>
+                        </variant-clinical-filter>-->
+
+                        <variant-browser-filter mode="{{mode}}" study="{{study}}" project="{{project}}" samples="{{samples}}"
+                                                opencga-client="{{opencgaClient}}"
+                                                cellbase-client="{{cellbaseClient}}" config="{{config}}"
+                                                population-frequencies="{{populationFrequencies}}" biotypes="{{biotypes}}"
+                                                consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}"
+                                                on-closemodalsample="onCloseModalSample"  analysis-selected="{{analysisSelected}}" style="font-size: 12px">
+                        </variant-browser-filter>
                     </div>
     
                     <div class="col-md-10">

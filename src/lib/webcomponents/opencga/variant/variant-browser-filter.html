@@ -300,52 +300,52 @@
                 </template>
 
                 <!-- CLINICAL filters -->
-                <!--<template is="dom-if" if="{{isClinicalMode}}">-->
-                <!--<div class="panel panel-default">-->
-                <!--<div class="panel-heading" role="tab" id="{{prefix}}SampleAnalysisHeading">-->
-                <!--<h4 class="panel-title">-->
-                <!--<a class="collapsed" role="button" data-toggle="collapse"-->
-                <!--data-parent="#{{prefix}}Accordion" href="#{{prefix}}AnalysisSelector"-->
-                <!--aria-expanded="true" aria-controls="{{prefix}}AnalysisSelector">-->
-                <!--Analysis-->
-                <!--</a>-->
-                <!--</h4>-->
-                <!--</div>-->
+                <template is="dom-if" if="{{isClinicalMode}}">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" role="tab" id="{{prefix}}SampleAnalysisHeading">
+                            <h4 class="panel-title">
+                                <a class="collapsed" role="button" data-toggle="collapse"
+                                   data-parent="#{{prefix}}Accordion" href="#{{prefix}}AnalysisSelector"
+                                   aria-expanded="true" aria-controls="{{prefix}}AnalysisSelector">
+                                    Analysis
+                                </a>
+                            </h4>
+                        </div>
 
-                <!--<div id="{{prefix}}AnalysisSelector" class="panel-collapse collapse in" role="tabpanel"-->
-                <!--aria-labelledby="{{prefix}}SampleFilterHeading">-->
-                <!--<div class="panel-body">-->
-                <!--<label><i class="fa fa-sitemap" aria-hidden="true"></i>Select analysis:</label>-->
-                <!--<br>-->
-                <!--<button data-toggle="modal" role="button" data-placement="bottom"-->
-                <!--data-target$="#{{prefix}}AnalysisBrowser">-->
-                <!--Browse...-->
-                <!--</button>-->
-                <!--<div id="analysisSelectedDiv" style="display:none">-->
-                <!--<label>Analysis selected:</label>-->
-                <!--<input type="text" class$="browser-custom-sized-input {{prefix}}FilterTextInput"-->
-                <!--placeholder="AN-28" aria-describedby="basic-addon1" disabled>-->
-                <!--</div>-->
+                        <div id="{{prefix}}AnalysisSelector" class="panel-collapse collapse in" role="tabpanel"
+                             aria-labelledby="{{prefix}}SampleFilterHeading">
+                            <div class="panel-body">
+                                <label><i class="fa fa-sitemap" aria-hidden="true"></i>Select analysis:</label>
+                                <br>
+                                <button data-toggle="modal" role="button" data-placement="bottom"
+                                          on-click="showClinicalSelector">
+                                    Browse...
+                                </button>
+                                <div id="analysisSelectedDiv" style="display:none">
+                                    <label>Analysis selected:</label>
+                                    <input type="text" class$="browser-custom-sized-input {{prefix}}FilterTextInput"
+                                           placeholder="AN-28" aria-describedby="basic-addon1" disabled>
+                                </div>
 
-                <!--<div class="dropdown" id="segregationDropdownDiv" style="display: none">-->
-                <!--<button class="btn btn-default btn-sm dropdown-toggle" type="button"-->
-                <!--id="segregationDropdown" data-toggle="dropdown" aria-haspopup="true"-->
-                <!--aria-expanded="true">-->
-                <!--{{segregation}}-->
-                <!--<span class="caret"></span>-->
-                <!--</button>-->
-                <!--<ul class="dropdown-menu" aria-labelledby="segregationDropdown"-->
-                <!--on-click="selectSegregation">-->
-                <!--<template is="dom-repeat" items="{{config.segregation}}">-->
-                <!--<li><a>{{item}}</a></li>-->
-                <!--</template>-->
-                <!--</ul>-->
-                <!--</div>-->
+                                <div class="dropdown" id="segregationDropdownDiv" style="display: none">
+                                    <button class="btn btn-default btn-sm dropdown-toggle" type="button"
+                                            id="segregationDropdown" data-toggle="dropdown" aria-haspopup="true"
+                                            aria-expanded="true">
+                                        {{segregation}}
+                                        <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="segregationDropdown"
+                                        on-click="selectSegregation">
+                                        <template is="dom-repeat" items="{{config.segregation}}">
+                                            <li><a>{{item}}</a></li>
+                                        </template>
+                                    </ul>
+                                </div>
 
-                <!--</div>-->
-                <!--</div>-->
-                <!--</div>-->
-                <!--</template>-->
+                            </div>
+                        </div>
+                    </div>
+                </template>
 
                 <br>
                 <!-- Region filter -->
@@ -863,27 +863,27 @@
             </div>
         </div>
 
-        <!-- Modal dialog for Analysis Browser-->
-        <!--<div class="modal fade" id="{{prefix}}AnalysisBrowser" tabindex="-1" role="dialog"-->
-        <!--aria-labelledby="sampleBrowserLabel">-->
-        <!--<div class="modal-dialog modal-lg" role="document" style="width: 1280px;">-->
-        <!--<div class="modal-content">-->
-        <!--<div class="modal-header">-->
-        <!--<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span-->
-        <!--aria-hidden="true">&times;</span></button>-->
-        <!--<h4 class="modal-title" id="{{prefix}}AnalysisBrowserLabel">Analysis Selector</h4>-->
-        <!--</div>-->
-        <!--<div class="modal-body" style="height: 780px">-->
-        <!--&lt;!&ndash;<variant-clinical-selector></variant-clinical-selector>&ndash;&gt;-->
-        <!--</div>-->
-        <!--<div class="modal-footer">-->
-        <!--<button type="button" class="btn btn-primary" data-dismiss="modal" on-click="showSegregation">-->
-        <!--OK-->
-        <!--</button>-->
-        <!--</div>-->
-        <!--</div>-->
-        <!--</div>-->
-        <!--</div>-->
+        Modal dialog for Analysis Browser
+        <div class="modal fade" id="{{prefix}}AnalysisBrowser" tabindex="-1" role="dialog"
+             aria-labelledby="sampleBrowserLabel">
+            <div class="modal-dialog modal-lg" role="document" style="width: 1280px;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="{{prefix}}AnalysisBrowserLabel">Analysis Selector</h4>
+                    </div>
+                    <div class="modal-body" style="height: 780px">
+                        <variant-clinical-selector opencga-client="{{opencgaClient}}" analysis-selected="{{analysisSelected}}" analysis-modal="{{analysisModal}}" study="{{study}}" show-pedigree="{{showPedigree}}"></variant-clinical-selector>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="showSegregation">
+                            OK
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </template>
 
     <script>
@@ -1744,6 +1744,18 @@
 
             closeModalSample(e) {
                 this.dispatchEvent(new CustomEvent("closemodalsample", {detail: {}, bubbles: true, composed: true}));
+            }
+
+            showClinicalSelector(e){
+                e.preventDefault();
+                if (UtilsNew.isUndefined(this.analysisModal)){
+                    this.analysisModal = true;
+                }
+                else {
+                    this.analysisModal = ! this.analysisModal;
+                }
+                $("#" + this.prefix + "AnalysisBrowser").modal('show');
+
             }
         }
 
