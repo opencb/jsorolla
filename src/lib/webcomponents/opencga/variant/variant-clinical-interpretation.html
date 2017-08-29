@@ -75,15 +75,17 @@
 
         </style>
 
-        <div class="panel">
+        <div class="panel" style="margin-bottom: 15px">
             <h3 style="margin: 10px 10px 10px 15px">
-                <i class="fa fa-sitemap" aria-hidden="true"></i>
-                &nbsp;{{title}}
+                 <span  on-click="onCollapse"  style="cursor: pointer;margin: 0px 30px 0px 0px">
+                    <i class="fa fa-bars" aria-hidden="true"></i>
+                </span>
+                <i class="fa fa-filter" aria-hidden="true"></i>{{title}}
             </h3>
         </div>
         <div class="containerDiv">
             <div class="row">
-                <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 toppad">
+                <div id="{{prefix}}filterBrowser" class="col-xs-2 col-sm-2 col-md-2 col-lg-2 toppad">
                     <variant-browser-filter mode="{{mode}}" study="{{study}}" project="{{project}}" samples="{{samples}}"
                                             opencga-client="{{opencgaClient}}"
                                             cellbase-client="{{cellbaseClient}}" config="{{config}}"
@@ -93,7 +95,7 @@
                     </variant-browser-filter>
                 </div>
 
-                <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10 toppad">
+                <div id="{{prefix}}mainIntepretation" class="col-xs-10 col-sm-10 col-md-10 col-lg-10 toppad">
                     <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
 
 
@@ -256,7 +258,29 @@
                 return {
                     data: {
                         type: Object
-                    }
+                    },
+                    title: {
+                        type: String,
+                        value: ""
+                    },
+                    project: {
+                        type: Object
+                    },
+                    study: {
+                        type: Object
+                    },
+                    proteinSubstitutionScores: {
+                        type: Object
+                    },
+                    consequenceTypes: {
+                        type: Object
+                    },
+                    opencgaClient: {
+                        type: Object
+                    },
+                    cellbaseClient: {
+                        type: Object
+                    },
                 };
             }
 
@@ -280,6 +304,7 @@
                 console.log(this.data);
                 this.cols = this.loadMainTableColumns();
                 this._genomeBrowserActive = false;
+                this._collapse = false;
                 let _this = this;
                 $("#" + this.prefix + "mainTable").bootstrapTable({
 //                    url: "http://localhost/iva-babelomics/src/conf/interpretation.json",
@@ -472,6 +497,22 @@
                 ];
 
                 return initCols;
+            }
+
+            onCollapse() {
+                if (this._collapsed) {
+//                    $("#" + this.prefix + "FilterMenu").css("display", "inline");
+                    $("#" + this.prefix + "filterBrowser").show(400);
+                    PolymerUtils.removeClass(this.prefix + "mainIntepretation", ["col-xs-offset-0", "col-sm-offset-0", "col-md-offset-1", "col-lg-offset-1"])
+
+                } else {
+//                    $("#" + this.prefix + "FilterMenu").css("display", "none");
+                    $("#" + this.prefix + "filterBrowser").hide(400);
+                    PolymerUtils.addClass(this.prefix + "mainIntepretation", ["col-xs-offset-0", "col-sm-offset-0", "col-md-offset-1", "col-lg-offset-1"])
+
+                }
+
+                this._collapsed = !this._collapsed;
             }
         }
 
