@@ -43,7 +43,7 @@
 
                             <ul class="list-group">
                                 <template is="dom-repeat" items="{{listCurrentSelected}}">
-                                    <li class="list-group-item">{{item.label}} <button type="button" class="btn danger" on-click="deletedTermFromList" data-selected-term$="{{item}}">X</button></li>
+                                    <li class="list-group-item">{{item.label}}({{item.obo_id}}) <button type="button" class="btn danger" on-click="deletedTermFromList" data-selected-term$="{{item}}">X</button></li>
                                 </template>
                             </ul>
 
@@ -78,7 +78,7 @@
                     },
                     ontologyFilter:{
                         type: String,
-                        observer: "changeOntology"
+                        observer: "init"
                     },
                     term:{
                         type: String
@@ -96,7 +96,6 @@
 
             connectedCallback(){
                 super.connectedCallback();
-                this.init();
                 PolymerUtils.getElementById(this.prefix + "autoInput").addEventListener('keyup', e => this.searchTerm(e));
             }
 
@@ -104,15 +103,16 @@
                 this.loadTermsTree();
                 this.parseSearchTerms = [];
                 this.selectedTerm = {};
+                PolymerUtils.setValue(this.prefix + "autoInput", "");
+                this.listCurrentSelected = this.selectedTerms;
             }
 
             selectTerm(e) {
                 if(UtilsNew.isNotUndefinedOrNull(this.fullTerms)){
                     this.selectedTerm = this.fullTerms.find((elem) => {
-                            return elem.label == e.target.value
-                        });
+                        return elem.label == e.target.value
+                    });
                 }
-
             }
 
             addSelectedTermToList(e){
@@ -142,10 +142,9 @@
 
             clickOkModal(e) {
                 let result = this.listCurrentSelected.map((element) => {
-                        return element.label + "(" + element.obo_id + ")";
+                        return element.obo_id ;
                 });
 
-                console.log(result);
                 this.dispatchEvent(new CustomEvent("propagateok", {
                     detail: {result: result, originalResult: this.listCurrentSelected},
                     bubbles: true,
@@ -164,34 +163,29 @@
                             let list_browser = PolymerUtils.getElementById("list_browser");
                             PolymerUtils.innerHTML("list_browser", "");
                             _this.parseSearchTerms = json.response.docs.map((elem) => {
-                                    return elem.label + "(" + elem.obo_id + ")"
-                                });
+                                return elem.label + "(" + elem.obo_id + ")"
+                            });
                             _this.fullTerms = json.response.docs;
 
                             json.response.docs.forEach((elem) => {
                                 let el = document.createElement("option");
                                 el.label = elem.obo_id;
                                 el.value = elem.label;
-                                //                                el.addEventListener("change", (e) => {alert(e);});
                                 list_browser.appendChild(el);
                             });
 
-                if (json.response.numFound > rowsPerPage) {
-                    PolymerUtils.innerHTML("resultsSearch", "Exists more results for search: " + e.target.value + ". Showing 15 of " + json.response.numFound);
-                }else{
-                    PolymerUtils.innerHTML("resultsSearch", "Showing "+json.response.numFound +" results.");
+                            if (json.response.numFound > rowsPerPage) {
+                                PolymerUtils.innerHTML("resultsSearch", "Exists more results for search: " + e.target.value + ". Showing 15 of " + json.response.numFound);
+                            }else{
+                                PolymerUtils.innerHTML("resultsSearch", "Showing "+json.response.numFound +" results.");
 
-                }
-
-
-            });
-
-            })
-            .catch((error) => {
-                    console.error(error);
-            });
+                            }
+                        });
+                    })
+                    .catch((error) => {
+                        console.error(error);
+                    });
             }
-
 
             drawTree(data) {
                 let _this = this;
@@ -199,55 +193,49 @@
                 $(PolymerUtils.getElementById(this.prefix + "TermsTree")).treeview({
                     data: data,
                     onNodeSelected: function (event, node) {
-                        //_this.$$("#" + _this.prefix + "autoInput").value=node.text;
-//                        PolymerUtils.setPropertyById(_this.prefix + "autoInput", 'value', node.text);
                         _this.selectedTerm = _this.fullTree.find((elem) => {
-                                return elem.label == node.text
+                            return elem.label == node.text
                         });
                         if (UtilsNew.isNotUndefinedOrNull(_this.selectedTerm)) {
                             PolymerUtils.setValue(_this.prefix + "autoInput", node.text);
                         }
-
                     },
                     onNodeUnselected: function (event, node) {
                         //_this.$$("#" + _this.prefix + "autoInput").value="";
 //                        PolymerUtils.setPropertyById(_this.prefix + "autoInput", 'value', '');
                     },
                     onNodeExpanded: function (event, node) {
-                        console.log(node);
-
                         if (UtilsNew.isEmptyArray(node.nodes)) {
                             let currentNodeInTree = _this.rootTree[0];
                             node.path.forEach((elem) => {
                                 currentNodeInTree = currentNodeInTree.nodes[elem];
-                        });
+                            });
                             fetch(node.children)
                                 .then((response) => {
-                                response.json().then((json) => {
-                                console.log(json);
-                            json._embedded.terms.forEach((elem) => {
-                                _this.fullTree.push(elem);
-                            let path = currentNodeInTree.path.slice();
-                            path.push(currentNodeInTree.nodes.length);
-                            currentNodeInTree.nodes.push({
-                                text: elem.label,
-                                selectable: true,
-                                iri: elem.iri,
-                                has_children: elem.has_children,
-                                children: elem.has_children ? elem._links.children.href : '',
-                                nodes: elem.has_children ? [] : null,
-                                path: path,
-                                state: {expanded: false},
-                            });
-                        });
-                            currentNodeInTree.state.expanded = true;
-                            _this.drawTree(data);
+                                    response.json().then((json) => {
+                                        json._embedded.terms.forEach((elem) => {
+                                            _this.fullTree.push(elem);
+                                            let path = currentNodeInTree.path.slice();
+                                            path.push(currentNodeInTree.nodes.length);
+                                            currentNodeInTree.nodes.push({
+                                                text: elem.label,
+                                                selectable: true,
+                                                iri: elem.iri,
+                                                has_children: elem.has_children,
+                                                children: elem.has_children ? elem._links.children.href : '',
+                                                nodes: elem.has_children ? [] : null,
+                                                path: path,
+                                                state: {expanded: false},
+                                            });
+                                        });
+                                        currentNodeInTree.state.expanded = true;
+                                        _this.drawTree(data);
 
-                        });
-                        })
-                        .catch((error) => {
-                                console.error("ERROR");
-                        })
+                                    });
+                                })
+                                .catch((error) => {
+                                        console.error("ERROR");
+                                });
                         }
                     }
                 });
@@ -279,7 +267,7 @@
                                         state: {expanded: false},
                                     });
 //                            });
-                                _this.drawTree(_this.rootTree);
+                                _   this.drawTree(_this.rootTree);
                                 });
                             })
                             .catch((error) => {
@@ -292,12 +280,6 @@
                 return [];
             }
 
-
-            changeOntology(e){
-                this.init();
-                PolymerUtils.setValue(this.prefix + "autoInput", "");
-                this.listCurrentSelected = this.selectedTerms;
-            }
         }
 
         customElements.define(VariantModalOntology.is, VariantModalOntology);

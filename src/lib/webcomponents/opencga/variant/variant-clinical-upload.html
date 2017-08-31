@@ -14,6 +14,7 @@
   ~ limitations under the License.
   -->
 <link rel="import" href="../opencga-message-dialog.html">
+<link rel="import" href="variant-modal-ontology.html">
 
 <dom-module id="variant-clinical-upload">
     <template>
@@ -179,8 +180,7 @@
                                           name="HPO"
                                           placeholder="HP:0000947" data-error="An HPO term must be selected" readonly rows="2"
                                           style="resize:none"></textarea>
-                                <span class="input-group-addon btn btn-primary" data-toggle="modal"
-                                      data-target$="#{{prefix}}hpoModal">
+                                <span class="input-group-addon btn btn-primary "on-click="openModalHpo">
                                     <i class="fa fa-search" aria-hidden="true"></i>
                                 </span>
                             </div>
@@ -468,62 +468,9 @@
             </div>
         </div>
 
-        <!-- Modal dialog for HPO terms-->
-        <div class="modal fade" id="{{prefix}}hpoModal" tabindex="-1" role="dialog"
-             aria-labelledby="hpoLabel" data-backdrop="static" data-keyboard="false">
-            <div class="modal-dialog modal-sm" role="document" style="width: 1300px;">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                                aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title" id="{{prefix}}HPOEditorLabel">HPO terms selector</h4>
-                    </div>
-                    <div class="modal-body" style="height: 500px">
-                        <div class="col-sm-12">
-                            <label>Introduce an HPO term</label>
-                        </div>
-                        <div class="col-sm-6" style="overflow-y: auto; height:400px;">
-                            <label id="resultsHpo"></label>
-                            <input id="{{prefix}}autoInputHpo" list="hpo_browser"
-                                   class$="form-control {{prefix}}TextInput"
-                                   placeholder="HPO term" on-change="selectHPO" on-input="selectHPO">
-
-                            <datalist id="hpo_browser" style="height:auto; max-height:100px; overflow-x:hidden;">
-
-                            </datalist>
-
-
-                            <template is="dom-if" if="{{selectedHPOTerm}}">
-                                <ul class="list-group infoHpo">
-                                    <li class="list-group-item"><strong>Label: </strong>{{selectedHPOTerm.label}}</li>
-                                    <li class="list-group-item"><strong>Short form: </strong>{{selectedHPOTerm.short_form}}
-                                    </li>
-                                    <li class="list-group-item"><strong>Obo Id: </strong>{{selectedHPOTerm.obo_id}}</li>
-                                    <li class="list-group-item"><strong>IRI: </strong>{{selectedHPOTerm.iri}}</li>
-                                    <li class="list-group-item"><strong>Description: </strong>{{selectedHPOTerm.description}}
-                                    </li>
-                                    <li class="list-group-item">  <button type="button" class="btn btn-info" on-click="addSelectedTermToList" data-selected-term$="{{selectedHPOTerm}}">Add Term</button>
-                                    </li>
-                                </ul>
-                            </template>
-
-                            <ul class="list-group">
-                                <template is="dom-repeat" items="{{listSelectedHPO}}">
-                                    <li class="list-group-item">{{item.label}} <button type="button" class="btn danger" on-click="deletedTermFromList" data-selected-term$="{{item}}">X</button></li>
-                                </template>
-                            </ul>
-
-                        </div>
-                        <div class="col-sm-6" style="overflow-y: auto; height:400px;">
-                            <div id="{{prefix}}HPOtree"></div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" on-click="clickOkModalHPO">OK</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!--<variant-modal-ontology prefix="{{prefix}}" ebi-config="{{ebiConfig}}" on-propagateok="propagateOkHPO" ontology-filter="{{ontologyFilter}}" term="HPO"></variant-modal-ontology>-->
+       <variant-modal-ontology prefix="{{prefix}}" ebi-config="{{ebiConfig}}" on-propagateok="propagateOkHPO" ontology-filter="{{ontologyFilter}}"
+                             term="{{ontologyTerm}}" selected-terms="{{selectedTermsOntology}}"></variant-modal-ontology>
 
         <!-- Modal dialog for ICD-10 diagnosis selector-->
         <div class="modal fade" id="{{prefix}}icd" tabindex="-1" role="dialog"
@@ -674,6 +621,7 @@
                 }
                 // This change triggers the polymer dom-repeat
                 this.yearsTest = _years;
+                this.ontologyFilter = "hp";
 
                 //this.set('icd10Terms', ICD_10);
             }
@@ -689,11 +637,6 @@
                     }]);
                 });
                 this.loadICDEditor();
-                this.loadHPOTree();
-                this.hpoTerms = [];
-                PolymerUtils.getElementById(this.prefix + "autoInputHpo").addEventListener('keyup', e => this.searchHpoTerm(e));
-
-
             }
 
             updateVariableSets() {
@@ -856,137 +799,6 @@
                 return _auxTerms;
             }
 
-            loadHPOTree() {
-                this.HPOTree = [{text: "All", nodes: [], selectable: false}];
-                this.HPOFullTree = [];
-
-                let _this = this;
-                fetch(this.ebiConfig.root + this.ebiConfig.defaultTree)
-                        .then((response) => {
-                            response.json().then((json) => {
-                            console.log(json);
-                            json._embedded.terms.forEach((elem) => {
-                                _this.HPOFullTree.push(elem);
-                                _this.HPOTree[0].nodes.push({
-                                    text: elem.label,
-                                    selectable: true,
-                                    iri: elem.iri,
-                                    has_children: elem.has_children,
-                                    children: elem.has_children ? elem._links.children.href : '',
-                                    nodes: elem.has_children ? [] : null,
-                                    path: [_this.HPOTree[0].nodes.length],
-                                    state: {expanded: false},
-                                });
-                            });
-                        _this.drawHPOTree(_this.HPOTree);
-                    });
-                })
-                .catch((error) => {
-                        console.error("ERROR");
-                });
-
-                return [];
-            }
-
-            drawHPOTree(data) {
-                let _this = this;
-
-                $(PolymerUtils.getElementById(this.prefix + "HPOtree")).treeview({
-                    data: data,
-                    onNodeSelected: function (event, node) {
-                        //_this.$$("#" + _this.prefix + "autoInput").value=node.text;
-//                        PolymerUtils.setPropertyById(_this.prefix + "autoInput", 'value', node.text);
-                        _this.selectedHPOTerm = _this.HPOFullTree.find((elem) => {
-                                    return elem.label == node.text
-                                });
-                        if (UtilsNew.isNotUndefinedOrNull(_this.selectedHPOTerm)) {
-                            PolymerUtils.setValue(_this.prefix + "autoInputHpo", node.text);
-                        }
-
-                    },
-                    onNodeUnselected: function (event, node) {
-                        //_this.$$("#" + _this.prefix + "autoInput").value="";
-//                        PolymerUtils.setPropertyById(_this.prefix + "autoInput", 'value', '');
-                    },
-                    onNodeExpanded: function (event, node) {
-                        console.log(node);
-
-                        if (UtilsNew.isEmptyArray(node.nodes)) {
-                            let currentNodeInTree = _this.HPOTree[0];
-                            node.path.forEach((elem) => {
-                                currentNodeInTree = currentNodeInTree.nodes[elem];
-                        });
-                            fetch(node.children)
-                                    .then((response) => {
-                                response.json().then((json) => {
-                                console.log(json);
-                            json._embedded.terms.forEach((elem) => {
-                                _this.HPOFullTree.push(elem);
-                            let path = currentNodeInTree.path.slice();
-                            path.push(currentNodeInTree.nodes.length);
-                            currentNodeInTree.nodes.push({
-                                text: elem.label,
-                                selectable: true,
-                                iri: elem.iri,
-                                has_children: elem.has_children,
-                                children: elem.has_children ? elem._links.children.href : '',
-                                nodes: elem.has_children ? [] : null,
-                                path: path,
-                                state: {expanded: false},
-                            });
-                        });
-                            currentNodeInTree.state.expanded = true;
-                            _this.drawHPOTree(data);
-
-                        });
-                        })
-                        .catch((error) => {
-                                console.error("ERROR");
-                        })
-                        }
-                    }
-                });
-            }
-
-            searchHpoTerm(e) {
-                let rowsPerPage = 15;
-                console.log("entrando HPO search");
-                let _this = this;
-                var queryEncoded = encodeURI(e.target.value);
-
-                fetch(this.ebiConfig.root + this.ebiConfig.search + "?q=*" + queryEncoded + "*&ontology=hp&rows=" + rowsPerPage + "&queryFields=label,obo_id")
-                        .then((response) => {
-                    response.json().then((json) => {
-                    let hpo_browser = PolymerUtils.getElementById("hpo_browser");
-                PolymerUtils.innerHTML("hpo_browser", "");
-                _this.hpoTerms = json.response.docs.map((elem) => {
-                            return elem.label + "(" + elem.obo_id + ")"
-                        });
-                _this.hpoFullTerms = json.response.docs;
-
-                json.response.docs.forEach((elem) => {
-                    let el = document.createElement("option");
-                    el.label = elem.obo_id;
-                    el.value = elem.label;
-    //                                el.addEventListener("change", (e) => {alert(e);});
-                    hpo_browser.appendChild(el);
-            });
-
-                if (json.response.numFound > rowsPerPage) {
-                    PolymerUtils.innerHTML("resultsHpo", "Exists more results for search: " + e.target.value + ". Showing 15 of " + json.response.numFound);
-                }else{
-                    PolymerUtils.innerHTML("resultsHpo", "Showing "+json.response.numFound +" results.");
-
-                }
-
-
-            });
-
-            })
-            .catch((error) => {
-                    console.error(error);
-            });
-            }
 
             selectICD(e) {
                 e.preventDefault();
@@ -1011,52 +823,18 @@
                 }
             }
 
-            selectHPO(e) {
-                if(UtilsNew.isNotUndefinedOrNull(this.hpoFullTerms)){
-                    this.selectedHPOTerm = this.hpoFullTerms.find((elem) => {
-                                return elem.label == e.target.value
-                            });
-                }
-
+            openModalHpo(){
+                this.selectedTermsOntology = this.selectedTermsHPO;
+                this.ontologyFilter = "hp";
+                this.ontologyTerm = "HPO";
+                $("#" + this.prefix + "ontologyModal").modal('show');
             }
 
-            addSelectedTermToList(e){
-                let selectedTerm = JSON.parse(e.target.getAttribute("data-selected-term"));
-                if(UtilsNew.isUndefinedOrNull(this.listSelectedHPO)){
-                    this.listSelectedHPO = [];
-                }
-
-                let containsSelectedElement = this.listSelectedHPO.find((element) => {
-                    return element.label === selectedTerm.label;
-                });
-
-                if(UtilsNew.isUndefinedOrNull(containsSelectedElement)) {
-                    this.push("listSelectedHPO", selectedTerm);
-                }
+            propagateOkHPO(e){
+                PolymerUtils.setValue(this.prefix + "HPO", e.detail.result.join(","));
+                this.selectedTermsHPO = e.detail.originalResult;
+                $("#" + this.prefix + "ontologyModal").modal('hide');
             }
-
-            deletedTermFromList(e){
-                let deletedTerm = JSON.parse(e.target.getAttribute("data-selected-term"));
-
-                let listWithoutDeletedTerm = this.listSelectedHPO.filter((element) => {
-                        return element.label !== deletedTerm.label;
-                });
-
-                this.listSelectedHPO = listWithoutDeletedTerm;
-
-            }
-
-            clickOkModalHPO(e) {
-                let result = this.listSelectedHPO.map((element) => {
-                    return element.label + "(" + element.obo_id + ")";
-                });
-
-                console.log(result);
-                PolymerUtils.setValue(this.prefix + 'HPO', result.join(","));
-                $(PolymerUtils.getElementById(this.prefix + "hpoModal")).modal('hide');
-            }
-
-
 
             updateSelect(e) {
                 PolymerUtils.innerHTML(this.prefix + "_errorDiv_testAge", "");
