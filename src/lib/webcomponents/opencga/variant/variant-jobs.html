@@ -14,61 +14,39 @@
                     <div class="modal-body" style="height: auto;">
 
                         <div class="list-group">
+                            <template is="dom-if" if="{{!jobsResponse}}">
+                                <label>No jobs exists</label>
+                            </template>
+                            <template is="dom-repeat" items="{{jobsResponse}}" index-as="i">
+                                <div class="list-group-item">
+                                    <h4 class="list-group-item-heading"><i class="fa fa-times" aria-hidden="true"></i>
+                                        {{item.name}}</h4>
+                                    <div class="list-group-item-text">
+                                        <div style="display:inline-block">
+                                            <span>{{item.test}}</span>
+                                            <label>{{item.status.name}}</label>
+                                            <i>[[parseDate(item.creationDate)]]</i>
+                                        </div>
+                                        <div style="display:inline-block;float:right;">
+                                            <i class="fa fa-bars" aria-hidden="true"></i>
 
-                            <div class="list-group-item">
-                                <h4 class="list-group-item-heading"><i class="fa fa-times" aria-hidden="true"></i>
-                                    List group item heading</h4>
-                                <div class="list-group-item-text">
-                                    <div style="display:inline-block">
-                                        <span>Owner</span>
-                                        <label>Status</label>
-                                        <i>29/08/2017</i>
+                                        </div>
+                                        <p><a on-click="showMore" data-expanded="false" data-id-show-more="showMore{{i}}">Show
+                                            more..</a></p>
+                                        <div id="showMore{{i}}" style="display: none;">
+                                            <label>Description:</label>
+                                            <p>{{item.description}}:</p>
+                                            <label>Error:</label>
+                                            <p>{{item.error}}</p>
+                                            <label>Error Description:</label>
+                                            <p>{{item.errorDescription}}</p>
+
+
+                                        </div>
+
                                     </div>
-                                    <div style="display:inline-block;float:right;">
-                                        <i class="fa fa-bars" aria-hidden="true"></i>
-
-                                    </div>
-                                    <p><a on-click="showMore" data-expanded="false" data-id-show-more="showMore1">Show
-                                        more..</a></p>
-                                    <div id="showMore1" style="display: none;">
-                                        <label>Description:</label>
-                                        <p>Description</p>
-                                        <label>Error:</label>
-                                        <p>Error 404</p>
-                                        <label>Error Description:</label>
-                                        <p>Error Description</p>
-
-                                    </div>
-
                                 </div>
-                            </div>
-                            <div class="list-group-item">
-                                <h4 class="list-group-item-heading"><i class="fa fa-times" aria-hidden="true"></i>
-                                    List group item heading</h4>
-                                <div class="list-group-item-text">
-                                    <div style="display:inline-block">
-                                        <span>Owner</span>
-                                        <label>Status</label>
-                                        <i>29/08/2017</i>
-                                    </div>
-                                    <div style="display:inline-block;float:right;">
-                                        <i class="fa fa-bars" aria-hidden="true"></i>
-
-                                    </div>
-                                    <p><a on-click="showMore" data-expanded="false" data-id-show-more="showMore2">Show
-                                        more..</a></p>
-                                    <div id="showMore2" style="display: none;">
-                                        <label>Description:</label>
-                                        <p>Description</p>
-                                        <label>Error:</label>
-                                        <p>Error 404</p>
-                                        <label>Error Description:</label>
-                                        <p>Error Description</p>
-
-                                    </div>
-
-                                </div>
-                            </div>
+                            </template>
                         </div>
                     </div>
 
@@ -90,7 +68,13 @@
             }
 
             static get properties() {
-                return {};
+                return {
+                    study: {
+                        type: Object,
+                        observer: 'loadJobs'
+
+                    }
+                };
             }
 
             _attachDom(dom) {
@@ -101,8 +85,38 @@
                 super.ready();
             }
 
+            connectedCallback(){
+                super.connectedCallback();
+                this.jobsResponse = [];
+            }
+
+            loadJobs(){
+                if(UtilsNew.isNotUndefinedOrNull(this.study)){
+                    let params = {
+                        studyId: this.study.id,
+                        count: false
+                    };
+
+                    let _this = this;
+
+                    this.opencgaClient.jobs().search(params).then((response) => {
+                            console.log(response);
+                            if(UtilsNew.isNotEmptyArray(response.response) && response.response[0].numResults > 0){
+                                _this.jobsResponse = response.response[0].result.splice(0);
+                            }
+                        })
+                        .catch((error) => {
+                            console.error(error);
+                        });
+                }
+            }
+
+            parseDate(date){
+                return moment(parseInt(date)).format('D/MMM/YY HH:mm:ss');
+            }
+
             showMore(e) {
-                let idShowMore = e.target.getAttribute("data-id-show-more");
+                let idShowMore = e.target.dataIdShowMore;
                 let isExpanded = e.target.getAttribute("data-expanded");
 
                 if (isExpanded === "false") {

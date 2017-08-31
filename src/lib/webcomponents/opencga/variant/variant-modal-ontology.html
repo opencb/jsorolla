@@ -141,9 +141,13 @@
             }
 
             clickOkModal(e) {
-                let result = this.listCurrentSelected.map((element) => {
-                        return element.obo_id ;
-                });
+                let result = [];
+                if(UtilsNew.isNotEmptyArray(this.listCurrentSelected)){
+                    result = this.listCurrentSelected.map((element) => {
+                            return element.obo_id ;
+                    });
+
+                }
 
                 this.dispatchEvent(new CustomEvent("propagateok", {
                     detail: {result: result, originalResult: this.listCurrentSelected},
