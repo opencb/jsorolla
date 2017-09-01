@@ -574,15 +574,6 @@
                                 </div>
                             </div>
                             <br>
-                            <form>
-                                <label style="font-weight: normal;">Logical Operator</label>
-                                <input type="radio" name="pss" id="pssOrRadio" value="or" class$="{{prefix}}FilterRadio"
-                                       checked disabled on-change="updateQueryFilters" style="margin-left: 10px"> OR<br>
-                                <input type="radio" name="pss" id="pssAndRadio" value="and"
-                                       class$="{{prefix}}FilterRadio" disabled on-change="updateQueryFilters"
-                                       style="margin-left: 102px"> AND<br>
-                            </form>
-                            <br>
 
                             <b>CADD</b>
                             <div class="block" style="padding-top: 10px">
@@ -621,6 +612,13 @@
                                             class="fa fa-info-circle" aria-hidden="true"></i></a>
                                 </div>
                             </div>
+                            <form>
+                                <input type="radio" name="pss" id="pssOrRadio" value="or" class$="{{prefix}}FilterRadio"
+                                       checked disabled on-change="updateQueryFilters" > OR<br>
+                                <input type="radio" name="pss" id="pssAndRadio" value="and"
+                                       class$="{{prefix}}FilterRadio" disabled on-change="updateQueryFilters"
+                                       > AND<br>
+                            </form>
                         </div>
                     </div>
                 </div>
