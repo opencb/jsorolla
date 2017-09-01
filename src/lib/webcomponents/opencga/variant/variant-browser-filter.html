@@ -94,6 +94,13 @@
                 padding: 5px 0px 5px 0px;
                 font-weight: bold;
             }
+
+            span.searchingSpan{
+                background-color: #286090;
+            }
+            .searchingButton{
+                color: #fff;
+            }
         </style>
 
         <div>
@@ -794,8 +801,8 @@
                             <div class="form-group">
                                 <textarea id="{{prefix}}GeneOntologyTextarea" readonly class$="form-control clearable {{prefix}}FilterTextInput"
                                           rows="3" name="geneOntology" placeholder="GO:0000145" on-keyup="updateQueryFilters"></textarea>
-                                <span class="input-group-addon btn btn-primary" on-click="openModalGo">
-                                    <i class="fa fa-search" aria-hidden="true"></i>
+                                <span class="input-group-addon btn btn-primary searchingSpan" on-click="openModalGo">
+                                    <i class="fa fa-search searchingButton" aria-hidden="true"></i>
                                 </span>
                             </div>
                         </div>
@@ -819,8 +826,8 @@
                                 <span class="browser-subsection">HPO Accessions</span>
                                 <textarea id="{{prefix}}HumanPhenotypeOntologyTextarea" readonly class$="form-control clearable {{prefix}}FilterTextInput"
                                           rows="3" name="hpo" placeholder="HP:0000001, HP:3000079" on-keyup="updateQueryFilters"></textarea>
-                                <span class="input-group-addon btn btn-primary" on-click="openModalHpo">
-                                    <i class="fa fa-search" aria-hidden="true"></i>
+                                <span class="input-group-addon btn btn-primary searchingSpan" on-click="openModalHpo">
+                                    <i class="fa fa-search searchingButton" aria-hidden="true"></i>
                                 </span>
                             </div>
 

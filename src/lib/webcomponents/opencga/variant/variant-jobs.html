@@ -14,9 +14,6 @@
                     <div class="modal-body" style="height: auto;">
 
                         <div class="list-group">
-                            <template is="dom-if" if="{{!jobsResponse}}">
-                                <label>No jobs exists</label>
-                            </template>
                             <template is="dom-repeat" items="{{jobsResponse}}" index-as="i">
                                 <div class="list-group-item">
                                     <h4 class="list-group-item-heading"><i class="fa fa-times" aria-hidden="true"></i>
@@ -35,7 +32,7 @@
                                             more..</a></p>
                                         <div id="showMore{{i}}" style="display: none;">
                                             <label>Description:</label>
-                                            <p>{{item.description}}:</p>
+                                            <p>{{item.description}}</p>
                                             <label>Error:</label>
                                             <p>{{item.error}}</p>
                                             <label>Error Description:</label>
