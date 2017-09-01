@@ -179,7 +179,8 @@
                        <variant-prioritization-view prefix="{{prefix}}" mode="clinical" title="{{title}}" project="{{project}}" study="{{study}}" samples="{{samples}}"
                                                      opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}"
                                                      protein-substitution-scores="{{proteinSubstitutionScores}}" consequence-types="{{consequenceTypes}}"
-                                                     query="{{query}}" search="{{search}}" on-clear="onClear" on-filterchange="onFilterChange" on-save="onSaveVariants" on-propagate="propagateGeneEvent">
+                                                     query="{{query}}" search="{{search}}" on-clear="onClear" on-filterchange="onFilterChange"
+                                                    on-save="onSaveVariants" on-propagate="propagateGeneEvent">
                         </variant-prioritization-view>
                     </div>
                 </div>
@@ -365,6 +366,11 @@
                             });
                     }
                 }
+            }
+
+            onClear(){
+                this.query = {studies: this.project.alias + ":" + this.study.alias};
+                this.search = {};
             }
         }
         customElements.define(VariantClinical.is, VariantClinical);
