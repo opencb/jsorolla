@@ -9,8 +9,9 @@
   "scripts": {
     "build-network-viewer": "./build-network-viewer.sh",
     "core": "cd src/core && cat *.js cache/*.js clients/*.js data-adapter/*.js data-source/*.js visualisation/*.js > ../../dist/core.js && cd ../.. && node_modules/uglify-es/bin/uglifyjs dist/core.js -o dist/core.min.js",
-    "genome-browser": "cd src/genome-browser && cat *.js renderers/*.js tracks/*.js > ../../dist/genome-browser.js && cd ../.. && node_modules/uglify-es/bin/uglifyjs dist/genome-browser.js -o dist/genome-browser.min.js",
-    "dist": "rm -rf dist && mkdir dist && npm run core && npm run genome-browser"
+    "genome-browser": "cd src/genome-browser && cat *.js renderers/*.js tracks/*.js > ../../dist/genome-browser/genome-browser.js && cd ../.. && node_modules/uglify-es/bin/uglifyjs dist/genome-browser/genome-browser.js -o dist/genome-browser/genome-browser.min.js",
+    "dist": "rm -rf dist && mkdir dist && mkdir dist/genome-browser && npm run core && npm run genome-browser",
+    "build": "npm run dist && cp dist/genome-browser/*.js build && cp src/genome-browser/genome-browser.html build"
   },
   "license": "GPL-2.0",
   "dependencies": {
