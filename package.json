@@ -7,7 +7,10 @@
     "url": "https://github.com/opencb/jsorolla.git"
   },
   "scripts": {
-    "build-network-viewer": "./build-network-viewer.sh"
+    "build-network-viewer": "./build-network-viewer.sh",
+    "core": "cd src/core && cat *.js cache/*.js clients/*.js data-adapter/*.js data-source/*.js visualisation/*.js > ../../dist/core.js && cd ../.. && node_modules/uglify-es/bin/uglifyjs dist/core.js -o dist/core.min.js",
+    "genome-browser": "cd src/genome-browser && cat *.js renderers/*.js tracks/*.js > ../../dist/genome-browser.js && cd ../.. && node_modules/uglify-es/bin/uglifyjs dist/genome-browser.js -o dist/genome-browser.min.js",
+    "dist": "rm -rf dist && mkdir dist && npm run core && npm run genome-browser"
   },
   "license": "GPL-2.0",
   "dependencies": {
@@ -55,6 +58,6 @@
     "js-beautify": "~1.6.2",
     "vulcanize": "~1.14.8",
     "crisper": "~2.0.1",
-    "uglify-js": "^2.6.2"
+    "uglify-es": "~3.0.28"
   }
 }

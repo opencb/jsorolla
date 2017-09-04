@@ -1,5 +1,6 @@
 
 build/
+dist/
 *node_modules/
 bower_components/
 grunt/
