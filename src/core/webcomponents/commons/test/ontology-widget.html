@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../../../../../../../node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <!-- /build -->
+
+    <!-- build:css css/bootstrap-table.min.css -->
+    <link rel="stylesheet" href="../../../../../../../node_modules/bootstrap-table/dist/bootstrap-table.min.css">
+    <!-- /build -->
+
+    <!-- build:css css/bootstrap-treeview.min.css -->
+    <link rel="stylesheet" href="../../../../../../../node_modules/bootstrap-treeview/dist/bootstrap-treeview.min.css">
+    <!-- /build -->
+
+    <!-- build:css css/bootstrap-colorpicker.min.css -->
+    <link rel="stylesheet" href="../../../../../../../node_modules/bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css">
+    <!-- /build -->
+
+    <!-- build:css css/bootstrap-datetimepicker.min.css -->
+    <link rel="stylesheet" href="../../../../../../../node_modules/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css">
+    <!-- /build -->
+
+    <!-- build:css css/font-awesome.min.css -->
+    <link rel="stylesheet" href="../../../../../../../node_modules/font-awesome/css/font-awesome.min.css">
+    <!-- /build -->
+
+    <!-- build:css css/jquery.qtip.min.css -->
+    <link rel="stylesheet" href="../../../../../../../node_modules/qtip2/dist/jquery.qtip.min.css">
+
+    <script type="text/javascript" src="../../../../../../../node_modules/@webcomponents/webcomponentsjs/webcomponents-lite.js"></script>
+    <script type="text/javascript" src="../../../../../../../node_modules/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="../../../../../../../node_modules/underscore/underscore-min.js"></script>
+    <script type="text/javascript" src="../../../../../../../node_modules/backbone/backbone-min.js"></script>
+    <script type="text/javascript" src="../../../../../../../node_modules/moment/min/moment.min.js"></script>
+    <script type="text/javascript" src="../../../../../../../node_modules/highcharts/highcharts.js"></script>
+    <script type="text/javascript" src="../../../../../../../node_modules/qtip2/dist/jquery.qtip.min.js"></script>
+    <script type="text/javascript" src="../../../../../../../node_modules/urijs/src/URI.min.js"></script>
+    <script type="text/javascript" src="../../../../../../../node_modules/cookies-js/dist/cookies.min.js"></script>
+    <script type="text/javascript" src="../../../../../../../node_modules/crypto-js/core.js"></script>
+    <script type="text/javascript" src="../../../../../../../node_modules/crypto-js/sha256.js"></script>
+    <script type="text/javascript" src="../../../utilsNew.js"></script>
+    <script type="text/javascript" src="../../../utils.js"></script>
+    <script type="text/javascript" src="../../PolymerUtils.js"></script>
+    <!--<script type="text/javascript" src="../../../../../../../node_modules/jspdf/dist/jspdf.min.js"></script>-->
+    <!--<script type="text/javascript" src="../../../../../../../node_modules/html2pdf/src/html2pdf.js"></script>-->
+
+    <script type="text/javascript" src="../../../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../../../../../../node_modules/bootstrap-table/dist/bootstrap-table.min.js"></script>
+    <script type="text/javascript" src="../../../../../../../node_modules/bootstrap-treeview/dist/bootstrap-treeview.min.js"></script>
+    <script type="text/javascript" src="../../../../../../../node_modules/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min.js"></script>
+    <script type="text/javascript" src="../../../../../../../node_modules/bootstrap-validator/dist/validator.min.js"></script>
+    <script type="text/javascript" src="../../../../../../../node_modules/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
+    <link rel="import" href="../../../../../../../node_modules/@polymer/polymer/polymer-element.html">
+    <link rel="import" href="../../../../../../../node_modules/@polymer/polymer/lib/elements/dom-repeat.html">
+    <link rel="import" href="../../../../../../../node_modules/@polymer/polymer/lib/elements/dom-if.html">
+    <link rel="import" href="../../../../../../../node_modules/@polymer/polymer/lib/elements/array-selector.html">
+    <link rel="import" href="../../../../../../../node_modules/@polymer/polymer/lib/elements/custom-style.html">
+    <link rel="import" href="../variant-modal-ontology.html">
+
+
+
+</head>
+<body>
+<dom-module id="my-element">
+    <template>
+
+        <button on-click="openModalHpo">
+            Abrir modal
+        </button>
+
+        <variant-modal-ontology prefix="{{prefix}}" ebi-config="{{ebiWS}}" on-propagateok="propagateOkHPO" ontology-filter="hp"
+                                term="HPO" selected-terms="{{selectedTermsOntology}}"></variant-modal-ontology>
+
+    </template>
+    <script>
+    HTMLImports.whenReady(function() {
+    // define the element's class element
+    class MyElement extends Polymer.Element {
+
+        static get is() { return 'my-element'; }
+        static get properties(){
+            return {
+                prefix:{
+                    type: String
+                }
+            }
+        }
+        _attachDom(dom) {
+            this.appendChild(dom);
+        }
+        constructor(){
+            super();
+            this.ebiWS = {
+                root: "http://www.ebi.ac.uk/ols/api",
+                tree: {
+                    "hp": ["/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0012823", "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0040279",
+                        "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0000005", "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0040006",
+                        "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0000118", "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FUPHENO_0001002"],
+                    "go": ["/ontologies/go/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FGO_0008150", "/ontologies/go/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FGO_0005575",
+                        "/ontologies/go/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FGO_0003674"]
+                },
+                search: "/search"
+            };
+            if (UtilsNew.isEmpty(this.prefix)) {
+                this.prefix = "ff" + Utils.randomString(6);
+            }
+        }
+        // Element class can define custom element reactions
+        connectedCallback() {
+            super.connectedCallback();
+            this.selectedTermsHPO = [];
+            console.log('my-element created!');
+        }
+
+        ready() {
+            super.ready();
+        }
+
+            openModalHpo(e){
+                this.selectedTermsOntology = this.selectedTermsHPO;
+                this.ontologyFilter = "hp";
+                this.ontologyTerm = "HPO";
+                $("#" + this.prefix + "ontologyModal").modal('show');
+            }
+
+            propagateOkHPO(e){
+        //            PolymerUtils.setValue(this.prefix + "HPO", e.detail.result.join(","));
+                this.selectedTermsHPO = e.detail.originalResult;
+                $("#" + this.prefix + "ontologyModal").modal('hide');
+            }
+
+
+        }
+        customElements.define(MyElement.is, MyElement);
+        });
+    </script>
+</dom-module>
+<my-element></my-element>
+</body>
+</html>
