@@ -48,9 +48,6 @@ class Pedigree {
     }
 
     _render(ped, settings) {
-
-        let pedigree = this._process(ped);
-
         // If no settings is provided we use the one passed in the constructor
         if (typeof settings === "undefined" || settings === null) {
             settings = this.settings;
@@ -58,19 +55,22 @@ class Pedigree {
 
         // We merge user's setting with default settings, by doing this users do not have to write al possible settings
         settings = Object.assign(this._getDefaultSetting(), settings);
-        // settings = this.settings;
+
+        let pedigree = this._preprocessFamily(ped);
 
         let svg = SVG.create("svg", {
             width: settings.width,
             height: settings.height,
             viewBox: "0 0 " + settings.width + " " + settings.height,
-            style: "fill: white"
+            style: "fill: white",
+            xmlns: "http://www.w3.org/2000/svg"
         });
 
         if (settings.border) {
             SVG.addChild(svg, "rect", {width: settings.width, height: settings.height, style: "fill: white;stroke: black"});
         }
 
+        svg.appendChild(this._createSvgDefs(pedigree, settings));
 
         let xCenter = settings.width / 2;
         let radius = settings.box / 2;
@@ -78,7 +78,6 @@ class Pedigree {
         // Draw the lines between parents and children
         if (typeof pedigree.father !== "undefined" || typeof pedigree.mother !== "undefined") {
             let verticalBarOffset = 0;
-            // if (pedigree.parentalConsanguinity) {
             if (pedigree.father.partnerConsaguinity || pedigree.mother.partnerConsaguinity) {
                 verticalBarOffset = 2;
                 SVG.addChild(svg, "line", {
@@ -110,20 +109,20 @@ class Pedigree {
 
         // Draw the FATHER
         if (typeof pedigree.father !== "undefined") {
-            pedigree.father.sex = "male";
-            this._addChild(pedigree.father, xCenter - 1.5 * settings.box, 10, settings.box, radius, settings.selectShowSampleNames, svg);
+            // pedigree.father.sex = "male";
+            this._addFamilyMember(pedigree.father, xCenter - 1.5 * settings.box, 10, settings.box, radius, settings.selectShowSampleNames, svg);
         }
 
         // Draw the MOTHER
         if (typeof pedigree.mother !== "undefined") {
-            pedigree.mother.sex = "female";
-            this._addChild(pedigree.mother, xCenter + 1.5 * settings.box, 10, settings.box, radius, settings.selectShowSampleNames, svg);
+            // pedigree.mother.sex = "female";
+            this._addFamilyMember(pedigree.mother, xCenter + 1.5 * settings.box, 10, settings.box, radius, settings.selectShowSampleNames, svg);
         }
 
         // Draw the CHILDREN
         if (typeof pedigree.children !== "undefined" && pedigree.children.length > 0) {
             if (pedigree.children.length === 1) {
-                this._addChild(pedigree.children[0], xCenter, 2 * settings.box + 10, settings.box, radius, settings.selectShowSampleNames, svg);
+                this._addFamilyMember(pedigree.children[0], xCenter, 2 * settings.box + 10, settings.box, radius, settings.selectShowSampleNames, svg);
             } else {
                 let numChildren = pedigree.children.length;
                 let w =  (numChildren + numChildren - 1) * settings.box;
@@ -143,7 +142,7 @@ class Pedigree {
                         style: "stroke: black;stroke-width: 2"
                     });
 
-                    this._addChild(pedigree.children[i], left + (i * interval), (1.5 * settings.box) + 15 + 10 + radius, settings.box, radius, settings.selectShowSampleNames, svg);
+                    this._addFamilyMember(pedigree.children[i], left + (i * interval), (1.5 * settings.box) + 15 + 10 + radius, settings.box, radius, settings.selectShowSampleNames, svg);
                 }
             }
         }
@@ -151,32 +150,30 @@ class Pedigree {
         return svg;
     }
 
-    _addChild(object, x, y, width, radius, showSampleNames, svg) {
-        // Prepare the fill color
-        let fillColor = this._getFillColor(object);
-
+    _addFamilyMember(object, x, y, width, radius, showSampleNames, svg) {
         // No defined sex
         if (typeof object.member.sex === "undefined" || object.member.sex === "undefined") {
             SVG.addChild(svg, "rect", {
                 x: x - radius,          y: y,
                 width: width * 0.8,     height: width * 0.8,
                 transform: "translate(" + radius + ") rotate(45 " + (x - radius) + " " + (10 + radius + (1.5 * width) + y) + ")",
-                style: "fill: " + fillColor + ";stroke: black;stroke-width: 2"
+                style: "fill: " + object.colorPattern + ";stroke: black;stroke-width: 2"
             });
         } else {
-            // Child is a boy
+            // Member is a male
             if (object.member.sex === "male") {
                 SVG.addChild(svg, "rect", {
                     x: x - radius,      y: y,
                     width: width,       height: width,
-                    style: "fill: " + fillColor + ";stroke: black;stroke-width: 2"
+                    // fill: "url(#Pattern2)",
+                    style: "fill: url(#" + object.colorPattern + ");stroke: black;stroke-width: 2"
                 });
             } else {
-                // Child is a girl
+                // Member is a female
                 SVG.addChild(svg, "circle", {
                     cx: x,              cy: y + radius,
                     r: radius,
-                    style: "fill: " + fillColor + ";stroke: black;stroke-width: 2"
+                    style: "fill: url(#" + object.colorPattern + ");stroke: black;stroke-width: 2"
                 });
             }
         }
@@ -198,20 +195,18 @@ class Pedigree {
         }
     }
 
-    _getFillColor(object) {
-        let fillColor = "white";
-        if (typeof object !== "undefined" && typeof object.diseases !== "undefined" && object.diseases.length > 0) {
-            fillColor = "black";
-        }
-        return fillColor;
-    }
-
-    _process(fam) {
+    _preprocessFamily(fam) {
+        // Create, edit and return a deep copy of the user object, this prevents us of modifying user's object
         let family = JSON.parse(JSON.stringify(fam));
 
         let map = {};
         for (let m of family.members) {
             map[m.member.id] = m;
+        }
+
+        let colorMap = {};
+        for (let d in family.diseases) {
+            colorMap[family.diseases[d].id] = d;
         }
 
         family.children = [];
@@ -230,10 +225,67 @@ class Pedigree {
 
                 family.children.push(m);
             }
+
+            // We save the corresponding disease color pattern for each sample
+            if (m.diseases !== undefined && m.diseases.length > 0) {
+                let colorIdx = [];
+                for (let c of m.diseases) {
+                    colorIdx.push(colorMap[c]);
+                }
+                // Pattern suffix IDs must be sorted, eg. Pattern_01
+                colorIdx = colorIdx.sort();
+                m.colorPattern = "Pattern_" + colorIdx.join("");
+            } else {
+                m.colorPattern = "PatternWhite";
+            }
         }
 
         console.log(family);
         return family;
+    }
+
+    // This function create the different color Patterns in a SVG 'defs' section
+    _createSvgDefs(family, settings) {
+        let svgDefs = SVG.create("defs");
+
+        // Default color pattern when no disease exist
+        let pattern = SVG.create("pattern", {id: "PatternWhite", x: 0, y: 0, width: 1, height: 1});
+        let rect = SVG.create("rect", {
+            x: 0,                   y: 0,
+            width: settings.box,    height: settings.box,
+            fill: "white"});
+        pattern.appendChild(rect);
+        svgDefs.appendChild(pattern);
+
+        // We create all possible combination (incrementally with no reptition, eg. 0, 01, 02, 1, 12, ...)
+        for (let i = 0; i < family.diseases.length; i++) {
+            // Add the single disease color, eg. 0, 1, 2
+            let pattern = SVG.create("pattern", {id: "Pattern_" + i, x: 0, y: 0, width: 1, height: 1});
+            let rect = SVG.create("rect", {
+                x: 0,                   y: 0,
+                width: settings.box,    height: settings.box,
+                fill: settings.colors[i]});
+            pattern.appendChild(rect);
+            svgDefs.appendChild(pattern);
+
+            // Add the double disease color, eg. 01, 02, 12, ...
+            for (let j = i + 1; j < family.diseases.length; j++) {
+                let pattern = SVG.create("pattern", {id: "Pattern_" + i + j, x: 0, y: 0, width: 1, height: 1});
+                let rect1 = SVG.create("rect", {
+                    x: 0,                       y: 0,
+                    width: settings.box / 2,    height: settings.box,
+                    fill: settings.colors[i]});
+                let rect2 = SVG.create("rect", {
+                    x: settings.box / 2,        y: 0,
+                    width: settings.box / 2,    height: settings.box,
+                    fill: settings.colors[j]});
+                pattern.appendChild(rect1);
+                pattern.appendChild(rect2);
+                svgDefs.appendChild(pattern);
+            }
+        }
+
+        return svgDefs;
     }
 
     _isOrphan(member) {
@@ -241,13 +293,12 @@ class Pedigree {
     }
 
     _getDefaultSetting() {
-        let config = {
+        return {
             width: 400,
             height: 240,
-
-            box: 40
+            box: 40,
+            colors: ["black", "red", "blue"]
         };
-        return config;
     }
 
 }
