@@ -47,7 +47,9 @@ class Pedigree {
         return this._render(pedigree, settings);
     }
 
-    _render(pedigree, settings) {
+    _render(ped, settings) {
+
+        let pedigree = this._process(ped);
 
         // If no settings is provided we use the one passed in the constructor
         if (typeof settings === "undefined" || settings === null) {
@@ -70,13 +72,14 @@ class Pedigree {
         }
 
 
-        let xCenter = settings.width/2;
+        let xCenter = settings.width / 2;
         let radius = settings.box / 2;
 
         // Draw the lines between parents and children
         if (typeof pedigree.father !== "undefined" || typeof pedigree.mother !== "undefined") {
             let verticalBarOffset = 0;
-            if (pedigree.parentalConsanguinity) {
+            // if (pedigree.parentalConsanguinity) {
+            if (pedigree.father.partnerConsaguinity || pedigree.mother.partnerConsaguinity) {
                 verticalBarOffset = 2;
                 SVG.addChild(svg, "line", {
                     x1: xCenter - settings.box,     y1: 10 + radius - verticalBarOffset,
@@ -107,73 +110,20 @@ class Pedigree {
 
         // Draw the FATHER
         if (typeof pedigree.father !== "undefined") {
-            // Prepare the fill color
-            let fillColor = this._getFillColor(pedigree.father);
-            SVG.addChild(svg, "rect", {
-                x: xCenter - 2 * settings.box,  y: 10,
-                width: settings.box,            height: settings.box,
-                style: "fill: " + fillColor + ";stroke: black;stroke-width: 2"
-            });
-
-            if (settings.selectShowSampleNames) {
-                let text = SVG.addChild(svg, "text", {
-                    x: xCenter - 2 * settings.box,  y: 10 + settings.box + 15,
-                    style: "fill: black;font-size=8px;font-weight:10"
-                });
-                text.textContent = pedigree.father.name;
-            }
-
-            // $(fatherRect).qtip({
-            //     content: {title: "Sample" + pedigree.father.name, text:
-            //         "Name: " + pedigree.father.name
-            //     },
-            //     position: {viewport: $(window), target: "mouse", adjust: {x: 25, y: 15}},
-            //     style: {width: true, classes: ' ui-tooltip ui-tooltip-shadow'},
-            //     show: {delay: 250},
-            //     hide: {delay: 200}
-            // });
-
-
-            if (pedigree.father.deceased) {
-                SVG.addChild(svg, "line", {
-                    x1: xCenter - 2 * settings.box - 10,    y1: 10 + settings.box + 10,
-                    x2: xCenter - settings.box + 10,        y2: 0,
-                    style: "stroke: black;stroke-width: 2"
-                });
-            }
+            pedigree.father.sex = "male";
+            this._addChild(pedigree.father, xCenter - 1.5 * settings.box, 10, settings.box, radius, settings.selectShowSampleNames, svg);
         }
 
         // Draw the MOTHER
         if (typeof pedigree.mother !== "undefined") {
-            // Prepare the fill color
-            let fillColor = this._getFillColor(pedigree.mother);
-            SVG.addChild(svg, "circle", {
-                cx: xCenter - radius + (2 * settings.box),  cy: 10 + radius,
-                r: radius,
-                style: "fill: " + fillColor + ";stroke: black;stroke-width: 2"
-            });
-
-            if (settings.selectShowSampleNames) {
-                let text = SVG.addChild(svg, "text", {
-                    x: xCenter - 2 * radius + (2 * settings.box),  y: 10 + settings.box + 15,
-                    style: "fill: black;font-size=8px;font-weight:10"
-                });
-                text.textContent = pedigree.mother.name;
-            }
-
-            if (pedigree.mother.deceased) {
-                SVG.addChild(svg, "line", {
-                    x1: xCenter + settings.box - 10,        y1: 10 + settings.box + 10,
-                    x2: xCenter + 2 * settings.box + 10,    y2: 0,
-                    style: "stroke: black;stroke-width: 2"
-                });
-            }
+            pedigree.mother.sex = "female";
+            this._addChild(pedigree.mother, xCenter + 1.5 * settings.box, 10, settings.box, radius, settings.selectShowSampleNames, svg);
         }
 
         // Draw the CHILDREN
         if (typeof pedigree.children !== "undefined" && pedigree.children.length > 0) {
             if (pedigree.children.length === 1) {
-                this._addChild(pedigree.children[0], xCenter, 0, settings.box, radius, settings.selectShowSampleNames, svg);
+                this._addChild(pedigree.children[0], xCenter, 2 * settings.box + 10, settings.box, radius, settings.selectShowSampleNames, svg);
             } else {
                 let numChildren = pedigree.children.length;
                 let w =  (numChildren + numChildren - 1) * settings.box;
@@ -193,7 +143,7 @@ class Pedigree {
                         style: "stroke: black;stroke-width: 2"
                     });
 
-                    this._addChild(pedigree.children[i], left + (i * interval), 15, settings.box, radius, settings.selectShowSampleNames, svg);
+                    this._addChild(pedigree.children[i], left + (i * interval), (1.5 * settings.box) + 15 + 10 + radius, settings.box, radius, settings.selectShowSampleNames, svg);
                 }
             }
         }
@@ -201,59 +151,93 @@ class Pedigree {
         return svg;
     }
 
-    _addChild(object, xCenter, y, width, radius, showSampleNames, svg) {
+    _addChild(object, x, y, width, radius, showSampleNames, svg) {
         // Prepare the fill color
         let fillColor = this._getFillColor(object);
 
-        // No defined gender
-        if (typeof object.gender === "undefined" || object.gender === "undefined") {
+        // No defined sex
+        if (typeof object.member.sex === "undefined" || object.member.sex === "undefined") {
             SVG.addChild(svg, "rect", {
-                x: xCenter - radius,    y: 10 + radius + (1.5 * width) + y,
-                width: width * 0.8,           height: width * 0.8,
-                transform: "translate(" + radius + ") rotate(45 " + (xCenter - radius) + " " + (10 + radius + (1.5 * width) + y) + ")",
+                x: x - radius,          y: y,
+                width: width * 0.8,     height: width * 0.8,
+                transform: "translate(" + radius + ") rotate(45 " + (x - radius) + " " + (10 + radius + (1.5 * width) + y) + ")",
                 style: "fill: " + fillColor + ";stroke: black;stroke-width: 2"
             });
         } else {
             // Child is a boy
-            if (object.gender === "male") {
+            if (object.member.sex === "male") {
                 SVG.addChild(svg, "rect", {
-                    x: xCenter - radius,    y: 10 + radius + (1.5 * width) + y,
-                    width: width,    height: width,
+                    x: x - radius,      y: y,
+                    width: width,       height: width,
                     style: "fill: " + fillColor + ";stroke: black;stroke-width: 2"
                 });
             } else {
                 // Child is a girl
                 SVG.addChild(svg, "circle", {
-                    cx: xCenter,    cy: 10 + radius + radius + (1.5 * width) + y,
+                    cx: x,              cy: y + radius,
                     r: radius,
                     style: "fill: " + fillColor + ";stroke: black;stroke-width: 2"
                 });
             }
         }
 
+        if (object.member.lifeStatus === "deceased") {
+            SVG.addChild(svg, "line", {
+                x1: x - radius - 10,      y1: y + radius + 30,
+                x2: x + radius + 10,      y2: y - radius + 10,
+                style: "stroke: black;stroke-width: 2"
+            });
+        }
+
         if (showSampleNames) {
             let text = SVG.addChild(svg, "text", {
-                x: xCenter - radius,  y: 10 + 3 * width + 15 + y,
+                x: x - radius,  y: 10 + 3 * width + 15 + y,
                 style: "fill: black;font-size=8px;font-weight:10"
             });
             text.textContent = object.name;
-        }
-
-        if (object.deceased) {
-            SVG.addChild(svg, "line", {
-                x1: xCenter - radius - 10,      y1: 10 + (2.5 * width) + radius + 10 + y,
-                x2: xCenter + radius + 10,      y2: 10 + (2.5 * width) - radius - 10 + y,
-                style: "stroke: black;stroke-width: 2"
-            });
         }
     }
 
     _getFillColor(object) {
         let fillColor = "white";
-        if (typeof object !== "undefined" && typeof object.affected !== "undefined" && object.affected) {
+        if (typeof object !== "undefined" && typeof object.diseases !== "undefined" && object.diseases.length > 0) {
             fillColor = "black";
         }
         return fillColor;
+    }
+
+    _process(fam) {
+        let family = JSON.parse(JSON.stringify(fam));
+
+        let map = {};
+        for (let m of family.members) {
+            map[m.member.id] = m;
+        }
+
+        family.children = [];
+        for (let m of family.members) {
+            if (m.father !== undefined && m.father.id !== -1 && m.mother !== undefined && m.mother.id !== -1) {
+                map[m.father.id].partner = m.mother.id;
+                map[m.mother.id].partner = m.father.id;
+
+                map[m.father.id].partnerConsaguinity = m.parentalConsaguinity;
+                map[m.mother.id].partnerConsaguinity = m.parentalConsaguinity;
+
+                if (this._isOrphan(map[m.father.id] && this._isOrphan(map[m.mother.id]))) {
+                    family.father = map[m.father.id];
+                    family.mother = map[m.mother.id];
+                }
+
+                family.children.push(m);
+            }
+        }
+
+        console.log(family);
+        return family;
+    }
+
+    _isOrphan(member) {
+        return (member.father === undefined || member.father.id === -1) && (member.mother === undefined || member.mother.id === -1)
     }
 
     _getDefaultSetting() {
@@ -265,4 +249,5 @@ class Pedigree {
         };
         return config;
     }
+
 }
