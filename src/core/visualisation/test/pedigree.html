@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pedigree Test</title>
+
+    <script type="text/javascript" src="../../svg.js"></script>
+    <script type="text/javascript" src="../pedigree.js"></script>
+
+</head>
+
+<body onload="render()">
+    <script>
+        let familyTestOld = {
+            father: {
+                id: 1,
+                name: "pepe",
+                deceased: true
+            },
+            mother: {
+                id: 2,
+                name: "mari",
+                deceased: true
+            },
+            children: [
+                {
+                    id: 3,
+                    name: "luis",
+                    affected: true,
+                    gender: "male"
+                },
+                {
+                    id: 4,
+                    name: "luis2",
+                    affected: false,
+                    gender: "female",
+                    deceased: true
+                }
+            ]
+
+        };
+
+        let familyTest = {
+            id: 23,
+            name: "Martinez Pujalte",
+            description: "",
+            release: 1,
+            version: 2,
+            diseases: [
+                {
+                    id: "HP:001233",
+                    name: "Aaaa",
+                    source: "HPO"
+                },
+                {
+                    id: "OMIM:056789",
+                    name: "Cccc",
+                    source: "OMIM"
+                },
+                {
+                    id: "ddddd",
+                    name: "Ddddd",
+                    source: ""
+                }
+            ],
+            members: [
+                {
+                    member: {"id": 10, "version": 1, "name": "luis", sex: "male", lifeStatus: "deceased"},
+                    father: {"id": 11, "version": 1},
+                    mother: {"id": 12, "version": 1},
+                    diseases: ["OMIM:056789", "HP:001233"],
+                    carrier: ["OMIM:056789"],
+                    parentalConsaguinity: true,
+                    multiples: {"type": "mellizo", "siblings": ["pepe"]}
+                },
+                {
+                    member: {"id": 11, "version": 1, "name": "pepe", sex: "male"},
+                    father: {"id": -1, "version": 1},
+                    mother: {"id": -1, "version": 1},
+                    diseases: ["HP:001233"],
+                    carrier: ["OMIM:056789"],
+                    parentalConsaguinity: false,
+                    multiples: {"type": "mellizo", "siblings": ["luis"]}
+                },
+                {
+                    member: {"id": 12, "version": 1, "name": "pepe", sex: "female"},
+                    father: {"id": -1, "version": 1},
+                    mother: {"id": -1, "version": 1},
+                    diseases: ["ddddd"],
+                    carrier: ["OMIM:056789"],
+                    parentalConsaguinity: false,
+                    multiples: {"type": "mellizo", "siblings": ["luis"]}
+                }
+            ],
+
+            annotation: [],
+            creationDate: "",
+            attributes: {}
+        };
+
+        function render() {
+            console.log(familyTestOld);
+            let pedigree = new Pedigree(familyTestOld);
+
+//            let svg1 = pedigree.render();
+//            document.getElementById("simpleFamilyTestDiv").appendChild(svg1);
+
+            pedigree = new Pedigree(familyTest);
+            let svg2 = pedigree.render();
+            document.getElementById("complexFamilyTestDiv").appendChild(svg2);
+        }
+    </script>
+
+    <h2>Simple family</h2>
+    <div id="simpleFamilyTestDiv" style="background-color: #5E99BD"></div>
+
+    <h2>Complex family</h2>
+    <div id="complexFamilyTestDiv"></div>
+
+</body>
+</html>
