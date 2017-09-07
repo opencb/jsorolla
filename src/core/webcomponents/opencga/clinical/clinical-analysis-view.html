@@ -77,15 +77,11 @@
             <br>
             <span>Or a <span style="font-weight: bold">batch</span> algorithm that will be executed in the server:</span>
             <br>
-            <input id="tieringRadio" type="radio" name="analysisRadioButtons" value="family"
-                   class$="{{prefix}}FilterRadio" on-change="selectAnalysisType"
-                   style="padding-left: 20px"> Tiering (pending)<br>
-            <input id="exomiserRadio" type="radio" name="analysisRadioButtons" value="cancer"
-                   class$="{{prefix}}FilterRadio" on-change="selectAnalysisType"
-                   style="padding-left: 20px"> Exomiser (pending)<br>
-            <input id="vaastRadio" type="radio" name="analysisRadioButtons" value="family"
-                   class$="{{prefix}}FilterRadio" on-change="selectAnalysisType"
-                   style="padding-left: 20px"> VAAST (pending)<br>
+            <template is="dom-repeat" items="{{config.interpretation.algorithms}}" as="algorithm">
+                <input id="{{algorithm}}Radio" type="radio" name="analysisRadioButtons" value="{{algorithm}}"
+                       class$="{{prefix}}FilterRadio" on-change="selectAnalysisType"
+                       style="padding-left: 20px"> {{algorithm}} (pending)<br>
+            </template>
         </div>
 
         <div style="width: 50%;padding-top: 20px">
