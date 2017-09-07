@@ -710,6 +710,10 @@ class Jobs extends Acls {
         return this.get("jobs", id, "delete", params, options);
     }
 
+    search(params, options) {
+        return this.get("jobs", undefined, "search", params, options);
+    }
+
 }
 
 class Individuals extends Acls {

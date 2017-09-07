@@ -40,12 +40,11 @@
                                         cohorts="{{cohorts}}" biotypes={{biotypes}} config="{{config}}"
                                         samples="{{samples}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
                                         cellbase-client="{{cellbaseClient}}"
-                                        population-frequencies="{{populationFrequencies}}"
+                                        population-frequencies="{{populationFrequencies}}" ebi-config="{{ebiConfig}}"
                                         consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}"
                                         style="font-size: 12px">
                 </variant-browser-filter>
             </div>
-
 
             <div id="{{prefix}}MainWindow" class="col-md-10" hidden$="{{checkProject(project)}}">
                 <variant-browser-view title="{{title}}" project="{{project}}" study="{{study}}" cohorts="{{cohorts}}"

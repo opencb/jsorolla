@@ -1,0 +1,522 @@
+<dom-module id="variant-clinical-interpretation">
+
+    <template>
+        <style include="jso-styles">
+            /*
+       * See it in action here: http://jsfiddle.net/seydoggy/6s92p51a/
+       */
+            .panel-table {
+                display: table;
+            }
+
+            .panel-table > .panel-heading {
+                display: table-header-group;
+                background: transparent;
+            }
+
+            .panel-table > .panel-body {
+                display: table-row-group;
+            }
+
+            .panel-table > .panel-body:before,
+            .panel-table > .panel-body:after {
+                content: none;
+            }
+
+            .panel-table > .panel-footer {
+                display: table-footer-group;
+                background: transparent;
+            }
+
+            .panel-table > div > .tr {
+                display: table-row;
+            }
+
+            .panel-table > div:last-child > .tr:last-child > .td {
+                border-bottom: none;
+            }
+
+            .panel-table .td {
+                display: table-cell;
+                padding: 15px;
+                border: 1px solid #ddd;
+                border-top: none;
+                border-left: none;
+            }
+
+            .panel-table .td:last-child {
+                border-right: none;
+            }
+
+            .panel-table > .panel-heading > .tr > .td,
+            .panel-table > .panel-footer > .tr > .td {
+                background-color: #f5f5f5;
+            }
+
+            .panel-table > .panel-heading > .tr > .td:first-child {
+                border-radius: 4px 0 0 0;
+            }
+
+            .panel-table > .panel-heading > .tr > .td:last-child {
+                border-radius: 0 4px 0 0;
+            }
+
+            .panel-table > .panel-footer > .tr > .td:first-child {
+                border-radius: 0 0 0 4px;
+            }
+
+            .panel-table > .panel-footer > .tr > .td:last-child {
+                border-radius: 0 0 4px 0;
+            }
+
+            .containerDiv {
+                margin-top: 20px;
+            }
+
+        </style>
+
+        <div class="panel" style="margin-bottom: 15px">
+            <h3 style="margin: 10px 10px 10px 15px">
+                 <span  on-click="onCollapse"  style="cursor: pointer;margin: 0px 30px 0px 0px">
+                    <i class="fa fa-bars" aria-hidden="true"></i>
+                </span>
+                <i class="fa fa-filter" aria-hidden="true"></i>{{title}}
+            </h3>
+        </div>
+        <div class="containerDiv">
+            <div class="row">
+                <div id="{{prefix}}filterBrowser" class="col-xs-2 col-sm-2 col-md-2 col-lg-2 toppad">
+                    <variant-browser-filter mode="{{mode}}" study="{{study}}" project="{{project}}" samples="{{samples}}"
+                                            opencga-client="{{opencgaClient}}"
+                                            cellbase-client="{{cellbaseClient}}" config="{{config}}"
+                                            population-frequencies="{{populationFrequencies}}" biotypes="{{biotypes}}"
+                                            consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}"
+                                            on-closemodalsample="onCloseModalSample"  analysis-selected="{{analysisSelected}}" style="font-size: 12px">
+                    </variant-browser-filter>
+                </div>
+
+                <div id="{{prefix}}mainIntepretation" class="col-xs-10 col-sm-10 col-md-10 col-lg-10 toppad">
+                    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+
+
+                        <div class="panel panel-default">
+                            <div class="panel-heading" role="tab" id="headingOne">
+                                <h4 class="panel-title">
+                                    <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"
+                                       aria-expanded="true" aria-controls="collapseOne">
+                                        Cases {{data.name}}
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel"
+                                 aria-labelledby="headingOne">
+                                <div class="panel-body">
+
+                                    <table class="table">
+                                        <thead>
+                                        <tr>
+                                            <th colspan="2">Case</th>
+                                            <th colspan="2">Software</th>
+                                            <th colspan="2">Subject</th>
+                                            <th colspan="2">Family</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr>
+                                            <th scope="row">Id</th>
+                                            <td>{{data.id}}</td>
+                                            <th scope="row">Name</th>
+                                            <td>{{data.software.name}}</td>
+                                            <th scope="row">Subject</th>
+                                            <td>{{data.clinicalAnalysis.subject.id}}</td>
+                                            <th scope="row">Family ID</th>
+                                            <td>{{data.clinicalAnalysis.family.id}}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">Name</th>
+                                            <td>{{data.name}}</td>
+                                            <th scope="row">Version</th>
+                                            <td>{{data.software.version}}</td>
+                                            <th scope="row">Name</th>
+                                            <td>{{data.clinicalAnalysis.subject.name}}</td>
+                                            <th scope="row">Name</th>
+                                            <td>{{data.clinicalAnalysis.family.name}}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">Creation date</th>
+                                            <td>{{data.creationDate}}</td>
+                                            <th scope="row">Commit</th>
+                                            <td>{{data.software.commit}}</td>
+                                            <th scope="row">Sex</th>
+                                            <td>{{data.clinicalAnalysis.subject.sex}}</td>
+                                            <th scope="row">Status</th>
+                                            <td>{{data.clinicalAnalysis.family.status.name}}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">Interpreter</th>
+                                            <td>{{data.interpreter.author}}</td>
+                                            <th scope="row">Website</th>
+                                            <td>{{data.software.website}}</td>
+                                            <th scope="row">Date of birth</th>
+                                            <td>{{data.clinicalAnalysis.subject.dateOfBirth}}</td>
+                                            <th scope="row">Creation date</th>
+                                            <td>{{data.clinicalAnalysis.family.creationDate}}</td>
+                                        </tr>
+
+                                        <tr>
+                                            <th scope="row">Comments</th>
+                                            <td colspan="7">filename</td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel panel-default">
+                            <div class="panel-heading" role="tab" id="headingThree">
+                                <h4 class="panel-title">
+                                    <a role="button" data-toggle="collapse" data-parent="#accordion"
+                                       href="#collapseThree"
+                                       aria-expanded="true" aria-controls="collapseThree">
+                                        SNV/Models
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="collapseThree" class="panel-collapse collapse in" role="tabpanel"
+                                 aria-labelledby="headingThree">
+                                <div class="panel-body">
+
+                                    <table id="{{prefix}}mainTable" data-pagination="true" data-page-list="[10, 25, 50]"
+                                           data-show-export="true">
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="padding-top: 20px">
+                        <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
+                            <li role="presentation" class="active"><a href="#{{prefix}}Annotation" role="tab"
+                                                                      data-toggle="tab"
+                                                                      class="browser-variant-tab-title">Advanced
+                                Annotation</a></li>
+                            <li role="presentation"><a href="#{{prefix}}Genotype" role="tab" data-toggle="tab"
+                                                       class="browser-variant-tab-title">Genotype Stats</a></li>
+                            <!--<li role="presentation"><a href="#{{prefix}}GenomeView" role="tab" data-toggle="tab" class="browser-variant-tab-title">Genome Context</a></li>-->
+                            <li role="presentation"><a href="#{{prefix}}GenomeViewer" role="tab" data-toggle="tab"
+                                                       class="browser-variant-tab-title">Genome Viewer</a></li>
+                        </ul>
+
+                        <div class="tab-content" style="height: 680px">
+                            <!--Annotation Tab-->
+                            <div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">
+                                <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}"
+                                                                 cellbase-client="{{cellbaseClient}}"
+                                                                 mode="vertical"
+                                                                 hash-fragment-credentials="{{hashFragmentCredentials}}"
+                                                                 consequence-types="{{consequenceTypes}}"
+                                                                 protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                                 style="font-size: 12px">
+                                </cellbase-variantannotation-view>
+                            </div>
+
+                            <!--Genotypes & Files Tab-->
+                            <div role="tabpanel" class="tab-pane" id="{{prefix}}Genotype">
+                                geno
+                            </div>
+
+                            <!--Beacon network-->
+                            <div role="tabpanel" class="tab-pane" id="{{prefix}}GenomeViewer">
+                                <div class="" style="padding: 0px 5px">
+                                    <variant-genome-browser project="{{project}}" study="{{study}}" samples="{{samples}}" active="{{_genomeBrowserActive}}"
+                                                            opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" region="{{regionGenomeBrowser}}">
+                                    </variant-genome-browser>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        class VariantClinicalInterpretation extends Polymer.Element {
+
+            constructor() {
+                super();
+                this.prefix = "inter" + Utils.randomString(6);
+
+            }
+
+            static get is() {
+                return "variant-clinical-interpretation";
+            }
+
+            static get properties() {
+                return {
+                    data: {
+                        type: Object
+                    },
+                    title: {
+                        type: String,
+                        value: ""
+                    },
+                    project: {
+                        type: Object
+                    },
+                    study: {
+                        type: Object
+                    },
+                    proteinSubstitutionScores: {
+                        type: Object
+                    },
+                    consequenceTypes: {
+                        type: Object
+                    },
+                    opencgaClient: {
+                        type: Object
+                    },
+                    cellbaseClient: {
+                        type: Object
+                    },
+                };
+            }
+
+
+            static get observers() {
+                return [
+                    'projectStudyObtained(project, study)'
+                ]
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            ready() {
+                super.ready();
+            }
+
+            connectedCallback() {
+                super.connectedCallback();
+                console.log(this.data);
+                this.cols = this.loadMainTableColumns();
+                this._genomeBrowserActive = false;
+                this._collapse = false;
+                let _this = this;
+                $("#" + this.prefix + "mainTable").bootstrapTable({
+//                    url: "http://localhost/iva-babelomics/src/conf/interpretation.json",
+                    data: _this.data.reportedVariants,
+                    columns: _this.cols,
+//                    method: 'get',
+//                    sidePagination: 'server',
+//                    responseHandler: function (res) {
+//                        console.log("responseHandler: " + res);
+//                        return {total: res.total, rows: res.rows};
+//                    },
+                    onClickRow: function (row, $element) {
+                        console.log("onClickRow");
+                        _this.variant = row.id;
+
+                        _this._genomeBrowserActive = true;
+                        _this.regionGenomeBrowser = new Region({chromosome: row.chromosome, start: row.start, end: row.end});
+                    },
+                    onLoadSuccess: function (data) {
+                        console.log("onLoadSuccess");
+                    },
+                    onPageChange: function (page, size) {
+                        console.log("OnPageChange");
+                    }
+                });
+//                $('#' + _this.prefix + 'mainTable').bootstrapTable('showLoading');
+
+            }
+
+            computedLengthComments(comments) {
+                return comments.length;
+            }
+
+
+            projectStudyObtained(project, study) {
+                if (typeof this.project !== "undefined" && this.project.alias !== "" && typeof this.study !== "undefined" && this.study.alias !== "") {
+                    this.hashFragmentCredentials = {
+                        project: this.project.alias,
+                        study: this.study.alias
+                    };
+                }
+            }
+
+
+            loadMainTableColumns() {
+                let _this = this;
+                const initCols = [
+                    [
+                        {
+                            title: "Variant",
+                            field: "variant",
+                            colspan: 1,
+                            rowspan: 1,
+                            formatter: function (value, row, index) {
+                                let res = "";
+                                if(UtilsNew.isNotUndefinedOrNull(row.id)){
+                                    res = res + "<label>"+row.id+"</label><br>";
+                                }
+                                if(UtilsNew.isNotUndefinedOrNull(row.chromosome)) {
+                                    res = res + "<label>" + row.chromosome + "</label><br>";
+                                }
+                                if(UtilsNew.isNotUndefinedOrNull(row.start)) {
+                                    res = res + "<label>" + row.start + "</label><br>";
+                                }
+                                if(UtilsNew.isNotUndefinedOrNull(row.end)) {
+                                    res = res + "<label>" + row.end + "</label><br>";
+                                }
+                                if(UtilsNew.isNotUndefinedOrNull(row.type)) {
+                                    res = res + "<label>" + row.type + "</label>";
+                                }
+
+
+                                return res;
+                            },
+                            halign: 'center'
+                        },
+                        {
+                            title: "Gene",
+                            field: "gene",
+                            colspan: 1,
+                            rowspan: 1,
+                            formatter: function (value, row, index) {
+                                return value;
+                            },
+                            halign: 'center'
+
+                        },
+                        {
+                            title: "Consequence/Allele",
+                            field: "consequence",
+                            colspan: 1,
+                            rowspan: 1,
+                            formatter: function (value, row, index) {
+                                return value;
+                            },
+                            halign: 'center'
+
+                        },
+                        {
+                            title: "Associations",
+                            field: "associations",
+                            colspan: 1,
+                            rowspan: 1,
+                            formatter: function (value, row, index) {
+                                let res = "";
+                                if(UtilsNew.isNotUndefinedOrNull(row.reportEvents)){
+                                    row.reportEvents.forEach((reportEvent) => {
+                                        if(UtilsNew.isNotUndefinedOrNull(reportEvent.prediction)) {
+                                            res = res + "<label>" + reportEvent.prediction + "</label><br>";
+                                        }
+                                        if(UtilsNew.isNotUndefinedOrNull(reportEvent.score)){
+                                            res = res + "<label>" + reportEvent.score + "</label>";
+                                        }
+                                    });
+                                }
+                                return res;
+                            },
+                            halign: 'center'
+
+                        },
+                        {
+                            title: "Zigosity",
+                            field: "zigosity",
+                            colspan: 1,
+                            rowspan: 1,
+                            formatter: function (value, row, index) {
+                                let res = "";
+                                if(UtilsNew.isNotUndefinedOrNull(row.calledGenotypes)){
+                                    row.calledGenotypes.forEach((genotype) => {
+                                        if(UtilsNew.isNotUndefinedOrNull(genotype.genotype)) {
+                                            res = res + "<label>" + genotype.genotype + "</label><br>";
+                                        }
+                                        if(UtilsNew.isNotUndefinedOrNull(genotype.zigosity)){
+                                            res = res + "<label>" + genotype.zigosity + "</label>";
+                                        }
+                                     });
+                                }
+                                return res;
+                            },
+                            halign: 'center'
+
+                        },
+                        {
+                            title: "Max allele freq",
+                            field: "masAllele",
+                            colspan: 1,
+                            rowspan: 1,
+                            formatter: function (value, row, index) {
+                                return value;
+                            },
+                            halign: 'center'
+
+                        },
+                        {
+                            title: "Read",
+                            field: "read",
+                            colspan: 1,
+                            rowspan: 1,
+                            formatter: function (value, row, index) {
+                                return value;
+                            },
+                            halign: 'center'
+
+                        },
+                        {
+                            title: "Custom Annotations",
+                            field: "customAnnotations",
+                            colspan: 1,
+                            rowspan: 1,
+                            formatter: function (value, row, index) {
+                                return value;
+                            },
+                            halign: 'center'
+
+                        },
+                        {
+                            title: "Interpretation",
+                            field: "interpretation",
+                            colspan: 1,
+                            rowspan: 1,
+                            formatter: function (value, row, index) {
+                                let res = "<button type='button' class='btn btn-info'>Add to Report</button>";
+
+                                return res + "<br><span>Comments(" + _this.computedLengthComments(row.comments) + ")</span>"
+                            },
+                            halign: 'center'
+
+                        },
+                    ]
+                ];
+
+                return initCols;
+            }
+
+            onCollapse() {
+                if (this._collapsed) {
+//                    $("#" + this.prefix + "FilterMenu").css("display", "inline");
+                    $("#" + this.prefix + "filterBrowser").show(400);
+                    PolymerUtils.removeClass(this.prefix + "mainIntepretation", ["col-xs-offset-0", "col-sm-offset-0", "col-md-offset-1", "col-lg-offset-1"])
+
+                } else {
+//                    $("#" + this.prefix + "FilterMenu").css("display", "none");
+                    $("#" + this.prefix + "filterBrowser").hide(400);
+                    PolymerUtils.addClass(this.prefix + "mainIntepretation", ["col-xs-offset-0", "col-sm-offset-0", "col-md-offset-1", "col-lg-offset-1"])
+
+                }
+
+                this._collapsed = !this._collapsed;
+            }
+        }
+
+        customElements.define(VariantClinicalInterpretation.is, VariantClinicalInterpretation);
+
+    </script>
+</dom-module>
