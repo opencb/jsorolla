@@ -201,7 +201,7 @@ class Pedigree {
 
         let map = {};
         for (let m of family.members) {
-            map[m.member.id] = m;
+            map[m.member.name] = m;
         }
 
         let colorMap = {};
@@ -211,16 +211,16 @@ class Pedigree {
 
         family.children = [];
         for (let m of family.members) {
-            if (m.father !== undefined && m.father.id !== -1 && m.mother !== undefined && m.mother.id !== -1) {
-                map[m.father.id].partner = m.mother.id;
-                map[m.mother.id].partner = m.father.id;
+            if (m.father !== undefined && m.father.name !== undefined && m.mother !== undefined && m.mother.name !== undefined) {
+                map[m.father.name].partner = m.mother.name;
+                map[m.mother.name].partner = m.father.name;
 
-                map[m.father.id].partnerConsaguinity = m.parentalConsaguinity;
-                map[m.mother.id].partnerConsaguinity = m.parentalConsaguinity;
+                map[m.father.name].partnerConsaguinity = m.parentalConsaguinity;
+                map[m.mother.name].partnerConsaguinity = m.parentalConsaguinity;
 
-                if (this._isOrphan(map[m.father.id] && this._isOrphan(map[m.mother.id]))) {
-                    family.father = map[m.father.id];
-                    family.mother = map[m.mother.id];
+                if (this._isOrphan(map[m.father.name] && this._isOrphan(map[m.mother.name]))) {
+                    family.father = map[m.father.name];
+                    family.mother = map[m.mother.name];
                 }
 
                 family.children.push(m);

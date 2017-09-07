@@ -65,16 +65,16 @@
             ],
             members: [
                 {
-                    member: {"id": 10, "version": 1, "name": "luis", sex: "male", lifeStatus: "deceased"},
-                    father: {"id": 11, "version": 1},
-                    mother: {"id": 12, "version": 1},
+                    member: {"id": 10, "version": 1, "name": "luis", sex: "male"},
+                    father: {"id": 11, name: "pepe", "version": 1},
+                    mother: {"id": 12, name: "mari", "version": 1},
                     diseases: ["OMIM:056789", "HP:001233"],
                     carrier: ["OMIM:056789"],
                     parentalConsaguinity: true,
                     multiples: {"type": "mellizo", "siblings": ["pepe"]}
                 },
                 {
-                    member: {"id": 11, "version": 1, "name": "pepe", sex: "male"},
+                    member: {"id": 11, "version": 1, "name": "pepe", sex: "male", lifeStatus: "deceased"},
                     father: {"id": -1, "version": 1},
                     mother: {"id": -1, "version": 1},
                     diseases: ["HP:001233"],
@@ -83,7 +83,7 @@
                     multiples: {"type": "mellizo", "siblings": ["luis"]}
                 },
                 {
-                    member: {"id": 12, "version": 1, "name": "pepe", sex: "female"},
+                    member: {"id": 12, "version": 1, "name": "mari", sex: "female"},
                     father: {"id": -1, "version": 1},
                     mother: {"id": -1, "version": 1},
                     diseases: ["ddddd"],
