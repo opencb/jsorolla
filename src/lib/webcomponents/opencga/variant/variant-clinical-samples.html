@@ -100,7 +100,7 @@
                         <div class="modal-body" style="height: 500px">
                             <template is="dom-if" if="{{showModalFamilyEditor}}" restamp="true">
 
-                            <opencga-family-editor-new samples="{{_samplesAnalysis}}"
+                            <opencga-family-editor-new study="{{study}}" samples="{{_samplesAnalysis}}"
                                                        opencga-client="{{opencgaClient}}" family="{{family}}"
                                                        on-familychange="familyChange"></opencga-family-editor-new>
                             </template>
@@ -253,15 +253,19 @@
                     this.family = {};
                     this.family.name = "";
                     this.family.description = "";
-                    this.family.diseases = [];
+                    this.family.diseases = [{
+                        id: "666",
+                        name: "Por defecto",
+                        source: "source"
+                    }];
                     this.family.members = [];
-                    this.family.annotation = [];
-                    this.family.createDate = new Date();
-                    this.family.attributes = [];
+                    this.family.annotationSets = [];
+//                    this.family.createDate = new Date();
+                    this.family.attributes = {};
                     let _this = this;
                     this.samples.forEach((sample) => {
                         _this.family.members[sample.id] = {
-                            member: {id: sample.id},
+                            member: {},
                             father: {},
                             mother: {},
                             diseases: new Set(),
@@ -575,12 +579,29 @@
                     let params = {
                         study: this.project.alias + ":" + this.study.alias
                     };
-                    let body = rowInfo.family;
+                    let body = Object.assign({},rowInfo.family);
+                    let membersNew =[];
+                    body.members.forEach((member) => {
+                        let newMember = Object.assign(member);
+                        newMember.diseases = Array.from(newMember.diseases)
+                        membersNew.push(member);
+                    });
+                    body.members = membersNew;
+
+
 
                     let _this = this;
-//                    this.opencgaClient.families().create(params, body)
-//                        .then(function (response) {
-//                            // Create analysis
+                    if(UtilsNew.isUndefinedOrNull(body.id)){
+                    this.opencgaClient.families().create(params, body)
+                        .then(function (response) {
+                            if (response.response[0].numResults >= 1) {
+                                $(PolymerUtils.getElementById(this.prefix + "tableAnalysis")).bootstrapTable('updateRow', {
+                                    index: _this.selectedRow, row: {
+                                        family: response[0].result[0]
+                                    }
+                                });
+                            }
+                            // Create analysis
 //                            let analysisInfo = {
 //                                analysisID: PolymerUtils.getElementById(_this.prefix + "analysisID" + rowInfo.analysisIDinternal).value,
 //                                type: _analysisType,
@@ -589,6 +610,30 @@
 //                                sample: _affectedSample // TO BE CHANGED
 //                            };
 //                            _this.createAnalysis(analysisInfo);
+                        })
+                        .catch(function (response) {
+                            _this.settingsMessageModal = {
+                                messageHeader: "Error",
+                                messageBody: [response.error],
+                                type: "danger",
+                                height: "100px",
+                                width: "500px"
+                            };
+
+                            _this.showMessageModal = true;
+                        });
+                    }else{
+//                        this.opencgaClient.families().update(params, body)
+//                        .then(function (response) {
+//                            // Create analysis
+////                            let analysisInfo = {
+////                                analysisID: PolymerUtils.getElementById(_this.prefix + "analysisID" + rowInfo.analysisIDinternal).value,
+////                                type: _analysisType,
+////                                familyID: rowInfo.family.name,
+////                                proband: _children[0].name, // TO BE CHANGED
+////                                sample: _affectedSample // TO BE CHANGED
+////                            };
+////                            _this.createAnalysis(analysisInfo);
 //                        })
 //                        .catch(function (response) {
 //                            _this.settingsMessageModal = {
@@ -601,6 +646,7 @@
 //
 //                            _this.showMessageModal = true;
 //                        });
+                    }
                 }
             }
 
@@ -689,6 +735,11 @@
                         family: _this.family
                     }
                 });
+
+//                let rowInfo = $(PolymerUtils.getElementById(this.prefix + "tableAnalysis")).bootstrapTable('showRow', {
+//                    index: _this.selectedRow, isIdField: false
+//                });
+//                this.saveAnalysis(rowInfo);
                 PolymerUtils.removeAttribute(this.prefix + "Save" + this.currentAnalysis.analysisIDinternal, "disabled");
 //                if ((this.currentAnalysis.analysisType === "Duo" && ped.isDuo() && this.family.name != "") ||
 //                    (this.currentAnalysis.analysisType === "Trio" && ped.isTrio() && this.family.name != "") ||

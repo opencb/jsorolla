@@ -7,40 +7,25 @@
             </div>
         </template>
         <template is="dom-if" if="{{_sampleExists}}">
-            <div id="{{prefix}}FilterMenu1" class="col-md-7">
+            <div id="{{prefix}}FilterMenu1" class="col-md-12">
                 <form class="form-inline">
                     <div class="row" style="padding: 15px 10px">
-                        <div class="input-group">
-                            <span class="input-group-addon">Name</span>
+                            <label style="margin-left: 15px;">Name: </label>
                             <input type="text" class="form-control" id="{{prefix}}FamilyName" placeholder="Family name" maxlength="100"
                                on-change="_changeName" value="{{data.name}}">
-                        </div>
+                            <label style="margin-left: 15px;">Description: </label>
+                            <textarea class="form-control" id="{{prefix}}FamilyDescription"
+                              on-change="_changeDescription">{{data.description}}</textarea>
                     </div>
-                        <div class="row" style="padding: 15px 10px">
-                            <div class="input-group">
-                                <span class="input-group-addon">Description</span>
-                                <textarea class="form-control" id="{{prefix}}FamilyDescription"
-                                  on-change="_changeDescription">{{data.description}}</textarea>
-                            </div>
-                    </div>
+
                     <h3>Add new disease</h3>
                     <div class="row" style="padding: 15px 10px">
-                        <div class="input-group">
-                            <span class="input-group-addon">Id</span>
-                            <input type="text" class="form-control" id="{{prefix}}idDisease" placeholder="" maxlength="100">
-                        </div>
-                    </div>
-                        <div class="row" style="padding: 15px 10px">
-                            <div class="input-group">
-                                <span class="input-group-addon">Name</span>
-                                <input type="text" class="form-control" id="{{prefix}}nameDisease" placeholder="" maxlength="100">
-                            </div>
-                        </div>
-                    <div class="row" style="padding: 15px 10px">
-                        <div class="input-group">
-                            <span class="input-group-addon">Src</span>
-                            <input type="text" class="form-control" id="{{prefix}}srcDisease" placeholder="" maxlength="100">
-                        </div>
+                            <label style="margin-left: 15px;">Id: </label>
+                            <input type="text" class="form-control" id="{{prefix}}idDisease" placeholder="" maxlength="50" type="number">
+                            <label style="margin-left: 15px;">Name: </label>
+                            <input type="text" class="form-control" id="{{prefix}}nameDisease" placeholder="" maxlength="100" type="text">
+                            <label style="margin-left: 15px;">Source: </label>
+                            <input type="text" class="form-control" id="{{prefix}}srcDisease" placeholder="" maxlength="100" type="text">
                         <button type="button" class="btn btn-secondary" on-click="addDisease">Add</button>
                     </div>
                 </form>
@@ -49,11 +34,11 @@
                     <thead>
                     <tr class="active">
                         <th>Sample ID</th>
-                        <th>Affected</th>
+                        <th>Father</th>
+                        <th>Mother</th>
+                        <th>Diseases</th>
                         <th>Deceased</th>
                         <th>Parental Consanguinity</th>
-                        <th>Mother</th>
-                        <th>Father</th>
                     </tr>
                     </thead>
 
@@ -61,44 +46,27 @@
                     <template id="samplesTable" is="dom-repeat" items="{{data.samples}}" as="sample">
                         <tr>
                             <td>{{sample.name}}</td>
-                            <td style="width: 150px;">
-                                <template is="dom-repeat" items="{{data.diseases}}" as="disease">
-                                    <input id="{{prefix}}{{disease.id}}Affected" data-sample-id$="{{sample.id}}"
-                                           data-disease-id$="{{disease.id}}"
-                                           checked$="{{isCheckedDisease(sample.id, disease.id)}}"
-                                           type="checkbox" on-change="_selectAffected">
-                                    {{disease.name}}({{disease.id}})
-                                    <br>
-                                </template>
-                            </td>
+
                             <td>
-                                <template is="dom-if" if="{{isCheckedDeceased(sample.id)}}">
-
-                                <input id="{{prefix}}{{sample.name}}Deceased" data-sample-id$="{{sample.id}}"
-                                       type="checkbox" on-change="_selectDeceased" checked>
-                                </template>
-                                <template is="dom-if" if="{{!isCheckedDeceased(sample.id)}}">
-
-                                <input id="{{prefix}}{{sample.name}}Deceased" data-sample-id$="{{sample.id}}"
-                                       type="checkbox" on-change="_selectDeceased">
-                                </template>
-
-                                {{isCheckedDeceased(sample.id)}}
-                            </td>
-                            <td>
-                                <template is="dom-if" if="{{isCheckedParentalConsanguinity(sample.id)}}">
-
-                                <input id="{{prefix}}{{sample.name}}ParentalConsanguinity"
-                                       data-sample-id$="{{sample.id}}" checked
-                                       type="checkbox" on-change="_selectParentalConsanguinity">
-                                </template>
-
-                                <template is="dom-if" if="{{!isCheckedParentalConsanguinity(sample.id)}}">
-                                    <input id="{{prefix}}{{sample.name}}ParentalConsanguinity"
-                                           data-sample-id$="{{sample.id}}"
-                                           type="checkbox" on-change="_selectParentalConsanguinity">
-                                </template>
-                                {{isCheckedParentalConsanguinity(sample.id)}}
+                                <div class="dropdown">
+                                    <select class="form-control" id="{{prefix}}{{sample.name}}Father"
+                                            data-sample-id$="{{sample.id}}" data-is-father="true"
+                                            on-change="_selectParent">
+                                        <option value="none">Select a sample...</option>
+                                        <template is="dom-repeat" items="{{samples}}" as="sampleFather">
+                                            <template is="dom-if" if="{{isSelectedParent(0, sampleFather.id, sample.id)}}">
+                                                <option value="{{sampleFather.id}}" selected>
+                                                    {{sampleFather.name}}
+                                                </option>
+                                            </template>
+                                            <template is="dom-if" if="{{!isSelectedParent(0, sampleFather.id, sample.id)}}">
+                                                <option value="{{sampleFather.id}}">
+                                                    {{sampleFather.name}}
+                                                </option>
+                                            </template>
+                                        </template>
+                                    </select>
+                                </div>
                             </td>
                             <td>
                                 <div class="dropdown">
@@ -121,26 +89,43 @@
                                     </select>
                                 </div>
                             </td>
+
+                            <td style="width: 150px;">
+                                <template is="dom-repeat" items="{{data.diseases}}" as="disease">
+                                    <input id="{{prefix}}{{disease.id}}Affected" data-sample-id$="{{sample.id}}"
+                                           data-disease-id$="{{disease.id}}"
+                                           checked$="{{isCheckedDisease(sample.id, disease.id)}}"
+                                           type="checkbox" on-change="_selectAffected">
+                                    {{disease.name}} ({{disease.id}})
+                                    <br>
+                                </template>
+                            </td>
                             <td>
-                                <div class="dropdown">
-                                    <select class="form-control" id="{{prefix}}{{sample.name}}Father"
-                                            data-sample-id$="{{sample.id}}" data-is-father="true"
-                                            on-change="_selectParent">
-                                        <option value="none">Select a sample...</option>
-                                        <template is="dom-repeat" items="{{samples}}" as="sampleFather">
-                                            <template is="dom-if" if="{{isSelectedParent(0, sampleFather.id, sample.id)}}">
-                                                <option value="{{sampleFather.id}}" selected>
-                                                    {{sampleFather.name}}
-                                                </option>
-                                            </template>
-                                            <template is="dom-if" if="{{!isSelectedParent(0, sampleFather.id, sample.id)}}">
-                                                <option value="{{sampleFather.id}}">
-                                                    {{sampleFather.name}}
-                                                </option>
-                                            </template>
-                                        </template>
-                                    </select>
-                                </div>
+                                <template is="dom-if" if="{{isCheckedDeceased(sample.id)}}">
+
+                                <input id="{{prefix}}{{sample.name}}Deceased" data-sample-id$="{{sample.id}}"
+                                       type="checkbox" on-change="_selectDeceased" checked>
+                                </template>
+                                <template is="dom-if" if="{{!isCheckedDeceased(sample.id)}}">
+
+                                <input id="{{prefix}}{{sample.name}}Deceased" data-sample-id$="{{sample.id}}"
+                                       type="checkbox" on-change="_selectDeceased">
+                                </template>
+
+                            </td>
+                            <td>
+                                <template is="dom-if" if="{{isCheckedParentalConsanguinity(sample.id)}}">
+
+                                <input id="{{prefix}}{{sample.name}}ParentalConsanguinity"
+                                       data-sample-id$="{{sample.id}}" checked
+                                       type="checkbox" on-change="_selectParentalConsanguinity">
+                                </template>
+
+                                <template is="dom-if" if="{{!isCheckedParentalConsanguinity(sample.id)}}">
+                                    <input id="{{prefix}}{{sample.name}}ParentalConsanguinity"
+                                           data-sample-id$="{{sample.id}}"
+                                           type="checkbox" on-change="_selectParentalConsanguinity">
+                                </template>
                             </td>
                         </tr>
                     </template>
@@ -186,6 +171,12 @@
 
             static get properties() {
                 return {
+                    opencgaClient: {
+                        type: Object
+                    },
+                    study: {
+                        type: Object
+                    },
                     samples: {
                         type: Array,
                         observer: '_updateSamples'
@@ -222,11 +213,56 @@
                     this.data.description = this.family.description;
                     this.data.diseases = this.family.diseases;
                     let _samples = [];
+                    let params = {
+                        study: this.study.alias
+                    };
                     let _this = this;
                     this.samples.forEach((sample) => {
                         sample.member = _this.family.members[sample.id];
-                       _samples.push(sample);
+
+                        let _individualId = sample.individual.id;
+                        if(UtilsNew.isNotUndefinedOrNull(_individualId)){
+                        this.opencgaClient.individuals().info(_individualId, params, {"method": "GET"})
+                            .then(function (response) {
+                                if (response.response[0].numResults >= 1) {
+                                    sample.individual = response.response[0].result[0];
+                                }
+                                if(UtilsNew.isNotUndefinedOrNull(sample.individual.ontologyTerms && UtilsNew.isNotEmptyArray(sample.individual.ontologyTerms))){
+                                    sample.individual.ontologyTerms.forEach((term) => {
+                                        let existsTerm = _this.data.diseases.find((element) => {
+                                            element.id === term.id;
+                                        });
+                                        if(UtilsNew.isUndefinedOrNull(existsTerm)){
+                                            _this.data.diseases.push(term);
+                                        }
+                                    });
+                                }
+                                _this.family.members[sample.id].member = {
+                                    name: sample.individual.name
+                                };
+                                _samples.push(sample);
+
+                            })
+                            .catch(function (response) {
+                                _this.settingsMessageModal = {
+                                    messageHeader: "Error",
+                                    messageBody: ["The user " + _individualId + " does not exist"],
+                                    type: "danger",
+                                    height: "100px",
+                                    width: "500px"
+                                };
+                                _this.set('settingsMessageModal', _this.settingsMessageModal);
+                                _this.showMessageModal = true;
+                            });
+                        } else {
+                            _samples.push(sample);
+                        }
+
+
                     });
+
+
+
 
                     if (UtilsNew.isNotUndefinedOrNull(this.samples)) {
                         this._sampleExists = true;
@@ -281,13 +317,14 @@
 
             isSelectedParent(isMother, sampleParentId, sampleId) {
                 let sampleSelected = this.findSample(sampleId);
+                let sampleParentCurrent = this.findSample(sampleParentId);
                 let parentSelected = false;
 
-                if(UtilsNew.isNotUndefinedOrNull(sampleSelected)) {
+                if(UtilsNew.isNotUndefinedOrNull(sampleSelected) && UtilsNew.isNotUndefinedOrNull(sampleParentCurrent)) {
                     if (isMother) {
-                        parentSelected = sampleSelected.member.mother.id === sampleParentId;
+                        parentSelected = sampleSelected.member.mother.name === sampleParentCurrent.individual.id;
                     } else {
-                        parentSelected = sampleSelected.member.father.id === sampleParentId;
+                        parentSelected = sampleSelected.member.father.name === sampleParentCurrent.individual.id;
                     }
                 }
 
@@ -369,25 +406,42 @@
                 let sampleId = e.target.getAttribute("data-sample-id");
                 let isFather = e.target.getAttribute("data-is-father");
                 let isMother = e.target.getAttribute("data-is-mother");
-                let sampleSelected = this.samples.find((sample) => {
+                let sampleSelectedParent = this.samples.find((sample) => {
                         return sample.id === parseInt(e.target.value);
                 });
 
-                if (UtilsNew.isNotUndefinedOrNull(sampleSelected)) {
-                    let parent = {
-                        id: sampleSelected.id,
-                        name: sampleSelected.name
+                let sampleSelected = this.samples.find((sample) => {
+                        return sample.id === parseInt(sampleId);
+                });
+
+                let parent = null;
+                if (UtilsNew.isNotUndefinedOrNull(sampleSelectedParent)) {
+                    parent = {
+                        name: sampleSelectedParent.individual.name
                     };
 
+                }
+                if (UtilsNew.isNotUndefinedOrNull(sampleSelected)) {
+
+                    sampleSelected.member.member.sex = "UNKNOWN";
+                    this.family.members[sampleId].member.sex = "UNKNOWN";
                     if (isMother === "true") {
+                        if(UtilsNew.isNotUndefinedOrNull(parent)){
+                            parent.sex = "FEMALE";
+                        }
                         sampleSelected.member.mother = parent;
                         this.family.members[sampleId].mother = parent;
                     } else if (isFather === "true") {
+                        if(UtilsNew.isNotUndefinedOrNull(parent)){
+                            parent.sex = "MALE";
+                        }
                         sampleSelected.member.father = parent;
                         this.family.members[sampleId].father = parent;
                     }
                     this._updateFamily();
                 }
+
+
             }
 
             addDisease(e){
@@ -399,9 +453,9 @@
                 PolymerUtils.setValue(this.prefix + "srcDisease", "");
 
                 this.push("data.diseases",{
-                    id: this.newDisease.id,
+                    id: this.newDisease.id.toString(),
                     name: this.newDisease.name,
-                    src: this.newDisease.src
+                    source: this.newDisease.src
                 });
 
                 this.diseases = this.data.diseases;
@@ -413,6 +467,7 @@
 
             _updateFamily() {
                 // Updating family in parents sending an event.
+//                this.family.members = this.family.members.slice(0);
                 this.dispatchEvent(new CustomEvent('familychange', {
                     detail: this.family,
                     bubbles: true,
