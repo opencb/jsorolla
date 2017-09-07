@@ -1,0 +1,171 @@
+<!--
+  ~ Copyright 2015-2016 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<link rel="import" href="variant-clinical-selector.html">
+
+<dom-module id="clinical-analysis-view">
+    <template>
+        <h3>Clinical Analysis</h3>
+        <form class="form-horizontal">
+            <div class="form-group">
+                <span for="inputEmail3" class="col-sm-2 control-label">Select analysis:</span>
+                <div class="col-sm-10">
+                    <button id="inputEmail3" data-toggle="modal" role="button" data-placement="bottom" on-click="showClinicalSelector">
+                        Browse...
+                    </button>
+                </div>
+            </div>
+        </form>
+        <div id="analysisSelectedDiv">
+            <label>Analysis information:</label>
+            <br>
+            <span>Metadata of the analysis (name, type, family, description, ...)</span>
+            <div style="padding-top: 25px">
+                <label>Other prioritisation:</label>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th colspan="1">Name</th>
+                        <th colspan="1">Algorithm</th>
+                        <th colspan="1">Date</th>
+                        <th colspan="1">Number of variants</th>
+                        <th colspan="1">Number of affected genes</th>
+                        <th colspan="1">View</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>Prioritizaton-1</td>
+                        <td>TEAM</td>
+                        <td>5-9-2017</td>
+                        <td>26</td>
+                        <td>6</td>
+                        <td><a href="">Pending</a></td>
+                    </tr>
+                    <tr>
+                        <td>Tiering-1</td>
+                        <td>Tiering</td>
+                        <td>6-9-2017</td>
+                        <td>66</td>
+                        <td>12</td>
+                        <td><a href="">Pending</a></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <br>
+        <h3>Interpretation Algorithm</h3>
+        <div class="form-group" style="margin-bottom: 5px">
+            <p>Several prioritization and interpretation algorithms are available, you can choose an <span style="font-weight: bold">interactive</span> tool:</p>
+            <input id="interactiveRadio" type="radio" name="analysisRadioButtons" value="sample" class$="{{prefix}}FilterRadio"
+                   checked on-change="selectAnalysisType" style="padding-left: 20px"> Interactive Prioritization (based on <a href="https://www.ncbi.nlm.nih.gov/pubmed/24861626" target="_blank" style="font-weight: bold">TEAM</a> paper)<br>
+            <br>
+            <span>Or a <span style="font-weight: bold">batch</span> algorithm that will be executed in the server:</span>
+            <br>
+            <input id="tieringRadio" type="radio" name="analysisRadioButtons" value="family"
+                   class$="{{prefix}}FilterRadio" on-change="selectAnalysisType"
+                   style="padding-left: 20px"> Tiering (pending)<br>
+            <input id="exomiserRadio" type="radio" name="analysisRadioButtons" value="cancer"
+                   class$="{{prefix}}FilterRadio" on-change="selectAnalysisType"
+                   style="padding-left: 20px"> Exomiser (pending)<br>
+            <input id="vaastRadio" type="radio" name="analysisRadioButtons" value="family"
+                   class$="{{prefix}}FilterRadio" on-change="selectAnalysisType"
+                   style="padding-left: 20px"> VAAST (pending)<br>
+        </div>
+
+        <div style="width: 50%;padding-top: 20px">
+            <button type="button" class="btn btn-primary" style="float: right" on-click="onX">
+                <!--<i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px"></i>-->
+                OK
+            </button>
+        </div>
+
+        <div class="modal fade" id="{{prefix}}AnalysisBrowser" tabindex="-1" role="dialog" aria-labelledby="sampleBrowserLabel">
+            <div class="modal-dialog modal-lg" role="document" style="width: 1280px;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="{{prefix}}AnalysisBrowserLabel">Analysis Selector</h4>
+                    </div>
+                    <div class="modal-body" style="height: 780px">
+                        <variant-clinical-selector opencga-client="{{opencgaClient}}" analysis-selected="{{analysisSelected}}" analysis-modal="{{analysisModal}}" study="{{study}}" show-pedigree="{{showPedigree}}"></variant-clinical-selector>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="showSegregation">
+                            OK
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        class ClinicalAnalysisView extends Polymer.Element {
+
+            constructor() {
+                super();
+
+                this.prefix = "analysis-view-" + Utils.randomString(6);
+            }
+
+            static get is() {
+                return 'clinical-analysis-view'
+            }
+
+            static get properties() {
+                return {
+                    opencgaClient: {
+                        type: Object
+                    },
+                    study: {
+                        type: Object
+                    },
+                    analysisId: {
+                        type: Number
+                    },
+                    config: {
+                        type: Object
+                    }
+                }
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            ready() {
+                super.ready();
+            }
+
+            showClinicalSelector(e) {
+                e.preventDefault();
+                if (UtilsNew.isUndefined(this.analysisModal)){
+                    this.analysisModal = true;
+                } else {
+                    this.analysisModal = ! this.analysisModal;
+                }
+
+                $("#" + this.prefix + "AnalysisBrowser").modal('show');
+            }
+        }
+
+        customElements.define(ClinicalAnalysisView.is, ClinicalAnalysisView);
+
+    </script>
+</dom-module>
