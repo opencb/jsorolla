@@ -1,4 +1,4 @@
-<dom-module id="variant-clinical-interpretation">
+<dom-module id="clinical-interpretation-view">
 
     <template>
         <style include="jso-styles">
@@ -242,16 +242,16 @@
     </template>
 
     <script>
-        class VariantClinicalInterpretation extends Polymer.Element {
+        class ClinicalInterpretationView extends Polymer.Element {
 
             constructor() {
                 super();
-                this.prefix = "inter" + Utils.randomString(6);
 
+                this.prefix = "clinical-interpretation-" + Utils.randomString(6);
             }
 
             static get is() {
-                return "variant-clinical-interpretation";
+                return "clinical-interpretation-view";
             }
 
             static get properties() {
@@ -283,7 +283,6 @@
                     },
                 };
             }
-
 
             static get observers() {
                 return [
@@ -516,7 +515,7 @@
             }
         }
 
-        customElements.define(VariantClinicalInterpretation.is, VariantClinicalInterpretation);
+        customElements.define(ClinicalInterpretationView.is, ClinicalInterpretationView);
 
     </script>
 </dom-module>
