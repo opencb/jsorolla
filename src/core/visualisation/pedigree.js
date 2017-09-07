@@ -161,7 +161,7 @@ class Pedigree {
             });
         } else {
             // Member is a male
-            if (object.member.sex === "male") {
+            if (object.member.sex === "male" || object.member.sex === "MALE") {
                 SVG.addChild(svg, "rect", {
                     x: x - radius,      y: y,
                     width: width,       height: width,
