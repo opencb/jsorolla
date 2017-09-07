@@ -132,29 +132,30 @@
                     </tbody>
                 </table>
             </div>
+            <div id="{{prefix}}FilterMenu2" class="col-md-12">
+                <div style="padding: 15px 0px">
+                    <!--<template is="dom-if" if="{{settings.save}}">-->
+                    <!--<template is="dom-if" if="{{_sampleExists}}">-->
+                    <!--<div style="width: 80%">-->
+                    <!--<button class="btn btn-primary" type="button" style="float: right; padding: 5px 10px"-->
+                    <!--data-toggle="tooltip" title="Save pedigree in OpenCGA server">-->
+                    <!--<i class="fa fa-floppy-o" aria-hidden="true" style="padding-right: 5px"></i>-->
+                    <!--Save-->
+                    <!--</button>-->
+                    <!--</div>-->
+                    <!--</template>-->
+                    <!--</template>-->
+
+                    <div style="padding: 50px 15px">
+                        <h4>{{pedigreeTitle}}</h4>
+                        <div id="{{prefix}}PedigreeView" style="padding: 5px 5px;font-size: 10px"></div>
+                    </div>
+                </div>
+            </div>
         </template>
 
 
-        <div id="{{prefix}}FilterMenu2" class="col-md-5">
-            <div style="padding: 15px 0px">
-                <!--<template is="dom-if" if="{{settings.save}}">-->
-                <!--<template is="dom-if" if="{{_sampleExists}}">-->
-                <!--<div style="width: 80%">-->
-                <!--<button class="btn btn-primary" type="button" style="float: right; padding: 5px 10px"-->
-                <!--data-toggle="tooltip" title="Save pedigree in OpenCGA server">-->
-                <!--<i class="fa fa-floppy-o" aria-hidden="true" style="padding-right: 5px"></i>-->
-                <!--Save-->
-                <!--</button>-->
-                <!--</div>-->
-                <!--</template>-->
-                <!--</template>-->
 
-                <div style="padding: 50px 15px">
-                    <h4>{{pedigreeTitle}}</h4>
-                    <div id="{{prefix}}PedigreeView" style="padding: 5px 5px;font-size: 10px"></div>
-                </div>
-            </div>
-        </div>
     </template>
 
     <script>
@@ -221,7 +222,7 @@
                         sample.member = _this.family.members[sample.id];
 
                         let _individualId = sample.individual.id;
-                        if(UtilsNew.isNotUndefinedOrNull(_individualId)){
+                        if(UtilsNew.isNotUndefinedOrNull(_individualId) && _individualId > 0){
                         this.opencgaClient.individuals().info(_individualId, params, {"method": "GET"})
                             .then(function (response) {
                                 if (response.response[0].numResults >= 1) {
@@ -238,7 +239,8 @@
                                     });
                                 }
                                 _this.family.members[sample.id].member = {
-                                    name: sample.individual.name
+                                    name: sample.individual.name,
+                                    sex: sample.individual.sex
                                 };
                                 _samples.push(sample);
 
@@ -417,7 +419,8 @@
                 let parent = null;
                 if (UtilsNew.isNotUndefinedOrNull(sampleSelectedParent)) {
                     parent = {
-                        name: sampleSelectedParent.individual.name
+                        name: sampleSelectedParent.individual.name,
+                        sex: sampleSelectedParent.individual.sex
                     };
 
                 }
@@ -473,6 +476,30 @@
                     bubbles: true,
                     composed: true
                 }));
+                this.pedigreeRender();
+            }
+
+
+            pedigreeRender() {
+                // Remove SVG before render new one
+                if (UtilsNew.isNotUndefined(this.svg)) {
+                    PolymerUtils.getElementById(this.prefix + "PedigreeView").removeChild(this.svg);
+                }
+                let body = Object.assign({},this.family);
+                let membersNew =[];
+                body.members.forEach((member) => {
+                    let newMember = Object.assign(member);
+                    newMember.diseases = Array.from(newMember.diseases)
+                    membersNew.push(member);
+                });
+                body.members = membersNew;
+
+
+                // Render new Pedigree
+                let querySelector = PolymerUtils.getElementById(this.prefix + "PedigreeView");
+                let pedigree = new Pedigree(body);
+                this.svg = pedigree.render();
+                querySelector.appendChild(this.svg);
             }
         }
 
