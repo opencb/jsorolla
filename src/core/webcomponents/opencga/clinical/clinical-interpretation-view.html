@@ -85,17 +85,8 @@
         </div>
         <div class="containerDiv">
             <div class="row">
-                <div id="{{prefix}}filterBrowser" class="col-xs-2 col-sm-2 col-md-2 col-lg-2 toppad">
-                    <variant-browser-filter mode="{{mode}}" study="{{study}}" project="{{project}}" samples="{{samples}}"
-                                            opencga-client="{{opencgaClient}}"
-                                            cellbase-client="{{cellbaseClient}}" config="{{config}}"
-                                            population-frequencies="{{populationFrequencies}}" biotypes="{{biotypes}}"
-                                            consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}"
-                                            on-closemodalsample="onCloseModalSample"  analysis-selected="{{analysisSelected}}" style="font-size: 12px">
-                    </variant-browser-filter>
-                </div>
 
-                <div id="{{prefix}}mainIntepretation" class="col-xs-10 col-sm-10 col-md-10 col-lg-10 toppad">
+                <div id="{{prefix}}mainIntepretation" class="col-xs-10  col-md-offset-1 col-sm-10 col-md-10 col-lg-10 toppad">
                     <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
 
 
@@ -412,12 +403,12 @@
                                 if(UtilsNew.isNotUndefinedOrNull(row.reportEvents)){
                                     row.reportEvents.forEach((reportEvent) => {
                                         if(UtilsNew.isNotUndefinedOrNull(reportEvent.prediction)) {
-                                            res = res + "<label>" + reportEvent.prediction + "</label><br>";
-                                        }
-                                        if(UtilsNew.isNotUndefinedOrNull(reportEvent.score)){
-                                            res = res + "<label>" + reportEvent.score + "</label>";
-                                        }
-                                    });
+                                        res = res + "<label>" + reportEvent.prediction + "</label><br>";
+                                    }
+                                    if(UtilsNew.isNotUndefinedOrNull(reportEvent.score)){
+                                        res = res + "<label>" + reportEvent.score + "</label>";
+                                    }
+                                });
                                 }
                                 return res;
                             },
@@ -434,12 +425,12 @@
                                 if(UtilsNew.isNotUndefinedOrNull(row.calledGenotypes)){
                                     row.calledGenotypes.forEach((genotype) => {
                                         if(UtilsNew.isNotUndefinedOrNull(genotype.genotype)) {
-                                            res = res + "<label>" + genotype.genotype + "</label><br>";
-                                        }
-                                        if(UtilsNew.isNotUndefinedOrNull(genotype.zigosity)){
-                                            res = res + "<label>" + genotype.zigosity + "</label>";
-                                        }
-                                     });
+                                        res = res + "<label>" + genotype.genotype + "</label><br>";
+                                    }
+                                    if(UtilsNew.isNotUndefinedOrNull(genotype.zigosity)){
+                                        res = res + "<label>" + genotype.zigosity + "</label>";
+                                    }
+                                });
                                 }
                                 return res;
                             },
