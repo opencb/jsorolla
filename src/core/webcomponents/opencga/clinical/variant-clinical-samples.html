@@ -100,9 +100,9 @@
                         <div class="modal-body" style="height: 500px">
                             <template is="dom-if" if="{{showModalFamilyEditor}}" restamp="true">
 
-                            <opencga-family-editor-new study="{{study}}" samples="{{_samplesAnalysis}}"
-                                                       opencga-client="{{opencgaClient}}" family="{{family}}"
-                                                       on-familychange="familyChange"></opencga-family-editor-new>
+                                <opencga-family-editor-new study="{{study}}" samples="{{_samplesAnalysis}}"
+                                                           opencga-client="{{opencgaClient}}" family="{{family}}"
+                                                           on-familychange="familyChange"></opencga-family-editor-new>
                             </template>
 
                         </div>
@@ -262,8 +262,8 @@
                     this.samples.forEach((sample) => {
                         _this.family.members[sample.id] = {
                             member: {},
-                            father: {},
-                            mother: {},
+                            father: {"id": -1},
+                            mother: {"id": -1},
                             diseases: new Set(),
                             carrier: [],
                             parentalConsanguinity: false

@@ -215,8 +215,8 @@ class Pedigree {
                 map[m.father.name].partner = m.mother.name;
                 map[m.mother.name].partner = m.father.name;
 
-                map[m.father.name].partnerConsaguinity = m.parentalConsaguinity;
-                map[m.mother.name].partnerConsaguinity = m.parentalConsaguinity;
+                map[m.father.name].partnerConsaguinity = m.parentalConsanguinity;
+                map[m.mother.name].partnerConsaguinity = m.parentalConsanguinity;
 
                 if (this._isOrphan(map[m.father.name] && this._isOrphan(map[m.mother.name]))) {
                     family.father = map[m.father.name];

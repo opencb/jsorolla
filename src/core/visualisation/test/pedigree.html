@@ -40,62 +40,122 @@
 
         };
 
-        let familyTest = {
-            id: 23,
-            name: "Martinez Pujalte",
-            description: "",
-            release: 1,
-            version: 2,
-            diseases: [
-                {
-                    id: "HP:001233",
-                    name: "Aaaa",
-                    source: "HPO"
-                },
-                {
-                    id: "OMIM:056789",
-                    name: "Cccc",
-                    source: "OMIM"
-                },
-                {
-                    id: "ddddd",
-                    name: "Ddddd",
-                    source: ""
-                }
-            ],
-            members: [
-                {
-                    member: {"id": 10, "version": 1, "name": "luis", sex: "male"},
-                    father: {"id": 11, name: "pepe", "version": 1},
-                    mother: {"id": 12, name: "mari", "version": 1},
-                    diseases: ["OMIM:056789", "HP:001233"],
-                    carrier: ["OMIM:056789"],
-                    parentalConsaguinity: true,
-                    multiples: {"type": "mellizo", "siblings": ["pepe"]}
-                },
-                {
-                    member: {"id": 11, "version": 1, "name": "pepe", sex: "male", lifeStatus: "deceased"},
-                    father: {"id": -1, "version": 1},
-                    mother: {"id": -1, "version": 1},
-                    diseases: ["HP:001233"],
-                    carrier: ["OMIM:056789"],
-                    parentalConsaguinity: false,
-                    multiples: {"type": "mellizo", "siblings": ["luis"]}
-                },
-                {
-                    member: {"id": 12, "version": 1, "name": "mari", sex: "female"},
-                    father: {"id": -1, "version": 1},
-                    mother: {"id": -1, "version": 1},
-                    diseases: ["ddddd"],
-                    carrier: ["OMIM:056789"],
-                    parentalConsaguinity: false,
-                    multiples: {"type": "mellizo", "siblings": ["luis"]}
-                }
-            ],
+//        let familyTest = {
+//            id: 23,
+//            name: "Martinez Pujalte",
+//            description: "",
+//            release: 1,
+//            version: 2,
+//            diseases: [
+//                {
+//                    id: "HP:001233",
+//                    name: "Aaaa",
+//                    source: "HPO"
+//                },
+//                {
+//                    id: "OMIM:056789",
+//                    name: "Cccc",
+//                    source: "OMIM"
+//                },
+//                {
+//                    id: "ddddd",
+//                    name: "Ddddd",
+//                    source: ""
+//                }
+//            ],
+//            members: [
+//                {
+//                    member: {"id": 10, "version": 1, "name": "luis", sex: "male"},
+//                    father: {"id": 11, name: "pepe", "version": 1},
+//                    mother: {"id": 12, name: "mari", "version": 1},
+//                    diseases: ["OMIM:056789", "HP:001233"],
+//                    carrier: ["OMIM:056789"],
+//                    parentalConsaguinity: true,
+//                    multiples: {"type": "mellizo", "siblings": ["pepe"]}
+//                },
+//                {
+//                    member: {"id": 11, "version": 1, "name": "pepe", sex: "male", lifeStatus: "deceased"},
+//                    father: {"id": -1, "version": 1},
+//                    mother: {"id": -1, "version": 1},
+//                    diseases: ["HP:001233"],
+//                    carrier: ["OMIM:056789"],
+//                    parentalConsaguinity: false,
+//                    multiples: {"type": "mellizo", "siblings": ["luis"]}
+//                },
+//                {
+//                    member: {"id": 12, "version": 1, "name": "mari", sex: "female"},
+//                    father: {"id": -1, "version": 1},
+//                    mother: {"id": -1, "version": 1},
+//                    diseases: ["ddddd"],
+//                    carrier: ["OMIM:056789"],
+//                    parentalConsaguinity: false,
+//                    multiples: {"type": "mellizo", "siblings": ["luis"]}
+//                }
+//            ],
+//
+//            annotation: [],
+//            creationDate: "",
+//            attributes: {}
+//        };
 
-            annotation: [],
-            creationDate: "",
-            attributes: {}
+
+        let familyTest = {
+            "name": "adfs",
+            "description": "fasdfaf",
+            "diseases": [
+            {
+                "id": "E00-E89",
+                "name": "IV. Endocrine, nutritional and metabolic diseases ",
+                "source": "ICD10"
+            },
+            {
+                "id": "D50-D89",
+                "name": "III. Diseases of the blood and blood-forming organs and certain disorders involving the immune mechanism ",
+                "source": "ICD10"
+            }
+        ],
+            "members": [
+            {
+                "member": {
+                    "name": "proband",
+                    "sex": "MALE",
+                    "lifeStatus": "deceased"
+                },
+                "father": {"id": -1},
+                "mother": {"id": -1},
+                "diseases": [],
+                "carrier": [],
+                "parentalConsanguinity": false
+            },
+            {
+                "member": {
+                    "name": "otro",
+                    "sex": "FEMALE"
+                },
+                "father": {"id": -1},
+                "mother": {"id": -1},
+                "diseases": [],
+                "carrier": [],
+                "parentalConsanguinity": false
+            },
+            {
+                "member": {
+                    "name" :"son",
+                    "sex": "MALE"
+                },
+                "father": {
+                    "name": "proband"
+                },
+                "mother": {
+                    "name": "otro"
+                },
+                "diseases": ["E00-E89"],
+                "carrier": [],
+                "parentalConsanguinity": true
+            }
+        ],
+            "annotation": [],
+            "attributes": {}
         };
 
         function render() {
