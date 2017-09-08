@@ -260,18 +260,18 @@
                                             let existsTerm = _this.data.diseases.find((element) => {
                                                return element.id === term.id;
                                             });
+                                        _this.data.ontologyTermsDiseases.push(term);
                                             if(UtilsNew.isUndefinedOrNull(existsTerm)){
                                                 _this.data.diseases.push(term);
-                                                _this.data.ontologyTermsDiseases.push(term);
                                             }
                                         }
                                     });
                                 }
 
                                 // Difference between ontologyTermsDiseases and diseases are the custom diseases
-                                _this.data.customDiseases = _this.data.diseases.filter((disease) => {
-                                        return _this.data.ontologyTermsDiseases.indexOf(disease) === -1;
-                                    });
+
+                                _this.data.customDiseases = _this.data.diseases.filter(disease => !_this.data.ontologyTermsDiseases.some(ar2 => ar2.id === disease.id));
+
 
                                 // Save in family members[sample.id] the member object using individual data
                                 _this.family.members[sample.id].member = {
@@ -312,12 +312,6 @@
 
                 }
                 this.data = Object.assign({}, this.data);
-            }
-
-            function flattenDisease(arr) {
-
-                return arr.reduce((flatArray, toFlatten) => flatArray.concat(Array.isArray(toFlatten) ? flatten(toFlatten) : toFlatten), []);
-
             }
 
             findSample(sampleId) {
