@@ -163,72 +163,234 @@
                                 </div>
                             </div>
                         </div>
+
+
+
                         <div class="panel panel-default">
-                            <div class="panel-heading" role="tab" id="headingThree">
+                            <div class="panel-heading" role="tab" id="headingTwo">
                                 <h4 class="panel-title">
                                     <a role="button" data-toggle="collapse" data-parent="#accordion"
-                                       href="#collapseThree"
-                                       aria-expanded="true" aria-controls="collapseThree">
-                                        SNV/Models
+                                       href="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+                                        Interpretation Summary
                                     </a>
                                 </h4>
                             </div>
-                            <div id="collapseThree" class="panel-collapse collapse in" role="tabpanel"
-                                 aria-labelledby="headingThree">
+                            <div id="collapseTwo" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingTwo">
                                 <div class="panel-body">
+                                    <div class="col-md-12">
+                                        <div class="col-md-4">
+                                            <label>Sample</label>
+                                            <hr style="margin: 2px 0px;border-top: 2px solid #eee">
+                                            <form class="form-horizontal">
+                                                <div class="form-group" style="margin: 0px 10px">
+                                                    <label class="col-md-4">Name:</label>
+                                                    <span class="col-md-8">NA0001</span>
+                                                </div>
+                                                <div class="form-group" style="margin: 0px 10px">
+                                                    <label class="col-md-4">File:</label>
+                                                    <span class="col-md-8">NA0001.vcf.gz</span>
+                                                </div>
+                                                <div class="form-group" style="margin: 0px 10px">
+                                                    <label class="col-md-4">Type:</label>
+                                                    <span class="col-md-8">Germline</span>
+                                                </div>
+                                                <div class="form-group" style="margin: 0px 10px">
+                                                    <label class="col-md-4">Phenotypes:</label>
+                                                    <span class="col-md-8">HPO term name (<a href="http://compbio.charite.de/hpoweb/showterm?id=HP:0000478" target="_blank">HP:0000478</a>)</span>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label>Subject</label>
+                                            <hr style="margin: 2px 0px;border-top: 2px solid #eee">
+                                            <form class="form-horizontal">
+                                                <div class="form-group" style="margin: 0px 10px">
+                                                    <label class="col-md-4">Name:</label>
+                                                    <span class="col-md-8">{{interpretation.clinicalAnalysis.subject.name}}</span>
+                                                </div>
+                                                <div class="form-group" style="margin: 0px 10px">
+                                                    <label class="col-md-4">Sex (Karyotype):</label>
+                                                    <span class="col-md-8">{{interpretation.clinicalAnalysis.subject.sex}} ({{interpretation.clinicalAnalysis.subject.karyotypicSex}})</span>
+                                                </div>
+                                                <div class="form-group" style="margin: 0px 10px">
+                                                    <label class="col-md-4">Date of Birth:</label>
+                                                    <span class="col-md-8">{{interpretation.clinicalAnalysis.subject.dateOfBirth}} ({{interpretation.clinicalAnalysis.subject.lifeStatus}})</span>
+                                                </div>
+                                                <div class="form-group" style="margin: 0px 10px">
+                                                    <label class="col-md-4">Parental Consanguinity:</label>
+                                                    <span class="col-md-8">{{interpretation.clinicalAnalysis.subject.name}}</span>
+                                                </div>
+                                                <div class="form-group" style="margin: 0px 10px">
+                                                    <label class="col-md-4">Phenotypes:</label>
+                                                    <span class="col-md-8">
+                                                        <template is="dom-repeat" items="{{interpretation.clinicalAnalysis.subject.ontologyTerms}}">
+                                                            <span>{{item.name}} (<a href="http://compbio.charite.de/hpoweb/showterm?id={{item.id}}" target="_blank">{{item.id}}</a>)</span>
+                                                        </template>
+                                                    </span>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label>Family</label>
+                                            <hr style="margin: 2px 0px;border-top: 2px solid #eee">
+                                            <form class="form-horizontal">
+                                                <div class="form-group" style="margin: 0px 10px">
+                                                    <label class="col-md-4">Name:</label>
+                                                    <span class="col-md-8">{{interpretation.clinicalAnalysis.family.name}}</span>
+                                                </div>
+                                                <div class="form-group" style="margin: 0px 10px">
+                                                    <label class="col-md-4">Phenotypes:</label>
+                                                    <span class="col-md-8">HPO term name (<a href="http://compbio.charite.de/hpoweb/showterm?id=HP:0000478" target="_blank">HP:0000478</a>)</span>
+                                                </div>
+                                                <div class="form-group" style="margin: 0px 10px">
+                                                    <label class="col-md-4">Pedigree:</label>
+                                                    <span class="col-md-8">
+                                                        <img width="160px" src="https://openi.nlm.nih.gov/imgs/512/160/2743802/PMC2743802_mv-v15-1881-f1.png" style="padding: 10px 10px">
+                                                        <br>
+                                                        <span>Click <a href="" style="font-weight: bold">here</a> for more info</span>
+                                                    </span>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
 
-                                    <table id="{{prefix}}mainTable" data-pagination="true" data-page-list="[10, 25, 50]"
-                                           data-show-export="true">
-                                    </table>
+                                    <!--<div class="col-md-12">-->
+                                    <!--<br>-->
+                                    <!--<label><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;Interpretation Analysis</label>-->
+                                    <!--</div>-->
+                                    <div class="col-md-12">
+                                        <br>
+                                        <div class="col-md-4">
+                                            <label>Interpretation Analysis</label>
+                                            <hr style="margin: 2px 0px;border-top: 2px solid #eee">
+                                            <form class="form-horizontal">
+                                                <div class="form-group" style="margin: 0px 10px">
+                                                    <label class="col-md-4">Name (date):</label>
+                                                    <span class="col-md-8">{{interpretation.name}} ({{interpretation.creationDate}})</span>
+                                                </div>
+                                                <div class="form-group" style="margin: 0px 10px">
+                                                    <label class="col-md-4">Analyst:</label>
+                                                    <span class="col-md-8">{{interpretation.analyst.name}} (<a>{{interpretation.analyst.email}}</a>)</span>
+                                                </div>
+                                                <div class="form-group" style="margin: 0px 10px">
+                                                    <label class="col-md-4">Description:</label>
+                                                    <span class="col-md-8">{{interpretation.description}}</span>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label>Software</label>
+                                            <hr style="margin: 2px 0px;border-top: 2px solid #eee">
+                                            <form class="form-horizontal">
+                                                <div class="form-group" style="margin: 0px 10px">
+                                                    <label class="col-md-4">Name:</label>
+                                                    <span class="col-md-8">
+                                                        {{interpretation.software.name}} (<a href="{{interpretation.software.website}}" target="_blank"><i class="fa fa-external-link" aria-hidden="true"></i> website</a>)
+                                                    </span>
+                                                </div>
+                                                <div class="form-group" style="margin: 0px 10px">
+                                                    <label class="col-md-4">Version:</label>
+                                                    <span class="col-md-8">
+                                                        {{interpretation.software.version}} (<a href="{{interpretation.software.repository}}/commit/{{interpretation.software.commit}}" target="_blank"><i class="fa fa-external-link" aria-hidden="true"></i> commit</a>)
+                                                    </span>
+                                                </div>
+                                                <div class="form-group" style="margin: 0px 10px">
+                                                    <label class="col-md-4">Dependencies:</label>
+                                                    <span class="col-md-8">
+                                                        <template is="dom-repeat" items="{{interpretation.versions}}">
+                                                            <span>{{item.name}} (v{{item.version}})</span>
+                                                        </template>
+                                                    </span>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label>Variant Filters</label>
+                                            <hr style="margin: 2px 0px;border-top: 2px solid #eee">
+                                            <form class="form-horizontal">
+                                                <template is="dom-repeat" items="{{_toArray(interpretation.filters)}}">
+                                                    <div class="form-group" style="margin: 0px 10px">
+                                                        <label class="col-md-4">{{item.name}}:</label>
+                                                        <span class="col-md-8">{{item.value}}</span>
+                                                    </div>
+                                                </template>
+                                            </form>
+                                        </div>
+                                    </div>
                                 </div>
+
                             </div>
                         </div>
                     </div>
 
-                    <div style="padding-top: 20px">
-                        <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
-                            <li role="presentation" class="active"><a href="#{{prefix}}Annotation" role="tab"
-                                                                      data-toggle="tab"
-                                                                      class="browser-variant-tab-title">Advanced
-                                Annotation</a></li>
-                            <li role="presentation"><a href="#{{prefix}}Genotype" role="tab" data-toggle="tab"
-                                                       class="browser-variant-tab-title">Genotype Stats</a></li>
-                            <!--<li role="presentation"><a href="#{{prefix}}GenomeView" role="tab" data-toggle="tab" class="browser-variant-tab-title">Genome Context</a></li>-->
-                            <li role="presentation"><a href="#{{prefix}}GenomeViewer" role="tab" data-toggle="tab"
-                                                       class="browser-variant-tab-title">Genome Viewer</a></li>
-                        </ul>
 
-                        <div class="tab-content" style="height: 680px">
-                            <!--Annotation Tab-->
-                            <div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">
-                                <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}"
-                                                                 cellbase-client="{{cellbaseClient}}"
-                                                                 mode="vertical"
-                                                                 hash-fragment-credentials="{{hashFragmentCredentials}}"
-                                                                 consequence-types="{{consequenceTypes}}"
-                                                                 protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                                                 style="font-size: 12px">
-                                </cellbase-variantannotation-view>
-                            </div>
 
-                            <!--Genotypes & Files Tab-->
-                            <div role="tabpanel" class="tab-pane" id="{{prefix}}Genotype">
-                                geno
-                            </div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading" role="tab" id="headingThree">
+                            <h4 class="panel-title">
+                                <a role="button" data-toggle="collapse" data-parent="#accordion"
+                                   href="#collapseThree"
+                                   aria-expanded="true" aria-controls="collapseThree">
+                                    SNV/Models
+                                </a>
+                            </h4>
+                        </div>
+                        <div id="collapseThree" class="panel-collapse collapse in" role="tabpanel"
+                             aria-labelledby="headingThree">
+                            <div class="panel-body">
 
-                            <!--Beacon network-->
-                            <div role="tabpanel" class="tab-pane" id="{{prefix}}GenomeViewer">
-                                <div class="" style="padding: 0px 5px">
-                                    <variant-genome-browser project="{{project}}" study="{{study}}" samples="{{samples}}" active="{{_genomeBrowserActive}}"
-                                                            opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" region="{{regionGenomeBrowser}}">
-                                    </variant-genome-browser>
-                                </div>
+                                <table id="{{prefix}}mainTable" data-pagination="true" data-page-list="[10, 25, 50]"
+                                       data-show-export="true">
+                                </table>
                             </div>
                         </div>
                     </div>
-
                 </div>
+
+                <div style="padding-top: 20px">
+                    <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
+                        <li role="presentation" class="active"><a href="#{{prefix}}Annotation" role="tab"
+                                                                  data-toggle="tab"
+                                                                  class="browser-variant-tab-title">Advanced
+                            Annotation</a></li>
+                        <li role="presentation"><a href="#{{prefix}}Genotype" role="tab" data-toggle="tab"
+                                                   class="browser-variant-tab-title">Genotype Stats</a></li>
+                        <!--<li role="presentation"><a href="#{{prefix}}GenomeView" role="tab" data-toggle="tab" class="browser-variant-tab-title">Genome Context</a></li>-->
+                        <li role="presentation"><a href="#{{prefix}}GenomeViewer" role="tab" data-toggle="tab"
+                                                   class="browser-variant-tab-title">Genome Viewer</a></li>
+                    </ul>
+
+                    <div class="tab-content" style="height: 680px">
+                        <!--Annotation Tab-->
+                        <div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">
+                            <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}"
+                                                             cellbase-client="{{cellbaseClient}}"
+                                                             mode="vertical"
+                                                             hash-fragment-credentials="{{hashFragmentCredentials}}"
+                                                             consequence-types="{{consequenceTypes}}"
+                                                             protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                             style="font-size: 12px">
+                            </cellbase-variantannotation-view>
+                        </div>
+
+                        <!--Genotypes & Files Tab-->
+                        <div role="tabpanel" class="tab-pane" id="{{prefix}}Genotype">
+                            geno
+                        </div>
+
+                        <!--Beacon network-->
+                        <div role="tabpanel" class="tab-pane" id="{{prefix}}GenomeViewer">
+                            <div class="" style="padding: 0px 5px">
+                                <variant-genome-browser project="{{project}}" study="{{study}}" samples="{{samples}}" active="{{_genomeBrowserActive}}"
+                                                        opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" region="{{regionGenomeBrowser}}">
+                                </variant-genome-browser>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
+        </div>
         </div>
     </template>
 
@@ -272,6 +434,9 @@
                     cellbaseClient: {
                         type: Object
                     },
+                    interpretation: {
+                        type: Object
+                    }
                 };
             }
 
@@ -403,12 +568,12 @@
                                 if(UtilsNew.isNotUndefinedOrNull(row.reportEvents)){
                                     row.reportEvents.forEach((reportEvent) => {
                                         if(UtilsNew.isNotUndefinedOrNull(reportEvent.prediction)) {
-                                        res = res + "<label>" + reportEvent.prediction + "</label><br>";
-                                    }
-                                    if(UtilsNew.isNotUndefinedOrNull(reportEvent.score)){
-                                        res = res + "<label>" + reportEvent.score + "</label>";
-                                    }
-                                });
+                                            res = res + "<label>" + reportEvent.prediction + "</label><br>";
+                                        }
+                                        if(UtilsNew.isNotUndefinedOrNull(reportEvent.score)){
+                                            res = res + "<label>" + reportEvent.score + "</label>";
+                                        }
+                                    });
                                 }
                                 return res;
                             },
@@ -425,12 +590,12 @@
                                 if(UtilsNew.isNotUndefinedOrNull(row.calledGenotypes)){
                                     row.calledGenotypes.forEach((genotype) => {
                                         if(UtilsNew.isNotUndefinedOrNull(genotype.genotype)) {
-                                        res = res + "<label>" + genotype.genotype + "</label><br>";
-                                    }
-                                    if(UtilsNew.isNotUndefinedOrNull(genotype.zigosity)){
-                                        res = res + "<label>" + genotype.zigosity + "</label>";
-                                    }
-                                });
+                                            res = res + "<label>" + genotype.genotype + "</label><br>";
+                                        }
+                                        if(UtilsNew.isNotUndefinedOrNull(genotype.zigosity)){
+                                            res = res + "<label>" + genotype.zigosity + "</label>";
+                                        }
+                                    });
                                 }
                                 return res;
                             },
@@ -503,6 +668,15 @@
                 }
 
                 this._collapsed = !this._collapsed;
+            }
+
+            _toArray(obj) {
+                return Object.keys(obj).map(function(key) {
+                    return {
+                        name: key,
+                        value: obj[key]
+                    };
+                });
             }
         }
 
