@@ -97,7 +97,7 @@ const interpretationJson = {
     reportedVariants: [
         {
             id: "3:10361687:T:G",
-            name: "rs123456",
+            names: ["rs666"],
             chromosome: "22",
             start: 3333,
             end: 3335,
@@ -114,14 +114,53 @@ const interpretationJson = {
                 source: "cellbase",
                 version: "4.5",
                 populationFrequencies: [],
-                consequenceTypes: []
+                consequenceTypes: [
+                    {
+                        "geneName":"DPEP1",
+                        "ensemblGeneId":"ENSG00000015413",
+                        "ensemblTranscriptId":"ENST00000570029","strand":"+","biotype":"protein_coding",
+                        "transcriptAnnotationFlags":["mRNA_end_NF","cds_end_NF"],
+                        "sequenceOntologyTerms":[{"accession":"SO:0001627","name":"intron_variant"}]
+                    },
+                    {
+                        "geneName":"DPEP1",
+                        "ensemblGeneId":"ENSG00000015413",
+                        "ensemblTranscriptId":"ENST00000421184","strand":"+","biotype":"protein_coding",
+                        "transcriptAnnotationFlags":["CCDS","basic"],
+                        "sequenceOntologyTerms":[{"accession":"SO:0001627","name":"intron_variant"}]
+                    },
+                    {
+                        "geneName":"DPEP1",
+                        "ensemblGeneId":"ENSG00000015413",
+                        "ensemblTranscriptId":"ENST00000565249","strand":"+","biotype":"retained_intron",
+                        "sequenceOntologyTerms": [
+                            {"accession":"SO:0001619","name":"non_coding_transcript_variant"},
+                            {"accession":"SO:0001627","name":"intron_variant"}
+                        ]
+                    },
+                    {
+                        "geneName":"DPEP1",
+                        "ensemblGeneId":"ENSG00000015413",
+                        "ensemblTranscriptId":"ENST00000393092","strand":"+","biotype":"protein_coding",
+                        "transcriptAnnotationFlags":["CCDS","basic"],
+                        "sequenceOntologyTerms":[{"accession":"SO:0001631","name":"2KB_upstream_gene_variant"}]
+                    },
+                    {
+                        "sequenceOntologyTerms":[{"accession":"SO:0001566","name":"regulatory_region_variant"}]
+                    }
+                ],
+                conservation: [
+                    {"score": 0.13099999725818634, "source": "gerp"},
+                    {"score": 0.03799999877810478, "source": "phastCons"},
+                    {"score": 0.1469999998807907, "source": "phylop"}
+                ]
             },
 
             calledGenotypes: [{
                 sampleId: 21,
                 individualId: 5,
                 genotype: "0/0",
-                zigosity: "heterogenious",
+                zigosity: "heterozygous",
                 phaseSet: "phaseSet",
                 depthReference: 2,
                 depthAlternate: 3,
@@ -138,52 +177,6 @@ const interpretationJson = {
                 }
             ],
             comments: [{author: "", type: "", comment: "", date: ""}],
-            additionalNumericVariantAnnotations: []
-        },
-        {
-            id: "14:22221:A:T",
-            name: "rs666",
-            annotation: {
-                source: "cellbase",
-                version: "4.5",
-                genes: []
-            },
-            calledGenotypes: [{
-                sampleId: 21,
-                individualId: 5,
-                genotype: "1/0",
-                zigosity: "heterogenious",
-                phaseSet: "phaseSet",
-                depthReference: 2,
-                depthAlternate: 3,
-                copyNumber: 2
-            }
-            ],
-            genotypes: [],
-            comments: [{author: "", type: "", comment: "", date: ""},{author: "", type: "", comment: "", date: ""}],
-            additionalNumericVariantAnnotations: []
-        },
-        {
-            id: "14:22221:A:T",
-            name: "rs666",
-            annotation: {
-                source: "cellbase",
-                version: "4.5",
-                genes: []
-            },
-            calledGenotypes: [{
-                sampleId: 21,
-                individualId: 5,
-                genotype: "1/0",
-                zigosity: "heterogenious",
-                phaseSet: "phaseSet",
-                depthReference: 2,
-                depthAlternate: 3,
-                copyNumber: 2
-            }
-            ],
-            genotypes: [],
-            comments: [{author: "", type: "", comment: "", date: ""},{author: "", type: "", comment: "", date: ""}],
             additionalNumericVariantAnnotations: []
         },
         {

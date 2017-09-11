@@ -281,6 +281,10 @@
                                                     <span class="col-md-8">{{interpretation.name}} ({{interpretation.creationDate}})</span>
                                                 </div>
                                                 <div class="form-group" style="margin: 0px 10px">
+                                                    <label class="col-md-4">Type:</label>
+                                                    <span class="col-md-8">{{interpretation.clinicalAnalysis.type}}</span>
+                                                </div>
+                                                <div class="form-group" style="margin: 0px 10px">
                                                     <label class="col-md-4">Analyst:</label>
                                                     <span class="col-md-8">{{interpretation.analyst.name}} (<a>{{interpretation.analyst.email}}</a>)</span>
                                                 </div>
@@ -333,8 +337,6 @@
 
                             </div>
                         </div>
-                        <!--</div>-->
-
 
 
                         <div class="panel panel-default">
@@ -349,8 +351,8 @@
                             <div id="collapseThree" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingThree">
                                 <div class="panel-body">
                                     <div class="btn-group btn-group" role="group" aria-label="..." style="padding: 10px;float: right">
-                                        <button type="button" class="btn btn-default btn-warning gene-ct-buttons active"
-                                                on-click="updateQuery">All
+                                        <button type="button" class="btn btn-default btn-warning gene-ct-buttons active" on-click="updateQuery">
+                                            All
                                         </button>
                                         <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
                                             Missense
@@ -363,6 +365,7 @@
                                     <div id="{{prefix}}ToolbarLeft" style="float: left;margin: 25px 0px 0px 5px">
                                         <span style="font-size: 14px">Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> variants</span>
                                     </div>
+
                                     <div id="{{prefix}}GridTableDiv" style="margin-top: 10px">
                                         <table id="{{prefix}}mainTable" data-pagination="true" data-page-list="[10, 25]" data-show-export="true">
                                             <thead style="background-color: #eee"></thead>
@@ -436,12 +439,9 @@
 
             static get properties() {
                 return {
-                    data: {
-                        type: Object
-                    },
                     title: {
                         type: String,
-                        value: ""
+                        value: "ssasasaas"
                     },
                     project: {
                         type: Object
@@ -473,17 +473,21 @@
                 ]
             }
 
-            _attachDom(dom) {
-                this.appendChild(dom);
-            }
-
             ready() {
                 super.ready();
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
             }
 
             connectedCallback() {
                 super.connectedCallback();
 
+                this.render();
+            }
+
+            render() {
                 this.variant = ""; // Empty the variant every time the grid is loaded
 
                 this.from = 1;
@@ -497,15 +501,8 @@
                 let _this = this;
                 $('#' + this.prefix + 'mainTable').bootstrapTable('destroy');
                 $("#" + this.prefix + "mainTable").bootstrapTable({
-//                    url: "http://localhost/iva-babelomics/src/conf/interpretation.json",
                     data: _this.interpretation.reportedVariants,
                     columns: _this.cols,
-//                    method: 'get',
-//                    sidePagination: 'server',
-//                    responseHandler: function (res) {
-//                        console.log("responseHandler: " + res);
-//                        return {total: res.total, rows: res.rows};
-//                    },
                     onClickRow: function (row, $element) {
                         console.log("onClickRow");
                         _this.variant = row.id;
@@ -521,8 +518,6 @@
                         _this.to = page * size;
                     }
                 });
-//                $('#' + _this.prefix + 'mainTable').bootstrapTable('showLoading');
-
             }
 
             computedLengthComments(comments) {
@@ -539,6 +534,28 @@
                 }
             }
 
+            geneFormatter(value, row, index) {
+                if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
+                    if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined" && row.annotation.consequenceTypes.length > 0) {
+                        var visited = {};
+                        var geneLinks = [];
+                        for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
+                            if (typeof row.annotation.consequenceTypes[i].geneName !== "undefined" && row.annotation.consequenceTypes[i].geneName != ""
+                                && typeof visited[row.annotation.consequenceTypes[i].geneName] === "undefined") {
+                                if (typeof this.field.context.project !== "undefined" && typeof this.field.context.study !== "undefined") {
+                                    geneLinks.push('<a style="cursor: pointer;white-space: nowrap" href="#gene/' + this.field.context.project.alias +'/' +
+                                        this.field.context.study.alias + '/' + row.annotation.consequenceTypes[i].geneName + '">' + row.annotation.consequenceTypes[i].geneName + '</a>');
+                                } else {
+                                    geneLinks.push('<a style="cursor: pointer;white-space: nowrap">' + row.annotation.consequenceTypes[i].geneName + '</a>')
+                                }
+                                visited[row.annotation.consequenceTypes[i].geneName] = true;
+                            }
+                        }
+                        return geneLinks.join(',');
+                    }
+                }
+                return '-';
+            }
 
             loadMainTableColumns() {
                 let _this = this;
@@ -551,8 +568,8 @@
                             rowspan: 1,
                             formatter: function (value, row, index) {
                                 let res = "";
-                                if(UtilsNew.isNotUndefinedOrNull(row.id)){
-                                    res = res + "<label>"+row.id+"</label><br>";
+                                if (UtilsNew.isNotUndefinedOrNull(row.id)){
+                                    res += "<label>" + row.id + "</label><br>";
                                 }
 //                                if(UtilsNew.isNotUndefinedOrNull(row.chromosome)) {
 //                                    res = res + "<label>" + row.chromosome + "</label><br>";
@@ -563,56 +580,61 @@
 //                                if(UtilsNew.isNotUndefinedOrNull(row.end)) {
 //                                    res = res + "<label>" + row.end + "</label><br>";
 //                                }
-                                if(UtilsNew.isNotUndefinedOrNull(row.type)) {
-                                    res = res + "<label>" + row.type + "</label>";
+                                if (UtilsNew.isNotUndefinedOrNull(row.names) && row.names.length > 0) {
+                                    res += "<label><a href='https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?searchType=adhoc_search&type=rs&rs="
+                                        + row.names[0]+ "' target='_blank'>dbSNP " + row.names[0] + "</a></label>";
                                 }
                                 return res;
                             },
                             halign: 'center'
                         },
                         {
-                            title: "Gene",
-                            field: "gene",
+                            title: "Genes",
+                            field: {name: "genes", context: this},
                             colspan: 1,
                             rowspan: 1,
-                            formatter: function (value, row, index) {
-                                return value;
-                            },
-                            halign: 'center'
-
+                            halign: 'center',
+                            formatter: this.geneFormatter,
                         },
                         {
-                            title: "Consequence/Allele",
+                            title: "Type",
+                            field: "type",
+                            colspan: 1,
+                            rowspan: 1,
+                            halign: 'center'
+                        },
+                        {
+                            title: "Gene Annotation",
                             field: "consequence",
                             colspan: 1,
                             rowspan: 1,
                             formatter: function (value, row, index) {
-                                return value;
+                                let val = "<span style='color: red'>missense_variant</span><br><br>c123T>C";
+                                return val;
                             },
                             halign: 'center'
 
                         },
                         {
-                            title: "Associations",
-                            field: "associations",
+                            title: "Prediction",
+                            field: "prediction",
                             colspan: 1,
                             rowspan: 1,
+                            halign: 'center',
                             formatter: function (value, row, index) {
                                 let res = "";
-                                if(UtilsNew.isNotUndefinedOrNull(row.reportEvents)){
+                                if (UtilsNew.isNotUndefinedOrNull(row.reportEvents)){
                                     row.reportEvents.forEach((reportEvent) => {
-                                        if(UtilsNew.isNotUndefinedOrNull(reportEvent.prediction)) {
-                                            res = res + "<label>" + reportEvent.prediction + "</label><br>";
+                                        if (UtilsNew.isNotUndefinedOrNull(reportEvent.prediction)) {
+                                            res += "<label>" + reportEvent.prediction + "</label>";
                                         }
-                                        if(UtilsNew.isNotUndefinedOrNull(reportEvent.score)){
-                                            res = res + "<label>" + reportEvent.score + "</label>";
+                                        if (UtilsNew.isNotUndefinedOrNull(reportEvent.score)) {
+                                            res += " (<label>" + reportEvent.score + "</label>)";
                                         }
                                     });
                                 }
                                 return res;
-                            },
-                            halign: 'center'
-
+                            }
                         },
                         {
                             title: "Zigosity",
@@ -648,12 +670,13 @@
 
                         },
                         {
-                            title: "Read",
+                            title: "File metrics",
                             field: "read",
                             colspan: 1,
                             rowspan: 1,
                             formatter: function (value, row, index) {
-                                return value;
+                                let val = "<span>DP: 18</span>";
+                                return val;
                             },
                             halign: 'center'
 
@@ -700,7 +723,6 @@
                     PolymerUtils.addClass(this.prefix + "mainIntepretation", ["col-xs-offset-0", "col-sm-offset-0", "col-md-offset-1", "col-lg-offset-1"])
 
                 }
-
                 this._collapsed = !this._collapsed;
             }
 
@@ -715,6 +737,5 @@
         }
 
         customElements.define(ClinicalInterpretationView.is, ClinicalInterpretationView);
-
     </script>
 </dom-module>
