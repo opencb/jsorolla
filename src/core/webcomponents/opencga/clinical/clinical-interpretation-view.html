@@ -1,78 +1,20 @@
+
+<link rel="import" href="../../../webcomponents/cellbase/variation/cellbase-variantannotation-view.html">
+<link rel="import" href="../variant/variant-beacon-network.html">
+<link rel="import" href="../variant/variant-genome-browser.html">
+
 <dom-module id="clinical-interpretation-view">
 
     <template>
         <style include="jso-styles">
-            /*
-       * See it in action here: http://jsfiddle.net/seydoggy/6s92p51a/
-       */
-            .panel-table {
-                display: table;
-            }
-
-            .panel-table > .panel-heading {
-                display: table-header-group;
-                background: transparent;
-            }
-
-            .panel-table > .panel-body {
-                display: table-row-group;
-            }
-
-            .panel-table > .panel-body:before,
-            .panel-table > .panel-body:after {
-                content: none;
-            }
-
-            .panel-table > .panel-footer {
-                display: table-footer-group;
-                background: transparent;
-            }
-
-            .panel-table > div > .tr {
-                display: table-row;
-            }
-
-            .panel-table > div:last-child > .tr:last-child > .td {
-                border-bottom: none;
-            }
-
-            .panel-table .td {
-                display: table-cell;
-                padding: 15px;
-                border: 1px solid #ddd;
-                border-top: none;
-                border-left: none;
-            }
-
-            .panel-table .td:last-child {
-                border-right: none;
-            }
-
-            .panel-table > .panel-heading > .tr > .td,
-            .panel-table > .panel-footer > .tr > .td {
-                background-color: #f5f5f5;
-            }
-
-            .panel-table > .panel-heading > .tr > .td:first-child {
-                border-radius: 4px 0 0 0;
-            }
-
-            .panel-table > .panel-heading > .tr > .td:last-child {
-                border-radius: 0 4px 0 0;
-            }
-
-            .panel-table > .panel-footer > .tr > .td:first-child {
-                border-radius: 0 0 0 4px;
-            }
-
-            .panel-table > .panel-footer > .tr > .td:last-child {
-                border-radius: 0 0 4px 0;
-            }
-
             .containerDiv {
                 margin-top: 20px;
             }
 
+            .clinical-bottom-tab-title {
+                font-size: 115%;
+                font-weight: bold;
+            }
         </style>
 
         <div class="panel" style="margin-bottom: 15px">
@@ -88,83 +30,6 @@
 
                 <div id="{{prefix}}mainIntepretation" class="col-xs-10  col-md-offset-1 col-sm-10 col-md-10 col-lg-10 toppad">
                     <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-
-
-                        <!--<div class="panel panel-default">-->
-                        <!--<div class="panel-heading" role="tab" id="headingOne">-->
-                        <!--<h4 class="panel-title">-->
-                        <!--<a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"-->
-                        <!--aria-expanded="true" aria-controls="collapseOne">-->
-                        <!--Cases {{data.name}}-->
-                        <!--</a>-->
-                        <!--</h4>-->
-                        <!--</div>-->
-                        <!--<div id="collapseOne" class="panel-collapse collapse in" role="tabpanel"-->
-                        <!--aria-labelledby="headingOne">-->
-                        <!--<div class="panel-body">-->
-
-                        <!--<table class="table">-->
-                        <!--<thead>-->
-                        <!--<tr>-->
-                        <!--<th colspan="2">Case</th>-->
-                        <!--<th colspan="2">Software</th>-->
-                        <!--<th colspan="2">Subject</th>-->
-                        <!--<th colspan="2">Family</th>-->
-                        <!--</tr>-->
-                        <!--</thead>-->
-                        <!--<tbody>-->
-                        <!--<tr>-->
-                        <!--<th scope="row">Id</th>-->
-                        <!--<td>{{data.id}}</td>-->
-                        <!--<th scope="row">Name</th>-->
-                        <!--<td>{{data.software.name}}</td>-->
-                        <!--<th scope="row">Subject</th>-->
-                        <!--<td>{{data.clinicalAnalysis.subject.id}}</td>-->
-                        <!--<th scope="row">Family ID</th>-->
-                        <!--<td>{{data.clinicalAnalysis.family.id}}</td>-->
-                        <!--</tr>-->
-                        <!--<tr>-->
-                        <!--<th scope="row">Name</th>-->
-                        <!--<td>{{data.name}}</td>-->
-                        <!--<th scope="row">Version</th>-->
-                        <!--<td>{{data.software.version}}</td>-->
-                        <!--<th scope="row">Name</th>-->
-                        <!--<td>{{data.clinicalAnalysis.subject.name}}</td>-->
-                        <!--<th scope="row">Name</th>-->
-                        <!--<td>{{data.clinicalAnalysis.family.name}}</td>-->
-                        <!--</tr>-->
-                        <!--<tr>-->
-                        <!--<th scope="row">Creation date</th>-->
-                        <!--<td>{{data.creationDate}}</td>-->
-                        <!--<th scope="row">Commit</th>-->
-                        <!--<td>{{data.software.commit}}</td>-->
-                        <!--<th scope="row">Sex</th>-->
-                        <!--<td>{{data.clinicalAnalysis.subject.sex}}</td>-->
-                        <!--<th scope="row">Status</th>-->
-                        <!--<td>{{data.clinicalAnalysis.family.status.name}}</td>-->
-                        <!--</tr>-->
-                        <!--<tr>-->
-                        <!--<th scope="row">Interpreter</th>-->
-                        <!--<td>{{data.interpreter.author}}</td>-->
-                        <!--<th scope="row">Website</th>-->
-                        <!--<td>{{data.software.website}}</td>-->
-                        <!--<th scope="row">Date of birth</th>-->
-                        <!--<td>{{data.clinicalAnalysis.subject.dateOfBirth}}</td>-->
-                        <!--<th scope="row">Creation date</th>-->
-                        <!--<td>{{data.clinicalAnalysis.family.creationDate}}</td>-->
-                        <!--</tr>-->
-
-                        <!--<tr>-->
-                        <!--<th scope="row">Comments</th>-->
-                        <!--<td colspan="7">filename</td>-->
-                        <!--</tr>-->
-                        <!--</tbody>-->
-                        <!--</table>-->
-                        <!--</div>-->
-                        <!--</div>-->
-                        <!--</div>-->
-
-
 
                         <div class="panel panel-default">
                             <div class="panel-heading" role="tab" id="headingTwo">
@@ -376,22 +241,33 @@
                         </div>
                     </div>
 
+                    <!-- Bottom TABs -->
                     <div style="padding-top: 20px">
                         <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
                             <li role="presentation" class="active">
-                                <a href="#{{prefix}}Annotation" role="tab" data-toggle="tab" class="browser-variant-tab-title">
-                                    Advanced Annotation
+                                <a href="#{{prefix}}Annotation" role="tab" data-toggle="tab" class="clinical-bottom-tab-title">
+                                    Current Updated Annotation
                                 </a>
                             </li>
-                            <li role="presentation"><a href="#{{prefix}}Genotype" role="tab" data-toggle="tab"
-                                                       class="browser-variant-tab-title">Genotype Stats</a></li>
-                            <!--<li role="presentation"><a href="#{{prefix}}GenomeView" role="tab" data-toggle="tab" class="browser-variant-tab-title">Genome Context</a></li>-->
-                            <li role="presentation"><a href="#{{prefix}}GenomeViewer" role="tab" data-toggle="tab"
-                                                       class="browser-variant-tab-title">Genome Viewer</a></li>
+                            <li role="presentation">
+                                <a href="#{{prefix}}Genotype" role="tab" data-toggle="tab" class="clinical-bottom-tab-title">
+                                    Genotype Stats
+                                </a>
+                            </li>
+                            <li role="presentation">
+                                <a href="#{{prefix}}BeaconNetwork" role="tab" data-toggle="tab" class="clinical-bottom-tab-title">
+                                    Beacon Network
+                                </a>
+                            </li>
+                            <li role="presentation">
+                                <a href="#{{prefix}}GenomeBrowser" role="tab" data-toggle="tab" class="clinical-bottom-tab-title">
+                                    Genome Browser
+                                </a>
+                            </li>
                         </ul>
 
                         <div class="tab-content" style="height: 680px">
-                            <!--Annotation Tab-->
+                            <!-- Current Annotation Tab -->
                             <div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">
                                 <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}"
                                                                  cellbase-client="{{cellbaseClient}}"
@@ -405,11 +281,23 @@
 
                             <!--Genotypes & Files Tab-->
                             <div role="tabpanel" class="tab-pane" id="{{prefix}}Genotype">
-                                geno
+                                Under construction.
                             </div>
 
                             <!--Beacon network-->
-                            <div role="tabpanel" class="tab-pane" id="{{prefix}}GenomeViewer">
+                            <div role="tabpanel" class="tab-pane" id="{{prefix}}BeaconNetwork">
+                                <br>
+                                <button class="btn btn-primary" type="button" on-click="triggerBeacon">Search Beacon Network</button>
+                                <a data-toggle="tooltip" title="Beacon Network is a search engine across the world's public beacons. You can find it here - https://beacon-network.org/#/">
+                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                </a>
+                                <br>
+                                <br>
+                                <variant-beacon-network clear="{{variant}}" variant="{{variantToBeacon}}"></variant-beacon-network>
+                            </div>
+
+                            <!-- Genome Browser -->
+                            <div role="tabpanel" class="tab-pane" id="{{prefix}}GenomeBrowser">
                                 <div class="" style="padding: 0px 5px">
                                     <variant-genome-browser project="{{project}}" study="{{study}}" samples="{{samples}}" active="{{_genomeBrowserActive}}"
                                                             opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" region="{{regionGenomeBrowser}}">
@@ -441,7 +329,7 @@
                 return {
                     title: {
                         type: String,
-                        value: "ssasasaas"
+                        value: ""
                     },
                     project: {
                         type: Object
@@ -499,25 +387,53 @@
                 this._genomeBrowserActive = false;
                 this._collapse = false;
                 let _this = this;
+                let _table = $('#' + this.prefix + 'mainTable');
                 $('#' + this.prefix + 'mainTable').bootstrapTable('destroy');
                 $("#" + this.prefix + "mainTable").bootstrapTable({
                     data: _this.interpretation.reportedVariants,
                     columns: _this.cols,
-                    onClickRow: function (row, $element) {
-                        console.log("onClickRow");
-                        _this.variant = row.id;
-
-                        _this._genomeBrowserActive = true;
-                        _this.regionGenomeBrowser = new Region({chromosome: row.chromosome, start: row.start, end: row.end});
-                    },
-                    onLoadSuccess: function (data) {
-                        console.log("onLoadSuccess");
-                    },
+//                    onClickRow: function (row, $element) {
+//                        console.log("onClickRow");
+//                        _this.variant = row.id;
+//
+//                        _this._genomeBrowserActive = true;
+//                        _this.regionGenomeBrowser = new Region({chromosome: row.chromosome, start: row.start, end: row.end});
+//                    },
+//                    onLoadSuccess: function (data) {
+//                        console.log("onLoadSuccess");
+//                    },
                     onPageChange: function (page, size) {
                         _this.from = (page - 1) * size + 1;
                         _this.to = page * size;
-                    }
+                    },
+                    onClickRow: function (row, $element) {
+                        $('.success').removeClass('success');
+                        $($element).addClass('success');
+
+                        _this.variant = row.id;
+                        _this._genomeBrowserActive = true;
+                        _this.regionGenomeBrowser = new Region({chromosome: row.chromosome, start: row.start, end: row.end});
+
+//                        _this._onSelectVariant(row);
+                    },
+                    onLoadSuccess: function (data) {
+                        // The first time we mark as selected the first row that is rows[2] since the first two rows are the header
+                        debugger
+                        if (UtilsNew.isNotUndefinedOrNull(_table)) {
+                            PolymerUtils.querySelector(_table.selector).rows[1].setAttribute('class', 'success');
+                            _this._onSelectVariant(data.rows[0]);
+
+                        }
+                    },
                 });
+            }
+
+            _onSelectVariant(row) {
+                if (typeof row !== "undefined") {
+                    let _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
+                    this.variant = _variant;
+                    this.dispatchEvent(new CustomEvent('selectvariant', {detail: {id: _variant, variant: row}}));
+                }
             }
 
             computedLengthComments(comments) {
@@ -571,15 +487,6 @@
                                 if (UtilsNew.isNotUndefinedOrNull(row.id)){
                                     res += "<label>" + row.id + "</label><br>";
                                 }
-//                                if(UtilsNew.isNotUndefinedOrNull(row.chromosome)) {
-//                                    res = res + "<label>" + row.chromosome + "</label><br>";
-//                                }
-//                                if(UtilsNew.isNotUndefinedOrNull(row.start)) {
-//                                    res = res + "<label>" + row.start + "</label><br>";
-//                                }
-//                                if(UtilsNew.isNotUndefinedOrNull(row.end)) {
-//                                    res = res + "<label>" + row.end + "</label><br>";
-//                                }
                                 if (UtilsNew.isNotUndefinedOrNull(row.names) && row.names.length > 0) {
                                     res += "<label><a href='https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?searchType=adhoc_search&type=rs&rs="
                                         + row.names[0]+ "' target='_blank'>dbSNP " + row.names[0] + "</a></label>";
@@ -724,6 +631,10 @@
 
                 }
                 this._collapsed = !this._collapsed;
+            }
+
+            triggerBeacon(e) {
+                this.variantToBeacon = this.variant;
             }
 
             _toArray(obj) {
