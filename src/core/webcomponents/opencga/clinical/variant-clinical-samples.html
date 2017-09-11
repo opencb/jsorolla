@@ -262,8 +262,8 @@
                     this.samples.forEach((sample) => {
                         _this.family.members[sample.id] = {
                             member: {},
-                            father: {"id": -1},
-                            mother: {"id": -1},
+                            father: {},
+                            mother: {},
                             diseases: new Set(),
                             carrier: [],
                             parentalConsanguinity: false
@@ -682,13 +682,13 @@
                     return '<button data-toggle="modal" id="' + this.prefix + 'Editor' + randomString + '" role="button" type="button" class="btn btn-sm btn-success" data-target="#' + this.prefix + 'FamilyEditor" ><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;Edit</button>';
                 }
                 else { // Is not a family analysis -> a family cannot be edited
-                    return '<button data-toggle="modal" id="' + this.prefix + 'Editor' + randomString + '" role="button" type="button" class="btn btn-sm btn-success disabled" data-target="#' + this.prefix + 'FamilyEditor"><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;Edit</button>';
+                    return '<button data-toggle="modal" id="' + this.prefix + 'Editor' + randomString + '" role="button" type="button" class="btn btn-sm btn-success disabled" disabled data-target="#' + this.prefix + 'FamilyEditor"><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;Edit</button>';
                 }
             }
 
             actionFormatter(familyEditor, randomString) {
                 if (familyEditor) {
-                    return '<button type="button" id="' + this.prefix + 'Save' + randomString + '" class="btn btn-sm btn-primary" disabled><i class="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;Save</button>';
+                    return '<button type="button" id="' + this.prefix + 'Save' + randomString + '" class="btn btn-sm btn-primary disabled" disabled><i class="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;Save</button>';
                 }
                 else { // If not a family analysis, such analysis can be saved inmediatly
                     return '<button type="button" id="' + this.prefix + 'Save' + randomString + '" class="btn btn-sm btn-primary"><i class="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;Save</button>';
@@ -737,6 +737,7 @@
 //                });
 //                this.saveAnalysis(rowInfo);
                 PolymerUtils.removeAttribute(this.prefix + "Save" + this.currentAnalysis.analysisIDinternal, "disabled");
+                PolymerUtils.removeClass(this.prefix + "Save" + this.currentAnalysis.analysisIDinternal, "disabled");
 //                if ((this.currentAnalysis.analysisType === "Duo" && ped.isDuo() && this.family.name != "") ||
 //                    (this.currentAnalysis.analysisType === "Trio" && ped.isTrio() && this.family.name != "") ||
 //                    (this.currentAnalysis.analysisType === "Family" && ped.isFamily() && this.family.name != "")) {

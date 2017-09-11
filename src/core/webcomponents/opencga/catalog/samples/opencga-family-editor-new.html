@@ -164,13 +164,12 @@
                     </tbody>
                 </table>
             </div>
-            <div id="{{prefix}}FilterMenu2" class="col-md-12">
-                <div style="padding: 15px 0px">
-                    <div style="padding: 50px 15px">
-                        <label>{{data.name}}</label>
-                        <div id="{{prefix}}PedigreeView" style="padding: 5px 5px;font-size: 10px"></div>
-                    </div>
-                </div>
+            <div class="col-md-12">
+
+                        <div id="{{prefix}}PedigreeView">
+                        </div>
+
+
             </div>
 
             <opencga-message-dialog opencga-client="{{opencgaClient}}" show-message-modal="{{showMessageModal}}"
@@ -355,14 +354,14 @@
 
             isSelectedParent(isMother, sampleParentId, sampleId) {
                 let sampleSelected = this.findSample(sampleId);
-                let sampleParentCurrent = this.findSample(sampleParentId);
+                let sampleCurrentParent = this.findSample(sampleParentId);
                 let parentSelected = false;
 
-                if(UtilsNew.isNotUndefinedOrNull(sampleSelected) && UtilsNew.isNotUndefinedOrNull(sampleParentCurrent)) {
+                if(UtilsNew.isNotUndefinedOrNull(sampleSelected) && UtilsNew.isNotUndefinedOrNull(sampleCurrentParent)) {
                     if (isMother) {
-                        parentSelected = sampleSelected.member.mother.name === sampleParentCurrent.individual.id;
+                        parentSelected = sampleSelected.member.mother.name === sampleCurrentParent.individual.name;
                     } else {
-                        parentSelected = sampleSelected.member.father.name === sampleParentCurrent.individual.id;
+                        parentSelected = sampleSelected.member.father.name === sampleCurrentParent.individual.name;
                     }
                 }
 

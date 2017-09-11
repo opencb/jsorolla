@@ -18,7 +18,7 @@
                         </div>
                         <div class="col-sm-6" style="overflow-y: auto; height:400px;">
                             <label id="resultsSearch"></label>
-                            <input id="{{prefix}}autoInput" list="list_browser"
+                            <input id="{{prefix}}autoInputOntology" list="list_browser"
                                    class$="form-control {{prefix}}TextInput"
                                    placeholder="{{term}} term" on-change="selectTerm" on-input="selectTerm">
 
@@ -96,14 +96,14 @@
 
             connectedCallback(){
                 super.connectedCallback();
-                PolymerUtils.getElementById(this.prefix + "autoInput").addEventListener('keyup', e => this.searchTerm(e));
+                PolymerUtils.getElementById(this.prefix + "autoInputOntology").addEventListener('keyup', e => this.searchTerm(e));
             }
 
             init (){
                 this.loadTermsTree();
                 this.parseSearchTerms = [];
                 this.selectedTerm = {};
-                PolymerUtils.setValue(this.prefix + "autoInput", "");
+                PolymerUtils.setValue(this.prefix + "autoInputOntology", "");
                 this.listCurrentSelected = this.selectedTerms;
             }
 
@@ -201,12 +201,11 @@
                             return elem.label == node.text
                         });
                         if (UtilsNew.isNotUndefinedOrNull(_this.selectedTerm)) {
-                            PolymerUtils.setValue(_this.prefix + "autoInput", node.text);
+                            PolymerUtils.setValue(_this.prefix + "autoInputOntology", node.text);
                         }
                     },
                     onNodeUnselected: function (event, node) {
-                        //_this.$$("#" + _this.prefix + "autoInput").value="";
-//                        PolymerUtils.setPropertyById(_this.prefix + "autoInput", 'value', '');
+
                     },
                     onNodeExpanded: function (event, node) {
                         if (UtilsNew.isEmptyArray(node.nodes)) {

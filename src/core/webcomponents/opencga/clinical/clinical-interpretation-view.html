@@ -409,9 +409,6 @@
 
             static get properties() {
                 return {
-                    data: {
-                        type: Object
-                    },
                     title: {
                         type: String,
                         value: ""
@@ -456,14 +453,14 @@
 
             connectedCallback() {
                 super.connectedCallback();
-                console.log(this.data);
+                console.log(this.interpretation);
                 this.cols = this.loadMainTableColumns();
                 this._genomeBrowserActive = false;
                 this._collapse = false;
                 let _this = this;
                 $("#" + this.prefix + "mainTable").bootstrapTable({
 //                    url: "http://localhost/iva-babelomics/src/conf/interpretation.json",
-                    data: _this.data.reportedVariants,
+                    data: _this.interpretation.reportedVariants,
                     columns: _this.cols,
 //                    method: 'get',
 //                    sidePagination: 'server',
