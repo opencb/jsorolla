@@ -5,24 +5,65 @@ const interpretationJson = {
 
     clinicalAnalysis: {
         id: 23,
+        name: "Clinical Analysis name",
+        description: "Clinical Analysis description",
+        type: "TRIO",
+        creationDate: "8/10/2014",
         subject: {
-            id: "NA0001",
+            id: 10,
             name: "NA0001",
+            version: 1,
             sex: "MALE",
             karyotypicSex: "XY",
             dateOfBirth: "14/02/1994",
             lifeStatus: "ALIVE",
+            parentalConsanguinity: false,
             ontologyTerms: [
-                {id: "HP:0000478", name: "Abnormality of the eye", source: "HPO"},
-                {id: "HP:0000007", name: "Autosomal recessive inheritance", source: "HPO"}
-            ]
+                {id: "HP:0000478", name: "Abnormality of the eye", source: "HPO"}
+            ],
+            samples: [
+                {
+                    id: 113,
+                    name: "sample123",
+                    somatic: false,
+                    ontologyTerms: [
+                        {id: "HP:0000478", name: "Abnormality of the eye", source: "HPO"}
+                    ]
+                }
+            ],
         },
         family: {
-            id: "Family-1213",
+            id: 1213,
             name: "Family Name",
-            status: {name: "family-status"},
-            creationDate: "8/10/2014"
-        }     // Esto es la familia
+            status: "READY",
+            creationDate: "8/10/2014",
+            description: "Family description",
+            diseases: [
+                {id: "HP:0000478", name: "Abnormality of the eye", source: "HPO"},
+                {id: "HP:0000007", name: "Autosomal recessive inheritance", source: "HPO"}
+            ],
+            members: [
+                {
+                    id: 10,
+                    name: "NA0001",
+                    version: 1,
+                    sex: "MALE",
+                    karyotypicSex: "XY",
+                    dateOfBirth: "14/02/1994",
+                    lifeStatus: "ALIVE",
+                    parentalConsaguinity: false,
+
+                    father: {"id": 11, "name": "pepe", "version": 1, "samples": [{"id": 111, "name": "s1"}]},
+                    mother: {"id": 12, "name": "mari", "version": 1, "samples": [{"id": 112, "name": "s2"}]},
+                    samples: [{"id": 113, "name": "s3"}],
+                    multiples: {type: "mellizo", siblings: ["pepe"]},
+
+                    diseases: ["HP:001233"],
+                    carrier: ["OMIM:056789"],
+                }
+            ],
+        },
+        interpretations: []
     },
 
     software: {
@@ -97,6 +138,52 @@ const interpretationJson = {
                 }
             ],
             comments: [{author: "", type: "", comment: "", date: ""}],
+            additionalNumericVariantAnnotations: []
+        },
+        {
+            id: "14:22221:A:T",
+            name: "rs666",
+            annotation: {
+                source: "cellbase",
+                version: "4.5",
+                genes: []
+            },
+            calledGenotypes: [{
+                sampleId: 21,
+                individualId: 5,
+                genotype: "1/0",
+                zigosity: "heterogenious",
+                phaseSet: "phaseSet",
+                depthReference: 2,
+                depthAlternate: 3,
+                copyNumber: 2
+            }
+            ],
+            genotypes: [],
+            comments: [{author: "", type: "", comment: "", date: ""},{author: "", type: "", comment: "", date: ""}],
+            additionalNumericVariantAnnotations: []
+        },
+        {
+            id: "14:22221:A:T",
+            name: "rs666",
+            annotation: {
+                source: "cellbase",
+                version: "4.5",
+                genes: []
+            },
+            calledGenotypes: [{
+                sampleId: 21,
+                individualId: 5,
+                genotype: "1/0",
+                zigosity: "heterogenious",
+                phaseSet: "phaseSet",
+                depthReference: 2,
+                depthAlternate: 3,
+                copyNumber: 2
+            }
+            ],
+            genotypes: [],
+            comments: [{author: "", type: "", comment: "", date: ""},{author: "", type: "", comment: "", date: ""}],
             additionalNumericVariantAnnotations: []
         },
         {
