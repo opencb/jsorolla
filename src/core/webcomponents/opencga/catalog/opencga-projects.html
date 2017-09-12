@@ -7,7 +7,43 @@
             }
         </style>
         <div id="containerChart"></div>
+        <div>
+            <!--<br>-->
+            <table class="table">
+                <thead class="thead-inverse">
+                <tr>
+                    <th colspan="5">Project</th>
+                    <th>Study</th>
+                    <th>Date</th>
+                    <th>Files</th>
+                    <th>Samples</th>
+                    <!--<th>Jobs</th>-->
+                    <!--<th>Individuals</th>-->
+                </tr>
+                </thead>
+                <tbody>
+                <template is="dom-repeat" items="{{_studies}}" as="summaries">
+                    <tr>
+                        <td rowspan$="{{summaries.rowspan}}" colspan="5">
+                            {{summaries.name}}
+                        </td>
+                    </tr>
+                    <template is="dom-repeat" items="{{summaries.studies}}" index-as="indexStudy">
 
+                        <tr>
+                            <td>{{item.name}}</td>
+                            <td>{{item.creationDate}}</td>
+                            <td>{{item.files}}</td>
+                            <td>{{item.samples}}</td>
+                            <!--<td>{{item.jobs}}</td>-->
+                            <!--<td>{{item.individuals}}</td>-->
+                </tr>
+
+                    </template>
+                </template>
+                </tbody>
+            </table>
+        </div>
     </template>
     <script>
         class OpencgaProjects extends Polymer.Element {
@@ -51,6 +87,14 @@
                 this.loadHighcharts();
             }
 
+            _isFirstRow(indexStudy){
+                if(UtilsNew.isNotUndefinedOrNull(indexStudy) && indexStudy === 0){
+                    return "block";
+                }
+
+                return "none";
+            }
+
             loadHighcharts(){
 
                 let colors = Highcharts.getOptions().colors;
@@ -65,6 +109,7 @@
                 let numberOfStudies = this.projects.reduce((total,element) => {
                     return total + element.studies.length;
                 }, 0);
+
                 this.projects.forEach((element, index) => {
                     let studies = element.studies.map((study) => {
                         return study.name;
@@ -204,7 +249,7 @@
                         && UtilsNew.isNotUndefined(this.projects) && this.projects.length > 0) {
                     let _this = this;
 
-                    if (this.auto) {
+                    if (true) {
                         let projectPromises = [];
                         this.projects.forEach(function (project) {
                             let studyPromises = [];
@@ -238,13 +283,19 @@
                                             id: _this.projects[i].id,
                                             alias: _this.projects[i].alias,
                                             name: _this.projects[i].name,
+                                            rowspan: responses[i].length + 1,
                                             studies: responses[i]
                                         });
                                     }
-                                    _this.renderProjectsTable(_studySummaries);
+                                    _this.loadHighcharts();
+                                    _this.renderTable(_studySummaries);
                                 });
                     }
                 }
+            }
+
+            renderTable(studySummaries){
+                this._studies = studySummaries;
             }
 
         }
