@@ -17,26 +17,32 @@
             }
         </style>
 
-        <div class="panel" style="margin-bottom: 15px">
-            <h3 style="margin: 10px 10px 10px 15px">
-                 <span  on-click="onCollapse"  style="cursor: pointer;margin: 0px 30px 0px 0px">
-                    <i class="fa fa-bars" aria-hidden="true"></i>
-                </span>
-                <i class="fa fa-filter" aria-hidden="true"></i>{{title}}
-            </h3>
-        </div>
+        <!--<div class="panel" style="margin-bottom: 15px">-->
+        <!--<h3 style="margin: 10px 10px 10px 15px">-->
+        <!--<span  on-click="onCollapse"  style="cursor: pointer;margin: 0px 30px 0px 0px">-->
+        <!--<i class="fa fa-bars" aria-hidden="true"></i>-->
+        <!--</span>-->
+        <!--<i class="fa fa-filter" aria-hidden="true"></i>{{title}}-->
+        <!--</h3>-->
+        <!--</div>-->
+
         <div class="containerDiv">
             <div class="row">
 
                 <div id="{{prefix}}mainIntepretation" class="col-xs-10  col-md-offset-1 col-sm-10 col-md-10 col-lg-10 toppad">
-                    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
 
+                    <h2 style="border-bottom-width: 1px;border-bottom-style: solid;border-bottom-color: #ddd">
+                        Interpretation Analysis: {{interpretation.name}}
+                    </h2>
+
+
+                    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
                         <div class="panel panel-default">
                             <div class="panel-heading" role="tab" id="headingTwo">
                                 <h4 class="panel-title">
                                     <a role="button" data-toggle="collapse" data-parent="#accordion"
-                                       href="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
-                                        Interpretation Summary
+                                       href="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo" on-click="_summaryOnClick">
+                                        <i id="{{prefix}}SummaryCollapseIcon" class="fa fa-minus-square-o" aria-hidden="true"></i> Summary
                                     </a>
                                 </h4>
                             </div>
@@ -138,7 +144,7 @@
                                     <div class="col-md-12">
                                         <br>
                                         <div class="col-md-4">
-                                            <label>Interpretation Analysis</label>
+                                            <label>Analysis</label>
                                             <hr style="margin: 2px 0px;border-top: 2px solid #eee">
                                             <form class="form-horizontal">
                                                 <div class="form-group" style="margin: 0px 10px">
@@ -202,106 +208,136 @@
 
                             </div>
                         </div>
+                    </div>
+
+                    <!--<div class="panel panel-default">-->
+                    <!--<div class="panel-heading" role="tab" id="headingThree">-->
+                    <!--<h4 class="panel-title">-->
+                    <!--<a role="button" data-toggle="collapse" data-parent="#accordion"-->
+                    <!--href="#collapseThree" aria-expanded="true" aria-controls="collapseThree">-->
+                    <!--Reported Variants-->
+                    <!--</a>-->
+                    <!--</h4>-->
+                    <!--</div>-->
+                    <!--<div id="collapseThree" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingThree">-->
+                    <!--<div class="panel-body">-->
+                    <!--<div class="btn-group btn-group" role="group" aria-label="..." style="padding: 10px;float: right">-->
+                    <!--<button type="button" class="btn btn-default btn-warning gene-ct-buttons active" on-click="updateQuery">-->
+                    <!--All-->
+                    <!--</button>-->
+                    <!--<button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">-->
+                    <!--Missense-->
+                    <!--</button>-->
+                    <!--<button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">-->
+                    <!--LoF-->
+                    <!--</button>-->
+                    <!--</div>-->
+
+                    <!--<div id="{{prefix}}ToolbarLeft" style="float: left;margin: 25px 0px 0px 5px">-->
+                    <!--<span style="font-size: 14px">Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> variants</span>-->
+                    <!--</div>-->
+
+                    <!--<div id="{{prefix}}GridTableDiv" style="margin-top: 10px">-->
+                    <!--<table id="{{prefix}}mainTable" data-pagination="true" data-page-list="[10, 25]" data-show-export="true">-->
+                    <!--<thead style="background-color: #eee"></thead>-->
+                    <!--</table>-->
+                    <!--</div>-->
+                    <!--</div>-->
+                    <!--</div>-->
+                    <!--</div>-->
 
 
-                        <div class="panel panel-default">
-                            <div class="panel-heading" role="tab" id="headingThree">
-                                <h4 class="panel-title">
-                                    <a role="button" data-toggle="collapse" data-parent="#accordion"
-                                       href="#collapseThree" aria-expanded="true" aria-controls="collapseThree">
-                                        Reported Variants
-                                    </a>
-                                </h4>
-                            </div>
-                            <div id="collapseThree" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingThree">
-                                <div class="panel-body">
-                                    <div class="btn-group btn-group" role="group" aria-label="..." style="padding: 10px;float: right">
-                                        <button type="button" class="btn btn-default btn-warning gene-ct-buttons active" on-click="updateQuery">
-                                            All
-                                        </button>
-                                        <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
-                                            Missense
-                                        </button>
-                                        <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
-                                            LoF
-                                        </button>
-                                    </div>
 
-                                    <div id="{{prefix}}ToolbarLeft" style="float: left;margin: 25px 0px 0px 5px">
-                                        <span style="font-size: 14px">Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> variants</span>
-                                    </div>
+                    <div style="padding-top: 5px">
+                        <h2 style="border-bottom-width: 1px;border-bottom-style: solid;border-bottom-color: #ddd">Reported Variants</h2>
+                        <div class="btn-group btn-group" role="group" aria-label="..." style="padding: 10px;float: right">
+                            <button type="button" class="btn btn-default btn-warning gene-ct-buttons active" on-click="updateQuery">
+                                All
+                            </button>
+                            <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
+                                Missense
+                            </button>
+                            <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
+                                LoF
+                            </button>
+                        </div>
 
-                                    <div id="{{prefix}}GridTableDiv" style="margin-top: 10px">
-                                        <table id="{{prefix}}mainTable" data-pagination="true" data-page-list="[10, 25]" data-show-export="true">
-                                            <thead style="background-color: #eee"></thead>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
+                        <div id="{{prefix}}ToolbarLeft" style="float: left;margin: 25px 0px 0px 5px">
+                            <span style="font-size: 14px">Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> variants</span>
+                        </div>
+
+                        <div id="{{prefix}}GridTableDiv" style="margin-top: 10px">
+                            <table id="{{prefix}}mainTable" data-pagination="true" data-page-list="[5, 10, 25]" data-show-export="true" data-detail-view="true" data-detail-formatter="detailFormatter">
+                                <thead style="background-color: #eee"></thead>
+                            </table>
                         </div>
                     </div>
 
-                    <!-- Bottom TABs -->
-                    <div style="padding-top: 20px">
-                        <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
-                            <li role="presentation" class="active">
-                                <a href="#{{prefix}}Annotation" role="tab" data-toggle="tab" class="clinical-bottom-tab-title">
-                                    Current Updated Annotation
-                                </a>
-                            </li>
-                            <li role="presentation">
-                                <a href="#{{prefix}}Genotype" role="tab" data-toggle="tab" class="clinical-bottom-tab-title">
-                                    Genotype Stats
-                                </a>
-                            </li>
-                            <li role="presentation">
-                                <a href="#{{prefix}}BeaconNetwork" role="tab" data-toggle="tab" class="clinical-bottom-tab-title">
-                                    Beacon Network
-                                </a>
-                            </li>
-                            <li role="presentation">
-                                <a href="#{{prefix}}GenomeBrowser" role="tab" data-toggle="tab" class="clinical-bottom-tab-title">
-                                    Genome Browser
-                                </a>
-                            </li>
-                        </ul>
 
-                        <div class="tab-content" style="height: 680px">
-                            <!-- Current Annotation Tab -->
-                            <div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">
-                                <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}"
-                                                                 cellbase-client="{{cellbaseClient}}"
-                                                                 mode="vertical"
-                                                                 hash-fragment-credentials="{{hashFragmentCredentials}}"
-                                                                 consequence-types="{{consequenceTypes}}"
-                                                                 protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                                                 style="font-size: 12px">
-                                </cellbase-variantannotation-view>
-                            </div>
+                    <div style="padding-top: 10px">
+                        <h3>Variant Detail View: {{variant}}</h3>
+                        <!-- Bottom TABs -->
+                        <div style="padding-top: 20px">
+                            <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
+                                <li role="presentation" class="active">
+                                    <a href="#{{prefix}}Annotation" role="tab" data-toggle="tab" class="clinical-bottom-tab-title">
+                                        Current Updated Annotation
+                                    </a>
+                                </li>
+                                <li role="presentation">
+                                    <a href="#{{prefix}}Genotype" role="tab" data-toggle="tab" class="clinical-bottom-tab-title">
+                                        Genotype Stats
+                                    </a>
+                                </li>
+                                <li role="presentation">
+                                    <a href="#{{prefix}}BeaconNetwork" role="tab" data-toggle="tab" class="clinical-bottom-tab-title">
+                                        Beacon Network
+                                    </a>
+                                </li>
+                                <li role="presentation">
+                                    <a href="#{{prefix}}GenomeBrowser" role="tab" data-toggle="tab" class="clinical-bottom-tab-title">
+                                        Genome Browser
+                                    </a>
+                                </li>
+                            </ul>
 
-                            <!--Genotypes & Files Tab-->
-                            <div role="tabpanel" class="tab-pane" id="{{prefix}}Genotype">
-                                Under construction.
-                            </div>
+                            <div class="tab-content" style="height: 680px">
+                                <!-- Current Annotation Tab -->
+                                <div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">
+                                    <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}"
+                                                                     cellbase-client="{{cellbaseClient}}"
+                                                                     mode="vertical"
+                                                                     hash-fragment-credentials="{{hashFragmentCredentials}}"
+                                                                     consequence-types="{{consequenceTypes}}"
+                                                                     protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                                     style="font-size: 12px">
+                                    </cellbase-variantannotation-view>
+                                </div>
 
-                            <!--Beacon network-->
-                            <div role="tabpanel" class="tab-pane" id="{{prefix}}BeaconNetwork">
-                                <br>
-                                <button class="btn btn-primary" type="button" on-click="triggerBeacon">Search Beacon Network</button>
-                                <a data-toggle="tooltip" title="Beacon Network is a search engine across the world's public beacons. You can find it here - https://beacon-network.org/#/">
-                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                </a>
-                                <br>
-                                <br>
-                                <variant-beacon-network clear="{{variant}}" variant="{{variantToBeacon}}"></variant-beacon-network>
-                            </div>
+                                <!--Genotypes & Files Tab-->
+                                <div role="tabpanel" class="tab-pane" id="{{prefix}}Genotype">
+                                    Under construction.
+                                </div>
 
-                            <!-- Genome Browser -->
-                            <div role="tabpanel" class="tab-pane" id="{{prefix}}GenomeBrowser">
-                                <div class="" style="padding: 0px 5px">
-                                    <variant-genome-browser project="{{project}}" study="{{study}}" samples="{{samples}}" active="{{_genomeBrowserActive}}"
-                                                            opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" region="{{regionGenomeBrowser}}">
-                                    </variant-genome-browser>
+                                <!--Beacon network-->
+                                <div role="tabpanel" class="tab-pane" id="{{prefix}}BeaconNetwork">
+                                    <br>
+                                    <button class="btn btn-primary" type="button" on-click="triggerBeacon">Search Beacon Network</button>
+                                    <a data-toggle="tooltip" title="Beacon Network is a search engine across the world's public beacons. You can find it here - https://beacon-network.org/#/">
+                                        <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                    </a>
+                                    <br>
+                                    <br>
+                                    <variant-beacon-network clear="{{variant}}" variant="{{variantToBeacon}}"></variant-beacon-network>
+                                </div>
+
+                                <!-- Genome Browser -->
+                                <div role="tabpanel" class="tab-pane" id="{{prefix}}GenomeBrowser">
+                                    <div class="" style="padding: 0px 5px">
+                                        <variant-genome-browser project="{{project}}" study="{{study}}" samples="{{samples}}" active="{{_genomeBrowserActive}}"
+                                                                opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" region="{{regionGenomeBrowser}}">
+                                        </variant-genome-browser>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -363,6 +399,8 @@
 
             ready() {
                 super.ready();
+
+                this._summaryCollapsed = false;
             }
 
             _attachDom(dom) {
@@ -374,7 +412,14 @@
 
                 this.render();
             }
-
+            _summaryOnClick() {
+                if (this._summaryCollapsed) {
+                    $("#" + this.prefix + "SummaryCollapseIcon").removeClass("fa-plus-square-o").addClass("fa-minus-square-o");
+                } else {
+                    $("#" + this.prefix + "SummaryCollapseIcon").removeClass("fa-minus-square-o").addClass("fa-plus-square-o");
+                }
+                this._summaryCollapsed = !this._summaryCollapsed;
+            }
             render() {
                 this.variant = ""; // Empty the variant every time the grid is loaded
 
@@ -473,6 +518,14 @@
                 return '-';
             }
 
+            detailFormatter (index, row) {
+                let html = [];
+                $.each(row, function (key, value) {
+                    html.push('<p><b>' + key + ':</b> ' + value + '</p>');
+                });
+                return html.join('');
+            }
+
             loadMainTableColumns() {
                 let _this = this;
                 const initCols = [
@@ -516,7 +569,7 @@
                             colspan: 1,
                             rowspan: 1,
                             formatter: function (value, row, index) {
-                                let val = "<span style='color: red'>missense_variant</span><br><br>c123T>C";
+                                let val = "<span style='color: red'>missense_variant</span><br>c123T>C";
                                 return val;
                             },
                             halign: 'center'
@@ -553,10 +606,10 @@
                                 if(UtilsNew.isNotUndefinedOrNull(row.calledGenotypes)){
                                     row.calledGenotypes.forEach((genotype) => {
                                         if(UtilsNew.isNotUndefinedOrNull(genotype.genotype)) {
-                                            res = res + "<label>" + genotype.genotype + "</label><br>";
+                                            res = res + "<label>" + genotype.genotype + "</label>";
                                         }
                                         if(UtilsNew.isNotUndefinedOrNull(genotype.zigosity)){
-                                            res = res + "<label>" + genotype.zigosity + "</label>";
+                                            res = res + " <label>" + genotype.zigosity + "</label>";
                                         }
                                     });
                                 }
@@ -605,7 +658,7 @@
                             colspan: 1,
                             rowspan: 1,
                             formatter: function (value, row, index) {
-                                let res = "<button type='button' class='btn btn-info'>Add to Report</button>";
+                                let res = "<button type='button' class='btn btn-info btn-xs'>Add to Report</button>";
 
                                 return res + "<br><span>Comments(" + _this.computedLengthComments(row.comments) + ")</span>"
                             },
