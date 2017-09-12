@@ -74,6 +74,15 @@
                     multiples: {"type": "mellizo", "siblings": ["pepe"]}
                 },
                 {
+                    member: {"id": 13, "version": 1, "name": "laura", sex: "female"},
+                    father: {"id": 11, name: "pepe", "version": 1},
+                    mother: {"id": 12, name: "mari", "version": 1},
+                    diseases: [],
+                    carrier: ["OMIM:056789"],
+                    parentalConsaguinity: true,
+                    multiples: {"type": "mellizo", "siblings": ["pepe"]}
+                },
+                {
                     member: {"id": 11, "version": 1, "name": "pepe", sex: "male", lifeStatus: "deceased"},
                     father: {"id": -1, "version": 1},
                     mother: {"id": -1, "version": 1},
@@ -105,7 +114,7 @@
 //            let svg1 = pedigree.render();
 //            document.getElementById("simpleFamilyTestDiv").appendChild(svg1);
 
-            pedigree = new Pedigree(familyTest);
+            pedigree = new Pedigree(familyTest, {selectShowSampleNames: true});
             let svg2 = pedigree.render();
             document.getElementById("complexFamilyTestDiv").appendChild(svg2);
         }

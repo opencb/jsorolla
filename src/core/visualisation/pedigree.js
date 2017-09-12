@@ -188,10 +188,10 @@ class Pedigree {
 
         if (showSampleNames) {
             let text = SVG.addChild(svg, "text", {
-                x: x - radius,  y: 10 + 3 * width + 15 + y,
+                x: x - radius + 2,  y: y + width + 15,
                 style: "fill: black;font-size=8px;font-weight:10"
             });
-            text.textContent = object.name;
+            text.textContent = object.member.name;
         }
     }
 
