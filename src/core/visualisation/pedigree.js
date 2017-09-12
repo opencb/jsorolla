@@ -152,8 +152,9 @@ class Pedigree {
 
     _addFamilyMember(object, x, y, width, radius, showSampleNames, svg) {
         // No defined sex
+        let memberSVG;
         if (typeof object.member.sex === "undefined" || object.member.sex === "undefined") {
-            SVG.addChild(svg, "rect", {
+            memberSVG = SVG.addChild(svg, "rect", {
                 x: x - radius,          y: y,
                 width: width * 0.8,     height: width * 0.8,
                 transform: "translate(" + radius + ") rotate(45 " + (x - radius) + " " + (10 + radius + (1.5 * width) + y) + ")",
@@ -162,7 +163,7 @@ class Pedigree {
         } else {
             // Member is a male
             if (object.member.sex === "male" || object.member.sex === "MALE") {
-                SVG.addChild(svg, "rect", {
+                memberSVG = SVG.addChild(svg, "rect", {
                     x: x - radius,      y: y,
                     width: width,       height: width,
                     // fill: "url(#Pattern2)",
@@ -170,7 +171,7 @@ class Pedigree {
                 });
             } else {
                 // Member is a female
-                SVG.addChild(svg, "circle", {
+                memberSVG = SVG.addChild(svg, "circle", {
                     cx: x,              cy: y + radius,
                     r: radius,
                     style: "fill: url(#" + object.colorPattern + ");stroke: black;stroke-width: 2"
@@ -193,6 +194,15 @@ class Pedigree {
             });
             text.textContent = object.member.name;
         }
+
+        // $(memberSVG).qtip({
+        //     content: {text: "3:1000123:A:T: " + "<span style='font-weight: bold'>0/1</span>", title: object.member.name},
+        //     position: {target: "mouse", adjust: {x: 25, y: 15}, effect: false},
+        //     // position: {viewport: $(window), target: "mouse", adjust: {x: 25, y: 15}},
+        //     style: {width: true, classes: "ui-tooltip ui-tooltip-shadow"},
+        //     show: {delay: 300},
+        //     hide: {delay: 300}
+        // });
     }
 
     _preprocessFamily(fam) {
