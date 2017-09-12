@@ -261,11 +261,11 @@
                     let _this = this;
                     this.samples.forEach((sample) => {
                         _this.family.members[sample.id] = {
-                            member: {},
                             father: {},
                             mother: {},
                             diseases: new Set(),
                             carrier: [],
+                            samples: [],
                             parentalConsanguinity: false
                         }
                     });

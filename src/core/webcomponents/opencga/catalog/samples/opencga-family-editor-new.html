@@ -157,7 +157,7 @@
                                 </template>
                             </td>
                             <td>
-                                <span>{{sample.member.member.sex}}</span>
+                                <span>{{sample.member.sex}}</span>
                             </td>
                         </tr>
                     </template>
@@ -237,6 +237,7 @@
                     this.data.diseases = this.family.diseases;
                     this.data.ontologyTermsDiseases = [];
                     this.data.customDiseases = [];
+
                     let _samples = [];
                     let params = {
                         study: this.study.alias
@@ -256,10 +257,13 @@
                                 if(UtilsNew.isNotUndefinedOrNull(sample.individual.ontologyTerms && UtilsNew.isNotEmptyArray(sample.individual.ontologyTerms))){
                                     sample.individual.ontologyTerms.forEach((term) => {
                                         if(term.id !== ""){
+                                            // check if exists already this term in data.diseases
                                             let existsTerm = _this.data.diseases.find((element) => {
                                                return element.id === term.id;
                                             });
-                                        _this.data.ontologyTermsDiseases.push(term);
+                                            // save ontologyTerms from individual in data.ontologyTermsDiseases
+                                            _this.data.ontologyTermsDiseases.push(term);
+
                                             if(UtilsNew.isUndefinedOrNull(existsTerm)){
                                                 _this.data.diseases.push(term);
                                             }
@@ -268,15 +272,10 @@
                                 }
 
                                 // Difference between ontologyTermsDiseases and diseases are the custom diseases
-
                                 _this.data.customDiseases = _this.data.diseases.filter(disease => !_this.data.ontologyTermsDiseases.some(ar2 => ar2.id === disease.id));
 
-
                                 // Save in family members[sample.id] the member object using individual data
-                                _this.family.members[sample.id].member = {
-                                    name: sample.individual.name,
-                                    sex: sample.individual.sex
-                                };
+                                _this.family.members[sample.id] = Object.assign(_this.family.members[sample.id], {name: sample.individual.name, sex: sample.individual.sex});
                                 _samples.push(sample);
 
                             })
@@ -357,7 +356,8 @@
                 let sampleCurrentParent = this.findSample(sampleParentId);
                 let parentSelected = false;
 
-                if(UtilsNew.isNotUndefinedOrNull(sampleSelected) && UtilsNew.isNotUndefinedOrNull(sampleCurrentParent)) {
+                if(UtilsNew.isNotUndefinedOrNull(sampleSelected) && UtilsNew.isNotUndefinedOrNull(sampleCurrentParent) &&
+                    UtilsNew.isNotUndefinedOrNull(sampleCurrentParent.individual) && UtilsNew.isNotUndefinedOrNull(sampleCurrentParent.individual.name)) {
                     if (isMother) {
                         parentSelected = sampleSelected.member.mother.name === sampleCurrentParent.individual.name;
                     } else {
@@ -416,9 +416,9 @@
                 if(UtilsNew.isNotUndefinedOrNull(sampleSelected)) {
 
                     sampleSelected.member.deceased = e.target.checked;
-                    this.family.members[sampleId].member.lifeStatus = "";
+                    this.family.members[sampleId].lifeStatus = "";
                     if(sampleSelected.member.deceased){
-                        this.family.members[sampleId].member.lifeStatus = "deceased";
+                        this.family.members[sampleId].lifeStatus = "deceased";
                     }
                     this._updateFamily();
                 }
@@ -429,7 +429,6 @@
                 let sampleId = e.target.getAttribute("data-sample-id");
                 let sampleSelected = this.findSample(sampleId);
                 if(UtilsNew.isNotUndefinedOrNull(sampleSelected)) {
-
                     sampleSelected.member.parentalConsanguinity = e.target.checked;
                     this.family.members[sampleId].parentalConsanguinity = sampleSelected.member.parentalConsanguinity;
                     this._updateFamily();
@@ -441,11 +440,11 @@
                 let isFather = e.target.getAttribute("data-is-father");
                 let isMother = e.target.getAttribute("data-is-mother");
                 let sampleSelectedParent = this.samples.find((sample) => {
-                        return sample.id === parseInt(e.target.value);
+                    return sample.id === parseInt(e.target.value);
                 });
 
                 let sampleSelected = this.samples.find((sample) => {
-                        return sample.id === parseInt(sampleId);
+                    return sample.id === parseInt(sampleId);
                 });
 
                 let parent = null;
@@ -457,8 +456,8 @@
                 }
                 if (UtilsNew.isNotUndefinedOrNull(sampleSelected)) {
 
-                    sampleSelected.member.member.sex = "UNKNOWN";
-                    this.family.members[sampleId].member.sex = "UNKNOWN";
+                    sampleSelected.member.sex = "UNKNOWN";
+                    this.family.members[sampleId].sex = "UNKNOWN";
                     if (isMother === "true") {
                         if(UtilsNew.isNotUndefinedOrNull(parent)){
                             parent.sex = "female";

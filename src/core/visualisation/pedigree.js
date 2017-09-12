@@ -152,7 +152,7 @@ class Pedigree {
 
     _addFamilyMember(object, x, y, width, radius, showSampleNames, svg) {
         // No defined sex
-        if (typeof object.member.sex === "undefined" || object.member.sex === "undefined") {
+        if (typeof object.sex === "undefined" || object.sex === "undefined") {
             SVG.addChild(svg, "rect", {
                 x: x - radius,          y: y,
                 width: width * 0.8,     height: width * 0.8,
@@ -161,7 +161,7 @@ class Pedigree {
             });
         } else {
             // Member is a male
-            if (object.member.sex === "male" || object.member.sex === "MALE") {
+            if (object.sex === "male" || object.sex === "MALE") {
                 SVG.addChild(svg, "rect", {
                     x: x - radius,      y: y,
                     width: width,       height: width,
@@ -178,7 +178,7 @@ class Pedigree {
             }
         }
 
-        if (object.member.lifeStatus === "deceased") {
+        if (object.lifeStatus === "deceased") {
             SVG.addChild(svg, "line", {
                 x1: x - radius - 10,      y1: y + radius + 30,
                 x2: x + radius + 10,      y2: y - radius + 10,
@@ -201,7 +201,7 @@ class Pedigree {
 
         let map = {};
         for (let m of family.members) {
-            map[m.member.name] = m;
+            map[m.name] = m;
         }
 
         let colorMap = {};

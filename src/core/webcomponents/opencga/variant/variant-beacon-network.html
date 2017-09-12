@@ -27,6 +27,13 @@
     <script>
 
         class VariantBeaconNetwork extends Polymer.Element {
+
+            constructor() {
+                super();
+
+                this.prefix = "BeaconNetwork" + Utils.randomString(6);
+            }
+
             static get is() {
                 return 'variant-beacon-network';
             }
@@ -34,7 +41,8 @@
             static get properties() {
                 return {
                     hosts: {
-                        type: Array
+                        type: Array,
+                        value: ["brca-exchange", "cell_lines", "cosmic", "wtsi", "wgs", "ncbi", "ebi", "ega", "broad", "gigascience", "ucsc", "lovd", "hgmd", "icgc", "sahgp"]
                     },
                     variant: {
                         type: String,
@@ -50,19 +58,16 @@
                 }
             }
 
-            constructor() {
-                super();
-            }
-
             _attachDom(dom) {
                 this.appendChild(dom);
             }
 
             ready() {
                 super.ready();
-                if (UtilsNew.isEmpty(this.prefix)) {
-                    this.prefix = "view" + Utils.randomString(6);
-                }
+            }
+
+            connectedCallback() {
+                super.connectedCallback();
             }
 
             clearResponse() {
@@ -71,7 +76,7 @@
             }
 
             searchBeaconNetwork() {
-                if (this.variant.split(':').length > 2) {
+                if (this.hosts !== undefined && this.variant.split(':').length > 2) {
                     let [chromosome, position, reference, alternate] = this.variant.split(':');
 
                     $('#' + this.prefix + 'spinGif').show();
@@ -121,6 +126,5 @@
         }
 
         customElements.define(VariantBeaconNetwork.is, VariantBeaconNetwork);
-
     </script>
 </dom-module>
