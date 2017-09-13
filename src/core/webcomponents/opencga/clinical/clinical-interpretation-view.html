@@ -15,6 +15,10 @@
                 font-size: 115%;
                 font-weight: bold;
             }
+
+            .file-metrics-table-FILTER {
+                border-bottom: 2px solid #ccc;
+            }
         </style>
 
         <!--<div class="panel" style="margin-bottom: 15px">-->
@@ -53,23 +57,25 @@
                                             <label>Sample</label>
                                             <hr style="margin: 2px 0px;border-top: 2px solid #eee">
                                             <form class="form-horizontal">
-                                                <div class="form-group" style="margin: 0px 10px">
+                                                <div class="form-group" style="margin: 0px 2px">
                                                     <label class="col-md-4">Name:</label>
-                                                    <span class="col-md-8">{{interpretation.clinicalAnalysis.subject.samples.0.name}}</span>
+                                                    <span class="col-md-8">
+                                                        {{interpretation.clinicalAnalysis.subject.samples.0.name}} &nbsp;&nbsp; (<a style="font-weight: bold"><i class="fa fa-external-link" aria-hidden="true"></i> Clinical Data</a>)
+                                                    </span>
                                                 </div>
-                                                <div class="form-group" style="margin: 0px 10px">
+                                                <div class="form-group" style="margin: 0px 2px">
                                                     <label class="col-md-4">File:</label>
-                                                    <span class="col-md-8">NA0001.vcf.gz</span>
+                                                    <span class="col-md-8">{{interpretation.clinicalAnalysis.file.name}}</span>
                                                 </div>
-                                                <div class="form-group" style="margin: 0px 10px">
+                                                <div class="form-group" style="margin: 0px 2px">
                                                     <label class="col-md-4">Genome Assembly:</label>
-                                                    <span class="col-md-8">GRCh38</span>
+                                                    <span class="col-md-8">{{interpretation.clinicalAnalysis.file.assembly}}</span>
                                                 </div>
-                                                <div class="form-group" style="margin: 0px 10px">
+                                                <div class="form-group" style="margin: 0px 2px">
                                                     <label class="col-md-4">Somatic:</label>
                                                     <span class="col-md-8">{{interpretation.clinicalAnalysis.subject.samples.0.somatic}}</span>
                                                 </div>
-                                                <div class="form-group" style="margin: 0px 10px">
+                                                <div class="form-group" style="margin: 0px 2px">
                                                     <label class="col-md-4">Phenotypes:</label>
                                                     <span class="col-md-8">
                                                         <template is="dom-repeat" items="{{interpretation.clinicalAnalysis.subject.samples.0.ontologyTerms}}">
@@ -78,29 +84,35 @@
                                                         </template>
                                                     </span>
                                                 </div>
+                                                <div class="form-group" style="margin: 0px 2px">
+                                                    <label class="col-md-4">Description:</label>
+                                                    <span class="col-md-8">{{interpretation.clinicalAnalysis.subject.samples.0.description}}</span>
+                                                </div>
                                             </form>
                                         </div>
                                         <div class="col-md-4">
                                             <label>Subject</label>
                                             <hr style="margin: 2px 0px;border-top: 2px solid #eee">
                                             <form class="form-horizontal">
-                                                <div class="form-group" style="margin: 0px 10px">
+                                                <div class="form-group" style="margin: 0px 2px">
                                                     <label class="col-md-4">Name:</label>
-                                                    <span class="col-md-8">{{interpretation.clinicalAnalysis.subject.name}}</span>
+                                                    <span class="col-md-8">
+                                                        {{interpretation.clinicalAnalysis.subject.name}} &nbsp;&nbsp; (<a style="font-weight: bold"><i class="fa fa-external-link" aria-hidden="true"></i> Clinical Data</a>)
+                                                    </span>
                                                 </div>
-                                                <div class="form-group" style="margin: 0px 10px">
+                                                <div class="form-group" style="margin: 0px 2px">
                                                     <label class="col-md-4">Sex (karyotype):</label>
-                                                    <span class="col-md-8">{{interpretation.clinicalAnalysis.subject.sex}} ({{interpretation.clinicalAnalysis.subject.karyotypicSex}})</span>
+                                                    <span class="col-md-8">{{interpretation.clinicalAnalysis.subject.sex}} &nbsp;&nbsp; ({{interpretation.clinicalAnalysis.subject.karyotypicSex}})</span>
                                                 </div>
-                                                <div class="form-group" style="margin: 0px 10px">
+                                                <div class="form-group" style="margin: 0px 2px">
                                                     <label class="col-md-4">Date of Birth:</label>
-                                                    <span class="col-md-8">{{interpretation.clinicalAnalysis.subject.dateOfBirth}} ({{interpretation.clinicalAnalysis.subject.lifeStatus}})</span>
+                                                    <span class="col-md-8">{{interpretation.clinicalAnalysis.subject.dateOfBirth}} &nbsp;&nbsp; ({{interpretation.clinicalAnalysis.subject.lifeStatus}})</span>
                                                 </div>
-                                                <div class="form-group" style="margin: 0px 10px">
+                                                <div class="form-group" style="margin: 0px 2px">
                                                     <label class="col-md-4">Parental Consanguinity:</label>
                                                     <span class="col-md-8">{{interpretation.clinicalAnalysis.subject.parentalConsanguinity}}</span>
                                                 </div>
-                                                <div class="form-group" style="margin: 0px 10px">
+                                                <div class="form-group" style="margin: 0px 2px">
                                                     <label class="col-md-4">Phenotypes:</label>
                                                     <span class="col-md-8">
                                                         <template is="dom-repeat" items="{{interpretation.clinicalAnalysis.subject.ontologyTerms}}">
@@ -109,17 +121,21 @@
                                                         </template>
                                                     </span>
                                                 </div>
+                                                <div class="form-group" style="margin: 0px 2px">
+                                                    <label class="col-md-4">Description:</label>
+                                                    <span class="col-md-8">{{interpretation.clinicalAnalysis.subject.description}}</span>
+                                                </div>
                                             </form>
                                         </div>
                                         <div class="col-md-4">
                                             <label>Family</label>
                                             <hr style="margin: 2px 0px;border-top: 2px solid #eee">
                                             <form class="form-horizontal">
-                                                <div class="form-group" style="margin: 0px 10px">
+                                                <div class="form-group" style="margin: 0px 2px">
                                                     <label class="col-md-4">Name:</label>
                                                     <span class="col-md-8">{{interpretation.clinicalAnalysis.family.name}}</span>
                                                 </div>
-                                                <div class="form-group" style="margin: 0px 10px">
+                                                <div class="form-group" style="margin: 0px 2px">
                                                     <label class="col-md-4">Phenotypes:</label>
                                                     <span class="col-md-8">
                                                         <template is="dom-repeat" items="{{interpretation.clinicalAnalysis.family.diseases}}">
@@ -129,7 +145,7 @@
                                                     </span>
                                                 </div>
 
-                                                <div class="form-group" style="margin: 0px 10px">
+                                                <div class="form-group" style="margin: 0px 2px">
                                                     <label class="col-md-4">Pedigree:</label>
                                                     <span class="col-md-8">
                                                         <img width="160px" src="https://openi.nlm.nih.gov/imgs/512/160/2743802/PMC2743802_mv-v15-1881-f1.png" style="padding: 10px 10px">
@@ -147,19 +163,19 @@
                                             <label>Analysis</label>
                                             <hr style="margin: 2px 0px;border-top: 2px solid #eee">
                                             <form class="form-horizontal">
-                                                <div class="form-group" style="margin: 0px 10px">
+                                                <div class="form-group" style="margin: 0px 2px">
                                                     <label class="col-md-4">Name (date):</label>
-                                                    <span class="col-md-8">{{interpretation.name}} ({{interpretation.creationDate}})</span>
+                                                    <span class="col-md-8">{{interpretation.name}} &nbsp; ({{interpretation.creationDate}})</span>
                                                 </div>
-                                                <div class="form-group" style="margin: 0px 10px">
+                                                <div class="form-group" style="margin: 0px 2px">
                                                     <label class="col-md-4">Type:</label>
                                                     <span class="col-md-8">{{interpretation.clinicalAnalysis.type}}</span>
                                                 </div>
-                                                <div class="form-group" style="margin: 0px 10px">
+                                                <div class="form-group" style="margin: 0px 2px">
                                                     <label class="col-md-4">Analyst:</label>
                                                     <span class="col-md-8">{{interpretation.analyst.name}} (<a>{{interpretation.analyst.email}}</a>)</span>
                                                 </div>
-                                                <div class="form-group" style="margin: 0px 10px">
+                                                <div class="form-group" style="margin: 0px 2px">
                                                     <label class="col-md-4">Description:</label>
                                                     <span class="col-md-8">{{interpretation.description}}</span>
                                                 </div>
@@ -169,19 +185,19 @@
                                             <label>Software</label>
                                             <hr style="margin: 2px 0px;border-top: 2px solid #eee">
                                             <form class="form-horizontal">
-                                                <div class="form-group" style="margin: 0px 10px">
+                                                <div class="form-group" style="margin: 0px 2px">
                                                     <label class="col-md-4">Name:</label>
                                                     <span class="col-md-8">
                                                         {{interpretation.software.name}} (<a href="{{interpretation.software.website}}" target="_blank"><i class="fa fa-external-link" aria-hidden="true"></i> website</a>)
                                                     </span>
                                                 </div>
-                                                <div class="form-group" style="margin: 0px 10px">
+                                                <div class="form-group" style="margin: 0px 2px">
                                                     <label class="col-md-4">Version:</label>
                                                     <span class="col-md-8">
                                                         {{interpretation.software.version}} (<a href="{{interpretation.software.repository}}/commit/{{interpretation.software.commit}}" target="_blank"><i class="fa fa-external-link" aria-hidden="true"></i> commit</a>)
                                                     </span>
                                                 </div>
-                                                <div class="form-group" style="margin: 0px 10px">
+                                                <div class="form-group" style="margin: 0px 2px">
                                                     <label class="col-md-4">Dependencies:</label>
                                                     <span class="col-md-8">
                                                         <template is="dom-repeat" items="{{interpretation.versions}}">
@@ -196,7 +212,7 @@
                                             <hr style="margin: 2px 0px;border-top: 2px solid #eee">
                                             <form class="form-horizontal">
                                                 <template is="dom-repeat" items="{{_toArray(interpretation.filters)}}">
-                                                    <div class="form-group" style="margin: 0px 10px">
+                                                    <div class="form-group" style="margin: 0px 2px">
                                                         <label class="col-md-4">{{item.name}}:</label>
                                                         <span class="col-md-8">{{item.value}}</span>
                                                     </div>
@@ -210,46 +226,10 @@
                         </div>
                     </div>
 
-                    <!--<div class="panel panel-default">-->
-                    <!--<div class="panel-heading" role="tab" id="headingThree">-->
-                    <!--<h4 class="panel-title">-->
-                    <!--<a role="button" data-toggle="collapse" data-parent="#accordion"-->
-                    <!--href="#collapseThree" aria-expanded="true" aria-controls="collapseThree">-->
-                    <!--Reported Variants-->
-                    <!--</a>-->
-                    <!--</h4>-->
-                    <!--</div>-->
-                    <!--<div id="collapseThree" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingThree">-->
-                    <!--<div class="panel-body">-->
-                    <!--<div class="btn-group btn-group" role="group" aria-label="..." style="padding: 10px;float: right">-->
-                    <!--<button type="button" class="btn btn-default btn-warning gene-ct-buttons active" on-click="updateQuery">-->
-                    <!--All-->
-                    <!--</button>-->
-                    <!--<button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">-->
-                    <!--Missense-->
-                    <!--</button>-->
-                    <!--<button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">-->
-                    <!--LoF-->
-                    <!--</button>-->
-                    <!--</div>-->
-
-                    <!--<div id="{{prefix}}ToolbarLeft" style="float: left;margin: 25px 0px 0px 5px">-->
-                    <!--<span style="font-size: 14px">Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> variants</span>-->
-                    <!--</div>-->
-
-                    <!--<div id="{{prefix}}GridTableDiv" style="margin-top: 10px">-->
-                    <!--<table id="{{prefix}}mainTable" data-pagination="true" data-page-list="[10, 25]" data-show-export="true">-->
-                    <!--<thead style="background-color: #eee"></thead>-->
-                    <!--</table>-->
-                    <!--</div>-->
-                    <!--</div>-->
-                    <!--</div>-->
-                    <!--</div>-->
-
-
-
                     <div style="padding-top: 5px">
                         <h2 style="border-bottom-width: 1px;border-bottom-style: solid;border-bottom-color: #ddd">Reported Variants</h2>
+
+
                         <div class="btn-group btn-group" role="group" aria-label="..." style="padding: 10px;float: right">
                             <button type="button" class="btn btn-default btn-warning gene-ct-buttons active" on-click="updateQuery">
                                 All
@@ -262,12 +242,23 @@
                             </button>
                         </div>
 
-                        <div id="{{prefix}}ToolbarLeft" style="float: left;margin: 25px 0px 0px 5px">
-                            <span style="font-size: 14px">Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> variants</span>
+
+                        <div class="col-md-12">
+                            <div id="{{prefix}}ToolbarLeft" class="col-md-6" style="padding: 0px">
+                                <span style="font-size: 14px">Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> variants</span>
+                            </div>
+                            <div id="{{prefix}}ToolbarRight" class="col-md-6" style="padding: 0px">
+                                <div class="btn-toolbar">
+                                    <input type="text" class="form-control" style="width: 80px">
+                                    <!--<input type="button" class="form-control" style="width: 80px">-->
+                                </div>
+                            </div>
                         </div>
 
+                        <br>
                         <div id="{{prefix}}GridTableDiv" style="margin-top: 10px">
-                            <table id="{{prefix}}mainTable" data-pagination="true" data-page-list="[5, 10, 25]" data-show-export="true" data-detail-view="true" data-detail-formatter="detailFormatter">
+                            <table id="{{prefix}}mainTable" data-pagination="true" data-page-list="[5, 10, 25]"
+                                   data-show-export="true" data-detail-view="true" data-detail-formatter="detailFormatter">
                                 <thead style="background-color: #eee"></thead>
                             </table>
                         </div>
@@ -281,12 +272,17 @@
                             <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
                                 <li role="presentation" class="active">
                                     <a href="#{{prefix}}Annotation" role="tab" data-toggle="tab" class="clinical-bottom-tab-title">
-                                        Current Updated Annotation
+                                        Current Annotation
                                     </a>
                                 </li>
                                 <li role="presentation">
                                     <a href="#{{prefix}}Genotype" role="tab" data-toggle="tab" class="clinical-bottom-tab-title">
                                         Genotype Stats
+                                    </a>
+                                </li>
+                                <li role="presentation">
+                                    <a href="#{{prefix}}FileMetrics" role="tab" data-toggle="tab" class="clinical-bottom-tab-title">
+                                        File Metrics
                                     </a>
                                 </li>
                                 <li role="presentation">
@@ -304,19 +300,46 @@
                             <div class="tab-content" style="height: 680px">
                                 <!-- Current Annotation Tab -->
                                 <div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">
-                                    <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}"
-                                                                     cellbase-client="{{cellbaseClient}}"
-                                                                     mode="vertical"
-                                                                     hash-fragment-credentials="{{hashFragmentCredentials}}"
-                                                                     consequence-types="{{consequenceTypes}}"
-                                                                     protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                                                     style="font-size: 12px">
-                                    </cellbase-variantannotation-view>
+                                    <!--<cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}"-->
+                                    <!--cellbase-client="{{cellbaseClient}}"-->
+                                    <!--mode="vertical"-->
+                                    <!--hash-fragment-credentials="{{hashFragmentCredentials}}"-->
+                                    <!--consequence-types="{{consequenceTypes}}"-->
+                                    <!--protein-substitution-scores="{{proteinSubstitutionScores}}"-->
+                                    <!--style="font-size: 12px">-->
+                                    <!--</cellbase-variantannotation-view>-->
                                 </div>
 
-                                <!--Genotypes & Files Tab-->
-                                <div role="tabpanel" class="tab-pane" id="{{prefix}}Genotype">
+                                <!-- Genotypes & Files Tab -->
+                                <div id="{{prefix}}Genotype" role="tabpanel" class="tab-pane">
                                     Under construction.
+                                </div>
+
+                                <!-- File Metrics Tab -->
+                                <div id="{{prefix}}FileMetrics" role="tabpanel" class="tab-pane">
+                                    <br>
+                                    <div class="col-md-8 col-md-offset-1">
+                                        <table class="table table-hover" id="segregationTable">
+                                            <thead>
+                                            <tr>
+                                                <th>VCF Attribute</th>
+                                                <template is="dom-repeat" items="{{interpretation.clinicalAnalysis.family.members}}" as="member">
+                                                    <th>{{member.name}}</th>
+                                                </template>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <template is="dom-repeat" items="{{_getFileMetricsArray(variantObj.studies.0.files)}}" as="attrs">
+                                                <tr id="{{attrs.name}}" class$="file-metrics-table-{{attrs.name}}">
+                                                    <td>{{attrs.name}}</td>
+                                                    <template is="dom-repeat" items="{{attrs.values}}" as="attr">
+                                                        <td>{{attr}}</td>
+                                                    </template>
+                                                </tr>
+                                            </template>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
 
                                 <!--Beacon network-->
@@ -334,9 +357,9 @@
                                 <!-- Genome Browser -->
                                 <div role="tabpanel" class="tab-pane" id="{{prefix}}GenomeBrowser">
                                     <div class="" style="padding: 0px 5px">
-                                        <variant-genome-browser project="{{project}}" study="{{study}}" samples="{{samples}}" active="{{_genomeBrowserActive}}"
-                                                                opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" region="{{regionGenomeBrowser}}">
-                                        </variant-genome-browser>
+                                        <!--<variant-genome-browser project="{{project}}" study="{{study}}" samples="{{samples}}" active="{{_genomeBrowserActive}}"-->
+                                        <!--opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" region="{{regionGenomeBrowser}}">-->
+                                        <!--</variant-genome-browser>-->
                                     </div>
                                 </div>
                             </div>
@@ -401,6 +424,7 @@
                 super.ready();
 
                 this._summaryCollapsed = false;
+//                this.samples = ["NA12877"];
             }
 
             _attachDom(dom) {
@@ -456,6 +480,7 @@
                         $($element).addClass('success');
 
                         _this.variant = row.id;
+                        _this.variantObj = row;
                         _this._genomeBrowserActive = true;
                         _this.regionGenomeBrowser = new Region({chromosome: row.chromosome, start: row.start, end: row.end});
 
@@ -518,6 +543,34 @@
                 return '-';
             }
 
+            _getFileMetricsArray() {
+                let files = this.variantObj.studies[0].files;
+
+                // Let's find all the existing attributes
+                let attributesSet = new Set();
+                for (let file of files) {
+                    for(let attr of Object.keys(file.attributes)) {
+                        if (attr !== "QUAL" && attr !== "FILTER") {
+                            attributesSet.add(attr);
+                        }
+                    }
+                }
+                let attributesArray = Array.from(attributesSet.values()).sort();
+                attributesArray.unshift("QUAL", "FILTER");
+
+                // We store the values as: result = [{name: "AC", values: [1, 2, 3, 4]}]
+                let result = [];
+                for (let attr of attributesArray) {
+                    let tmp = {name: attr, values: []};
+                    for (let file of files) {
+                        tmp.values.push(file.attributes[attr]);
+                    }
+                    result.push(tmp);
+                }
+
+                return result;
+            }
+
             detailFormatter (index, row) {
                 let html = [];
                 $.each(row, function (key, value) {
@@ -546,7 +599,8 @@
                                 }
                                 return res;
                             },
-                            halign: 'center'
+                            halign: 'center',
+                            sortable: true
                         },
                         {
                             title: "Genes",
@@ -635,7 +689,34 @@
                             colspan: 1,
                             rowspan: 1,
                             formatter: function (value, row, index) {
-                                let val = "<span>DP: 18</span>";
+                                let val;
+                                if (row !== undefined && row.studies !== undefined) {
+                                    val = `<div class="col-md-12">
+                                                <form class="form-horizontal">
+                                                    <div class="form-group" style="margin: 0px 2px">
+                                                        <label class="col-md-4">Quality:</label>
+                                                        <span class="col-md-8">${row.studies[0].files[0].attributes.QUAL}</span>
+                                                    </div>
+                                                    <div class="form-group" style="margin: 0px 2px">
+                                                        <label class="col-md-4">Filter:</label>
+                                                        <span class="col-md-8">${row.studies[0].files[0].attributes.FILTER}</span>
+                                                    </div>
+                                                    <div class="form-group" style="margin: 0px 2px">
+                                                        <label class="col-md-4">DP:</label>
+                                                        <span class="col-md-8">${row.studies[0].files[0].attributes.DP}</span>
+                                                    </div>
+                                                    <div class="form-group" style="margin: 0px 2px">
+                                                        <label class="col-md-4">AF:</label>
+                                                        <span class="col-md-8">${row.studies[0].files[0].attributes.AF}</span>
+                                                    </div>
+                                                </form>
+                                            </div>`;
+                                }//
+//                                if (row != undefined && row.studies != undefined) {
+//                                    val = "<span>" + row.studies[0].files[0].attributes.DP + "</span>";
+//
+//
+//                                }
                                 return val;
                             },
                             halign: 'center'
@@ -697,6 +778,11 @@
                         value: obj[key]
                     };
                 });
+            }
+
+            _getFilesFromFirstStudy(obj) {
+                debugger
+                return obj[0].files;
             }
         }
 
