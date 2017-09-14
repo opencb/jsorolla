@@ -504,7 +504,7 @@
                             </template>
                             <ul class="list-group">
                                 <template is="dom-repeat" items="{{listCurrentSelectedICD}}">
-                                    <li class="list-group-item">{{item}}) <button type="button" class="btn danger" on-click="deletedTermFromList" data-selected-term$="{{item}}">X</button></li>
+                                    <li class="list-group-item">{{item}}) <button type="button" class="btn danger" on-click="deletedTermFromListICD" data-selected-term$="{{item}}">X</button></li>
                                 </template>
                             </ul>
                         </div>
@@ -811,6 +811,16 @@
                     selectedTerm.split("(")
                     this.push("listCurrentSelectedICD", selectedTerm);
                 }
+            }
+
+            deletedTermFromListICD(e){
+                let deletedTerm = e.target.getAttribute("data-selected-term");
+
+                let listWithoutDeletedTerm = this.listCurrentSelectedICD.filter((element) => {
+                        return element !== deletedTerm;
+                });
+
+                this.listCurrentSelectedICD = listWithoutDeletedTerm;
             }
 
             getICDterms() {
