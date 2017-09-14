@@ -463,6 +463,7 @@
                         analysisDate: currentDate,
                         filter: "NO",
                         editFamily: _this.familyFormatter(_familyEditor, aux),
+                        subjectSelected: _this.subjectFormatter(aux, ""),
                         action: _this.actionFormatter(_familyEditor, aux),
                         sampleList: this.samples,
                         analysisIDinternal: aux,
@@ -694,6 +695,29 @@
                     return '<button data-toggle="modal" id="' + this.prefix + 'Editor' + randomString + '" role="button" type="button" class="btn btn-sm btn-success disabled" disabled data-target="#' + this.prefix + 'FamilyEditor"><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;Edit</button>';
                 }
             }
+            subjectFormatter(randomString, selected) {
+//                    return '<button data-toggle="modal" id="' + this.prefix + 'Member' + randomString + '" role="button" type="button" class="btn btn-sm btn-success" data-target="#' + this.prefix + 'FamilyEditor" ><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;Edit</button>';
+
+                    let res = "NO AFFECTED";
+                    if(UtilsNew.isNotUndefinedOrNull(this.family) && UtilsNew.isNotUndefinedOrNull(this.family.members)){
+
+                        let affectedMembers = this.family.members.filter((member) => {
+                           return UtilsNew.isNotUndefinedOrNull(member.ontologyTerms) && member.ontologyTerms.length > 0;
+                        });
+
+                        res = '<select id='+ this.prefix + 'selectedSubject' + this.currentAnalysis.analysisIDinternal + ' class="form-control form-control-sm">';
+                        affectedMembers.forEach((affected) => {
+                            if(selected === affected.name){
+                                res = res +  '<option value="'+affected.name+'" selected>'+affected.name+'</option>';
+                            }else{
+                                res = res +  '<option value="'+affected.name+'">'+affected.name+'</option>';
+                            }
+                        });
+                        res = res +'</select>';
+
+                    }
+                    return res;
+            }
 
             actionFormatter(familyEditor, randomString) {
                 if (familyEditor) {
@@ -723,6 +747,10 @@
                     return true;
             }
 
+            selectSubject(e){
+                PolymerUtils.setValue(this.prefix + "selectedSubject" + this.currentAnalysis.analysisIDinternal, e.target.value);
+            }
+
             familyChange(e, family) { // Event fired by opencga-family-editor web component
                 this.family = family;
 
@@ -730,29 +758,22 @@
 
             checkFamily(e) {
                 e.preventDefault();
-                console.log(this.family);
 
-
-//                let ped = new Pedigree(this.family.pedigree);
                 let _this = this;
+
+                // We have to do this before updateRow to get the selectedValue in member select. Instead we will get the first value of the all options
+                let subjectSelected = PolymerUtils.getValue(this.prefix + "selectedSubject" + this.currentAnalysis.analysisIDinternal);
                 $(PolymerUtils.getElementById(this.prefix + "tableAnalysis")).bootstrapTable('updateRow', {
                     index: _this.selectedRow, row: {
                         family: _this.family,
                         samples: _this.samples
                     }
                 });
-
-//                let rowInfo = $(PolymerUtils.getElementById(this.prefix + "tableAnalysis")).bootstrapTable('showRow', {
-//                    index: _this.selectedRow, isIdField: false
-//                });
-//                this.saveAnalysis(rowInfo);
                 PolymerUtils.removeAttribute(this.prefix + "Save" + this.currentAnalysis.analysisIDinternal, "disabled");
                 PolymerUtils.removeClass(this.prefix + "Save" + this.currentAnalysis.analysisIDinternal, "disabled");
-//                if ((this.currentAnalysis.analysisType === "Duo" && ped.isDuo() && this.family.name != "") ||
-//                    (this.currentAnalysis.analysisType === "Trio" && ped.isTrio() && this.family.name != "") ||
-//                    (this.currentAnalysis.analysisType === "Family" && ped.isFamily() && this.family.name != "")) {
-//
-//                }
+                $(PolymerUtils.getElementById(this.prefix + "tableAnalysis")).bootstrapTable("updateCell",{ index: _this.selectedRow, field: "subjectSelected", value: _this.subjectFormatter(this.currentAnalysis.analysisIDinternal, subjectSelected)});
+                PolymerUtils.getElementById(this.prefix + 'selectedSubject' + this.currentAnalysis.analysisIDinternal).addEventListener('change', e => this.selectSubject(e));
+
             }
 
             _getTableColumns() {
@@ -787,6 +808,10 @@
                         {
                             field: 'editFamily',
                             title: 'Family'
+                        },
+                        {
+                            field: 'subjectSelected',
+                            title: 'Subject'
                         },
                         {
                             field: 'action',
