@@ -148,7 +148,7 @@
                                                 <div class="form-group" style="margin: 0px 2px">
                                                     <label class="col-md-4">Pedigree:</label>
                                                     <span class="col-md-8">
-                                                        <img width="160px" src="https://openi.nlm.nih.gov/imgs/512/160/2743802/PMC2743802_mv-v15-1881-f1.png" style="padding: 10px 10px">
+                                                        <img width="120px" src="https://openi.nlm.nih.gov/imgs/512/160/2743802/PMC2743802_mv-v15-1881-f1.png" style="padding: 10px 10px">
                                                         <br>
                                                         <span>Click <a href="" style="font-weight: bold">here</a> for more info</span>
                                                     </span>
@@ -243,18 +243,21 @@
                         </div>
 
 
-                        <div class="col-md-12">
-                            <div id="{{prefix}}ToolbarLeft" class="col-md-6" style="padding: 0px">
-                                <span style="font-size: 14px">Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> variants</span>
-                            </div>
-                            <div id="{{prefix}}ToolbarRight" class="col-md-6" style="padding: 0px">
-                                <div class="btn-toolbar">
-                                    <input type="text" class="form-control" style="width: 80px">
-                                    <!--<input type="button" class="form-control" style="width: 80px">-->
-                                </div>
-                            </div>
-                        </div>
+                        <!--<div class="col-md-12">-->
+                            <!--<div id="{{prefix}}ToolbarLeft" class="col-md-6" style="padding: 0px">-->
+                                <!--<span style="font-size: 14px">Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> variants</span>-->
+                            <!--</div>-->
+                            <!--<div id="{{prefix}}ToolbarRight" class="col-md-6" style="padding: 0px">-->
+                                <!--<div class="btn-toolbar">-->
+                                    <!--<input type="text" class="form-control" style="width: 80px">-->
+                                    <!--&lt;!&ndash;<input type="button" class="form-control" style="width: 80px">&ndash;&gt;-->
+                                <!--</div>-->
+                            <!--</div>-->
+                        <!--</div>-->
 
+                        <div id="{{prefix}}ToolbarLeft" class="col-md-6" style="padding: 0px">
+                            <span style="font-size: 14px">Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> variants</span>
+                        </div>
                         <br>
                         <div id="{{prefix}}GridTableDiv" style="margin-top: 10px">
                             <table id="{{prefix}}mainTable" data-pagination="true" data-page-list="[5, 10, 25]"
@@ -300,14 +303,14 @@
                             <div class="tab-content" style="height: 680px">
                                 <!-- Current Annotation Tab -->
                                 <div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">
-                                    <!--<cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}"-->
-                                    <!--cellbase-client="{{cellbaseClient}}"-->
-                                    <!--mode="vertical"-->
-                                    <!--hash-fragment-credentials="{{hashFragmentCredentials}}"-->
-                                    <!--consequence-types="{{consequenceTypes}}"-->
-                                    <!--protein-substitution-scores="{{proteinSubstitutionScores}}"-->
-                                    <!--style="font-size: 12px">-->
-                                    <!--</cellbase-variantannotation-view>-->
+                                    <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}"
+                                                                     cellbase-client="{{cellbaseClient}}"
+                                                                     mode="vertical"
+                                                                     hash-fragment-credentials="{{hashFragmentCredentials}}"
+                                                                     consequence-types="{{consequenceTypes}}"
+                                                                     protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                                     style="font-size: 12px">
+                                    </cellbase-variantannotation-view>
                                 </div>
 
                                 <!-- Genotypes & Files Tab -->
@@ -319,7 +322,7 @@
                                 <div id="{{prefix}}FileMetrics" role="tabpanel" class="tab-pane">
                                     <br>
                                     <div class="col-md-8 col-md-offset-1">
-                                        <table class="table table-hover" id="segregationTable">
+                                        <table class="table table-hover">
                                             <thead>
                                             <tr>
                                                 <th>VCF Attribute</th>
@@ -328,7 +331,7 @@
                                                 </template>
                                             </tr>
                                             </thead>
-                                            <tbody>
+                                            <tbody id="{{prefix}}TableTBody">
                                             <template is="dom-repeat" items="{{_getFileMetricsArray(variantObj.studies.0.files)}}" as="attrs">
                                                 <tr id="{{attrs.name}}" class$="file-metrics-table-{{attrs.name}}">
                                                     <td>{{attrs.name}}</td>
@@ -452,7 +455,7 @@
                 this.numTotalResultsText = this.interpretation.reportedVariants.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
                 console.log(this.interpretation);
-                this.cols = this.loadMainTableColumns();
+                this.cols = this._refreshTableColumns();
                 this._genomeBrowserActive = false;
                 this._collapse = false;
                 let _this = this;
@@ -544,6 +547,8 @@
             }
 
             _getFileMetricsArray() {
+//                $("#" + this.prefix + "TableTBody").empty();
+
                 let files = this.variantObj.studies[0].files;
 
                 // Let's find all the existing attributes
@@ -571,7 +576,7 @@
                 return result;
             }
 
-            detailFormatter (index, row) {
+            detailFormatter (value, row) {
                 let html = [];
                 $.each(row, function (key, value) {
                     html.push('<p><b>' + key + ':</b> ' + value + '</p>');
@@ -579,119 +584,78 @@
                 return html.join('');
             }
 
-            loadMainTableColumns() {
-                let _this = this;
-                const initCols = [
-                    [
-                        {
-                            title: "Variant",
-                            field: "variant",
-                            colspan: 1,
-                            rowspan: 1,
-                            formatter: function (value, row, index) {
-                                let res = "";
-                                if (UtilsNew.isNotUndefinedOrNull(row.id)){
-                                    res += "<label>" + row.id + "</label><br>";
-                                }
-                                if (UtilsNew.isNotUndefinedOrNull(row.names) && row.names.length > 0) {
-                                    res += "<label><a href='https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?searchType=adhoc_search&type=rs&rs="
-                                        + row.names[0]+ "' target='_blank'>dbSNP " + row.names[0] + "</a></label>";
-                                }
-                                return res;
-                            },
-                            halign: 'center',
-                            sortable: true
-                        },
-                        {
-                            title: "Genes",
-                            field: {name: "genes", context: this},
-                            colspan: 1,
-                            rowspan: 1,
-                            halign: 'center',
-                            formatter: this.geneFormatter,
-                        },
-                        {
-                            title: "Type",
-                            field: "type",
-                            colspan: 1,
-                            rowspan: 1,
-                            halign: 'center'
-                        },
-                        {
-                            title: "Gene Annotation",
-                            field: "consequence",
-                            colspan: 1,
-                            rowspan: 1,
-                            formatter: function (value, row, index) {
-                                let val = "<span style='color: red'>missense_variant</span><br>c123T>C";
-                                return val;
-                            },
-                            halign: 'center'
+            variantIdFormatter(value, row, index) {
+                let res = "";
+                if (UtilsNew.isNotUndefinedOrNull(row.id)) {
+                    res += "<label>" + row.id + "</label><br>";
+                }
+                if (UtilsNew.isNotUndefinedOrNull(row.names) && row.names.length > 0) {
+                    res += "<label><a href='https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?searchType=adhoc_search&type=rs&rs="
+                        + row.names[0]+ "' target='_blank'>dbSNP " + row.names[0] + "</a></label>";
+                }
+                return res;
+            }
 
-                        },
-                        {
-                            title: "Prediction",
-                            field: "prediction",
-                            colspan: 1,
-                            rowspan: 1,
-                            halign: 'center',
-                            formatter: function (value, row, index) {
-                                let res = "";
-                                if (UtilsNew.isNotUndefinedOrNull(row.reportEvents)){
-                                    row.reportEvents.forEach((reportEvent) => {
-                                        if (UtilsNew.isNotUndefinedOrNull(reportEvent.prediction)) {
-                                            res += "<label>" + reportEvent.prediction + "</label>";
-                                        }
-                                        if (UtilsNew.isNotUndefinedOrNull(reportEvent.score)) {
-                                            res += " (<label>" + reportEvent.score + "</label>)";
-                                        }
-                                    });
-                                }
-                                return res;
-                            }
-                        },
-                        {
-                            title: "Zigosity",
-                            field: "zigosity",
-                            colspan: 1,
-                            rowspan: 1,
-                            formatter: function (value, row, index) {
-                                let res = "";
-                                if(UtilsNew.isNotUndefinedOrNull(row.calledGenotypes)){
-                                    row.calledGenotypes.forEach((genotype) => {
-                                        if(UtilsNew.isNotUndefinedOrNull(genotype.genotype)) {
-                                            res = res + "<label>" + genotype.genotype + "</label>";
-                                        }
-                                        if(UtilsNew.isNotUndefinedOrNull(genotype.zigosity)){
-                                            res = res + " <label>" + genotype.zigosity + "</label>";
-                                        }
-                                    });
-                                }
-                                return res;
-                            },
-                            halign: 'center'
+            geneAnnotationFormatter(value, row, index) {
+                let val = "<span style='color: red'>missense_variant</span><br>c123T>C";
+                return val;
+            }
 
-                        },
-                        {
-                            title: "Max allele freq",
-                            field: "masAllele",
-                            colspan: 1,
-                            rowspan: 1,
-                            formatter: function (value, row, index) {
-                                return value;
-                            },
-                            halign: 'center'
+            prediciotnFormatter(value, row, index) {
+                let res = "";
+                if (UtilsNew.isNotUndefinedOrNull(row.reportEvents)){
+                    row.reportEvents.forEach((reportEvent) => {
+                        if (UtilsNew.isNotUndefinedOrNull(reportEvent.prediction)) {
+                            res += "<label>" + reportEvent.prediction + "</label>";
+                        }
+                        if (UtilsNew.isNotUndefinedOrNull(reportEvent.score)) {
+                            res += " (<label>" + reportEvent.score + "</label>)";
+                        }
+                    });
+                }
+                return res;
+            }
 
-                        },
-                        {
-                            title: "File metrics",
-                            field: "read",
-                            colspan: 1,
-                            rowspan: 1,
-                            formatter: function (value, row, index) {
-                                let val;
-                                if (row !== undefined && row.studies !== undefined) {
-                                    val = `<div class="col-md-12">
+            zigosityFormatter(value, row, index) {
+                let res = "";
+                if (UtilsNew.isNotUndefinedOrNull(row.studies)) {
+                    switch (row.studies[0].samplesData[this.field.memberIdx][0]) {
+                        case "0/0":
+                        case "0|0":
+                            res = `<table>
+                                        <tr style="padding: 0px;">
+                                            <td style="padding: 0px"><div style='width: 15px;height: 15px;border: 1px solid black;border-radius: 50%;background-color: white'></div></td>
+                                            <td style="padding: 0px"><div style='width: 15px;height: 15px;border: 1px solid black;border-radius: 50%;background-color: white'></div></td>
+                                        </tr>
+                                    </table>`;
+                            break
+                        case "0/1":
+                        case "1/0":
+                            res = `<table>
+                                        <tr style="padding: 0px;">
+                                            <td style="padding: 0px"><div style='width: 15px;height: 15px;border: 1px solid black;border-radius: 50%;background-color: black'></div></td>
+                                            <td style="padding: 0px"><div style='width: 15px;height: 15px;border: 1px solid black;border-radius: 50%;background-color: white'></div></td>
+                                        </tr>
+                                    </table>`;
+                            break
+                        case "1/1":
+                        case "1|1":
+                            res = `<table>
+                                        <tr style="padding: 0px;">
+                                            <td style="padding: 0px"><div style='width: 15px;height: 15px;border: 1px solid black;border-radius: 50%;background-color: black'></div></td>
+                                            <td style="padding: 0px"><div style='width: 15px;height: 15px;border: 1px solid black;border-radius: 50%;background-color: black'></div></td>
+                                        </tr>
+                                    </table>`;
+                            break
+                    }
+                }
+                return res;
+            }
+
+            fileMetricsFormatter(value, row, index) {
+                let val;
+                if (row !== undefined && row.studies !== undefined) {
+                    val = `<div class="col-md-12">
                                                 <form class="form-horizontal">
                                                     <div class="form-group" style="margin: 0px 2px">
                                                         <label class="col-md-4">Quality:</label>
@@ -711,41 +675,143 @@
                                                     </div>
                                                 </form>
                                             </div>`;
-                                }//
-//                                if (row != undefined && row.studies != undefined) {
-//                                    val = "<span>" + row.studies[0].files[0].attributes.DP + "</span>";
-//
-//
-//                                }
-                                return val;
+                }
+                return val;
+            }
+
+            interpretationFormatter(value, row, index) {
+                let res = "<button type='button' class='btn btn-info btn-xs'>Add to Report</button>";
+
+                return res + "<br><span>Comments(" + row.comments.length + ")</span>"
+            }
+
+            _refreshTableColumns() {
+                this.cols = this._createDefaultColumns();
+
+                if (typeof this.cols !== "undefined" && typeof this.interpretation.clinicalAnalysis.family !== "undefined" && Object.keys(this.interpretation.clinicalAnalysis.family.members).length > 0) {
+                    let zigosityIdx = 5;
+                    let members = this.interpretation.clinicalAnalysis.family.members;
+                    this.cols[0].splice(zigosityIdx, 0, {
+                        title: "Zigosity",
+                        rowspan: 1,
+                        colspan: members.length,
+                        halign: 'center'
+                    });
+
+                    for(let i = 0; i < members.length; i++) {
+                        this.cols[1].splice(i, 0, {
+                            title: members[i].name,
+                            field: {
+                                memberIdx: i,
+                                memberName: members[i].name,
                             },
+                            rowspan: 1,
+                            colspan: 1,
+                            halign: 'center',
+                            formatter: this.zigosityFormatter
+                        });
+                    }
+                }
+                return this.cols;
+            }
+
+            _createDefaultColumns() {
+                return [
+                    [
+                        {
+                            title: "Variant",
+                            field: "variant",
+                            rowspan: 2,
+                            colspan: 1,
+                            formatter: this.variantIdFormatter,
+                            halign: 'center',
+                            sortable: true
+                        },
+                        {
+                            title: "Genes",
+                            field: {name: "genes", context: this},
+                            rowspan: 2,
+                            colspan: 1,
+                            halign: 'center',
+                            formatter: this.geneFormatter,
+                        },
+                        {
+                            title: "Type",
+                            field: "type",
+                            rowspan: 2,
+                            colspan: 1,
+                            halign: 'center'
+                        },
+                        {
+                            title: "Gene Annotation",
+                            field: "consequence",
+                            rowspan: 2,
+                            colspan: 1,
+                            formatter: this.geneAnnotationFormatter,
+                            halign: 'center'
+
+                        },
+                        {
+                            title: "Prediction",
+                            field: "prediction",
+                            rowspan: 2,
+                            colspan: 1,
+                            halign: 'center',
+                            formatter: this.prediciotnFormatter
+                        },
+//                        {
+//                            title: "Zigosity",
+//                            field: "zigosity",
+//                            rowspan: 1,
+//                            colspan: 1,
+//                            formatter: this.zigosityFormatter,
+//                            halign: 'center'
+//
+//                        },
+                        {
+                            title: "Max allele freq",
+                            field: "masAllele",
+                            rowspan: 2,
+                            colspan: 1,
+                            halign: 'center'
+
+                        },
+                        {
+                            title: "File metrics",
+                            field: "read",
+                            rowspan: 2,
+                            colspan: 1,
+                            formatter: this.fileMetricsFormatter,
                             halign: 'center'
 
                         },
                         {
                             title: "Custom Annotations",
                             field: "customAnnotations",
+                            rowspan: 2,
                             colspan: 1,
-                            rowspan: 1,
-                            formatter: function (value, row, index) {
-                                return value;
-                            },
                             halign: 'center'
 
                         },
                         {
                             title: "Interpretation",
                             field: "interpretation",
+                            rowspan: 2,
                             colspan: 1,
-                            rowspan: 1,
-                            formatter: function (value, row, index) {
-                                let res = "<button type='button' class='btn btn-info btn-xs'>Add to Report</button>";
-
-                                return res + "<br><span>Comments(" + _this.computedLengthComments(row.comments) + ")</span>"
-                            },
+                            formatter: this.interpretationFormatter,
                             halign: 'center'
 
                         },
+                    ],
+                    [
+//                        {
+//                            title: 'SIFT',
+//                            field: {source: 'sift', context: this},
+//                            colspan: 1,
+//                            rowspan: 1,
+////                            formatter: this.proteinScoreFormatter,
+//                            halign: 'center'
+//                        }
                     ]
                 ];
 
