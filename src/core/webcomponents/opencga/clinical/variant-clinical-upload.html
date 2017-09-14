@@ -808,6 +808,7 @@
                 });
 
                 if(UtilsNew.isUndefinedOrNull(containsSelectedElement)) {
+                    selectedTerm.split("(")
                     this.push("listCurrentSelectedICD", selectedTerm);
                 }
             }
@@ -990,10 +991,10 @@
                                 let _fileId = response.response[0].result[0].id;
                                 _this.indexVCF(_fileId);
                             })
-                            .catch(function () {
+                            .catch(function (responseError) {
                                 _this.settingsMessageModal = {
                                     messageHeader: "Error",
-                                    messageBody: [response.error],
+                                    messageBody: [responseError.error],
                                     type: "danger",
                                     height: "100px",
                                     width: "500px"
@@ -1016,12 +1017,28 @@
                     let icdTermField = formFields.diagnosis;
                     let icdName = "";
                     let icdId = "";
+//                    let regexICD = new RegExp("/([?:\s*[a-zA-Z0-9]*]*)\(([^)]+)\)");
+//                    let regexHPO = new RegExp("/,?[^,]*,?");
+                    let listOntologyTerms = [];
                     if (icdTermField !== "") {
-                        icdId = icdTermField.split('(')[1].slice(0, -1);
-                        icdName = icdTermField.split('(')[0];
+                        this.listCurrentSelectedICD.forEach((icdTerm) => {
+                            let groupsIcd = icdTerm.split("(");
+                            if(UtilsNew.isNotUndefinedOrNull(groupsIcd) && groupsIcd.length > 0){
+                                listOntologyTerms.push({id: groupsIcd[1].split(")")[0], name: groupsIcd[0], source: "ICD10"});
+                            }
+                        });
                     }
-                    let hpoId = formFields.HPO; // To be modified when HPO is included
-                    let hpoName = formFields.HPO;
+
+                    let hpoNames = formFields.HPO;
+                    if (hpoNames !== "") {
+                        this.selectedTermsHPO.forEach((hpoTerm) => {
+//                            let groupsHpo = regexHPO.exec(hpoTerm);
+//                            if(UtilsNew.isNotUndefinedOrNull(groupsHpo) && groupsHpo.length > 0){
+                                listOntologyTerms.push({id: hpoTerm.obo_id, name: hpoTerm.label, source:"HPO"});
+//                            }
+                        });
+                    }
+
 
                     let jsonAnnotation = {};
                     $(this.variableSets[0].variables).each(function (index, currentVariable) {
@@ -1043,11 +1060,9 @@
                                 "annotations": jsonAnnotation
                             }
                         ],
+                        "ontologyTerms": listOntologyTerms,
                         "individual": {
                             "name": formFields.patientID,
-                            "family": "", // to be removed
-                            "fatherId": -1, // To be removed
-                            "motherId": -1, // to be removed
                             "ethnicity": formFields.ethnicity,
                             "dateOfBirth": formFields.birthYear,
                             "population": {
@@ -1059,18 +1074,7 @@
                             "lifeStatus": formFields.lifeStatus,
                             "affectationStatus": formFields.status,
                             "parentalConsanguinity": hasParentalConsanguinity,
-                            "ontologyTerms": [
-                                {
-                                    "id": hpoId,
-                                    "name": hpoName,
-                                    "source": "HPO"
-                                },
-                                {
-                                    "id": icdId,
-                                    "name": icdName,
-                                    "source": "ICD10"
-                                }
-                            ]
+                            "ontologyTerms": listOntologyTerms
                         }
                     };
 

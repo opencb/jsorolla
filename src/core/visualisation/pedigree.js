@@ -211,26 +211,26 @@ class Pedigree {
 
         family.children = [];
         for (let m of family.members) {
-            if (m.father !== undefined && m.father.name !== undefined && m.mother !== undefined && m.mother.name !== undefined) {
-                map[m.father.name].partner = m.mother.name;
-                map[m.mother.name].partner = m.father.name;
+            if (m.father !== undefined && m.mother !== undefined ) {
+                map[m.father].partner = m.mother;
+                map[m.mother].partner = m.father;
 
-                map[m.father.name].partnerConsaguinity = m.parentalConsanguinity;
-                map[m.mother.name].partnerConsaguinity = m.parentalConsanguinity;
+                map[m.father].partnerConsaguinity = m.parentalConsanguinity;
+                map[m.mother].partnerConsaguinity = m.parentalConsanguinity;
 
-                if (this._isOrphan(map[m.father.name] && this._isOrphan(map[m.mother.name]))) {
-                    family.father = map[m.father.name];
-                    family.mother = map[m.mother.name];
+                if (this._isOrphan(map[m.father] && this._isOrphan(map[m.mother]))) {
+                    family.father = map[m.father];
+                    family.mother = map[m.mother];
                 }
 
                 family.children.push(m);
             }
 
             // We save the corresponding disease color pattern for each sample
-            if (m.diseases !== undefined && m.diseases.length > 0) {
+            if (m.ontologyTerms !== undefined && m.ontologyTerms.length > 0) {
                 let colorIdx = [];
-                for (let c of m.diseases) {
-                    colorIdx.push(colorMap[c]);
+                for (let c of m.ontologyTerms) {
+                    colorIdx.push(colorMap[c.id]);
                 }
                 // Pattern suffix IDs must be sorted, eg. Pattern_01
                 colorIdx = colorIdx.sort();
@@ -289,7 +289,7 @@ class Pedigree {
     }
 
     _isOrphan(member) {
-        return (member.father === undefined || member.father.id === -1) && (member.mother === undefined || member.mother.id === -1)
+        return (member.father === undefined || member.father=== null) && (member.mother === undefined || member.mother.id === null)
     }
 
     _getDefaultSetting() {

@@ -165,11 +165,7 @@
                 </table>
             </div>
             <div class="col-md-12">
-
-                        <div id="{{prefix}}PedigreeView">
-                        </div>
-
-
+                <div id="{{prefix}}PedigreeView"></div>
             </div>
 
             <opencga-message-dialog opencga-client="{{opencgaClient}}" show-message-modal="{{showMessageModal}}"
@@ -224,6 +220,11 @@
             connectedCallback() {
                 super.connectedCallback();
                 this.newDisease = {};
+//                PolymerUtils.getElementById("ifSampleExists").addEventListener('dom-change', function() {
+//                   alert("dom-change")
+//                    console.log(PolymerUtils.getElementById(this.prefix + "PedigreeView"));
+//                });
+//                this.pedigreeRender();
             }
 
             initData() {
@@ -276,6 +277,7 @@
 
                                 // Save in family members[sample.id] the member object using individual data
                                 _this.family.members[sample.id] = Object.assign(_this.family.members[sample.id], {name: sample.individual.name, sex: sample.individual.sex});
+//                                _this.family.members.samples = _this.samples;
                                 _samples.push(sample);
 
                             })
@@ -293,12 +295,7 @@
                         } else {
                             _samples.push(sample);
                         }
-
-
                     });
-
-
-
 
                     if (UtilsNew.isNotUndefinedOrNull(this.samples)) {
                         this._sampleExists = true;
@@ -325,9 +322,13 @@
             isCheckedDisease(sampleId, diseaseId) {
                 let sampleSelected = this.findSample(sampleId);
                 if(UtilsNew.isNotUndefinedOrNull(sampleSelected) && UtilsNew.isNotUndefinedOrNull(sampleSelected.member)
-                    && UtilsNew.isNotUndefinedOrNull(sampleSelected.member.diseases)) {
+                    && UtilsNew.isNotUndefinedOrNull(sampleSelected.member.ontologyTerms)) {
 
-                    return sampleSelected.member.diseases.has(diseaseId);
+                    let existsSelectedDisease = sampleSelected.member.ontologyTerms.find((disease) => {
+                        return disease.id === diseaseId;
+                    });
+
+                    return UtilsNew.isNotUndefinedOrNull(existsSelectedDisease);
                 }
                 return false;
             }
@@ -359,9 +360,9 @@
                 if(UtilsNew.isNotUndefinedOrNull(sampleSelected) && UtilsNew.isNotUndefinedOrNull(sampleCurrentParent) &&
                     UtilsNew.isNotUndefinedOrNull(sampleCurrentParent.individual) && UtilsNew.isNotUndefinedOrNull(sampleCurrentParent.individual.name)) {
                     if (isMother) {
-                        parentSelected = sampleSelected.member.mother.name === sampleCurrentParent.individual.name;
+                        parentSelected = sampleSelected.member.mother === sampleCurrentParent.individual.name;
                     } else {
-                        parentSelected = sampleSelected.member.father.name === sampleCurrentParent.individual.name;
+                        parentSelected = sampleSelected.member.father === sampleCurrentParent.individual.name;
                     }
                 }
 
@@ -399,13 +400,21 @@
                 let diseaseId = e.target.getAttribute("data-disease-id");
                 let sampleSelected = this.findSample(sampleId);
                 if(UtilsNew.isNotUndefinedOrNull(sampleSelected)) {
-                    if (!sampleSelected.member.diseases.has(diseaseId)) {
-                        sampleSelected.member.diseases.add(diseaseId);
+                    let existsSelectedDisease = sampleSelected.member.ontologyTerms.find((disease) => {
+                            return disease.id === diseaseId;
+                    });
+                    if (UtilsNew.isUndefinedOrNull(existsSelectedDisease)) {
+                        let selectedDisease = this.data.diseases.find((disease) => {
+                                return disease.id === diseaseId;
+                    });
+                        sampleSelected.member.ontologyTerms.push(selectedDisease);
                     } else {
-                        sampleSelected.member.diseases.delete(diseaseId);
+                        sampleSelected.member.ontologyTerms = sampleSelected.member.ontologyTerms.filter((disease) => {
+                                return disease.id !== diseaseId;
+                    });
                     }
 
-                    this.family.members[sampleId].diseases = sampleSelected.member.diseases;
+                    this.family.members[sampleId].ontologyTerms = sampleSelected.member.ontologyTerms;
                     this._updateFamily();
                 }
             }
@@ -453,23 +462,26 @@
                         name: sampleSelectedParent.individual.name,
                         sex: sampleSelectedParent.individual.sex
                     };
+
                 }
                 if (UtilsNew.isNotUndefinedOrNull(sampleSelected)) {
 
-                    sampleSelected.member.sex = "UNKNOWN";
-                    this.family.members[sampleId].sex = "UNKNOWN";
+                    if(UtilsNew.isUndefinedOrNull(sampleSelected.member.sex)){
+                        sampleSelected.member.sex = "UNKNOWN";
+                        this.family.members[sampleId].sex = "UNKNOWN";
+                    }
                     if (isMother === "true") {
                         if(UtilsNew.isNotUndefinedOrNull(parent)){
-                            parent.sex = "female";
+                            parent.sex = "FEMALE";
                         }
-                        sampleSelected.member.mother = parent;
-                        this.family.members[sampleId].mother = parent;
+                        sampleSelected.member.mother = parent.name;
+                        this.family.members[sampleId].mother = parent.name;
                     } else if (isFather === "true") {
                         if(UtilsNew.isNotUndefinedOrNull(parent)){
-                            parent.sex = "male";
+                            parent.sex = "MALE";
                         }
-                        sampleSelected.member.father = parent;
-                        this.family.members[sampleId].father = parent;
+                        sampleSelected.member.father = parent.name;
+                        this.family.members[sampleId].father = parent.name;
                     }
                     this._updateFamily();
                 }
@@ -520,11 +532,11 @@
                 let membersNew =[];
                 body.members.forEach((member) => {
                     let newMember = Object.assign({},member);
-                    let newDiseases = [];
-                    newMember.diseases.forEach((disease)=>{
-                        newDiseases.push(disease);
-                    });
-                    newMember.diseases = newDiseases;
+//                    let newDiseases = [];
+//                    newMember.diseases.forEach((disease)=>{
+//                        newDiseases.push(disease);
+//                    });
+//                    newMember.diseases = newDiseases;
                     membersNew.push(newMember);
                 });
                 body.members = membersNew;

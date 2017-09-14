@@ -261,11 +261,11 @@
                     let _this = this;
                     this.samples.forEach((sample) => {
                         _this.family.members[sample.id] = {
-                            father: {},
-                            mother: {},
-                            diseases: new Set(),
-                            carrier: [],
-                            samples: [],
+                            father: undefined,
+                            mother: undefined,
+                            ontologyTerms: [],
+//                            multiples: [],
+//                            samples: [],
                             parentalConsanguinity: false
                         }
                     });
@@ -579,7 +579,7 @@
                     let membersNew =[];
                     body.members.forEach((member) => {
                         let newMember = Object.assign(member);
-                        newMember.diseases = Array.from(newMember.diseases)
+//                        newMember.diseases = Array.from(newMember.diseases)
                         membersNew.push(member);
                     });
                     body.members = membersNew;
@@ -591,21 +591,30 @@
                         this.opencgaClient.families().create(params, body)
                             .then(function (response) {
                                 if (response.response[0].numResults >= 1) {
-                                    $(PolymerUtils.getElementById(this.prefix + "tableAnalysis")).bootstrapTable('updateRow', {
-                                        index: _this.selectedRow, row: {
-                                            family: response[0].result[0]
-                                        }
-                                    });
+//                                    $(PolymerUtils.getElementById(_this.prefix + "tableAnalysis")).bootstrapTable('updateRow', {
+//                                        index: _this.selectedRow,
+//                                        row: {
+//                                            family: response.response[0].result[0]
+//                                        }
+//                                    });
                                 }
-                                // Create analysis
-//                                let analysisInfo = {
-//                                    analysisID: PolymerUtils.getElementById(_this.prefix + "analysisID" + rowInfo.analysisIDinternal).value,
-//                                    type: _analysisType,
-//                                    familyID: rowInfo.family.name,
-//                                    proband: _children[0].name, // TO BE CHANGED
-//                                    sample: _affectedSample // TO BE CHANGED
-//                                };
-    //                            _this.createAnalysis(analysisInfo);
+
+                                let samplesName = rowInfo.samples.map((sample) => {
+                                    let res = {name: sample.name};
+                                    return res;
+                                });
+
+                                let memberToStudy = body.members.find((member) => {
+                                  return member.father !== null && member.mother !== null;
+                                });
+//                                 Create analysis
+                                let analysisInfo = {
+                                    analysisID: PolymerUtils.getElementById(_this.prefix + "analysisID" + rowInfo.analysisIDinternal).value,
+                                    type: _analysisType,
+                                    familyID: rowInfo.family.name,
+                                    subject:  {name: memberToStudy.name, samples: samplesName} // TO BE CHANGED
+                                };
+//                                _this.createAnalysis(analysisInfo);
                             })
                             .catch(function (response) {
                                 _this.settingsMessageModal = {
@@ -654,8 +663,8 @@
                     "name": analysisInfo.analysisID,
                     "type": analysisInfo.type,
                     "family": analysisInfo.familyID,
-                    "proband": analysisInfo.proband,
-                    "sample": analysisInfo.sample,
+                    "subject": analysisInfo.subject,
+//                    "sample": analysisInfo.sample,
                     "attributes": {
                         "filter": false
                     }
@@ -728,7 +737,8 @@
                 let _this = this;
                 $(PolymerUtils.getElementById(this.prefix + "tableAnalysis")).bootstrapTable('updateRow', {
                     index: _this.selectedRow, row: {
-                        family: _this.family
+                        family: _this.family,
+                        samples: _this.samples
                     }
                 });
 
