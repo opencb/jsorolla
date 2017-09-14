@@ -152,8 +152,10 @@ class Pedigree {
 
     _addFamilyMember(object, x, y, width, radius, showSampleNames, svg) {
         // No defined sex
+        let memberSVG;
         if (typeof object.sex === "undefined" || object.sex === "undefined") {
             SVG.addChild(svg, "rect", {
+
                 x: x - radius,          y: y,
                 width: width * 0.8,     height: width * 0.8,
                 transform: "translate(" + radius + ") rotate(45 " + (x - radius) + " " + (10 + radius + (1.5 * width) + y) + ")",
@@ -163,6 +165,7 @@ class Pedigree {
             // Member is a male
             if (object.sex === "male" || object.sex === "MALE") {
                 SVG.addChild(svg, "rect", {
+
                     x: x - radius,      y: y,
                     width: width,       height: width,
                     // fill: "url(#Pattern2)",
@@ -170,7 +173,7 @@ class Pedigree {
                 });
             } else {
                 // Member is a female
-                SVG.addChild(svg, "circle", {
+                memberSVG = SVG.addChild(svg, "circle", {
                     cx: x,              cy: y + radius,
                     r: radius,
                     style: "fill: url(#" + object.colorPattern + ");stroke: black;stroke-width: 2"
@@ -188,11 +191,20 @@ class Pedigree {
 
         if (showSampleNames) {
             let text = SVG.addChild(svg, "text", {
-                x: x - radius,  y: 10 + 3 * width + 15 + y,
+                x: x - radius + 2,  y: y + width + 15,
                 style: "fill: black;font-size=8px;font-weight:10"
             });
-            text.textContent = object.name;
+            text.textContent = object.member.name;
         }
+
+        // $(memberSVG).qtip({
+        //     content: {text: "3:1000123:A:T: " + "<span style='font-weight: bold'>0/1</span>", title: object.member.name},
+        //     position: {target: "mouse", adjust: {x: 25, y: 15}, effect: false},
+        //     // position: {viewport: $(window), target: "mouse", adjust: {x: 25, y: 15}},
+        //     style: {width: true, classes: "ui-tooltip ui-tooltip-shadow"},
+        //     show: {delay: 300},
+        //     hide: {delay: 300}
+        // });
     }
 
     _preprocessFamily(fam) {

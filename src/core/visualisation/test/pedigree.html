@@ -4,178 +4,126 @@
     <meta charset="UTF-8">
     <title>Pedigree Test</title>
 
+    <link rel="stylesheet" href="../../../../node_modules/qtip2/dist/jquery.qtip.min.css">
+
+    <script type="text/javascript" src="../../../../node_modules/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="../../../../node_modules/qtip2/dist/jquery.qtip.min.js"></script>
+
     <script type="text/javascript" src="../../svg.js"></script>
     <script type="text/javascript" src="../pedigree.js"></script>
 
 </head>
 
 <body onload="render()">
-    <script>
-        let familyTestOld = {
-            father: {
-                id: 1,
-                name: "pepe",
-                deceased: true
-            },
-            mother: {
-                id: 2,
-                name: "mari",
-                deceased: true
-            },
-            children: [
-                {
-                    id: 3,
-                    name: "luis",
-                    affected: true,
-                    gender: "male"
-                },
-                {
-                    id: 4,
-                    name: "luis2",
-                    affected: false,
-                    gender: "female",
-                    deceased: true
-                }
-            ]
-
-        };
-
-//        let familyTest = {
-//            id: 23,
-//            name: "Martinez Pujalte",
-//            description: "",
-//            release: 1,
-//            version: 2,
-//            diseases: [
-//                {
-//                    id: "HP:001233",
-//                    name: "Aaaa",
-//                    source: "HPO"
-//                },
-//                {
-//                    id: "OMIM:056789",
-//                    name: "Cccc",
-//                    source: "OMIM"
-//                },
-//                {
-//                    id: "ddddd",
-//                    name: "Ddddd",
-//                    source: ""
-//                }
-//            ],
-//            members: [
-//                {
-//                    member: {"id": 10, "version": 1, "name": "luis", sex: "male"},
-//                    father: {"id": 11, name: "pepe", "version": 1},
-//                    mother: {"id": 12, name: "mari", "version": 1},
-//                    diseases: ["OMIM:056789", "HP:001233"],
-//                    carrier: ["OMIM:056789"],
-//                    parentalConsaguinity: true,
-//                    multiples: {"type": "mellizo", "siblings": ["pepe"]}
-//                },
-//                {
-//                    member: {"id": 11, "version": 1, "name": "pepe", sex: "male", lifeStatus: "deceased"},
-//                    father: {"id": -1, "version": 1},
-//                    mother: {"id": -1, "version": 1},
-//                    diseases: ["HP:001233"],
-//                    carrier: ["OMIM:056789"],
-//                    parentalConsaguinity: false,
-//                    multiples: {"type": "mellizo", "siblings": ["luis"]}
-//                },
-//                {
-//                    member: {"id": 12, "version": 1, "name": "mari", sex: "female"},
-//                    father: {"id": -1, "version": 1},
-//                    mother: {"id": -1, "version": 1},
-//                    diseases: ["ddddd"],
-//                    carrier: ["OMIM:056789"],
-//                    parentalConsaguinity: false,
-//                    multiples: {"type": "mellizo", "siblings": ["luis"]}
-//                }
-//            ],
-//
-//            annotation: [],
-//            creationDate: "",
-//            attributes: {}
-//        };
-
-
-        let familyTest = {
-            "name": "adfs",
-            "description": "fasdfaf",
-            "diseases": [
+<script>
+    let familyTestOld = {
+        father: {
+            id: 1,
+            name: "pepe",
+            deceased: true
+        },
+        mother: {
+            id: 2,
+            name: "mari",
+            deceased: true
+        },
+        children: [
             {
-                "id": "E00-E89",
-                "name": "IV. Endocrine, nutritional and metabolic diseases ",
-                "source": "ICD10"
+                id: 3,
+                name: "luis",
+                affected: true,
+                gender: "male"
             },
             {
-                "id": "D50-D89",
-                "name": "III. Diseases of the blood and blood-forming organs and certain disorders involving the immune mechanism ",
-                "source": "ICD10"
+                id: 4,
+                name: "luis2",
+                affected: false,
+                gender: "female",
+                deceased: true
+            }
+        ]
+    };
+    let familyTest = {
+        id: 23,
+        name: "Martinez Pujalte",
+        description: "",
+        release: 1,
+        version: 2,
+        diseases: [
+            {
+                id: "HP:001233",
+                name: "Aaaa",
+                source: "HPO"
+            },
+            {
+                id: "OMIM:056789",
+                name: "Cccc",
+                source: "OMIM"
+            },
+            {
+                id: "ddddd",
+                name: "Ddddd",
+                source: ""
             }
         ],
-            "members": [
+        members: [
             {
-                "member": {
-                    "name": "proband",
-                    "sex": "MALE",
-                    "lifeStatus": "deceased"
-                },
-                "father": {"id": -1},
-                "mother": {"id": -1},
-                "diseases": [],
-                "carrier": [],
-                "parentalConsanguinity": false
+                member: {"id": 10, "version": 1, "name": "luis", sex: "male"},
+                father: {"id": 11, name: "pepe", "version": 1},
+                mother: {"id": 12, name: "mari", "version": 1},
+                diseases: ["OMIM:056789", "HP:001233"],
+                carrier: ["OMIM:056789"],
+                parentalConsaguinity: true,
+                multiples: {"type": "mellizo", "siblings": ["pepe"]}
             },
             {
-                "member": {
-                    "name": "otro",
-                    "sex": "FEMALE"
-                },
-                "father": {"id": -1},
-                "mother": {"id": -1},
-                "diseases": [],
-                "carrier": [],
-                "parentalConsanguinity": false
+                member: {"id": 13, "version": 1, "name": "laura", sex: "female"},
+                father: {"id": 11, name: "pepe", "version": 1},
+                mother: {"id": 12, name: "mari", "version": 1},
+                diseases: [],
+                carrier: ["OMIM:056789"],
+                parentalConsaguinity: true,
+                multiples: {"type": "mellizo", "siblings": ["pepe"]}
             },
             {
-                "member": {
-                    "name" :"son",
-                    "sex": "MALE"
-                },
-                "father": {
-                    "name": "proband"
-                },
-                "mother": {
-                    "name": "otro"
-                },
-                "diseases": ["E00-E89"],
-                "carrier": [],
-                "parentalConsanguinity": true
+                member: {"id": 11, "version": 1, "name": "pepe", sex: "male", lifeStatus: "deceased"},
+                father: {"id": -1, "version": 1},
+                mother: {"id": -1, "version": 1},
+                diseases: ["HP:001233"],
+                carrier: ["OMIM:056789"],
+                parentalConsaguinity: false,
+                multiples: {"type": "mellizo", "siblings": ["luis"]}
+            },
+            {
+                member: {"id": 12, "version": 1, "name": "mari", sex: "female"},
+                father: {"id": -1, "version": 1},
+                mother: {"id": -1, "version": 1},
+                diseases: ["ddddd"],
+                carrier: ["OMIM:056789"],
+                parentalConsaguinity: false,
+                multiples: {"type": "mellizo", "siblings": ["luis"]}
             }
         ],
-            "annotation": [],
-            "attributes": {}
-        };
-
-        function render() {
-            console.log(familyTestOld);
-            let pedigree = new Pedigree(familyTestOld);
-
+        annotation: [],
+        creationDate: "",
+        attributes: {}
+    };
+    function render() {
+        console.log(familyTestOld);
+        let pedigree = new Pedigree(familyTestOld);
 //            let svg1 = pedigree.render();
 //            document.getElementById("simpleFamilyTestDiv").appendChild(svg1);
+        pedigree = new Pedigree(familyTest, {selectShowSampleNames: true});
+        let svg2 = pedigree.render();
+        document.getElementById("complexFamilyTestDiv").appendChild(svg2);
+    }
+</script>
 
-            pedigree = new Pedigree(familyTest);
-            let svg2 = pedigree.render();
-            document.getElementById("complexFamilyTestDiv").appendChild(svg2);
-        }
-    </script>
+<h2>Simple family</h2>
+<div id="simpleFamilyTestDiv" style="background-color: #5E99BD"></div>
 
-    <h2>Simple family</h2>
-    <div id="simpleFamilyTestDiv" style="background-color: #5E99BD"></div>
-
-    <h2>Complex family</h2>
-    <div id="complexFamilyTestDiv"></div>
+<h2>Complex family</h2>
+<div id="complexFamilyTestDiv"></div>
 
 </body>
 </html>
