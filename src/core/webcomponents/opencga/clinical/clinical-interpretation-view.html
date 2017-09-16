@@ -230,36 +230,70 @@
                         <h2 style="border-bottom-width: 1px;border-bottom-style: solid;border-bottom-color: #ddd">Reported Variants</h2>
 
 
-                        <div class="btn-group btn-group" role="group" aria-label="..." style="padding: 10px;float: right">
-                            <button type="button" class="btn btn-default btn-warning gene-ct-buttons active" on-click="updateQuery">
-                                All
-                            </button>
-                            <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
-                                Missense
-                            </button>
-                            <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
-                                LoF
-                            </button>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="btn-toolbar" role="toolbar" aria-label="..." style="float: right">
+                                    <div class="btn-group" role="group" aria-label="..." style="padding: 10px 0px">
+                                        <label style="padding-top: 10px">Filters</label>
+                                    </div>
+                                    <div class="btn-group" role="group" aria-label="..." style="padding: 10px 0px">
+                                        <button type="button" class="btn btn-default btn-warning gene-ct-buttons active" on-click="updateQuery">
+                                            All
+                                        </button>
+                                        <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
+                                            Missense
+                                        </button>
+                                        <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
+                                            LoF
+                                        </button>
+                                    </div>
+
+                                    <div class="btn-group" role="group" aria-label="..." style="padding: 10px 0px">
+                                        <button type="button" class="btn btn-default btn-warning gene-ct-buttons active" on-click="updateQuery">
+                                            All
+                                        </button>
+                                        <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
+                                            Tier 1
+                                        </button>
+                                        <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
+                                            Tier 2
+                                        </button>
+                                        <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
+                                            Tier 3
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
+                        <div class="col-md-15" style="padding: 12px 0px 0px 0px">
+                            <div id="{{prefix}}ToolbarLeft" class="col-md-6" style="padding: 15px 0px 0px 0px">
+                                <span style="padding: 0px 0px 0px 0px">
+                                    Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> variants
+                                </span>
+                            </div>
 
-                        <!--<div class="col-md-12">-->
-                            <!--<div id="{{prefix}}ToolbarLeft" class="col-md-6" style="padding: 0px">-->
-                                <!--<span style="font-size: 14px">Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> variants</span>-->
-                            <!--</div>-->
-                            <!--<div id="{{prefix}}ToolbarRight" class="col-md-6" style="padding: 0px">-->
-                                <!--<div class="btn-toolbar">-->
-                                    <!--<input type="text" class="form-control" style="width: 80px">-->
-                                    <!--&lt;!&ndash;<input type="button" class="form-control" style="width: 80px">&ndash;&gt;-->
-                                <!--</div>-->
-                            <!--</div>-->
-                        <!--</div>-->
+                            <div class="col-md-6" style="padding: 0px">
+                                <div class="form-inline">
+                                    <div class="form-group" style="padding: 0px;float: right">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" name="date" size="20" placeholder="Search for...">
+                                            <span class="input-group-btn">
+                                                <button type="button" class="btn btn-default"><i class="fa fa-search" aria-hidden="true"></i></button>
+                                            </span>
+                                        </div>
 
-                        <div id="{{prefix}}ToolbarLeft" class="col-md-6" style="padding: 0px">
-                            <span style="font-size: 14px">Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> variants</span>
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i>&nbsp;&nbsp;Update</button>
+                                            <button type="button" class="btn btn-primary"><i class="fa fa-comments-o" aria-hidden="true"></i>&nbsp;&nbsp;Review Case</button>
+                                            <button type="button" class="btn btn-primary"><i class="fa fa-file-text-o" aria-hidden="true"></i>&nbsp;&nbsp;Create Report</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <br>
-                        <div id="{{prefix}}GridTableDiv" style="margin-top: 10px">
+
+                        <div id="{{prefix}}GridTableDiv" style="margin-top: 5px">
                             <table id="{{prefix}}mainTable" data-pagination="true" data-page-list="[5, 10, 25]"
                                    data-show-export="true" data-detail-view="true" data-detail-formatter="detailFormatter">
                                 <thead style="background-color: #eee"></thead>

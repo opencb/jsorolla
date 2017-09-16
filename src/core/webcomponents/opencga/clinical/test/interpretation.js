@@ -1974,7 +1974,26 @@ const interpretationJson = {
             annotation: {
                 source: "cellbase",
                 version: "4.5",
-                genes: []
+                "displayConsequenceType": "upstream_variant",
+                "consequenceTypes":[
+                    {
+                        "geneName":"TOMM40",
+                        "ensemblGeneId":"ENSG00000130204",
+                        "ensemblTranscriptId":"ENST00000252487",
+                        "strand":"+",
+                        "biotype":"protein_coding",
+                        "transcriptAnnotationFlags":[
+                            "CCDS",
+                            "basic"
+                        ],
+                        "sequenceOntologyTerms":[
+                            {
+                                "accession":"SO:0001630",
+                                "name":"upstream_variant"
+                            }
+                        ]
+                    }
+                ]
             },
             calledGenotypes: [{
                 sampleId: 21,
