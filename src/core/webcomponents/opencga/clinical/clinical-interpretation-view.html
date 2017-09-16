@@ -21,19 +21,10 @@
             }
         </style>
 
-        <!--<div class="panel" style="margin-bottom: 15px">-->
-        <!--<h3 style="margin: 10px 10px 10px 15px">-->
-        <!--<span  on-click="onCollapse"  style="cursor: pointer;margin: 0px 30px 0px 0px">-->
-        <!--<i class="fa fa-bars" aria-hidden="true"></i>-->
-        <!--</span>-->
-        <!--<i class="fa fa-filter" aria-hidden="true"></i>{{title}}-->
-        <!--</h3>-->
-        <!--</div>-->
-
         <div class="containerDiv">
             <div class="row">
 
-                <div id="{{prefix}}mainIntepretation" class="col-xs-10  col-md-offset-1 col-sm-10 col-md-10 col-lg-10 toppad">
+                <div id="{{prefix}}mainIntepretation" class="col-xs-10 col-md-offset-1 col-sm-10 col-md-10 col-lg-10 toppad">
 
                     <h2 style="border-bottom-width: 1px;border-bottom-style: solid;border-bottom-color: #ddd">
                         Interpretation Analysis: {{interpretation.name}}
@@ -354,8 +345,7 @@
 
                                 <!-- File Metrics Tab -->
                                 <div id="{{prefix}}FileMetrics" role="tabpanel" class="tab-pane">
-                                    <br>
-                                    <div class="col-md-8 col-md-offset-1">
+                                    <div class="col-md-8 col-md-offset-1" style="padding-top: 20px">
                                         <table class="table table-hover">
                                             <thead>
                                             <tr>
@@ -368,7 +358,7 @@
                                             <tbody id="{{prefix}}TableTBody">
                                             <template is="dom-repeat" items="{{_getFileMetricsArray(variantObj.studies.0.files)}}" as="attrs">
                                                 <tr id="{{attrs.name}}" class$="file-metrics-table-{{attrs.name}}">
-                                                    <td>{{attrs.name}}</td>
+                                                    <td><span style="font-weight: bold">{{attrs.name}}</span></td>
                                                     <template is="dom-repeat" items="{{attrs.values}}" as="attr">
                                                         <td>{{attr}}</td>
                                                     </template>
@@ -462,6 +452,8 @@
 
                 this._summaryCollapsed = false;
 //                this.samples = ["NA12877"];
+                this.variantObj = {};
+                this.reportVariants = [];
             }
 
             _attachDom(dom) {
@@ -473,6 +465,7 @@
 
                 this.render();
             }
+
             _summaryOnClick() {
                 if (this._summaryCollapsed) {
                     $("#" + this.prefix + "SummaryCollapseIcon").removeClass("fa-plus-square-o").addClass("fa-minus-square-o");
@@ -481,107 +474,11 @@
                 }
                 this._summaryCollapsed = !this._summaryCollapsed;
             }
-            render() {
-                this.variant = ""; // Empty the variant every time the grid is loaded
-
-                this.from = 1;
-                this.to = Math.min(this.interpretation.reportedVariants.length, 10);
-                this.numTotalResultsText = this.interpretation.reportedVariants.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-
-                console.log(this.interpretation);
-                this.cols = this._refreshTableColumns();
-                this._genomeBrowserActive = false;
-                this._collapse = false;
-                let _this = this;
-                let _table = $('#' + this.prefix + 'mainTable');
-                $('#' + this.prefix + 'mainTable').bootstrapTable('destroy');
-                $("#" + this.prefix + "mainTable").bootstrapTable({
-                    data: _this.interpretation.reportedVariants,
-                    columns: _this.cols,
-//                    onClickRow: function (row, $element) {
-//                        console.log("onClickRow");
-//                        _this.variant = row.id;
-//
-//                        _this._genomeBrowserActive = true;
-//                        _this.regionGenomeBrowser = new Region({chromosome: row.chromosome, start: row.start, end: row.end});
-//                    },
-//                    onLoadSuccess: function (data) {
-//                        console.log("onLoadSuccess");
-//                    },
-                    onPageChange: function (page, size) {
-                        _this.from = (page - 1) * size + 1;
-                        _this.to = page * size;
-                    },
-                    onClickRow: function (row, $element) {
-                        $('.success').removeClass('success');
-                        $($element).addClass('success');
-
-                        _this.variant = row.id;
-                        _this.variantObj = row;
-                        _this._genomeBrowserActive = true;
-                        _this.regionGenomeBrowser = new Region({chromosome: row.chromosome, start: row.start, end: row.end});
-
-//                        _this._onSelectVariant(row);
-                    },
-                    onLoadSuccess: function (data) {
-                        // The first time we mark as selected the first row that is rows[2] since the first two rows are the header
-                        debugger
-                        if (UtilsNew.isNotUndefinedOrNull(_table)) {
-                            PolymerUtils.querySelector(_table.selector).rows[1].setAttribute('class', 'success');
-                            _this._onSelectVariant(data.rows[0]);
-
-                        }
-                    },
-                });
-            }
-
-            _onSelectVariant(row) {
-                if (typeof row !== "undefined") {
-                    let _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
-                    this.variant = _variant;
-                    this.dispatchEvent(new CustomEvent('selectvariant', {detail: {id: _variant, variant: row}}));
-                }
-            }
-
-            computedLengthComments(comments) {
-                return comments.length;
-            }
-
-
-            projectStudyObtained(project, study) {
-                if (typeof this.project !== "undefined" && this.project.alias !== "" && typeof this.study !== "undefined" && this.study.alias !== "") {
-                    this.hashFragmentCredentials = {
-                        project: this.project.alias,
-                        study: this.study.alias
-                    };
-                }
-            }
-
-            geneFormatter(value, row, index) {
-                if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
-                    if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined" && row.annotation.consequenceTypes.length > 0) {
-                        var visited = {};
-                        var geneLinks = [];
-                        for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
-                            if (typeof row.annotation.consequenceTypes[i].geneName !== "undefined" && row.annotation.consequenceTypes[i].geneName != ""
-                                && typeof visited[row.annotation.consequenceTypes[i].geneName] === "undefined") {
-                                if (typeof this.field.context.project !== "undefined" && typeof this.field.context.study !== "undefined") {
-                                    geneLinks.push('<a style="cursor: pointer;white-space: nowrap" href="#gene/' + this.field.context.project.alias +'/' +
-                                        this.field.context.study.alias + '/' + row.annotation.consequenceTypes[i].geneName + '">' + row.annotation.consequenceTypes[i].geneName + '</a>');
-                                } else {
-                                    geneLinks.push('<a style="cursor: pointer;white-space: nowrap">' + row.annotation.consequenceTypes[i].geneName + '</a>')
-                                }
-                                visited[row.annotation.consequenceTypes[i].geneName] = true;
-                            }
-                        }
-                        return geneLinks.join(',');
-                    }
-                }
-                return '-';
-            }
 
             _getFileMetricsArray() {
-//                $("#" + this.prefix + "TableTBody").empty();
+                if (this.variantObj === undefined || this.variantObj.studies === undefined) {
+                    return [];
+                }
 
                 let files = this.variantObj.studies[0].files;
 
@@ -610,13 +507,71 @@
                 return result;
             }
 
-            detailFormatter (value, row) {
+            detailFormatter(value, row) {
                 let html = [];
                 $.each(row, function (key, value) {
                     html.push('<p><b>' + key + ':</b> ' + value + '</p>');
                 });
                 return html.join('');
             }
+
+            render() {
+                this.variant = ""; // Empty the variant every time the grid is loaded
+
+                this.from = 1;
+                this.to = Math.min(this.interpretation.reportedVariants.length, 10);
+                this.numTotalResultsText = this.interpretation.reportedVariants.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+                console.log(this.interpretation);
+                this.cols = this._refreshTableColumns();
+                this._genomeBrowserActive = false;
+                this._collapse = false;
+                let _this = this;
+                let _table = $('#' + this.prefix + 'mainTable');
+                $('#' + this.prefix + 'mainTable').bootstrapTable('destroy');
+                $("#" + this.prefix + "mainTable").bootstrapTable({
+                    data: _this.interpretation.reportedVariants,
+                    columns: _this.cols,
+                    onPageChange: function (page, size) {
+                        _this.from = (page - 1) * size + 1;
+                        _this.to = page * size;
+                    },
+                    onClickRow: function (row, $element) {
+                        $('.success').removeClass('success');
+                        $($element).addClass('success');
+
+                        _this._onSelectVariant(row);
+                        _this._genomeBrowserActive = true;
+                        _this.regionGenomeBrowser = new Region({chromosome: row.chromosome, start: row.start, end: row.end});
+                    },
+                    onPostBody: function (data) {
+                        if (UtilsNew.isNotUndefinedOrNull(_table)) {
+                            PolymerUtils.querySelector(_table.selector).rows[2].setAttribute('class', 'success');
+                            _this._onSelectVariant(data[0]);
+                        }
+                    }
+                });
+            }
+
+            _onSelectVariant(row) {
+                if (typeof row !== "undefined") {
+//                    let _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
+                    this.variant = row.id;
+                    this.variantObj = row;
+                    this.dispatchEvent(new CustomEvent('selectvariant', {detail: {id: this.variant, variant: row}, bubbles: true, composed: true}));
+                }
+            }
+
+
+            projectStudyObtained(project, study) {
+                if (typeof this.project !== "undefined" && this.project.alias !== "" && typeof this.study !== "undefined" && this.study.alias !== "") {
+                    this.hashFragmentCredentials = {
+                        project: this.project.alias,
+                        study: this.study.alias
+                    };
+                }
+            }
+
 
             variantIdFormatter(value, row, index) {
                 let res = "";
@@ -629,6 +584,30 @@
                 }
                 return res;
             }
+
+            geneFormatter(value, row, index) {
+                if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
+                    if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined" && row.annotation.consequenceTypes.length > 0) {
+                        let visited = {};
+                        let geneLinks = [];
+                        for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
+                            if (typeof row.annotation.consequenceTypes[i].geneName !== "undefined" && row.annotation.consequenceTypes[i].geneName !== ""
+                                && typeof visited[row.annotation.consequenceTypes[i].geneName] === "undefined") {
+                                if (typeof this.field.context.project !== "undefined" && typeof this.field.context.study !== "undefined") {
+                                    geneLinks.push('<a style="cursor: pointer;white-space: nowrap" href="#gene/' + this.field.context.project.alias +'/' +
+                                        this.field.context.study.alias + '/' + row.annotation.consequenceTypes[i].geneName + '">' + row.annotation.consequenceTypes[i].geneName + '</a>');
+                                } else {
+                                    geneLinks.push('<a style="cursor: pointer;white-space: nowrap">' + row.annotation.consequenceTypes[i].geneName + '</a>')
+                                }
+                                visited[row.annotation.consequenceTypes[i].geneName] = true;
+                            }
+                        }
+                        return geneLinks.join(', ');
+                    }
+                }
+                return '-';
+            }
+
 
             geneAnnotationFormatter(value, row, index) {
                 let val = "<span style='color: red'>missense_variant</span><br>c123T>C";
@@ -653,43 +632,38 @@
             zigosityFormatter(value, row, index) {
                 let res = "";
                 if (UtilsNew.isNotUndefinedOrNull(row.studies)) {
+                    let left, right;
                     switch (row.studies[0].samplesData[this.field.memberIdx][0]) {
                         case "0/0":
                         case "0|0":
-                            res = `<table>
-                                        <tr style="padding: 0px;">
-                                            <td style="padding: 0px"><div style='width: 15px;height: 15px;border: 1px solid black;border-radius: 50%;background-color: white'></div></td>
-                                            <td style="padding: 0px"><div style='width: 15px;height: 15px;border: 1px solid black;border-radius: 50%;background-color: white'></div></td>
-                                        </tr>
-                                    </table>`;
-                            break
+                            left = "white";
+                            right = "white";
+                            break;
                         case "0/1":
                         case "1/0":
-                            res = `<table>
-                                        <tr style="padding: 0px;">
-                                            <td style="padding: 0px"><div style='width: 15px;height: 15px;border: 1px solid black;border-radius: 50%;background-color: black'></div></td>
-                                            <td style="padding: 0px"><div style='width: 15px;height: 15px;border: 1px solid black;border-radius: 50%;background-color: white'></div></td>
-                                        </tr>
-                                    </table>`;
-                            break
+                            left = "black";
+                            right = "white";
+                            break;
                         case "1/1":
                         case "1|1":
-                            res = `<table>
-                                        <tr style="padding: 0px;">
-                                            <td style="padding: 0px"><div style='width: 15px;height: 15px;border: 1px solid black;border-radius: 50%;background-color: black'></div></td>
-                                            <td style="padding: 0px"><div style='width: 15px;height: 15px;border: 1px solid black;border-radius: 50%;background-color: black'></div></td>
-                                        </tr>
-                                    </table>`;
-                            break
+                            left = "black";
+                            right = "black";
+                            break;
                     }
+                    res = `<table>
+                                <tr style="padding: 0px;">
+                                    <td style="padding: 0px"><div style='width: 15px;height: 15px;border: 1px solid black;border-radius: 50%;background-color: ${left}'></div></td>
+                                    <td style="padding: 0px"><div style='width: 15px;height: 15px;border: 1px solid black;border-radius: 50%;background-color: ${right}'></div></td>
+                                </tr>
+                           </table>`;
                 }
                 return res;
             }
 
             fileMetricsFormatter(value, row, index) {
                 let val;
-                if (row !== undefined && row.studies !== undefined) {
-                    val = `<div class="col-md-12">
+                if (row !== undefined && row.studies !== undefined && row.studies.length > 0) {
+                    val = `<div class="col-md-12" style="padding: 0px">
                                                 <form class="form-horizontal">
                                                     <div class="form-group" style="margin: 0px 2px">
                                                         <label class="col-md-4">Quality:</label>
@@ -703,10 +677,6 @@
                                                         <label class="col-md-4">DP:</label>
                                                         <span class="col-md-8">${row.studies[0].files[0].attributes.DP}</span>
                                                     </div>
-                                                    <div class="form-group" style="margin: 0px 2px">
-                                                        <label class="col-md-4">AF:</label>
-                                                        <span class="col-md-8">${row.studies[0].files[0].attributes.AF}</span>
-                                                    </div>
                                                 </form>
                                             </div>`;
                 }
@@ -719,10 +689,19 @@
                 return res + "<br><span>Comments(" + row.comments.length + ")</span>"
             }
 
+            reportFormatter(value, row, index) {
+                return "<input type='checkbox' onclick='onReportClick'>";
+            }
+
+            onReportClick() {
+                alert("click")
+            }
+
             _refreshTableColumns() {
                 this.cols = this._createDefaultColumns();
 
-                if (typeof this.cols !== "undefined" && typeof this.interpretation.clinicalAnalysis.family !== "undefined" && Object.keys(this.interpretation.clinicalAnalysis.family.members).length > 0) {
+                if (typeof this.cols !== "undefined" && typeof this.interpretation.clinicalAnalysis.family !== "undefined"
+                    && Object.keys(this.interpretation.clinicalAnalysis.family.members).length > 0) {
                     let zigosityIdx = 5;
                     let members = this.interpretation.clinicalAnalysis.family.members;
                     this.cols[0].splice(zigosityIdx, 0, {
@@ -793,15 +772,6 @@
                             halign: 'center',
                             formatter: this.prediciotnFormatter
                         },
-//                        {
-//                            title: "Zigosity",
-//                            field: "zigosity",
-//                            rowspan: 1,
-//                            colspan: 1,
-//                            formatter: this.zigosityFormatter,
-//                            halign: 'center'
-//
-//                        },
                         {
                             title: "Max allele freq",
                             field: "masAllele",
@@ -836,35 +806,17 @@
                             halign: 'center'
 
                         },
+                        {
+                            title: "Report",
+//                            field: "stateCheckBox",
+                            rowspan: 2,
+                            colspan: 1,
+                            formatter: this.reportFormatter,
+                            halign: 'center'
+                        }
                     ],
-                    [
-//                        {
-//                            title: 'SIFT',
-//                            field: {source: 'sift', context: this},
-//                            colspan: 1,
-//                            rowspan: 1,
-////                            formatter: this.proteinScoreFormatter,
-//                            halign: 'center'
-//                        }
-                    ]
+                    []
                 ];
-
-                return initCols;
-            }
-
-            onCollapse() {
-                if (this._collapsed) {
-//                    $("#" + this.prefix + "FilterMenu").css("display", "inline");
-                    $("#" + this.prefix + "filterBrowser").show(400);
-                    PolymerUtils.removeClass(this.prefix + "mainIntepretation", ["col-xs-offset-0", "col-sm-offset-0", "col-md-offset-1", "col-lg-offset-1"])
-
-                } else {
-//                    $("#" + this.prefix + "FilterMenu").css("display", "none");
-                    $("#" + this.prefix + "filterBrowser").hide(400);
-                    PolymerUtils.addClass(this.prefix + "mainIntepretation", ["col-xs-offset-0", "col-sm-offset-0", "col-md-offset-1", "col-lg-offset-1"])
-
-                }
-                this._collapsed = !this._collapsed;
             }
 
             triggerBeacon(e) {
@@ -880,10 +832,6 @@
                 });
             }
 
-            _getFilesFromFirstStudy(obj) {
-                debugger
-                return obj[0].files;
-            }
         }
 
         customElements.define(ClinicalInterpretationView.is, ClinicalInterpretationView);

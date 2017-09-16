@@ -190,7 +190,7 @@ const interpretationJson = {
                                 "HRun":"1",
                                 "MQRankSum":"2.042",
                                 "set":"FilteredInAll",
-                                "FILTER":"TruthSensitivityTranche99.90to100.00",
+                                "FILTER": "TruthSensitivity99.90to100.00",
                                 "MQ":"22",
                                 "AF":"0.5",
                                 "HaplotypeScore":"1250.1991",
