@@ -221,39 +221,58 @@
                         <h2 style="border-bottom-width: 1px;border-bottom-style: solid;border-bottom-color: #ddd">Reported Variants</h2>
 
 
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="btn-toolbar" role="toolbar" aria-label="..." style="float: right">
-                                    <div class="btn-group" role="group" aria-label="..." style="padding: 10px 0px">
-                                        <label style="padding-top: 10px">Filters</label>
-                                    </div>
-                                    <div class="btn-group" role="group" aria-label="..." style="padding: 10px 0px">
-                                        <button type="button" class="btn btn-default btn-warning gene-ct-buttons active" on-click="updateQuery">
-                                            All
-                                        </button>
-                                        <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
-                                            Missense
-                                        </button>
-                                        <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
-                                            LoF
-                                        </button>
-                                    </div>
+                        <div class="panell panel--default">
+                            <div class="panel--body">
+                                <!--<div class="row">-->
+                                <div class="col-md-12" style="padding: 5px 0px 15px 0px">
+                                    <div class="btn-toolbar" role="toolbar" aria-label="..." style="float: right">
+                                        <!--<div class="btn-group" role="group" aria-label="..." style="padding: 10px 10px">-->
+                                            <!--<label style="padding-top: 8px">Filters</label>-->
+                                        <!--</div>-->
+                                        <div class="btn-group btn-group-sm" role="group" aria-label="..." style="padding: 10px 0px">
+                                            <button type="button" class="btn btn-default btn-warning gene-ct-buttons active" on-click="updateQuery">
+                                                All
+                                            </button>
+                                            <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
+                                                Missense
+                                            </button>
+                                            <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
+                                                LoF
+                                            </button>
+                                        </div>
 
-                                    <div class="btn-group" role="group" aria-label="..." style="padding: 10px 0px">
-                                        <button type="button" class="btn btn-default btn-warning gene-ct-buttons active" on-click="updateQuery">
-                                            All
-                                        </button>
-                                        <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
-                                            Tier 1
-                                        </button>
-                                        <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
-                                            Tier 2
-                                        </button>
-                                        <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
-                                            Tier 3
-                                        </button>
+                                        <div class="btn-group btn-group-sm" role="group" aria-label="..." style="padding: 10px 0px">
+                                            <button type="button" class="btn btn-default btn-warning gene-ct-buttons active" on-click="updateQuery">
+                                                All
+                                            </button>
+                                            <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
+                                                SNV
+                                            </button>
+                                            <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
+                                                INDEL
+                                            </button>
+                                            <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
+                                                SV
+                                            </button>
+                                        </div>
+
+                                        <div class="btn-group btn-group-sm" role="group" aria-label="..." style="padding: 10px 0px">
+                                            <button type="button" class="btn btn-default btn-warning gene-ct-buttons active" on-click="updateQuery">
+                                                All
+                                            </button>
+                                            <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
+                                                Tier 1
+                                            </button>
+                                            <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
+                                                Tier 2
+                                            </button>
+                                            <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
+                                                Tier 3
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
+                                <!--</div>-->
                             </div>
                         </div>
 
@@ -464,6 +483,15 @@
                 super.connectedCallback();
 
                 this.render();
+
+                let table = $('#' + this.prefix + 'mainTable');
+                let _this = this;
+                table.on('expand-row.bs.table', function (e, index, row, $detail) {
+//                    debugger
+                    let res = _this.detailFormatter(index, row);
+                    $detail.html(res);
+                    console.log('row expanded', e, index);
+                });
             }
 
             _summaryOnClick() {
@@ -507,12 +535,67 @@
                 return result;
             }
 
+
             detailFormatter(value, row) {
-                let html = [];
-                $.each(row, function (key, value) {
-                    html.push('<p><b>' + key + ':</b> ' + value + '</p>');
-                });
-                return html.join('');
+//                debugger
+                let ctHtml = [];
+                for (let ct of row.annotation.consequenceTypes) {
+                    let x = "<span class='col-md-12' style='padding: 0px'>";
+                    if (ct.geneName !== undefined) {
+                        x += `<span class='col-md-3'>
+                            <span style="font-weight: bold">${ct.geneName}</span> (<a href='http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${ct.ensemblGeneId};r=13:32315474-32400266' target="_blank">${ct.ensemblGeneId}</a>)
+                          </span>`;
+                        x += `<span class='col-md-3'><a href="http://www.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;t=${ct.ensemblTranscriptId}" target="_blank">${ct.ensemblTranscriptId}</a> (${ct.biotype})</span>`;
+                    } else {
+                        x += `<span class='col-md-3' style="font-weight: bold">NA</span>`;
+                        x += `<span class='col-md-3' style="font-weight: bold">NA</span>`;
+                    }
+                    x += `<span class='col-md-3'>`;
+                    for (let so of ct.sequenceOntologyTerms) {
+                        x += `<span><span style="font-weight: bold">${so.name}</span>&nbsp;(${so.accession})</span> `;
+                    }
+                    x += `</span>`;
+                    x += `<span class='col-md-3'>`;
+                    if (ct.exonOverlap !== undefined) {
+                        x += `<span><span style="font-weight: bold">cDNA:</span> ${ct.cdnaPosition}, <span style="font-weight: bold">CDS:</span> ${ct.cdsPosition}, <span style="font-weight: bold">Codon:</span> ${ct.codon}, <span style="font-weight: bold">Exon:</span> ${ct.exonOverlap[0].number}</span>`;
+                    }
+                    x += "</span>";
+                    x += "</span>";
+                    ctHtml.push(x);
+                }
+
+                let commentsHtml = [];
+                for (let comment of row.comments) {
+                    let x = `<span class='col-md-12'>${comment.comment} (${comment.author}, ${comment.date})</span><br>`;
+                    commentsHtml.push(x);
+                }
+
+                console.log(row.annotation.consequenceTypes)
+                let html = `<div class="col-md-12" style="padding: 2px 0px">
+                                <div class="col-md-2" style="padding: 0px 5px">
+                                    <label>Consequence Type:</label>
+                                </div>
+                                <div class="col-md-10" style="padding: 0px 5px">
+                                    <form class="form-horizontal">
+                                        <div class="form-group" style="margin: 0px 2px">
+                                            ${ctHtml.join("\n")}
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="col-md-12" style="padding: 2px 0px">
+                                <div class="col-md-2" style="padding: 0px 5px">
+                                    <label>Comments:</label>
+                                </div>
+                                <div class="col-md-10" style="padding: 0px 5px">
+                                    <form class="form-horizontal">
+                                        <div class="form-group" style="margin: 0px 2px">
+                                            ${commentsHtml.join("\n")}
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>`;
+                return html;
             }
 
             render() {
@@ -577,6 +660,9 @@
                 let res = "";
                 if (UtilsNew.isNotUndefinedOrNull(row.id)) {
                     res += "<label>" + row.id + "</label><br>";
+                    if (row.annotation.cytoband !== undefined) {
+                        res += "<label>" + row.annotation.cytoband[0].name + "</label><br>";
+                    }
                 }
                 if (UtilsNew.isNotUndefinedOrNull(row.names) && row.names.length > 0) {
                     res += "<label><a href='https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?searchType=adhoc_search&type=rs&rs="

@@ -329,6 +329,11 @@ const interpretationJson = {
                     "ENST00000434152(ENSG00000130203):c.466T>C",
                     "ENST00000425718(ENSG00000130203):c.388T>C"
                 ],
+                cytoband: [
+                    {
+                        name: "q13.32"
+                    }
+                ],
                 "displayConsequenceType":"missense_variant",
                 "consequenceTypes":[
                     {
@@ -511,6 +516,10 @@ const interpretationJson = {
                             {
                                 "accession":"SO:0001583",
                                 "name":"missense_variant"
+                            },
+                            {
+                                "accession":"SO:0001580",
+                                "name":"splice_site"
                             }
                         ]
                     },
@@ -1965,7 +1974,10 @@ const interpretationJson = {
                     ]
                 }
             ],
-            comments: [{author: "", type: "", comment: "", date: ""}],
+            comments: [
+                {author: "imedina", type: "OBSERVATION", comment: "Comment 1", date: "15/090/2017"},
+                {author: "imedina", type: "OBSERVATION", comment: "Comment 2", date: "15/090/2017"}
+            ],
             additionalNumericVariantAnnotations: []
         },
         {
