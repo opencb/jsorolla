@@ -296,7 +296,7 @@
                                         <div class="btn-group">
                                             <button type="button" class="btn btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i>&nbsp;&nbsp;Update</button>
                                             <button type="button" class="btn btn-primary"><i class="fa fa-comments-o" aria-hidden="true"></i>&nbsp;&nbsp;Review Case</button>
-                                            <button type="button" class="btn btn-primary"><i class="fa fa-file-text-o" aria-hidden="true"></i>&nbsp;&nbsp;Create Report</button>
+                                            <button type="button" class="btn btn-primary"><i class="fa fa-file-text-o" aria-hidden="true"></i>&nbsp;&nbsp;Create Report <span class="badge">{{reportVariants.length}}</span></button>
                                         </div>
                                     </div>
                                 </div>
@@ -492,6 +492,12 @@
                     $detail.html(res);
                     console.log('row expanded', e, index);
                 });
+
+                // Add click event to "Add to Report" button
+                PolymerUtils.querySelectorAll(".interpretation-add-to-report").forEach(elem => elem.addEventListener("click", function (e) {
+                    _this.onAddVariantToReport(e.target.dataset.variantId);
+                    e.stopPropagation();
+                }, true));
             }
 
             _summaryOnClick() {
@@ -501,6 +507,30 @@
                     $("#" + this.prefix + "SummaryCollapseIcon").removeClass("fa-minus-square-o").addClass("fa-plus-square-o");
                 }
                 this._summaryCollapsed = !this._summaryCollapsed;
+            }
+
+            onAddVariantToReport(variantId) {
+                let _reportVariants = this.reportVariants;
+                if (!_reportVariants.includes(variantId)) {
+                    PolymerUtils.getElementById("v" + variantId + "ButtonText").innerHTML = "Remove from Report";
+                    PolymerUtils.removeClass("v" + variantId + "Button", "btn-success");
+                    PolymerUtils.addClass("v" + variantId + "Button", "btn-danger");
+                    PolymerUtils.removeClass("v" + variantId + "ButtonIcon", "fa-check");
+                    PolymerUtils.addClass("v" + variantId + "ButtonIcon", "fa-times");
+
+                    _reportVariants.push(variantId);
+                } else {
+                    PolymerUtils.getElementById("v" + variantId + "ButtonText").innerHTML = "Add to Report";
+                    PolymerUtils.removeClass("v" + variantId + "Button", "btn-danger");
+                    PolymerUtils.addClass("v" + variantId + "Button", "btn-success");
+                    PolymerUtils.removeClass("v" + variantId + "ButtonIcon", "fa-times");
+                    PolymerUtils.addClass("v" + variantId + "ButtonIcon", "fa-check");
+
+                    let idx = _reportVariants.indexOf(variantId);
+                    _reportVariants.splice(idx, 1);
+                }
+                this.reportVariants = [];
+                this.reportVariants = _reportVariants;
             }
 
             _getFileMetricsArray() {
@@ -769,18 +799,14 @@
                 return val;
             }
 
+
+
             interpretationFormatter(value, row, index) {
-                let res = "<button type='button' class='btn btn-info btn-xs'>Add to Report</button>";
-
-                return res + "<br><span>Comments(" + row.comments.length + ")</span>"
-            }
-
-            reportFormatter(value, row, index) {
-                return "<input type='checkbox' onclick='onReportClick'>";
-            }
-
-            onReportClick() {
-                alert("click")
+                let res = `<button id="v${row.id}Button" type='button' class='btn btn-success btn-xs interpretation-add-to-report' data-variant-id='${row.id}'>
+                                <i id="v${row.id}ButtonIcon" class="fa fa-check interpretation-add-to-report" aria-hidden="true" data-variant-id='${row.id}'></i>
+                                <span id="v${row.id}ButtonText" class="interpretation-add-to-report" data-variant-id='${row.id}'>Add to Report</span>
+                           </button>`;
+                return res + "<br><br><span>Comments (" + row.comments.length + ")</span>"
             }
 
             _refreshTableColumns() {
@@ -891,14 +917,6 @@
                             formatter: this.interpretationFormatter,
                             halign: 'center'
 
-                        },
-                        {
-                            title: "Report",
-//                            field: "stateCheckBox",
-                            rowspan: 2,
-                            colspan: 1,
-                            formatter: this.reportFormatter,
-                            halign: 'center'
                         }
                     ],
                     []
