@@ -20,20 +20,40 @@ const interpretationJson = {
             name: "NA0001",
             version: 1,
             sex: "MALE",
+            affectationStatus:"AFFECTED",
+            ethnicity:"black",
             karyotypicSex: "XY",
             dateOfBirth: "14/02/1994",
             lifeStatus: "ALIVE",
             parentalConsanguinity: false,
             ontologyTerms: [
-                {id: "HP:0000478", name: "Abnormality of the eye", source: "HPO"}
+                {id: "HP:0000478", name: "Abnormality of the eye", source: "HPO"}, {
+                    "id": "H00-H59",
+                    "name": "VII. Diseases of the eye and adnexa ",
+                    "source": "ICD10"
+                },
+                {
+                    id: "HP:001233",
+                    name: "Aaaa",
+                    source: "HPO"
+                }
             ],
             samples: [
                 {
                     id: 113,
                     name: "NA0001",
                     somatic: false,
+                    type: "blood",
                     ontologyTerms: [
-                        {id: "HP:0000478", name: "Abnormality of the eye", source: "HPO"}
+                        {id: "HP:0000478", name: "Abnormality of the eye", source: "HPO"},  {
+                            id: "HP:001233",
+                            name: "Aaaa",
+                            source: "HPO"
+                        },  {
+                            "id": "H00-H59",
+                            "name": "VII. Diseases of the eye and adnexa ",
+                            "source": "ICD10"
+                        }
                     ],
                     description: "Sample description"
                 }
@@ -60,42 +80,67 @@ const interpretationJson = {
                 {
                     id: "ddddd",
                     name: "Ddddd",
-                    source: ""
+                    source: "HPO"
+                },
+                {
+                    "id": "H00-H59",
+                    "name": "VII. Diseases of the eye and adnexa ",
+                    "source": "ICD10"
                 }
             ],
             members: [
                 {
                     "id": 10, "version": 1, "name": "NA0001", sex: "male",
-                    father: {"id": 11, name: "NA0003", "version": 1},
-                    mother: {"id": 12, name: "NA0004", "version": 1},
-                    diseases: ["OMIM:056789", "HP:001233"],
+                    father: "NA0003",
+                    mother: "NA0004",
+                    diseases: [ {
+                        id: "OMIM:056789",
+                        name: "Cccc",
+                        source: "OMIM"
+                    }, {
+                        id: "HP:001233",
+                        name: "Aaaa",
+                        source: "HPO"
+                    }],
                     carrier: ["OMIM:056789"],
-                    parentalConsaguinity: true,
+                    parentalConsanguinity: true,
                     multiples: {"type": "mellizo", "siblings": ["pepe"]}
                 },
                 {
                     "id": 13, "version": 1, "name": "NA0002", sex: "female",
-                    father: {"id": 11, name: "NA0003", "version": 1},
-                    mother: {"id": 12, name: "NA0004", "version": 1},
+                    father: "NA0003",
+                    mother: "NA0004",
                     diseases: [],
-                    carrier: ["OMIM:056789"],
-                    parentalConsaguinity: true,
+                    carrier: [{
+                        id: "OMIM:056789",
+                        name: "Cccc",
+                        source: "OMIM"
+                    }],
+                    parentalConsanguinity: true,
                     multiples: {"type": "mellizo", "siblings": ["pepe"]}
                 },
                 {
                     "id": 11, "version": 1, "name": "NA0003", sex: "male", lifeStatus: "deceased",
-                    father: {"id": -1, "version": 1},
-                    mother: {"id": -1, "version": 1},
-                    diseases: ["HP:001233"],
+                    // father: {"id": -1, "version": 1},
+                    // mother: {"id": -1, "version": 1},
+                    diseases: [ {
+                        id: "HP:001233",
+                        name: "Aaaa",
+                        source: "HPO"
+                    }],
                     carrier: ["OMIM:056789"],
                     parentalConsaguinity: false,
                     multiples: {"type": "mellizo", "siblings": ["luis"]}
                 },
                 {
                     "id": 12, "version": 1, "name": "NA0004", sex: "female",
-                    father: {"id": -1, "version": 1},
-                    mother: {"id": -1, "version": 1},
-                    diseases: ["ddddd"],
+                    // father: {"id": -1, "version": 1},
+                    // mother: {"id": -1, "version": 1},
+                    diseases: [  {
+                        "id": "H00-H59",
+                        "name": "VII. Diseases of the eye and adnexa ",
+                        "source": "ICD10"
+                    }],
                     carrier: ["OMIM:056789"],
                     parentalConsaguinity: false,
                     multiples: {"type": "mellizo", "siblings": ["luis"]}

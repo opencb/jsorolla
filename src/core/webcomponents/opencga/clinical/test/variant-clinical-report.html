@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Title</title>
+        <link rel="stylesheet" href="../../../../../../../../node_modules/bootstrap/dist/css/bootstrap.min.css">
+        <!-- /build -->
+
+        <!-- build:css css/bootstrap-table.min.css -->
+        <link rel="stylesheet" href="../../../../../../../../node_modules/bootstrap-table/dist/bootstrap-table.min.css">
+        <!-- /build -->
+
+        <!-- build:css css/bootstrap-treeview.min.css -->
+        <link rel="stylesheet" href="../../../../../../../../node_modules/bootstrap-treeview/dist/bootstrap-treeview.min.css">
+        <!-- /build -->
+
+        <!-- build:css css/bootstrap-colorpicker.min.css -->
+        <link rel="stylesheet" href="../../../../../../../../node_modules/bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css">
+        <!-- /build -->
+
+        <!-- build:css css/bootstrap-datetimepicker.min.css -->
+        <link rel="stylesheet" href="../../../../../../../../node_modules/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css">
+        <!-- /build -->
+
+        <!-- build:css css/font-awesome.min.css -->
+        <link rel="stylesheet" href="../../../../../../../../node_modules/font-awesome/css/font-awesome.min.css">
+        <!-- /build -->
+
+        <!-- build:css css/jquery.qtip.min.css -->
+        <link rel="stylesheet" href="../../../../../../../../node_modules/qtip2/dist/jquery.qtip.min.css">
+
+        <script type="text/javascript" src="../../../../../../../../node_modules/@webcomponents/webcomponentsjs/webcomponents-lite.js"></script>
+        <script type="text/javascript" src="../../../../../../../../node_modules/jquery/dist/jquery.min.js"></script>
+        <script type="text/javascript" src="../../../../../../../../node_modules/underscore/underscore-min.js"></script>
+        <script type="text/javascript" src="../../../../../../../../node_modules/backbone/backbone-min.js"></script>
+        <script type="text/javascript" src="../../../../../../../../node_modules/moment/min/moment.min.js"></script>
+        <script type="text/javascript" src="../../../../../../../../node_modules/highcharts/highcharts.js"></script>
+        <script type="text/javascript" src="../../../../../../../../node_modules/qtip2/dist/jquery.qtip.min.js"></script>
+        <script type="text/javascript" src="../../../../../../../../node_modules/urijs/src/URI.min.js"></script>
+        <script type="text/javascript" src="../../../../../../../../node_modules/cookies-js/dist/cookies.min.js"></script>
+        <script type="text/javascript" src="../../../../../../../../node_modules/crypto-js/core.js"></script>
+        <script type="text/javascript" src="../../../../../../../../node_modules/crypto-js/sha256.js"></script>
+        <script type="text/javascript" src="../../../../utilsNew.js"></script>
+        <script type="text/javascript" src="../../../../utils.js"></script>
+        <script type="text/javascript" src="../../../PolymerUtils.js"></script>
+        <script type="text/javascript" src="interpretation.js"></script>
+        <script type="text/javascript" src="../../../../clients/cellbase-client.js"></script>
+        <script type="text/javascript" src="../../../../clients/rest-client.js"></script>
+        <script src="../../../../../../../../src/conf/config.js"></script>
+        <script src="../../../../../../../../src/conf/tools.js"></script>
+        <script type="text/javascript" src="../../../../svg.js"></script>
+        <script type="text/javascript" src="../../../../visualisation/pedigree.js"></script>
+
+
+        <!--<script type="text/javascript" src="../../../../../../../../node_modules/jspdf/dist/jspdf.min.js"></script>-->
+        <!--<script type="text/javascript" src="../../../../../../../../node_modules/html2pdf/src/html2pdf.js"></script>-->
+
+        <script type="text/javascript" src="../../../../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="../../../../../../../../node_modules/bootstrap-table/dist/bootstrap-table.min.js"></script>
+        <script type="text/javascript" src="../../../../../../../../node_modules/bootstrap-treeview/dist/bootstrap-treeview.min.js"></script>
+        <script type="text/javascript" src="../../../../../../../../node_modules/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min.js"></script>
+        <script type="text/javascript" src="../../../../../../../../node_modules/bootstrap-validator/dist/validator.min.js"></script>
+        <script type="text/javascript" src="../../../../../../../../node_modules/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
+        <link rel="import" href="../../../../../../../../node_modules/@polymer/polymer/polymer-element.html">
+        <link rel="import" href="../../../../../../../../node_modules/@polymer/polymer/lib/elements/dom-repeat.html">
+        <link rel="import" href="../../../../../../../../node_modules/@polymer/polymer/lib/elements/dom-if.html">
+        <link rel="import" href="../../../../../../../../node_modules/@polymer/polymer/lib/elements/array-selector.html">
+        <link rel="import" href="../../../../../../../../node_modules/@polymer/polymer/lib/elements/custom-style.html">
+
+        <link rel="import" href="../variant-report-view.html">
+
+
+    </head>
+<body>
+<dom-module id="my-element-in">
+    <template>
+
+        <variant-report-view study="{{study}}" config="{{config.tools.clinical}}"
+                             title="{{title}}"
+                             interpretation="{{interpretationJson}}"></variant-report-view>
+    </template>
+    <script>
+        HTMLImports.whenReady(function() {
+            // define the element's class element
+            class MyElementIn extends Polymer.Element {
+
+                constructor(){
+                    super();
+
+//                    this.prefix = "ff" + Utils.randomString(6);
+                    this.interpretationJson = interpretationJson;
+
+                }
+
+                static get is() { return 'my-element-in'; }
+
+                static get properties(){
+                    return {
+
+                    }
+                }
+
+                _attachDom(dom) {
+                    this.appendChild(dom);
+                }
+
+                ready() {
+                    super.ready();
+                    this.config = application;
+                    this.set('config.tools', tools);
+                    this.study = {
+                        "id": 2,
+                        "name": "1000 Genomes Project - Phase 3",
+                        "alias": "1kG_phase3",
+                    };
+
+                    this.project = {
+                        "id": 1,
+                        "name": "Reference studies GRCh37",
+                        "alias": "test@reference_grch37",
+                    };
+                }
+
+                // Element class can define custom element reactions
+                connectedCallback() {
+                    super.connectedCallback();
+
+                    console.log('my-element created!');
+                }
+            }
+
+            customElements.define(MyElementIn.is, MyElementIn);
+        });
+    </script>
+</dom-module>
+
+<my-element-in></my-element-in>
+
+</body>
+</html>
