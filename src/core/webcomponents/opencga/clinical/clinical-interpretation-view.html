@@ -6,9 +6,6 @@
 
     <template>
         <style include="jso-styles">
-            .containerDiv {
-                margin-top: 20px;
-            }
             .clinical-bottom-tab-title {
                 font-size: 115%;
                 font-weight: bold;
@@ -18,7 +15,7 @@
             }
         </style>
 
-        <div class="containerDiv">
+        <div class="container-fluid">
             <div class="row">
 
                 <div id="{{prefix}}mainIntepretation" class="col-xs-10 col-md-offset-1 col-sm-10 col-md-10 col-lg-10 toppad">
@@ -225,21 +222,6 @@
                                 <!--<div class="row">-->
                                 <div class="col-md-12" style="padding: 5px 0px 15px 0px">
                                     <div class="btn-toolbar" role="toolbar" aria-label="..." style="float: right">
-                                        <!--<div class="btn-group" role="group" aria-label="..." style="padding: 10px 10px">-->
-                                        <!--<label style="padding-top: 8px">Filters</label>-->
-                                        <!--</div>-->
-                                        <div class="btn-group btn-group-sm" role="group" aria-label="..." style="padding: 10px 0px">
-                                            <button type="button" class="btn btn-default btn-warning gene-ct-buttons active" on-click="updateQuery">
-                                                All
-                                            </button>
-                                            <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
-                                                Missense
-                                            </button>
-                                            <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
-                                                LoF
-                                            </button>
-                                        </div>
-
                                         <div class="btn-group btn-group-sm" role="group" aria-label="..." style="padding: 10px 0px">
                                             <button type="button" class="btn btn-default btn-warning gene-ct-buttons active" on-click="updateQuery">
                                                 All
@@ -252,6 +234,18 @@
                                             </button>
                                             <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
                                                 SV
+                                            </button>
+                                        </div>
+
+                                        <div class="btn-group btn-group-sm" role="group" aria-label="..." style="padding: 10px 0px">
+                                            <button type="button" class="btn btn-default btn-warning gene-ct-buttons active" on-click="updateQuery">
+                                                All
+                                            </button>
+                                            <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
+                                                Missense
+                                            </button>
+                                            <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
+                                                LoF
                                             </button>
                                         </div>
 
