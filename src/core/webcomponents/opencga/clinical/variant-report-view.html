@@ -193,7 +193,7 @@
                     </div>
                 </div>
                 <div style="margin: 10px 5px 15px 50px" class="sample-information col-sm-12"
-                     id="{{prefix}}analysisInformationFamilyDiv" hidden>
+                     id="{{prefix}}analysisInformationFamilyDiv">
                     <h4> Family </h4>
                     <div style="margin: 10px 0px 15px 5px" class="analysis-information col-sm-10">
                         <div>
@@ -337,9 +337,14 @@
                     variables: {
                         type: Array
                     },
-                    analysisSelected: {
+//                    analysisSelected: {
+//                        type: Object,
+//                        observer: 'loadData'
+//                    },
+                    interpretation: {
                         type: Object,
                         observer: 'loadData'
+
                     }
                 }
             }
@@ -347,6 +352,7 @@
 
             constructor() {
                 super();
+                this.prefix = "repView" + Utils.randomString(6);
             }
 
             _attachDom(dom) {
@@ -356,12 +362,17 @@
             ready() {
                 super.ready();
                 if (UtilsNew.isEmpty(this.prefix)) {
-                    this.prefix = "repView" + Utils.randomString(6);
                 }
 
                 let date = new Date();
                 this.requestDate = date.toLocaleString();
                 this.fitlerPrioritization = {};
+
+            }
+
+            connectedCallback(){
+                super.connectedCallback();
+                console.log(this.interpretation);
             }
 
             loadData() {
@@ -369,74 +380,78 @@
 
                 // Remove content of all elements here before rendering -> TO BE DONE
 
-                if (UtilsNew.isNotUndefined(this.analysisSelected.analysis)) {
+                if (UtilsNew.isNotUndefined(this.interpretation.clinicalAnalysis)) {
 
                     // Analysis ID and analysis resume
-                    PolymerUtils.setPropertyById(this.prefix + "analysisID", "value", this.analysisSelected.analysisID);
-                    PolymerUtils.setPropertyById(this.prefix + "analysisType", "value", this.analysisSelected.analysisType);
-                    PolymerUtils.setPropertyById(this.prefix + "date", "value", this.analysisSelected.analysisDate);
-                    //this.analysisID = this.analysisSelected.analysisID;
-                    // Sample Information
-                    PolymerUtils.setPropertyById(this.prefix + "IndividualID", "value", this.analysisSelected.analysis.proband.name);
-                    PolymerUtils.setPropertyById(this.prefix + "AffectationStatus", "value", this.analysisSelected.analysis.proband.affectationStatus);
-                    PolymerUtils.setPropertyById(this.prefix + "BirthYear", "value", this.analysisSelected.analysis.proband.dateOfBirth);
-                    PolymerUtils.setPropertyById(this.prefix + "Ethnicity", "value", this.analysisSelected.analysis.proband.ethnicity);
-                    PolymerUtils.setPropertyById(this.prefix + "ChromosomalGender", "value", this.analysisSelected.analysis.proband.karyotypicSex);
-                    PolymerUtils.setPropertyById(this.prefix + "lifeStatus", "value", this.analysisSelected.analysis.proband.lifeStatus);
-                    PolymerUtils.setPropertyById(this.prefix + "ParentalConsanguinity", "value", this.analysisSelected.analysis.proband.parentalConsanguinity);
-                    PolymerUtils.setPropertyById(this.prefix + "birthPlace", "value", this.analysisSelected.analysis.proband.population.name);
-                    PolymerUtils.setPropertyById(this.prefix + "SampleID", "value", this.analysisSelected.analysis.proband.samples[0].name);
+                    PolymerUtils.setPropertyById(this.prefix + "analysisID", "value", this.interpretation.clinicalAnalysis.id);
+                    PolymerUtils.setPropertyById(this.prefix + "analysisType", "value", this.interpretation.clinicalAnalysis.type);
+                    PolymerUtils.setPropertyById(this.prefix + "date", "value",this.interpretation.clinicalAnalysis.creationDate);
+                    this.analysisID = this.interpretation.clinicalAnalysis.id;
+//                    // Sample Information
+                    PolymerUtils.setPropertyById(this.prefix + "IndividualID", "value", this.interpretation.clinicalAnalysis.subject.name);
+                    PolymerUtils.setPropertyById(this.prefix + "AffectationStatus", "value",  this.interpretation.clinicalAnalysis.subject.affectationStatus);
+                    PolymerUtils.setPropertyById(this.prefix + "BirthYear", "value",  this.interpretation.clinicalAnalysis.subject.dateOfBirth);
+                    PolymerUtils.setPropertyById(this.prefix + "Ethnicity", "value", this.interpretation.clinicalAnalysis.subject.ethnicity);
+                    PolymerUtils.setPropertyById(this.prefix + "ChromosomalGender", "value",  this.interpretation.clinicalAnalysis.subject.karyotypicSex);
+                    PolymerUtils.setPropertyById(this.prefix + "lifeStatus", "value",  this.interpretation.clinicalAnalysis.subject.lifeStatus);
+                    PolymerUtils.setPropertyById(this.prefix + "ParentalConsanguinity", "value",  this.interpretation.clinicalAnalysis.subject.parentalConsanguinity);
+//                    PolymerUtils.setPropertyById(this.prefix + "birthPlace", "value", this.analysisSelected.analysis.proband.population.name);
+                    PolymerUtils.setPropertyById(this.prefix + "SampleID", "value",  this.interpretation.clinicalAnalysis.subject.samples[0].name);
+//
 
-                    PolymerUtils.innerHTML(this.prefix + "HPO", this.analysisSelected.analysis.proband.ontologyTerms[0].name);
-                    PolymerUtils.innerHTML(this.prefix + "Diagnosis", this.analysisSelected.analysis.proband.ontologyTerms[1].name);
-
-                    PolymerUtils.setPropertyById(this.prefix + "cellLine", "value", this.analysisSelected.analysis.proband.samples[0].somatic);
-                    PolymerUtils.setPropertyById(this.prefix + "sampleType", "value", this.analysisSelected.analysis.proband.samples[0].type);
-                    PolymerUtils.setPropertyById(this.prefix + "testYear", "value", this.analysisSelected.analysis.proband.samples[0].annotationSets[0].annotations[0].value);
-                    PolymerUtils.setPropertyById(this.prefix + "physician", "value", this.analysisSelected.analysis.proband.samples[0].annotationSets[0].annotations[1].value);
-                    PolymerUtils.setPropertyById(this.prefix + "hospital", "value", this.analysisSelected.analysis.proband.samples[0].annotationSets[0].annotations[2].value);
-                    PolymerUtils.setPropertyById(this.prefix + "testAge", "value", this.analysisSelected.analysis.proband.samples[0].annotationSets[0].annotations[3].value);
-
-                    PolymerUtils.innerHTML(this.prefix + "technicalData", this.analysisSelected.analysis.proband.samples[0].annotationSets[0].annotations[4].value);
+                      let HPODiseases = this.interpretation.clinicalAnalysis.subject.ontologyTerms.filter((hpo) =>{
+                            return hpo.source === "HPO";
+                          }).map((hpo) => hpo.name).join(",");
+                    PolymerUtils.innerHTML(this.prefix + "HPO",  HPODiseases);
+//                    PolymerUtils.innerHTML(this.prefix + "Diagnosis", this.analysisSelected.analysis.proband.ontologyTerms[1].name);
+//
+                    PolymerUtils.setPropertyById(this.prefix + "cellLine", "value", this.interpretation.clinicalAnalysis.subject.samples[0].somatic);
+                    PolymerUtils.setPropertyById(this.prefix + "sampleType", "value", this.interpretation.clinicalAnalysis.subject.samples[0].type);
+//                    PolymerUtils.setPropertyById(this.prefix + "testYear", "value", this.interpretation.clinicalAnalysis.subject.samples[0].annotationSets[0].annotations[0].value);
+//                    PolymerUtils.setPropertyById(this.prefix + "physician", "value", this.interpretation.clinicalAnalysis.subject.samples[0].annotationSets[0].annotations[1].value);
+//                    PolymerUtils.setPropertyById(this.prefix + "hospital", "value", this.interpretation.clinicalAnalysis.subject.samples[0].annotationSets[0].annotations[2].value);
+//                    PolymerUtils.setPropertyById(this.prefix + "testAge", "value", this.interpretation.clinicalAnalysis.subject.samples[0].annotationSets[0].annotations[3].value);
+//                    PolymerUtils.innerHTML(this.prefix + "technicalData", this.analysisSelected.analysis.proband.samples[0].annotationSets[0].annotations[4].value);
 
                     // Family information (pedigree) -> Only for FAMILY, TRIO or DUO
-                    if (this.analysisSelected.analysisType === "TRIO" || this.analysisSelected.analysisType === "DUO" || this.analysisSelected.analysisType === "FAMILY") {
+                    if (this.interpretation.clinicalAnalysis.type === "TRIO" || this.interpretation.clinicalAnalysis.type=== "DUO" || this.interpretation.clinicalAnalysis.type === "FAMILY") {
                         let querySelector = PolymerUtils.getElementById(this.prefix + "PedigreeView");
                         if (querySelector.hasChildNodes()) {
                             let item = querySelector.childNodes[0];
                             querySelector.removeChild(item);
                         }
-                        querySelector.appendChild(this.analysisSelected.pedigree);
+
+                        querySelector.appendChild(this.pedigreeRender(this.interpretation.clinicalAnalysis.family));
                     }
                     // Prioritization information (variants)
-                    let _prioritization = this.analysisSelected.analysis.family.children[0].samples[0].attributes.PRIORITIZATION;
-                    let _dataTable = [];
-                    let _query = undefined;
-                    if (UtilsNew.isNotUndefined(_prioritization)) {
-                        _dataTable = this._getVariantsInfo(_prioritization.variants);
-                        _query = _prioritization.query;
-                    }
-
-                    let _this = this;
-                    $(PolymerUtils.getElementById(this.prefix + "variantTable")).bootstrapTable('destroy');
-                    $(PolymerUtils.getElementById(this.prefix + "variantTable")).bootstrapTable({
-                        columns: _this._getTableColumns(),
-                        data: _dataTable
-                    });
-
-                    // Filter information
-                    if (UtilsNew.isNotUndefined(_query)) {
-                        let _filters = $.map(_query, function (value, key) {
-                            if (value !== "") {
-                                return [{id: key, value: value}];
-                            }
-                        });
-                        this.filterPrioritization = _filters;
-                        this.filters = true;
-                    } else {
-                        this.filterPrioritization = "No filters were selected";
-                        this.filters = false;
-                    }
+//                    let _prioritization = this.analysisSelected.analysis.family.children[0].samples[0].attributes.PRIORITIZATION;
+//                    let _dataTable = [];
+//                    let _query = undefined;
+//                    if (UtilsNew.isNotUndefined(_prioritization)) {
+//                        _dataTable = this._getVariantsInfo(_prioritization.variants);
+//                        _query = _prioritization.query;
+//                    }
+//
+//                    let _this = this;
+//                    $(PolymerUtils.getElementById(this.prefix + "variantTable")).bootstrapTable('destroy');
+//                    $(PolymerUtils.getElementById(this.prefix + "variantTable")).bootstrapTable({
+//                        columns: _this._getTableColumns(),
+//                        data: _dataTable
+//                    });
+//
+//                    // Filter information
+//                    if (UtilsNew.isNotUndefined(_query)) {
+//                        let _filters = $.map(_query, function (value, key) {
+//                            if (value !== "") {
+//                                return [{id: key, value: value}];
+//                            }
+//                        });
+//                        this.filterPrioritization = _filters;
+//                        this.filters = true;
+//                    } else {
+//                        this.filterPrioritization = "No filters were selected";
+//                        this.filters = false;
+//                    }
 
 
                     // Show divs
@@ -601,6 +616,16 @@
                     ]
                 ];
                 return this._columns;
+            }
+
+            pedigreeRender(body) {
+                // Remove SVG before render new one
+
+
+                // Render new Pedigree
+                let pedigree = new Pedigree(body);
+                this.svg = pedigree.render();
+                return this.svg;
             }
 
         }

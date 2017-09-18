@@ -1076,36 +1076,36 @@
             onFamilyChange(e, family) {
 //                console.log("FAMILY - Browser Filter")
 //                debugger
-                if (UtilsNew.isNotUndefinedOrNull(family)) {
-                    // First we prepare the family info in a helper object
-                    let sampleInfo = {};
-                    if (typeof family.pedigree.father !== "undefined") {
-                        let father = family.pedigree.father;
-                        sampleInfo[father.name] = {role: "father", title: father.name, affected: father.affected};
-                    }
-                    if (typeof family.pedigree.mother !== "undefined") {
-                        let mother = family.pedigree.mother;
-                        sampleInfo[mother.name] = {role: "mother", title: mother.name, affected: mother.affected};
-                    }
-
-                    for (let child of family.pedigree.children) {
-                        let role = child.gender === "male" ? "son" : "daughter";
-                        sampleInfo[child.name] = {role: role, title: child.name, affected: child.affected};
-                    }
-
-                    // Second
-                    if (UtilsNew.isNotUndefinedOrNull(this.samples)) {
-                        for (let sample of this.samples) {
-                            if (typeof sampleInfo[sample.name] === "undefined") {
-                                PolymerUtils.getElementById(this.prefix + sample.name + "RowName").innerHTML = "<span>" + sample.name + "</span>";
-                            } else {
-                                let affectationColor = (sampleInfo[sample.name].affected) ? "red": "blue";
-                                PolymerUtils.getElementById(this.prefix + sample.name + "RowName").innerHTML
-                                    = sample.name + "<span style='color:" + affectationColor + "'>" + " (" + sampleInfo[sample.name].role + ")" + "</span>";
-                            }
-                        }
-                    }
-                }
+//                if (UtilsNew.isNotUndefinedOrNull(family)) {
+//                    // First we prepare the family info in a helper object
+//                    let sampleInfo = {};
+//                    if (typeof family.pedigree.father !== "undefined") {
+//                        let father = family.pedigree.father;
+//                        sampleInfo[father.name] = {role: "father", title: father.name, affected: father.affected};
+//                    }
+//                    if (typeof family.pedigree.mother !== "undefined") {
+//                        let mother = family.pedigree.mother;
+//                        sampleInfo[mother.name] = {role: "mother", title: mother.name, affected: mother.affected};
+//                    }
+//
+//                    for (let child of family.pedigree.children) {
+//                        let role = child.gender === "male" ? "son" : "daughter";
+//                        sampleInfo[child.name] = {role: role, title: child.name, affected: child.affected};
+//                    }
+//
+//                    // Second
+//                    if (UtilsNew.isNotUndefinedOrNull(this.samples)) {
+//                        for (let sample of this.samples) {
+//                            if (typeof sampleInfo[sample.name] === "undefined") {
+//                                PolymerUtils.getElementById(this.prefix + sample.name + "RowName").innerHTML = "<span>" + sample.name + "</span>";
+//                            } else {
+//                                let affectationColor = (sampleInfo[sample.name].affected) ? "red": "blue";
+//                                PolymerUtils.getElementById(this.prefix + sample.name + "RowName").innerHTML
+//                                    = sample.name + "<span style='color:" + affectationColor + "'>" + " (" + sampleInfo[sample.name].role + ")" + "</span>";
+//                            }
+//                        }
+//                    }
+//                }
             }
 
 

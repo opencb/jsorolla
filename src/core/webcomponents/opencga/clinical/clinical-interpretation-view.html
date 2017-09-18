@@ -1,4 +1,3 @@
-
 <link rel="import" href="../../../webcomponents/cellbase/variation/cellbase-variantannotation-view.html">
 <link rel="import" href="../variant/variant-beacon-network.html">
 <link rel="import" href="../variant/variant-genome-browser.html">
@@ -10,12 +9,10 @@
             .containerDiv {
                 margin-top: 20px;
             }
-
             .clinical-bottom-tab-title {
                 font-size: 115%;
                 font-weight: bold;
             }
-
             .file-metrics-table-FILTER {
                 border-bottom: 2px solid #ccc;
             }
@@ -227,7 +224,7 @@
                                 <div class="col-md-12" style="padding: 5px 0px 15px 0px">
                                     <div class="btn-toolbar" role="toolbar" aria-label="..." style="float: right">
                                         <!--<div class="btn-group" role="group" aria-label="..." style="padding: 10px 10px">-->
-                                            <!--<label style="padding-top: 8px">Filters</label>-->
+                                        <!--<label style="padding-top: 8px">Filters</label>-->
                                         <!--</div>-->
                                         <div class="btn-group btn-group-sm" role="group" aria-label="..." style="padding: 10px 0px">
                                             <button type="button" class="btn btn-default btn-warning gene-ct-buttons active" on-click="updateQuery">
@@ -419,17 +416,13 @@
 
     <script>
         class ClinicalInterpretationView extends Polymer.Element {
-
             constructor() {
                 super();
-
                 this.prefix = "clinical-interpretation-" + Utils.randomString(6);
             }
-
             static get is() {
                 return "clinical-interpretation-view";
             }
-
             static get properties() {
                 return {
                     title: {
@@ -459,31 +452,24 @@
                     }
                 };
             }
-
             static get observers() {
                 return [
                     'projectStudyObtained(project, study)'
                 ]
             }
-
             ready() {
                 super.ready();
-
                 this._summaryCollapsed = false;
 //                this.samples = ["NA12877"];
                 this.variantObj = {};
                 this.reportVariants = [];
             }
-
             _attachDom(dom) {
                 this.appendChild(dom);
             }
-
             connectedCallback() {
                 super.connectedCallback();
-
                 this.render();
-
                 let table = $('#' + this.prefix + 'mainTable');
                 let _this = this;
                 table.on('expand-row.bs.table', function (e, index, row, $detail) {
@@ -499,7 +485,6 @@
                     e.stopPropagation();
                 }, true));
             }
-
             _summaryOnClick() {
                 if (this._summaryCollapsed) {
                     $("#" + this.prefix + "SummaryCollapseIcon").removeClass("fa-plus-square-o").addClass("fa-minus-square-o");
@@ -537,9 +522,7 @@
                 if (this.variantObj === undefined || this.variantObj.studies === undefined) {
                     return [];
                 }
-
                 let files = this.variantObj.studies[0].files;
-
                 // Let's find all the existing attributes
                 let attributesSet = new Set();
                 for (let file of files) {
@@ -551,7 +534,6 @@
                 }
                 let attributesArray = Array.from(attributesSet.values()).sort();
                 attributesArray.unshift("QUAL", "FILTER");
-
                 // We store the values as: result = [{name: "AC", values: [1, 2, 3, 4]}]
                 let result = [];
                 for (let attr of attributesArray) {
@@ -561,11 +543,8 @@
                     }
                     result.push(tmp);
                 }
-
                 return result;
             }
-
-
             detailFormatter(value, row) {
 //                debugger
                 let ctHtml = [];
@@ -593,13 +572,11 @@
                     x += "</span>";
                     ctHtml.push(x);
                 }
-
                 let commentsHtml = [];
                 for (let comment of row.comments) {
                     let x = `<span class='col-md-12'>${comment.comment} (${comment.author}, ${comment.date})</span><br>`;
                     commentsHtml.push(x);
                 }
-
                 console.log(row.annotation.consequenceTypes)
                 let html = `<div class="col-md-12" style="padding: 2px 0px">
                                 <div class="col-md-2" style="padding: 0px 5px">
@@ -627,14 +604,11 @@
                             </div>`;
                 return html;
             }
-
             render() {
                 this.variant = ""; // Empty the variant every time the grid is loaded
-
                 this.from = 1;
                 this.to = Math.min(this.interpretation.reportedVariants.length, 10);
                 this.numTotalResultsText = this.interpretation.reportedVariants.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-
                 console.log(this.interpretation);
                 this.cols = this._refreshTableColumns();
                 this._genomeBrowserActive = false;
@@ -652,7 +626,6 @@
                     onClickRow: function (row, $element) {
                         $('.success').removeClass('success');
                         $($element).addClass('success');
-
                         _this._onSelectVariant(row);
                         _this._genomeBrowserActive = true;
                         _this.regionGenomeBrowser = new Region({chromosome: row.chromosome, start: row.start, end: row.end});
@@ -665,7 +638,6 @@
                     }
                 });
             }
-
             _onSelectVariant(row) {
                 if (typeof row !== "undefined") {
 //                    let _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
@@ -674,8 +646,6 @@
                     this.dispatchEvent(new CustomEvent('selectvariant', {detail: {id: this.variant, variant: row}, bubbles: true, composed: true}));
                 }
             }
-
-
             projectStudyObtained(project, study) {
                 if (typeof this.project !== "undefined" && this.project.alias !== "" && typeof this.study !== "undefined" && this.study.alias !== "") {
                     this.hashFragmentCredentials = {
@@ -684,8 +654,6 @@
                     };
                 }
             }
-
-
             variantIdFormatter(value, row, index) {
                 let res = "";
                 if (UtilsNew.isNotUndefinedOrNull(row.id)) {
@@ -700,7 +668,6 @@
                 }
                 return res;
             }
-
             geneFormatter(value, row, index) {
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
                     if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined" && row.annotation.consequenceTypes.length > 0) {
@@ -723,28 +690,24 @@
                 }
                 return '-';
             }
-
-
             geneAnnotationFormatter(value, row, index) {
                 let val = "<span style='color: red'>missense_variant</span><br>c123T>C";
                 return val;
             }
-
             prediciotnFormatter(value, row, index) {
                 let res = "";
                 if (UtilsNew.isNotUndefinedOrNull(row.reportEvents)){
                     row.reportEvents.forEach((reportEvent) => {
                         if (UtilsNew.isNotUndefinedOrNull(reportEvent.prediction)) {
-                            res += "<label>" + reportEvent.prediction + "</label>";
-                        }
-                        if (UtilsNew.isNotUndefinedOrNull(reportEvent.score)) {
-                            res += " (<label>" + reportEvent.score + "</label>)";
-                        }
-                    });
+                        res += "<label>" + reportEvent.prediction + "</label>";
+                    }
+                    if (UtilsNew.isNotUndefinedOrNull(reportEvent.score)) {
+                        res += " (<label>" + reportEvent.score + "</label>)";
+                    }
+                });
                 }
                 return res;
             }
-
             zigosityFormatter(value, row, index) {
                 let res = "";
                 if (UtilsNew.isNotUndefinedOrNull(row.studies)) {
@@ -775,7 +738,6 @@
                 }
                 return res;
             }
-
             fileMetricsFormatter(value, row, index) {
                 let val;
                 if (row !== undefined && row.studies !== undefined && row.studies.length > 0) {
@@ -799,19 +761,16 @@
                 return val;
             }
 
-
-
             interpretationFormatter(value, row, index) {
                 let res = `<button id="v${row.id}Button" type='button' class='btn btn-success btn-xs interpretation-add-to-report' data-variant-id='${row.id}'>
                                 <i id="v${row.id}ButtonIcon" class="fa fa-check interpretation-add-to-report" aria-hidden="true" data-variant-id='${row.id}'></i>
                                 <span id="v${row.id}ButtonText" class="interpretation-add-to-report" data-variant-id='${row.id}'>Add to Report</span>
                            </button>`;
-                return res + "<br><br><span>Comments (" + row.comments.length + ")</span>"
+                return res + "<br><br><span>Comments (" + row.comments.length + ")</span>";
             }
-
+            
             _refreshTableColumns() {
                 this.cols = this._createDefaultColumns();
-
                 if (typeof this.cols !== "undefined" && typeof this.interpretation.clinicalAnalysis.family !== "undefined"
                     && Object.keys(this.interpretation.clinicalAnalysis.family.members).length > 0) {
                     let zigosityIdx = 5;
@@ -822,7 +781,6 @@
                         colspan: members.length,
                         halign: 'center'
                     });
-
                     for(let i = 0; i < members.length; i++) {
                         this.cols[1].splice(i, 0, {
                             title: members[i].name,
@@ -839,7 +797,6 @@
                 }
                 return this.cols;
             }
-
             _createDefaultColumns() {
                 return [
                     [
@@ -874,7 +831,6 @@
                             colspan: 1,
                             formatter: this.geneAnnotationFormatter,
                             halign: 'center'
-
                         },
                         {
                             title: "Prediction",
@@ -890,7 +846,6 @@
                             rowspan: 2,
                             colspan: 1,
                             halign: 'center'
-
                         },
                         {
                             title: "File metrics",
@@ -899,7 +854,6 @@
                             colspan: 1,
                             formatter: this.fileMetricsFormatter,
                             halign: 'center'
-
                         },
                         {
                             title: "Custom Annotations",
@@ -907,7 +861,6 @@
                             rowspan: 2,
                             colspan: 1,
                             halign: 'center'
-
                         },
                         {
                             title: "Interpretation",
@@ -916,7 +869,6 @@
                             colspan: 1,
                             formatter: this.interpretationFormatter,
                             halign: 'center'
-
                         }
                     ],
                     []
@@ -935,9 +887,7 @@
                     };
                 });
             }
-
         }
-
         customElements.define(ClinicalInterpretationView.is, ClinicalInterpretationView);
     </script>
 </dom-module>

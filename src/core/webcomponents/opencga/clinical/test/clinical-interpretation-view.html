@@ -67,17 +67,12 @@
         HTMLImports.whenReady(function() {
             // define the element's class element
             class MyElementIn extends Polymer.Element {
-
                 constructor(){
                     super();
-
 //                    this.prefix = "ff" + Utils.randomString(6);
                     this.interpretationJson = interpretationJson;
-
                 }
-
                 static get is() { return 'my-element-in'; }
-
                 static get properties(){
                     return {
                         interpretation: {
@@ -85,16 +80,13 @@
                         }
                     }
                 }
-
                 _attachDom(dom) {
                     this.appendChild(dom);
                 }
-
                 ready() {
                     super.ready();
 //                    this.config = application;
 //                    this.config.cellbase = cellbase;
-
                     this.selectedTermsHPO = [];
 
                     this.opencgaClientConfig = new OpenCGAClientConfig("bioinfodev.hpc.cam.ac.uk/hgva-1.2.0-dev", "v1", true, "clinical_interpretation_test");
@@ -664,15 +656,12 @@
 //                        "attributes": {}
 //                    };
                 }
-
                 // Element class can define custom element reactions
                 connectedCallback() {
                     super.connectedCallback();
-
                     console.log('my-element created!');
                 }
             }
-
             customElements.define(MyElementIn.is, MyElementIn);
         });
     </script>

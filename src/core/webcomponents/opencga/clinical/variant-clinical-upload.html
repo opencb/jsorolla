@@ -488,13 +488,25 @@
                         </div>
                         <div class="col-sm-6" style="overflow-y: auto; height:400px;">
                             <input id="{{prefix}}autoInput" list="icd_browser" class$="form-control {{prefix}}TextInput"
-                                   placeholder="ICD-10 term">
+                                   placeholder="ICD-10 term" on-change="selectTermICDDatalist" on-input="selectTermICDDatalist">
                             <datalist id="icd_browser" style="height:auto; max-height:100px; overflow-x:hidden;">
                                 <template is="dom-repeat" items="{{icdTerms}}">
                                     <option value="{{item}}">
                                 </template>
 
                             </datalist>
+                            <template is="dom-if" if="{{selectedTermICD}}">
+                                <ul class="list-group infoHpo">
+                                    <li class="list-group-item"><strong>Term: </strong>{{selectedTermICD}}</li>
+                                    <li class="list-group-item">  <button type="button" class="btn btn-info" on-click="addSelectedTermToListICD" data-selected-term$="{{selectedTermICD}}">Add Term</button>
+                                    </li>
+                                </ul>
+                            </template>
+                            <ul class="list-group">
+                                <template is="dom-repeat" items="{{listCurrentSelectedICD}}">
+                                    <li class="list-group-item">{{item}}) <button type="button" class="btn danger" on-click="deletedTermFromListICD" data-selected-term$="{{item}}">X</button></li>
+                                </template>
+                            </ul>
                         </div>
                         <div class="col-sm-6" style="overflow-y: auto; height:400px;">
                             <div id="{{prefix}}ICDtree"></div>
@@ -639,6 +651,11 @@
                 this.loadICDEditor();
             }
 
+
+            selectTermICDDatalist(e){
+                this.selectedTermICD = e.target.value;
+
+            }
             updateVariableSets() {
                 this.variables = [];
                 let _this = this;
@@ -766,18 +783,44 @@
                     data: ICD_10,
                     onNodeSelected: function (event, node) {
                         //_this.$$("#" + _this.prefix + "autoInput").value=node.text;
-                        PolymerUtils.setPropertyById(_this.prefix + "autoInput", 'value', node.text);
-
+                        PolymerUtils.setValue(_this.prefix + "autoInput", node.text);
+                        _this.selectedTermICD = node.text;
                     },
                     onNodeUnselected: function (event, node) {
                         //_this.$$("#" + _this.prefix + "autoInput").value="";
-                        PolymerUtils.setPropertyById(_this.prefix + "autoInput", 'value', '');
+                        PolymerUtils.setValue(_this.prefix + "autoInput", '');
                     },
                 });
 
                 $(PolymerUtils.getElementById(this.prefix + "ICDtree")).treeview('collapseAll', {silent: true});
 
 
+            }
+
+            addSelectedTermToListICD(e){
+                let selectedTerm = e.target.getAttribute("data-selected-term");
+                if(UtilsNew.isUndefinedOrNull(this.listCurrentSelectedICD)){
+                    this.listCurrentSelectedICD = [];
+                }
+
+                let containsSelectedElement = this.listCurrentSelectedICD.find((element) => {
+                        return element === selectedTerm;
+                });
+
+                if(UtilsNew.isUndefinedOrNull(containsSelectedElement)) {
+                    selectedTerm.split("(")
+                    this.push("listCurrentSelectedICD", selectedTerm);
+                }
+            }
+
+            deletedTermFromListICD(e){
+                let deletedTerm = e.target.getAttribute("data-selected-term");
+
+                let listWithoutDeletedTerm = this.listCurrentSelectedICD.filter((element) => {
+                        return element !== deletedTerm;
+                });
+
+                this.listCurrentSelectedICD = listWithoutDeletedTerm;
             }
 
             getICDterms() {
@@ -810,7 +853,8 @@
                     });
                     if (_icdTermsNS.indexOf(selectedTerm) != -1) {
                         //this.$$("#" + this.prefix + "diagnosis").value = selectedTerm;
-                        PolymerUtils.setPropertyById(this.prefix + 'diagnosis', 'value', selectedTerm);
+                        PolymerUtils.setValue(this.prefix + "diagnosis", this.listCurrentSelectedICD.join(","));
+
                         $(PolymerUtils.getElementById(this.prefix + "icd")).modal('hide');
                     } else {
                         PolymerUtils.innerHTML(this.prefix + "errorTermDiv", "A proper ICD-10 term must be selected from the list or tree");
@@ -957,10 +1001,10 @@
                                 let _fileId = response.response[0].result[0].id;
                                 _this.indexVCF(_fileId);
                             })
-                            .catch(function () {
+                            .catch(function (responseError) {
                                 _this.settingsMessageModal = {
                                     messageHeader: "Error",
-                                    messageBody: [response.error],
+                                    messageBody: [responseError.error],
                                     type: "danger",
                                     height: "100px",
                                     width: "500px"
@@ -983,12 +1027,28 @@
                     let icdTermField = formFields.diagnosis;
                     let icdName = "";
                     let icdId = "";
+//                    let regexICD = new RegExp("/([?:\s*[a-zA-Z0-9]*]*)\(([^)]+)\)");
+//                    let regexHPO = new RegExp("/,?[^,]*,?");
+                    let listOntologyTerms = [];
                     if (icdTermField !== "") {
-                        icdId = icdTermField.split('(')[1].slice(0, -1);
-                        icdName = icdTermField.split('(')[0];
+                        this.listCurrentSelectedICD.forEach((icdTerm) => {
+                            let groupsIcd = icdTerm.split("(");
+                            if(UtilsNew.isNotUndefinedOrNull(groupsIcd) && groupsIcd.length > 0){
+                                listOntologyTerms.push({id: groupsIcd[1].split(")")[0], name: groupsIcd[0], source: "ICD10"});
+                            }
+                        });
                     }
-                    let hpoId = formFields.HPO; // To be modified when HPO is included
-                    let hpoName = formFields.HPO;
+
+                    let hpoNames = formFields.HPO;
+                    if (hpoNames !== "") {
+                        this.selectedTermsHPO.forEach((hpoTerm) => {
+//                            let groupsHpo = regexHPO.exec(hpoTerm);
+//                            if(UtilsNew.isNotUndefinedOrNull(groupsHpo) && groupsHpo.length > 0){
+                                listOntologyTerms.push({id: hpoTerm.obo_id, name: hpoTerm.label, source:"HPO"});
+//                            }
+                        });
+                    }
+
 
                     let jsonAnnotation = {};
                     $(this.variableSets[0].variables).each(function (index, currentVariable) {
@@ -1010,11 +1070,9 @@
                                 "annotations": jsonAnnotation
                             }
                         ],
+                        "ontologyTerms": listOntologyTerms,
                         "individual": {
                             "name": formFields.patientID,
-                            "family": "", // to be removed
-                            "fatherId": -1, // To be removed
-                            "motherId": -1, // to be removed
                             "ethnicity": formFields.ethnicity,
                             "dateOfBirth": formFields.birthYear,
                             "population": {
@@ -1026,18 +1084,7 @@
                             "lifeStatus": formFields.lifeStatus,
                             "affectationStatus": formFields.status,
                             "parentalConsanguinity": hasParentalConsanguinity,
-                            "ontologyTerms": [
-                                {
-                                    "id": hpoId,
-                                    "name": hpoName,
-                                    "source": "HPO"
-                                },
-                                {
-                                    "id": icdId,
-                                    "name": icdName,
-                                    "source": "ICD10"
-                                }
-                            ]
+                            "ontologyTerms": listOntologyTerms
                         }
                     };
 

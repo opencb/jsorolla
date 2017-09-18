@@ -16,7 +16,7 @@
 
 <link rel="import" href="../variant/variant-sample-grid.html">
 <link rel="import" href="../catalog/samples/opencga-sample-filter.html">
-<link rel="import" href="../catalog/samples/opencga-family-editor.html">
+<link rel="import" href="../catalog/samples/opencga-family-editor-new.html">
 <link rel="import" href="../opencga-active-filters.html">
 <link rel="import" href="../opencga-message-dialog.html">
 
@@ -26,15 +26,18 @@
 
         <div class="panel">
             <div class="col-md-2">
-                <opencga-sample-filter study="{{study}}" config="{{config}}" samples="{{samples}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
-                query="{{query}}" search="{{search}}">
+                <opencga-sample-filter study="{{study}}" config="{{config}}" samples="{{samples}}" prefix="{{prefix}}"
+                                       opencga-client="{{opencgaClient}}"
+                                       query="{{query}}" search="{{search}}">
                 </opencga-sample-filter>
             </div>
 
             <div class="col-md-10">
                 <br>
-                <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" filters="{{config.filters}}" fixed-filters="{{fixedFilters}}"
-                alias="{{activeFilterAlias}}" refresh="{{search}}" on-clear="onClear" on-filterchange="onFilterChange"></opencga-active-filters>
+                <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}"
+                                        filters="{{config.filters}}" fixed-filters="{{fixedFilters}}"
+                                        alias="{{activeFilterAlias}}" refresh="{{search}}" on-clear="onClear"
+                                        on-filterchange="onFilterChange"></opencga-active-filters>
 
                 <h3>Sample Results</h3>
                 <variant-sample-grid opencga-client="{{opencgaClient}}" study="{{study}}" samples="{{samples}}"
@@ -85,25 +88,31 @@
         </div>
 
         <!-- Modal dialog for Family Editor-->
-        <div class="modal fade" id="{{prefix}}FamilyEditor" tabindex="-1" role="dialog"
-             aria-labelledby="familyEditorLabel">
-            <div class="modal-dialog modal-sm" role="document" style="width: 1300px;">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                                aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title" id="{{prefix}}FamilyEditorLabel">Family Editor</h4>
-                    </div>
-                    <div class="modal-body" style="height: 500px">
-                        <opencga-family-editor samples="{{_samplesAnalysis}}" opencga-client="{{opencgaClient}}" on-familychange="familyChange"></opencga-family-editor>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="checkFamily">OK
-                        </button>
+            <div class="modal fade" id="{{prefix}}FamilyEditor" tabindex="-1" role="dialog"
+                 aria-labelledby="familyEditorLabel">
+                <div class="modal-dialog modal-sm" role="document" style="width: 1300px;">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                    aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="{{prefix}}FamilyEditorLabel">Family Editor</h4>
+                        </div>
+                        <div class="modal-body" style="height: 500px">
+                            <template is="dom-if" if="{{showModalFamilyEditor}}" restamp="true">
+
+                                <opencga-family-editor-new study="{{study}}" samples="{{_samplesAnalysis}}"
+                                                           opencga-client="{{opencgaClient}}" family="{{family}}"
+                                                           on-familychange="familyChange"></opencga-family-editor-new>
+                            </template>
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="checkFamily">OK
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
 
         <!-- Modal dialog for warnings -->
@@ -180,15 +189,18 @@
                     }
                 }
             }
+
             constructor() {
                 super();
             }
+
             _attachDom(dom) {
                 this.appendChild(dom);
             }
+
             ready() {
                 super.ready();
-                if (UtilsNew.isEmpty(this.prefix )) {
+                if (UtilsNew.isEmpty(this.prefix)) {
                     this.prefix = "sample" + Utils.randomString(6);
                 }
 
@@ -197,9 +209,9 @@
                 this.currentAnalysis = {};
                 this.selectedRow = -1;
                 this.unsavedAnalysis = 0;
-
                 this.fixedFilters = ["studies"];
             }
+
             renderAnalysisTable() {
                 let _this = this;
                 $(PolymerUtils.getElementById(this.prefix + "tableAnalysis")).bootstrapTable('destroy');
@@ -218,11 +230,15 @@
                     },
                     onClickCell: function (field, value, row, elem) {
                         if (field === "editFamily") { // Only if cell related to family editor is selected, get samples for this analysis to the family editor
+                            if (UtilsNew.isNotUndefinedOrNull(row.family)) {
+                                _this.family = row.family;
+                            } else {
+                                _this.initFamily();
+                            }
                             _this._samplesAnalysis = row.sampleList;
                             _this.currentAnalysis = row;
                             _this.selectedRow = elem.parent().data("index");
-                        }
-                        else if (field === "action") { // Only if cell related to save is selected
+                        } else if (field === "action") { // Only if cell related to save is selected
                             if (row.family !== null) { // If a family is not defined, save can not be achieved
                                 _this.saveAnalysis(row);
                             }
@@ -231,10 +247,44 @@
                 });
 
             }
-            connectedCallback () {
+
+            initFamily() {
+                if (UtilsNew.isNotUndefinedOrNull(this.samples)) {
+                    this.family = {};
+                    this.family.name = "";
+                    this.family.description = "";
+                    this.family.diseases = [];
+                    this.family.members = [];
+                    this.family.annotationSets = [];
+//                    this.family.createDate = new Date();
+                    this.family.attributes = {};
+                    let _this = this;
+                    this.samples.forEach((sample) => {
+                        _this.family.members[sample.id] = {
+                            father: undefined,
+                            mother: undefined,
+                            ontologyTerms: [],
+//                            multiples: [],
+//                            samples: [],
+                            parentalConsanguinity: false
+                        }
+                    });
+                }
+            }
+
+
+            connectedCallback() {
                 super.connectedCallback();
                 this.table = PolymerUtils.getElementById(this.prefix + "FamilySelector");
                 this.renderAnalysisTable();
+                let _this = this;
+                $("#"+this.prefix + "FamilyEditor").on('shown.bs.modal', function (e) {
+                    _this.showModalFamilyEditor = true;
+                });
+
+                $("#"+this.prefix + "FamilyEditor").on('hidden.bs.modal', function() {
+                    _this.showModalFamilyEditor = false;
+                });
             }
 
             /**
@@ -243,6 +293,7 @@
             onFilterUpdate() {
                 this.updateForms(this.filters);
             }
+
             updateForms(filters) {
                 // This is just to avoid entering here when it has just been initialized
                 if (this.prefix === undefined) {
@@ -272,6 +323,7 @@
                     }
                 }
             }
+
             /**
              * Read from the values in the forms, and sets the filters.
              */
@@ -305,6 +357,7 @@
                 }
                 this.filters = filters;
             }
+
             onSearch() {
                 // Convert the filters to an objectParam that can be directly send to the sample search
                 let filterParams = {};
@@ -340,6 +393,7 @@
                 }
                 this.search = filterParams;
             }
+
             addAnalysis(e) {
 
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
@@ -409,6 +463,7 @@
                         analysisDate: currentDate,
                         filter: "NO",
                         editFamily: _this.familyFormatter(_familyEditor, aux),
+                        subjectSelected: _this.subjectFormatter(aux, ""),
                         action: _this.actionFormatter(_familyEditor, aux),
                         sampleList: this.samples,
                         analysisIDinternal: aux,
@@ -426,6 +481,7 @@
                     this.unsavedAnalysis++;
                 }
             }
+
             deleteAnalysis(e) {
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
                 let ids = $.map($(PolymerUtils.getElementById(this.prefix + 'tableAnalysis')).bootstrapTable('getSelections'), function (row) {
@@ -438,15 +494,8 @@
                 });
                 this.unsavedAnalysis--;
             }
-            saveAnalysis(rowInfo) {
-                let children = rowInfo.family.pedigree.children;
-                let _affectedSample = "";
-                for (let i = 0; i < children.length; i++) {
-                    if (children[i].affected) {
-                        _affectedSample = children[i].name;
-                    }
-                }
 
+            saveAnalysis(rowInfo) {
                 let _analysisType = "";
                 switch (rowInfo.analysisType) {
                     case "Single":
@@ -470,79 +519,97 @@
                 }
 
                 if (this.opencgaClient instanceof OpenCGAClient) {
-                    // Get family members
-                    let _father = null;
-                    if (UtilsNew.isNotUndefined(rowInfo.family.pedigree.father)) {
-                        for (let j = 0; j < rowInfo.sampleList.length; j++) {
-                            if (rowInfo.family.pedigree.father.name === rowInfo.sampleList[j].name) {
-                                _father = rowInfo.sampleList[j].individual.id;
-                            }
-                        }
-                    }
-
-                    let _mother = null;
-                    if (UtilsNew.isNotUndefined(rowInfo.family.pedigree.mother)) {
-                        for (let j = 0; j < rowInfo.sampleList.length; j++) {
-                            if (rowInfo.family.pedigree.mother.name === rowInfo.sampleList[j].name) {
-                                _mother = rowInfo.sampleList[j].individual.id;
-                            }
-                        }
-                    }
-
-                    let _children = [];
-                    let myChild = rowInfo.family.pedigree.children;
-                    let _sex = "";
-                    for (let i = 0; i < myChild.length; i++) {
-                        for (let j = 0; j < rowInfo.sampleList.length; j++) {
-                            if (myChild[i].name === rowInfo.sampleList[j].name) {
-                                switch (rowInfo.sampleList[j].role) {
-                                    case "son":
-                                        _sex = "MALE";
-                                        break;
-                                    case "daughter":
-                                        _sex = "FEMALE";
-                                        break;
-                                    case "undefined":
-                                        _sex = "UNKNOWN";
-                                        break;
-                                }
-                                _children.push({
-                                    "name": rowInfo.sampleList[j].individual.id,
-                                    "sex": _sex,
-                                    "fatherId": _father,
-                                    "motherId": _mother
-                                });
-                            }
-                        }
-                    }
-
                     let params = {
                         study: this.project.alias + ":" + this.study.alias
                     };
-                    let body = {
-                        "name": rowInfo.family.name,
-                        "parentalConsanguinity": rowInfo.family.pedigree.parentalConsanguinity,
-                        "mother": {
-                            "name": _mother,
-                            "sex": "FEMALE"
-                        },
-                        "father": {
-                            "name": _father,
-                            "sex": "MALE"
-                        },
-                        "children": _children
-                    };
+                    let bodyFamily = Object.assign({},rowInfo.family);
+                    let membersNew =[];
+                    bodyFamily.members.forEach((member) => {
+                        let newMember = Object.assign(member);
+//                        newMember.diseases = Array.from(newMember.diseases)
+                        membersNew.push(member);
+                    });
+                    bodyFamily.members = membersNew;
+
+
+                    let membersWithParents = bodyFamily.members.filter((member) => {
+                        return UtilsNew.isNotUndefinedOrNull(member.father) && UtilsNew.isNotUndefinedOrNull(member.mother);
+                    });
+
+                    let individualPromises = [];
 
                     let _this = this;
+                    membersWithParents.forEach((individualToUpdate) => {
+                        this.opencgaClient.individuals().info(individualToUpdate.name, params, {"method": "GET"})
+                        .then(function (response) {
+                            if (response.response[0].numResults >= 1) {
+                                let individual = response.response[0].result[0];
+                                let individualId = individual.id;
+                                individual = Object.assign({}, individual, {name: undefined, id: undefined, fatherId: undefined, motherId: undefined, family: undefined, species: undefined, release: undefined, creationDate: undefined, status: undefined, samples: undefined});
+                                if((UtilsNew.isUndefinedOrNull(individual.father) && UtilsNew.isUndefinedOrNull(individual.mother)) ||
+                                    (UtilsNew.isUndefinedOrNull(individual.father.id) && UtilsNew.isUndefinedOrNull(individual.mother.id)) ||
+                                    (individual.father.id <= 0  && individual.mother.id <= 0)) {
+                                    let individualPost = {
+                                        father: individualToUpdate.father,
+                                        mother: individualToUpdate.mother
+                                    };
+                                    let individualPromise = _this.opencgaClient.individuals().update(individualId, params, individualPost, {"method": "POST"})
+                                        .then(function (response) {
+                                            console.log("Individual update");
+                                        });
+                                    individualPromises.push(individualPromise);
+                                }
+                            }
+
+                        });
+                    });
+
+                    Promise.all(individualPromises)
+                        .then(function (response) {
+                            console.log("Create family");
+//                            createFamily(params, bodyFamily, rowInfo);
+                        })
+                        .catch(function (response) {
+                            _this.settingsMessageModal = {
+                                messageHeader: "Error",
+                                messageBody: [response.error],
+                                type: "danger",
+                                height: "100px",
+                                width: "500px"
+                            };
+                            _this.set('settingsMessageModal', _this.settingsMessageModal);
+                            _this.showMessageModal = true;
+                        });
+                }
+            }
+
+            createFamily(params, body, rowInfo){
+                let _this = this;
                     this.opencgaClient.families().create(params, body)
                         .then(function (response) {
-                            // Create analysis
+                            if (response.response[0].numResults >= 1) {
+//                                    $(PolymerUtils.getElementById(_this.prefix + "tableAnalysis")).bootstrapTable('updateRow', {
+//                                        index: _this.selectedRow,
+//                                        row: {
+//                                            family: response.response[0].result[0]
+//                                        }
+//                                    });
+                            }
+
+                            let samplesName = rowInfo.samples.map((sample) => {
+                                    let res = {name: sample.name};
+                            return res;
+                        });
+
+//                            let memberToStudy = body.members.find((member) => {
+//                                    return member.father !== null && member.mother !== null;
+//                        });
+//                                 Create analysis
                             let analysisInfo = {
                                 analysisID: PolymerUtils.getElementById(_this.prefix + "analysisID" + rowInfo.analysisIDinternal).value,
                                 type: _analysisType,
                                 familyID: rowInfo.family.name,
-                                proband: _children[0].name, // TO BE CHANGED
-                                sample: _affectedSample // TO BE CHANGED
+                                subject:  {name: PolymerUtils.getElementById(_this.prefix + "selectedSubject" + rowInfo.analysisIDinternal).value, samples:[]} // TO BE CHANGED
                             };
                             _this.createAnalysis(analysisInfo);
                         })
@@ -557,8 +624,9 @@
 
                             _this.showMessageModal = true;
                         });
-                }
+
             }
+
             createAnalysis(analysisInfo) {
                 let params = {
                     study: this.project.alias + ":" + this.study.alias
@@ -567,8 +635,8 @@
                     "name": analysisInfo.analysisID,
                     "type": analysisInfo.type,
                     "family": analysisInfo.familyID,
-                    "proband": analysisInfo.proband,
-                    "sample": analysisInfo.sample,
+                    "subject": analysisInfo.subject,
+//                    "sample": analysisInfo.sample,
                     "attributes": {
                         "filter": false
                     }
@@ -589,28 +657,55 @@
                         _this.showMessageModal = true;
                     });
             }
+
             familyFormatter(familyEditor, randomString) {
                 if (familyEditor) {
                     return '<button data-toggle="modal" id="' + this.prefix + 'Editor' + randomString + '" role="button" type="button" class="btn btn-sm btn-success" data-target="#' + this.prefix + 'FamilyEditor" ><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;Edit</button>';
                 }
                 else { // Is not a family analysis -> a family cannot be edited
-                    return '<button data-toggle="modal" id="' + this.prefix + 'Editor' + randomString + '" role="button" type="button" class="btn btn-sm btn-success disabled" data-target="#' + this.prefix + 'FamilyEditor"><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;Edit</button>';
+                    return '<button data-toggle="modal" id="' + this.prefix + 'Editor' + randomString + '" role="button" type="button" class="btn btn-sm btn-success disabled" disabled data-target="#' + this.prefix + 'FamilyEditor"><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;Edit</button>';
                 }
             }
+            subjectFormatter(randomString, selected) {
+//                    return '<button data-toggle="modal" id="' + this.prefix + 'Member' + randomString + '" role="button" type="button" class="btn btn-sm btn-success" data-target="#' + this.prefix + 'FamilyEditor" ><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;Edit</button>';
+
+                    let res = "NO AFFECTED";
+                    if(UtilsNew.isNotUndefinedOrNull(this.family) && UtilsNew.isNotUndefinedOrNull(this.family.members)){
+
+                        let affectedMembers = this.family.members.filter((member) => {
+                           return UtilsNew.isNotUndefinedOrNull(member.ontologyTerms) && member.ontologyTerms.length > 0;
+                        });
+
+                        res = '<select id='+ this.prefix + 'selectedSubject' + this.currentAnalysis.analysisIDinternal + ' class="form-control form-control-sm">';
+                        affectedMembers.forEach((affected) => {
+                            if(selected === affected.name){
+                                res = res +  '<option value="'+affected.name+'" selected>'+affected.name+'</option>';
+                            }else{
+                                res = res +  '<option value="'+affected.name+'">'+affected.name+'</option>';
+                            }
+                        });
+                        res = res +'</select>';
+
+                    }
+                    return res;
+            }
+
             actionFormatter(familyEditor, randomString) {
                 if (familyEditor) {
-                    return '<button type="button" id="' + this.prefix + 'Save' + randomString + '" class="btn btn-sm btn-primary" disabled><i class="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;Save</button>';
+                    return '<button type="button" id="' + this.prefix + 'Save' + randomString + '" class="btn btn-sm btn-primary disabled" disabled><i class="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;Save</button>';
                 }
                 else { // If not a family analysis, such analysis can be saved inmediatly
                     return '<button type="button" id="' + this.prefix + 'Save' + randomString + '" class="btn btn-sm btn-primary"><i class="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;Save</button>';
                 }
             }
+
             analysisFormatter(analysisID, randomString) {
                 return '<input type="text" id="' + this.prefix + 'analysisID' + randomString + '" class="form-control" value="' + analysisID + '" maxlength="75">';
             }
+
             analysisError(analysisType, introducedLength, properLength) {
                 if ((analysisType === 'Trio' || analysisType === 'Duo' || analysisType === 'Single' || analysisType === 'Auto comparative') && introducedLength != properLength) {
-                    PolymerUtils.innerHTML(this.prefix + "warningMsgDiv","Incorrect number of samples selected (" + introducedLength.toString() + ") for " + analysisType + " analysis (" + properLength.toString() + ")");
+                    PolymerUtils.innerHTML(this.prefix + "warningMsgDiv", "Incorrect number of samples selected (" + introducedLength.toString() + ") for " + analysisType + " analysis (" + properLength.toString() + ")");
                     $(PolymerUtils.getElementById(this.prefix + "warningModal")).modal('show');
                     return false;
                 }
@@ -622,25 +717,36 @@
                 else
                     return true;
             }
+
+            selectSubject(e){
+                PolymerUtils.setValue(this.prefix + "selectedSubject" + this.currentAnalysis.analysisIDinternal, e.target.value);
+            }
+
             familyChange(e, family) { // Event fired by opencga-family-editor web component
                 this.family = family;
+
             }
+
             checkFamily(e) {
                 e.preventDefault();
-                let ped = new Pedigree(this.family.pedigree);
 
-                if ((this.currentAnalysis.analysisType === "Duo" && ped.isDuo() && this.family.name != "") ||
-                    (this.currentAnalysis.analysisType === "Trio" && ped.isTrio() && this.family.name != "") ||
-                    (this.currentAnalysis.analysisType === "Family" && ped.isFamily() && this.family.name != "")) {
-                    let _this = this;
-                    $(PolymerUtils.getElementById(this.prefix + "tableAnalysis")).bootstrapTable('updateRow', {
-                        index: _this.selectedRow, row: {
-                            family: _this.family
-                        }
-                    });
-                    PolymerUtils.removeAttribute(this.prefix + "Save" + this.currentAnalysis.analysisIDinternal, "disabled");
-                }
+                let _this = this;
+
+                // We have to do this before updateRow to get the selectedValue in member select. Instead we will get the first value of the all options
+                let subjectSelected = PolymerUtils.getValue(this.prefix + "selectedSubject" + this.currentAnalysis.analysisIDinternal);
+                $(PolymerUtils.getElementById(this.prefix + "tableAnalysis")).bootstrapTable('updateRow', {
+                    index: _this.selectedRow, row: {
+                        family: _this.family,
+                        samples: _this.samples
+                    }
+                });
+                $(PolymerUtils.getElementById(this.prefix + "tableAnalysis")).bootstrapTable("updateCell",{ index: _this.selectedRow, field: "subjectSelected", value: _this.subjectFormatter(this.currentAnalysis.analysisIDinternal, subjectSelected)});
+                PolymerUtils.getElementById(this.prefix + 'selectedSubject' + this.currentAnalysis.analysisIDinternal).addEventListener('change', e => this.selectSubject(e));
+                PolymerUtils.removeAttribute(this.prefix + "Save" + this.currentAnalysis.analysisIDinternal, "disabled");
+                PolymerUtils.removeClass(this.prefix + "Save" + this.currentAnalysis.analysisIDinternal, "disabled");
+
             }
+
             _getTableColumns() {
                 this._columns = [
                     [
@@ -675,6 +781,10 @@
                             title: 'Family'
                         },
                         {
+                            field: 'subjectSelected',
+                            title: 'Subject'
+                        },
+                        {
                             field: 'action',
                             title: 'Action'
                         },
@@ -694,14 +804,17 @@
                 ];
                 return this._columns;
             }
+
             onClear() {
                 this.query = {studies: this.project.alias + ":" + this.study.alias};
                 this.search = {};
             }
+
             onFilterChange(e) {
                 this.query = e.detail;
                 this.search = e.detail;
             }
+
             static get observers() {
                 return ['calculateFilters(filteredVariables.variables.*)'];
             }

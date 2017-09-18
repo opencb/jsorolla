@@ -153,8 +153,9 @@ class Pedigree {
     _addFamilyMember(object, x, y, width, radius, showSampleNames, svg) {
         // No defined sex
         let memberSVG;
-        if (typeof object.member.sex === "undefined" || object.member.sex === "undefined") {
-            memberSVG = SVG.addChild(svg, "rect", {
+        if (typeof object.sex === "undefined" || object.sex === "undefined") {
+            SVG.addChild(svg, "rect", {
+
                 x: x - radius,          y: y,
                 width: width * 0.8,     height: width * 0.8,
                 transform: "translate(" + radius + ") rotate(45 " + (x - radius) + " " + (10 + radius + (1.5 * width) + y) + ")",
@@ -162,8 +163,9 @@ class Pedigree {
             });
         } else {
             // Member is a male
-            if (object.member.sex === "male" || object.member.sex === "MALE") {
-                memberSVG = SVG.addChild(svg, "rect", {
+            if (object.sex === "male" || object.sex === "MALE") {
+                SVG.addChild(svg, "rect", {
+
                     x: x - radius,      y: y,
                     width: width,       height: width,
                     // fill: "url(#Pattern2)",
@@ -179,7 +181,7 @@ class Pedigree {
             }
         }
 
-        if (object.member.lifeStatus === "deceased") {
+        if (object.lifeStatus === "deceased") {
             SVG.addChild(svg, "line", {
                 x1: x - radius - 10,      y1: y + radius + 30,
                 x2: x + radius + 10,      y2: y - radius + 10,
@@ -211,7 +213,7 @@ class Pedigree {
 
         let map = {};
         for (let m of family.members) {
-            map[m.member.name] = m;
+            map[m.name] = m;
         }
 
         let colorMap = {};
@@ -221,26 +223,26 @@ class Pedigree {
 
         family.children = [];
         for (let m of family.members) {
-            if (m.father !== undefined && m.father.name !== undefined && m.mother !== undefined && m.mother.name !== undefined) {
-                map[m.father.name].partner = m.mother.name;
-                map[m.mother.name].partner = m.father.name;
+            if (m.father !== undefined && m.mother !== undefined ) {
+                map[m.father].partner = m.mother;
+                map[m.mother].partner = m.father;
 
-                map[m.father.name].partnerConsaguinity = m.parentalConsaguinity;
-                map[m.mother.name].partnerConsaguinity = m.parentalConsaguinity;
+                map[m.father].partnerConsaguinity = m.parentalConsanguinity;
+                map[m.mother].partnerConsaguinity = m.parentalConsanguinity;
 
-                if (this._isOrphan(map[m.father.name] && this._isOrphan(map[m.mother.name]))) {
-                    family.father = map[m.father.name];
-                    family.mother = map[m.mother.name];
+                if (this._isOrphan(map[m.father] && this._isOrphan(map[m.mother]))) {
+                    family.father = map[m.father];
+                    family.mother = map[m.mother];
                 }
 
                 family.children.push(m);
             }
 
             // We save the corresponding disease color pattern for each sample
-            if (m.diseases !== undefined && m.diseases.length > 0) {
+            if (m.ontologyTerms !== undefined && m.ontologyTerms.length > 0) {
                 let colorIdx = [];
-                for (let c of m.diseases) {
-                    colorIdx.push(colorMap[c]);
+                for (let c of m.ontologyTerms) {
+                    colorIdx.push(colorMap[c.id]);
                 }
                 // Pattern suffix IDs must be sorted, eg. Pattern_01
                 colorIdx = colorIdx.sort();
@@ -299,7 +301,7 @@ class Pedigree {
     }
 
     _isOrphan(member) {
-        return (member.father === undefined || member.father.id === -1) && (member.mother === undefined || member.mother.id === -1)
+        return (member.father === undefined || member.father=== null) && (member.mother === undefined || member.mother.id === null)
     }
 
     _getDefaultSetting() {
