@@ -26,6 +26,9 @@ const interpretationJson = {
             dateOfBirth: "14/02/1994",
             lifeStatus: "ALIVE",
             parentalConsanguinity: false,
+            population: {
+                name: "Italy"
+            },
             ontologyTerms: [
                 {id: "HP:0000478", name: "Abnormality of the eye", source: "HPO"}, {
                     "id": "H00-H59",
@@ -55,6 +58,8 @@ const interpretationJson = {
                             "source": "ICD10"
                         }
                     ],
+                    annotationSets: [{"name":"annotation_sample_son_affected_test","variableSetId":4,"annotations":[{"name":"testYear","value":"2017"},{"name":"physician","value":"Dr Florido"},{"name":"hospital","value":"HUVR"},{"name":"testAge","value":"34"},{"name":"technicalData","value":"Illumina"}],"creationDate":"20170719152516"}]
+                    ,
                     description: "Sample description"
                 }
             ],
