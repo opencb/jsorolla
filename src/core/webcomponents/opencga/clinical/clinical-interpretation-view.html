@@ -273,6 +273,7 @@
                             </div>
                         </div>
 
+                        <!-- GRID HEADER TOOLBAR -->
                         <div class="col-md-15" style="padding: 12px 0px 0px 0px">
                             <div id="{{prefix}}ToolbarLeft" class="col-md-6" style="padding: 15px 0px 0px 0px">
                                 <span style="padding: 0px 0px 0px 0px">
@@ -291,9 +292,15 @@
                                         </div>
 
                                         <div class="btn-group">
-                                            <button type="button" class="btn btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i>&nbsp;&nbsp;Update</button>
-                                            <button type="button" class="btn btn-primary"><i class="fa fa-comments-o" aria-hidden="true"></i>&nbsp;&nbsp;Review Case</button>
-                                            <button type="button" class="btn btn-primary"><i class="fa fa-file-text-o" aria-hidden="true"></i>&nbsp;&nbsp;Create Report <span class="badge">{{reportVariants.length}}</span></button>
+                                            <button type="button" class="btn btn-primary">
+                                                <i class="fa fa-pencil" aria-hidden="true"></i>&nbsp;&nbsp;Update
+                                            </button>
+                                            <button type="button" class="btn btn-primary">
+                                                <i class="fa fa-comments-o" aria-hidden="true"></i>&nbsp;&nbsp;Review Case
+                                            </button>
+                                            <button type="button" class="btn btn-primary" on-click="onCreateReport">
+                                                <i class="fa fa-file-text-o" aria-hidden="true"></i>&nbsp;&nbsp;Create Report&nbsp;&nbsp;<span class="badge">{{reportVariants.length}}</span>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -452,11 +459,13 @@
                     }
                 };
             }
+
             static get observers() {
                 return [
                     'projectStudyObtained(project, study)'
                 ]
             }
+
             ready() {
                 super.ready();
                 this._summaryCollapsed = false;
@@ -464,9 +473,11 @@
                 this.variantObj = {};
                 this.reportVariants = [];
             }
+
             _attachDom(dom) {
                 this.appendChild(dom);
             }
+
             connectedCallback() {
                 super.connectedCallback();
                 this.render();
@@ -485,6 +496,7 @@
                     e.stopPropagation();
                 }, true));
             }
+
             _summaryOnClick() {
                 if (this._summaryCollapsed) {
                     $("#" + this.prefix + "SummaryCollapseIcon").removeClass("fa-plus-square-o").addClass("fa-minus-square-o");
@@ -492,6 +504,26 @@
                     $("#" + this.prefix + "SummaryCollapseIcon").removeClass("fa-minus-square-o").addClass("fa-plus-square-o");
                 }
                 this._summaryCollapsed = !this._summaryCollapsed;
+            }
+
+            onCreateReport() {
+                // Make a deep copy object
+                let copy = JSON.parse(JSON.stringify(this.interpretation));
+
+                // Find all reportedVariant object from this.reportVariants
+                let _reportVariants = [];
+                for (let variantId of this.reportVariants) {
+                    for (let reportedVariant of this.interpretation.reportedVariants) {
+                        if (variantId === reportedVariant.id) {
+                            _reportVariants.push(reportedVariant);
+                            break;
+                        }
+                    }
+                }
+                copy.reportedVariants = _reportVariants;
+
+                // Fire an event with the new interpretation data model
+                this.dispatchEvent(new CustomEvent('createreport', {detail: {interpretation: copy}}));
             }
 
             onAddVariantToReport(variantId) {
@@ -545,6 +577,7 @@
                 }
                 return result;
             }
+
             detailFormatter(value, row) {
 //                debugger
                 let ctHtml = [];
@@ -604,6 +637,7 @@
                             </div>`;
                 return html;
             }
+
             render() {
                 this.variant = ""; // Empty the variant every time the grid is loaded
                 this.from = 1;
@@ -768,7 +802,7 @@
                            </button>`;
                 return res + "<br><br><span>Comments (" + row.comments.length + ")</span>";
             }
-            
+
             _refreshTableColumns() {
                 this.cols = this._createDefaultColumns();
                 if (typeof this.cols !== "undefined" && typeof this.interpretation.clinicalAnalysis.family !== "undefined"
