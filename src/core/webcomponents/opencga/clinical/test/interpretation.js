@@ -235,7 +235,7 @@ const interpretationJson = {
                                 "HRun":"1",
                                 "MQRankSum":"2.042",
                                 "set":"FilteredInAll",
-                                "FILTER":"TruthSensitivityTranche99.90to100.00",
+                                "FILTER": "TruthSensitivity99.90to100.00",
                                 "MQ":"22",
                                 "AF":"0.5",
                                 "HaplotypeScore":"1250.1991",
@@ -373,6 +373,11 @@ const interpretationJson = {
                     "ENST00000446996(ENSG00000130203):c.388T>C",
                     "ENST00000434152(ENSG00000130203):c.466T>C",
                     "ENST00000425718(ENSG00000130203):c.388T>C"
+                ],
+                cytoband: [
+                    {
+                        name: "q13.32"
+                    }
                 ],
                 "displayConsequenceType":"missense_variant",
                 "consequenceTypes":[
@@ -556,6 +561,10 @@ const interpretationJson = {
                             {
                                 "accession":"SO:0001583",
                                 "name":"missense_variant"
+                            },
+                            {
+                                "accession":"SO:0001580",
+                                "name":"splice_site"
                             }
                         ]
                     },
@@ -2010,7 +2019,10 @@ const interpretationJson = {
                     ]
                 }
             ],
-            comments: [{author: "", type: "", comment: "", date: ""}],
+            comments: [
+                {author: "imedina", type: "OBSERVATION", comment: "Comment 1", date: "15/090/2017"},
+                {author: "imedina", type: "OBSERVATION", comment: "Comment 2", date: "15/090/2017"}
+            ],
             additionalNumericVariantAnnotations: []
         },
         {
@@ -2019,7 +2031,26 @@ const interpretationJson = {
             annotation: {
                 source: "cellbase",
                 version: "4.5",
-                genes: []
+                "displayConsequenceType": "upstream_variant",
+                "consequenceTypes":[
+                    {
+                        "geneName":"TOMM40",
+                        "ensemblGeneId":"ENSG00000130204",
+                        "ensemblTranscriptId":"ENST00000252487",
+                        "strand":"+",
+                        "biotype":"protein_coding",
+                        "transcriptAnnotationFlags":[
+                            "CCDS",
+                            "basic"
+                        ],
+                        "sequenceOntologyTerms":[
+                            {
+                                "accession":"SO:0001630",
+                                "name":"upstream_variant"
+                            }
+                        ]
+                    }
+                ]
             },
             calledGenotypes: [{
                 sampleId: 21,

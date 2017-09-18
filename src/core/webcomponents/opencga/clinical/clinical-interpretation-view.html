@@ -18,19 +18,10 @@
             }
         </style>
 
-        <!--<div class="panel" style="margin-bottom: 15px">-->
-        <!--<h3 style="margin: 10px 10px 10px 15px">-->
-        <!--<span  on-click="onCollapse"  style="cursor: pointer;margin: 0px 30px 0px 0px">-->
-        <!--<i class="fa fa-bars" aria-hidden="true"></i>-->
-        <!--</span>-->
-        <!--<i class="fa fa-filter" aria-hidden="true"></i>{{title}}-->
-        <!--</h3>-->
-        <!--</div>-->
-
         <div class="containerDiv">
             <div class="row">
 
-                <div id="{{prefix}}mainIntepretation" class="col-xs-10  col-md-offset-1 col-sm-10 col-md-10 col-lg-10 toppad">
+                <div id="{{prefix}}mainIntepretation" class="col-xs-10 col-md-offset-1 col-sm-10 col-md-10 col-lg-10 toppad">
 
                     <h2 style="border-bottom-width: 1px;border-bottom-style: solid;border-bottom-color: #ddd">
                         Interpretation Analysis: {{interpretation.name}}
@@ -227,36 +218,89 @@
                         <h2 style="border-bottom-width: 1px;border-bottom-style: solid;border-bottom-color: #ddd">Reported Variants</h2>
 
 
-                        <div class="btn-group btn-group" role="group" aria-label="..." style="padding: 10px;float: right">
-                            <button type="button" class="btn btn-default btn-warning gene-ct-buttons active" on-click="updateQuery">
-                                All
-                            </button>
-                            <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
-                                Missense
-                            </button>
-                            <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
-                                LoF
-                            </button>
+                        <div class="panell panel--default">
+                            <div class="panel--body">
+                                <!--<div class="row">-->
+                                <div class="col-md-12" style="padding: 5px 0px 15px 0px">
+                                    <div class="btn-toolbar" role="toolbar" aria-label="..." style="float: right">
+                                        <!--<div class="btn-group" role="group" aria-label="..." style="padding: 10px 10px">-->
+                                        <!--<label style="padding-top: 8px">Filters</label>-->
+                                        <!--</div>-->
+                                        <div class="btn-group btn-group-sm" role="group" aria-label="..." style="padding: 10px 0px">
+                                            <button type="button" class="btn btn-default btn-warning gene-ct-buttons active" on-click="updateQuery">
+                                                All
+                                            </button>
+                                            <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
+                                                Missense
+                                            </button>
+                                            <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
+                                                LoF
+                                            </button>
+                                        </div>
+
+                                        <div class="btn-group btn-group-sm" role="group" aria-label="..." style="padding: 10px 0px">
+                                            <button type="button" class="btn btn-default btn-warning gene-ct-buttons active" on-click="updateQuery">
+                                                All
+                                            </button>
+                                            <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
+                                                SNV
+                                            </button>
+                                            <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
+                                                INDEL
+                                            </button>
+                                            <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
+                                                SV
+                                            </button>
+                                        </div>
+
+                                        <div class="btn-group btn-group-sm" role="group" aria-label="..." style="padding: 10px 0px">
+                                            <button type="button" class="btn btn-default btn-warning gene-ct-buttons active" on-click="updateQuery">
+                                                All
+                                            </button>
+                                            <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
+                                                Tier 1
+                                            </button>
+                                            <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
+                                                Tier 2
+                                            </button>
+                                            <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
+                                                Tier 3
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!--</div>-->
+                            </div>
                         </div>
 
+                        <div class="col-md-15" style="padding: 12px 0px 0px 0px">
+                            <div id="{{prefix}}ToolbarLeft" class="col-md-6" style="padding: 15px 0px 0px 0px">
+                                <span style="padding: 0px 0px 0px 0px">
+                                    Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> variants
+                                </span>
+                            </div>
 
-                        <!--<div class="col-md-12">-->
-                        <!--<div id="{{prefix}}ToolbarLeft" class="col-md-6" style="padding: 0px">-->
-                        <!--<span style="font-size: 14px">Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> variants</span>-->
-                        <!--</div>-->
-                        <!--<div id="{{prefix}}ToolbarRight" class="col-md-6" style="padding: 0px">-->
-                        <!--<div class="btn-toolbar">-->
-                        <!--<input type="text" class="form-control" style="width: 80px">-->
-                        <!--&lt;!&ndash;<input type="button" class="form-control" style="width: 80px">&ndash;&gt;-->
-                        <!--</div>-->
-                        <!--</div>-->
-                        <!--</div>-->
+                            <div class="col-md-6" style="padding: 0px">
+                                <div class="form-inline">
+                                    <div class="form-group" style="padding: 0px;float: right">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" name="date" size="20" placeholder="Search for...">
+                                            <span class="input-group-btn">
+                                                <button type="button" class="btn btn-default"><i class="fa fa-search" aria-hidden="true"></i></button>
+                                            </span>
+                                        </div>
 
-                        <div id="{{prefix}}ToolbarLeft" class="col-md-6" style="padding: 0px">
-                            <span style="font-size: 14px">Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> variants</span>
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i>&nbsp;&nbsp;Update</button>
+                                            <button type="button" class="btn btn-primary"><i class="fa fa-comments-o" aria-hidden="true"></i>&nbsp;&nbsp;Review Case</button>
+                                            <button type="button" class="btn btn-primary"><i class="fa fa-file-text-o" aria-hidden="true"></i>&nbsp;&nbsp;Create Report</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <br>
-                        <div id="{{prefix}}GridTableDiv" style="margin-top: 10px">
+
+                        <div id="{{prefix}}GridTableDiv" style="margin-top: 5px">
                             <table id="{{prefix}}mainTable" data-pagination="true" data-page-list="[5, 10, 25]"
                                    data-show-export="true" data-detail-view="true" data-detail-formatter="detailFormatter">
                                 <thead style="background-color: #eee"></thead>
@@ -317,8 +361,7 @@
 
                                 <!-- File Metrics Tab -->
                                 <div id="{{prefix}}FileMetrics" role="tabpanel" class="tab-pane">
-                                    <br>
-                                    <div class="col-md-8 col-md-offset-1">
+                                    <div class="col-md-8 col-md-offset-1" style="padding-top: 20px">
                                         <table class="table table-hover">
                                             <thead>
                                             <tr>
@@ -331,7 +374,7 @@
                                             <tbody id="{{prefix}}TableTBody">
                                             <template is="dom-repeat" items="{{_getFileMetricsArray(variantObj.studies.0.files)}}" as="attrs">
                                                 <tr id="{{attrs.name}}" class$="file-metrics-table-{{attrs.name}}">
-                                                    <td>{{attrs.name}}</td>
+                                                    <td><span style="font-weight: bold">{{attrs.name}}</span></td>
                                                     <template is="dom-repeat" items="{{attrs.values}}" as="attr">
                                                         <td>{{attr}}</td>
                                                     </template>
@@ -418,6 +461,8 @@
                 super.ready();
                 this._summaryCollapsed = false;
 //                this.samples = ["NA12877"];
+                this.variantObj = {};
+                this.reportVariants = [];
             }
             _attachDom(dom) {
                 this.appendChild(dom);
@@ -425,6 +470,14 @@
             connectedCallback() {
                 super.connectedCallback();
                 this.render();
+                let table = $('#' + this.prefix + 'mainTable');
+                let _this = this;
+                table.on('expand-row.bs.table', function (e, index, row, $detail) {
+//                    debugger
+                    let res = _this.detailFormatter(index, row);
+                    $detail.html(res);
+                    console.log('row expanded', e, index);
+                });
             }
             _summaryOnClick() {
                 if (this._summaryCollapsed) {
@@ -434,96 +487,10 @@
                 }
                 this._summaryCollapsed = !this._summaryCollapsed;
             }
-            render() {
-                this.variant = ""; // Empty the variant every time the grid is loaded
-                this.from = 1;
-                this.to = Math.min(this.interpretation.reportedVariants.length, 10);
-                this.numTotalResultsText = this.interpretation.reportedVariants.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-                console.log(this.interpretation);
-                this.cols = this._refreshTableColumns();
-                this._genomeBrowserActive = false;
-                this._collapse = false;
-                let _this = this;
-                let _table = $('#' + this.prefix + 'mainTable');
-                $('#' + this.prefix + 'mainTable').bootstrapTable('destroy');
-                $("#" + this.prefix + "mainTable").bootstrapTable({
-                    data: _this.interpretation.reportedVariants,
-                    columns: _this.cols,
-//                    onClickRow: function (row, $element) {
-//                        console.log("onClickRow");
-//                        _this.variant = row.id;
-//
-//                        _this._genomeBrowserActive = true;
-//                        _this.regionGenomeBrowser = new Region({chromosome: row.chromosome, start: row.start, end: row.end});
-//                    },
-//                    onLoadSuccess: function (data) {
-//                        console.log("onLoadSuccess");
-//                    },
-                    onPageChange: function (page, size) {
-                        _this.from = (page - 1) * size + 1;
-                        _this.to = page * size;
-                    },
-                    onClickRow: function (row, $element) {
-                        $('.success').removeClass('success');
-                        $($element).addClass('success');
-                        _this.variant = row.id;
-                        _this.variantObj = row;
-                        _this._genomeBrowserActive = true;
-                        _this.regionGenomeBrowser = new Region({chromosome: row.chromosome, start: row.start, end: row.end});
-//                        _this._onSelectVariant(row);
-                    },
-                    onLoadSuccess: function (data) {
-                        // The first time we mark as selected the first row that is rows[2] since the first two rows are the header
-                        debugger
-                        if (UtilsNew.isNotUndefinedOrNull(_table)) {
-                            PolymerUtils.querySelector(_table.selector).rows[1].setAttribute('class', 'success');
-                            _this._onSelectVariant(data.rows[0]);
-                        }
-                    },
-                });
-            }
-            _onSelectVariant(row) {
-                if (typeof row !== "undefined") {
-                    let _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
-                    this.variant = _variant;
-                    this.dispatchEvent(new CustomEvent('selectvariant', {detail: {id: _variant, variant: row}}));
-                }
-            }
-            computedLengthComments(comments) {
-                return comments.length;
-            }
-            projectStudyObtained(project, study) {
-                if (typeof this.project !== "undefined" && this.project.alias !== "" && typeof this.study !== "undefined" && this.study.alias !== "") {
-                    this.hashFragmentCredentials = {
-                        project: this.project.alias,
-                        study: this.study.alias
-                    };
-                }
-            }
-            geneFormatter(value, row, index) {
-                if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
-                    if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined" && row.annotation.consequenceTypes.length > 0) {
-                        var visited = {};
-                        var geneLinks = [];
-                        for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
-                            if (typeof row.annotation.consequenceTypes[i].geneName !== "undefined" && row.annotation.consequenceTypes[i].geneName != ""
-                                && typeof visited[row.annotation.consequenceTypes[i].geneName] === "undefined") {
-                                if (typeof this.field.context.project !== "undefined" && typeof this.field.context.study !== "undefined") {
-                                    geneLinks.push('<a style="cursor: pointer;white-space: nowrap" href="#gene/' + this.field.context.project.alias +'/' +
-                                        this.field.context.study.alias + '/' + row.annotation.consequenceTypes[i].geneName + '">' + row.annotation.consequenceTypes[i].geneName + '</a>');
-                                } else {
-                                    geneLinks.push('<a style="cursor: pointer;white-space: nowrap">' + row.annotation.consequenceTypes[i].geneName + '</a>')
-                                }
-                                visited[row.annotation.consequenceTypes[i].geneName] = true;
-                            }
-                        }
-                        return geneLinks.join(',');
-                    }
-                }
-                return '-';
-            }
             _getFileMetricsArray() {
-//                $("#" + this.prefix + "TableTBody").empty();
+                if (this.variantObj === undefined || this.variantObj.studies === undefined) {
+                    return [];
+                }
                 let files = this.variantObj.studies[0].files;
                 // Let's find all the existing attributes
                 let attributesSet = new Set();
@@ -547,23 +514,150 @@
                 }
                 return result;
             }
-            detailFormatter (value, row) {
-                let html = [];
-                $.each(row, function (key, value) {
-                    html.push('<p><b>' + key + ':</b> ' + value + '</p>');
+            detailFormatter(value, row) {
+//                debugger
+                let ctHtml = [];
+                for (let ct of row.annotation.consequenceTypes) {
+                    let x = "<span class='col-md-12' style='padding: 0px'>";
+                    if (ct.geneName !== undefined) {
+                        x += `<span class='col-md-3'>
+                            <span style="font-weight: bold">${ct.geneName}</span> (<a href='http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${ct.ensemblGeneId};r=13:32315474-32400266' target="_blank">${ct.ensemblGeneId}</a>)
+                          </span>`;
+                        x += `<span class='col-md-3'><a href="http://www.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;t=${ct.ensemblTranscriptId}" target="_blank">${ct.ensemblTranscriptId}</a> (${ct.biotype})</span>`;
+                    } else {
+                        x += `<span class='col-md-3' style="font-weight: bold">NA</span>`;
+                        x += `<span class='col-md-3' style="font-weight: bold">NA</span>`;
+                    }
+                    x += `<span class='col-md-3'>`;
+                    for (let so of ct.sequenceOntologyTerms) {
+                        x += `<span><span style="font-weight: bold">${so.name}</span>&nbsp;(${so.accession})</span> `;
+                    }
+                    x += `</span>`;
+                    x += `<span class='col-md-3'>`;
+                    if (ct.exonOverlap !== undefined) {
+                        x += `<span><span style="font-weight: bold">cDNA:</span> ${ct.cdnaPosition}, <span style="font-weight: bold">CDS:</span> ${ct.cdsPosition}, <span style="font-weight: bold">Codon:</span> ${ct.codon}, <span style="font-weight: bold">Exon:</span> ${ct.exonOverlap[0].number}</span>`;
+                    }
+                    x += "</span>";
+                    x += "</span>";
+                    ctHtml.push(x);
+                }
+                let commentsHtml = [];
+                for (let comment of row.comments) {
+                    let x = `<span class='col-md-12'>${comment.comment} (${comment.author}, ${comment.date})</span><br>`;
+                    commentsHtml.push(x);
+                }
+                console.log(row.annotation.consequenceTypes)
+                let html = `<div class="col-md-12" style="padding: 2px 0px">
+                                <div class="col-md-2" style="padding: 0px 5px">
+                                    <label>Consequence Type:</label>
+                                </div>
+                                <div class="col-md-10" style="padding: 0px 5px">
+                                    <form class="form-horizontal">
+                                        <div class="form-group" style="margin: 0px 2px">
+                                            ${ctHtml.join("\n")}
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="col-md-12" style="padding: 2px 0px">
+                                <div class="col-md-2" style="padding: 0px 5px">
+                                    <label>Comments:</label>
+                                </div>
+                                <div class="col-md-10" style="padding: 0px 5px">
+                                    <form class="form-horizontal">
+                                        <div class="form-group" style="margin: 0px 2px">
+                                            ${commentsHtml.join("\n")}
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>`;
+                return html;
+            }
+            render() {
+                this.variant = ""; // Empty the variant every time the grid is loaded
+                this.from = 1;
+                this.to = Math.min(this.interpretation.reportedVariants.length, 10);
+                this.numTotalResultsText = this.interpretation.reportedVariants.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                console.log(this.interpretation);
+                this.cols = this._refreshTableColumns();
+                this._genomeBrowserActive = false;
+                this._collapse = false;
+                let _this = this;
+                let _table = $('#' + this.prefix + 'mainTable');
+                $('#' + this.prefix + 'mainTable').bootstrapTable('destroy');
+                $("#" + this.prefix + "mainTable").bootstrapTable({
+                    data: _this.interpretation.reportedVariants,
+                    columns: _this.cols,
+                    onPageChange: function (page, size) {
+                        _this.from = (page - 1) * size + 1;
+                        _this.to = page * size;
+                    },
+                    onClickRow: function (row, $element) {
+                        $('.success').removeClass('success');
+                        $($element).addClass('success');
+                        _this._onSelectVariant(row);
+                        _this._genomeBrowserActive = true;
+                        _this.regionGenomeBrowser = new Region({chromosome: row.chromosome, start: row.start, end: row.end});
+                    },
+                    onPostBody: function (data) {
+                        if (UtilsNew.isNotUndefinedOrNull(_table)) {
+                            PolymerUtils.querySelector(_table.selector).rows[2].setAttribute('class', 'success');
+                            _this._onSelectVariant(data[0]);
+                        }
+                    }
                 });
-                return html.join('');
+            }
+            _onSelectVariant(row) {
+                if (typeof row !== "undefined") {
+//                    let _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
+                    this.variant = row.id;
+                    this.variantObj = row;
+                    this.dispatchEvent(new CustomEvent('selectvariant', {detail: {id: this.variant, variant: row}, bubbles: true, composed: true}));
+                }
+            }
+            projectStudyObtained(project, study) {
+                if (typeof this.project !== "undefined" && this.project.alias !== "" && typeof this.study !== "undefined" && this.study.alias !== "") {
+                    this.hashFragmentCredentials = {
+                        project: this.project.alias,
+                        study: this.study.alias
+                    };
+                }
             }
             variantIdFormatter(value, row, index) {
                 let res = "";
                 if (UtilsNew.isNotUndefinedOrNull(row.id)) {
                     res += "<label>" + row.id + "</label><br>";
+                    if (row.annotation.cytoband !== undefined) {
+                        res += "<label>" + row.annotation.cytoband[0].name + "</label><br>";
+                    }
                 }
                 if (UtilsNew.isNotUndefinedOrNull(row.names) && row.names.length > 0) {
                     res += "<label><a href='https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?searchType=adhoc_search&type=rs&rs="
                         + row.names[0]+ "' target='_blank'>dbSNP " + row.names[0] + "</a></label>";
                 }
                 return res;
+            }
+            geneFormatter(value, row, index) {
+                if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
+                    if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined" && row.annotation.consequenceTypes.length > 0) {
+                        let visited = {};
+                        let geneLinks = [];
+                        for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
+                            if (typeof row.annotation.consequenceTypes[i].geneName !== "undefined" && row.annotation.consequenceTypes[i].geneName !== ""
+                                && typeof visited[row.annotation.consequenceTypes[i].geneName] === "undefined") {
+                                if (typeof this.field.context.project !== "undefined" && typeof this.field.context.study !== "undefined") {
+                                    geneLinks.push('<a style="cursor: pointer;white-space: nowrap" href="#gene/' + this.field.context.project.alias +'/' +
+                                        this.field.context.study.alias + '/' + row.annotation.consequenceTypes[i].geneName + '">' + row.annotation.consequenceTypes[i].geneName + '</a>');
+                                } else {
+                                    geneLinks.push('<a style="cursor: pointer;white-space: nowrap">' + row.annotation.consequenceTypes[i].geneName + '</a>')
+                                }
+                                visited[row.annotation.consequenceTypes[i].geneName] = true;
+                            }
+                        }
+                        return geneLinks.join(', ');
+                    }
+                }
+                return '-';
             }
             geneAnnotationFormatter(value, row, index) {
                 let val = "<span style='color: red'>missense_variant</span><br>c123T>C";
@@ -586,42 +680,37 @@
             zigosityFormatter(value, row, index) {
                 let res = "";
                 if (UtilsNew.isNotUndefinedOrNull(row.studies)) {
+                    let left, right;
                     switch (row.studies[0].samplesData[this.field.memberIdx][0]) {
                         case "0/0":
                         case "0|0":
-                            res = `<table>
-                                        <tr style="padding: 0px;">
-                                            <td style="padding: 0px"><div style='width: 15px;height: 15px;border: 1px solid black;border-radius: 50%;background-color: white'></div></td>
-                                            <td style="padding: 0px"><div style='width: 15px;height: 15px;border: 1px solid black;border-radius: 50%;background-color: white'></div></td>
-                                        </tr>
-                                    </table>`;
-                            break
+                            left = "white";
+                            right = "white";
+                            break;
                         case "0/1":
                         case "1/0":
-                            res = `<table>
-                                        <tr style="padding: 0px;">
-                                            <td style="padding: 0px"><div style='width: 15px;height: 15px;border: 1px solid black;border-radius: 50%;background-color: black'></div></td>
-                                            <td style="padding: 0px"><div style='width: 15px;height: 15px;border: 1px solid black;border-radius: 50%;background-color: white'></div></td>
-                                        </tr>
-                                    </table>`;
-                            break
+                            left = "black";
+                            right = "white";
+                            break;
                         case "1/1":
                         case "1|1":
-                            res = `<table>
-                                        <tr style="padding: 0px;">
-                                            <td style="padding: 0px"><div style='width: 15px;height: 15px;border: 1px solid black;border-radius: 50%;background-color: black'></div></td>
-                                            <td style="padding: 0px"><div style='width: 15px;height: 15px;border: 1px solid black;border-radius: 50%;background-color: black'></div></td>
-                                        </tr>
-                                    </table>`;
-                            break
+                            left = "black";
+                            right = "black";
+                            break;
                     }
+                    res = `<table>
+                                <tr style="padding: 0px;">
+                                    <td style="padding: 0px"><div style='width: 15px;height: 15px;border: 1px solid black;border-radius: 50%;background-color: ${left}'></div></td>
+                                    <td style="padding: 0px"><div style='width: 15px;height: 15px;border: 1px solid black;border-radius: 50%;background-color: ${right}'></div></td>
+                                </tr>
+                           </table>`;
                 }
                 return res;
             }
             fileMetricsFormatter(value, row, index) {
                 let val;
-                if (row !== undefined && row.studies !== undefined) {
-                    val = `<div class="col-md-12">
+                if (row !== undefined && row.studies !== undefined && row.studies.length > 0) {
+                    val = `<div class="col-md-12" style="padding: 0px">
                                                 <form class="form-horizontal">
                                                     <div class="form-group" style="margin: 0px 2px">
                                                         <label class="col-md-4">Quality:</label>
@@ -635,10 +724,6 @@
                                                         <label class="col-md-4">DP:</label>
                                                         <span class="col-md-8">${row.studies[0].files[0].attributes.DP}</span>
                                                     </div>
-                                                    <div class="form-group" style="margin: 0px 2px">
-                                                        <label class="col-md-4">AF:</label>
-                                                        <span class="col-md-8">${row.studies[0].files[0].attributes.AF}</span>
-                                                    </div>
                                                 </form>
                                             </div>`;
                 }
@@ -648,9 +733,16 @@
                 let res = "<button type='button' class='btn btn-info btn-xs'>Add to Report</button>";
                 return res + "<br><span>Comments(" + row.comments.length + ")</span>"
             }
+            reportFormatter(value, row, index) {
+                return "<input type='checkbox' onclick='onReportClick'>";
+            }
+            onReportClick() {
+                alert("click")
+            }
             _refreshTableColumns() {
                 this.cols = this._createDefaultColumns();
-                if (typeof this.cols !== "undefined" && typeof this.interpretation.clinicalAnalysis.family !== "undefined" && Object.keys(this.interpretation.clinicalAnalysis.family.members).length > 0) {
+                if (typeof this.cols !== "undefined" && typeof this.interpretation.clinicalAnalysis.family !== "undefined"
+                    && Object.keys(this.interpretation.clinicalAnalysis.family.members).length > 0) {
                     let zigosityIdx = 5;
                     let members = this.interpretation.clinicalAnalysis.family.members;
                     this.cols[0].splice(zigosityIdx, 0, {
@@ -718,15 +810,6 @@
                             halign: 'center',
                             formatter: this.prediciotnFormatter
                         },
-//                        {
-//                            title: "Zigosity",
-//                            field: "zigosity",
-//                            rowspan: 1,
-//                            colspan: 1,
-//                            formatter: this.zigosityFormatter,
-//                            halign: 'center'
-//
-//                        },
                         {
                             title: "Max allele freq",
                             field: "masAllele",
@@ -757,31 +840,17 @@
                             formatter: this.interpretationFormatter,
                             halign: 'center'
                         },
+                        {
+                            title: "Report",
+//                            field: "stateCheckBox",
+                            rowspan: 2,
+                            colspan: 1,
+                            formatter: this.reportFormatter,
+                            halign: 'center'
+                        }
                     ],
-                    [
-//                        {
-//                            title: 'SIFT',
-//                            field: {source: 'sift', context: this},
-//                            colspan: 1,
-//                            rowspan: 1,
-////                            formatter: this.proteinScoreFormatter,
-//                            halign: 'center'
-//                        }
-                    ]
+                    []
                 ];
-                return initCols;
-            }
-            onCollapse() {
-                if (this._collapsed) {
-//                    $("#" + this.prefix + "FilterMenu").css("display", "inline");
-                    $("#" + this.prefix + "filterBrowser").show(400);
-                    PolymerUtils.removeClass(this.prefix + "mainIntepretation", ["col-xs-offset-0", "col-sm-offset-0", "col-md-offset-1", "col-lg-offset-1"])
-                } else {
-//                    $("#" + this.prefix + "FilterMenu").css("display", "none");
-                    $("#" + this.prefix + "filterBrowser").hide(400);
-                    PolymerUtils.addClass(this.prefix + "mainIntepretation", ["col-xs-offset-0", "col-sm-offset-0", "col-md-offset-1", "col-lg-offset-1"])
-                }
-                this._collapsed = !this._collapsed;
             }
             triggerBeacon(e) {
                 this.variantToBeacon = this.variant;
@@ -793,10 +862,6 @@
                         value: obj[key]
                     };
                 });
-            }
-            _getFilesFromFirstStudy(obj) {
-                debugger
-                return obj[0].files;
             }
         }
         customElements.define(ClinicalInterpretationView.is, ClinicalInterpretationView);
