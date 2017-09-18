@@ -335,7 +335,9 @@
                         //notify: true
                     },
                     variables: {
-                        type: Array
+                        type: Array,
+                        observer: 'loadVariableSet'
+
                     },
 //                    analysisSelected: {
 //                        type: Object,
@@ -373,6 +375,8 @@
             connectedCallback(){
                 super.connectedCallback();
                 console.log(this.interpretation);
+                this.loadData();
+                this.loadVariableSet();
             }
 
             loadData() {
@@ -395,23 +399,23 @@
                     PolymerUtils.setPropertyById(this.prefix + "ChromosomalGender", "value",  this.interpretation.clinicalAnalysis.subject.karyotypicSex);
                     PolymerUtils.setPropertyById(this.prefix + "lifeStatus", "value",  this.interpretation.clinicalAnalysis.subject.lifeStatus);
                     PolymerUtils.setPropertyById(this.prefix + "ParentalConsanguinity", "value",  this.interpretation.clinicalAnalysis.subject.parentalConsanguinity);
-//                    PolymerUtils.setPropertyById(this.prefix + "birthPlace", "value", this.analysisSelected.analysis.proband.population.name);
+                    PolymerUtils.setPropertyById(this.prefix + "birthPlace", "value", this.interpretation.clinicalAnalysis.subject.population.name);
                     PolymerUtils.setPropertyById(this.prefix + "SampleID", "value",  this.interpretation.clinicalAnalysis.subject.samples[0].name);
 //
 
-                      let HPODiseases = this.interpretation.clinicalAnalysis.subject.ontologyTerms.filter((hpo) =>{
+                    let HPODiseases = this.interpretation.clinicalAnalysis.subject.ontologyTerms.filter((hpo) =>{
                             return hpo.source === "HPO";
                           }).map((hpo) => hpo.name).join(",");
                     PolymerUtils.innerHTML(this.prefix + "HPO",  HPODiseases);
-//                    PolymerUtils.innerHTML(this.prefix + "Diagnosis", this.analysisSelected.analysis.proband.ontologyTerms[1].name);
+                    let ICD10Diseases = this.interpretation.clinicalAnalysis.subject.ontologyTerms.filter((icd) =>{
+                            return icd.source === "ICD10";
+                    }).map((icd) => icd.name).join(",");
+                    PolymerUtils.innerHTML(this.prefix + "Diagnosis",  ICD10Diseases);
 //
                     PolymerUtils.setPropertyById(this.prefix + "cellLine", "value", this.interpretation.clinicalAnalysis.subject.samples[0].somatic);
                     PolymerUtils.setPropertyById(this.prefix + "sampleType", "value", this.interpretation.clinicalAnalysis.subject.samples[0].type);
-//                    PolymerUtils.setPropertyById(this.prefix + "testYear", "value", this.interpretation.clinicalAnalysis.subject.samples[0].annotationSets[0].annotations[0].value);
-//                    PolymerUtils.setPropertyById(this.prefix + "physician", "value", this.interpretation.clinicalAnalysis.subject.samples[0].annotationSets[0].annotations[1].value);
-//                    PolymerUtils.setPropertyById(this.prefix + "hospital", "value", this.interpretation.clinicalAnalysis.subject.samples[0].annotationSets[0].annotations[2].value);
-//                    PolymerUtils.setPropertyById(this.prefix + "testAge", "value", this.interpretation.clinicalAnalysis.subject.samples[0].annotationSets[0].annotations[3].value);
-//                    PolymerUtils.innerHTML(this.prefix + "technicalData", this.analysisSelected.analysis.proband.samples[0].annotationSets[0].annotations[4].value);
+
+
 
                     // Family information (pedigree) -> Only for FAMILY, TRIO or DUO
                     if (this.interpretation.clinicalAnalysis.type === "TRIO" || this.interpretation.clinicalAnalysis.type=== "DUO" || this.interpretation.clinicalAnalysis.type === "FAMILY") {
@@ -459,6 +463,14 @@
                     PolymerUtils.removeAttribute(this.prefix + "sampleInformationDiv", "hidden")
                     PolymerUtils.removeAttribute(this.prefix + "analysisInformationID", "hidden")
                 }
+            }
+
+            loadVariableSet(){
+                let _this = this;
+//                    PolymerUtils.innerHTML(this.prefix + "technicalData", this.analysisSelected.analysis.proband.samples[0].annotationSets[0].annotations[4].value);
+                this.interpretation.clinicalAnalysis.subject.samples[0].annotationSets[0].annotations.forEach((annotation) => {
+                    PolymerUtils.setValue(_this.prefix + annotation.name, annotation.value);
+                });
             }
 
             showSelection() {
