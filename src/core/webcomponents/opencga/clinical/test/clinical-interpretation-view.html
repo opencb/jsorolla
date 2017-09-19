@@ -34,6 +34,8 @@
     <script type="text/javascript" src="../../../../clients/rest-client.js"></script>
     <script type="text/javascript" src="../../../../clients/cellbase-client.js"></script>
     <script type="text/javascript" src="../../../../clients/opencga-client.js"></script>
+
+    <link rel="stylesheet" href="../../../../../../styles/css/style.css">
     <!--<script src="../../../../../../../../src/conf/config.js"></script>-->
 
     <!--<script type="text/javascript" src="../../../../../../node_modules/bootstrap-treeview/dist/bootstrap-treeview.min.js"></script>-->
@@ -48,6 +50,35 @@
     <link rel="import" href="../../../../../../node_modules/@polymer/polymer/lib/elements/array-selector.html">
     <link rel="import" href="../../../../../../node_modules/@polymer/polymer/lib/elements/custom-style.html">
     <link rel="import" href="../../../cellbase/variation/cellbase-variantannotation-view.html">
+    <script type="text/javascript" src="../../../../../genome-browser/genome-browser.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/navigation-bar.js"></script>
+    <script type="text/javascript" src="../../../../region.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/chromosome-panel.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/karyotype-panel.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/status-bar.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/feature-binary-search-tree.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/config.js"></script>
+    <script type="text/javascript" src="../../../../../core/utils.js"></script>
+    <!--<script type="text/javascript" src="../../../../../core/utilsNew.js"></script>-->
+    <script type="text/javascript" src="../../../../../core/svg.js"></script>
+
+    <script type="text/javascript" src="../../../../../genome-browser/tracks/tracklist-panel.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/tracks/feature-track.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/tracks/gene-track.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/tracks/alignment-track.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/tracks/variant-track.js"></script>
+
+    <script type="text/javascript" src="../../../../../genome-browser/renderers/renderer.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/renderers/feature-renderer.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/renderers/sequence-renderer.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/renderers/histogram-renderer.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/renderers/gene-renderer.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/renderers/alignment-renderer.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/renderers/variant-renderer.js"></script>
+
+    <script type="text/javascript" src="../../../../../core/data-adapter/feature-adapter.js"></script>
+    <script type="text/javascript" src="../../../../../core/data-adapter/cellbase-adapter.js"></script>
+    <script type="text/javascript" src="../../../../../core/data-adapter/opencga-adapter.js"></script>
 
     <script type="text/javascript" src="interpretation.js"></script>
     <link rel="import" href="../clinical-interpretation-view.html">
@@ -59,7 +90,7 @@
         <clinical-interpretation-view id="id" interpretation="{{interpretationJson}}" title="Interpretation View" project="{{project}}"
                                       study="{{study}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
                                       consequence-types="{{consequenceTypes}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                      style="font-size: 12px">
+                                      style="font-size: 12px" species="{{species}}">
         </clinical-interpretation-view>
 
     </template>
@@ -71,6 +102,24 @@
                     super();
 //                    this.prefix = "ff" + Utils.randomString(6);
                     this.interpretationJson = interpretationJson;
+                    this.opencgaClientConfig = new OpenCGAClientConfig("bioinfodev.hpc.cam.ac.uk/hgva-1.2.0-dev", "v1", true, "clinical_interpretation_test");
+                    this.opencgaClient = new OpenCGAClient(this.opencgaClientConfig);
+
+                    this.cellBaseClientConfig = new CellBaseClientConfig("bioinfo.hpc.cam.ac.uk/cellbase", "v4", "hsapiens");
+                    this.cellbaseClient = new CellBaseClient(this.cellBaseClientConfig);
+
+                    this.study = {
+                        "id": 2,
+                        "name": "1000 Genomes Project - Phase 3",
+                        "alias": "1kG_phase3",
+                    };
+
+                    this.project = {
+                        "id": 1,
+                        "name": "Reference studies GRCh37",
+                        "alias": "test@reference_grch37",
+                    };
+                    this.region = new Region({chromosome: "21", start: 22859462, end: 22859610});
                 }
                 static get is() { return 'my-element-in'; }
                 static get properties(){
@@ -89,23 +138,23 @@
 //                    this.config.cellbase = cellbase;
                     this.selectedTermsHPO = [];
 
-                    this.opencgaClientConfig = new OpenCGAClientConfig("bioinfodev.hpc.cam.ac.uk/hgva-1.2.0-dev", "v1", true, "clinical_interpretation_test");
-                    this.opencgaClient = new OpenCGAClient(this.opencgaClientConfig);
-
-                    this.cellBaseClientConfig = new CellBaseClientConfig("bioinfo.hpc.cam.ac.uk/cellbase", "v4", "hsapiens");
-                    this.cellbaseClient = new CellBaseClient(this.cellBaseClientConfig);
-
-                    this.study = {
-                        "id": 2,
-                        "name": "1000 Genomes Project - Phase 3",
-                        "alias": "1kG_phase3",
-                    };
-
-                    this.project = {
-                        "id": 1,
-                        "name": "Reference studies GRCh37",
-                        "alias": "test@reference_grch37",
-                    };
+//                    this.opencgaClientConfig = new OpenCGAClientConfig("bioinfodev.hpc.cam.ac.uk/hgva-1.2.0-dev", "v1", true, "clinical_interpretation_test");
+//                    this.opencgaClient = new OpenCGAClient(this.opencgaClientConfig);
+//
+//                    this.cellBaseClientConfig = new CellBaseClientConfig("bioinfo.hpc.cam.ac.uk/cellbase", "v4", "hsapiens");
+//                    this.cellbaseClient = new CellBaseClient(this.cellBaseClientConfig);
+//
+//                    this.study = {
+//                        "id": 2,
+//                        "name": "1000 Genomes Project - Phase 3",
+//                        "alias": "1kG_phase3",
+//                    };
+//
+//                    this.project = {
+//                        "id": 1,
+//                        "name": "Reference studies GRCh37",
+//                        "alias": "test@reference_grch37",
+//                    };
 //                    this.study = {
 //                        "id": 2,
 //                        "name": "1000 Genomes Project - Phase 3",

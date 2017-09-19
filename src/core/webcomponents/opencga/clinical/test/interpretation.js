@@ -218,8 +218,8 @@ const interpretationJson = {
             id: "19:45411941:T:C",
             names: ["rs429358"],
             chromosome: "19",
-            start: 3333,
-            end: 3335,
+            start: 45411941,
+            end: 45411941,
             type: "SNV",
             studies: [
                 {
@@ -2026,8 +2026,11 @@ const interpretationJson = {
             additionalNumericVariantAnnotations: []
         },
         {
-            id: "14:22221:A:T",
+            id: "11:68177444:A:T",
             name: "rs666",
+            chromosome: "11",
+            start: 68177444,
+            end: 68177444,
             annotation: {
                 source: "cellbase",
                 version: "4.5",
