@@ -77,46 +77,56 @@
                             <td>{{sample.name}}</td>
 
                             <td>
-                                <div class="dropdown">
-                                    <select class="form-control" id="{{prefix}}{{sample.name}}Father"
-                                            data-sample-id$="{{sample.id}}" data-is-father="true"
-                                            on-change="_selectParent">
-                                        <option value="none">Select a sample...</option>
-                                        <template is="dom-repeat" items="{{samples}}" as="sampleFather">
-                                            <template is="dom-if" if="{{isSelectedParent(0, sampleFather.id, sample.id)}}">
-                                                <option value="{{sampleFather.id}}" selected>
-                                                    {{sampleFather.name}}
-                                                </option>
+                                <template is="dom-if" if="{{data.showSelectParents}}">
+                                    <div class="dropdown">
+                                        <select class="form-control" id="{{prefix}}{{sample.name}}Father"
+                                                data-sample-id$="{{sample.id}}" data-is-father="true"
+                                                on-change="_selectParent">
+                                            <option value="none">Select a sample...</option>
+                                            <template is="dom-repeat" items="{{samples}}" as="sampleFather">
+                                                <template is="dom-if" if="{{isSelectedParent(0, sampleFather.id, sample.id)}}">
+                                                    <option value="{{sampleFather.id}}" selected>
+                                                        {{sampleFather.name}}
+                                                    </option>
+                                                </template>
+                                                <template is="dom-if" if="{{!isSelectedParent(0, sampleFather.id, sample.id)}}">
+                                                    <option value="{{sampleFather.id}}">
+                                                        {{sampleFather.name}}
+                                                    </option>
+                                                </template>
                                             </template>
-                                            <template is="dom-if" if="{{!isSelectedParent(0, sampleFather.id, sample.id)}}">
-                                                <option value="{{sampleFather.id}}">
-                                                    {{sampleFather.name}}
-                                                </option>
-                                            </template>
-                                        </template>
-                                    </select>
-                                </div>
+                                        </select>
+                                    </div>
+                                </template>
+                                <template is="dom-if" if="{{!data.showSelectParents}}">
+                                    <span>Unknown</span>
+                                </template>
                             </td>
                             <td>
-                                <div class="dropdown">
-                                    <select class="form-control" id="{{prefix}}{{sample.name}}Mother"
-                                            data-sample-id$="{{sample.id}}" data-is-mother="true"
-                                            on-change="_selectParent">
-                                        <option value="none">Select a sample...</option>
-                                        <template is="dom-repeat" items="{{data.samples}}" as="sampleMother">
-                                            <template is="dom-if" if="{{isSelectedParent(1, sampleMother.id, sample.id)}}">
-                                                <option value="{{sampleMother.id}}" selected>
-                                                    {{sampleMother.name}}
-                                                </option>
+                                <template is="dom-if" if="{{data.showSelectParents}}">
+                                    <div class="dropdown">
+                                        <select class="form-control" id="{{prefix}}{{sample.name}}Mother"
+                                                data-sample-id$="{{sample.id}}" data-is-mother="true"
+                                                on-change="_selectParent">
+                                            <option value="none">Select a sample...</option>
+                                            <template is="dom-repeat" items="{{data.samples}}" as="sampleMother">
+                                                <template is="dom-if" if="{{isSelectedParent(1, sampleMother.id, sample.id)}}">
+                                                    <option value="{{sampleMother.id}}" selected>
+                                                        {{sampleMother.name}}
+                                                    </option>
+                                                </template>
+                                                <template is="dom-if" if="{{!isSelectedParent(1, sampleMother.id, sample.id)}}">
+                                                    <option value="{{sampleMother.id}}">
+                                                        {{sampleMother.name}}
+                                                    </option>
+                                                </template>
                                             </template>
-                                            <template is="dom-if" if="{{!isSelectedParent(1, sampleMother.id, sample.id)}}">
-                                                <option value="{{sampleMother.id}}">
-                                                    {{sampleMother.name}}
-                                                </option>
-                                            </template>
-                                        </template>
-                                    </select>
-                                </div>
+                                        </select>
+                                    </div>
+                                </template>
+                                <template is="dom-if" if="{{!data.showSelectParents}}">
+                                    <span>Unknown</span>
+                                </template>
                             </td>
 
                             <td style="width: 150px;">
@@ -229,10 +239,12 @@
 
             initData() {
                 this.data = {};
+                this.data.showSelectParents = false;
                 if(PolymerUtils.getElementById("samplesTable")!=null){
                     PolymerUtils.getElementById("samplesTable").render();
                 }
                 if (UtilsNew.isNotUndefinedOrNull(this.samples)) {
+                    this.data.showSelectParents = this.samples.length > 2;
                     this.data.name = this.family.name;
                     this.data.description = this.family.description;
                     this.data.diseases = this.family.diseases;
@@ -344,9 +356,8 @@
 
             isCheckedDeceased(sampleId) {
                 let sampleSelected = this.findSample(sampleId);
-                if(UtilsNew.isNotUndefinedOrNull(sampleSelected) && UtilsNew.isNotUndefinedOrNull(sampleSelected.member) && UtilsNew.isNotUndefinedOrNull(sampleSelected.member.deceased)) {
-
-                    return sampleSelected.member.deceased;
+                if(UtilsNew.isNotUndefinedOrNull(sampleSelected) && UtilsNew.isNotUndefinedOrNull(sampleSelected.member) && UtilsNew.isNotUndefinedOrNull(sampleSelected.member.lifeStatus)) {
+                    return sampleSelected.member.lifeStatus === "DECEASED";
                 }
 
                 return false;
@@ -423,12 +434,11 @@
                 let sampleId = e.target.getAttribute("data-sample-id");
                 let sampleSelected = this.findSample(sampleId);
                 if(UtilsNew.isNotUndefinedOrNull(sampleSelected)) {
-
-                    sampleSelected.member.deceased = e.target.checked;
-                    this.family.members[sampleId].lifeStatus = "";
-                    if(sampleSelected.member.deceased){
-                        this.family.members[sampleId].lifeStatus = "deceased";
+                    sampleSelected.member.lifeStatus = "";
+                    if(e.target.checked){
+                        sampleSelected.member.lifeStatus = "DECEASED";
                     }
+                    this.family.members[sampleId].lifeStatus = sampleSelected.member.lifeStatus;
                     this._updateFamily();
                 }
             }
@@ -513,7 +523,6 @@
 
             _updateFamily() {
                 // Updating family in parents sending an event.
-//                this.family.members = this.family.members.slice(0);
                 this.dispatchEvent(new CustomEvent('familychange', {
                     detail: this.family,
                     bubbles: true,
@@ -525,32 +534,28 @@
 
             pedigreeRender() {
                 // Remove SVG before render new one
-                if (UtilsNew.isNotUndefined(this.svg)) {
-                    PolymerUtils.getElementById(this.prefix + "PedigreeView").removeChild(this.svg);
-                }
-                let body = Object.assign({},this.family);
-                let membersNew =[];
-                body.members.forEach((member) => {
-                    let newMember = Object.assign({},member);
-//                    let newDiseases = [];
-//                    newMember.diseases.forEach((disease)=>{
-//                        newDiseases.push(disease);
-//                    });
-//                    newMember.diseases = newDiseases;
-                    membersNew.push(newMember);
-                });
-                body.members = membersNew;
+                if(this.data.showSelectParents){
+                    if (UtilsNew.isNotUndefined(this.svg)) {
+                        PolymerUtils.getElementById(this.prefix + "PedigreeView").removeChild(this.svg);
+                    }
+                    let body = Object.assign({},this.family);
+                    let membersNew =[];
+                    body.members.forEach((member) => {
+                        let newMember = Object.assign({},member);
+                        membersNew.push(newMember);
+                    });
+                    body.members = membersNew;
 
-                // Render new Pedigree
-                let querySelector = PolymerUtils.getElementById(this.prefix + "PedigreeView");
-                let pedigree = new Pedigree(body);
-                this.svg = pedigree.render();
-                querySelector.appendChild(this.svg);
+                    // Render new Pedigree
+                    let querySelector = PolymerUtils.getElementById(this.prefix + "PedigreeView");
+                    let pedigree = new Pedigree(body);
+                    this.svg = pedigree.render();
+                    querySelector.appendChild(this.svg);
+                }
             }
 
             deletedTermFromList(e){
                 let deletedTerm = JSON.parse(e.target.getAttribute("data-selected-term"));
-
 
                     let diseasesWithoutElement = this.data.diseases.filter((element) => {
                         return element.id !== deletedTerm.id;

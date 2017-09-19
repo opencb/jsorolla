@@ -230,14 +230,15 @@
                     },
                     onClickCell: function (field, value, row, elem) {
                         if (field === "editFamily") { // Only if cell related to family editor is selected, get samples for this analysis to the family editor
+                            _this._samplesAnalysis = row.sampleList;
+                            _this.currentAnalysis = row;
+                            _this.selectedRow = elem.parent().data("index");
                             if (UtilsNew.isNotUndefinedOrNull(row.family)) {
                                 _this.family = row.family;
                             } else {
                                 _this.initFamily();
                             }
-                            _this._samplesAnalysis = row.sampleList;
-                            _this.currentAnalysis = row;
-                            _this.selectedRow = elem.parent().data("index");
+
                         } else if (field === "action") { // Only if cell related to save is selected
                                 _this.saveAnalysis(row);
 
@@ -248,7 +249,7 @@
             }
 
             initFamily() {
-                if (UtilsNew.isNotUndefinedOrNull(this.samples)) {
+                if (UtilsNew.isNotUndefinedOrNull(this._samplesAnalysis)) {
                     this.family = {};
                     this.family.name = "";
                     this.family.description = "";
@@ -258,7 +259,7 @@
 //                    this.family.createDate = new Date();
                     this.family.attributes = {};
                     let _this = this;
-                    this.samples.forEach((sample) => {
+                    this._samplesAnalysis.forEach((sample) => {
                         _this.family.members[sample.id] = {
                             father: undefined,
                             mother: undefined,
@@ -476,8 +477,6 @@
                     else {
                         this._analysis = [_anObject];
                     }
-
-
                     this.analysisChanged++;
                     this.unsavedAnalysis++;
                 }
@@ -526,11 +525,12 @@
                     let bodyFamily = null;
                     let subjectName = "";
                     let samplesName = [];
+
                     bodyFamily = Object.assign({}, rowInfo.family);
                     let membersNew = [];
+
                     bodyFamily.members.forEach((member) => {
                         let newMember = Object.assign(member);
-                    //                        newMember.diseases = Array.from(newMember.diseases)
                         membersNew.push(member);
                     });
                     bodyFamily.members = membersNew;
@@ -539,8 +539,8 @@
                     });
 
                     let individualPromises = [];
+                    let checkPromises = [];
                     let _this = this;
-//                    if (_analysisType !== "SINGLE") {
                         subjectName = PolymerUtils.getValue(this.prefix + "selectedSubject" + rowInfo.analysisIDinternal);
                         samplesName = rowInfo.sampleList.filter((sample) => {
                                 return sample.individual.name === subjectName;
@@ -549,89 +549,92 @@
                             return res;
                         });
 
-                    membersWithParents.forEach((individualToUpdate) => {
-                        this.opencgaClient.individuals().info(individualToUpdate.name, params, {"method": "GET"})
-                        .then(function (response) {
+                    let analysisInfo = {
+                        analysisID: PolymerUtils.getElementById(_this.prefix + "analysisID" + rowInfo.analysisIDinternal).value,
+                        type: _analysisType,
+                        familyID: rowInfo.family != null ? rowInfo.family.name : "",
+                        subject:  {name: subjectName, samples:samplesName} // TO BE CHANGED
+                    };
+                    let checkExistsNames = true;
+                    let checkFamilyName = _this.opencgaClient.families().search(Object.assign({name: bodyFamily.name}, params), {"method": "GET"})
+                        .then(function(response){
                             if (response.response[0].numResults >= 1) {
-                                let individual = response.response[0].result[0];
-                                let individualId = individual.id;
-                                individual = Object.assign({}, individual, {
-                                    name: undefined,
-                                    id: undefined,
-                                    fatherId: undefined,
-                                    motherId: undefined,
-                                    family: undefined,
-                                    species: undefined,
-                                    release: undefined,
-                                    creationDate: undefined,
-                                    status: undefined,
-                                    samples: undefined
-                                });
-                                if ((UtilsNew.isUndefinedOrNull(individual.father) && UtilsNew.isUndefinedOrNull(individual.mother)) ||
-                                    (UtilsNew.isUndefinedOrNull(individual.father.id) && UtilsNew.isUndefinedOrNull(individual.mother.id)) ||
-                                    (individual.father.id <= 0 && individual.mother.id <= 0)) {
-                                    let individualPost = {
-                                        father: individualToUpdate.father,
-                                        mother: individualToUpdate.mother
-                                    };
-                                    let individualPromise = _this.opencgaClient.individuals().update(individualId, params, individualPost, {"method": "POST"})
-                                        .then(function (response) {
-                                            console.log("Individual update");
-                                        });
-                                    individualPromises.push(individualPromise);
-                                }
+                                checkExistsNames = false;
                             }
-
                         });
-                    });
-//                    } else {
-//                        let individualInfo = this.opencgaClient.individuals().info(rowInfo.sampleList[0].individual.id, params, {"method": "GET"})
-//                            .then(function (response) {
-//                                let sample = rowInfo.sampleList[0];
-//                                if (response.response[0].numResults >= 1) {
-//                                    sample.individual = response.response[0].result[0];
-//                                    subjectName = sample.individual.name;
-//                                    samplesName = [];
-//                                    samplesName.push({name: sample.name});
-//                                }
-//                            });
-//                        individualPromises.push(individualInfo);
-//                    }
+                    checkPromises.push(checkFamilyName);
+                    let checkAnalysisName = _this.opencgaClient.clinical().search(Object.assign({name: analysisInfo.analysisID}, params), {"method": "GET"})
+                        .then(function(response){
+                            if (response.response[0].numResults >= 1) {
+                                checkExistsNames = false;
+                            }
+                        });
+                    checkPromises.push(checkAnalysisName);
 
-                    Promise.all(individualPromises)
+                    Promise.all(checkPromises)
                         .then(function (response) {
-                            console.log("Create family");
-                            let analysisInfo = {
-                                analysisID: PolymerUtils.getElementById(_this.prefix + "analysisID" + rowInfo.analysisIDinternal).value,
-                                type: _analysisType,
-                                familyID: rowInfo.family != null ? rowInfo.family.name : "",
-                                subject:  {name: subjectName, samples:samplesName} // TO BE CHANGED
-                            };
-//                            if(_analysisType == "SINGLE"){
-//                                _this.createAnalysis(analysisInfo);
-//                            } else if ((_analysisType !== "TRIO" && _analysisType !== "FAMILY" ) ||
-                            if((_analysisType !== "TRIO" && _analysisType !== "FAMILY") || UtilsNew.isNotUndefinedOrNull(individualPromises) && UtilsNew.isNotEmptyArray(individualPromises) && individualPromises.length > 0) {
+                            if(checkExistsNames){
+                                if(membersWithParents.length > 0) {
+                                    membersWithParents.forEach(function (individualToUpdate) {
+                                        _this.opencgaClient.individuals().info(individualToUpdate.name, params, {"method": "GET"})
+                                            .then(function (response) {
+                                                if (response.response[0].numResults >= 1) {
+                                                    let individual = response.response[0].result[0];
+                                                    let individualId = individual.id;
+                                                    if ((UtilsNew.isUndefinedOrNull(individual.father) && UtilsNew.isUndefinedOrNull(individual.mother)) ||
+                                                        (UtilsNew.isUndefinedOrNull(individual.father.id) && UtilsNew.isUndefinedOrNull(individual.mother.id)) ||
+                                                        (individual.father.id <= 0 && individual.mother.id <= 0)) {
+                                                        let individualPost = {
+                                                            father: individualToUpdate.father,
+                                                            mother: individualToUpdate.mother
+                                                        };
+                                                        let individualPromise = _this.opencgaClient.individuals().update(individualId, params, individualPost, {"method": "POST"})
+                                                            .then(function (response) {
+                                                                console.log("Individual update");
+                                                            });
+                                                        individualPromises.push(individualPromise);
+                                                        Promise.all(individualPromises)
+                                                            .then(function (response) {
+                                                                console.log("Create family");
+                                                                if ((_analysisType !== "TRIO" && _analysisType !== "FAMILY") || UtilsNew.isNotUndefinedOrNull(individualPromises) &&
+                                                                    UtilsNew.isNotEmptyArray(individualPromises) && individualPromises.length > 0) {
+                                                                    _this.createFamily(params, bodyFamily, rowInfo, subjectName, samplesName, analysisInfo);
+                                                                }
+                                                            })
+                                                            .catch(function (response) {
+                                                                _this.settingsMessageModal = {
+                                                                    messageHeader: "Error",
+                                                                    messageBody: [response.error],
+                                                                    type: "danger",
+                                                                    height: "100px",
+                                                                    width: "500px"
+                                                                };
+                                                                _this.set('settingsMessageModal', _this.settingsMessageModal);
+                                                                _this.showMessageModal = true;
+                                                            });
+                                                    }
+                                                }
 
-                                _this.createFamily(params, bodyFamily, rowInfo, subjectName, samplesName, analysisInfo);
+                                            });
+                                    });
+                                }else{
+                                    if((_analysisType !== "TRIO" && _analysisType !== "FAMILY") || UtilsNew.isNotUndefinedOrNull(individualPromises) &&
+                                        UtilsNew.isNotEmptyArray(individualPromises) && individualPromises.length > 0) {
+                                        _this.createFamily(params, bodyFamily, rowInfo, subjectName, samplesName, analysisInfo);
+                                    }
+                                }
 
+
+                            }else{
+                                //@TODO Show message warning with name duplicate
                             }
-                        })
-                        .catch(function (response) {
-                            _this.settingsMessageModal = {
-                                messageHeader: "Error",
-                                messageBody: [response.error],
-                                type: "danger",
-                                height: "100px",
-                                width: "500px"
-                            };
-                            _this.set('settingsMessageModal', _this.settingsMessageModal);
-                            _this.showMessageModal = true;
                         });
+
+
                 }
             }
 
             createFamily(params, body, rowInfo, subjectName, samplesName, analysisInfo){
-
                 let _this = this;
                     this.opencgaClient.families().create(params, body)
                         .then(function (response) {
@@ -651,7 +654,6 @@
 
                             _this.showMessageModal = true;
                         });
-
             }
 
             createAnalysis(analysisInfo) {
