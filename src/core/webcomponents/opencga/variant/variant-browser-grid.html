@@ -117,8 +117,8 @@
                         observer: 'assignColors'
                     },
                     query: {
-                        type: Object,
-                    observer: 'renderFromServer'
+                        type: Object
+//                        observer: 'renderFromServer'
                     },
                     search: {
                         type: Object,
@@ -1106,22 +1106,22 @@
                 this.downloadIcon.css('display', 'none');
                 this.opencgaClient.variants().query(params)
                     .then(function (response) {
-                        let json = response.response[0].result;
-                        let dataString = [];
-                        for (let i = 0; i < json.length; i++) {
-                            dataString.push(JSON.stringify(json[i]));
-                        }
-
-                        let data = new Blob([dataString.join('\n')], {type: 'application/json'});
-                        let file = window.URL.createObjectURL(data);
-                        let a = document.createElement("a");
-                        a.href = file;
-                        a.download = _this.study.alias + ".json";
-                        document.body.appendChild(a);
-                        a.click();
-                        setTimeout(function() {
-                            document.body.removeChild(a);
-                        }, 0);
+//                        let json = response.response[0].result;
+//                        let dataString = [];
+//                        for (let i = 0; i < json.length; i++) {
+//                            dataString.push(JSON.stringify(json[i]));
+//                        }
+//
+//                        let data = new Blob([dataString.join('\n')], {type: 'application/json'});
+//                        let file = window.URL.createObjectURL(data);
+//                        let a = document.createElement("a");
+//                        a.href = file;
+//                        a.download = _this.study.alias + ".json";
+//                        document.body.appendChild(a);
+//                        a.click();
+//                        setTimeout(function() {
+//                            document.body.removeChild(a);
+//                        }, 0);
                     })
                     .then(function () {
                         _this.downloadRefreshIcon.css('display', 'none');
