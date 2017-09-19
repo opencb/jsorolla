@@ -164,33 +164,33 @@
 
                 <div style="width: 60%; margin: auto">
                     <br>
-                    <clinical-analysis-view study="{{study}}" opencga-client="{{opencgaClient}}" config="{{config}}"></clinical-analysis-view>
+                    <!--<clinical-analysis-view study="{{study}}" opencga-client="{{opencgaClient}}" config="{{config}}"></clinical-analysis-view>-->
                 </div>
 
-                <!--<div class="analysis-content" id="{{prefix}}PrioritizationButtonDiv">-->
-                    <!--<div class="col-md-2">-->
-                    <!--&lt;!&ndash;    <variant-clinical-filter mode="{{mode}}" study="{{study}}" project="{{project}}" samples="{{samples}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"-->
-                                                 <!--population-frequencies="{{populationFrequencies}}" biotypes="{{biotypes}}" consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}" analysis-selected="{{analysisSelected}}" style="font-size: 12px">-->
-                        <!--</variant-clinical-filter>&ndash;&gt;-->
+                <div class="analysis-content" id="{{prefix}}PrioritizationButtonDiv">
+                    <div class="col-md-2">
+                    <!--    <variant-clinical-filter mode="{{mode}}" study="{{study}}" project="{{project}}" samples="{{samples}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"
+                                                 population-frequencies="{{populationFrequencies}}" biotypes="{{biotypes}}" consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}" analysis-selected="{{analysisSelected}}" style="font-size: 12px">
+                        </variant-clinical-filter>-->
 
-                        <!--<variant-browser-filter mode="{{mode}}" study="{{study}}" project="{{project}}" samples="{{samples}}"-->
-                                                <!--opencga-client="{{opencgaClient}}"-->
-                                                <!--cellbase-client="{{cellbaseClient}}" config="{{config}}"-->
-                                                <!--population-frequencies="{{populationFrequencies}}" biotypes="{{biotypes}}"-->
-                                                <!--consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}"-->
-                                                <!--on-closemodalsample="onCloseModalSample"  analysis-selected="{{analysisSelected}}" ebi-config="{{ebiConfig}}" style="font-size: 12px">-->
-                        <!--</variant-browser-filter>-->
-                    <!--</div>-->
+                        <variant-browser-filter mode="{{mode}}" study="{{study}}" project="{{project}}" samples="{{samples}}"
+                                                opencga-client="{{opencgaClient}}"
+                                                cellbase-client="{{cellbaseClient}}" config="{{config}}"
+                                                population-frequencies="{{populationFrequencies}}" biotypes="{{biotypes}}"
+                                                consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}"
+                                                on-closemodalsample="onCloseModalSample"  analysis-selected="{{analysisSelected}}" ebi-config="{{ebiConfig}}" style="font-size: 12px">
+                        </variant-browser-filter>
+                    </div>
 
-                    <!--<div class="col-md-10">-->
-                       <!--<variant-prioritization-view prefix="{{prefix}}" mode="clinical" title="{{title}}" project="{{project}}" study="{{study}}" samples="{{samples}}"-->
-                                                     <!--opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}"-->
-                                                     <!--protein-substitution-scores="{{proteinSubstitutionScores}}" consequence-types="{{consequenceTypes}}"-->
-                                                     <!--query="{{query}}" search="{{search}}" on-clear="onClear" on-filterchange="onFilterChange"-->
-                                                    <!--on-save="onSaveVariants" on-propagate="propagateGeneEvent">-->
-                        <!--</variant-prioritization-view>-->
-                    <!--</div>-->
-                <!--</div>-->
+                    <div class="col-md-10">
+                       <variant-prioritization-view prefix="{{prefix}}" mode="clinical" title="{{title}}" project="{{project}}" study="{{study}}" samples="{{samples}}"
+                                                     opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}"
+                                                     protein-substitution-scores="{{proteinSubstitutionScores}}" consequence-types="{{consequenceTypes}}"
+                                                     query="{{query}}" search="{{search}}" on-clear="onClear" on-filterchange="onFilterChange"
+                                                    on-save="onSaveVariants" on-propagate="propagateGeneEvent">
+                        </variant-prioritization-view>
+                    </div>
+                </div>
             </template>
 
 
@@ -335,46 +335,78 @@
             }
 
             onSaveVariants(e, obj) {
-                if (typeof this.analysisSelected !== "undefined") {
-                    let sampleId = this.analysisSelected.analysis.family.children[0].samples[0].id;
-                    let analysisId = this.analysisSelected.analysisID;
 
-                    if (this.opencgaClient instanceof OpenCGAClient) {
+                let interpretationJson = {};
+                interpretationJson.name = "INT-" + Utils.randomString(25550);
+                interpretationJson.description = "Description";
+                interpretationJson.clinicalAnalysis = {};
+                interpretationJson.software= {
+                    name: "TEAM",
+                    version: "2.0",
+                    website: "https://www.ncbi.nlm.nih.gov/pubmed/24861626",
+                    repository: "https://github.com/opencb/opencga",
+                    commit: "f43372aa",
+                    params: {}
+                };
+                interpretationJson.analyst = {
+                    name: "",
+                    email:"",
+                    company:""
+                };
+                interpretationJson.versions =  [
+                    {id: "cellbase", name: "CellBase", type: "DDBB", version: "4.5.0"}
+                ];
+                interpretationJson.filters = obj.query;
+                interpretationJson.creationDate = "Description";
+                interpretationJson.comments = [];
+                interpretationJson.reportedVariants = obj.variants;
+                interpretationJson.  attributes = {};
 
-                        let params = {
-                            study: this.project.alias + ":" + this.study.alias
-                        };
 
-                        let body = {
-                            attributes: {"PRIORITIZATION": obj}
-                        };
 
-                        let _this = this;
-                        this.opencgaClient.samples().update(sampleId, params, body)
-                            .then(function (response) {
-                                _this.settingsMessageModal = {
-                                    messageHeader: "BIER-IVA",
-                                    messageBody: ["Selected variants have been saved for " + analysisId],
-                                    type: "info",
-                                    height: "100px",
-                                    width: "500px"
-                                };
 
-                                _this.showMessageModal = true;
-                            })
-                            .catch(function (response) {
-                                _this.settingsMessageModal = {
-                                    messageHeader: "Error",
-                                    messageBody: ["Variants couldn't be saved for " + analysisId],
-                                    type: "danger",
-                                    height: "100px",
-                                    width: "500px"
-                                };
 
-                                _this.showMessageModal = true;
-                            });
-                    }
-                }
+
+//                if (typeof this.analysisSelected !== "undefined") {
+//                    let sampleId = this.analysisSelected.analysis.family.children[0].samples[0].id;
+//                    let analysisId = this.analysisSelected.analysisID;
+//
+//                    if (this.opencgaClient instanceof OpenCGAClient) {
+//
+//                        let params = {
+//                            study: this.project.alias + ":" + this.study.alias
+//                        };
+//
+//                        let body = {
+//                            attributes: {"PRIORITIZATION": obj}
+//                        };
+//
+//                        let _this = this;
+//                        this.opencgaClient.samples().update(sampleId, params, body)
+//                            .then(function (response) {
+//                                _this.settingsMessageModal = {
+//                                    messageHeader: "BIER-IVA",
+//                                    messageBody: ["Selected variants have been saved for " + analysisId],
+//                                    type: "info",
+//                                    height: "100px",
+//                                    width: "500px"
+//                                };
+//
+//                                _this.showMessageModal = true;
+//                            })
+//                            .catch(function (response) {
+//                                _this.settingsMessageModal = {
+//                                    messageHeader: "Error",
+//                                    messageBody: ["Variants couldn't be saved for " + analysisId],
+//                                    type: "danger",
+//                                    height: "100px",
+//                                    width: "500px"
+//                                };
+//
+//                                _this.showMessageModal = true;
+//                            });
+//                    }
+//                }
             }
 
             onClear(){
