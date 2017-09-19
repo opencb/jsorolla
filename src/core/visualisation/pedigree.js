@@ -54,7 +54,7 @@ class Pedigree {
         }
 
         // We merge user's setting with default settings, by doing this users do not have to write al possible settings
-        settings = Object.assign(this._getDefaultSetting(), settings);
+        settings = Object.assign(this.getDefaultSetting(), settings);
 
         let pedigree = this._preprocessFamily(ped);
 
@@ -141,7 +141,6 @@ class Pedigree {
                         x2: left + (i * interval) ,       y2: 10 + radius + (1.5 * settings.box) + 15,
                         style: "stroke: black;stroke-width: 2"
                     });
-
                     this._addFamilyMember(pedigree.children[i], left + (i * interval), (1.5 * settings.box) + 15 + 10 + radius, settings.box, radius, settings.selectShowSampleNames, svg);
                 }
             }
@@ -155,7 +154,6 @@ class Pedigree {
         let memberSVG;
         if (typeof object.sex === "undefined" || object.sex === "undefined") {
             SVG.addChild(svg, "rect", {
-
                 x: x - radius,          y: y,
                 width: width * 0.8,     height: width * 0.8,
                 transform: "translate(" + radius + ") rotate(45 " + (x - radius) + " " + (10 + radius + (1.5 * width) + y) + ")",
@@ -165,7 +163,6 @@ class Pedigree {
             // Member is a male
             if (object.sex === "male" || object.sex === "MALE") {
                 SVG.addChild(svg, "rect", {
-
                     x: x - radius,      y: y,
                     width: width,       height: width,
                     // fill: "url(#Pattern2)",
@@ -194,7 +191,7 @@ class Pedigree {
                 x: x - radius + 2,  y: y + width + 15,
                 style: "fill: black;font-size=8px;font-weight:10"
             });
-            text.textContent = object.member.name;
+            text.textContent = object.name;
         }
 
         // $(memberSVG).qtip({
@@ -217,22 +214,22 @@ class Pedigree {
         }
 
         let colorMap = {};
-        for (let d in family.diseases) {
-            colorMap[family.diseases[d].id] = d;
+        for (let idx in family.diseases) {
+            colorMap[family.diseases[idx].id] = idx;
         }
 
         family.children = [];
         for (let m of family.members) {
-            if (m.father !== undefined && m.mother !== undefined ) {
-                map[m.father].partner = m.mother;
-                map[m.mother].partner = m.father;
+            if (m.father !== undefined && m.father.name !== undefined && m.mother !== undefined && m.mother.name !== undefined) {
+                map[m.father.name].partner = m.mother.name;
+                map[m.mother.name].partner = m.father.name;
 
-                map[m.father].partnerConsaguinity = m.parentalConsanguinity;
-                map[m.mother].partnerConsaguinity = m.parentalConsanguinity;
+                map[m.father.name].partnerConsaguinity = m.parentalConsanguinity;
+                map[m.mother.name].partnerConsaguinity = m.parentalConsanguinity;
 
-                if (this._isOrphan(map[m.father] && this._isOrphan(map[m.mother]))) {
-                    family.father = map[m.father];
-                    family.mother = map[m.mother];
+                if (this._isOrphan(map[m.father.name] && this._isOrphan(map[m.mother.name]))) {
+                    family.father = map[m.father.name];
+                    family.mother = map[m.mother.name];
                 }
 
                 family.children.push(m);
@@ -252,7 +249,6 @@ class Pedigree {
             }
         }
 
-        console.log(family);
         return family;
     }
 
@@ -304,7 +300,7 @@ class Pedigree {
         return (member.father === undefined || member.father=== null) && (member.mother === undefined || member.mother.id === null)
     }
 
-    _getDefaultSetting() {
+    getDefaultSetting() {
         return {
             width: 400,
             height: 240,
