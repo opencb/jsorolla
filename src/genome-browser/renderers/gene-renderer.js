@@ -22,6 +22,7 @@ class GeneRenderer extends Renderer {
     render(features, args) {
         let _this = this;
         let draw = function (feature) {
+            debugger
             // get feature render configuration
             _this.setFeatureConfig(_this._getDefaultConfigGene().gene);
             let color = _.isFunction(_this.color) ? _this.color(feature) : _this.color;
@@ -147,7 +148,7 @@ class GeneRenderer extends Renderer {
                             //get type settings object
                             _this.setFeatureConfig(_this._getDefaultConfigGene().transcript);
                             let transcriptColor = _.isFunction(_this.color) ? _this.color(transcript) : _this.color;
-                            let label = _.isFunction(_this.labelTrancript) ? _this.label(transcript) : _this.label;
+                            let label = _.isFunction(_this.label) ? _this.label(transcript) : _this.label;
                             let height = _.isFunction(_this.height) ? _this.height(transcript) : _this.height;
                             let tooltipTitle = _.isFunction(_this.tooltipTitle) ? _this.tooltipTitle(transcript) : _this.tooltipTitle;
                             let tooltipText = _.isFunction(_this.tooltipText) ? _this.tooltipText(transcript) : _this.tooltipText;
