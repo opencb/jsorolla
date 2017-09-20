@@ -74,7 +74,7 @@
                     <tbody>
                     <template id="samplesTable" is="dom-repeat" items="{{data.samples}}" as="sample">
                         <tr>
-                            <td>{{sample.name}}</td>
+                            <td>{{sample.name}} ({{sample.individual.name}})</td>
 
                             <td>
                                 <template is="dom-if" if="{{data.showSelectParents}}">
