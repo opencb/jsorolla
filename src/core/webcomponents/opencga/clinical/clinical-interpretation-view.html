@@ -1,6 +1,8 @@
 <link rel="import" href="../../../webcomponents/cellbase/variation/cellbase-variantannotation-view.html">
 <link rel="import" href="../variant/variant-beacon-network.html">
-<link rel="import" href="../variant/variant-genome-browser.html">
+<!--<link rel="import" href="../variant/variant-genome-browser.html">-->
+<link rel="import" href="../../../../genome-browser/webcomponent/genome-browser.html">
+
 
 <dom-module id="clinical-interpretation-view">
 
@@ -46,25 +48,25 @@
                                                     <div class="form-group" style="margin: 0px 2px">
                                                         <label class="col-md-4">Name:</label>
                                                         <span class="col-md-8">
-                                                        {{interpretation.clinicalAnalysis.subject.samples.0.name}} &nbsp;&nbsp; (<a style="font-weight: bold"><i class="fa fa-external-link" aria-hidden="true"></i> Clinical Data</a>)
+                                                        {{interpretation.clinicalAnalysis.subjects.0.samples.0.name}} &nbsp;&nbsp; (<a style="font-weight: bold"><i class="fa fa-external-link" aria-hidden="true"></i> Clinical Data</a>)
                                                     </span>
                                                     </div>
                                                     <div class="form-group" style="margin: 0px 2px">
                                                         <label class="col-md-4">File:</label>
-                                                        <span class="col-md-8">{{interpretation.clinicalAnalysis.file.name}}</span>
+                                                        <span class="col-md-8">{{interpretation.clinicalAnalysis.germline.name}}</span>
                                                     </div>
                                                     <div class="form-group" style="margin: 0px 2px">
                                                         <label class="col-md-4">Genome Assembly:</label>
-                                                        <span class="col-md-8">{{interpretation.clinicalAnalysis.file.assembly}}</span>
+                                                        <span class="col-md-8">{{interpretation.clinicalAnalysis.germline.assembly}}</span>
                                                     </div>
                                                     <div class="form-group" style="margin: 0px 2px">
                                                         <label class="col-md-4">Somatic:</label>
-                                                        <span class="col-md-8">{{interpretation.clinicalAnalysis.subject.samples.0.somatic}}</span>
+                                                        <span class="col-md-8">{{interpretation.clinicalAnalysis.subjects.0.samples.0.somatic}}</span>
                                                     </div>
                                                     <div class="form-group" style="margin: 0px 2px">
                                                         <label class="col-md-4">Phenotypes:</label>
                                                         <span class="col-md-8">
-                                                        <template is="dom-repeat" items="{{interpretation.clinicalAnalysis.subject.samples.0.ontologyTerms}}">
+                                                        <template is="dom-repeat" items="{{interpretation.clinicalAnalysis.subjects.0.samples.0.ontologyTerms}}">
                                                             <span>{{item.name}} (<a href="http://compbio.charite.de/hpoweb/showterm?id={{item.id}}" target="_blank">{{item.id}}</a>)</span>
                                                             <br>
                                                         </template>
@@ -72,7 +74,7 @@
                                                     </div>
                                                     <div class="form-group" style="margin: 0px 2px">
                                                         <label class="col-md-4">Description:</label>
-                                                        <span class="col-md-8">{{interpretation.clinicalAnalysis.subject.samples.0.description}}</span>
+                                                        <span class="col-md-8">{{interpretation.clinicalAnalysis.subjects.0.samples.0.description}}</span>
                                                     </div>
                                                 </form>
                                             </div>
@@ -83,25 +85,25 @@
                                                     <div class="form-group" style="margin: 0px 2px">
                                                         <label class="col-md-4">Name:</label>
                                                         <span class="col-md-8">
-                                                        {{interpretation.clinicalAnalysis.subject.name}} &nbsp;&nbsp; (<a style="font-weight: bold"><i class="fa fa-external-link" aria-hidden="true"></i> Clinical Data</a>)
+                                                        {{interpretation.clinicalAnalysis.subjects.0.name}} &nbsp;&nbsp; (<a style="font-weight: bold"><i class="fa fa-external-link" aria-hidden="true"></i> Clinical Data</a>)
                                                     </span>
                                                     </div>
                                                     <div class="form-group" style="margin: 0px 2px">
                                                         <label class="col-md-4">Sex (karyotype):</label>
-                                                        <span class="col-md-8">{{interpretation.clinicalAnalysis.subject.sex}} &nbsp;&nbsp; ({{interpretation.clinicalAnalysis.subject.karyotypicSex}})</span>
+                                                        <span class="col-md-8">{{interpretation.clinicalAnalysis.subjects.0.sex}} &nbsp;&nbsp; ({{interpretation.clinicalAnalysis.subjects.0.karyotypicSex}})</span>
                                                     </div>
                                                     <div class="form-group" style="margin: 0px 2px">
                                                         <label class="col-md-4">Date of Birth:</label>
-                                                        <span class="col-md-8">{{interpretation.clinicalAnalysis.subject.dateOfBirth}} &nbsp;&nbsp; ({{interpretation.clinicalAnalysis.subject.lifeStatus}})</span>
+                                                        <span class="col-md-8">{{interpretation.clinicalAnalysis.subjects.0.dateOfBirth}} &nbsp;&nbsp; ({{interpretation.clinicalAnalysis.subjects.0.lifeStatus}})</span>
                                                     </div>
                                                     <div class="form-group" style="margin: 0px 2px">
                                                         <label class="col-md-4">Parental Consanguinity:</label>
-                                                        <span class="col-md-8">{{interpretation.clinicalAnalysis.subject.parentalConsanguinity}}</span>
+                                                        <span class="col-md-8">{{interpretation.clinicalAnalysis.subjects.0.parentalConsanguinity}}</span>
                                                     </div>
                                                     <div class="form-group" style="margin: 0px 2px">
                                                         <label class="col-md-4">Phenotypes:</label>
                                                         <span class="col-md-8">
-                                                        <template is="dom-repeat" items="{{interpretation.clinicalAnalysis.subject.ontologyTerms}}">
+                                                        <template is="dom-repeat" items="{{interpretation.clinicalAnalysis.subjects.0.ontologyTerms}}">
                                                             <span>{{item.name}} (<a href="http://compbio.charite.de/hpoweb/showterm?id={{item.id}}" target="_blank">{{item.id}}</a>)</span>
                                                             <br>
                                                         </template>
@@ -109,7 +111,7 @@
                                                     </div>
                                                     <div class="form-group" style="margin: 0px 2px">
                                                         <label class="col-md-4">Description:</label>
-                                                        <span class="col-md-8">{{interpretation.clinicalAnalysis.subject.description}}</span>
+                                                        <span class="col-md-8">{{interpretation.clinicalAnalysis.subjects.0.description}}</span>
                                                     </div>
                                                 </form>
                                             </div>
@@ -408,6 +410,10 @@
                                         <!--<variant-genome-browser project="{{project}}" study="{{study}}" samples="{{samples}}" active="{{_genomeBrowserActive}}"-->
                                         <!--opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" region="{{regionGenomeBrowser}}">-->
                                         <!--</variant-genome-browser>-->
+                                        <genome-browser cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}"
+                                                        region="{{regionGenomeBrowser}}"
+                                                        study="{{study}}" project="{{project}}" active="{{_genomeBrowserActive}}">
+                                        </genome-browser>
                                     </div>
                                 </div>
                             </div>
@@ -424,6 +430,11 @@
             constructor() {
                 super();
                 this.prefix = "clinical-interpretation-" + Utils.randomString(6);
+                this.tracks = {
+                    sequence: {type: "sequence"},
+                    gene: {type: "gene"}
+                }
+//                this.regionGenomeBrowser= {chromosome: "21", start: 22859462, end: 22859610};
             }
             static get is() {
                 return "clinical-interpretation-view";
@@ -782,21 +793,21 @@
                 let val;
                 if (row !== undefined && row.studies !== undefined && row.studies.length > 0) {
                     val = `<div class="col-md-12" style="padding: 0px">
-                                                <form class="form-horizontal">
-                                                    <div class="form-group" style="margin: 0px 2px">
-                                                        <label class="col-md-4">Quality:</label>
-                                                        <span class="col-md-8">${row.studies[0].files[0].attributes.QUAL}</span>
-                                                    </div>
-                                                    <div class="form-group" style="margin: 0px 2px">
-                                                        <label class="col-md-4">Filter:</label>
-                                                        <span class="col-md-8">${row.studies[0].files[0].attributes.FILTER}</span>
-                                                    </div>
-                                                    <div class="form-group" style="margin: 0px 2px">
-                                                        <label class="col-md-4">DP:</label>
-                                                        <span class="col-md-8">${row.studies[0].files[0].attributes.DP}</span>
-                                                    </div>
-                                                </form>
-                                            </div>`;
+                                <form class="form-horizontal">
+                                    <div class="form-group" style="margin: 0px 2px">
+                                        <label class="col-md-4">Quality:</label>
+                                        <span class="col-md-8">${row.studies[0].files[0].attributes.QUAL}</span>
+                                    </div>
+                                    <div class="form-group" style="margin: 0px 2px">
+                                        <label class="col-md-4">Filter:</label>
+                                        <span class="col-md-8">${row.studies[0].files[0].attributes.FILTER}</span>
+                                    </div>
+                                    <div class="form-group" style="margin: 0px 2px">
+                                        <label class="col-md-4">DP:</label>
+                                        <span class="col-md-8">${row.studies[0].files[0].attributes.DP}</span>
+                                    </div>
+                                </form>
+                            </div>`;
                 }
                 return val;
             }
