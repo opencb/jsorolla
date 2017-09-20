@@ -148,6 +148,9 @@
 
             renderAnalysisTable() {
                 let _this = this;
+                let params = {
+                    study: this.study.alias
+                };
                 $(PolymerUtils.getElementById(this.prefix + "tableAnalysis")).bootstrapTable('destroy');
                 $(PolymerUtils.getElementById(this.prefix + "tableAnalysis")).bootstrapTable({
                     columns: _this._getTableColumns(),
@@ -155,34 +158,68 @@
                     onCheck: function (row, elem) {
                         _this.resetVariables();
                         let _family = row.analysis.family;
+                        let _samplesSelected = [];
 
                         // To be modified -> take into account the case in which there are more than one sample per individual
                         // Children
-                        let _samplesSelected = [];
-                        for (let i = 0; i < _family.children.length; i++) {
-                            _samplesSelected.push(_family.children[i].samples[0]);
-                        }
-                        // Father
-                        if(UtilsNew.isNotEmptyArray(_family.father.samples)){
-                            _samplesSelected.push(_family.father.samples[0]);
-                        }
 
-                        // Mother
-                        if(UtilsNew.isNotEmptyArray(_family.mother.samples)) {
-                            _samplesSelected.push(_family.mother.samples[0]);
-                        }
-
-                        // Render pedigree
-                        _this.pedigreeFromFamily(_family, row.analysisID);
-                        var copy_svg = _this.svg.cloneNode(true);
                         _this.analysisSelected = {
                             sampleList: _samplesSelected,
                             analysisID: row.analysisID,
                             analysisType: row.analysisType,
                             analysisDate: row.analysisDate,
                             analysis: row.analysis,
-                            pedigree: copy_svg
+//                            pedigree: copy_svg
                         };
+                        _this.opencgaClient.families().info(_family.id, params, {"method": "GET"})
+                            .then(function (response) {
+                            if (response.response[0].numResults >= 1) {
+                                _family = response.response[0].result[0];
+                                // Render pedigree
+                                if(_family.members.length > 2){
+//                                    let svg = _this.pedigreeRender(_family);
+                                }
+//                                _this.analysisSelected.pedigreee = svg.cloneNode(true);
+                                _family.members.forEach(function(member) {
+                                    _this.opencgaClient.individuals().info(member.id, params, {"method": "GET"})
+                                        .then(function (response) {
+                                            if (response.response[0].numResults === 1) {
+                                                let _individual = response.response[0].result[0];
+                                                let paramsSamples = {
+                                                    individual: _individual.id
+                                                };
+                                                _this.opencgaClient.samples().search(Object.assign(paramsSamples, params), {"method": "GET"})
+                                                    .then(function(response){
+                                                        if (response.response[0].numResults >= 1) {
+                                                            let _sample = response.response[0].result[0];
+                                                            if(UtilsNew.isNotUndefinedOrNull(_sample)) {
+                                                                _samplesSelected.push(_sample);
+                                                            }
+                                                            _this.analysisSelected.sampleList = _samplesSelected;
+                                                        }
+                                                    });
+                                            }
+                                    });
+                                });
+                            }
+                        });
+
+
+//                        for (let i = 0; i < _family.children.length; i++) {
+//                            _samplesSelected.push(_family.children[i].samples[0]);
+//                        }
+//                        // Father
+//                        if(UtilsNew.isNotEmptyArray(_family.father.samples)){
+//                            _samplesSelected.push(_family.father.samples[0]);
+//                        }
+//
+//                        // Mother
+//                        if(UtilsNew.isNotEmptyArray(_family.mother.samples)) {
+//                            _samplesSelected.push(_family.mother.samples[0]);
+//                        }
+
+
+
                     }
                 });
             }
@@ -195,83 +232,68 @@
                 return (filter === true) ? "YES" : "NO";
             }
 
-            pedigreeRender() {
-                let ped = this.pedigree;
 
-//                let familyName = PolymerUtils.getElementById(this.prefix + "FamilyName").value;
-                // Remove SVG before render new one
-                if (UtilsNew.isNotUndefined(this.svg)) {
-                   PolymerUtils.getElementById(this.prefix + "PedigreeViewSelector").removeChild(this.svg);
-                }
-                // Render new Pedigree
-                let pedigree = new Pedigree(ped);
-                this.svg = pedigree.render(this.pedigreeSettings);
-
-                let querySelector = PolymerUtils.getElementById(this.prefix + "PedigreeViewSelector");
-                querySelector.appendChild(this.svg);
-            }
-
-            pedigreeFromFamily(family, _analysisID) {
-
-                // Father
-                if(UtilsNew.isNotEmptyArray(family.father.samples)) {
-                    this.pedigree.father = {name: family.father.samples[0].name, gender: "male"};
-                    this.pedigree.father.affected = (family.father.affectationStatus === "AFFECTED") ? true : false;
-                    this.pedigree.father.deceased = (family.father.lifeStatus === "ALIVE" || family.father.lifeStatus === "UNKNOWN") ? false : true;
-                }
-                // Mother
-                if(UtilsNew.isNotEmptyArray(family.mother.samples)) {
-
-                    this.pedigree.mother = {name: family.mother.samples[0].name, gender: "female"};
-                    this.pedigree.mother.affected = (family.mother.affectationStatus === "AFFECTED") ? true : false;
-                    this.pedigree.mother.deceased = (family.mother.lifeStatus === "ALIVE" || family.mother.lifeStatus === "UNKNOWN") ? false : true;
-                }
-                // Children
-                let _gender = "";
-                let _affected = false;
-                let _deceased = false;
-                for (let i = 0; i < family.children.length; i++) {
-                    _gender = family.children[i].sex;
-                    _affected = (family.children[i].affectationStatus === "AFFECTED") ? true : false;
-                    _deceased = (family.children[i].lifeStatus === "ALIVE" || family.children[i].lifeStatus === "UNKNOWN") ? false : true;
-                    switch (_gender) {
-                        case "MALE":
-                            this.pedigree.children.push({
-                                name: family.children[i].samples[0].name,
-                                gender: "male",
-                                affected: _affected,
-                                deceased: _deceased
-                            });
-                            break;
-                        case "FEMALE":
-                            this.pedigree.children.push({
-                                name: family.children[i].samples[0].name,
-                                gender: "female",
-                                affected: _affected,
-                                deceased: _deceased
-                            });
-                            break;
-                        case "UNKNOWN":
-                            this.pedigree.children.push({
-                                name: family.children[i].samples[0].name,
-                                gender: "undefined",
-                                affected: _affected,
-                                deceased: _deceased
-                            });
-                            break;
-                    }
-                }
-                // Show sample names
-                this.pedigreeSettings.selectShowSampleNames = true;
-
-                // Parental consanguinity
-                this.pedigree.parentalConsanguinity = (family.parentalConsanguinity === true);
-
-                if (this.showPedigree) {
-                    this.pedigreeTitle = "Pedigree for " + _analysisID;
-                }
-                this.pedigreeRender();
-            }
+//            pedigreeFromFamily(family, _analysisID) {
+//
+//                // Father
+//                if(UtilsNew.isNotEmptyArray(family.father.samples)) {
+//                    this.pedigree.father = {name: family.father.samples[0].name, gender: "male"};
+//                    this.pedigree.father.affected = (family.father.affectationStatus === "AFFECTED") ? true : false;
+//                    this.pedigree.father.deceased = (family.father.lifeStatus === "ALIVE" || family.father.lifeStatus === "UNKNOWN") ? false : true;
+//                }
+//                // Mother
+//                if(UtilsNew.isNotEmptyArray(family.mother.samples)) {
+//
+//                    this.pedigree.mother = {name: family.mother.samples[0].name, gender: "female"};
+//                    this.pedigree.mother.affected = (family.mother.affectationStatus === "AFFECTED") ? true : false;
+//                    this.pedigree.mother.deceased = (family.mother.lifeStatus === "ALIVE" || family.mother.lifeStatus === "UNKNOWN") ? false : true;
+//                }
+//                // Children
+//                let _gender = "";
+//                let _affected = false;
+//                let _deceased = false;
+//                for (let i = 0; i < family.children.length; i++) {
+//                    _gender = family.children[i].sex;
+//                    _affected = (family.children[i].affectationStatus === "AFFECTED") ? true : false;
+//                    _deceased = (family.children[i].lifeStatus === "ALIVE" || family.children[i].lifeStatus === "UNKNOWN") ? false : true;
+//                    switch (_gender) {
+//                        case "MALE":
+//                            this.pedigree.children.push({
+//                                name: family.children[i].samples[0].name,
+//                                gender: "male",
+//                                affected: _affected,
+//                                deceased: _deceased
+//                            });
+//                            break;
+//                        case "FEMALE":
+//                            this.pedigree.children.push({
+//                                name: family.children[i].samples[0].name,
+//                                gender: "female",
+//                                affected: _affected,
+//                                deceased: _deceased
+//                            });
+//                            break;
+//                        case "UNKNOWN":
+//                            this.pedigree.children.push({
+//                                name: family.children[i].samples[0].name,
+//                                gender: "undefined",
+//                                affected: _affected,
+//                                deceased: _deceased
+//                            });
+//                            break;
+//                    }
+//                }
+//                // Show sample names
+//                this.pedigreeSettings.selectShowSampleNames = true;
+//
+//                // Parental consanguinity
+//                this.pedigree.parentalConsanguinity = (family.parentalConsanguinity === true);
+//
+//                if (this.showPedigree) {
+//                    this.pedigreeTitle = "Pedigree for " + _analysisID;
+//                }
+//                this.pedigreeRender();
+//            }
 
             _getTableColumns() {
                 this._columns = [
@@ -305,6 +327,25 @@
                     ]
                 ];
                 return this._columns;
+            }
+            pedigreeRender(family) {
+                // Remove SVG before render new one
+                    if (UtilsNew.isNotUndefined(this.svg)) {
+                        PolymerUtils.getElementById(this.prefix + "PedigreeViewSelector").removeChild(this.svg);
+                    }
+                    let body = Object.assign({},family);
+                    let membersNew =[];
+                    body.members.forEach((member) => {
+                        let newMember = Object.assign({},member);
+                        membersNew.push(newMember);
+                    });
+                    body.members = membersNew;
+
+                    // Render new Pedigree
+                    let querySelector = PolymerUtils.getElementById(this.prefix + "PedigreeViewSelector");
+                    let pedigree = new Pedigree(body);
+                    this.svg = pedigree.render();
+                    querySelector.appendChild(this.svg);
             }
         }
 

@@ -338,7 +338,7 @@
                                 <div id="analysisSelectedDiv" style="display:none">
                                     <label>Analysis selected:</label>
                                     <input type="text" class$="browser-custom-sized-input {{prefix}}FilterTextInput"
-                                           placeholder="AN-28" aria-describedby="basic-addon1" disabled>
+                                           placeholder="{{analysisSelected.analysis.name}}" aria-describedby="basic-addon1" disabled>
                                 </div>
 
                                 <div class="dropdown" id="segregationDropdownDiv" style="display: none">
@@ -1035,6 +1035,11 @@
                     segregation: {
                         type: String,
                         value: "Select ..."
+//                        observer: "segregate"
+                    },
+                    analysisSelected: {
+                        type: Object,
+                        notify: true
 //                        observer: "segregate"
                     }
                 }
@@ -1857,8 +1862,10 @@
 
             showSegregation(e) {
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+                this.samples = this.analysisSelected.sampleList;
+//                this.
                 $("#analysisSelectedDiv").show();
-                $("#segregationDropdownDiv").show();
+//                $("#segregationDropdownDiv").show();
             }
 
             closeModalSample(e) {
