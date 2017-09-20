@@ -46,8 +46,8 @@
 <dom-module id="my-element-in">
     <template>
 
-        <div class="col-md-10 col-md-offset-1">
-            <clinical-analysis-view config="{{config.tools.clinical}}"></clinical-analysis-view>
+        <div class="col-md-8 col-md-offset-2">
+            <clinical-analysis-view clinical-analysis={{interpretationJson.clinicalAnalysis}} config="{{config.tools.clinical}}" style="font-size: 12px"></clinical-analysis-view>
         </div>
 
     </template>
@@ -77,8 +77,8 @@
 
                 ready() {
                     super.ready();
-                    this.config = application;
-                    this.set('config.tools', tools);
+//                    this.config = application;
+//                    this.set('config.tools', tools);
                 }
 
                 // Element class can define custom element reactions
