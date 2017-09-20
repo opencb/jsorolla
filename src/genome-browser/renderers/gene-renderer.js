@@ -22,7 +22,6 @@ class GeneRenderer extends Renderer {
     render(features, args) {
         let _this = this;
         let draw = function (feature) {
-            debugger
             // get feature render configuration
             _this.setFeatureConfig(_this._getDefaultConfigGene().gene);
             let color = _.isFunction(_this.color) ? _this.color(feature) : _this.color;
