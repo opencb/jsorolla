@@ -9,62 +9,78 @@ const interpretationJson = {
         description: "Clinical Analysis description",
         type: "TRIO",
         creationDate: "8/10/2014",
-        file: {
+
+        // Files
+        germline: {
             name: "NA0001.vcf.gz",
             path: "/data/vcf",
             assembly: "GRCh38",
             stats: {}
         },
-        subject: {
-            id: 10,
-            name: "NA0001",
-            version: 1,
-            sex: "MALE",
-            affectationStatus:"AFFECTED",
-            ethnicity:"black",
-            karyotypicSex: "XY",
-            dateOfBirth: "14/02/1994",
-            lifeStatus: "ALIVE",
-            parentalConsanguinity: false,
-            population: {
-                name: "Italy"
-            },
-            ontologyTerms: [
-                {id: "HP:0000478", name: "Abnormality of the eye", source: "HPO"}, {
-                    "id": "H00-H59",
-                    "name": "VII. Diseases of the eye and adnexa ",
-                    "source": "ICD10"
-                },
-                {
-                    id: "HP:001233",
-                    name: "Aaaa",
-                    source: "HPO"
-                }
-            ],
-            samples: [
-                {
-                    id: 113,
-                    name: "NA0001",
-                    somatic: false,
-                    type: "blood",
-                    ontologyTerms: [
-                        {id: "HP:0000478", name: "Abnormality of the eye", source: "HPO"},  {
-                            id: "HP:001233",
-                            name: "Aaaa",
-                            source: "HPO"
-                        },  {
-                            "id": "H00-H59",
-                            "name": "VII. Diseases of the eye and adnexa ",
-                            "source": "ICD10"
-                        }
-                    ],
-                    annotationSets: [{"name":"annotation_sample_son_affected_test","variableSetId":4,"annotations":[{"name":"testYear","value":"2017"},{"name":"physician","value":"Dr Florido"},{"name":"hospital","value":"HUVR"},{"name":"testAge","value":"34"},{"name":"technicalData","value":"Illumina"}],"creationDate":"20170719152516"}]
-                    ,
-                    description: "Sample description"
-                }
-            ],
-            description: "Subject description"
+        somatic: {
+            name: "NA0001.vcf.gz",
+            path: "/data/vcf",
+            assembly: "GRCh38",
+            stats: {}
         },
+
+        subjects: [
+            {
+                id: 10,
+                name: "NA0001",
+                version: 1,
+                sex: "MALE",
+                affectationStatus:"AFFECTED",
+                ethnicity:"black",
+                karyotypicSex: "XY",
+                dateOfBirth: "14/02/1994",
+                lifeStatus: "ALIVE",
+                parentalConsanguinity: false,
+                population: {
+                    name: "Italy"
+                },
+                ontologyTerms: [
+                    {id: "HP:0000478", name: "Abnormality of the eye", source: "HPO"}, {
+                        "id": "H00-H59",
+                        "name": "VII. Diseases of the eye and adnexa ",
+                        "source": "ICD10"
+                    },
+                    {
+                        id: "HP:001233",
+                        name: "Aaaa",
+                        source: "HPO"
+                    }
+                ],
+                samples: [
+                    {
+                        id: 113,
+                        name: "NA0001",
+                        somatic: false,
+                        type: "blood",
+                        ontologyTerms: [
+                            {id: "HP:0000478", name: "Abnormality of the eye", source: "HPO"},  {
+                                id: "HP:001233",
+                                name: "Aaaa",
+                                source: "HPO"
+                            },  {
+                                "id": "H00-H59",
+                                "name": "VII. Diseases of the eye and adnexa ",
+                                "source": "ICD10"
+                            }
+                        ],
+                        annotationSets: [
+                            {
+                                "name":"annotation_sample_son_affected_test","variableSetId":4,
+                                "annotations":[{"name":"testYear","value":"2017"},{"name":"physician","value":"Dr Florido"},{"name":"hospital","value":"HUVR"},{"name":"testAge","value":"34"},{"name":"technicalData","value":"Illumina"}],
+                                "creationDate":"20170719152516"
+                            }
+                        ],
+                        description: "Sample description"
+                    }
+                ],
+                description: "Subject description"
+            }
+        ],
         family: {
             id: 23,
             name: "Martinez Pujalte",
@@ -155,37 +171,6 @@ const interpretationJson = {
             annotation: [],
             creationDate: "",
             attributes: {}
-
-
-            // id: 1213,
-            // name: "Family Name",
-            // status: "READY",
-            // creationDate: "8/10/2014",
-            // description: "Family description",
-            // diseases: [
-            //     {id: "HP:0000478", name: "Abnormality of the eye", source: "HPO"},
-            //     {id: "HP:0000007", name: "Autosomal recessive inheritance", source: "HPO"}
-            // ],
-            // members: [
-            //     {
-            //         id: 10,
-            //         name: "NA0001",
-            //         version: 1,
-            //         sex: "MALE",
-            //         karyotypicSex: "XY",
-            //         dateOfBirth: "14/02/1994",
-            //         lifeStatus: "ALIVE",
-            //         parentalConsaguinity: false,
-            //
-            //         father: {"id": 11, "name": "pepe", "version": 1, "samples": [{"id": 111, "name": "s1"}]},
-            //         mother: {"id": 12, "name": "mari", "version": 1, "samples": [{"id": 112, "name": "s2"}]},
-            //         samples: [{"id": 113, "name": "s3"}],
-            //         multiples: {type: "mellizo", siblings: ["pepe"]},
-            //
-            //         diseases: ["HP:001233"],
-            //         carrier: ["OMIM:056789"],
-            //     }
-            // ],
         },
         interpretations: []
     },
