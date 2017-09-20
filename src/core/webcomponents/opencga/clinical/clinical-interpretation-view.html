@@ -1,6 +1,8 @@
 <link rel="import" href="../../../webcomponents/cellbase/variation/cellbase-variantannotation-view.html">
 <link rel="import" href="../variant/variant-beacon-network.html">
-<link rel="import" href="../variant/variant-genome-browser.html">
+<!--<link rel="import" href="../variant/variant-genome-browser.html">-->
+<link rel="import" href="../../../../genome-browser/webcomponent/genome-browser.html">
+
 
 <dom-module id="clinical-interpretation-view">
 
@@ -408,6 +410,10 @@
                                         <!--<variant-genome-browser project="{{project}}" study="{{study}}" samples="{{samples}}" active="{{_genomeBrowserActive}}"-->
                                         <!--opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" region="{{regionGenomeBrowser}}">-->
                                         <!--</variant-genome-browser>-->
+                                        <genome-browser cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}"
+                                                        species={{species}} region="{{regionGenomeBrowser}}"
+                                                        study="{{study}}" project="{{project}}" active="{{_genomeBrowserActive}}">
+                                        </genome-browser>
                                     </div>
                                 </div>
                             </div>
@@ -424,6 +430,11 @@
             constructor() {
                 super();
                 this.prefix = "clinical-interpretation-" + Utils.randomString(6);
+                this.tracks = {
+                    sequence: {type: "sequence"},
+                    gene: {type: "gene"}
+                }
+//                this.regionGenomeBrowser= {chromosome: "21", start: 22859462, end: 22859610};
             }
             static get is() {
                 return "clinical-interpretation-view";
@@ -453,6 +464,9 @@
                         type: Object
                     },
                     interpretation: {
+                        type: Object
+                    },
+                    species: {
                         type: Object
                     },
                     config: {
@@ -782,21 +796,21 @@
                 let val;
                 if (row !== undefined && row.studies !== undefined && row.studies.length > 0) {
                     val = `<div class="col-md-12" style="padding: 0px">
-                                                <form class="form-horizontal">
-                                                    <div class="form-group" style="margin: 0px 2px">
-                                                        <label class="col-md-4">Quality:</label>
-                                                        <span class="col-md-8">${row.studies[0].files[0].attributes.QUAL}</span>
-                                                    </div>
-                                                    <div class="form-group" style="margin: 0px 2px">
-                                                        <label class="col-md-4">Filter:</label>
-                                                        <span class="col-md-8">${row.studies[0].files[0].attributes.FILTER}</span>
-                                                    </div>
-                                                    <div class="form-group" style="margin: 0px 2px">
-                                                        <label class="col-md-4">DP:</label>
-                                                        <span class="col-md-8">${row.studies[0].files[0].attributes.DP}</span>
-                                                    </div>
-                                                </form>
-                                            </div>`;
+                                <form class="form-horizontal">
+                                    <div class="form-group" style="margin: 0px 2px">
+                                        <label class="col-md-4">Quality:</label>
+                                        <span class="col-md-8">${row.studies[0].files[0].attributes.QUAL}</span>
+                                    </div>
+                                    <div class="form-group" style="margin: 0px 2px">
+                                        <label class="col-md-4">Filter:</label>
+                                        <span class="col-md-8">${row.studies[0].files[0].attributes.FILTER}</span>
+                                    </div>
+                                    <div class="form-group" style="margin: 0px 2px">
+                                        <label class="col-md-4">DP:</label>
+                                        <span class="col-md-8">${row.studies[0].files[0].attributes.DP}</span>
+                                    </div>
+                                </form>
+                            </div>`;
                 }
                 return val;
             }
