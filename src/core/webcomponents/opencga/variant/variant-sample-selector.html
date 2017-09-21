@@ -38,7 +38,8 @@
                 <template is="dom-if" if="{{isFamilyMode}}" >
                     <div style="padding: 20px 5px">
                         <h3>Family editor</h3>
-                        <opencga-family-editor-new samples="{{_samples}}" family="{{family}}"></opencga-family-editor-new>
+                        <opencga-family-editor-new samples="{{_samples}}" study="{{study}}" opencga-client="{{opencgaClient}}"
+                                                   family="{{family}}"></opencga-family-editor-new>
                     </div>
                 </template>
             </div>
@@ -129,21 +130,20 @@
                     family.description = "";
                     family.diseases = [];
                     family.members = [];
-                    family.annotation = [];
-                    family.createDate = new Date();
-                    family.attributes = [];
+                    family.annotationSets = [];
+//                    this.family.createDate = new Date();
+                    family.attributes = {};
                     let _this = this;
                     this.samples.forEach((sample) => {
                         family.members[sample.id] = {
-                            member: {id: sample.id},
-                            father: {},
-                            mother: {},
-                            diseases: new Set(),
-                            carrier: [],
+                            father: undefined,
+                            mother: undefined,
+                            diseases: [],
+    //                            multiples: [],
+    //                            samples: [],
                             parentalConsanguinity: false
                         }
                     });
-
                 }
                 return family;
             }
@@ -158,11 +158,11 @@
                                members[sample.id] = this.family.members[sample.id];
                         } else {
                             members[sample.id] = {
-                                member: {id: sample.id},
-                                father: {},
-                                mother: {},
-                                diseases: new Set(),
-                                carrier: [],
+                                father: undefined,
+                                mother: undefined,
+                                diseases: [],
+                                //                            multiples: [],
+                                //                            samples: [],
                                 parentalConsanguinity: false
                             }
                         }

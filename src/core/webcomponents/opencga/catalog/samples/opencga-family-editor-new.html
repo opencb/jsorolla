@@ -275,8 +275,15 @@
                                             let existsTerm = _this.data.diseases.find((element) => {
                                                return element.id === term.id;
                                             });
-                                            // save ontologyTerms from individual in data.ontologyTermsDiseases
-                                            _this.data.ontologyTermsDiseases.push(term);
+
+                                            let existsTermOntology = _this.data.ontologyTermsDiseases.find((element) => {
+                                                return element.id === term.id;
+                                            });
+
+                                            if(UtilsNew.isUndefinedOrNull(existsTermOntology)) {
+                                                // save ontologyTerms from individual in data.ontologyTermsDiseases
+                                                _this.data.ontologyTermsDiseases.push(term);
+                                            }
 
                                             if(UtilsNew.isUndefinedOrNull(existsTerm)){
                                                 _this.data.diseases.push(term);
@@ -287,11 +294,19 @@
 
                                 // Difference between ontologyTermsDiseases and diseases are the custom diseases
                                 _this.data.customDiseases = _this.data.diseases.filter(disease => !_this.data.ontologyTermsDiseases.some(ar2 => ar2.id === disease.id));
+                                // Made this to update dom-repeat in from the component prioritization-view
+                                _this.set("data.customDiseases", _this.data.customDiseases.slice());
+                                _this.set("data.ontologyTermsDiseases", _this.data.ontologyTermsDiseases.slice());
 
                                 // Save in family members[sample.id] the member object using individual data
                                 _this.family.members[sample.id] = Object.assign(_this.family.members[sample.id], {name: sample.individual.name, sex: sample.individual.sex});
 //                                _this.family.members.samples = _this.samples;
                                 _samples.push(sample);
+
+                                _this.data.samples = _samples;
+                                // Made this to update dom-repeat in from the component prioritization-view
+                                _this.set('data.samples', _samples.slice());
+
 
                             })
                             .catch(function (response) {
@@ -335,7 +350,7 @@
             isCheckedDisease(sampleId, diseaseId) {
                 let sampleSelected = this.findSample(sampleId);
                 if(UtilsNew.isNotUndefinedOrNull(sampleSelected) && UtilsNew.isNotUndefinedOrNull(sampleSelected.member)
-                    && UtilsNew.isNotUndefinedOrNull(sampleSelected.member.diseases)) {
+                    && UtilsNew.isNotUndefinedOrNull(sampleSelected.member.diseases) && sampleSelected.member.diseases.length > 0) {
 
                     let existsSelectedDisease = sampleSelected.member.diseases.find((disease) => {
                         return disease === diseaseId;
