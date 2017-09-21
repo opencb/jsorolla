@@ -465,6 +465,7 @@
                         filter: "NO",
                         editFamily: _this.familyFormatter(_familyEditor, aux),
                         subjectSelected: _this.subjectFormatter(aux, ""),
+                        diseaseSelected: _this.diseaseFormatter(aux, ""),
                         action: _this.actionFormatter(_familyEditor, aux),
                         sampleList: this.samples,
                         analysisIDinternal: aux,
@@ -696,8 +697,6 @@
                 }
             }
             subjectFormatter(randomString, selected) {
-//                    return '<button data-toggle="modal" id="' + this.prefix + 'Member' + randomString + '" role="button" type="button" class="btn btn-sm btn-success" data-target="#' + this.prefix + 'FamilyEditor" ><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;Edit</button>';
-
                     let res = "NO AFFECTED";
                     if(UtilsNew.isNotUndefinedOrNull(this.family) && UtilsNew.isNotUndefinedOrNull(this.family.members)){
 
@@ -717,6 +716,50 @@
 
                     }
                     return res;
+            }
+
+            diseaseFormatter(randomString, selected) {
+                let res = "NOT DISEASES";
+                let _this = this;
+                if(UtilsNew.isNotUndefinedOrNull(this.family) && UtilsNew.isNotUndefinedOrNull(this.family.diseases)){
+
+                    let resDiseases = [];
+                    let affectedMembers = [];
+                    affectedMembers = this.family.members.filter((member) => {
+                            return UtilsNew.isNotUndefinedOrNull(member.diseases) && member.diseases.length > 0;
+                    });
+
+                    affectedMembers.forEach((affectedMember) => {
+                        affectedMember.diseases.forEach((diseaseMember) => {
+                            let existsDiseaseInRes = resDiseases.find((disease) => {
+                                    return disease.id === diseaseMember;
+                            });
+
+                            if(UtilsNew.isUndefinedOrNull(existsDiseaseInRes)){
+                                let selectedDisease =_this.family.diseases.find((disease) => {
+                                        return disease.id === diseaseMember;
+                                });
+
+                                if(UtilsNew.isNotUndefinedOrNull(selectedDisease)){
+                                    resDiseases.push(selectedDisease);
+                                }
+                            }
+                        });
+
+                    });
+
+                    res = '<select id='+ this.prefix + 'selectedDisease' + this.currentAnalysis.analysisIDinternal + ' class="form-control form-control-sm">';
+                    resDiseases.forEach((disease) => {
+                        if(selected === disease.id){
+                            res = res +  '<option value="'+disease.id+'" selected>'+disease.id+'</option>';
+                        }else{
+                            res = res +  '<option value="'+disease.id+'">'+disease.id+'</option>';
+                        }
+                    });
+                    res = res +'</select>';
+
+                }
+                return res;
             }
 
             actionFormatter(familyEditor, randomString) {
@@ -763,6 +806,7 @@
 
                 // We have to do this before updateRow to get the selectedValue in member select. Instead we will get the first value of the all options
                 let subjectSelected = PolymerUtils.getValue(this.prefix + "selectedSubject" + this.currentAnalysis.analysisIDinternal);
+                let diseaseSelected = PolymerUtils.getValue(this.prefix + "selectedDisease" + this.currentAnalysis.analysisIDinternal);
                 $(PolymerUtils.getElementById(this.prefix + "tableAnalysis")).bootstrapTable('updateRow', {
                     index: _this.selectedRow, row: {
                         family: _this.family,
@@ -770,6 +814,7 @@
                     }
                 });
                 $(PolymerUtils.getElementById(this.prefix + "tableAnalysis")).bootstrapTable("updateCell",{ index: _this.selectedRow, field: "subjectSelected", value: _this.subjectFormatter(this.currentAnalysis.analysisIDinternal, subjectSelected)});
+                $(PolymerUtils.getElementById(this.prefix + "tableAnalysis")).bootstrapTable("updateCell",{ index: _this.selectedRow, field: "diseaseSelected", value: _this.diseaseFormatter(this.currentAnalysis.analysisIDinternal, diseaseSelected)});
                 PolymerUtils.getElementById(this.prefix + 'selectedSubject' + this.currentAnalysis.analysisIDinternal).addEventListener('change', e => this.selectSubject(e));
                 PolymerUtils.removeAttribute(this.prefix + "Save" + this.currentAnalysis.analysisIDinternal, "disabled");
                 PolymerUtils.removeClass(this.prefix + "Save" + this.currentAnalysis.analysisIDinternal, "disabled");
@@ -808,6 +853,10 @@
                         {
                             field: 'subjectSelected',
                             title: 'Subject'
+                        },
+                        {
+                            field: 'diseaseSelected',
+                            title: 'Disease'
                         },
                         {
                             field: 'editFamily',
