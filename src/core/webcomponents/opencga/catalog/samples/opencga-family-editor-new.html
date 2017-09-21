@@ -74,7 +74,7 @@
                     <tbody>
                     <template id="samplesTable" is="dom-repeat" items="{{data.samples}}" as="sample">
                         <tr>
-                            <td>{{sample.name}}</td>
+                            <td>{{sample.name}} ({{sample.individual.name}})</td>
 
                             <td>
                                 <template is="dom-if" if="{{data.showSelectParents}}">
@@ -248,6 +248,7 @@
                     this.data.name = this.family.name;
                     this.data.description = this.family.description;
                     this.data.diseases = this.family.diseases;
+                    // This are the set of ontology terms name of all member of the family
                     this.data.ontologyTermsDiseases = [];
                     this.data.customDiseases = [];
 
@@ -334,10 +335,10 @@
             isCheckedDisease(sampleId, diseaseId) {
                 let sampleSelected = this.findSample(sampleId);
                 if(UtilsNew.isNotUndefinedOrNull(sampleSelected) && UtilsNew.isNotUndefinedOrNull(sampleSelected.member)
-                    && UtilsNew.isNotUndefinedOrNull(sampleSelected.member.ontologyTerms)) {
+                    && UtilsNew.isNotUndefinedOrNull(sampleSelected.member.diseases)) {
 
-                    let existsSelectedDisease = sampleSelected.member.ontologyTerms.find((disease) => {
-                        return disease.id === diseaseId;
+                    let existsSelectedDisease = sampleSelected.member.diseases.find((disease) => {
+                        return disease === diseaseId;
                     });
 
                     return UtilsNew.isNotUndefinedOrNull(existsSelectedDisease);
@@ -411,21 +412,21 @@
                 let diseaseId = e.target.getAttribute("data-disease-id");
                 let sampleSelected = this.findSample(sampleId);
                 if(UtilsNew.isNotUndefinedOrNull(sampleSelected)) {
-                    let existsSelectedDisease = sampleSelected.member.ontologyTerms.find((disease) => {
-                            return disease.id === diseaseId;
+                    let existsSelectedDisease = sampleSelected.member.diseases.find((disease) => {
+                            return disease === diseaseId;
                     });
                     if (UtilsNew.isUndefinedOrNull(existsSelectedDisease)) {
                         let selectedDisease = this.data.diseases.find((disease) => {
                                 return disease.id === diseaseId;
-                    });
-                        sampleSelected.member.ontologyTerms.push(selectedDisease);
+                        });
+                        sampleSelected.member.diseases.push(selectedDisease.id);
                     } else {
-                        sampleSelected.member.ontologyTerms = sampleSelected.member.ontologyTerms.filter((disease) => {
-                                return disease.id !== diseaseId;
+                        sampleSelected.member.diseases = sampleSelected.member.diseases.filter((disease) => {
+                                return disease !== diseaseId;
                     });
                     }
 
-                    this.family.members[sampleId].ontologyTerms = sampleSelected.member.ontologyTerms;
+                    this.family.members[sampleId].diseases = sampleSelected.member.diseases;
                     this._updateFamily();
                 }
             }
@@ -548,8 +549,8 @@
 
                     // Render new Pedigree
                     let querySelector = PolymerUtils.getElementById(this.prefix + "PedigreeView");
-                    let pedigree = new Pedigree(body);
-                    this.svg = pedigree.render();
+                    let pedigree = new Pedigree(body, {selectShowSampleNames: true});
+                    this.svg = pedigree.pedigreeFromFamily(pedigree.pedigree);
                     querySelector.appendChild(this.svg);
                 }
             }

@@ -24,6 +24,11 @@ const interpretationJson = {
             stats: {}
         },
 
+        disease: {
+            id: "HP:001234",
+            name: "Disease Name"
+        },
+
         subjects: [
             {
                 id: 10,
