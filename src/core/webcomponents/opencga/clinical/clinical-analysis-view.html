@@ -18,95 +18,165 @@
 
 <dom-module id="clinical-analysis-view">
     <template>
+
         <h3>Clinical Analysis</h3>
-        <form class="form-horizontal">
-            <div class="form-group">
-                <span for="inputEmail3" class="col-sm-2 control-label">Select analysis:</span>
-                <div class="col-md-10">
-                    <button id="inputEmail3" data-toggle="modal" role="button" data-placement="bottom" on-click="showClinicalSelector">
-                        Browse...
-                    </button>
+        <div class="col-md-12" style="padding: 5px 0px">
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <span for="inputEmail3" class="col-md-2 control-label">Select analysis:</span>
+                    <div class="col-md-10">
+                        <button id="inputEmail3" data-toggle="modal" role="button" data-placement="bottom" on-click="showClinicalSelector">
+                            Browse...
+                        </button>
+                    </div>
                 </div>
-            </div>
-        </form>
+            </form>
+        </div>
 
-        <div id="analysisSelectedDiv">
-            <div style="padding: 25px 10px">
-                <label>Analysis ID: AN-12345</label>
-                <br>
-                <div class="col-md-6">
-                    <form class="form-horizontal">
-                        <div class="form-group" style="margin: 0px 10px">
-                            <label class="col-sm-2">Name:</label>
-                            <span class="col-sm-10">Analysis name</span>
-                        </div>
-                        <div class="form-group" style="margin: 0px 10px">
-                            <label class="col-sm-2">Subject:</label>
-                            <span class="col-sm-10">NA0001</span>
-                        </div>
-                        <div class="form-group" style="margin: 0px 10px">
-                            <label class="col-sm-2">Family:</label>
-                            <span class="col-sm-10">FAM0001</span>
-                        </div>
-                        <div class="form-group" style="margin: 0px 10px">
-                            <label class="col-sm-2">Type:</label>
-                            <span class="col-sm-10">Trio</span>
-                        </div>
-                        <div class="form-group" style="margin: 0px 10px">
-                            <label class="col-sm-2">Date:</label>
-                            <span class="col-sm-10">4-7-2017</span>
-                        </div>
-                        <div class="form-group" style="margin: 0px 10px">
-                            <label class="col-sm-2">Description:</label>
-                            <span class="col-sm-10">Analysis description</span>
-                        </div>
-                    </form>
-                </div>
-                <div class="col-md-6">
-                    <label>Pedigree</label>
-                    <br>
-                    <img width="200px" src="https://openi.nlm.nih.gov/imgs/512/160/2743802/PMC2743802_mv-v15-1881-f1.png" style="padding: 10px 10px">
-                </div>
+        <h4>Summary</h4>
+        <div class="col-md-12" style="padding: 10px 0px">
+            <div class="col-md-4">
+                <label>Clinical Analysis</label>
+                <hr style="margin: 2px 0px;border-top: 2px solid #eee">
+                <form class="form-horizontal">
+                    <div class="form-group" style="margin: 0px 2px">
+                        <label class="col-md-2">Name:</label>
+                        <span class="col-md-10">{{clinicalAnalysis.name}}</span>
+                    </div>
+                    <!--<div class="form-group" style="margin: 0px 5px">-->
+                    <!--<label class="col-md-2">Subject:</label>-->
+                    <!--<span class="col-md-10">NA0001</span>-->
+                    <!--</div>-->
+                    <div class="form-group" style="margin: 0px 2px">
+                        <label class="col-md-2">Disease:</label>
+                        <span class="col-md-10">{{clinicalAnalysis.disease.name}} ({{clinicalAnalysis.disease.id}})</span>
+                    </div>
+                    <div class="form-group" style="margin: 0px 2px">
+                        <label class="col-md-2">Type:</label>
+                        <span class="col-md-10">{{clinicalAnalysis.type}}</span>
+                    </div>
+                    <div class="form-group" style="margin: 0px 2px">
+                        <label class="col-md-2">Date:</label>
+                        <span class="col-md-10">{{clinicalAnalysis.creationDate}}</span>
+                    </div>
+                    <div class="form-group" style="margin: 0px 2px">
+                        <label class="col-md-2">Description:</label>
+                        <span class="col-md-10">{{clinicalAnalysis.description}}</span>
+                    </div>
+                </form>
             </div>
-
-            <br>
-            <div style="padding: 40px 10px">
-                <label>Other prioritisation:</label>
-                <table class="table">
-                    <thead>
-                    <tr>
-                        <th colspan="1">Name</th>
-                        <th colspan="1">Tool</th>
-                        <th colspan="1">Date</th>
-                        <th colspan="1">No. of Reported Variants</th>
-                        <th colspan="1">No. of Affected Genes</th>
-                        <th colspan="1">View</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td>Prioritizaton-1</td>
-                        <td>TEAM</td>
-                        <td>5-9-2017</td>
-                        <td>26</td>
-                        <td>6</td>
-                        <td><a href="">Pending</a></td>
-                    </tr>
-                    <tr>
-                        <td>Tiering-1</td>
-                        <td>Tiering</td>
-                        <td>6-9-2017</td>
-                        <td>66</td>
-                        <td>12</td>
-                        <td><a href="">Pending</a></td>
-                    </tr>
-                    </tbody>
-                </table>
+            <div class="col-md-4">
+                <label>Sample</label>
+                <hr style="margin: 2px 0px;border-top: 2px solid #eee">
+                <form class="form-horizontal">
+                    <div class="form-group" style="margin: 0px 2px">
+                        <label class="col-md-4">Name:</label>
+                        <span class="col-md-8">
+                            {{clinicalAnalysis.subjects.0.samples.0.name}} &nbsp;&nbsp; (<a style="font-weight: bold"><i class="fa fa-external-link" aria-hidden="true"></i> Clinical Data</a>)
+                        </span>
+                    </div>
+                    <div class="form-group" style="margin: 0px 2px">
+                        <label class="col-md-4">File:</label>
+                        <span class="col-md-8">{{clinicalAnalysis.germline.name}}</span>
+                    </div>
+                    <div class="form-group" style="margin: 0px 2px">
+                        <label class="col-md-4">Genome Assembly:</label>
+                        <span class="col-md-8">{{clinicalAnalysis.germline.assembly}}</span>
+                    </div>
+                    <div class="form-group" style="margin: 0px 2px">
+                        <label class="col-md-4">Somatic:</label>
+                        <span class="col-md-8">{{clinicalAnalysis.subjects.0.samples.0.somatic}}</span>
+                    </div>
+                    <div class="form-group" style="margin: 0px 2px">
+                        <label class="col-md-4">Phenotypes:</label>
+                        <span class="col-md-8">
+                            <template is="dom-repeat" items="{{clinicalAnalysis.subjects.0.samples.0.ontologyTerms}}">
+                                <span>{{item.name}} (<a href="http://compbio.charite.de/hpoweb/showterm?id={{item.id}}" target="_blank">{{item.id}}</a>)</span>
+                                <br>
+                            </template>
+                        </span>
+                    </div>
+                    <div class="form-group" style="margin: 0px 2px">
+                        <label class="col-md-4">Description:</label>
+                        <span class="col-md-8">{{clinicalAnalysis.subjects.0.samples.0.description}}</span>
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-4">
+                <label>Subject</label>
+                <hr style="margin: 2px 0px;border-top: 2px solid #eee">
+                <form class="form-horizontal">
+                    <div class="form-group" style="margin: 0px 2px">
+                        <label class="col-md-4">Name:</label>
+                        <span class="col-md-8">
+                            {{clinicalAnalysis.subjects.0.name}} &nbsp;&nbsp; (<a style="font-weight: bold"><i class="fa fa-external-link" aria-hidden="true"></i> Clinical Data</a>)
+                        </span>
+                    </div>
+                    <div class="form-group" style="margin: 0px 2px">
+                        <label class="col-md-4">Sex (karyotype):</label>
+                        <span class="col-md-8">{{clinicalAnalysis.subjects.0.sex}} &nbsp;&nbsp; ({{clinicalAnalysis.subjects.0.karyotypicSex}})</span>
+                    </div>
+                    <div class="form-group" style="margin: 0px 2px">
+                        <label class="col-md-4">Date of Birth:</label>
+                        <span class="col-md-8">{{clinicalAnalysis.subjects.0.dateOfBirth}} &nbsp;&nbsp; ({{clinicalAnalysis.subjects.0.lifeStatus}})</span>
+                    </div>
+                    <div class="form-group" style="margin: 0px 2px">
+                        <label class="col-md-4">Pedigree:</label>
+                        <span class="col-md-8"><a style="font-weight: bold"><i class="fa fa-external-link" aria-hidden="true"></i> Pedigree</a></span>
+                    </div>
+                    <div class="form-group" style="margin: 0px 2px">
+                        <label class="col-md-4">Phenotypes:</label>
+                        <span class="col-md-8">
+                            <template is="dom-repeat" items="{{clinicalAnalysis.subjects.0.ontologyTerms}}">
+                                <span>{{item.name}} (<a href="http://compbio.charite.de/hpoweb/showterm?id={{item.id}}" target="_blank">{{item.id}}</a>)</span>
+                                <br>
+                            </template>
+                        </span>
+                    </div>
+                    <div class="form-group" style="margin: 0px 2px">
+                        <label class="col-md-4">Description:</label>
+                        <span class="col-md-8">{{clinicalAnalysis.subjects.0.description}}</span>
+                    </div>
+                </form>
             </div>
         </div>
 
-        <br>
-        <h3>Interpretation Algorithm</h3>
+        <h4 style="margin-top: 10px">Other prioritisation</h4>
+        <div style="padding: 10px 5px">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th colspan="1">Name</th>
+                    <th colspan="1">Tool</th>
+                    <th colspan="1">Date</th>
+                    <th colspan="1">No. of Reported Variants</th>
+                    <th colspan="1">No. of Affected Genes</th>
+                    <th colspan="1">View</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Prioritizaton-1</td>
+                    <td>TEAM</td>
+                    <td>5-9-2017</td>
+                    <td>26</td>
+                    <td>6</td>
+                    <td><a href="">Pending</a></td>
+                </tr>
+                <tr>
+                    <td>Tiering-1</td>
+                    <td>Tiering</td>
+                    <td>6-9-2017</td>
+                    <td>66</td>
+                    <td>12</td>
+                    <td><a href="">Pending</a></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        </div>
+
+        <h3>Interpretation Algorithms</h3>
         <div class="form-group" style="margin-bottom: 5px">
             <p>Several prioritization and interpretation algorithms are available, you can choose an <span style="font-weight: bold">interactive</span> tool:</p>
             <input id="interactiveRadio" type="radio" name="analysisRadioButtons" value="sample" class$="{{prefix}}FilterRadio"
@@ -172,18 +242,21 @@
                     analysisId: {
                         type: Number
                     },
+                    clinicalAnalysis: {
+                        type: Object
+                    },
                     config: {
                         type: Object
                     }
                 }
             }
 
-            _attachDom(dom) {
-                this.appendChild(dom);
-            }
-
             ready() {
                 super.ready();
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
             }
 
             showClinicalSelector(e) {
