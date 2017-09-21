@@ -178,7 +178,7 @@ class Pedigree {
             }
         }
 
-        if (object.lifeStatus === "deceased") {
+        if ((typeof object.lifeStatus !== 'undefined' && object.lifeStatus !== null) && object.lifeStatus.toUpperCase() === "DECEASED") {
             SVG.addChild(svg, "line", {
                 x1: x - radius - 10,      y1: y + radius + 30,
                 x2: x + radius + 10,      y2: y - radius + 10,
@@ -220,26 +220,26 @@ class Pedigree {
 
         family.children = [];
         for (let m of family.members) {
-            if (m.father !== undefined && m.father.name !== undefined && m.mother !== undefined && m.mother.name !== undefined) {
-                map[m.father.name].partner = m.mother.name;
-                map[m.mother.name].partner = m.father.name;
+            if (m.father !== undefined && m.mother !== undefined ) {
+                map[m.father].partner = m.mother;
+                map[m.mother].partner = m.father;
 
-                map[m.father.name].partnerConsaguinity = m.parentalConsanguinity;
-                map[m.mother.name].partnerConsaguinity = m.parentalConsanguinity;
+                map[m.father].partnerConsaguinity = m.parentalConsanguinity;
+                map[m.mother].partnerConsaguinity = m.parentalConsanguinity;
 
-                if (this._isOrphan(map[m.father.name] && this._isOrphan(map[m.mother.name]))) {
-                    family.father = map[m.father.name];
-                    family.mother = map[m.mother.name];
+                if (this._isOrphan(map[m.father] && this._isOrphan(map[m.mother]))) {
+                    family.father = map[m.father];
+                    family.mother = map[m.mother];
                 }
 
                 family.children.push(m);
             }
 
             // We save the corresponding disease color pattern for each sample
-            if (m.ontologyTerms !== undefined && m.ontologyTerms.length > 0) {
+            if (m.diseases !== undefined && m.diseases.length > 0) {
                 let colorIdx = [];
-                for (let c of m.ontologyTerms) {
-                    colorIdx.push(colorMap[c.id]);
+                for (let c of m.diseases) {
+                    colorIdx.push(colorMap[c]);
                 }
                 // Pattern suffix IDs must be sorted, eg. Pattern_01
                 colorIdx = colorIdx.sort();
@@ -307,6 +307,31 @@ class Pedigree {
             box: 40,
             colors: ["black", "red", "blue"]
         };
+    }
+
+    parseFamilyToPedigree(family){
+        let newMembers = family.members.map((member) => {
+            let newMember = {};
+            newMember.name = member.name;
+            newMember.diseases = member.diseases;
+            newMember.father = member.father;
+            newMember.mother = member.mother;
+            newMember.sex = member.sex;
+            newMember.lifeStatus = member.lifeStatus;
+            newMember.parentalConsanguinity = member.parentalConsanguinity;
+
+            return newMember;
+        });
+        let pedigreFromFamily = {
+            name: family.name,
+            diseases: family.diseases,
+            members: newMembers,
+        };
+    }
+
+    pedigreeFromFamily(family){
+        this.parseFamilyToPedigree(family);
+        return this.render();
     }
 
 }

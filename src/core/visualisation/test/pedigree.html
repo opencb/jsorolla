@@ -42,37 +42,42 @@
         ],
         members: [
             {
-                id: 10, "version": 1, "name": "luis", sex: "male",
-                father: {"id": 11, name: "pepe", "version": 1},
-                mother: {"id": 12, name: "mari", "version": 1},
-                ontologyTerms: [{id: "OMIM:056789"}, {id: "HP:001233"}],
+                name: "luis",
+                sex: "male",
+                father: "pepe",
+                mother: "mari",
+                diseases: ["OMIM:056789", "HP:001233"],
                 carrier: ["OMIM:056789"],
                 parentalConsaguinity: true,
                 multiples: {"type": "mellizo", "siblings": ["pepe"]}
             },
             {
-                id: 13, "version": 1, "name": "laura", sex: "female",
-                father: {"id": 11, name: "pepe", "version": 1},
-                mother: {"id": 12, name: "mari", "version": 1},
-                ontologyTerms: [],
+                name: "laura",
+                sex: "female",
+                father: "pepe",
+                mother: "mari",
+                diseases: [],
                 carrier: [{id: "OMIM:056789"}],
                 parentalConsaguinity: true,
                 multiples: {"type": "mellizo", "siblings": ["pepe"]}
             },
             {
-                id: 11, "version": 1, "name": "pepe", sex: "male", lifeStatus: "deceased",
-                father: {"id": -1, "version": 1},
-                mother: {"id": -1, "version": 1},
-                ontologyTerms: [{id: "HP:001233"}],
+                name: "pepe",
+                sex: "male",
+                lifeStatus: "deceased",
+                father: undefined,
+                mother: undefined,
+                diseases: ["HP:001233"],
                 carrier: ["OMIM:056789"],
                 parentalConsaguinity: false,
                 multiples: {"type": "mellizo", "siblings": ["luis"]}
             },
             {
-                id: 12, "version": 1, "name": "mari", sex: "female",
-                father: {"id": -1, "version": 1},
-                mother: {"id": -1, "version": 1},
-                ontologyTerms: [{id: "ddddd"}],
+                name: "mari",
+                sex: "female",
+                father:  undefined,
+                mother:  undefined,
+                diseases: ["ddddd"],
                 carrier: ["OMIM:056789"],
                 parentalConsaguinity: false,
                 multiples: {"type": "mellizo", "siblings": ["luis"]}
@@ -85,7 +90,7 @@
 
     function render() {
         let pedigree = new Pedigree(familyTest, {selectShowSampleNames: true});
-        let svg = pedigree.render();
+        let svg = pedigree.pedigreeFromFamily(pedigree.pedigree);
         document.getElementById("simpleFamilyTestDiv").appendChild(svg);
     }
 </script>
