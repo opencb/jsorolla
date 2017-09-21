@@ -72,16 +72,25 @@
         <link rel="import" href="../../../../../../../../node_modules/@polymer/polymer/lib/elements/custom-style.html">
 
         <link rel="import" href="../variant-report-view.html">
+        <link rel="import" href="../variant-report-filter.html">
+        <script type="text/javascript" src="../../../../clients/opencga-client.js"></script>
 
 
     </head>
 <body>
 <dom-module id="my-element-in">
     <template>
-
+        <div class="col-md-2">
+            <variant-report-filter opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}"
+                                   selection="{{selection}}" exp-report="{{expReport}}" variables="{{variables}}"
+                                   analysis="{{analysis}}"
+                                   analysis-selected="{{analysisSelected}}"></variant-report-filter>
+        </div>
+        <div class="col-md-10">
         <variant-report-view study="{{study}}" config="{{config.tools.clinical}}"
                              title="{{title}}" variables="{{variables}}"
-                             interpretation="{{interpretationJson}}"></variant-report-view>
+                             interpretation="{{interpretationJson}}" exp-report="{{expReport}}"></variant-report-view>
+            </div>
     </template>
     <script>
         HTMLImports.whenReady(function() {
@@ -94,7 +103,9 @@
 //                    this.prefix = "ff" + Utils.randomString(6);
                     this.interpretationJson = interpretationJson;
                     this.variables = [{"name":"technicalData","title":"Technical data (NGS platform,etc)","category":"ciberer_fields","type":"TEXT","defaultValue":"Illumina","required":true,"multiValue":true,"allowedValues":[],"rank":4,"dependsOn":"","description":"","attributes":{"prearranged":false,"pattern":"^([A-Za-z]+(\\s)?(\\n|\\r)?)+$","errorPattern":"Mandatory technical data. Only a-z characters and spaces are allowed","maxLength":600,"subtype":"TEXT"}},{"name":"testYear","title":"Year of Test","category":"ciberer_fields","type":"CATEGORICAL","required":true,"multiValue":true,"allowedValues":["2005","2006","2007","2008","2009","2010","2011","2012","2013","2014","2015","2016","2017","2018","2019","2020"],"rank":2,"dependsOn":"","description":"","attributes":{}},{"name":"physician","title":"Physician","category":"ciberer_fields","type":"TEXT","defaultValue":"Name Surname","required":true,"multiValue":false,"allowedValues":[],"rank":1,"dependsOn":"","description":"","attributes":{"prearranged":false,"pattern":"^[A-Za-z]+((\\s)(('|-)?[A-Za-z])+)+$","errorPattern":"Mandatory name and surname. Only a-z, - or ' characters and spaces are allowed","maxLength":75,"subtype":"STRING"}},{"name":"testAge","title":"Age of Test","category":"ciberer_fields","type":"CATEGORICAL","required":true,"multiValue":true,"allowedValues":["0","1","2","3","4","5","6","7","8","9","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79","80","81","82","83","84","85","86","87","88","89","90","91","92","93","94","95","96","97","98","99","100","101","102","103","104","105","106","107","108","109","110"],"rank":3,"dependsOn":"","description":"","attributes":{}},{"name":"hospital","title":"Hospital","category":"ciberer_fields","type":"TEXT","defaultValue":"Name","required":true,"multiValue":false,"allowedValues":[],"rank":0,"dependsOn":"","description":"","attributes":{"prearranged":false,"pattern":"^[A-Za-z]+((\\s)?(('|-)?[A-Za-z])+)+$","errorPattern":"Mandatory hospital name. Only a-z, - or ' characters and spaces are allowed","maxLength":75,"subtype":"STRING"}}];
-
+                    this.title ="Clinical Analysis";
+                    this.opencgaClientConfig = new OpenCGAClientConfig("bioinfodev.hpc.cam.ac.uk/hgva-1.2.0-dev", "v1", true, "clinical_interpretation_test");
+                    this.opencgaClient = new OpenCGAClient(this.opencgaClientConfig);
                 }
 
                 static get is() { return 'my-element-in'; }
@@ -124,6 +135,8 @@
                         "name": "Reference studies GRCh37",
                         "alias": "test@reference_grch37",
                     };
+
+
                 }
 
                 // Element class can define custom element reactions
