@@ -21,7 +21,9 @@
             label {
                 /*padding-top: 10px;*/
                 margin-left: 10px;
+                font-weight: bold;
             }
+
 
             .clinical-input-group-addon {
                 min-width: 200px;
@@ -35,6 +37,18 @@
             h3{
                 color:rgb(51, 122, 183);
             }
+            textarea {
+                width: 95%;
+                height: 100px;
+                margin-top: 5px;
+                resize: none;
+                border: 1px solid #d0d0d0;
+            }
+
+            .variantsTable td{
+                border: 1px solid #dadada;
+                border-collapse: collapse;
+            }
 
         </style>
 
@@ -47,7 +61,7 @@
                 </div>
                 <br>
                 <!-- Analysis Information -->
-                <div style="margin: 10px 5px 10px 50px" class="analysis-information col-sm-12"
+                <div style="margin: 10px 5px 0px 50px" class="analysis-information col-sm-12"
                      id="{{prefix}}analysisInformationDiv" hidden>
                     <h3>Analysis Information</h3>
                     <hr>
@@ -55,151 +69,175 @@
                          id="{{prefix}}analysisInformationContent">
                         <div class="col-xs-10 row" id="{{prefix}}analysisInformationID" hidden>
                             <label for="{{prefix}}analysisID" class=" col-form-label">Analysis ID:</label>
-                                <span class$=" {{prefix}}TextInput" id="{{prefix}}analysisID"
+                            <span class$=" {{prefix}}TextInput" id="{{prefix}}analysisID"
                                       name="analysis"></span>
                         </div>
-                        <div class="row" id="{{prefix}}analysisInformationResume" hidden>
-                            <div class="col-xs-3">
+                        <div class="row" id="{{prefix}}analysisInformationResume">
+
+                            <content class="col-xs-5">
                                 <label for="{{prefix}}analysisType" class="col-form-label">Analysis Type:</label>
                                 <span class$="{{prefix}}TextInput" id="{{prefix}}analysisType"
                                            name="analysisType"></span>
-                            </div>
-                            <div class="col-xs-3">
+                            </content>
+                            <content class="col-xs-5">
                                 <label for="{{prefix}}date" class="col-form-label">Date:</label>
                                 <span  class$="col-form-label {{prefix}}TextInput" id="{{prefix}}date"
                                            name="date"></span>
-                            </div>
+                            </content>
                         </div>
                     </div>
                 </div>
                 <br>
 
-                <div style="margin: 10px 5px 15px 50px" class="sample-information col-sm-12"
+                <div style="margin: 0px 5px 15px 50px" class="sample-information col-sm-12 col-xs-12"
                      id="{{prefix}}sampleInformationDiv" hidden>
                     <h3>Proband Information</h3>
                     <hr>
                     <!-- Sample information related to proband -->
                     <div style="margin: 0px 0px 0px 30px">
                         <h4> Proband </h4>
-                        <div style="margin: 10px 0px 15px 5px" class="analysis-information col-sm-10"
-                             id="{{prefix}}analysisInformationProband">
-                            <div class="row">
-                                <div class="col-xs-5">
-                                    <label for="{{prefix}}IndividualID" class="col-form-label">Patient ID:</label>
-                                    <span class$="col-form-control {{prefix}}TextInput" id="{{prefix}}IndividualID"
-                                           name="individualID"></span>
-                                </div>
-                                <div class="col-xs-5">
-                                    <label for="{{prefix}}SampleID" class="col-form-label">Sample ID:</label>
-                                    <span  class$="col-form-control {{prefix}}TextInput" id="{{prefix}}SampleID"
+
+                            <table  class="analysis-information col-sm-10" id="{{prefix}}analysisInformationProband">
+                                <tr>
+                                    <td class="col-xs-5 col-sm-5 col-md-5">
+                                        <label for="{{prefix}}IndividualID" class="col-form-label">Patient ID:</label>
+                                        <span class$="col-form-control {{prefix}}TextInput" id="{{prefix}}IndividualID"
+                                          name="individualID"></span>
+                                    </td>
+                                    <td class="col-xs-5 col-sm-5 col-md-5">
+                                        <label for="{{prefix}}SampleID" class="col-form-label">Sample ID:</label>
+                                        <span  class$="col-form-control {{prefix}}TextInput" id="{{prefix}}SampleID"
                                            name="date"></span>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-xs-5">
-                                    <label for="{{prefix}}ChromosomalGender" class="col-form-label">Chromosomal
-                                        Gender:</label>
-                                    <span class$="col-form-control {{prefix}}TextInput"
-                                           id="{{prefix}}ChromosomalGender" name="chromosomalGender"></span>
-                                </div>
-                                <div class="col-xs-5">
-                                    <label for="{{prefix}}AffectationStatus" class="col-form-label">Affectation
-                                    Status:</label>
-                                    <span class$="col-form-control {{prefix}}TextInput"
-                                           id="{{prefix}}AffectationStatus" name="date"></span>
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <div class="col-xs-5">
-                                    <label for="{{prefix}}Ethnicity" class="col-form-label">Ethnicity:</label>
-                                    <span class$="col-form-control {{prefix}}TextInput" id="{{prefix}}Ethnicity"
-                                           name="ethnicity"></span>
-                                </div>
-                                <div class="col-xs-5">
-                                    <label for="{{prefix}}BirthYear" class="col-form-label">Year of Birth:</label>
-                                    <span class$="col-form-control {{prefix}}TextInput" id="{{prefix}}BirthYear"
-                                           name="birthYear"></span>
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label for="{{prefix}}HPO" class="col-xs-2 col-form-label">HPO:</label>
-                                <div class="col-xs-6">
-                                    <textarea class$="form-control {{prefix}}TextInput" id="{{prefix}}HPO" name="HPO"
-                                              disabled value="" style="resize:none" rows="2"></textarea>
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label for="{{prefix}}Diagnosis" class="col-xs-2 col-form-label">Diagnosis:</label>
-                                <div class="col-xs-6">
-                                    <textarea class$="form-control {{prefix}}TextInput" id="{{prefix}}Diagnosis"
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-xs-5 col-sm-5 col-md-5">
+                                        <label for="{{prefix}}ChromosomalGender" class="col-form-label"><b>Chromosomal
+                                            Gender:</b></label>
+                                        <span class$="col-form-control {{prefix}}TextInput"
+                                            id="{{prefix}}ChromosomalGender" name="chromosomalGender"></span>
+                                    </td>
+                                    <td class="col-xs-5 col-sm-5 col-md-5">
+                                        <label for="{{prefix}}AffectationStatus" class="col-form-label"><b>Affectation
+                                            Status:</b></label>
+                                        <span class$="col-form-control {{prefix}}TextInput"
+                                            id="{{prefix}}AffectationStatus" name="date"></span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-xs-5 col-sm-5 col-md-5">
+                                        <label for="{{prefix}}Ethnicity" class="col-form-label">Ethnicity:</label>
+                                        <span class$="col-form-control {{prefix}}TextInput" id="{{prefix}}Ethnicity"
+                                        name="ethnicity"></span>
+                                    </td>
+                                    <td class="col-xs-5 col-sm-5 col-md-5">
+                                        <label for="{{prefix}}BirthYear" class="col-form-label">Year of Birth:</label>
+                                        <span class$="col-form-control {{prefix}}TextInput" id="{{prefix}}BirthYear"
+                                        name="birthYear"></span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">
+                                        <label for="{{prefix}}HPO" class="col-xs-2 col-form-label">HPO:</label>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">
+                                        <textarea class$="form-control {{prefix}}TextInput" id="{{prefix}}HPO" name="HPO"
+                                                  disabled value="" rows="2"></textarea>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">
+                                        <label for="{{prefix}}Diagnosis" class="col-xs-2 col-form-label">Diagnosis:</label>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">
+                                        <textarea class$="form-control {{prefix}}TextInput" id="{{prefix}}Diagnosis"
                                               name="diagnosis" disabled value="" style="resize:none" rows="2"></textarea>
-                                </div>
-                            </div>
-                            <div class="row col-sm-10">
-                                <label for="{{prefix}}ParentalConsanguinity" class="col-form-label">Parental
-                                    Consanguinity:</label>
-                                <span class$="col-form-control {{prefix}}TextInput"
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" class="col-xs-5 col-sm-5 col-md-5">
+                                        <label for="{{prefix}}ParentalConsanguinity" class="col-form-label">Parental
+                                            Consanguinity:</label>
+                                        <span class$="col-form-control {{prefix}}TextInput"
                                            id="{{prefix}}ParentalConsanguinity" name="parentalConsanguinity"></span>
-
-                            </div>
-                            <div class="row col-sm-10" id="{{prefix}}sampleTypeDiv">
-                                <label for="{{prefix}}sampleType" class="col-form-label">Sample Type:</label>
-                                <span class$="col-form-control {{prefix}}TextInput" id="{{prefix}}sampleType"
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" id="{{prefix}}sampleTypeDiv" class="col-xs-5 col-sm-5 col-md-5">
+                                        <label for="{{prefix}}sampleType" class="col-form-label">Sample Type:</label>
+                                        <span class$="col-form-control {{prefix}}TextInput" id="{{prefix}}sampleType"
                                            name="sampleType"></span>
-                            </div>
-                            <div class="row col-sm-10" id="{{prefix}}cellLineDiv">
-                                <label for="{{prefix}}cellLine" class="col-form-label">Cell line:</label>
-                                <span class$="col-form-control {{prefix}}TextInput" id="{{prefix}}cellLine"
-                                           name="cellLine"></span>
-                            </div>
-                            <div class="row col-sm-10" id="{{prefix}}lifeStatusDiv">
-                                <label for="{{prefix}}lifeStatus" class="col-form-label">Life Status:</label>
-                                <span class$="col-form-control {{prefix}}TextInput" id="{{prefix}}lifeStatus"
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" id="{{prefix}}cellLineDiv" class="col-xs-5 col-sm-5 col-md-5">
+                                        <label for="{{prefix}}cellLine" class="col-form-label">Cell line:</label>
+                                        <span class$="col-form-control {{prefix}}TextInput" id="{{prefix}}cellLine"
+                                           name="sampleType"></span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" id="{{prefix}}lifeStatusDiv" class="col-xs-5 col-sm-5 col-md-5">
+                                        <label for="{{prefix}}lifeStatus" class="col-form-label">Life Status:</label>
+                                        <span class$="col-form-control {{prefix}}TextInput" id="{{prefix}}lifeStatus"
                                            name="lifeStatus"></span>
-                            </div>
-                            <div class="form-group row col-sm-10" id="{{prefix}}birthPlaceDiv">
-                                <label for="{{prefix}}lifeStatus" class="col-form-label">Birth Place:</label>
-                                <span class$="col-form-control {{prefix}}TextInput" id="{{prefix}}birthPlace"
-                                           name="birthPlace"></span>
-                            </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td  id="{{prefix}}birthPlaceDiv" class="col-xs-5 col-sm-5 col-md-5">
+                                         <label for="{{prefix}}birthPlace" class="col-form-label">Birth Place:</label>
+                                         <span class$="col-form-control {{prefix}}TextInput" id="{{prefix}}birthPlace"
+                                               name="birthPlace"></span>
+                                    </td>
+                             </tr>
 
+
+
+<!--    hola que aseeeeeeeeeeeeeeeeeeeeeeeeeeee-->
                             <!-- Sample information related to variable set -->
-                            <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}" as="variable"
-                                      sort="_sortVariables">
-                                <div class="row" id="{{prefix}}{{variable.name}}Div">
+                                <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}" as="variable"
+                                          sort="_sortVariables">
 
-                                    <template is="dom-if" if="{{checkSubType(variable, 'TEXT')}}">
-                                        <label for="{{prefix}}{{variable.name}}" class="col-xs-2 col-form-label">{{variable.title}}</label>
-                                        <div class="col-xs-6">
-                                            <textarea class$="form-control {{prefix}}TextInput"
-                                                      id="{{prefix}}{{variable.name}}" name="{{variable.name}}" disabled
-                                                      value="" style="resize:none" rows="3"></textarea>
-                                        </div>
-                                    </template>
-                                    <template is="dom-if" if="{{!checkSubType(variable, 'TEXT')}}">
-                                        <div class="col-xs-10">
-                                            <label for="{{prefix}}{{variable.name}}" class="col-form-label">{{variable.title}}</label>
-                                            <span class$="col-form-control {{prefix}}TextInput"
-                                                   id="{{prefix}}{{variable.name}}" name="{{variable.name}}"></span>
-                                        </div>
-                                    </template>
-                                </div>
-                            </template>
-                        </div>
-
-                        </div>
-                        <div style="margin: 10px 5px 15px 5px" class="sample-information col-sm-12"
+                                        <template is="dom-if" if="{{checkSubType(variable, 'TEXT')}}">
+                                            <tr>
+                                                <td colspan="2">
+                                                <label for="{{prefix}}{{variable.name}}" class="col-xs-2 col-form-label">{{variable.title}}</label>
+                                                </td>
+                                            </tr>
+                                            <tr class="row" id="{{prefix}}{{variable.name}}Div">
+                                                <td class="col-xs-6">
+                                                    <textarea class$="form-control {{prefix}}TextInput"
+                                                              id="{{prefix}}{{variable.name}}" name="{{variable.name}}" disabled
+                                                              value="" style="resize:none" rows="3"></textarea>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                        <template is="dom-if" if="{{!checkSubType(variable, 'TEXT')}}">
+                                            <tr class="row col-xs-5 col-sm-5 col-md-5" id="{{prefix}}{{variable.name}}Div">
+                                                <label for="{{prefix}}{{variable.name}}" class="col-form-label">{{variable.title}}</label>
+                                                <span class$="col-form-control {{prefix}}TextInput"
+                                                       id="{{prefix}}{{variable.name}}" name="{{variable.name}}"></span>
+                                            </tr>
+                                        </template>
+                                </template>
+                            </table>
+                        <div style="margin: 15px 5px 15px 0px" class="sample-information col-sm-12"
                          id="{{prefix}}analysisInformationFamilyDiv">
-                        <h4> Family </h4>
-                        <div style="margin: 10px 0px 15px 5px" class="analysis-information col-sm-10">
-                            <div>
-                                <div id="{{prefix}}PedigreeView" style="padding: 5px 5px;font-size: 10px"></div>
+                            <h4> Family </h4>
+                            <div style="margin: 10px 0px 15px 5px" class="analysis-information col-sm-10">
+                                <div>
+                                    <div id="{{prefix}}PedigreeView" style="padding: 5px 5px;font-size: 10px"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div style="margin: 10px 5px 15px 50px" class="prioritization-information col-sm-12"
+                <div style="margin: 0px 5px 15px 50px" class="prioritization-information col-sm-12"
                      id="{{prefix}}prioritizationInformationDiv" hidden>
                     <h3>Prioritization Information</h3>
                     <hr>
@@ -207,8 +245,10 @@
                         <h4>Variants table</h4>
                         <table id="{{prefix}}variantTable" data-search="false" data-show-columns="false"
                                data-pagination="false" data-page-size="500" data-checkbox-header="false"
-                               data-maintain-selected="true" style="cursor: pointer;">
-                            <thead style="background-color: #eee"></thead>
+                               data-maintain-selected="true" style="cursor: pointer;" class="variantsTable"
+                               style="border: 1px solid #dadada;border-collapse: collapse;">
+                            <thead style="background-color: #eee;border: 1px solid #dadada;border-collapse: collapse;">
+                            </thead>
                         </table>
                     </div>
 
@@ -424,6 +464,14 @@
                         querySelector.appendChild(this.pedigreeRender(this.interpretation.clinicalAnalysis.family));
                     }
                     // Prioritization information (variants)
+
+                    if (UtilsNew.isNotUndefined(this.interpretation.reportedVariants)){
+                        $(PolymerUtils.getElementById(this.prefix + "variantTable")).bootstrapTable('destroy');
+                        $(PolymerUtils.getElementById(this.prefix + "variantTable")).bootstrapTable({
+                            columns: this._getTableColumns(),
+                            data: this.interpretation.reportedVariants
+                        });
+                    }
 //                    let _prioritization = this.analysisSelected.analysis.family.children[0].samples[0].attributes.PRIORITIZATION;
 //                    let _dataTable = [];
 //                    let _query = undefined;
@@ -525,15 +573,16 @@
             }
 
             print(data) {
+            console.log(window.location.href)
                 var mywindow = window.open('', '', 'height=1000,width=1000');
                 mywindow.document.write('<html><head>');
-                /* var styles = document.getElementsByTagName('style');
+                var styles = document.getElementsByTagName('style');
 
                  mywindow.document.write('<style>');
                  for (var i = 0; i < styles.length; i++) {
                  mywindow.document.write(styles[i].innerHTML);
                  }
-                 mywindow.document.write('</style>');*/
+                 mywindow.document.write('</style>');
 
                 mywindow.document.write('</head><body>');
                 mywindow.document.write(data);
@@ -560,7 +609,6 @@
             handleExportPDF(e) {
                 let report = document.getElementById(this.prefix + "reportDiv");
                 this.print(report.innerHTML);
-debugger
 //                var pdf = new jsPDF('p', 'pt', 'letter');
 //                var canvas = pdf.canvas;
 //                canvas.height = 72 * 11;
@@ -634,11 +682,11 @@ debugger
                     [
                         {
                             title: 'Variant',
-                            field: 'variant'
+                            field: 'id'
                         },
                         {
                             title: 'SNP Id',
-                            field: 'id'
+                            field: 'names'
                         },
                         {
                             title: 'Genes',
