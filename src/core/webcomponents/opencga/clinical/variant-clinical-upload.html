@@ -1060,18 +1060,6 @@
                     };
 
                     let body = {
-                        "name": sampleId,
-                        "type": formFields.sampleType,
-                        "somatic": isSomatic,
-                        "annotationSets": [
-                            {
-                                "name": "annotation_sample_" + sampleId,
-                                "variableSet": this.variableSets[0].id,
-                                "annotations": jsonAnnotation
-                            }
-                        ],
-                        "ontologyTerms": listOntologyTerms,
-                        "individual": {
                             "name": formFields.patientID,
                             "ethnicity": formFields.ethnicity,
                             "dateOfBirth": formFields.birthYear,
@@ -1084,12 +1072,24 @@
                             "lifeStatus": formFields.lifeStatus,
                             "affectationStatus": formFields.status,
                             "parentalConsanguinity": hasParentalConsanguinity,
-                            "ontologyTerms": listOntologyTerms
-                        }
-                    };
+                            "ontologyTerms": listOntologyTerms,
+                            "samples":[{
+                                "name": sampleId,
+                                "type": formFields.sampleType,
+                                "somatic": isSomatic,
+                                "annotationSets": [
+                                    {
+                                        "name": "annotation_sample_" + sampleId,
+                                        "variableSet": this.variableSets[0].id,
+                                        "annotations": jsonAnnotation
+                                    }
+                                ],
+                                "ontologyTerms": listOntologyTerms
+                            }]
+                        };
 
                     let _this = this;
-                    this.opencgaClient.samples().create(params, body)
+                    this.opencgaClient.individuals().create(params, body)
                             .then(function (response) {
                                 _this.uploadVCF(formFields);
 
