@@ -126,7 +126,8 @@
                                 order: params.order,
                                 sort: params.sort,
                                 limit: params.limit,
-                                skip: params.offset
+                                skip: params.offset,
+                                includeIndividual: true
                             };
 
                             if (UtilsNew.isUndefined(filters)) {
@@ -231,8 +232,8 @@
             }
 
             individualFormatter(value, row) {
-                if (UtilsNew.isNotUndefined(row.individual.name)) {
-                    return row.individual.name;
+                if (UtilsNew.isNotUndefined(row.attributes.individual.name)) {
+                    return row.attributes.individual.name;
                 } else {
                     return '-'
                 }
@@ -250,24 +251,24 @@
             }
 
             diagnosisFormatter(value, row) {
-                if (UtilsNew.isNotUndefined(row.individual.ontologyTerms) && row.individual.ontologyTerms.length > 0) {
-                    return row.individual.ontologyTerms[1].name;
+                if (UtilsNew.isNotUndefined(row.attributes.individual.ontologyTerms) && row.attributes.individual.ontologyTerms.length > 0) {
+                    return row.attributes.individual.ontologyTerms[1].name;
                 } else {
                     return '-';
                 }
             }
 
             fatherFormatter(value, row) {
-                if (row.individual.fatherId > 0) {
-                    return row.individual.fatherId;
+                if (row.attributes.individual.fatherId > 0) {
+                    return row.attributes.individual.fatherId;
                 } else {
                     return '-';
                 }
             }
 
             motherFormatter(value, row) {
-                if (row.individual.motherId > 0) {
-                    return row.individual.motherId;
+                if (row.attributes.individual.motherId > 0) {
+                    return row.attributes.individual.motherId;
                 } else {
                     return '-';
                 }

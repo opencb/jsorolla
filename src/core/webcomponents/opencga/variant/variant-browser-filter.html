@@ -1509,10 +1509,10 @@
                 if (selectedGenotypes.length > 0) {
                     let sampleGenotypesObj = {};
                     for (let i = 0; i < selectedGenotypes.length; i++) {
-                        if (typeof sampleGenotypesObj[selectedGenotypes[i].dataId] === "undefined") {
-                            sampleGenotypesObj[selectedGenotypes[i].dataId] = {};
+                        if (typeof sampleGenotypesObj[selectedGenotypes[i].getAttribute("data-id")] === "undefined") {
+                            sampleGenotypesObj[selectedGenotypes[i].getAttribute("data-id")] = {};
                         }
-                        sampleGenotypesObj[selectedGenotypes[i].dataId][selectedGenotypes[i].defaultValue] = selectedGenotypes[i].checked;
+                        sampleGenotypesObj[selectedGenotypes[i].getAttribute("data-id")][selectedGenotypes[i].defaultValue] = selectedGenotypes[i].checked;
                     }
                     let _genotypes = [];
                     for (let sampleName in sampleGenotypesObj) {
