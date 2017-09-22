@@ -1,8 +1,11 @@
 <dom-module id="opencga-family-editor-new">
     <template>
         <style include="jso-styles">
-            .labels{
-                padding-left: 10px;
+            .form-control, .button-form{
+                width: 100%!important;
+            }
+            .list-group-item {
+                border: none!important;
             }
 
         </style>
@@ -15,44 +18,76 @@
             <div id="{{prefix}}FilterMenu1" class="col-md-12">
                 <form class="form-inline">
                     <div class="row" style="padding: 15px 10px">
-                            <label class="labels">Name: </label>
+                        <div class="col-md-3">
+                            <label>Name </label>
                             <input type="text" class="form-control" id="{{prefix}}FamilyName" placeholder="Family name" maxlength="100"
                                on-change="_changeName" value="{{data.name}}">
-                            <label class="labels">Description: </label>
-                            <textarea class="form-control" id="{{prefix}}FamilyDescription"
-                              on-change="_changeDescription">{{data.description}}</textarea>
-                    </div>
-
-                    <div class="col-md-8">
-                        <div class="row">
-                            <label>Diseases</label>
                         </div>
-
-                        <div class="row">
-                            <ul class="list-group">
-                                <template is="dom-repeat" items="{{data.ontologyTermsDiseases}}">
-                                    <li class="list-group-item">{{item.name}}({{item.id}})</li>
-                                </template>
-                            </ul>
-                        </div>
-                        <div class="row">
-                            <ul class="list-group">
-                                <template is="dom-repeat" items="{{data.customDiseases}}" >
-                                    <li class="list-group-item">{{item.name}}({{item.id}}) <button type="button" class="btn danger" on-click="deletedTermFromList" data-selected-term$="{{item}}">X</button></li>
-                                </template>
-                            </ul>
-                        </div>
-                        <label>Add custom disease</label>
-                        <div class="row" style="padding: 15px 10px">
-                            <label class="labels">Id: </label>
-                            <input type="text" class="form-control" id="{{prefix}}idDisease" placeholder="" maxlength="50" type="number">
-                            <label class="labels">Name: </label>
-                            <input type="text" class="form-control" id="{{prefix}}nameDisease" placeholder="" maxlength="100" type="text">
-                            <label class="labels">Source: </label>
-                            <input type="text" class="form-control" id="{{prefix}}srcDisease" placeholder="" maxlength="100" type="text">
-                            <button type="button" class="btn btn-secondary" on-click="addDisease">Add</button>
+                        <div class="col-md-9">
+                            <label class="labels">Description </label>
+                            <input class="form-control" id="{{prefix}}FamilyDescription"
+                              on-change="_changeDescription">{{data.description}}</input>
                         </div>
                     </div>
+
+                    <div class="col-md-12">
+                        <div class="row">
+                            <h4>Diseases</h4>
+                        </div>
+                        <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                            <div class="panel panel-default">
+                                <div class="panel-heading" role="tab" id="headingTwo">
+                                    <h4 class="panel-title">
+                                        <a role="button" class="collapsed" data-toggle="collapse" data-parent="#accordion"
+                                           href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo" on-click="_summaryOnClick">
+                                            <i id="{{prefix}}SummaryCollapseIcon" class="fa fa-plus-square-o" aria-hidden="true"></i> Add custom disease
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+                                    <div class="col-md-12">
+                                        <div class="row" style="padding: 15px 10px">
+                                            <div class="col-md-2">
+                                                <label>ID </label>
+                                                <input type="text" class="form-control" id="{{prefix}}idDisease" placeholder="" maxlength="50" type="number">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label>Name </label>
+                                                <input type="text" class="form-control" id="{{prefix}}nameDisease" placeholder="" maxlength="100" type="text">
+                                            </div>
+                                            <div class="col-md-2">
+                                                <label>Source </label>
+                                                <input type="text" class="form-control" id="{{prefix}}srcDisease" placeholder="" maxlength="100" type="text">
+                                            </div>
+                                            <div class="col-md-2">
+                                                <label>Add to diseases</label>
+                                                <button  class="button-form" type="button" class="btn btn-secondary" on-click="addDisease">Add</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="row">
+                                <ul class="list-group">
+                                    <template is="dom-repeat" items="{{data.ontologyTermsDiseases}}">
+                                        <li class="list-group-item">{{item.name}}({{item.id}})</li>
+                                    </template>
+                                </ul>
+                            </div>
+                            <div class="row">
+                                <ul class="list-group">
+                                    <template is="dom-repeat" items="{{data.customDiseases}}" >
+                                        <li class="list-group-item">{{item.name}}({{item.id}}) <button type="button" class="btn danger" on-click="deletedTermFromList" data-selected-term$="{{item}}">X</button></li>
+                                    </template>
+                                </ul>
+                            </div>
+                        </div>
+
+                    </div>
+
+
                 </form>
             </div>
 
@@ -230,6 +265,8 @@
             connectedCallback() {
                 super.connectedCallback();
                 this.newDisease = {};
+                this._summaryCollapsed = true;
+
 //                PolymerUtils.getElementById("ifSampleExists").addEventListener('dom-change', function() {
 //                   alert("dom-change")
 //                    console.log(PolymerUtils.getElementById(this.prefix + "PedigreeView"));
@@ -584,6 +621,14 @@
                     this.family.diseases = this.data.diseases;
                     this.push("data.diseases");
                     this._updateFamily();
+            }
+            _summaryOnClick() {
+                if (this._summaryCollapsed) {
+                    $("#" + this.prefix + "SummaryCollapseIcon").removeClass("fa-plus-square-o").addClass("fa-minus-square-o");
+                } else {
+                    $("#" + this.prefix + "SummaryCollapseIcon").removeClass("fa-minus-square-o").addClass("fa-plus-square-o");
+                }
+                this._summaryCollapsed = !this._summaryCollapsed;
             }
         }
 
