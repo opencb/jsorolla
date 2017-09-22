@@ -524,8 +524,7 @@
                         study: this.project.alias + ":" + this.study.alias
                     };
                     let bodyFamily = null;
-                    let subjectName = "";
-                    let samplesName = [];
+
 
                     bodyFamily = Object.assign({}, rowInfo.family);
                     let membersNew = [];
@@ -542,20 +541,33 @@
                     let individualPromises = [];
                     let checkPromises = [];
                     let _this = this;
-                        subjectName = PolymerUtils.getValue(this.prefix + "selectedSubject" + rowInfo.analysisIDinternal);
-                        samplesName = rowInfo.sampleList.filter((sample) => {
-                                return sample.individual.name === subjectName;
-                        }).map((sample) => {
-                            let res = {name: sample.name};
-                            return res;
-                        });
+                    let subjectName = "";
+                    let samplesName = [];
+                    let diseaseAnalysis
+                    let subjects = [];
+
+                    // These properties are for analysis
+                    subjectName = PolymerUtils.getValue(this.prefix + "selectedSubject" + rowInfo.analysisIDinternal);
+                    samplesName = rowInfo.sampleList.filter((sample) => {
+                            return sample.individual.name === subjectName;
+                    }).map((sample) => {
+                        let res = {name: sample.name};
+                        return res;
+                    });
+                    diseaseAnalysis = rowInfo.family.diseases.find((disease)=> {
+                        return disease.id === PolymerUtils.getValue(this.prefix + "selectedDisease" + rowInfo.analysisIDinternal);
+                    });
+                    subjects.push({name: subjectName, samples:samplesName});
 
                     let analysisInfo = {
                         analysisID: PolymerUtils.getElementById(_this.prefix + "analysisID" + rowInfo.analysisIDinternal).value,
                         type: _analysisType,
                         familyID: rowInfo.family != null ? rowInfo.family.name : "",
-                        subject:  {name: subjectName, samples:samplesName} // TO BE CHANGED
+                        subjects:  subjects,
+                        disease: diseaseAnalysis
                     };
+
+                    // Check if already exists an analysis or family with current names
                     let checkExistsNames = true;
                     let checkFamilyName = _this.opencgaClient.families().search(Object.assign({name: bodyFamily.name}, params), {"method": "GET"})
                         .then(function(response){
@@ -572,6 +584,7 @@
                         });
                     checkPromises.push(checkAnalysisName);
 
+                    // Once all checkExistsName promise are resolved we try to create family
                     Promise.all(checkPromises)
                         .then(function (response) {
                             if(checkExistsNames){
@@ -582,6 +595,8 @@
                                                 if (response.response[0].numResults >= 1) {
                                                     let individual = response.response[0].result[0];
                                                     let individualId = individual.id;
+
+                                                    // Check if individual has father or mother already. If individual does not have, we will allow create family.
                                                     if ((UtilsNew.isUndefinedOrNull(individual.father) && UtilsNew.isUndefinedOrNull(individual.mother)) ||
                                                         (UtilsNew.isUndefinedOrNull(individual.father.id) && UtilsNew.isUndefinedOrNull(individual.mother.id)) ||
                                                         (individual.father.id <= 0 && individual.mother.id <= 0)) {
@@ -665,7 +680,8 @@
                     "name": analysisInfo.analysisID,
                     "type": analysisInfo.type,
                     "family": analysisInfo.familyID,
-                    "subject": analysisInfo.subject,
+                    "subjects": analysisInfo.subjects,
+                    "disease": analysisInfo.disease,
 //                    "sample": analysisInfo.sample,
                     "attributes": {
                         "filter": false
