@@ -386,6 +386,27 @@ class Users extends OpenCGAParentClass {
         }.bind(this));
     }
 
+    // refresh only works if cookies are enabled
+    refresh() {
+        let userId = this._getUserId();
+
+        return this.post("users", userId, "login", {}, {}).then(function(response) {
+            if (response.error === "") {
+                if (this._config.useCookies) {
+                    // Cookies being used
+                    Cookies.set(this._config.cookieSessionId, response.response[0].result[0].id);
+                    Cookies.set(this._config.cookieUserId, userId);
+                    Cookies.set(this._config.cookieLoginResponse, JSON.stringify(response));
+                    console.log("Cookies properly set");
+                }
+                this._config.sessionId = response.response[0].result[0].id;
+                this._config.userId = userId;
+
+                return response;
+            }
+        }.bind(this));
+    }
+
     logout() {
         return this.get("users", this._getUserId(), "logout").then(function(response) {
             if (response.error === "") {
