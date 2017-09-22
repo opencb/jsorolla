@@ -313,7 +313,8 @@ class Pedigree {
         let newMembers = family.members.map((member) => {
             let newMember = {};
             newMember.name = member.name;
-            newMember.diseases = member.diseases;
+
+            newMember.diseases = member.ontologyTerms.map((disease) => {return disease.id});
             newMember.father = member.father;
             newMember.mother = member.mother;
             newMember.sex = member.sex;
@@ -327,6 +328,8 @@ class Pedigree {
             diseases: family.diseases,
             members: newMembers,
         };
+
+        this.pedigree = pedigreFromFamily;
     }
 
     pedigreeFromFamily(family){

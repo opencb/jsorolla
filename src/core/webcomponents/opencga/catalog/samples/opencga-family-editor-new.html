@@ -74,7 +74,7 @@
                     <tbody>
                     <template id="samplesTable" is="dom-repeat" items="{{data.samples}}" as="sample">
                         <tr>
-                            <td>{{sample.name}} ({{sample.individual.name}})</td>
+                            <td>{{sample.name}} ({{sample.attributes.individual.name}})</td>
 
                             <td>
                                 <template is="dom-if" if="{{data.showSelectParents}}">
@@ -260,15 +260,15 @@
                     this.samples.forEach((sample) => {
                         sample.member = _this.family.members[sample.id];
 
-                        let _individualId = sample.individual.id;
+                        let _individualId = sample.attributes.individual.id;
                         if(UtilsNew.isNotUndefinedOrNull(_individualId) && _individualId > 0){
                         this.opencgaClient.individuals().info(_individualId, params, {"method": "GET"})
                             .then(function (response) {
                                 if (response.response[0].numResults >= 1) {
-                                    sample.individual = response.response[0].result[0];
+                                    sample.attributes.individual = response.response[0].result[0];
                                 }
                                 // Union of all ontologyTerms of every sample and we save it in diseases.
-                                if(UtilsNew.isNotUndefinedOrNull(sample.individual.ontologyTerms && UtilsNew.isNotEmptyArray(sample.individual.ontologyTerms))){
+                                if(UtilsNew.isNotUndefinedOrNull(sample.attributes.individual.ontologyTerms && UtilsNew.isNotEmptyArray(sample.attributes.individual.ontologyTerms))){
                                     sample.individual.ontologyTerms.forEach((term) => {
                                         if(term.id !== ""){
                                             // check if exists already this term in data.diseases
@@ -299,7 +299,7 @@
                                 _this.set("data.ontologyTermsDiseases", _this.data.ontologyTermsDiseases.slice());
 
                                 // Save in family members[sample.id] the member object using individual data
-                                _this.family.members[sample.id] = Object.assign(_this.family.members[sample.id], {name: sample.individual.name, sex: sample.individual.sex});
+                                _this.family.members[sample.id] = Object.assign(_this.family.members[sample.id], {name: sample.attributes.individual.name, sex: sample.attributes.individual.sex});
 //                                _this.family.members.samples = _this.samples;
                                 _samples.push(sample);
 
@@ -350,10 +350,10 @@
             isCheckedDisease(sampleId, diseaseId) {
                 let sampleSelected = this.findSample(sampleId);
                 if(UtilsNew.isNotUndefinedOrNull(sampleSelected) && UtilsNew.isNotUndefinedOrNull(sampleSelected.member)
-                    && UtilsNew.isNotUndefinedOrNull(sampleSelected.member.diseases) && sampleSelected.member.diseases.length > 0) {
+                    && UtilsNew.isNotUndefinedOrNull(sampleSelected.member.ontologyTerms)) {
 
-                    let existsSelectedDisease = sampleSelected.member.diseases.find((disease) => {
-                        return disease === diseaseId;
+                    let existsSelectedDisease = sampleSelected.member.ontologyTerms.find((disease) => {
+                        return disease.id === diseaseId;
                     });
 
                     return UtilsNew.isNotUndefinedOrNull(existsSelectedDisease);
@@ -427,21 +427,21 @@
                 let diseaseId = e.target.getAttribute("data-disease-id");
                 let sampleSelected = this.findSample(sampleId);
                 if(UtilsNew.isNotUndefinedOrNull(sampleSelected)) {
-                    let existsSelectedDisease = sampleSelected.member.diseases.find((disease) => {
-                            return disease === diseaseId;
+                    let existsSelectedDisease = sampleSelected.member.ontologyTerms.find((disease) => {
+                            return disease.id === diseaseId;
                     });
                     if (UtilsNew.isUndefinedOrNull(existsSelectedDisease)) {
                         let selectedDisease = this.data.diseases.find((disease) => {
                                 return disease.id === diseaseId;
                         });
-                        sampleSelected.member.diseases.push(selectedDisease.id);
+                        sampleSelected.member.ontologyTerms.push(selectedDisease);
                     } else {
-                        sampleSelected.member.diseases = sampleSelected.member.diseases.filter((disease) => {
-                                return disease !== diseaseId;
-                    });
+                        sampleSelected.member.ontologyTerms = sampleSelected.member.ontologyTerms.filter((disease) => {
+                                return disease.id !== diseaseId;
+                        });
                     }
 
-                    this.family.members[sampleId].diseases = sampleSelected.member.diseases;
+                    this.family.members[sampleId].ontologyTerms = sampleSelected.member.ontologyTerms;
                     this._updateFamily();
                 }
             }
