@@ -232,7 +232,7 @@
             }
 
             individualFormatter(value, row) {
-                if (UtilsNew.isNotUndefined(row.attributes.individual.name)) {
+                if (UtilsNew.isNotUndefined(row.attributes.individual) && UtilsNew.isNotUndefined(row.attributes.individual.name)) {
                     return row.attributes.individual.name;
                 } else {
                     return '-'
@@ -251,7 +251,7 @@
             }
 
             diagnosisFormatter(value, row) {
-                if (UtilsNew.isNotUndefined(row.attributes.individual.ontologyTerms) && row.attributes.individual.ontologyTerms.length > 0) {
+                if (UtilsNew.isNotUndefined(row.attributes.individual) && UtilsNew.isNotEmptyArray(row.attributes.individual.ontologyTerms)) {
                     return row.attributes.individual.ontologyTerms[1].name;
                 } else {
                     return '-';
@@ -259,7 +259,7 @@
             }
 
             fatherFormatter(value, row) {
-                if (row.attributes.individual.fatherId > 0) {
+                if (UtilsNew.isNotUndefined(row.attributes.individual) && row.attributes.individual.fatherId > 0) {
                     return row.attributes.individual.fatherId;
                 } else {
                     return '-';
@@ -267,7 +267,7 @@
             }
 
             motherFormatter(value, row) {
-                if (row.attributes.individual.motherId > 0) {
+                if (UtilsNew.isNotUndefined(row.attributes.individual) && row.attributes.individual.motherId > 0) {
                     return row.attributes.individual.motherId;
                 } else {
                     return '-';
