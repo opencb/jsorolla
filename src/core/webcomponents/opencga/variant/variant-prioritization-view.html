@@ -19,6 +19,7 @@
 <link rel="import" href="../../cellbase/variation/cellbase-variantannotation-view.html">
 <link rel="import" href="variant-beacon-network.html">
 <link rel="import" href="variant-genome-browser.html">
+<link rel="import" href="../clinical/clinical-analysis-view.html">
 
 <dom-module id="variant-prioritization-view">
     <template>
@@ -62,7 +63,7 @@
                             <button type="button" class="btn btn-success variant-prioritization-view-buttons" data-view="ClinicalData" on-click="_changeView">
                                 <i class="fa fa-user-md" aria-hidden="true" style="padding-right: 8px"></i>Analysis and Clinical Data
                             </button>
-                            <button type="button" class="btn btn-success" on-click="updateQuery">
+                            <button type="button" class="btn btn-success variant-prioritization-view-buttons" data-view="SaveInterpretation" on-click="_changeView">
                                 <i class="fa fa-floppy-o" aria-hidden="true" style="padding-left: 5px;padding-right: 8px"></i>Save Interpretation
                             </button>
                         </div>
@@ -154,14 +155,6 @@
                 </div>
 
                 <!-- Second TAB -->
-                <div id="{{prefix}}ClinicalData" class="variant-prioritization-content" style="display: none">
-                    <br>
-                    <opencga-sample-comparator opencga-client="{{opencgaClient}}" samples="{{samples}}"
-                                               variable-sets="{{variableSets}}">
-                    </opencga-sample-comparator>
-                </div>
-
-                <!-- Third TAB -->
                 <div id="{{prefix}}GenomeBrowser" class="variant-prioritization-content" style="display: none">
                     <br>
                     <br>
@@ -169,6 +162,24 @@
                                             opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
                                             query={{query}} search={{search}} region="{{region}}" active="{{_genomeBrowserActive}}" full-screen="{{fullScreen}}">
                     </variant-genome-browser>
+                </div>
+
+
+                <!-- Third TAB -->
+                <div id="{{prefix}}ClinicalData" class="variant-prioritization-content" style="display: none">
+                    <br>
+                    <!--<opencga-sample-comparator opencga-client="{{opencgaClient}}" samples="{{samples}}"-->
+                                               <!--variable-sets="{{variableSets}}">-->
+                    <!--</opencga-sample-comparator>-->
+                    <clinical-analysis-view study="{{study}}" opencga-client="{{opencgaClient}}" config="{{config}}"
+                                            class="col-md-10 col-md-offset-1" style="font-size: 12px">
+                    </clinical-analysis-view>
+                </div>
+
+                <!-- Fourth TAB -->
+                <div id="{{prefix}}SaveInterpretation" class="variant-prioritization-content" style="display: none">
+                    <br>
+                    Work in progress.
                 </div>
             </div>
         </div>
@@ -292,8 +303,9 @@
             _changeView(e) {
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
                 PolymerUtils.hide(this.prefix + "TableResult");
-                PolymerUtils.hide(this.prefix + "ClinicalData");
                 PolymerUtils.hide(this.prefix + "GenomeBrowser");
+                PolymerUtils.hide(this.prefix + "ClinicalData");
+                PolymerUtils.hide(this.prefix + "SaveInterpretation");
 
                 if (typeof e.target !== "undefined" && typeof e.target.dataset.view !== "undefined") {
                     PolymerUtils.show(this.prefix + e.target.dataset.view); // get the href and use it find which div to show
