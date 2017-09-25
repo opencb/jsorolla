@@ -23,12 +23,12 @@
                         <div class="col-md-3">
                             <label>Name </label>
                             <input type="text" class="form-control" id="{{prefix}}FamilyName" placeholder="Family name" maxlength="100"
-                               on-change="_changeName" value="{{data.name}}">
+                                   on-change="_changeName" value="{{data.name}}">
                         </div>
                         <div class="col-md-9">
                             <label class="labels">Description </label>
                             <input class="form-control" id="{{prefix}}FamilyDescription"
-                              on-change="_changeDescription">{{data.description}}</input>
+                                   on-change="_changeDescription">{{data.description}}</input>
                         </div>
                     </div>
 
@@ -179,22 +179,22 @@
                             <td>
                                 <template is="dom-if" if="{{isCheckedDeceased(sample.id)}}">
 
-                                <input id="{{prefix}}{{sample.name}}Deceased" data-sample-id$="{{sample.id}}"
-                                       type="checkbox" on-change="_selectDeceased" checked>
+                                    <input id="{{prefix}}{{sample.name}}Deceased" data-sample-id$="{{sample.id}}"
+                                           type="checkbox" on-change="_selectDeceased" checked>
                                 </template>
                                 <template is="dom-if" if="{{!isCheckedDeceased(sample.id)}}">
 
-                                <input id="{{prefix}}{{sample.name}}Deceased" data-sample-id$="{{sample.id}}"
-                                       type="checkbox" on-change="_selectDeceased">
+                                    <input id="{{prefix}}{{sample.name}}Deceased" data-sample-id$="{{sample.id}}"
+                                           type="checkbox" on-change="_selectDeceased">
                                 </template>
 
                             </td>
                             <td>
                                 <template is="dom-if" if="{{isCheckedParentalConsanguinity(sample.id)}}">
 
-                                <input id="{{prefix}}{{sample.name}}ParentalConsanguinity"
-                                       data-sample-id$="{{sample.id}}" checked
-                                       type="checkbox" on-change="_selectParentalConsanguinity">
+                                    <input id="{{prefix}}{{sample.name}}ParentalConsanguinity"
+                                           data-sample-id$="{{sample.id}}" checked
+                                           type="checkbox" on-change="_selectParentalConsanguinity">
                                 </template>
 
                                 <template is="dom-if" if="{{!isCheckedParentalConsanguinity(sample.id)}}">
@@ -299,66 +299,65 @@
                     this.samples.forEach((sample) => {
                         sample.member = _this.family.members[sample.id];
 
-                        let _individualId = sample.attributes.individual.id;
-                        if(UtilsNew.isNotUndefinedOrNull(_individualId) && _individualId > 0){
-                        this.opencgaClient.individuals().info(_individualId, params, {"method": "GET"})
-                            .then(function (response) {
-                                if (response.response[0].numResults >= 1) {
-                                    sample.attributes.individual = response.response[0].result[0];
-                                }
-                                // Union of all ontologyTerms of every sample and we save it in diseases.
-                                if(UtilsNew.isNotUndefinedOrNull(sample.attributes.individual.ontologyTerms && UtilsNew.isNotEmptyArray(sample.attributes.individual.ontologyTerms))){
-                                    sample.individual.ontologyTerms.forEach((term) => {
-                                        if(term.id !== ""){
-                                            // check if exists already this term in data.diseases
-                                            let existsTerm = _this.data.diseases.find((element) => {
-                                               return element.id === term.id;
-                                            });
+                        if (UtilsNew.isNotUndefinedOrNull(sample.attributes.individual) && sample.attributes.individual > 0) {
+                            this.opencgaClient.individuals().info(sample.attributes.individual.id, params, {method: "GET"})
+                                .then(function (response) {
+                                    if (response.response[0].numResults >= 1) {
+                                        sample.attributes.individual = response.response[0].result[0];
+                                    }
+                                    // Union of all ontologyTerms of every sample and we save it in diseases.
+                                    if(UtilsNew.isNotUndefinedOrNull(sample.attributes.individual.ontologyTerms && UtilsNew.isNotEmptyArray(sample.attributes.individual.ontologyTerms))){
+                                        sample.individual.ontologyTerms.forEach((term) => {
+                                            if(term.id !== ""){
+                                                // check if exists already this term in data.diseases
+                                                let existsTerm = _this.data.diseases.find((element) => {
+                                                    return element.id === term.id;
+                                                });
 
-                                            let existsTermOntology = _this.data.ontologyTermsDiseases.find((element) => {
-                                                return element.id === term.id;
-                                            });
+                                                let existsTermOntology = _this.data.ontologyTermsDiseases.find((element) => {
+                                                    return element.id === term.id;
+                                                });
 
-                                            if(UtilsNew.isUndefinedOrNull(existsTermOntology)) {
-                                                // save ontologyTerms from individual in data.ontologyTermsDiseases
-                                                _this.data.ontologyTermsDiseases.push(term);
+                                                if(UtilsNew.isUndefinedOrNull(existsTermOntology)) {
+                                                    // save ontologyTerms from individual in data.ontologyTermsDiseases
+                                                    _this.data.ontologyTermsDiseases.push(term);
+                                                }
+
+                                                if(UtilsNew.isUndefinedOrNull(existsTerm)){
+                                                    _this.data.diseases.push(term);
+                                                }
                                             }
+                                        });
+                                    }
 
-                                            if(UtilsNew.isUndefinedOrNull(existsTerm)){
-                                                _this.data.diseases.push(term);
-                                            }
-                                        }
-                                    });
-                                }
+                                    // Difference between ontologyTermsDiseases and diseases are the custom diseases
+                                    _this.data.customDiseases = _this.data.diseases.filter(disease => !_this.data.ontologyTermsDiseases.some(ar2 => ar2.id === disease.id));
+                                    // Made this to update dom-repeat in from the component prioritization-view
+                                    _this.set("data.customDiseases", _this.data.customDiseases.slice());
+                                    _this.set("data.ontologyTermsDiseases", _this.data.ontologyTermsDiseases.slice());
 
-                                // Difference between ontologyTermsDiseases and diseases are the custom diseases
-                                _this.data.customDiseases = _this.data.diseases.filter(disease => !_this.data.ontologyTermsDiseases.some(ar2 => ar2.id === disease.id));
-                                // Made this to update dom-repeat in from the component prioritization-view
-                                _this.set("data.customDiseases", _this.data.customDiseases.slice());
-                                _this.set("data.ontologyTermsDiseases", _this.data.ontologyTermsDiseases.slice());
-
-                                // Save in family members[sample.id] the member object using individual data
-                                _this.family.members[sample.id] = Object.assign(_this.family.members[sample.id], {name: sample.attributes.individual.name, sex: sample.attributes.individual.sex});
+                                    // Save in family members[sample.id] the member object using individual data
+                                    _this.family.members[sample.id] = Object.assign(_this.family.members[sample.id], {name: sample.attributes.individual.name, sex: sample.attributes.individual.sex});
 //                                _this.family.members.samples = _this.samples;
-                                _samples.push(sample);
+                                    _samples.push(sample);
 
-                                _this.data.samples = _samples;
-                                // Made this to update dom-repeat in from the component prioritization-view
-                                _this.set('data.samples', _samples.slice());
+                                    _this.data.samples = _samples;
+                                    // Made this to update dom-repeat in from the component prioritization-view
+                                    _this.set('data.samples', _samples.slice());
 
 
-                            })
-                            .catch(function (response) {
-                                _this.settingsMessageModal = {
-                                    messageHeader: "Error",
-                                    messageBody: [response.error],
-                                    type: "danger",
-                                    height: "100px",
-                                    width: "500px"
-                                };
-                                _this.set('settingsMessageModal', _this.settingsMessageModal);
-                                _this.showMessageModal = true;
-                            });
+                                })
+                                .catch(function (response) {
+                                    _this.settingsMessageModal = {
+                                        messageHeader: "Error",
+                                        messageBody: [response.error],
+                                        type: "danger",
+                                        height: "100px",
+                                        width: "500px"
+                                    };
+                                    _this.set('settingsMessageModal', _this.settingsMessageModal);
+                                    _this.showMessageModal = true;
+                                });
                         } else {
                             _samples.push(sample);
                         }
@@ -467,16 +466,16 @@
                 let sampleSelected = this.findSample(sampleId);
                 if(UtilsNew.isNotUndefinedOrNull(sampleSelected)) {
                     let existsSelectedDisease = sampleSelected.member.ontologyTerms.find((disease) => {
-                            return disease.id === diseaseId;
+                        return disease.id === diseaseId;
                     });
                     if (UtilsNew.isUndefinedOrNull(existsSelectedDisease)) {
                         let selectedDisease = this.data.diseases.find((disease) => {
-                                return disease.id === diseaseId;
+                            return disease.id === diseaseId;
                         });
                         sampleSelected.member.ontologyTerms.push(selectedDisease);
                     } else {
                         sampleSelected.member.ontologyTerms = sampleSelected.member.ontologyTerms.filter((disease) => {
-                                return disease.id !== diseaseId;
+                            return disease.id !== diseaseId;
                         });
                     }
 
@@ -612,17 +611,17 @@
             deletedTermFromList(e){
                 let deletedTerm = JSON.parse(e.target.getAttribute("data-selected-term"));
 
-                    let diseasesWithoutElement = this.data.diseases.filter((element) => {
-                        return element.id !== deletedTerm.id;
-                    });
-                    let customDiseasesWithoutElement = this.data.customDiseases.filter((element) => {
-                        return element.id !== deletedTerm.id;
-                    });
-                    this.set('data.diseases', diseasesWithoutElement);
-                    this.set('data.customDiseases', customDiseasesWithoutElement);
-                    this.family.diseases = this.data.diseases;
-                    this.push("data.diseases");
-                    this._updateFamily();
+                let diseasesWithoutElement = this.data.diseases.filter((element) => {
+                    return element.id !== deletedTerm.id;
+                });
+                let customDiseasesWithoutElement = this.data.customDiseases.filter((element) => {
+                    return element.id !== deletedTerm.id;
+                });
+                this.set('data.diseases', diseasesWithoutElement);
+                this.set('data.customDiseases', customDiseasesWithoutElement);
+                this.family.diseases = this.data.diseases;
+                this.push("data.diseases");
+                this._updateFamily();
             }
             _summaryOnClick() {
                 if (this._summaryCollapsed) {
