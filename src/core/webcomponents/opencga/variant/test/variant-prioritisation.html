@@ -102,7 +102,8 @@
                                 opencga-client="{{opencgaClient}}"
                                 cellbase-client="{{cellbaseClient}}"
                                 active="{{config.tools.prioritization.active}}" ebi-config="{{config.ebiWS}}"
-                                beacon-hosts="{{config.tools.beacon.hosts}}" on-gene="geneSelected">
+                                beacon-hosts="{{config.tools.beacon.hosts}}" on-gene="geneSelected"
+                                clinical-analysis="{{clinicalAnalysis}}">
         </variant-prioritization>
 
     </template>
@@ -144,6 +145,7 @@
                         alias: "illumina_platinum"
                     };
 
+                    this.clinicalAnalysis = interpretationJson.clinicalAnalysis;
 
                     this.region = new Region({chromosome: "21", start: 22859462, end: 22859610});
                 }
