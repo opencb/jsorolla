@@ -21,7 +21,9 @@
     <title>Cache tests</title>
     <!--<link rel="stylesheet" href="http://code.jquery.com/qunit/qunit-1.12.0.css" />-->
     <!--<script type="text/javascript" src="../../../vendor/underscore-min.js"></script>-->
-    <script type="text/javascript" src="../../vendor/backbone-min.js"></script>
+    <script type="text/javascript" src="../../../../node_modules/backbone/backbone-min.js"></script>
+    <script type="text/javascript" src="../../../../node_modules/crypto-js/crypto-js.js"></script>
+    <script type="text/javascript" src="../../../../node_modules/cookies-js/src/cookies.js"></script>
     <script type="text/javascript" src="http://underscorejs.org/underscore-min.js"></script>
     <!--<script type="text/javascript" src="http://code.jquery.com/qunit/qunit-1.12.0.js"></script>-->
 
@@ -36,7 +38,7 @@
 
 <script>
 
-    let conf = new OpenCGAClientConfig();
+    let conf = new OpenCGAClientConfig("localhost:8080/opencga");
     let client = new OpenCGAClient(conf);
 
     function test(then, expected) {
