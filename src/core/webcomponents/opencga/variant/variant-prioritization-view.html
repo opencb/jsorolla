@@ -25,9 +25,9 @@
     <template>
         <style include="jso-styles">
             /*.prioritization-variant-menu-link:hover {*/
-                /*cursor: pointer;*/
-                /*background-color: #EEEEEE;*/
-                /*text-decoration: none;*/
+            /*cursor: pointer;*/
+            /*background-color: #EEEEEE;*/
+            /*text-decoration: none;*/
             /*}*/
 
             .prioritization-variant-tab-title {
@@ -36,153 +36,172 @@
             }
         </style>
 
+        <!--<div>-->
+        <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" filters="{{config.filters}}"
+                                filter-bioformat="VARIANT" fixed-filters="{{fixedFilters}}"
+                                alias="{{activeFilterAlias}}" refresh="{{search}}">
+        </opencga-active-filters>
+
+
+        <template is="dom-if" if="{{_isPrioritizationMode}}">
+            <div class="col-md-12" style="padding: 5px 0px 15px 0px">
+                <div class="btn-toolbar" role="toolbar" aria-label="...">
+                    <div class="btn-group" role="group" aria-label="..." style="padding: 10px 0px">
+                        <button type="button" class="btn btn-success variant-prioritization-view-buttons active" data-view="TableResult" on-click="_changeView">
+                            <i class="fa fa-table" aria-hidden="true" style="padding-right: 8px"></i>Table Result
+                        </button>
+                        <button type="button" class="btn btn-success variant-prioritization-view-buttons" data-view="GenomeBrowser" on-click="_changeView">
+                            <i class="fa fa-list-alt" aria-hidden="true" style="padding-left: 5px;padding-right: 8px"></i>Genome Browser (Beta)
+                        </button>
+                    </div>
+
+                    <template is="dom-if" if="{{clinicalAnalysis}}">
+                        <div class="btn-group" role="group" aria-label="..." style="padding: 10px 0px;float: right">
+                            <button type="button" class="btn btn-success variant-prioritization-view-buttons" data-view="Panels" on-click="_changeView">
+                                <i class="fa fa-columns" aria-hidden="true" style="padding-right: 8px"></i>Panels
+                            </button>
+                            <button type="button" class="btn btn-success variant-prioritization-view-buttons" data-view="ClinicalData" on-click="_changeView">
+                                <i class="fa fa-user-md" aria-hidden="true" style="padding-left: 5px;padding-right: 8px"></i>Analysis and Clinical Data
+                            </button>
+                            <button type="button" class="btn btn-success variant-prioritization-view-buttons" data-view="SaveInterpretation" on-click="_changeView">
+                                <i class="fa fa-floppy-o" aria-hidden="true" style="padding-left: 5px;padding-right: 8px"></i>Save Interpretation
+                            </button>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </template>
+
+        <!--<template is="dom-if" if="{{_isClinicalMode}}">-->
+        <!--<div aria-label="...">-->
+        <!--<span>-->
+        <!--<i class="fa fa-file-text-o"></i>-->
+        <!--<a id="{{prefix}}Files" class="prioritization-variant-menu-link active" data-view="TableResult"-->
+        <!--on-click="_changeView">TABLE RESULT</a>-->
+        <!--</span>-->
+        <!--<span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>-->
+        <!--<span>-->
+        <!--<i class="fa fa-user-md"></i>-->
+        <!--<a id="{{prefix}}Family" class="prioritization-variant-menu-link" data-view="ClinicalData"-->
+        <!--on-click="_changeView">CLINICAL DATA</a>-->
+        <!--</span>-->
+        <!--<span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>-->
+        <!--<span>-->
+        <!--<i class="fa fa-list-alt"></i>-->
+        <!--<a id="{{prefix}}Browser" class="prioritization-variant-menu-link" data-view="GenomeBrowser"-->
+        <!--on-click="_changeView">GENOME BROWSER (Beta)</a>-->
+        <!--</span>-->
+        <!--</div>-->
+        <!--</template>-->
+
         <div>
-            <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" filters="{{config.filters}}"
-                                    filter-bioformat="VARIANT" fixed-filters="{{fixedFilters}}"
-                                    alias="{{activeFilterAlias}}" refresh="{{search}}">
-            </opencga-active-filters>
+            <!-- First TAB -->
+            <div id="{{prefix}}TableResult" class="variant-prioritization-content">
+                <!-- Variant Browser Grid -->
+                <variant-browser-grid mode="{{mode}}" study="{{study}}" project="{{project}}" prefix="{{prefix}}"
+                                      opencga-client="{{opencgaClient}}"
+                                      cellbase-client="{{cellbaseClient}}"
+                                      population-frequencies="{{populationFrequencies}}"
+                                      samples="{{samples}}"
+                                      protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                      consequence-types="{{consequenceTypes}}"
+                                      query="[[query]]" search="[[search]]" variant="{{variant}}"
+                                      on-selected="selectedGene" on-selectvariant="onSelectVariant"
+                                      show-select="{{showSelect}}" style="font-size: 12px">
+                </variant-browser-grid>
 
+                <!-- Bottom tabs with specific variant information -->
+                <div style="padding-top: 20px" hidden$="{{!checkVariant(variant)}}">
+                    <h3>Variant: {{variant}}</h3>
+                    <div style="padding-top: 20px">
+                        <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
+                            <li role="presentation" class="active">
+                                <a href="#{{prefix}}Annotation" role="tab" data-toggle="tab" class="prioritization-variant-tab-title">
+                                    Advanced Annotation
+                                </a>
+                            </li>
+                            <li role="presentation">
+                                <a href="#{{prefix}}Beacon" role="tab" data-toggle="tab" class="prioritization-variant-tab-title">
+                                    Beacon Network
+                                </a>
+                            </li>
+                        </ul>
 
-            <template is="dom-if" if="{{_isPrioritizationMode}}">
-                <div class="col-md-12" style="padding: 5px 0px 15px 0px">
-                    <div class="btn-toolbar" role="toolbar" aria-label="...">
-                        <div class="btn-group" role="group" aria-label="..." style="padding: 10px 0px">
-                            <button type="button" class="btn btn-success variant-prioritization-view-buttons active" data-view="TableResult" on-click="_changeView">
-                                <i class="fa fa-table" aria-hidden="true" style="padding-right: 8px"></i>Table Result
-                            </button>
-                            <button type="button" class="btn btn-success variant-prioritization-view-buttons" data-view="GenomeBrowser" on-click="_changeView">
-                                <i class="fa fa-list-alt" aria-hidden="true" style="padding-left: 5px;padding-right: 8px"></i>Genome Browser (Beta)
-                            </button>
-                        </div>
-
-                        <template is="dom-if" if="{{clinicalAnalysis}}">
-                            <div class="btn-group" role="group" aria-label="..." style="padding: 10px 0px;float: right">
-                                <button type="button" class="btn btn-success variant-prioritization-view-buttons" data-view="ClinicalData" on-click="_changeView">
-                                    <i class="fa fa-user-md" aria-hidden="true" style="padding-right: 8px"></i>Analysis and Clinical Data
-                                </button>
-                                <button type="button" class="btn btn-success variant-prioritization-view-buttons" data-view="SaveInterpretation" on-click="_changeView">
-                                    <i class="fa fa-floppy-o" aria-hidden="true" style="padding-left: 5px;padding-right: 8px"></i>Save Interpretation
-                                </button>
+                        <div class="tab-content" style="height: 680px">
+                            <!--Annotation Tab-->
+                            <div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">
+                                <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}"
+                                                                 cellbase-client="{{cellbaseClient}}"
+                                                                 mode="vertical"
+                                                                 hash-fragment-credentials="{{hashFragmentCredentials}}"
+                                                                 consequence-types="{{consequenceTypes}}"
+                                                                 protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                                 style="font-size: 12px">
+                                </cellbase-variantannotation-view>
                             </div>
-                        </template>
-                    </div>
-                </div>
-            </template>
 
-            <!--<template is="dom-if" if="{{_isClinicalMode}}">-->
-            <!--<div aria-label="...">-->
-            <!--<span>-->
-            <!--<i class="fa fa-file-text-o"></i>-->
-            <!--<a id="{{prefix}}Files" class="prioritization-variant-menu-link active" data-view="TableResult"-->
-            <!--on-click="_changeView">TABLE RESULT</a>-->
-            <!--</span>-->
-            <!--<span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>-->
-            <!--<span>-->
-            <!--<i class="fa fa-user-md"></i>-->
-            <!--<a id="{{prefix}}Family" class="prioritization-variant-menu-link" data-view="ClinicalData"-->
-            <!--on-click="_changeView">CLINICAL DATA</a>-->
-            <!--</span>-->
-            <!--<span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>-->
-            <!--<span>-->
-            <!--<i class="fa fa-list-alt"></i>-->
-            <!--<a id="{{prefix}}Browser" class="prioritization-variant-menu-link" data-view="GenomeBrowser"-->
-            <!--on-click="_changeView">GENOME BROWSER (Beta)</a>-->
-            <!--</span>-->
-            <!--</div>-->
-            <!--</template>-->
-
-            <div>
-                <!-- First TAB -->
-                <div id="{{prefix}}TableResult" class="variant-prioritization-content">
-                    <!-- Variant Browser Grid -->
-                    <variant-browser-grid mode="{{mode}}" study="{{study}}" project="{{project}}" prefix="{{prefix}}"
-                                          opencga-client="{{opencgaClient}}"
-                                          cellbase-client="{{cellbaseClient}}"
-                                          population-frequencies="{{populationFrequencies}}"
-                                          samples="{{samples}}"
-                                          protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                          consequence-types="{{consequenceTypes}}"
-                                          query="[[query]]" search="[[search]]" variant="{{variant}}"
-                                          on-selected="selectedGene" on-selectvariant="onSelectVariant"
-                                          show-select="{{showSelect}}" style="font-size: 12px">
-                    </variant-browser-grid>
-
-                    <!-- Bottom tabs with specific variant information -->
-                    <div style="padding-top: 20px" hidden$="{{!checkVariant(variant)}}">
-                        <h3>Variant: {{variant}}</h3>
-                        <div style="padding-top: 20px">
-                            <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
-                                <li role="presentation" class="active">
-                                    <a href="#{{prefix}}Annotation" role="tab" data-toggle="tab" class="prioritization-variant-tab-title">
-                                        Advanced Annotation
-                                    </a>
-                                </li>
-                                <li role="presentation">
-                                    <a href="#{{prefix}}Beacon" role="tab" data-toggle="tab" class="prioritization-variant-tab-title">
-                                        Beacon Network
-                                    </a>
-                                </li>
-                            </ul>
-
-                            <div class="tab-content" style="height: 680px">
-                                <!--Annotation Tab-->
-                                <div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">
-                                    <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}"
-                                                                     cellbase-client="{{cellbaseClient}}"
-                                                                     mode="vertical"
-                                                                     hash-fragment-credentials="{{hashFragmentCredentials}}"
-                                                                     consequence-types="{{consequenceTypes}}"
-                                                                     protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                                                     style="font-size: 12px">
-                                    </cellbase-variantannotation-view>
-                                </div>
-
-                                <!--Beacon network-->
-                                <div role="tabpanel" class="tab-pane" id="{{prefix}}Beacon">
-                                    <br>
-                                    <button class="btn btn-primary" type="button" on-click="triggerBeacon">Search Beacon
-                                        Network
-                                    </button>
-                                    <a data-toggle="tooltip"
-                                       title="Beacon Network is a search engine across the world's public beacons. You can find it here - https://beacon-network.org/#/"><i
-                                            class="fa fa-info-circle" aria-hidden="true"></i></a>
-                                    <br><br>
-                                    <variant-beacon-network hosts="{{beaconHosts}}" clear="{{variant}}"variant="{{variantToBeacon}}"></variant-beacon-network>
-                                </div>
+                            <!--Beacon network-->
+                            <div role="tabpanel" class="tab-pane" id="{{prefix}}Beacon">
+                                <br>
+                                <button class="btn btn-primary" type="button" on-click="triggerBeacon">Search Beacon
+                                    Network
+                                </button>
+                                <a data-toggle="tooltip"
+                                   title="Beacon Network is a search engine across the world's public beacons. You can find it here - https://beacon-network.org/#/"><i
+                                        class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                <br><br>
+                                <variant-beacon-network hosts="{{beaconHosts}}" clear="{{variant}}"variant="{{variantToBeacon}}"></variant-beacon-network>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Second TAB -->
-                <div id="{{prefix}}GenomeBrowser" class="variant-prioritization-content" style="display: none">
-                    <br>
-                    <br>
-                    <variant-genome-browser project="{{project}}" study="{{study}}" samples="{{samples}}" opencga-client="{{opencgaClient}}"
-                                            cellbase-client="{{cellbaseClient}}" query={{query}} search={{search}} region="{{region}}"
-                                            active="{{_genomeBrowserActive}}" full-screen="{{fullScreen}}">
-                    </variant-genome-browser>
+            <!-- Second TAB -->
+            <div id="{{prefix}}GenomeBrowser" class="variant-prioritization-content" style="display: none">
+                <br>
+                <br>
+                <variant-genome-browser project="{{project}}" study="{{study}}" samples="{{samples}}" opencga-client="{{opencgaClient}}"
+                                        cellbase-client="{{cellbaseClient}}" query={{query}} search={{search}} region="{{region}}"
+                                        active="{{_genomeBrowserActive}}" full-screen="{{fullScreen}}">
+                </variant-genome-browser>
+            </div>
+
+
+            <!-- Third TAB -->
+            <div id="{{prefix}}Panels" class="variant-prioritization-content" style="display: none">
+                <br>
+                <br>
+                <br>
+                <div class="alert alert-warning" role="alert" id="{{prefix}}PanelsAlert" style="padding: 10px;margin: 10px">
+                    <span style="font-weight: bold;font-size: 1.20em">Work in progress</span>
+                    &nbsp;&nbsp;This will create and save virtual disease Panels
                 </div>
+            </div>
 
+            <!-- Fourth TAB -->
+            <div id="{{prefix}}ClinicalData" class="variant-prioritization-content" style="display: none">
+                <br>
+                <!--<opencga-sample-comparator opencga-client="{{opencgaClient}}" samples="{{samples}}"-->
+                <!--variable-sets="{{variableSets}}">-->
+                <!--</opencga-sample-comparator>-->
+                <clinical-analysis-view clinical-analysis={{clinicalAnalysis}} study="{{study}}" opencga-client="{{opencgaClient}}" config="{{config}}"
+                                        class="col-md-10 col-md-offset-1" style="font-size: 12px">
+                </clinical-analysis-view>
+            </div>
 
-                <!-- Third TAB -->
-                <div id="{{prefix}}ClinicalData" class="variant-prioritization-content" style="display: none">
-                    <br>
-                    <!--<opencga-sample-comparator opencga-client="{{opencgaClient}}" samples="{{samples}}"-->
-                    <!--variable-sets="{{variableSets}}">-->
-                    <!--</opencga-sample-comparator>-->
-                    <clinical-analysis-view clinical-analysis={{clinicalAnalysis}} study="{{study}}" opencga-client="{{opencgaClient}}" config="{{config}}"
-                                            class="col-md-10 col-md-offset-1" style="font-size: 12px">
-                    </clinical-analysis-view>
-                </div>
-
-                <!-- Fourth TAB -->
-                <div id="{{prefix}}SaveInterpretation" class="variant-prioritization-content" style="display: none">
-                    <br>
-                    Work in progress.
+            <!-- Fifth TAB -->
+            <div id="{{prefix}}SaveInterpretation" class="variant-prioritization-content" style="display: none">
+                <br>
+                <br>
+                <br>
+                <div class="alert alert-warning" role="alert" id="{{prefix}}Warning" style="padding: 10px;margin: 10px">
+                    <span style="font-weight: bold;font-size: 1.20em">Work in progress</span>
+                    &nbsp;&nbsp;This will create and save a Interpretation result into OpenCGA Catalog.
                 </div>
             </div>
         </div>
+        <!--</div>-->
     </template>
 
     <script>
@@ -312,6 +331,7 @@
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
                 PolymerUtils.hide(this.prefix + "TableResult");
                 PolymerUtils.hide(this.prefix + "GenomeBrowser");
+                PolymerUtils.hide(this.prefix + "Panels");
                 PolymerUtils.hide(this.prefix + "ClinicalData");
                 PolymerUtils.hide(this.prefix + "SaveInterpretation");
 
