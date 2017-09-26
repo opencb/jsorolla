@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<!--
+  ~ Copyright 2015-2016 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Variant Prioritization Test</title>
+
+    <!-- CSS links -->
+    <link rel="stylesheet" href="../../../../../../node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../../../../../../node_modules/bootstrap-table/dist/bootstrap-table.min.css">
+    <link rel="stylesheet" href="../../../../../../node_modules/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../../../../../../node_modules/qtip2/dist/jquery.qtip.min.css">
+
+    <!-- JS links-->
+    <script type="text/javascript" src="../../../../../../node_modules/@webcomponents/webcomponentsjs/webcomponents-lite.js"></script>
+    <script type="text/javascript" src="../../../../../../node_modules/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="../../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../../../../../node_modules/bootstrap-table/dist/bootstrap-table.min.js"></script>
+    <script type="text/javascript" src="../../../../../../node_modules/underscore/underscore-min.js"></script>
+    <script type="text/javascript" src="../../../../../../node_modules/backbone/backbone-min.js"></script>
+    <script type="text/javascript" src="../../../../../../node_modules/moment/min/moment.min.js"></script>
+    <script type="text/javascript" src="../../../../../../node_modules/highcharts/highcharts.js"></script>
+    <script type="text/javascript" src="../../../../../../node_modules/qtip2/dist/jquery.qtip.min.js"></script>
+    <script type="text/javascript" src="../../../../../../node_modules/urijs/src/URI.min.js"></script>
+    <script type="text/javascript" src="../../../../../../node_modules/cookies-js/dist/cookies.min.js"></script>
+    <!--<script type="text/javascript" src="../../../../../../node_modules/crypto-js/core.js"></script>-->
+    <!--<script type="text/javascript" src="../../../../../../node_modules/crypto-js/sha256.js"></script>-->
+    <script type="text/javascript" src="../../../../utilsNew.js"></script>
+    <script type="text/javascript" src="../../../../utils.js"></script>
+    <script type="text/javascript" src="../../../../region.js"></script>
+    <script type="text/javascript" src="../../../PolymerUtils.js"></script>
+    <script type="text/javascript" src="../../../../clients/rest-client.js"></script>
+    <script type="text/javascript" src="../../../../clients/cellbase-client.js"></script>
+    <script type="text/javascript" src="../../../../clients/opencga-client.js"></script>
+
+    <link rel="stylesheet" href="../../../../../../styles/css/style.css">
+
+    <!-- Polymer links -->
+    <link rel="import" href="../../../../../../node_modules/@polymer/polymer/polymer-element.html">
+    <link rel="import" href="../../../../../../node_modules/@polymer/polymer/lib/elements/dom-repeat.html">
+    <link rel="import" href="../../../../../../node_modules/@polymer/polymer/lib/elements/dom-if.html">
+    <link rel="import" href="../../../../../../node_modules/@polymer/polymer/lib/elements/array-selector.html">
+    <link rel="import" href="../../../../../../node_modules/@polymer/polymer/lib/elements/custom-style.html">
+    <link rel="import" href="../../../cellbase/variation/cellbase-variantannotation-view.html">
+
+    <script type="text/javascript" src="../../../../../genome-browser/genome-browser.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/navigation-bar.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/chromosome-panel.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/karyotype-panel.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/status-bar.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/feature-binary-search-tree.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/config.js"></script>
+    <script type="text/javascript" src="../../../../../core/svg.js"></script>
+
+    <script type="text/javascript" src="../../../../../genome-browser/tracks/tracklist-panel.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/tracks/feature-track.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/tracks/gene-track.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/tracks/alignment-track.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/tracks/variant-track.js"></script>
+
+    <script type="text/javascript" src="../../../../../genome-browser/renderers/renderer.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/renderers/feature-renderer.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/renderers/sequence-renderer.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/renderers/histogram-renderer.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/renderers/gene-renderer.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/renderers/alignment-renderer.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/renderers/variant-renderer.js"></script>
+
+    <script type="text/javascript" src="../../../../../core/data-adapter/feature-adapter.js"></script>
+    <script type="text/javascript" src="../../../../../core/data-adapter/cellbase-adapter.js"></script>
+    <script type="text/javascript" src="../../../../../core/data-adapter/opencga-adapter.js"></script>
+
+    <script type="text/javascript" src="config.js"></script>
+    <script type="text/javascript" src="../../clinical/test/interpretation.js"></script>
+    <link rel="import" href="../variant-prioritization.html">
+</head>
+<body>
+<dom-module id="variant-prioritization-test">
+    <template>
+
+        <variant-prioritization mode="prioritization" title="Prioritization" host="{{opencga.host}}"
+                                project="{{project}}" study="{{study}}" samples="{{samples}}"
+                                config="{{config.tools.prioritization}}" biotypes="{{config.biotypes}}"
+                                population-frequencies="{{populationFrequencies}}"
+                                protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                consequence-types="{{consequenceTypes}}"
+                                opencga-client="{{opencgaClient}}"
+                                cellbase-client="{{cellbaseClient}}"
+                                active="{{config.tools.prioritization.active}}" ebi-config="{{config.ebiWS}}"
+                                beacon-hosts="{{config.tools.beacon.hosts}}" on-gene="geneSelected"
+                                clinical-analysis="{{clinicalAnalysis}}">
+        </variant-prioritization>
+
+    </template>
+    <script>
+        HTMLImports.whenReady(function() {
+
+            class VariantPrioritizationTest extends Polymer.Element {
+
+                constructor(){
+                    super();
+
+                    this.interpretationJson = interpretationJson;
+
+                    this.config = application;
+                    this.config.tools = tools;
+                    this.config.opencga = opencga;
+                    this.config.cellbase = cellbase;
+                    this.config.biotypes = biotypes;
+                    this.populationFrequencies = populationFrequencies;
+                    this.proteinSubstitutionScores = proteinSubstitutionScores;
+                    this.consequenceTypes = consequenceTypes;
+
+                    this.opencgaClientConfig = new OpenCGAClientConfig(this.config.opencga.host, this.config.opencga.version, true, this.config.opencga.cookie.prefix);
+                    this.opencgaClient = new OpenCGAClient(this.opencgaClientConfig);
+
+                    this.cellBaseClientConfig = new CellBaseClientConfig(this.config.cellbase.hosts, this.config.cellbase.version, "hsapiens");
+                    this.cellbaseClient = new CellBaseClient(this.cellBaseClientConfig);
+
+
+                    this.project = {
+                        id: 4,
+                        name: "Platinum",
+                        alias: "hgvauser@platinum"
+                    };
+
+                    this.study = {
+                        id: 14434,
+                        name: "Illumina Platinum",
+                        alias: "illumina_platinum"
+                    };
+
+                    this.clinicalAnalysis = interpretationJson.clinicalAnalysis;
+
+                    this.region = new Region({chromosome: "21", start: 22859462, end: 22859610});
+                }
+
+                static get is() {
+                    return 'variant-prioritization-test';
+                }
+
+                static get properties(){
+                    return {
+
+                    }
+                }
+
+                _attachDom(dom) {
+                    this.appendChild(dom);
+                }
+
+                ready() {
+                    super.ready();
+
+                }
+
+                // Element class can define custom element reactions
+                connectedCallback() {
+                    super.connectedCallback();
+                }
+            }
+
+            customElements.define(VariantPrioritizationTest.is, VariantPrioritizationTest);
+        });
+    </script>
+</dom-module>
+
+<variant-prioritization-test></variant-prioritization-test>
+
+</body>
+</html>
