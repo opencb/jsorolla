@@ -314,7 +314,9 @@ class Pedigree {
             let newMember = {};
             newMember.name = member.name;
 
-            newMember.diseases = member.ontologyTerms.map((disease) => {return disease.id});
+            if(typeof member.ontologyTerms !== "undefined" && member.ontologyTerms.length > 0) {
+                newMember.diseases = member.ontologyTerms.map((disease) => {return disease.id});
+            }
             newMember.father = member.father;
             newMember.mother = member.mother;
             newMember.sex = member.sex;

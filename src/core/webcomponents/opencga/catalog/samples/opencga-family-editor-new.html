@@ -268,18 +268,12 @@
                 super.connectedCallback();
                 this.newDisease = {};
                 this._summaryCollapsed = true;
-
-//                PolymerUtils.getElementById("ifSampleExists").addEventListener('dom-change', function() {
-//                   alert("dom-change")
-//                    console.log(PolymerUtils.getElementById(this.prefix + "PedigreeView"));
-//                });
-//                this.pedigreeRender();
             }
 
             initData() {
                 this.data = {};
                 this.data.showSelectParents = false;
-                if(PolymerUtils.getElementById("samplesTable")!=null){
+                if(PolymerUtils.getElementById("samplesTable")!=null) {
                     PolymerUtils.getElementById("samplesTable").render();
                 }
                 if (UtilsNew.isNotUndefinedOrNull(this.samples)) {
@@ -299,7 +293,8 @@
                     this.samples.forEach((sample) => {
                         sample.member = _this.family.members[sample.id];
 
-                        if (UtilsNew.isNotUndefinedOrNull(sample.attributes.individual) && sample.attributes.individual > 0) {
+                        if (UtilsNew.isNotUndefinedOrNull(sample.attributes) && UtilsNew.isNotUndefinedOrNull(sample.attributes.individual) && sample.attributes.individual.id > 0) {
+                            // Fetch every individual from Webservices to get every ontologyTerm and create array of custom diseases and array of selected diseases from create individual form.
                             this.opencgaClient.individuals().info(sample.attributes.individual.id, params, {method: "GET"})
                                 .then(function (response) {
                                     if (response.response[0].numResults >= 1) {
@@ -338,10 +333,11 @@
 
                                     // Save in family members[sample.id] the member object using individual data
                                     _this.family.members[sample.id] = Object.assign(_this.family.members[sample.id], {name: sample.attributes.individual.name, sex: sample.attributes.individual.sex});
-//                                _this.family.members.samples = _this.samples;
-                                    _samples.push(sample);
 
+                                    // Update samples selected
+                                    _samples.push(sample);
                                     _this.data.samples = _samples;
+
                                     // Made this to update dom-repeat in from the component prioritization-view
                                     _this.set('data.samples', _samples.slice());
 
@@ -363,11 +359,7 @@
                         }
                     });
 
-                    if (UtilsNew.isNotUndefinedOrNull(this.samples)) {
-                        this._sampleExists = true;
-                    }else{
-                        this._sampleExists = false;
-                    }
+                    this._sampleExists = UtilsNew.isNotUndefinedOrNull(this.samples);
 
                     _this.data.samples = _samples;
 
@@ -512,10 +504,13 @@
                 let sampleId = e.target.getAttribute("data-sample-id");
                 let isFather = e.target.getAttribute("data-is-father");
                 let isMother = e.target.getAttribute("data-is-mother");
+
+                // Search the sample which is parent selected
                 let sampleSelectedParent = this.samples.find((sample) => {
                     return sample.id === parseInt(e.target.value);
                 });
 
+                // Search the sample which we are selecting a parent.
                 let sampleSelected = this.samples.find((sample) => {
                     return sample.id === parseInt(sampleId);
                 });
@@ -530,18 +525,22 @@
                 }
                 if (UtilsNew.isNotUndefinedOrNull(sampleSelected)) {
 
+                    // If selected individual sex is unddefined
                     if(UtilsNew.isUndefinedOrNull(sampleSelected.member.sex)){
                         sampleSelected.member.sex = "UNKNOWN";
                         this.family.members[sampleId].sex = "UNKNOWN";
                     }
+
+                    // Set the sex of the parent
                     if (isMother === "true") {
-                        if(UtilsNew.isNotUndefinedOrNull(parent)){
+                        if(UtilsNew.isNotUndefinedOrNull(parent)) {
                             parent.sex = "FEMALE";
                         }
                         sampleSelected.member.mother = parent.name;
                         this.family.members[sampleId].mother = parent.name;
+
                     } else if (isFather === "true") {
-                        if(UtilsNew.isNotUndefinedOrNull(parent)){
+                        if(UtilsNew.isNotUndefinedOrNull(parent)) {
                             parent.sex = "MALE";
                         }
                         sampleSelected.member.father = parent.name;
@@ -559,6 +558,7 @@
                 this.newDisease.src = PolymerUtils.getValue(this.prefix + "srcDisease");
                 PolymerUtils.setValue(this.prefix + "srcDisease", "");
 
+                // Add by polymer array pushing a new disease to the family diseases array and to the custom diseases
                 this.push("data.diseases",{
                     id: this.newDisease.id.toString(),
                     name: this.newDisease.name,
@@ -587,7 +587,6 @@
 
 
             pedigreeRender() {
-                // Remove SVG before render new one
                 if(this.data.showSelectParents){
                     if (UtilsNew.isNotUndefined(this.svg)) {
                         PolymerUtils.getElementById(this.prefix + "PedigreeView").removeChild(this.svg);
@@ -623,6 +622,7 @@
                 this.push("data.diseases");
                 this._updateFamily();
             }
+
             _summaryOnClick() {
                 if (this._summaryCollapsed) {
                     $("#" + this.prefix + "SummaryCollapseIcon").removeClass("fa-plus-square-o").addClass("fa-minus-square-o");
