@@ -257,7 +257,22 @@
                                 detail: {
                                     id: _variant,
                                     variant: row,
-                                    variants: $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('getAllSelections')
+                                    checkdVariant: true,
+                                    variants: $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('getAllSelections'),
+                                }
+                            }));
+                        },
+                        onUncheck: function (row, $element) {
+//                            $('.success').removeClass('success');
+//                            $($element).addClass('success');
+
+                            let _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
+                            _this.dispatchEvent(new CustomEvent('checkvariant', {
+                                detail: {
+                                    id: _variant,
+                                    variant: row,
+                                    checkdVariant: false,
+                                    variants: $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('getAllSelections'),
                                 }
                             }));
                         },
