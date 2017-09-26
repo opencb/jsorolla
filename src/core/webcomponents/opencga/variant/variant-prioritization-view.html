@@ -199,7 +199,7 @@
                     <form id="{{prefix}}uploadForm" class="form-horizontal" data-toggle="validator" role="form">
                         <!-- GENERAL INFORMATION -->
                         <div class="form-group has-feedback">
-                            <label for="{{prefix}}Name" class="col-md-2 col-form-label">Name</label>
+                            <label for="{{prefix}}NameInterpretation" class="col-md-2 col-form-label">Name</label>
                             <div class="col-md-8">
                                 <div class="input-group">
                                     <input type="text" class$="form-control {{prefix}}TextInput codeDis"
@@ -216,7 +216,7 @@
 
                         <!-- DESCRIPTION -->
                         <div class="form-group has-feedback">
-                            <label for="{{prefix}}Description" class="col-md-2 col-form-label">Description</label>
+                            <label for="{{prefix}}DescriptionInterpretation" class="col-md-2 col-form-label">Description</label>
                             <div class="col-md-8">
                                 <div class="input-group">
                                     <input type="text" class$="form-control {{prefix}}TextInput codeDis"
@@ -230,7 +230,7 @@
 
                         <!-- COMMENT -->
                         <div class="form-group has-feedback">
-                            <label for="{{prefix}}Comment" class="col-md-2 col-form-label">Comment</label>
+                            <label for="{{prefix}}CommentInterpretation" class="col-md-2 col-form-label">Comment</label>
                             <div class="col-md-8">
                                 <div class="input-group">
                                     <input type="text" class$="form-control {{prefix}}TextInput codeDis"
@@ -374,7 +374,7 @@
 
             onSelectVariant(e) {
                 this.variant = e.detail.id;
-                debugger
+//                debugger
             }
 
             onCheckVariant(e) {
