@@ -106,7 +106,7 @@
                                       protein-substitution-scores="{{proteinSubstitutionScores}}"
                                       consequence-types="{{consequenceTypes}}"
                                       query="[[query]]" search="[[search]]" variant="{{variant}}"
-                                      on-selected="selectedGene" on-selectvariant="onSelectVariant"
+                                      on-selected="selectedGene" on-selectvariant="onSelectVariant" on-checkvariant="onCheckVariant"
                                       show-select="{{showSelect}}" style="font-size: 12px">
                 </variant-browser-grid>
 
@@ -190,14 +190,64 @@
                 </clinical-analysis-view>
             </div>
 
-            <!-- Fifth TAB -->
+            <!-- SAVE INTERPRETATION TAB -->
             <div id="{{prefix}}SaveInterpretation" class="variant-prioritization-content" style="display: none">
-                <br>
-                <br>
-                <br>
-                <div class="alert alert-warning" role="alert" id="{{prefix}}Warning" style="padding: 10px;margin: 10px">
-                    <span style="font-weight: bold;font-size: 1.20em">Work in progress</span>
-                    &nbsp;&nbsp;This will create and save a Interpretation result into OpenCGA Catalog.
+                <div class="col-md-8 col-md-offset-1">
+                    <h3 class="clinical-title">Interpretation Information</h3>
+                    <hr style="margin-top: 5px">
+
+                    <form id="{{prefix}}uploadForm" class="form-horizontal" data-toggle="validator" role="form">
+                        <!-- GENERAL INFORMATION -->
+                        <div class="form-group has-feedback">
+                            <label for="{{prefix}}Name" class="col-md-2 col-form-label">Name</label>
+                            <div class="col-md-8">
+                                <div class="input-group">
+                                    <input type="text" class$="form-control {{prefix}}TextInput codeDis"
+                                           id="{{prefix}}Name" name="Name" placeholder="Name of this interpretation ..."
+                                           maxlength="50" required data-error="" pattern=".+" style="width: 240px">
+                                    <!--<span class="input-group-addon btn btn-primary" on-click="searchIndividual">-->
+                                        <!--<i class="fa fa-search" aria-hidden="true"></i>-->
+                                    <!--</span>-->
+                                </div>
+                                <span class="glyphicon form-control-feedback" aria-hidden="true" style="padding-right:60px; z-index:5"></span>
+                                <div class="help-block with-errors"></div>
+                            </div>
+                        </div>
+
+                        <!-- DESCRIPTION -->
+                        <div class="form-group has-feedback">
+                            <label for="{{prefix}}Description" class="col-md-2 col-form-label">Description</label>
+                            <div class="col-md-8">
+                                <div class="input-group">
+                                    <input type="text" class$="form-control {{prefix}}TextInput codeDis"
+                                           id="{{prefix}}Description" name="Name" placeholder="Description of this interpretation ..."
+                                           maxlength="250" required data-error="" pattern=".+" style="width: 480px">
+                                </div>
+                                <span class="glyphicon form-control-feedback" aria-hidden="true" style="padding-right:60px; z-index:5"></span>
+                                <div class="help-block with-errors"></div>
+                            </div>
+                        </div>
+
+                        <!-- COMMENT -->
+                        <div class="form-group has-feedback">
+                            <label for="{{prefix}}Comment" class="col-md-2 col-form-label">Comment</label>
+                            <div class="col-md-8">
+                                <div class="input-group">
+                                    <input type="text" class$="form-control {{prefix}}TextInput codeDis"
+                                           id="{{prefix}}Comment" name="Name" placeholder="Add a comment ..."
+                                           maxlength="250" required data-error="" pattern=".+" style="width: 480px">
+                                </div>
+                                <span class="glyphicon form-control-feedback" aria-hidden="true" style="padding-right:60px; z-index:5"></span>
+                                <div class="help-block with-errors"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group row" style="padding-left: 240px;">
+                            <button type="button" class="btn btn-primary" on-click="onSaveInterpretation">View</button>
+                            <button type="button" class="btn btn-primary" on-click="_clearHtmlDom">Save</button>
+                        </div>
+
+                    </form>
                 </div>
             </div>
         </div>
@@ -209,6 +259,8 @@
 
             constructor() {
                 super();
+
+                this.showSelect = true;
             }
 
             static get is() {
@@ -322,6 +374,12 @@
 
             onSelectVariant(e) {
                 this.variant = e.detail.id;
+                debugger
+            }
+
+            onCheckVariant(e) {
+                // Alexis: we need to do something like this:
+//                this.checkedVariants.push(e.detail.variant);
             }
 
             selectedGene(e) {
@@ -370,6 +428,36 @@
 
             _savePrioritization() {
                 alert("Not implemented yet");
+            }
+
+            onSaveInterpretation(e, obj) {
+                let interpretation = {};
+                interpretation.name = "INT-" + Utils.randomString(25550);
+                interpretation.description = "Description";
+                interpretation.clinicalAnalysis = this.clinicalAnalysis;
+                interpretation.software= {
+                    name: "TEAM",
+                    version: "2.0",
+                    website: "https://www.ncbi.nlm.nih.gov/pubmed/24861626",
+                    repository: "https://github.com/opencb/opencga",
+                    commit: "f43372aa",
+                    params: {}
+                };
+                interpretation.analyst = {
+                    name: "",
+                    email:"",
+                    company:""
+                };
+                interpretation.versions =  [
+                    {id: "cellbase", name: "CellBase", type: "DDBB", version: "4.5.0"}
+                ];
+                interpretation.filters = this.query;
+                interpretation.creationDate = "Description";
+                interpretation.comments = [];
+//                interpretation.reportedVariants = obj.variants;
+                interpretation.  attributes = {};
+
+
             }
         }
 
