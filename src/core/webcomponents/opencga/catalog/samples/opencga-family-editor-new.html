@@ -268,18 +268,12 @@
                 super.connectedCallback();
                 this.newDisease = {};
                 this._summaryCollapsed = true;
-
-//                PolymerUtils.getElementById("ifSampleExists").addEventListener('dom-change', function() {
-//                   alert("dom-change")
-//                    console.log(PolymerUtils.getElementById(this.prefix + "PedigreeView"));
-//                });
-//                this.pedigreeRender();
             }
 
             initData() {
                 this.data = {};
                 this.data.showSelectParents = false;
-                if(PolymerUtils.getElementById("samplesTable")!=null){
+                if(PolymerUtils.getElementById("samplesTable")!=null) {
                     PolymerUtils.getElementById("samplesTable").render();
                 }
                 if (UtilsNew.isNotUndefinedOrNull(this.samples)) {
@@ -299,76 +293,78 @@
                     this.samples.forEach((sample) => {
                         sample.member = _this.family.members[sample.id];
 
-                        let _individualId = sample.attributes.individual.id;
-                        if(UtilsNew.isNotUndefinedOrNull(_individualId) && _individualId > 0){
-                        this.opencgaClient.individuals().info(_individualId, params, {"method": "GET"})
-                            .then(function (response) {
-                                if (response.response[0].numResults >= 1) {
-                                    sample.attributes.individual = response.response[0].result[0];
-                                }
-                                // Union of all ontologyTerms of every sample and we save it in diseases.
-                                if(UtilsNew.isNotUndefinedOrNull(sample.attributes.individual.ontologyTerms && UtilsNew.isNotEmptyArray(sample.attributes.individual.ontologyTerms))){
-                                    sample.individual.ontologyTerms.forEach((term) => {
-                                        if(term.id !== ""){
-                                            // check if exists already this term in data.diseases
-                                            let existsTerm = _this.data.diseases.find((element) => {
-                                               return element.id === term.id;
-                                            });
-
-                                            let existsTermOntology = _this.data.ontologyTermsDiseases.find((element) => {
-                                                return element.id === term.id;
-                                            });
-
-                                            if(UtilsNew.isUndefinedOrNull(existsTermOntology)) {
-                                                // save ontologyTerms from individual in data.ontologyTermsDiseases
-                                                _this.data.ontologyTermsDiseases.push(term);
-                                            }
-
-                                            if(UtilsNew.isUndefinedOrNull(existsTerm)){
-                                                _this.data.diseases.push(term);
-                                            }
+                        if(UtilsNew.isNotUndefinedOrNull(sample.attributes) && UtilsNew.isNotUndefinedOrNull(sample.attributes.individual)) {
+                            let _individualId = sample.attributes.individual.id;
+                            if(UtilsNew.isNotUndefinedOrNull(_individualId) && _individualId > 0) {
+                                // Fetch every individual from Webservices to get every ontologyTerm and create array of custom diseases and array of selected diseases from create individual form.
+                                this.opencgaClient.individuals().info(_individualId, params, {method: "GET"})
+                                    .then(function (response) {
+                                        if (response.response[0].numResults >= 1){
+                                            sample.attributes.individual = response.response[0].result[0];
                                         }
+                                        // Union of all ontologyTerms of every sample and we save it in diseases.
+                                        if(UtilsNew.isNotUndefinedOrNull(sample.attributes.individual.ontologyTerms && UtilsNew.isNotEmptyArray(sample.attributes.individual.ontologyTerms))){
+                                            sample.individual.ontologyTerms.forEach((term) => {
+                                                if(term.id !== "") {
+                                                    // check if exists already this term in data.diseases
+                                                    let existsTerm = _this.data.diseases.find((element) => {
+                                                       return element.id === term.id;
+                                                    });
+
+                                                    let existsTermOntology = _this.data.ontologyTermsDiseases.find((element) => {
+                                                        return element.id === term.id;
+                                                    });
+
+                                                    if(UtilsNew.isUndefinedOrNull(existsTermOntology)) {
+                                                        // save ontologyTerms from individual in data.ontologyTermsDiseases
+                                                        _this.data.ontologyTermsDiseases.push(term);
+                                                    }
+
+                                                    if(UtilsNew.isUndefinedOrNull(existsTerm)) {
+                                                        _this.data.diseases.push(term);
+                                                    }
+                                                }
+                                            });
+                                        }
+
+                                        // Difference between ontologyTermsDiseases and diseases are the custom diseases
+                                        _this.data.customDiseases = _this.data.diseases.filter(disease => !_this.data.ontologyTermsDiseases.some(ar2 => ar2.id === disease.id));
+                                        // Made this to update dom-repeat from the component prioritization-view
+                                        _this.set("data.customDiseases", _this.data.customDiseases.slice());
+                                        _this.set("data.ontologyTermsDiseases", _this.data.ontologyTermsDiseases.slice());
+
+                                        // Save in family members[sample.id] the member object using individual data
+                                        _this.family.members[sample.id] = Object.assign(_this.family.members[sample.id], {name: sample.attributes.individual.name, sex: sample.attributes.individual.sex});
+
+                                        // Update samples selected
+                                        _samples.push(sample);
+                                        _this.data.samples = _samples;
+
+                                        // Made this to update dom-repeat from the component prioritization-view
+                                        _this.set('data.samples', _samples.slice());
+
+
+                                    })
+                                    .catch(function (response) {
+                                        _this.settingsMessageModal = {
+                                            messageHeader: "Error",
+                                            messageBody: [response.error],
+                                            type: "danger",
+                                            height: "100px",
+                                            width: "500px"
+                                        };
+                                        _this.set('settingsMessageModal', _this.settingsMessageModal);
+                                        _this.showMessageModal = true;
                                     });
-                                }
-
-                                // Difference between ontologyTermsDiseases and diseases are the custom diseases
-                                _this.data.customDiseases = _this.data.diseases.filter(disease => !_this.data.ontologyTermsDiseases.some(ar2 => ar2.id === disease.id));
-                                // Made this to update dom-repeat in from the component prioritization-view
-                                _this.set("data.customDiseases", _this.data.customDiseases.slice());
-                                _this.set("data.ontologyTermsDiseases", _this.data.ontologyTermsDiseases.slice());
-
-                                // Save in family members[sample.id] the member object using individual data
-                                _this.family.members[sample.id] = Object.assign(_this.family.members[sample.id], {name: sample.attributes.individual.name, sex: sample.attributes.individual.sex});
-//                                _this.family.members.samples = _this.samples;
+                            } else {
                                 _samples.push(sample);
-
-                                _this.data.samples = _samples;
-                                // Made this to update dom-repeat in from the component prioritization-view
-                                _this.set('data.samples', _samples.slice());
-
-
-                            })
-                            .catch(function (response) {
-                                _this.settingsMessageModal = {
-                                    messageHeader: "Error",
-                                    messageBody: [response.error],
-                                    type: "danger",
-                                    height: "100px",
-                                    width: "500px"
-                                };
-                                _this.set('settingsMessageModal', _this.settingsMessageModal);
-                                _this.showMessageModal = true;
-                            });
+                            }
                         } else {
-                            _samples.push(sample);
+                                _samples.push(sample);
                         }
                     });
 
-                    if (UtilsNew.isNotUndefinedOrNull(this.samples)) {
-                        this._sampleExists = true;
-                    }else{
-                        this._sampleExists = false;
-                    }
+                    this._sampleExists = UtilsNew.isNotUndefinedOrNull(this.samples);
 
                     _this.data.samples = _samples;
 
@@ -513,10 +509,13 @@
                 let sampleId = e.target.getAttribute("data-sample-id");
                 let isFather = e.target.getAttribute("data-is-father");
                 let isMother = e.target.getAttribute("data-is-mother");
+
+                // Search the sample which is parent selected
                 let sampleSelectedParent = this.samples.find((sample) => {
                     return sample.id === parseInt(e.target.value);
                 });
 
+                // Search the sample which we are selecting a parent.
                 let sampleSelected = this.samples.find((sample) => {
                     return sample.id === parseInt(sampleId);
                 });
@@ -531,18 +530,22 @@
                 }
                 if (UtilsNew.isNotUndefinedOrNull(sampleSelected)) {
 
+                    // If selected individual sex is unddefined
                     if(UtilsNew.isUndefinedOrNull(sampleSelected.member.sex)){
                         sampleSelected.member.sex = "UNKNOWN";
                         this.family.members[sampleId].sex = "UNKNOWN";
                     }
+
+                    // Set the sex of the parent
                     if (isMother === "true") {
-                        if(UtilsNew.isNotUndefinedOrNull(parent)){
+                        if(UtilsNew.isNotUndefinedOrNull(parent)) {
                             parent.sex = "FEMALE";
                         }
                         sampleSelected.member.mother = parent.name;
                         this.family.members[sampleId].mother = parent.name;
+
                     } else if (isFather === "true") {
-                        if(UtilsNew.isNotUndefinedOrNull(parent)){
+                        if(UtilsNew.isNotUndefinedOrNull(parent)) {
                             parent.sex = "MALE";
                         }
                         sampleSelected.member.father = parent.name;
@@ -560,6 +563,7 @@
                 this.newDisease.src = PolymerUtils.getValue(this.prefix + "srcDisease");
                 PolymerUtils.setValue(this.prefix + "srcDisease", "");
 
+                // Add by polymer array pushing a new disease to the family diseases array and to the custom diseases
                 this.push("data.diseases",{
                     id: this.newDisease.id.toString(),
                     name: this.newDisease.name,
@@ -588,7 +592,6 @@
 
 
             pedigreeRender() {
-                // Remove SVG before render new one
                 if(this.data.showSelectParents){
                     if (UtilsNew.isNotUndefined(this.svg)) {
                         PolymerUtils.getElementById(this.prefix + "PedigreeView").removeChild(this.svg);
@@ -624,6 +627,7 @@
                     this.push("data.diseases");
                     this._updateFamily();
             }
+
             _summaryOnClick() {
                 if (this._summaryCollapsed) {
                     $("#" + this.prefix + "SummaryCollapseIcon").removeClass("fa-plus-square-o").addClass("fa-minus-square-o");

@@ -138,7 +138,7 @@
                         family.members[sample.id] = {
                             father: undefined,
                             mother: undefined,
-                            diseases: [],
+                            ontologyTerms: [],
     //                            multiples: [],
     //                            samples: [],
                             parentalConsanguinity: false
@@ -155,15 +155,13 @@
                 } else {
                     let members = [];
                     this.samples.forEach((sample) => {
-                       if(this.family.members[sample.id]!=null){
+                       if(UtilsNew.isNotUndefinedOrNull(this.family.members[sample.id])) {
                                members[sample.id] = this.family.members[sample.id];
                         } else {
                             members[sample.id] = {
                                 father: undefined,
                                 mother: undefined,
-                                diseases: [],
-                                //                            multiples: [],
-                                //                            samples: [],
+                                ontologyTerms: [],
                                 parentalConsanguinity: false
                             }
                         }
