@@ -1214,9 +1214,9 @@
             updateConsequenceTypeFilter(e) {
                 // Select LoF term checkboxes
 //                let lofCheckBox = this.$$("#" + this.prefix + "LossOfFunctionCheckBox");
-                let lofCheckBox = this.$[this.prefix + "LossOfFunctionCheckBox"];
+                let lofCheckBox = PolymerUtils.getElementById(this.prefix + "LossOfFunctionCheckBox");
                 if (e.target.id === this.prefix + "LossOfFunctionCheckBox") {
-                    let checkBoxes = this.$$("#" + this.prefix + "consequenceTypeFilter").querySelectorAll("li input");
+                    let checkBoxes = PolymerUtils.querySelectorAll("li input",this.prefix + "consequenceTypeFilter");
                     for (let i = 0; i < this.consequenceTypes.lof.length; i++) {
                         for (let j = 0; j < checkBoxes.length; j++) {
                             if (checkBoxes[j].dataId === this.consequenceTypes.lof[i]) {

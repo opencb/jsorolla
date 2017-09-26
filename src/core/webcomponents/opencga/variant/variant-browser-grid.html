@@ -37,23 +37,6 @@
             <button type="button" class="btn btn-default btn-sm" data-toggle="popover" data-placement="bottom" on-click="_shareLink">
                 <i class="fa fa-share-alt" aria-hidden="true"></i> Share
             </button>
-
-            <!--Save -->
-            <template is="dom-if" if="{{showSelect}}">
-                <button type="button" class="btn btn-default btn-sm" data-toggle="popover" data-placement="bottom" on-click="_saveLink">
-                    <i class="fa fa-floppy-o" aria-hidden="true"></i> Save
-                </button>
-            </template>
-
-            <!--<button type="button" class="btn btn-default btn-sm" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample" on-click="_test">-->
-            <!--<i class="fa fa-share-alt" aria-hidden="true"></i> Share-->
-            <!--</button>-->
-            <!--<div class="collapse" id="collapseExample" style="padding-top: 5px">-->
-            <!--<div class="well" style="background-color: #FAFAFA">-->
-            <!--URL:<br>-->
-            <!--{{_test()}}-->
-            <!--</div>-->
-            <!--</div>-->
         </div>
 
         <div id="{{prefix}}GridTableDiv" style="margin-top: 10px">
@@ -1151,11 +1134,6 @@
                 }).on("show.bs.popover", function () {
                     $(this).data("bs.popover").tip().css("max-width", "none");
                 });
-            }
-            _saveLink() {
-                let saveObject = {query: this.search, variants: $('#' + this.prefix + 'VariantBrowserGrid').bootstrapTable('getAllSelections')};
-//                this.fire("save", saveObject);
-                this.dispatchEvent(new CustomEvent("save", {detail: saveObject, bubbles: true, composed: true}));
             }
         }
 

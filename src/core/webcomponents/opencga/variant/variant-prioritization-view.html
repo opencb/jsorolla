@@ -203,7 +203,7 @@
                             <div class="col-md-8">
                                 <div class="input-group">
                                     <input type="text" class$="form-control {{prefix}}TextInput codeDis"
-                                           id="{{prefix}}Name" name="Name" placeholder="Name of this interpretation ..."
+                                           id="{{prefix}}NameInterpretation" name="Name" placeholder="Name of this interpretation ..."
                                            maxlength="50" required data-error="" pattern=".+" style="width: 240px">
                                     <!--<span class="input-group-addon btn btn-primary" on-click="searchIndividual">-->
                                         <!--<i class="fa fa-search" aria-hidden="true"></i>-->
@@ -220,7 +220,7 @@
                             <div class="col-md-8">
                                 <div class="input-group">
                                     <input type="text" class$="form-control {{prefix}}TextInput codeDis"
-                                           id="{{prefix}}Description" name="Name" placeholder="Description of this interpretation ..."
+                                           id="{{prefix}}DescriptionInterpretation" name="Name" placeholder="Description of this interpretation ..."
                                            maxlength="250" required data-error="" pattern=".+" style="width: 480px">
                                 </div>
                                 <span class="glyphicon form-control-feedback" aria-hidden="true" style="padding-right:60px; z-index:5"></span>
@@ -234,7 +234,7 @@
                             <div class="col-md-8">
                                 <div class="input-group">
                                     <input type="text" class$="form-control {{prefix}}TextInput codeDis"
-                                           id="{{prefix}}Comment" name="Name" placeholder="Add a comment ..."
+                                           id="{{prefix}}CommentInterpretation" name="Name" placeholder="Add a comment ..."
                                            maxlength="250" required data-error="" pattern=".+" style="width: 480px">
                                 </div>
                                 <span class="glyphicon form-control-feedback" aria-hidden="true" style="padding-right:60px; z-index:5"></span>
@@ -244,7 +244,7 @@
 
                         <div class="form-group row" style="padding-left: 240px;">
                             <button type="button" class="btn btn-primary" on-click="onSaveInterpretation">View</button>
-                            <button type="button" class="btn btn-primary" on-click="_clearHtmlDom">Save</button>
+                            <button type="button" class="btn btn-primary" on-click="onSaveInterpretation">Save</button>
                         </div>
 
                     </form>
@@ -432,9 +432,10 @@
             }
 
             onSaveInterpretation(e, obj) {
+                let userID = Cookies.get(this.configOpencga.cookie.prefix + "_userId");
                 let interpretation = {};
-                interpretation.name = "INT-" + Utils.randomString(25550);
-                interpretation.description = "Description";
+                interpretation.name = PolymerUtils.getValue(this.prefix + "NameInterpretation")
+                interpretation.description =  PolymerUtils.getValue(this.prefix + "DescriptionInterpretation");
                 interpretation.clinicalAnalysis = this.clinicalAnalysis;
                 interpretation.software= {
                     name: "TEAM",
@@ -445,7 +446,7 @@
                     params: {}
                 };
                 interpretation.analyst = {
-                    name: "",
+                    name: userID,
                     email: "",
                     company: ""
                 };
@@ -455,8 +456,8 @@
                     }
                 ];
                 interpretation.filters = this.query;
-                interpretation.creationDate = "Description";
-                interpretation.comments = [];
+                interpretation.creationDate = Date();
+                interpretation.comments =  PolymerUtils.getValue(this.prefix + "CommentInterpretation");
                 interpretation.reportedVariants = this.checkedVariants;
                 interpretation.  attributes = {};
             }

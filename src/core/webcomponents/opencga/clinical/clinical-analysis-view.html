@@ -206,10 +206,10 @@
                         <h4 class="modal-title" id="{{prefix}}AnalysisBrowserLabel">Analysis Selector</h4>
                     </div>
                     <div class="modal-body" style="height: 780px">
-                        <variant-clinical-selector opencga-client="{{opencgaClient}}" analysis-selected="{{analysisSelected}}" analysis-modal="{{analysisModal}}" study="{{study}}" show-pedigree="{{showPedigree}}"></variant-clinical-selector>
+                        <variant-clinical-selector opencga-client="{{opencgaClient}}" analysis-selected="{{analysisSelected}}" analysis-modal="{{analysisModal}}" study="{{study}}" show-pedigree="true"></variant-clinical-selector>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="showSegregation">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="onAnalysisSelected">
                             OK
                         </button>
                     </div>
@@ -268,6 +268,14 @@
                 }
 
                 $("#" + this.prefix + "AnalysisBrowser").modal('show');
+            }
+
+            onAnalysisSelected(e) {
+                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+                this.clinicalAnalysis = this.analysisSelected.analysis;
+//                this.
+//                $("#analysisSelectedDiv").show();
+//                $("#segregationDropdownDiv").show();
             }
 
 
