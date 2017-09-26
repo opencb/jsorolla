@@ -270,7 +270,13 @@
 //                            $($element).addClass('success');
 
                             let _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
-                            _this.dispatchEvent(new CustomEvent('checkvariant', {detail: {id: _variant, variant: row}}));
+                            _this.dispatchEvent(new CustomEvent('checkvariant', {
+                                detail: {
+                                    id: _variant,
+                                    variant: row,
+                                    variants: $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('getAllSelections')
+                                }
+                            }));
                         },
                         onLoadSuccess: function (data) {
                             // The first time we mark as selected the first row that is rows[2] since the first two rows are the header

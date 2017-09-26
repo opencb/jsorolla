@@ -187,7 +187,7 @@
                                                      opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}"
                                                      protein-substitution-scores="{{proteinSubstitutionScores}}" consequence-types="{{consequenceTypes}}"
                                                      query="{{query}}" search="{{search}}" on-clear="onClear" on-filterchange="onFilterChange"
-                                                    on-save="onSaveVariants" on-propagate="propagateGeneEvent">
+                                                     on-propagate="propagateGeneEvent">
                         </variant-prioritization-view>
                     </div>
                 </div>
@@ -332,81 +332,6 @@
 
             computedClassTabs(isActive) {
                 return !isActive ? "btn-success" : "btn-primary";
-            }
-
-            onSaveVariants(e, obj) {
-
-                let interpretationJson = {};
-                interpretationJson.name = "INT-" + Utils.randomString(25550);
-                interpretationJson.description = "Description";
-                interpretationJson.clinicalAnalysis = this.analysisSelected;
-                interpretationJson.software= {
-                    name: "TEAM",
-                    version: "2.0",
-                    website: "https://www.ncbi.nlm.nih.gov/pubmed/24861626",
-                    repository: "https://github.com/opencb/opencga",
-                    commit: "f43372aa",
-                    params: {}
-                };
-                interpretationJson.analyst = {
-                    name: "",
-                    email:"",
-                    company:""
-                };
-                interpretationJson.versions =  [
-                    {id: "cellbase", name: "CellBase", type: "DDBB", version: "4.5.0"}
-                ];
-                interpretationJson.filters = obj.query;
-                interpretationJson.creationDate = "Description";
-                interpretationJson.comments = [];
-                interpretationJson.reportedVariants = obj.variants;
-                interpretationJson.  attributes = {};
-
-
-
-
-
-
-//                if (typeof this.analysisSelected !== "undefined") {
-//                    let sampleId = this.analysisSelected.analysis.family.children[0].samples[0].id;
-//                    let analysisId = this.analysisSelected.analysisID;
-//
-//                    if (this.opencgaClient instanceof OpenCGAClient) {
-//
-//                        let params = {
-//                            study: this.project.alias + ":" + this.study.alias
-//                        };
-//
-//                        let body = {
-//                            attributes: {"PRIORITIZATION": obj}
-//                        };
-//
-//                        let _this = this;
-//                        this.opencgaClient.samples().update(sampleId, params, body)
-//                            .then(function (response) {
-//                                _this.settingsMessageModal = {
-//                                    messageHeader: "BIER-IVA",
-//                                    messageBody: ["Selected variants have been saved for " + analysisId],
-//                                    type: "info",
-//                                    height: "100px",
-//                                    width: "500px"
-//                                };
-//
-//                                _this.showMessageModal = true;
-//                            })
-//                            .catch(function (response) {
-//                                _this.settingsMessageModal = {
-//                                    messageHeader: "Error",
-//                                    messageBody: ["Variants couldn't be saved for " + analysisId],
-//                                    type: "danger",
-//                                    height: "100px",
-//                                    width: "500px"
-//                                };
-//
-//                                _this.showMessageModal = true;
-//                            });
-//                    }
-//                }
             }
 
             onClear(){

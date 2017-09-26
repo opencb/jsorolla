@@ -379,7 +379,8 @@
 
             onCheckVariant(e) {
                 // Alexis: we need to do something like this:
-//                this.checkedVariants.push(e.detail.variant);
+                this.checkedVariants = e.detail.variants;
+//                debugger
             }
 
             selectedGene(e) {
@@ -445,19 +446,19 @@
                 };
                 interpretation.analyst = {
                     name: "",
-                    email:"",
-                    company:""
+                    email: "",
+                    company: ""
                 };
                 interpretation.versions =  [
-                    {id: "cellbase", name: "CellBase", type: "DDBB", version: "4.5.0"}
+                    {
+                        id: "cellbase", name: "CellBase", type: "DDBB", version: "4.5.0"
+                    }
                 ];
                 interpretation.filters = this.query;
                 interpretation.creationDate = "Description";
                 interpretation.comments = [];
-//                interpretation.reportedVariants = obj.variants;
+                interpretation.reportedVariants = this.checkedVariants;
                 interpretation.  attributes = {};
-
-
             }
         }
 
