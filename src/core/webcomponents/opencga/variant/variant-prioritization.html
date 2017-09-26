@@ -56,7 +56,7 @@
                                          beacon-hosts="{{beaconHosts}}" query="{{query}}" search="{{search}}"
                                          on-clear="onClear" on-filterchange="onFilterChange"
                                          on-propagate="propagateGeneEvent" full-screen="{{_collapsed}}"
-                                         clinical-analysis="{{clinicalAnalysis}}">
+                                         clinical-analysis="{{clinicalAnalysis}}" on-samplechange="onSampleChange">
             </variant-prioritization-view>
         </div>
         <template is="dom-if" if="{{checkProject(project)}}">
@@ -182,6 +182,10 @@
 
             onCloseModalSample(e) {
                 this._samples = this.samples;
+            }
+
+            onSampleChange(e) {
+                this.samples = e.detail.samples;
             }
         }
 

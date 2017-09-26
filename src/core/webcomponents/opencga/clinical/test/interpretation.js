@@ -32,7 +32,7 @@ const interpretationJson = {
         subjects: [
             {
                 id: 10,
-                name: "NA0001",
+                name: "NA12877",
                 version: 1,
                 sex: "MALE",
                 affectationStatus:"AFFECTED",
@@ -59,7 +59,7 @@ const interpretationJson = {
                 samples: [
                     {
                         id: 113,
-                        name: "NA0001",
+                        name: "NA12877",
                         somatic: false,
                         type: "blood",
                         ontologyTerms: [
@@ -116,7 +116,7 @@ const interpretationJson = {
             ],
             members: [
                 {
-                    "id": 10, "version": 1, "name": "NA0001", sex: "male",
+                    "id": 10, "version": 1, "name": "NA12877", sex: "male",
                     father: "NA0003",
                     mother: "NA0004",
                     diseases: [ {

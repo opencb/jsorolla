@@ -275,7 +275,8 @@
                         type: String
                     },
                     clinicalAnalysis: {
-                        type: Object
+                        type: Object,
+                        observer: '_clinicalAnalysisChanged'
                     }
                 }
             }
@@ -325,6 +326,13 @@
 
             selectedGene(e) {
                 this.fire('propagate', {gene: e.detail.gene});
+            }
+
+            _clinicalAnalysisChanged() {
+                let _samples = this.clinicalAnalysis.subjects;
+                this.samples = _samples;
+
+                this.dispatchEvent(new CustomEvent('samplechange', {detail: {samples: this.samples}}));
             }
 
             _changeView(e) {
