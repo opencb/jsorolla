@@ -47,7 +47,7 @@
     <template>
 
         <div class="col-md-8 col-md-offset-2">
-            <clinical-analysis-view clinical-analysis={{interpretationJson.clinicalAnalysis}} config="{{config.tools.clinical}}" style="font-size: 12px"></clinical-analysis-view>
+            <clinical-analysis-view study={{study}} clinical-analysis={{interpretationJson.clinicalAnalysis}} config="{{config.tools.clinical}}" style="font-size: 12px"></clinical-analysis-view>
         </div>
 
     </template>
@@ -61,6 +61,19 @@
                     super();
 
                     this.interpretationJson = interpretationJson;
+
+                    this.study = {
+                        "id": 2,
+                        "name": "1000 Genomes Project - Phase 3",
+                        "alias": "1kG_phase3"
+                    };
+
+                    this.project = {
+                        "id": 1,
+                        "name": "Reference studies GRCh37",
+                        "alias": "test@reference_grch37"
+                    };
+
                 }
 
                 static get is() { return 'my-element-in'; }

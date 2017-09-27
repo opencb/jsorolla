@@ -16,13 +16,12 @@
 
 <link rel="import" href="variant-clinical-upload.html">
 <link rel="import" href="variant-clinical-samples.html">
-<!--<link rel="import" href="variant-browser-filter.html">-->
 <link rel="import" href="../variant/variant-prioritization-view.html">
-<!--<link rel="import" href="variant-sample-grid.html">-->
 <link rel="import" href="clinical-analysis-view.html">
 <link rel="import" href="variant-clinical-report.html">
 <link rel="import" href="variant-clinical-filter.html">
 <link rel="import" href="../opencga-message-dialog.html">
+<link rel="import" href="variant-clinical-selector.html">
 
 <dom-module id="variant-clinical">
     <template>
@@ -106,7 +105,6 @@
             .analysis-button {
                 outline: none!important;
             }
-
         </style>
 
         <div class="panel">
@@ -148,67 +146,109 @@
             <template is="dom-if" if="{{activesTab.uploadTab}}">
                 <div class$="analysis-content" id="{{prefix}}UploadButtonDiv">
                     <variant-clinical-upload opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}"
-                                             clear-dom="{{clearDomUpload}}" ebi-config="{{ebiConfig}}" ></variant-clinical-upload>
+                                             clear-dom="{{clearDomUpload}}" ebi-config="{{ebiConfig}}">
+                    </variant-clinical-upload>
                 </div>
             </template>
+
 
             <template is="dom-if" if="{{activesTab.analysisTab}}">
                 <div class$="analysis-content" id="{{prefix}}SamplesButtonDiv">
                     <variant-clinical-samples opencga-client="{{opencgaClient}}" project="{{project}}" study="{{study}}"
-                                              samples="{{samples}}" prefix="{{prefix}}"
-                                              config="{{config}}"></variant-clinical-samples>
+                                              samples="{{samples}}" prefix="{{prefix}}" config="{{config}}">
+                    </variant-clinical-samples>
                 </div>
             </template>
 
+
             <template is="dom-if" if="{{activesTab.prioritizationTab}}">
-                 <template is="dom-if" if="{{!activePrioritization}}" >
-                        <div style="width: 60%; margin: auto">
-                            <clinical-analysis-view study="{{study}}" config="{{config}}" opencga-client="{{opencgaClient}}"
-                                                clinical-analysis="{{clinicalAnalysis}}"
-                                                active-prioritization="{{activePrioritization}}" ></clinical-analysis-view>
+                <template is="dom-if" if="{{!activePrioritization}}">
+                    <!--<div style="width: 60%; margin: auto">-->
+                    <div class="col-md-8 col-md-offset-2">
+                        <h3>Clinical Analysis</h3>
+                        <div class="col-md-12" style="padding: 5px 0px">
+                            <form class="form-horizontal">
+
+                                <div class="form-group">
+                                    <span for="inputEmail3" class="col-md-2 control-label">Select analysis:</span>
+                                    <div class="col-md-10">
+                                        <button id="inputEmail3" data-toggle="modal" role="button" data-placement="bottom" on-click="showClinicalSelector">
+                                            Browse...
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
-                    </template>
-                    <template is="dom-if" if="{{activePrioritization}}" >
 
-                        <div style="margin: auto">
-                            <variant-prioritization mode="prioritization" title="Prioritization"
-                                                    project="{{project}}" study="{{study}}" samples="{{samples}}"
-                                                    config="{{configPrioritization}}" config-opencga="{{configOpencga}}" biotypes="{{config.biotypes}}"
-                                                    population-frequencies="{{populationFrequencies}}"
-                                                    protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                                    consequence-types="{{consequenceTypes}}"
-                                                    opencga-client="{{opencgaClient}}"
-                                                    cellbase-client="{{cellbaseClient}}"
-                                                    ebi-config="{{config.ebiWS}}"
-                                                    beacon-hosts="{{config.tools.beacon.hosts}}" on-gene="geneSelected"
-                                                    clinical-analysis="{{clinicalAnalysis}}">
-                            </variant-prioritization>
+                        <h4>Summary</h4>
+                        <clinical-analysis-view study="{{study}}" config="{{config}}" opencga-client="{{opencgaClient}}"
+                                                clinical-analysis="{{clinicalAnalysis}}" active-prioritization="{{activePrioritization}}">
+                        </clinical-analysis-view>
+
+                        <h3>Interpretation Algorithms</h3>
+                        <div class="form-group" style="margin-bottom: 5px">
+                            <p>Several prioritization and interpretation algorithms are available, you can choose an <span style="font-weight: bold">interactive</span> tool:</p>
+                            <input id="interactiveRadio" type="radio" name="analysisRadioButtons" value="sample" class$="{{prefix}}FilterRadio"
+                                   checked on-change="selectAnalysisType" style="padding-left: 20px"> Interactive Prioritization (based on <a href="https://www.ncbi.nlm.nih.gov/pubmed/24861626" target="_blank" style="font-weight: bold">TEAM</a> paper)<br>
+                            <br>
+                            <span>Or a <span style="font-weight: bold">batch</span> algorithm that will be executed in the server:</span>
+                            <br>
+                            <template is="dom-repeat" items="{{config.interpretation.algorithms}}" as="algorithm">
+                                <input id="{{algorithm}}Radio" type="radio" name="analysisRadioButtons" value="{{algorithm}}"
+                                       class$="{{prefix}}FilterRadio" on-change="selectAnalysisType"
+                                       style="padding-left: 20px"> {{algorithm}} (pending)<br>
+                            </template>
                         </div>
-                    </template>
+                    </div>
 
-<!--<div class="analysis-content" id="{{prefix}}PrioritizationButtonDiv">-->
-                    <!--<div class="col-md-2">-->
-                    <!--&lt;!&ndash;    <variant-clinical-filter mode="{{mode}}" study="{{study}}" project="{{project}}" samples="{{samples}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"-->
-                                                 <!--population-frequencies="{{populationFrequencies}}" biotypes="{{biotypes}}" consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}" analysis-selected="{{analysisSelected}}" style="font-size: 12px">-->
-                        <!--</variant-clinical-filter>&ndash;&gt;-->
+                    <div style="width: 50%;padding-top: 20px">
+                        <button type="button" class="btn btn-primary" style="float: right" on-click="onX">
+                            <!--<i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px"></i>-->
+                            OK
+                        </button>
+                    </div>
+                </template>
 
-                        <!--<variant-browser-filter mode="{{mode}}" study="{{study}}" project="{{project}}" samples="{{samples}}"-->
-                                                <!--opencga-client="{{opencgaClient}}"-->
-                                                <!--cellbase-client="{{cellbaseClient}}" config="{{config}}"-->
-                                                <!--population-frequencies="{{populationFrequencies}}" biotypes="{{biotypes}}"-->
-                                                <!--consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}"-->
-                                                <!--on-closemodalsample="onCloseModalSample"  analysis-selected="{{analysisSelected}}" ebi-config="{{ebiConfig}}" style="font-size: 12px">-->
-                        <!--</variant-browser-filter>-->
-                    <!--</div>-->
+                <template is="dom-if" if="{{activePrioritization}}">
+                    <div style="margin: auto">
+                        <variant-prioritization mode="prioritization" title="Prioritization"
+                                                project="{{project}}" study="{{study}}" samples="{{samples}}"
+                                                config="{{configPrioritization}}" config-opencga="{{configOpencga}}" biotypes="{{config.biotypes}}"
+                                                population-frequencies="{{populationFrequencies}}"
+                                                protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                consequence-types="{{consequenceTypes}}"
+                                                opencga-client="{{opencgaClient}}"
+                                                cellbase-client="{{cellbaseClient}}"
+                                                ebi-config="{{config.ebiWS}}"
+                                                beacon-hosts="{{config.tools.beacon.hosts}}" on-gene="geneSelected"
+                                                clinical-analysis="{{clinicalAnalysis}}">
+                        </variant-prioritization>
+                    </div>
+                </template>
 
-                    <!--<div class="col-md-10">-->
-                       <!--<variant-prioritization-view prefix="{{prefix}}" mode="clinical" title="{{title}}" project="{{project}}" study="{{study}}" samples="{{samples}}"-->
-                                                     <!--opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}"-->
-                                                     <!--protein-substitution-scores="{{proteinSubstitutionScores}}" consequence-types="{{consequenceTypes}}"-->
-                                                     <!--query="{{query}}" search="{{search}}" on-clear="onClear" on-filterchange="onFilterChange"-->
-                                                     <!--on-propagate="propagateGeneEvent">-->
-                        <!--</variant-prioritization-view>-->
-                    <!--</div>-->
+                <!--<div class="analysis-content" id="{{prefix}}PrioritizationButtonDiv">-->
+                <!--<div class="col-md-2">-->
+                <!--&lt;!&ndash;    <variant-clinical-filter mode="{{mode}}" study="{{study}}" project="{{project}}" samples="{{samples}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"-->
+                <!--population-frequencies="{{populationFrequencies}}" biotypes="{{biotypes}}" consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}" analysis-selected="{{analysisSelected}}" style="font-size: 12px">-->
+                <!--</variant-clinical-filter>&ndash;&gt;-->
+
+                <!--<variant-browser-filter mode="{{mode}}" study="{{study}}" project="{{project}}" samples="{{samples}}"-->
+                <!--opencga-client="{{opencgaClient}}"-->
+                <!--cellbase-client="{{cellbaseClient}}" config="{{config}}"-->
+                <!--population-frequencies="{{populationFrequencies}}" biotypes="{{biotypes}}"-->
+                <!--consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}"-->
+                <!--on-closemodalsample="onCloseModalSample"  analysis-selected="{{analysisSelected}}" ebi-config="{{ebiConfig}}" style="font-size: 12px">-->
+                <!--</variant-browser-filter>-->
+                <!--</div>-->
+
+                <!--<div class="col-md-10">-->
+                <!--<variant-prioritization-view prefix="{{prefix}}" mode="clinical" title="{{title}}" project="{{project}}" study="{{study}}" samples="{{samples}}"-->
+                <!--opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}"-->
+                <!--protein-substitution-scores="{{proteinSubstitutionScores}}" consequence-types="{{consequenceTypes}}"-->
+                <!--query="{{query}}" search="{{search}}" on-clear="onClear" on-filterchange="onFilterChange"-->
+                <!--on-propagate="propagateGeneEvent">-->
+                <!--</variant-prioritization-view>-->
+                <!--</div>-->
                 <!--</div>-->
             </template>
 
@@ -216,20 +256,48 @@
             <template is="dom-if" if="{{activesTab.reportTab}}">
                 <div class="analysis-content" id="{{prefix}}ReportButtonDiv">
                     <variant-clinical-report opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}"
-                                             title="{{title}}" analysis="{{analysis}}"></variant-clinical-report>
+                                             title="{{title}}" analysis="{{analysis}}">
+                    </variant-clinical-report>
                 </div>
             </template>
         </div>
 
         <opencga-message-dialog opencga-client="{{opencgaClient}}" show-message-modal="{{showMessageModal}}" settings-message-modal="{{settingsMessageModal}}"></opencga-message-dialog>
 
+        <div class="modal fade" id="{{prefix}}AnalysisBrowser" tabindex="-1" role="dialog" aria-labelledby="sampleBrowserLabel">
+            <div class="modal-dialog modal-lg" role="document" style="width: 1280px;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="{{prefix}}AnalysisBrowserLabel">Analysis Selector</h4>
+                    </div>
+                    <div class="modal-body" style="height: 780px">
+                        <variant-clinical-selector opencga-client="{{opencgaClient}}" analysis-selected="{{analysisSelected}}" analysis-modal="{{analysisModal}}" study="{{study}}" show-pedigree="true"></variant-clinical-selector>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="onAnalysisSelected">
+                            OK
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </template>
 
     <script>
         class VariantClinical extends Polymer.Element {
+
+            constructor() {
+                super();
+
+                this.prefix = "clinical-analysis-view-" + Utils.randomString(6);
+            }
+
             static get is() {
                 return 'variant-clinical';
             }
+
             static get properties() {
                 return {
                     activesTab: {
@@ -309,19 +377,15 @@
                 }
             }
 
-            constructor() {
-                super();
-            }
-
             _attachDom(dom) {
                 this.appendChild(dom);
             }
 
             ready() {
                 super.ready();
-                if (typeof this.prefix === "undefined" || this.prefix == "") {
-                    this.prefix = "clinical" + Utils.randomString(6);
-                }
+//                if (typeof this.prefix === "undefined" || this.prefix == "") {
+//                    this.prefix = "clinical" + Utils.randomString(6);
+//                }
 
                 this.mode = "clinical";
                 this.activePrioritization = false;
@@ -357,6 +421,25 @@
             onClear(){
                 this.query = {studies: this.project.alias + ":" + this.study.alias};
                 this.search = {};
+            }
+
+            showClinicalSelector(e) {
+                e.preventDefault();
+                if (UtilsNew.isUndefined(this.analysisModal)){
+                    this.analysisModal = true;
+                } else {
+                    this.analysisModal = !this.analysisModal;
+                }
+
+                $("#" + this.prefix + "AnalysisBrowser").modal('show');
+            }
+
+            onAnalysisSelected(e) {
+                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+                this.clinicalAnalysis = this.analysisSelected.analysis;
+                if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)){
+                    this.activePrioritization = true;
+                }
             }
         }
         customElements.define(VariantClinical.is, VariantClinical);

@@ -14,53 +14,39 @@
   ~ limitations under the License.
   -->
 
-<link rel="import" href="variant-clinical-selector.html">
+<!--<link rel="import" href="variant-clinical-selector.html">-->
 
 <dom-module id="clinical-analysis-view">
     <template>
-        <h3>Clinical Analysis</h3>
-        <div class="col-md-12" style="padding: 5px 0px">
-            <form class="form-horizontal">
-                <div class="form-group">
-                    <span for="inputEmail3" class="col-md-2 control-label">Select analysis:</span>
-                    <div class="col-md-10">
-                        <button id="inputEmail3" data-toggle="modal" role="button" data-placement="bottom" on-click="showClinicalSelector">
-                            Browse...
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </div>
-
-        <h4>Summary</h4>
+        <!--<h4>Summary</h4>-->
         <div class="col-md-12" style="padding: 10px 0px">
             <div class="col-md-4">
                 <label>Clinical Analysis</label>
                 <hr style="margin: 2px 0px;border-top: 2px solid #eee">
                 <form class="form-horizontal">
                     <div class="form-group" style="margin: 0px 2px">
-                        <label class="col-md-2">Name:</label>
-                        <span class="col-md-10">{{clinicalAnalysis.name}}</span>
+                        <label class="col-md-4">Name:</label>
+                        <span class="col-md-8">{{clinicalAnalysis.name}}</span>
                     </div>
                     <!--<div class="form-group" style="margin: 0px 5px">-->
                     <!--<label class="col-md-2">Subject:</label>-->
                     <!--<span class="col-md-10">NA0001</span>-->
                     <!--</div>-->
                     <div class="form-group" style="margin: 0px 2px">
-                        <label class="col-md-2">Disease:</label>
-                        <span class="col-md-10">{{clinicalAnalysis.disease.name}} ({{clinicalAnalysis.disease.id}})</span>
+                        <label class="col-md-4">Disease:</label>
+                        <span class="col-md-8">{{clinicalAnalysis.disease.name}} ({{clinicalAnalysis.disease.id}})</span>
                     </div>
                     <div class="form-group" style="margin: 0px 2px">
-                        <label class="col-md-2">Type:</label>
-                        <span class="col-md-10">{{clinicalAnalysis.type}}</span>
+                        <label class="col-md-4">Type:</label>
+                        <span class="col-md-8">{{clinicalAnalysis.type}}</span>
                     </div>
                     <div class="form-group" style="margin: 0px 2px">
-                        <label class="col-md-2">Date:</label>
-                        <span class="col-md-10">{{clinicalAnalysis.creationDate}}</span>
+                        <label class="col-md-4">Date:</label>
+                        <span class="col-md-8">{{clinicalAnalysis.creationDate}}</span>
                     </div>
                     <div class="form-group" style="margin: 0px 2px">
-                        <label class="col-md-2">Description:</label>
-                        <span class="col-md-10">{{clinicalAnalysis.description}}</span>
+                        <label class="col-md-4">Description:</label>
+                        <span class="col-md-8">{{clinicalAnalysis.description}}</span>
                     </div>
                 </form>
             </div>
@@ -173,50 +159,7 @@
                 </tbody>
             </table>
         </div>
-        </div>
-
-        <h3>Interpretation Algorithms</h3>
-        <div class="form-group" style="margin-bottom: 5px">
-            <p>Several prioritization and interpretation algorithms are available, you can choose an <span style="font-weight: bold">interactive</span> tool:</p>
-            <input id="interactiveRadio" type="radio" name="analysisRadioButtons" value="sample" class$="{{prefix}}FilterRadio"
-                   checked on-change="selectAnalysisType" style="padding-left: 20px"> Interactive Prioritization (based on <a href="https://www.ncbi.nlm.nih.gov/pubmed/24861626" target="_blank" style="font-weight: bold">TEAM</a> paper)<br>
-            <br>
-            <span>Or a <span style="font-weight: bold">batch</span> algorithm that will be executed in the server:</span>
-            <br>
-            <template is="dom-repeat" items="{{config.interpretation.algorithms}}" as="algorithm">
-                <input id="{{algorithm}}Radio" type="radio" name="analysisRadioButtons" value="{{algorithm}}"
-                       class$="{{prefix}}FilterRadio" on-change="selectAnalysisType"
-                       style="padding-left: 20px"> {{algorithm}} (pending)<br>
-            </template>
-        </div>
-
-        <div style="width: 50%;padding-top: 20px">
-            <button type="button" class="btn btn-primary" style="float: right" on-click="onX">
-                <!--<i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px"></i>-->
-                OK
-            </button>
-        </div>
-
-        <div class="modal fade" id="{{prefix}}AnalysisBrowser" tabindex="-1" role="dialog" aria-labelledby="sampleBrowserLabel">
-            <div class="modal-dialog modal-lg" role="document" style="width: 1280px;">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title" id="{{prefix}}AnalysisBrowserLabel">Analysis Selector</h4>
-                    </div>
-                    <div class="modal-body" style="height: 780px">
-                        <variant-clinical-selector opencga-client="{{opencgaClient}}" analysis-selected="{{analysisSelected}}" analysis-modal="{{analysisModal}}" study="{{study}}" show-pedigree="true"></variant-clinical-selector>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="onAnalysisSelected">
-                            OK
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        </template>
+    </template>
 
     <script>
         class ClinicalAnalysisView extends Polymer.Element {
@@ -224,7 +167,7 @@
             constructor() {
                 super();
 
-                this.prefix = "analysis-view-" + Utils.randomString(6);
+//                this.prefix = "clinical-analysis-view-" + Utils.randomString(6);
             }
 
             static get is() {
@@ -239,58 +182,28 @@
                     study: {
                         type: Object
                     },
-                    analysisId: {
+                    clinicalAnalysisId: {
                         type: Number
                     },
                     clinicalAnalysis: {
                         type: Object,
-                        notify: true
+//                        notify: true
                     },
                     config: {
                         type: Object
-                    },
-                    activePrioritization:{
-                        type: Boolean,
-                        notify: true
                     }
                 }
             }
 
             ready() {
                 super.ready();
-                this.activePrioritization = false;
             }
 
             _attachDom(dom) {
                 this.appendChild(dom);
             }
-
-            showClinicalSelector(e) {
-                e.preventDefault();
-                if (UtilsNew.isUndefined(this.analysisModal)){
-                    this.analysisModal = true;
-                } else {
-                    this.analysisModal = ! this.analysisModal;
-                }
-
-                $("#" + this.prefix + "AnalysisBrowser").modal('show');
-            }
-
-            onAnalysisSelected(e) {
-                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-                this.clinicalAnalysis = this.analysisSelected.analysis;
-                if(UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)){
-                    this.activePrioritization = true;
-                }
-//                this.
-//                $("#analysisSelectedDiv").show();
-//                $("#segregationDropdownDiv").show();
-            }
-
-
         }
 
         customElements.define(ClinicalAnalysisView.is, ClinicalAnalysisView);
-
     </script>
 </dom-module>
