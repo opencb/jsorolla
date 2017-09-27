@@ -410,8 +410,10 @@
             }
 
             _clinicalAnalysisChanged() {
-                let _samples = this.clinicalAnalysis.subjects;
-                this.samples = _samples;
+                if(UtilsNew.isNotEmptyArray(this.clinicalAnalysis.subjects)){
+                    let _samples = this.clinicalAnalysis.subjects[0].samples;
+                    this.samples = _samples;
+                }
 
                 this.dispatchEvent(new CustomEvent('samplechange', {detail: {samples: this.samples}}));
             }

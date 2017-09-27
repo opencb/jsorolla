@@ -18,7 +18,6 @@
 
 <dom-module id="clinical-analysis-view">
     <template>
-
         <h3>Clinical Analysis</h3>
         <div class="col-md-12" style="padding: 5px 0px">
             <form class="form-horizontal">
@@ -216,7 +215,8 @@
                 </div>
             </div>
         </div>
-    </template>
+
+        </template>
 
     <script>
         class ClinicalAnalysisView extends Polymer.Element {
@@ -243,16 +243,22 @@
                         type: Number
                     },
                     clinicalAnalysis: {
-                        type: Object
+                        type: Object,
+                        notify: true
                     },
                     config: {
                         type: Object
+                    },
+                    activePrioritization:{
+                        type: Boolean,
+                        notify: true
                     }
                 }
             }
 
             ready() {
                 super.ready();
+                this.activePrioritization = false;
             }
 
             _attachDom(dom) {
@@ -273,6 +279,9 @@
             onAnalysisSelected(e) {
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
                 this.clinicalAnalysis = this.analysisSelected.analysis;
+                if(UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)){
+                    this.activePrioritization = true;
+                }
 //                this.
 //                $("#analysisSelectedDiv").show();
 //                $("#segregationDropdownDiv").show();
