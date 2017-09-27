@@ -207,29 +207,30 @@
                         </div>
                         <div id="{{prefix}}SampleFilter" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}SampleFilterHeading">
                             <div class="panel-body" style="padding-top: 5px">
-                                <div class="form-group" style="margin-bottom: 5px">
+                                <div class="form-group" style="margin-bottom: 5px" id="{{prefix}}selectAnalysisType" >
                                     <label>Select Analysis Type:</label>
                                     <br>
                                     <input id="sampleRadio" type="radio" name="analysisRadioButtons" value="sample"
-                                           class$="{{prefix}}FilterRadio" checked on-change="selectAnalysisType"
+                                           class$="{{prefix}}FilterRadio" checked$="{{isCheckedRadioAnalysis('sample')}}" disabled$="{{isDisabledRadioAnalysisAndSettings()}}" on-change="selectAnalysisType"
                                            style="padding-left: 20px"> Samples<br>
                                     <input id="familyRadio" type="radio" name="analysisRadioButtons" value="family"
-                                           class$="{{prefix}}FilterRadio" on-change="selectAnalysisType"
+                                           class$="{{prefix}}FilterRadio" checked$="{{isCheckedRadioAnalysis('family')}}" disabled$="{{isDisabledRadioAnalysisAndSettings()}}" on-change="selectAnalysisType"
                                            style="padding-left: 20px"> Family<br>
                                     <input id="cancerRadio" type="radio" name="analysisRadioButtons" value="cancer"
-                                           class$="{{prefix}}FilterRadio" on-change="selectAnalysisType"
+                                           class$="{{prefix}}FilterRadio" checked$="{{isCheckedRadioAnalysis('cancer')}}" disabled$="{{isDisabledRadioAnalysisAndSettings()}}" on-change="selectAnalysisType"
                                            style="padding-left: 20px"> Cancer<br>
                                 </div>
 
-                                <div style="padding-left: 7px">
+                                <div style="padding-left: 7px" id="{{prefix}}analysisSettings" >
                                     <label><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;&nbsp;Analysis Settings</label>
                                     <br>
                                     <template is="dom-if" if="{{isSampleAnalysis}}">
                                         <!--<label><i class="fa fa-users" aria-hidden="true"></i>&nbsp;&nbsp;Sample Analysis Settings</label>-->
                                         <!--<br>-->
+
                                         <div style="padding-left: 5px">Select samples: &nbsp;
                                             <button data-toggle="modal" role="button" data-placement="bottom"
-                                                    data-target$="#{{prefix}}SampleBrowser" on-click="refreshSegregationTable">
+                                                    data-target$="#{{prefix}}SampleBrowser" on-click="refreshSegregationTable" disabled$="{{isDisabledRadioAnalysisAndSettings()}}">
                                                 Browse...
                                             </button>
                                             <br>
@@ -244,7 +245,7 @@
                                         <!--Not ready yet, work in progress.-->
                                         <div style="padding-left: 5px">Select family: &nbsp;
                                             <button data-toggle="modal" role="button" data-placement="bottom"
-                                                    data-target$="#{{prefix}}SampleBrowser" on-click="refreshSegregationTable">
+                                                    data-target$="#{{prefix}}SampleBrowser" on-click="refreshSegregationTable" disabled$="{{isDisabledRadioAnalysisAndSettings()}}">
                                                 Browse...
                                             </button>
                                         </div>
@@ -252,7 +253,7 @@
                                             <div class="btn-group">
                                                 <button class="btn btn-default btn-sm dropdown-toggle" type="button"
                                                         id="segregationPrioritizationDropdown" data-toggle="dropdown"
-                                                        aria-haspopup="true" aria-expanded="true">
+                                                        aria-haspopup="true" aria-expanded="true" disabled$="{{isDisabledRadioAnalysisAndSettings()}}">
                                                     Select ...
                                                     <span class="caret"></span>
                                                 </button>
@@ -1040,7 +1041,10 @@
                     analysisSelected: {
                         type: Object,
                         notify: true
-//                        observer: "segregate"
+                    },
+                    clinicalAnalysis:{
+                        type:Object,
+                        observer: "clinicalAnalysisExistObserver"
                     }
                 }
             }
@@ -1054,21 +1058,18 @@
 
                 this.sampleGenotypesObj = {};
                 this.query = {};
-
-                this.isSampleAnalysis = true;
-
+                this.selectedAnalysisType();
                 this.set('panelList', PANELS);
 
                 this.family = {};
                 this.modalHpoActive = false;
 
                 this.modalGoActive = false;
-
-
             }
 
-            connectedCallback(){
+            connectedCallback() {
                 super.connectedCallback();
+                this.clinicalAnalysisExistObserver();
 
             }
 
@@ -1882,6 +1883,54 @@
                 }
                 $("#" + this.prefix + "AnalysisBrowser").modal('show');
 
+            }
+
+            clinicalAnalysisExistObserver(e){
+//                if(UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)){
+//                    PolymerUtils.setAttribute(this.prefix + "analysisSettings", "disabled", "disabled");
+//                    PolymerUtils.setAttribute(this.prefix + "selectAnalysisType", "disabled", "disabled");
+//                }
+            }
+
+            isCheckedRadioAnalysis(name){
+                if(UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
+
+                    let isFamily = (this.clinicalAnalysis.type === "TRIO" || this.clinicalAnalysis.type === "DUO" || this.clinicalAnalysis.type === "FAMILY") && name=== "family";
+                    let isSample = this.clinicalAnalysis.type === "SINGLE" && name === "sample";
+                    let isCancer= this.clinicalAnalysis.type === "MULTISAMPLE" && name === "cancer";
+
+                    if (isFamily || isSample || isCancer) {
+
+                        return true;
+                    }
+                } else if(name === "sample") {
+                    return true;
+                }
+
+                return false;
+            }
+
+            isDisabledRadioAnalysisAndSettings(){
+
+                if(UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
+                        return true;
+                }
+
+                return false;
+            }
+            selectedAnalysisType(){
+                if(UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
+                    if(this.clinicalAnalysis.type === "TRIO" || this.clinicalAnalysis.type === "DUO" || this.clinicalAnalysis.type === "FAMILY"){
+                        this.isFamilyAnalysis = true;
+                    }else if(this.clinicalAnalysis.type === "SINGLE"){
+                        this.isSampleAnalysis = true;
+                    }else if (this.clinicalAnalysis.type === "MULTISAMPLE"){
+                        this.isCancerAnalysis = true;
+                    }
+//                    PolymerUtils.setAttribute(this.prefix + "selectAnalysisType", "disabled", true);
+                } else {
+                    this.isSampleAnalysis = true;
+                }
             }
         }
 

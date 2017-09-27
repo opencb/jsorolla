@@ -161,13 +161,32 @@
             </template>
 
             <template is="dom-if" if="{{activesTab.prioritizationTab}}">
+                 <template is="dom-if" if="{{!activePrioritization}}" >
+                        <div style="width: 60%; margin: auto">
+                            <clinical-analysis-view study="{{study}}" config="{{config}}" opencga-client="{{opencgaClient}}"
+                                                clinical-analysis="{{clinicalAnalysis}}"
+                                                active-prioritization="{{activePrioritization}}" ></clinical-analysis-view>
+                        </div>
+                    </template>
+                    <template is="dom-if" if="{{activePrioritization}}" >
 
-                <div style="width: 60%; margin: auto">
-                    <br>
-                    <clinical-analysis-view study="{{study}}" opencga-client="{{opencgaClient}}" config="{{config}}"></clinical-analysis-view>
-                </div>
+                        <div style="margin: auto">
+                            <variant-prioritization mode="prioritization" title="Prioritization"
+                                                    project="{{project}}" study="{{study}}" samples="{{samples}}"
+                                                    config="{{configPrioritization}}" config-opencga="{{configOpencga}}" biotypes="{{config.biotypes}}"
+                                                    population-frequencies="{{populationFrequencies}}"
+                                                    protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                    consequence-types="{{consequenceTypes}}"
+                                                    opencga-client="{{opencgaClient}}"
+                                                    cellbase-client="{{cellbaseClient}}"
+                                                    ebi-config="{{config.ebiWS}}"
+                                                    beacon-hosts="{{config.tools.beacon.hosts}}" on-gene="geneSelected"
+                                                    clinical-analysis="{{clinicalAnalysis}}">
+                            </variant-prioritization>
+                        </div>
+                    </template>
 
-                <!--<div class="analysis-content" id="{{prefix}}PrioritizationButtonDiv">-->
+<!--<div class="analysis-content" id="{{prefix}}PrioritizationButtonDiv">-->
                     <!--<div class="col-md-2">-->
                     <!--&lt;!&ndash;    <variant-clinical-filter mode="{{mode}}" study="{{study}}" project="{{project}}" samples="{{samples}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"-->
                                                  <!--population-frequencies="{{populationFrequencies}}" biotypes="{{biotypes}}" consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}" analysis-selected="{{analysisSelected}}" style="font-size: 12px">-->
@@ -305,6 +324,7 @@
                 }
 
                 this.mode = "clinical";
+                this.activePrioritization = false;
             }
 
             changeTool(e) {
