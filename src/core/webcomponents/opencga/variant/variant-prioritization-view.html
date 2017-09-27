@@ -68,6 +68,10 @@
                                     data-view="SaveInterpretation" on-click="_changeView" disabled>
                                 <i class="fa fa-floppy-o" aria-hidden="true" style="padding-left: 5px;padding-right: 8px"></i>Save Interpretation
                             </button>
+                            <button id="{{prefix}}GoToReportButton" type="button" class="btn btn-success variant-prioritization-view-buttons"
+                                    data-view="SaveInterpretation" on-click="_goToReport" disabled>
+                                <i class="fa fa-file-text" aria-hidden="true" style="padding-left: 5px;padding-right: 8px"></i>Go to Report
+                            </button>
                         </div>
                     </template>
                 </div>
@@ -97,7 +101,7 @@
         <!--</template>-->
 
         <div>
-            <!-- First TAB -->
+            <!-- TABLE RESULT -->
             <div id="{{prefix}}TableResult" class="variant-prioritization-content">
                 <!-- Variant Browser Grid -->
                 <variant-browser-grid mode="{{mode}}" study="{{study}}" project="{{project}}" prefix="{{prefix}}"
@@ -159,7 +163,7 @@
                 </div>
             </div>
 
-            <!-- Second TAB -->
+            <!-- GENOME BROWSER -->
             <div id="{{prefix}}GenomeBrowser" class="variant-prioritization-content" style="display: none">
                 <br>
                 <br>
@@ -170,7 +174,7 @@
             </div>
 
 
-            <!-- Third TAB -->
+            <!-- PANELS -->
             <div id="{{prefix}}Panels" class="variant-prioritization-content" style="display: none">
                 <br>
                 <br>
@@ -181,7 +185,7 @@
                 </div>
             </div>
 
-            <!-- Fourth TAB -->
+            <!-- ANALYSIS AND CLINICAL DATA -->
             <div id="{{prefix}}ClinicalData" class="variant-prioritization-content" style="display: none">
                 <br>
                 <!--<opencga-sample-comparator opencga-client="{{opencgaClient}}" samples="{{samples}}"-->
@@ -441,6 +445,10 @@
                 }
             }
 
+            _goToReport(e) {
+                this.dispatchEvent(new CustomEvent('gotoreport', {detail: {interpretation: this.interpretation}}));
+            }
+
             triggerBeacon(e) {
                 this.variantToBeacon = this.variant;
             }
@@ -452,6 +460,9 @@
 
             onSaveInterpretation(e, obj) {
                 let interpretation = this._createInterpretation();
+
+                this.interpretation = interpretation;
+                PolymerUtils.removeAttribute(this.prefix + 'GoToReportButton', 'disabled');
             }
 
             _createInterpretation() {
