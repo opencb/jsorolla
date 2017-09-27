@@ -87,11 +87,13 @@
 <dom-module id="my-element-in">
     <template>
 
-        <clinical-interpretation-view id="id" interpretation="{{interpretationJson}}" title="Interpretation View" project="{{project}}"
-                                      study="{{study}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
-                                      consequence-types="{{consequenceTypes}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                      style="font-size: 12px">
-        </clinical-interpretation-view>
+        <div class="col-md-10 col-md-offset-1">
+            <clinical-interpretation-view id="id" interpretation="{{interpretationJson}}" title="Interpretation View" project="{{project}}"
+                                          study="{{study}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+                                          consequence-types="{{consequenceTypes}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                          style="font-size: 12px">
+            </clinical-interpretation-view>
+        </div>
 
     </template>
     <script>

@@ -20,6 +20,7 @@
 <link rel="import" href="variant-beacon-network.html">
 <link rel="import" href="variant-genome-browser.html">
 <link rel="import" href="../clinical/clinical-analysis-view.html">
+<link rel="import" href="../clinical/clinical-interpretation-view.html">
 
 <dom-module id="variant-prioritization-view">
     <template>
@@ -63,7 +64,8 @@
                             <button type="button" class="btn btn-success variant-prioritization-view-buttons" data-view="ClinicalData" on-click="_changeView">
                                 <i class="fa fa-user-md" aria-hidden="true" style="padding-left: 5px;padding-right: 8px"></i>Analysis and Clinical Data
                             </button>
-                            <button type="button" class="btn btn-success variant-prioritization-view-buttons" data-view="SaveInterpretation" on-click="_changeView">
+                            <button id="{{prefix}}SaveInterpretationButton" type="button" class="btn btn-success variant-prioritization-view-buttons"
+                                    data-view="SaveInterpretation" on-click="_changeView" disabled>
                                 <i class="fa fa-floppy-o" aria-hidden="true" style="padding-left: 5px;padding-right: 8px"></i>Save Interpretation
                             </button>
                         </div>
@@ -192,8 +194,8 @@
 
             <!-- SAVE INTERPRETATION TAB -->
             <div id="{{prefix}}SaveInterpretation" class="variant-prioritization-content" style="display: none">
-                <div class="col-md-8 col-md-offset-1">
-                    <h3 class="clinical-title">Interpretation Information</h3>
+                <div class="col-md-12">
+                    <h2 class="clinical-title">Save Interpretation</h2>
                     <hr style="margin-top: 5px">
 
                     <form id="{{prefix}}uploadForm" class="form-horizontal" data-toggle="validator" role="form">
@@ -206,7 +208,7 @@
                                            id="{{prefix}}NameInterpretation" name="Name" placeholder="Name of this interpretation ..."
                                            maxlength="50" required data-error="" pattern=".+" style="width: 240px">
                                     <!--<span class="input-group-addon btn btn-primary" on-click="searchIndividual">-->
-                                        <!--<i class="fa fa-search" aria-hidden="true"></i>-->
+                                    <!--<i class="fa fa-search" aria-hidden="true"></i>-->
                                     <!--</span>-->
                                 </div>
                                 <span class="glyphicon form-control-feedback" aria-hidden="true" style="padding-right:60px; z-index:5"></span>
@@ -243,11 +245,21 @@
                         </div>
 
                         <div class="form-group row" style="padding-left: 240px;">
-                            <button type="button" class="btn btn-primary" on-click="onSaveInterpretation">View</button>
+                            <button type="button" class="btn btn-primary" on-click="onViewInterpretation">View</button>
                             <button type="button" class="btn btn-primary" on-click="onSaveInterpretation">Save</button>
                         </div>
 
                     </form>
+                </div>
+
+                <div class="col-md-12">
+                    <template is="dom-if" if="{{interpretationView}}">
+                        <clinical-interpretation-view id="id" interpretation="{{interpretationView}}" title="Interpretation View" project="{{project}}"
+                                                      study="{{study}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+                                                      consequence-types="{{consequenceTypes}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                      style="font-size: 12px">
+                        </clinical-interpretation-view>
+                    </template>
                 </div>
             </div>
         </div>
@@ -374,13 +386,19 @@
 
             onSelectVariant(e) {
                 this.variant = e.detail.id;
-                debugger
+//                debugger
             }
 
             onCheckVariant(e) {
                 // Alexis: we need to do something like this:
                 this.checkedVariants = e.detail.variants;
-//                debugger
+
+                // We set/remove disable status to Save button
+                if (this.checkedVariants.length > 0) {
+                    PolymerUtils.removeAttribute(this.prefix + 'SaveInterpretationButton', 'disabled');
+                } else {
+                    PolymerUtils.setAttribute(this.prefix + 'SaveInterpretationButton', 'disabled', true);
+                }
             }
 
             selectedGene(e) {
@@ -427,17 +445,22 @@
                 this.variantToBeacon = this.variant;
             }
 
-            _savePrioritization() {
-                alert("Not implemented yet");
+            onViewInterpretation(e) {
+                this.interpretationView = this._createInterpretation();
+
             }
 
             onSaveInterpretation(e, obj) {
+                let interpretation = this._createInterpretation();
+            }
+
+            _createInterpretation() {
                 let userID = Cookies.get(this.configOpencga.cookie.prefix + "_userId");
                 let interpretation = {};
                 interpretation.name = PolymerUtils.getValue(this.prefix + "NameInterpretation")
                 interpretation.description =  PolymerUtils.getValue(this.prefix + "DescriptionInterpretation");
                 interpretation.clinicalAnalysis = this.clinicalAnalysis;
-                interpretation.software= {
+                interpretation.software = {
                     name: "TEAM",
                     version: "2.0",
                     website: "https://www.ncbi.nlm.nih.gov/pubmed/24861626",
@@ -456,10 +479,12 @@
                     }
                 ];
                 interpretation.filters = this.query;
-                interpretation.creationDate = Date();
+//                interpretation.creationDate = Date();
                 interpretation.comments =  PolymerUtils.getValue(this.prefix + "CommentInterpretation");
                 interpretation.reportedVariants = this.checkedVariants;
-                interpretation.  attributes = {};
+                interpretation.attributes = {};
+
+                return interpretation;
             }
         }
 

@@ -20,12 +20,14 @@
         <div class="container-fluid">
             <div class="row">
 
-                <div id="{{prefix}}mainIntepretation" class="col-xs-10 col-md-offset-1 col-sm-10 col-md-10 col-lg-10 toppad">
+                <div id="{{prefix}}mainIntepretation" class="">
 
                     <template is="dom-if" if="{{config.summary}}">
-                        <h2 style="border-bottom-width: 1px;border-bottom-style: solid;border-bottom-color: #ddd">
+                        <!--<h2 style="border-bottom-width: 1px;border-bottom-style: solid;border-bottom-color: #ddd">-->
+                        <h2 style="">
                             Interpretation Analysis: {{interpretation.name}}
                         </h2>
+                        <hr style="margin-top: 5px">
 
 
                         <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
