@@ -291,11 +291,11 @@
                                         <template is="dom-repeat" items="{{samples}}" as="sample">
                                             <tr id="{{sample.name}}">
                                                 <td id="{{prefix}}{{sample.name}}RowName" class$="{{sample.className}}">{{sample.name}}</td>
-                                                <td><input type="checkbox" value="0|0" data-id$="{{sample.name}}"
+                                                <td><input type="checkbox" value="0/0" data-id$="{{sample.name}}"
                                                            on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
-                                                <td><input type="checkbox" value="0|1" data-id$="{{sample.name}}"
+                                                <td><input type="checkbox" value="0/1" data-id$="{{sample.name}}"
                                                            on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
-                                                <td><input type="checkbox" value="1|1" data-id$="{{sample.name}}"
+                                                <td><input type="checkbox" value="1/1" data-id$="{{sample.name}}"
                                                            on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
                                             </tr>
                                         </template>
@@ -1520,7 +1520,7 @@
                         let gts = [];
                         for (let sampleGT in sampleGenotypesObj[sampleName]) {
                             if (sampleGenotypesObj[sampleName][sampleGT] === true) {
-                                gts.push(sampleGT.replace('/', '|'));
+                                gts.push(sampleGT);
                             }
                         }
                         if (gts.length > 0) {
