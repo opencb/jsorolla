@@ -44,10 +44,21 @@
                 resize: none;
                 border: 1px solid #d0d0d0;
             }
-
-            .variantsTable td{
+            #variantTable{
+                width: 95%;
+                text-align: center;
+            }
+            #variantTablebody{
                 border: 1px solid #dadada;
                 border-collapse: collapse;
+            }
+            #variantTablebody td{
+                border: 1px solid #dadada;
+                border-collapse: collapse;
+                padding:10px 0px 0px 0px:
+            }
+            #variantTable th {
+                text-align: center;
             }
 
         </style>
@@ -236,19 +247,34 @@
                         </div>
                     </div>
                 </div>
-
                 <div style="margin: 0px 5px 15px 50px" class="prioritization-information col-sm-12"
-                     id="{{prefix}}prioritizationInformationDiv" hidden>
+                     id="{{prefix}}prioritizationInformationDiv" >
                     <h3>Prioritization Information</h3>
                     <hr>
                     <div class="prioritization-summary col-sm-10" id="{{prefix}}variantsTableDiv" hidden>
                         <h4>Variants table</h4>
-                        <table id="{{prefix}}variantTable" data-search="false" data-show-columns="false"
-                               data-pagination="false" data-page-size="500" data-checkbox-header="false"
-                               data-maintain-selected="true" style="cursor: pointer;" class="variantsTable"
-                               style="border: 1px solid #dadada;border-collapse: collapse;">
-                            <thead style="background-color: #eee;border: 1px solid #dadada;border-collapse: collapse;">
+                        <table id="variantTable" class="table hover" style="border: 1px solid #dadada;
+                        border-collapse: collapse;">
+                            <thead>
+                                <tr class="active">
+                                    <th>Variant</th>
+                                    <th>SNP Id</th>
+                                    <th>Genes</th>
+                                    <th>Type</th>
+                                    <th>Consequence Type</th>
+                                </tr>
                             </thead>
+                            <tbody id = "variantTablebody">
+                                <!--<template id="samplesTable" is="dom-repeat" items="{{interpretation.reportedVariants}}" as="variant">-->
+                                    <!--<tr>-->
+                                        <!--<td>{{variant.id}}</td>-->
+                                        <!--<td>{{variant.names}}</td>-->
+                                        <!--<td>{{genesRow(variant)}}</td>-->
+                                        <!--<td>{{variant.type}}</td>-->
+                                        <!--<td>{{variant.annotation.displayConsequenceType}}</td>-->
+                                    <!--</tr>-->
+                                <!--</template>-->
+                            </tbody>
                         </table>
                     </div>
 
@@ -282,7 +308,7 @@
                         </div>
                     </div>
 
-                    <div class="prioritization-summary col-sm-12" id="{{prefix}}filterResumeDiv" hidden>
+                    <div class="prioritization-summary col-sm-12" id="{{prefix}}filterResumeDiv">
                         <h4>Filter resume</h4>
                         <template is="dom-if" if="{{filters}}">
                             For this analysis, the following filters were applied for prioritization:
@@ -315,27 +341,6 @@
             </div>
         </div>
 
-        <!-- Modal dialog for Variants table-->
-        <!--        <div class="modal fade" id="{{prefix}}variantsClassificationModal" tabindex="-1" role="dialog"
-                     aria-labelledby="variantsClassificationLabel" data-backdrop="static" data-keyboard="false">
-                    <div class="modal-dialog modal-sm" role="document" style="width: 500px;">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                <h4 class="modal-title">Variants classification</h4>
-                            </div>
-                            <div class="modal-body" style="height: 200px">
-                                <div class="col-sm-12" >
-                                    <label>Under progress.</label>
-                                    Variants table to be shown here. User will classify variants as diagnostic, VUS (Variants of Unkown Significance) and Unexpected variants
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>-->
     </template>
     <script>
 
@@ -406,7 +411,6 @@
                 let date = new Date();
                 this.requestDate = date.toLocaleString();
                 this.fitlerPrioritization = {};
-
             }
 
             connectedCallback(){
@@ -464,14 +468,10 @@
                         querySelector.appendChild(this.pedigreeRender(this.interpretation.clinicalAnalysis.family));
                     }
                     // Prioritization information (variants)
-
                     if (UtilsNew.isNotUndefined(this.interpretation.reportedVariants)){
-                        $(PolymerUtils.getElementById(this.prefix + "variantTable")).bootstrapTable('destroy');
-                        $(PolymerUtils.getElementById(this.prefix + "variantTable")).bootstrapTable({
-                            columns: this._getTableColumns(),
-                            data: this.interpretation.reportedVariants
-                        });
+                        this.loadVariantTable(this.interpretation.reportedVariants);
                     }
+
 //                    let _prioritization = this.analysisSelected.analysis.family.children[0].samples[0].attributes.PRIORITIZATION;
 //                    let _dataTable = [];
 //                    let _query = undefined;
@@ -506,6 +506,24 @@
                     PolymerUtils.removeAttribute(this.prefix + "analysisInformationDiv", "hidden")
                     PolymerUtils.removeAttribute(this.prefix + "sampleInformationDiv", "hidden")
                     PolymerUtils.removeAttribute(this.prefix + "analysisInformationID", "hidden")
+                }
+            }
+            loadVariantTable(data){
+                let table = document.getElementById("variantTablebody");
+                let rows = "";
+                for( let j = 0; j < data.length; j++){
+                    rows += '<tr><td>'+ this._variantParamValue(data[j].id) + '</td><td>'+ this._variantParamValue(data[j].names)
+                            + '</td><td>' + this.genesRow(data[j]) + '</td><td>' + this._variantParamValue(data[j].type)
+                            + '</td><td>' + this._variantParamValue(data[j].annotation.displayConsequenceType) + '</td></tr>';
+
+                }
+                table.innerHTML = rows;
+            }
+            _variantParamValue(param){
+                if(UtilsNew.isNotUndefined(param)){
+                    return param;
+                }else{
+                    return "";
                 }
             }
 
@@ -573,7 +591,7 @@
             }
 
             print(data) {
-            console.log(window.location.href)
+
                 var mywindow = window.open('', '', 'height=1000,width=1000');
                 mywindow.document.write('<html><head>');
                 var styles = document.getElementsByTagName('style');
@@ -621,34 +639,6 @@
 
             }
 
-            print(data) {
-                var mywindow = window.open('', '', 'height=1000,width=1000');
-                mywindow.document.write('<html><head>');
-                var styles = document.getElementsByTagName('style');
-                mywindow.document.write('<style>');
-                for (let i = 0; i < styles.length; i++) {
-                    mywindow.document.write(styles[i].innerHTML);
-                }
-                mywindow.document.write('</style>');
-                mywindow.document.write('</head><body>');
-                mywindow.document.write(data);
-                mywindow.document.write('</body></html>');
-                mywindow.document.close(); // necessary for IE >= 10
-                mywindow.focus(); // necessary for IE >= 10
-                mywindow.print();
-                mywindow.close();
-//                this.$.reportConclusions.querySelector('textarea').hidden = false;
-//                this.$.divConclusions.hidden = true;
-//                elem = data.querySelectorAll('input');
-//                for (let i = 0; i < elem.length; i++) {
-//                    var el = elem[i];
-//                    var name = el.dataset.name;
-//                    el.hidden = false;
-//                    this.$[name].hidden = true;
-//                }
-                return true;
-            }
-
             _sortVariables(a, b) {
                 if (a.rank < b.rank) {
                     return -1;
@@ -677,32 +667,15 @@
                 return _myVariants;
             }
 
-            _getTableColumns() {
-                this._columns = [
-                    [
-                        {
-                            title: 'Variant',
-                            field: 'id'
-                        },
-                        {
-                            title: 'SNP Id',
-                            field: 'names'
-                        },
-                        {
-                            title: 'Genes',
-                            field: 'genes'
-                        },
-                        {
-                            title: 'Type',
-                            field: 'type'
-                        },
-                        {
-                            title: 'Consequence Type',
-                            field: 'consequenceType'
-                        }
-                    ]
-                ];
-                return this._columns;
+            genesRow(row) {
+                let genes = [];
+                for(let o in row.annotation.consequenceTypes) {
+                    if (UtilsNew.isNotUndefined(row.annotation.consequenceTypes[o].geneName) && !genes.includes(row.annotation.consequenceTypes[o].geneName)){
+                        genes.push(row.annotation.consequenceTypes[o].geneName);
+                    }
+                }
+                return genes;
+
             }
 
             pedigreeRender(body) {
