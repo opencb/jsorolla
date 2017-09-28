@@ -634,6 +634,18 @@
                 // This change triggers the polymer dom-repeat
                 this.yearsTest = _years;
                 this.ontologyFilter = "hp";
+                this.matchingKaryotypicSex = new Map();
+                this.matchingKaryotypicSex.set("XX", "FEMALE");
+                this.matchingKaryotypicSex.set("XY", "MALE");
+                this.matchingKaryotypicSex.set("XXX", "FEMALE");
+                this.matchingKaryotypicSex.set("XXY", "MALE");
+                this.matchingKaryotypicSex.set("XXYY", "MALE");
+                this.matchingKaryotypicSex.set("XXXY", "MALE");
+                this.matchingKaryotypicSex.set("XXXX", "FEMALE");
+                this.matchingKaryotypicSex.set("XYY", "MALE");
+                this.matchingKaryotypicSex.set("XO", "FEMALE");
+                this.matchingKaryotypicSex.set("UNKNOWN", "UNKNOWN");
+                this.matchingKaryotypicSex.set("UNDETERMINED", "UNDETERMINED");
 
                 //this.set('icd10Terms', ICD_10);
             }
@@ -968,7 +980,6 @@
                             console.log("Could not index file " + _this.fileId);
                         });
 
-
                 this.settingsMessageModal = {
                     messageHeader: "",
                     messageBody: ["The VCF file has successfully uploaded and annotated. You can now proceed to Analysis tab or upload another VCF file"],
@@ -1059,6 +1070,7 @@
                         study: this.study.alias
                     };
 
+                    let sexIndividual = this.matchingKaryotypicSex.get(formFields.chromosomalGender);
                     let body = {
                             "name": formFields.patientID,
                             "ethnicity": formFields.ethnicity,
@@ -1069,6 +1081,7 @@
                                 "description": ""
                             },
                             "karyotypicSex": formFields.chromosomalGender,
+                            "sex": UtilsNew.isNotUndefinedOrNull(sexIndividual) ? sexIndividual : "UNKNOWN",
                             "lifeStatus": formFields.lifeStatus,
                             "affectationStatus": formFields.status,
                             "parentalConsanguinity": hasParentalConsanguinity,
