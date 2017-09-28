@@ -9,7 +9,7 @@
   "scripts": {
     "build-network-viewer": "./build-network-viewer.sh",
     "genome-browser": "cd src/genome-browser && cat *.js renderers/renderer.js renderers/*-renderer.js tracks/feature-track.js > ../../dist/js/genome-browser/genome-browser.js && cd tracks && cat $(ls -I 'feature-track.js' | grep .js) >> ../../../dist/js/genome-browser/genome-browser.js && cd ../../.. && node_modules/uglify-es/bin/uglifyjs dist/js/genome-browser/genome-browser.js -o dist/js/genome-browser/genome-browser.min.js",
-    "build": "npm run dist && cp dist/genome-browser/*.js build && cp src/genome-browser/genome-browser.html build",
+    "build": "rm -rf build && mkdir build && mkdir build/genome-browser && mkdir build/circular-genome-viewer && mkdir build/network-viewer && mkdir build/threed-viewer && npm run dist && cp dist/js/genome-browser/*.js build/genome-browser && cp src/genome-browser/webcomponent/genome-browser.html build/genome-browser",
     "styles": "cp -r styles/* dist",
     "webcomponents":"mkdir dist/js/core/webcomponents && cp -r src/core/webcomponents/* dist/js/core/webcomponents && npm run styles",
     "core": "mkdir dist/js/core && cd src/core && cat *.js cache/*.js webcomponents/*.js webcomponents/opencga/variant/*.js clients/*.js data-source/*.js visualisation/*.js data-adapter/feature-adapter.js widgets/*.js > ../../dist/js/core/core.js && cd data-adapter && cat $(ls -I 'feature-adapter.js' | grep .js) >> ../../../dist/js/core/core.js && cd ../../.. && node_modules/uglify-es/bin/uglifyjs dist/js/core/core.js -o dist/js/core/core.min.js && npm run webcomponents",
