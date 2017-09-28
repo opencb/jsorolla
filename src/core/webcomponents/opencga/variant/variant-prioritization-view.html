@@ -410,10 +410,17 @@
             }
 
             _clinicalAnalysisChanged() {
-                if (UtilsNew.isNotEmptyArray(this.clinicalAnalysis.subjects)){
-                    let _samples = this.clinicalAnalysis.subjects[0].samples;
+                let _samples = [];
+
+                if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.family) && UtilsNew.isNotEmptyArray(this.clinicalAnalysis.family.members)){
+                    this.clinicalAnalysis.family.members.forEach((member) => {
+                            member.samples.map((sample) => {
+                                _samples.push(sample)
+                            });
+                        });
+                    }
+//                    let _samples = this.clinicalAnalysis.subjects[0].samples;
                     this.samples = _samples;
-                }
 
                 this.dispatchEvent(new CustomEvent('samplechange', {detail: {samples: this.samples}}));
             }
