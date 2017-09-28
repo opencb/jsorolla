@@ -10,7 +10,9 @@
     "build-network-viewer": "./build-network-viewer.sh",
     "genome-browser": "cd src/genome-browser && cat *.js renderers/renderer.js renderers/*-renderer.js tracks/feature-track.js > ../../dist/genome-browser/genome-browser.js && cd tracks && cat $(ls -I 'feature-track.js' | grep .js) >> ../../../dist/genome-browser/genome-browser.js && cd ../../.. && node_modules/uglify-es/bin/uglifyjs dist/genome-browser/genome-browser.js -o dist/genome-browser/genome-browser.min.js",
     "build": "npm run dist && cp dist/genome-browser/*.js build && cp src/genome-browser/genome-browser.html build",
-    "core": "mkdir dist/core && cd src/core && cat *.js cache/*.js webcomponents/*.js webcomponents/opencga/variant/*.js clients/*.js data-source/*.js visualisation/*.js data-adapter/feature-adapter.js widgets/*.js > ../../dist/core/core.js && cd data-adapter && cat $(ls -I 'feature-adapter.js' | grep .js) >> ../../../dist/core/core.js && cd ../../.. && node_modules/uglify-es/bin/uglifyjs dist/core/core.js -o dist/core/core.min.js",
+    "styles": "mkdir dist/styles && cp -r styles/* dist/styles",
+    "webcomponents":"mkdir dist/core/webcomponents && cp -r src/core/webcomponents/* dist/core/webcomponents && npm run styles",
+    "core": "mkdir dist/core && cd src/core && cat *.js cache/*.js webcomponents/*.js webcomponents/opencga/variant/*.js clients/*.js data-source/*.js visualisation/*.js data-adapter/feature-adapter.js widgets/*.js > ../../dist/core/core.js && cd data-adapter && cat $(ls -I 'feature-adapter.js' | grep .js) >> ../../../dist/core/core.js && cd ../../.. && node_modules/uglify-es/bin/uglifyjs dist/core/core.js -o dist/core/core.min.js && npm run webcomponents",
     "dist":"rm -rf dist && mkdir dist && mkdir dist/genome-browser && npm run core && npm run genome-browser && cp LICENSE dist/ && cp README.md dist/"
   },
   "license": "GPL-2.0",
