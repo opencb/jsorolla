@@ -2,7 +2,6 @@ class TrackListPanel { //parent is a DOM div element
     constructor(args){
         let _this = this;
 
-        // Using Underscore 'extend' function to extend and add Backbone Events
         Object.assign(this, Backbone.Events);
 
         this.cellBaseHost = "http://bioinfo.hpc.cam.ac.uk/cellbase";
@@ -283,9 +282,7 @@ class TrackListPanel { //parent is a DOM div element
                 "top": 0,
                 "width": regionOverviewDarkBoxWidth,
                 "height": "calc(100% - 8px)",
-                //                'border': '1px solid gray',
                 "opacity": 0.5,
-                //            'visibility': 'hidden',
                 "background-color": "lightgray"
             });
             this.regionOverviewBoxLeft = regionOverviewBoxLeft;
@@ -298,7 +295,7 @@ class TrackListPanel { //parent is a DOM div element
             let mid = _this.width / 2;
             let mouseLineOffset = _this.pixelBase / 2;
             let offsetX = (event.clientX - _this.tlTracksDiv.getBoundingClientRect().left);
-            //debugger
+
             let cX = offsetX - mouseLineOffset;
             let rcX = (cX / _this.pixelBase) | 0;
             let pos = (rcX * _this.pixelBase) + (mid % _this.pixelBase) - 1;
@@ -624,19 +621,7 @@ class TrackListPanel { //parent is a DOM div element
             windowSize: this.windowSize
         });
 
-        //        if (region.species != null) {
-        //            //check species and modify CellBaseAdapter, clean cache
-        //            for (i in this.tracks) {
-        //                if (this.tracks[i].trackData.adapter instanceof CellBaseAdapter ||
-        //                    this.tracks[i].trackData.adapter instanceof SequenceAdapter
-        //                    ) {
-        //                    this.tracks[i].trackData.adapter.species = region.species;
-        //                    //this.tracks[i].trackData.adapter.featureCache.clear();
-        //
-        //                    this.tracks[i].trackData.adapter.clearData();
-        //                }
-        //            }
-        //        }
+
         this.trigger("trackRegion:change", {
             region: this.visualRegion,
             sender: this
@@ -646,10 +631,6 @@ class TrackListPanel { //parent is a DOM div element
 
         this.status = "rendering";
 
-        //        this.onRegionChange.notify();
-
-        //this.minRegionRect.setAttribute("width",this.minRectWidth);
-        //this.minRegionRect.setAttribute("x",(this.width/2)-(this.minRectWidth/2)+6);
     }
 
     draw() {
@@ -674,19 +655,6 @@ class TrackListPanel { //parent is a DOM div element
     }
     checkTracksReady() {
         return this._checkAllTrackStatus("ready");
-        //        if (this._checkAllTrackStatus('ready')) {
-        //            this.status = 'ready';
-        //            console.log('all ready')
-        //            this.trigger('tracks:ready', {sender: this});
-        //        }
-        //        var checkStatus = function () {
-        //            if (checkAllTrackStatus('ready')) {
-        //                _this.trigger('tracks:ready', {sender: _this});
-        //            } else {
-        //                setTimeout(checkStatus, 100);
-        //            }
-        //        };
-        //        setTimeout(checkStatus, 10);
     }
     addTrack(track) {
         if (_.isArray(track)) {
@@ -717,7 +685,6 @@ class TrackListPanel { //parent is a DOM div element
         let insertPosition = length - 1;
         this.tracksIndex[track.id] = insertPosition;
 
-debugger
         if (typeof track.dataAdapter.host === "undefined") {
             track.dataAdapter.host = this.cellBaseHost;
         }
@@ -747,11 +714,6 @@ debugger
         });
 
 
-        //        track.set('trackSpecies:change', function (event) {
-        //            track.setSpecies(event.species);
-        //        });
-
-
         track.set("trackRegion:change", function(event) {
           console.log(`trackListPanel trackRegion:change region ------> ${event.region}`);
           console.log(`trackListPanel trackRegion:change width ------> ${_this.width}`);
@@ -767,13 +729,6 @@ debugger
             track.set("pixelBase", _this.pixelBase);
             track.move(event.disp);
         });
-
-
-        //track.set('trackWidth:change', function (event) {
-        //    track.setWidth(event.width);
-        //    track.set('pixelBase', _this.pixelBase);
-        //    track.draw();
-        //});
 
 
         track.set("trackFeature:highlight", function(event) {
@@ -823,12 +778,8 @@ debugger
         //        this.on('trackSpecies:change', track.get('trackSpecies:change'));
         this.on("trackRegion:change", track.get("trackRegion:change"));
         this.on("trackRegion:move", track.get("trackRegion:move"));
-        //this.on('trackWidth:change', track.get('trackWidth:change'));
         this.on("trackFeature:highlight", track.get("trackFeature:highlight"));
 
-        //        track.on('track:ready', function () {
-        //            _this.checkTracksReady();
-        //        });
     }
     toggleAutoHeight(bool) {
         for (let i = 0; i < this.tracks.length; i++) {
@@ -1064,8 +1015,6 @@ debugger
         if (position > 0) {
             base = this.getSequenceNucleotid(position);
         }
-        //        this.mouseLine.setAttribute('stroke',SEQUENCE_COLORS[base]);
-        //        this.mouseLine.setAttribute('fill',SEQUENCE_COLORS[base]);
         return base;
     }
 
