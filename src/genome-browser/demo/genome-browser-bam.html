@@ -1,0 +1,230 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Genome Browser BAM demo</title>
+
+    <!-- links for use to build -->
+    <link rel="stylesheet" href="../vendors/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../vendors/qtip2/dist/jquery.qtip.min.css">
+    <link rel="stylesheet" href="../dist/css/style.css">
+
+    <script type="text/javascript" src="../vendors/underscore/underscore-min.js"></script>
+    <script type="text/javascript" src="../vendors/backbone/backbone-min.js"></script>
+    <script type="text/javascript" src="../vendors/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="../vendors/qtip2/dist/jquery.qtip.min.js"></script>
+    <script type="text/javascript" src="../vendors/urijs/src/URI.min.js"></script>
+    <script type="text/javascript" src="../vendors/cookies-js/src/cookies.js"></script>
+    <script type="text/javascript" src="../vendors/crypto-js/crypto-js.js"></script>
+
+    <script type="text/javascript" src="../dist/js/core/core.js"></script>
+    <script type ="text/javascript" src="../dist/js/genome-browser/genome-browser.js"></script>
+
+    <style type="text/css">
+        html {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow-x: hidden;
+        }
+        body {
+            margin: 0px;
+        }
+        #application {
+            box-sizing: border-box;
+            margin: 0 auto;
+            width: 1500px;
+            border: 1px solid lightgray;
+        }
+        #title {
+            margin: 20px auto;
+            width: 1500px;
+            font-size: 35px;
+            color: gray;
+        }
+    </style>
+</head>
+
+<body class="ocb">
+<div id="title">Genome Browser</div>
+<div id="application"></div>
+
+<script type="text/javascript">
+
+    /***************************************************************************/
+    /***** Setting Defaults Params                                           ***/
+    /***************************************************************************/
+
+    // We first set (and overwrite) CellBase Host and Version and Opencga params.
+    CELLBASE_HOST ="ws.babelomics.org/cellbase";
+    CELLBASE_VERSION = "v4";
+
+    OPENCGA_HOST = "bioinfo.hpc.cam.ac.uk/hgva";
+    OPENCGA_USER = "user1";
+    OPENCGA_PASSWORD = "user1_pass";
+
+    let cellBaseClientConfig = new CellBaseClientConfig(hosts = CELLBASE_HOST, version = CELLBASE_VERSION);
+    cellBaseClientConfig.cache.active = false;
+    let cellbaseClient = new CellBaseClient(cellBaseClientConfig);
+
+    let opencgaClientConfig = new OpenCGAClientConfig(OPENCGA_HOST);
+    opencgaClientConfig.setPrefix("gm");
+    let opencgaClient = new OpenCGAClient(opencgaClientConfig);
+
+    // In this demo the opencga not need login but if you need to login to opencga:
+//    opencgaClient.users().login(OPENCGA_USER, OPENCGA_PASSWORD)
+//            .then(function() {
+//                console.log("User " + OPENCGA_USER + " successfully logged in in opencga.");
+//                opencgaClient = new OpenCGAClient(opencgaClientConfig);
+//            })
+//            .catch(function(e) {
+//                console.log("Error logging in " + OPENCGA_USER, e);
+//            });
+
+
+    // Take the file id to show the alignment track, this params are only necessary for Alignment Track
+    let fileId = "NA12877_S1.bam,NA12878_S1.bam,NA12879_S1.bam";
+    let study = "study1";
+
+    //GenomeBrowser, Region and Species:
+    let genomeBrowser;
+    let region = new Region({chromosome: "13", start: 32996311, end: 33000856}); //initial region
+
+    getSpecies(function(s) {
+        AVAILABLE_SPECIES = s;
+        run();
+    });
+
+    function getSpecies(callback) {
+        cellbaseClient.getMeta("species").then(function(r) {
+            let taxonomies = r.response[0].result[0];
+            for (let taxonomy in taxonomies) {
+                let newSpecies = [];
+                for (let i = 0; i < taxonomies[taxonomy].length; i++) {
+                    let species = taxonomies[taxonomy][i];
+                    for (let j = 0; j < species.assemblies.length; j++) {
+                        let s = Utils.clone(species)
+                        s.assembly = species.assemblies[j];
+                        delete s.assemblies;
+                        newSpecies.push(s)
+                    }
+                }
+                taxonomies[taxonomy] = newSpecies;
+            }
+            callback(taxonomies);
+        });
+    }
+
+    function run() {
+        let species = AVAILABLE_SPECIES.vertebrates[0];
+        genomeBrowser = new GenomeBrowser({
+            client: cellbaseClient,
+            cellBaseHost: CELLBASE_HOST,
+            cellBaseVersion: CELLBASE_VERSION,
+            target: 'application',
+            width: document.querySelector('#application').getBoundingClientRect().width,
+            region: region,
+            availableSpecies: AVAILABLE_SPECIES,
+            species: species,
+            sidePanel: false,
+            autoRender: true,
+            resizable: true,
+            karyotypePanelConfig: {
+                collapsed: false,
+                collapsible: true
+            },
+            chromosomePanelConfig: {
+                collapsed: false,
+                collapsible: true
+            },
+            navigationBarConfig: {
+                componentsConfig: {
+                }
+            },
+            handlers: {
+                'region:change': function(e) {
+                    console.log(e)
+                }
+            }
+        });
+
+        tracks = [];
+
+        /***************************************************************************/
+        /***** Demo Gene overview Track using FeatureTrack and Cellbase adapter  ***/
+        /***************************************************************************/
+
+        let gene = new FeatureTrack({
+            title: 'Gene overview',
+            minHistogramRegionSize: 20000000,
+            maxLabelRegionSize: 10000000,
+            height: 80,
+            renderer: new FeatureRenderer(FEATURE_TYPES.gene),
+            dataAdapter: new CellBaseAdapter(cellbaseClient, "genomic", "region", "gene", {
+                exclude: 'transcripts,chunkIds'
+            }, {
+                chunkSize: 100000
+            })
+        });
+        genomeBrowser.addOverviewTrack(gene);
+
+        /***************************************************************************/
+        /***** Demo Sequence Track using FeatureTrack and Cellbase adapter       ***/
+        /***************************************************************************/
+
+        this.sequence = new FeatureTrack({
+            title: 'Sequence',
+            height: 20,
+            visibleRegionSize: 200,
+            renderer: new SequenceRenderer(),
+            dataAdapter: new CellBaseAdapter(cellbaseClient, "genomic", "region", "sequence", {}, { chunkSize: 100})
+        });
+        tracks.push(this.sequence);
+
+        /**************************************************************************/
+        /***** Demo Gene Track using GeneTrack and Cellbase adapter             ***/
+        /**************************************************************************/
+
+        this.gene = new GeneTrack({
+            title: 'Gene',
+            minHistogramRegionSize: 20000000,
+            maxLabelRegionSize: 10000000,
+            minTranscriptRegionSize: 200000,
+            height: 120,
+            cellbase: {
+                "host": CELLBASE_HOST,
+                "version": CELLBASE_VERSION,
+                "species": "hsapiens"
+            }
+        });
+        tracks.push(this.gene);
+
+
+        /****************************************************************************/
+        /***** Demo Alignment Track using AlignmentTrack and Opencga adapter      ***/
+        /****************************************************************************/
+
+
+        let alignment = new AlignmentTrack({
+            title: "Alignment",
+            closable: true,
+            minHistogramRegionSize: 5000,
+            maxLabelRegionSize: 3000,
+            visibleRegionSize: 100000000,
+            height: 300,
+            renderer: new AlignmentRenderer(FEATURE_TYPES.alignment),
+            dataAdapter: new OpencgaAdapter(opencgaClient, "analysis/alignment", undefined, "query",
+                    {
+                        fileId: fileId,
+                        study: study
+                    })
+        });
+        tracks.push(alignment);
+
+        genomeBrowser.addTrack(tracks);
+        genomeBrowser.draw();
+    }
+</script>
+
+</body>
+</html>
