@@ -4,23 +4,40 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Genome Browser demo</title>
 
-    <link rel="stylesheet" href="../../../node_modules/font-awesome/css/font-awesome.min.css">
-    <link rel="stylesheet" href="../../../node_modules/qtip2/dist/jquery.qtip.min.css">
-    <link rel="stylesheet" href="../../../styles/css/style.css">
+    <!-- links for use to src -->
+    <!--<link rel="stylesheet" href="../../../node_modules/font-awesome/css/font-awesome.min.css">-->
+    <!--<link rel="stylesheet" href="../../../node_modules/qtip2/dist/jquery.qtip.min.css">-->
+    <!--<link rel="stylesheet" href="../../../dist/css/style.css">-->
 
-    <script type="text/javascript" src="../../../node_modules/underscore/underscore-min.js"></script>
-    <script type="text/javascript" src="../../../node_modules/backbone/backbone-min.js"></script>
-    <script type="text/javascript" src="../../../node_modules/jquery/dist/jquery.min.js"></script>
-    <script type="text/javascript" src="../../../node_modules/qtip2/dist/jquery.qtip.min.js"></script>
-    <script type="text/javascript" src="../../../node_modules/urijs/src/URI.min.js"></script>
-    <script type="text/javascript" src="../../../node_modules/cookies-js/src/cookies.js"></script>
-    <script type="text/javascript" src="../../../node_modules/crypto-js/crypto-js.js"></script>
+    <!--<script type="text/javascript" src="../../../node_modules/underscore/underscore-min.js"></script>-->
+    <!--<script type="text/javascript" src="../../../node_modules/backbone/backbone-min.js"></script>-->
+    <!--<script type="text/javascript" src="../../../node_modules/jquery/dist/jquery.min.js"></script>-->
+    <!--<script type="text/javascript" src="../../../node_modules/qtip2/dist/jquery.qtip.min.js"></script>-->
+    <!--<script type="text/javascript" src="../../../node_modules/urijs/src/URI.min.js"></script>-->
+    <!--<script type="text/javascript" src="../../../node_modules/cookies-js/src/cookies.js"></script>-->
+    <!--<script type="text/javascript" src="../../../node_modules/crypto-js/crypto-js.js"></script>-->
 
-    <script type="text/javascript" src="../config.js"></script>
+    <!--<script type="text/javascript" src="../config.js"></script>-->
 
-    <script type="text/javascript" src="../../../dist/js/core/core.js"></script>
+    <!--<script type="text/javascript" src="../../../dist/js/core/core.js"></script>-->
 
-    <script type ="text/javascript" src="../../../dist/js/genome-browser/genome-browser.js"></script>
+    <!--<script type ="text/javascript" src="../../../dist/js/genome-browser/genome-browser.js"></script>-->
+
+    <!-- links for use to build -->
+    <link rel="stylesheet" href="../vendors/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../vendors/qtip2/dist/jquery.qtip.min.css">
+    <link rel="stylesheet" href="../dist/css/style.css">
+
+    <script type="text/javascript" src="../vendors/underscore/underscore-min.js"></script>
+    <script type="text/javascript" src="../vendors/backbone/backbone-min.js"></script>
+    <script type="text/javascript" src="../vendors/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="../vendors/qtip2/dist/jquery.qtip.min.js"></script>
+    <script type="text/javascript" src="../vendors/urijs/src/URI.min.js"></script>
+    <script type="text/javascript" src="../vendors/cookies-js/src/cookies.js"></script>
+    <script type="text/javascript" src="../vendors/crypto-js/crypto-js.js"></script>
+
+    <script type="text/javascript" src="../dist/js/core/core.js"></script>
+    <script type ="text/javascript" src="../dist/js/genome-browser/genome-browser.js"></script>
 
 
     <style type="text/css">
@@ -59,55 +76,28 @@
     /***************************************************************************/
 
     // We first parse URL to check (and overwrite) if a CellBase Host and Version have been provided
-    //if we do not provide the CellbaseHost and OPENCGAHost then you will get those configured in the file "config.js"
+    //if we do not provide the CellbaseHost then you will get those configured in the file "config.js"
 
     let queryParams = URI.parseQuery(window.location.search);
     if (typeof queryParams.CELLBASE_HOST !== "undefined") {
         CELLBASE_HOST = queryParams.CELLBASE_HOST;
     }
+    CELLBASE_HOST ="ws.babelomics.org/cellbase";
+
     if (typeof queryParams.CELLBASE_VERSION !== "undefined") {
         CELLBASE_VERSION = queryParams.CELLBASE_VERSION;
     }
+
     console.log("CellBase Host: " + CELLBASE_HOST, " - CellBase Version: " + CELLBASE_VERSION)
     let cellBaseClientConfig = new CellBaseClientConfig(hosts = CELLBASE_HOST, version = CELLBASE_VERSION);
     cellBaseClientConfig.cache.active = false;
     let cellbaseClient = new CellBaseClient(cellBaseClientConfig);
 
-    // We parse the URL to check (and overwrite) the OPENCGA parameters as well
-    if (typeof queryParams.OPENCGA_HOST !== "undefined") {
-        OPENCGA_HOST = queryParams.OPENCGA_HOST;
-    }
-    if (typeof queryParams.OPENCGA_USER !== "undefined") {
-        OPENCGA_USER = queryParams.OPENCGA_USER;
-    }
-    if (typeof queryParams.OPENCGA_PASSWORD !== "undefined") {
-        OPENCGA_PASSWORD = queryParams.OPENCGA_PASSWORD;
-    }
-    console.log("Opencga host: " + OPENCGA_HOST, " - User: " + OPENCGA_USER, " - Password: " + OPENCGA_PASSWORD);
-    let opencgaClientConfig = new OpenCGAClientConfig(OPENCGA_HOST);
-    opencgaClientConfig.setPrefix("gm");
-    let opencgaClient = new OpenCGAClient(opencgaClientConfig);
-
-    // If you need to login to opencga:
-
-    //    opencgaClient.users().login(OPENCGA_USER, OPENCGA_PASSWORD)
-    //            .then(function() {
-    //                console.log("User " + OPENCGA_USER + " successfully logged in in opencga.");
-    //                opencgaClient = new OpenCGAClient(opencgaClientConfig);
-    //            })
-    //            .catch(function(e) {
-    //                console.log("Error logging in " + OPENCGA_USER, e);
-    //            });
-
-
-    let study;
-    if (typeof queryParams.STUDY !== "undefined") {
-        study = queryParams.STUDY;
-    }
 
     //GenomeBrowser, Region and Species:
     let genomeBrowser;
-    let region = new Region({chromosome: "13", start: 32996311, end: 33000856}); //initial region
+//    let region = new Region({chromosome: "13", start: 32996311, end: 33000856}); //initial region
+    let region = new Region({chromosome: "13", start: 32996311, end: 32996450}); //initial region
 
     getSpecies(function(s) {
         AVAILABLE_SPECIES = s;
