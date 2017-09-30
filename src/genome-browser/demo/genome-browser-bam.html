@@ -4,21 +4,23 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Genome Browser BAM demo</title>
 
+    <script type="text/javascript" src="../config.js"></script>
+
     <!-- links for use to build -->
-    <link rel="stylesheet" href="../vendors/font-awesome/css/font-awesome.min.css">
-    <link rel="stylesheet" href="../vendors/qtip2/dist/jquery.qtip.min.css">
-    <link rel="stylesheet" href="../dist/css/style.css">
+    <link rel="stylesheet" href="../../../node_modules/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../../../node_modules/qtip2/dist/jquery.qtip.min.css">
+    <link rel="stylesheet" href="../../../dist/css/style.css">
 
-    <script type="text/javascript" src="../vendors/underscore/underscore-min.js"></script>
-    <script type="text/javascript" src="../vendors/backbone/backbone-min.js"></script>
-    <script type="text/javascript" src="../vendors/jquery/dist/jquery.min.js"></script>
-    <script type="text/javascript" src="../vendors/qtip2/dist/jquery.qtip.min.js"></script>
-    <script type="text/javascript" src="../vendors/urijs/src/URI.min.js"></script>
-    <script type="text/javascript" src="../vendors/cookies-js/src/cookies.js"></script>
-    <script type="text/javascript" src="../vendors/crypto-js/crypto-js.js"></script>
+    <script type="text/javascript" src="../../../node_modules/underscore/underscore-min.js"></script>
+    <script type="text/javascript" src="../../../node_modules/backbone/backbone-min.js"></script>
+    <script type="text/javascript" src="../../../node_modules/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="../../../node_modules/qtip2/dist/jquery.qtip.min.js"></script>
+    <script type="text/javascript" src="../../../node_modules/urijs/src/URI.min.js"></script>
+    <script type="text/javascript" src="../../../node_modules/cookies-js/src/cookies.js"></script>
+    <script type="text/javascript" src="../../../node_modules/crypto-js/crypto-js.js"></script>
 
-    <script type="text/javascript" src="../dist/js/core/core.js"></script>
-    <script type ="text/javascript" src="../dist/js/genome-browser/genome-browser.js"></script>
+    <script type="text/javascript" src="../../../dist/js/core/core.js"></script>
+    <script type ="text/javascript" src="../../../dist/js/genome-browser/genome-browser.js"></script>
 
     <style type="text/css">
         html {
@@ -46,7 +48,7 @@
 </head>
 
 <body class="ocb">
-<div id="title">Genome Browser</div>
+<div id="title">Genome Browser BAM demo</div>
 <div id="application"></div>
 
 <script type="text/javascript">
@@ -58,10 +60,7 @@
     // We first set (and overwrite) CellBase Host and Version and Opencga params.
     CELLBASE_HOST ="ws.babelomics.org/cellbase";
     CELLBASE_VERSION = "v4";
-
     OPENCGA_HOST = "bioinfo.hpc.cam.ac.uk/hgva";
-    OPENCGA_USER = "user1";
-    OPENCGA_PASSWORD = "user1_pass";
 
     let cellBaseClientConfig = new CellBaseClientConfig(hosts = CELLBASE_HOST, version = CELLBASE_VERSION);
     cellBaseClientConfig.cache.active = false;
@@ -71,24 +70,22 @@
     opencgaClientConfig.setPrefix("gm");
     let opencgaClient = new OpenCGAClient(opencgaClientConfig);
 
-    // In this demo the opencga not need login but if you need to login to opencga:
+//     In this demo the opencga not need login but if you need to login to opencga:
+//    OPENCGA_USER = "user1";
+//    OPENCGA_PASSWORD = "user1_pass";
 //    opencgaClient.users().login(OPENCGA_USER, OPENCGA_PASSWORD)
-//            .then(function() {
-//                console.log("User " + OPENCGA_USER + " successfully logged in in opencga.");
-//                opencgaClient = new OpenCGAClient(opencgaClientConfig);
-//            })
-//            .catch(function(e) {
-//                console.log("Error logging in " + OPENCGA_USER, e);
-//            });
+//        .then(function() {
+//            console.log("User " + OPENCGA_USER + " successfully logged in in opencga.");
+//            opencgaClient = new OpenCGAClient(opencgaClientConfig);
+//        })
+//        .catch(function(e) {
+//            console.log("Error logging in " + OPENCGA_USER, e);
+//        });
 
 
     // Take the file id to show the alignment track, this params are only necessary for Alignment Track
     let fileId = "NA12877_S1.bam,NA12878_S1.bam,NA12879_S1.bam";
-    let study = "study1";
-
-    //GenomeBrowser, Region and Species:
-    let genomeBrowser;
-    let region = new Region({chromosome: "13", start: 32996311, end: 33000856}); //initial region
+    let study = "illumina_platinum";
 
     getSpecies(function(s) {
         AVAILABLE_SPECIES = s;
@@ -117,7 +114,8 @@
 
     function run() {
         let species = AVAILABLE_SPECIES.vertebrates[0];
-        genomeBrowser = new GenomeBrowser({
+        let region = new Region({chromosome: "13", start: 32996311, end: 33000856}); //initial region
+        let genomeBrowser = new GenomeBrowser({
             client: cellbaseClient,
             cellBaseHost: CELLBASE_HOST,
             cellBaseVersion: CELLBASE_VERSION,

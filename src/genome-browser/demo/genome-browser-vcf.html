@@ -2,11 +2,14 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Genome Browser demo</title>
+    <title>Genome Browser VCF demo</title>
 
+    <script type="text/javascript" src="../config.js"></script>
+
+    <!-- links for use to build -->
     <link rel="stylesheet" href="../../../node_modules/font-awesome/css/font-awesome.min.css">
     <link rel="stylesheet" href="../../../node_modules/qtip2/dist/jquery.qtip.min.css">
-    <link rel="stylesheet" href="../../../styles/css/style.css">
+    <link rel="stylesheet" href="../../../dist/css/style.css">
 
     <script type="text/javascript" src="../../../node_modules/underscore/underscore-min.js"></script>
     <script type="text/javascript" src="../../../node_modules/backbone/backbone-min.js"></script>
@@ -16,12 +19,8 @@
     <script type="text/javascript" src="../../../node_modules/cookies-js/src/cookies.js"></script>
     <script type="text/javascript" src="../../../node_modules/crypto-js/crypto-js.js"></script>
 
-    <script type="text/javascript" src="../config.js"></script>
-
     <script type="text/javascript" src="../../../dist/js/core/core.js"></script>
-
     <script type ="text/javascript" src="../../../dist/js/genome-browser/genome-browser.js"></script>
-
 
     <style type="text/css">
         html {
@@ -49,7 +48,7 @@
 </head>
 
 <body class="ocb">
-<div id="title">Genome Browser</div>
+<div id="title">Genome Browser VCF demo</div>
 <div id="application"></div>
 
 <script type="text/javascript">
@@ -59,6 +58,7 @@
     /***************************************************************************/
     CELLBASE_HOST ="ws.babelomics.org/cellbase";
     CELLBASE_VERSION = "v4";
+    OPENCGA_HOST = "bioinfo.hpc.cam.ac.uk/hgva";
 
     let cellBaseClientConfig = new CellBaseClientConfig(hosts = CELLBASE_HOST, version = CELLBASE_VERSION);
     cellBaseClientConfig.cache.active = false;
@@ -68,21 +68,18 @@
     opencgaClientConfig.setPrefix("gm");
     let opencgaClient = new OpenCGAClient(opencgaClientConfig);
 
-    // If you need to login to opencga:
+//     If you need to login to opencga:
+//        OPENCGA_USER = "user1";
+//        OPENCGA_PASSWORD = "user1_pass";
+//        opencgaClient.users().login(OPENCGA_USER, OPENCGA_PASSWORD)
+//                .then(function() {
+//                    console.log("User " + OPENCGA_USER + " successfully logged in in opencga.");
+//                    opencgaClient = new OpenCGAClient(opencgaClientConfig);
+//                })
+//                .catch(function(e) {
+//                    console.log("Error logging in " + OPENCGA_USER, e);
+//                });
 
-    //    opencgaClient.users().login(OPENCGA_USER, OPENCGA_PASSWORD)
-    //            .then(function() {
-    //                console.log("User " + OPENCGA_USER + " successfully logged in in opencga.");
-    //                opencgaClient = new OpenCGAClient(opencgaClientConfig);
-    //            })
-    //            .catch(function(e) {
-    //                console.log("Error logging in " + OPENCGA_USER, e);
-    //            });
-
-
-    //GenomeBrowser, Region and Species:
-    let genomeBrowser;
-    let region = new Region({chromosome: "13", start: 32996311, end: 33000856}); //initial region
 
     getSpecies(function(s) {
         AVAILABLE_SPECIES = s;
@@ -111,7 +108,8 @@
 
     function run() {
         let species = AVAILABLE_SPECIES.vertebrates[0];
-        genomeBrowser = new GenomeBrowser({
+        let region = new Region({chromosome: "13", start: 32996311, end: 33000856}); //initial region
+        let genomeBrowser = new GenomeBrowser({
             client: cellbaseClient,
             cellBaseHost: CELLBASE_HOST,
             cellBaseVersion: CELLBASE_VERSION,
