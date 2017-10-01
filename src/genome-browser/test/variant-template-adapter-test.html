@@ -47,7 +47,7 @@
 </head>
 
 <body class="ocb">
-<div id="title">Genome Browser Template Adapter</div>
+<div id="title">Genome Browser</div>
 <div id="application"></div>
 
 <script type="text/javascript">
@@ -178,12 +178,107 @@
         tracks.push(this.gene);
 
         /****************************************************************************/
-        /***** Demo Feature Track using FeatureTrack and Feature-Template adapter ***/
+        /***** Demo Variant Track using FeatureTrack and Feature-Template adapter ***/
         /****************************************************************************/
-        //In this demo we create the same track that genome-browser but using now feature-template.
-        //With Feature-template adapter we can define to which url the genome-browser should go to search the data.
         //For use Feature-template adapter you must define the url, and if is necessary parse the response with the method parse.
         // in templateVariables we define the value for url params.
+//        let objectVariant ={sampleNames:[]};
+//        _.extend(objectVariant, FEATURE_TYPES.variant);
+//        let request = new XMLHttpRequest();
+//        let url = "http://bioinfo.hpc.cam.ac.uk/hgva/webservices/rest/v1/analysis/variant/query?studies=reference_grch37:1kG_phase3&samplesMetadata=true&region=false";
+//        request.onload = function () {
+//            objectVariant.sampleNames = JSON.parse(this.response).response[0].samples;
+//            console.log(objectVariant.sampleNames);
+//            let t = new FeatureTrack({
+//                title: 'Variant',
+//                closable: true,
+//                minHistogramRegionSize: 20000000,
+//                maxLabelRegionSize: 10000000,
+//                minTranscriptRegionSize: 200000,
+//                histogramColor: '#92de47',
+//                height: 100,
+////            renderer: new FeatureRenderer(),
+//                renderer: new VariantRenderer(objectVariant),
+//                dataAdapter: new FeatureTemplateAdapter({
+//                    multiRegions: false,
+//                    histogramMultiRegions: false,
+//                    uriTemplate: "http://bioinfo.hpc.cam.ac.uk/hgva/webservices/rest/v1/analysis/variant/query?region={region}&studies={studies}&exclude={exclude}",
+//                    templateVariables: {
+//                        studies: "reference_grch37:1kG_phase3",
+//                        exclude: "studies.files,studies.stats,annotation"
+//                    },
+//                    species: genomeBrowser.species,
+//                    cacheConfig: {
+//                        chunkSize: 100000
+//                    },
+//                    parse: function(response) {
+//                        var chunks = [];
+//                        for(var i = 0; i< response.response.length; i++){
+//                            var res = response.response[i].result;
+////                        res._sampleNames = response.response[i].samples;
+////
+////                        for(var j = 0; j < res.length; j++){
+////                            res[j]["samples"] = response.response[i].samples;
+////                        }
+//                            chunks.push(res);
+//                        }
+//                        console.log("Los chunks son:");
+//                        console.log(chunks);
+//                        return chunks;
+//                    }
+//                })
+//            });
+//            tracks.push(t);
+//        };
+//        request.onerror = function () {
+//            console.log('Server error');
+//        };
+//        request.open('GET', url, false);
+//        console.log(url);
+//        request.send();
+
+
+//                var t = new FeatureTrack({
+//                    title: 'test',
+//                    closable: true,
+//                    minHistogramRegionSize: 20000000,
+//                    maxLabelRegionSize: 10000000,
+//                    minTranscriptRegionSize: 200000,
+//                    histogramColor: '#92de47',
+//                    height: 100,
+//        //            renderer: new FeatureRenderer(),
+//                    renderer: new VariantRenderer(objectVariant),
+//                    dataAdapter: new FeatureTemplateAdapter({
+//                        multiRegions: false,
+//                        histogramMultiRegions: false,
+//                        uriTemplate: "http://bioinfo.hpc.cam.ac.uk/hgva/webservices/rest/v1/analysis/variant/query?region={region}&studies={studies}",
+//                        templateVariables: {
+//                            studies: "reference_grch37:1kG_phase3"
+//                        },
+//                        species: species,
+//                        cacheConfig: {
+//                            chunkSize: 100000
+//                        },
+//                        parse: function(response) {
+//                            var chunks = [];
+//                            for(var i = 0; i< response.response.length; i++){
+//                                var res = response.response[i].result;
+//        //                        res._sampleNames = response.response[i].samples;
+//        //
+//        //
+//        //                        for(var j = 0; j < res.length; j++){
+//        //                            res[j]["samples"] = response.response[i].samples;
+//        //                        }
+//                                chunks.push(res);
+//                            }
+//                            console.log("Los chunks son:");
+//                            console.log(chunks);
+//                            return chunks;
+//                        }
+//                    })
+//                });
+//        tracks.push(t);
+        /*******************/
 
         let t = new FeatureTrack({
             title: 'Variant',
@@ -198,6 +293,7 @@
                 multiRegions: false,
                 histogramMultiRegions: false,
                 uriTemplate:"http://ws.babelomics.org/cellbase/webservices/rest/v4/hsapiens/genomic/region/13:32990000-32999999/snp?exclude={exclude}",
+                //uriTemplate: "http://bioinfo.hpc.cam.ac.uk/hgva/webservices/rest/v1/analysis/variant/query?region={region}&studies={studies}&exclude={exclude}",
                 templateVariables: {
                     exclude: 'annotation.populationFrequencies,annotation.additionalAttributes,transcriptVariations,xrefs,samples'
                 },
@@ -211,7 +307,7 @@
                         var res = response.response[i].result;
                         chunks.push(res);
                     }
-                    console.log("Chunks:");
+                    console.log("Los chunks son:");
                     console.log(chunks);
                     return chunks;
                 }
