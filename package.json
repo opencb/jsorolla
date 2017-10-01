@@ -1,7 +1,7 @@
 {
   "name": "jsorolla",
   "version": "2.0.0-beta",
-  "description": "JSorolla is a JavaScript Library for biological and genomic data visualization.",
+  "description": "JSorolla is a JavaScript library for biological and genomic data visualization.",
   "repository": {
     "type": "git",
     "url": "https://github.com/opencb/jsorolla.git"

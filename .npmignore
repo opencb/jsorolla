@@ -1,7 +1,5 @@
 
 build/
-dist/
-*node_modules/
 bower_components/
 grunt/
 
@@ -33,9 +31,6 @@ local.properties
 
 # External tool builders
 .externalToolBuilders/
-
-# Locally stored "Eclipse launch configurations"
-*.launch
 
 # CDT-specific
 .cproject
