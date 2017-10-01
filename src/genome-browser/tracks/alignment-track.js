@@ -47,7 +47,7 @@ class AlignmentTrack extends FeatureTrack {
                 customConfig = Object.assign(customConfig, this.opencga.config);
             }
             this.renderer = new AlignmentRenderer(
-                { config: customConfig },
+                { config: customConfig }
             );
         }
         this.renderer.track = this;

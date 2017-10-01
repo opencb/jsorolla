@@ -4,8 +4,6 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Genome Browser VCF demo</title>
 
-    <script type="text/javascript" src="../config.js"></script>
-
     <!-- links for use to build -->
     <link rel="stylesheet" href="../../../node_modules/font-awesome/css/font-awesome.min.css">
     <link rel="stylesheet" href="../../../node_modules/qtip2/dist/jquery.qtip.min.css">
@@ -234,6 +232,44 @@
         tracks.push(variant);
         /*******************/
 
+        /***************************************************************************/
+        /*****   Demo Variant Track using VariantTrack and Opencga adapter       ***/
+        /***     Using FeatureRender; Visualization of variants for a family     ***/
+        /***************************************************************************/
+
+        let variant2 = new VariantTrack({
+            title: "Variant for family",
+            closable: true,
+            minHistogramRegionSize: 20000000,
+            maxLabelRegionSize: 10000000,
+            minTranscriptRegionSize: 200000,
+            visibleRegionSize: 100000000,
+            height: 300,
+            opencga: {
+//                host: OPENCGA_HOST,
+//                version: "v1",
+                client: opencgaClient,
+                studies: "reference_grch37:1kG_phase3",
+                samples: ["HG00096", "HG00097", "HG00099"]
+            },
+//            samples: {
+//                names: { "reference_grch37:1kG_phase3": ["HG00096", "HG00097", "HG00099"]}
+//            },
+//            renderer: new FeatureRenderer(FEATURE_TYPES.variant),
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+            //You can define a particular dataAdapter, if not defined, the track will pick up the default one.//
+            ///////////////////////////////////////////////////////////////////////////////////////////////////
+            dataAdapter: new OpencgaAdapter(opencgaClient, "analysis/variant", undefined, "query",
+                    {
+                        studies: "reference_grch37:1kG_phase3",
+                        exclude: "studies.files,studies.stats,annotation" //Exclude for samples mode
+//                        exclude: "studies,annotation" //Exclude for individual variation mode
+                    }, {
+                        chunkSize: 100000
+                    })
+        });
+        tracks.push(variant2);
+        /*******************/
 
         /****************************************************************************/
         /***** Demo Alignment Track using AlignmentTrack and Opencga adapter      ***/

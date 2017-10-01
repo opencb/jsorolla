@@ -49,7 +49,7 @@ class VariantTrack extends FeatureTrack {
             }
 
             this.renderer = new VariantRenderer(
-                { config: customConfig },
+                { config: customConfig }
             );
         }
         this.renderer.track = this;

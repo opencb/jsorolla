@@ -553,6 +553,9 @@ class FeatureTrack {
             //     interval: this.interval,
             //     exclude: this.exclude
             // };
+            if(UtilsNew.isUndefined(adapter.params)){
+                adapter.params = {};
+            }
             let params = Object.assign(adapter.params, {
                 histogram: this.histogram,
                 histogramLogarithm: this.histogramLogarithm,
