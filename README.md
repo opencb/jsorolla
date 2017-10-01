@@ -13,10 +13,10 @@ Releases notes are available at [GitHub releases](https://github.com/opencb/jsor
 Roadmap is available at [GitHub milestones](https://github.com/opencb/jsorolla/milestones). You can report bugs or request new features at [GitHub issue tracking](https://github.com/opencb/jsorolla/issues).
 
 ### Versioning
-Genome Maps is versioned following the rules from [Semantic versioning](http://semver.org/).
+JSorolla is versioned following the rules from [Semantic versioning](http://semver.org/).
 
 ### Maintainers
-We recommend to contact Genome Maps developers by writing to OpenCB mailing list opencb@googlegroups.com. The main developers and maintainers are:
+The main developers and maintainers are:
 * Ignacio Medina (im411@cam.ac.uk) (_Founder and Project Leader_)
 * Susi Gallego (sgaort@gmail.com)
 
@@ -74,12 +74,12 @@ npm install
 This will make _npm_ to search all dependencies at file [package.json](package.json) and install them locally.
 
 
-You can build all JSorolla demos by executing:
+You can build all JSorolla _demos_ by executing:
 
 ```bash
 npm run build
 ```
-When completed, all demos will be located under the `build` folder.
+when completed, all demos will be located under the `build` folder.
 
 Finally, you can build JSorolla libs by executing:
 
@@ -87,7 +87,7 @@ Finally, you can build JSorolla libs by executing:
 npm run dist
 ```
 
-When completed, all compiled files will be located under the `dist` folder.
+when completed, all compiled files will be located under the `dist` folder.
 
 
 ### Testing
