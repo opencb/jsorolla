@@ -16,7 +16,7 @@
     "styles": "mkdir -p dist && cp -r styles/* dist",
     "webcomponents": "mkdir -p dist/js/core && cp -r src/core/webcomponents dist/js/core/",
     "core": "mkdir -p dist/js/core && cd src/core && cat *.js cache/*.js webcomponents/*.js webcomponents/opencga/variant/*.js clients/*.js data-source/*.js visualisation/*.js data-adapter/feature-adapter.js data-adapter/cellbase-adapter.js data-adapter/opencga-adapter.js data-adapter/feature-template-adapter.js widgets/*.js > ../../dist/js/core/core.js && cd ../.. && node_modules/uglify-es/bin/uglifyjs dist/js/core/core.js -o dist/js/core/core.min.js && npm run webcomponents",
-    "genome-browser": "mkdir -p dist/js/genome-browser && cd src/genome-browser && cat *.js renderers/renderer.js renderers/*-renderer.js tracks/feature-track.js tracks/gene-track.js tracks/alignment-track.js tracks/variant-track.js tracks/tracklist-panel.js > ../../dist/js/genome-browser/genome-browser.js && cd ../.. && node_modules/uglify-es/bin/uglifyjs dist/js/genome-browser/genome-browser.js -o dist/js/genome-browser/genome-browser.min.js",
+    "genome-browser": "mkdir -p dist/js/genome-browser && cd src/genome-browser && cp -r webcomponent ../../dist/js/genome-browser && cat *.js renderers/renderer.js renderers/*-renderer.js tracks/feature-track.js tracks/gene-track.js tracks/alignment-track.js tracks/variant-track.js tracks/tracklist-panel.js > ../../dist/js/genome-browser/genome-browser.js && cd ../.. && node_modules/uglify-es/bin/uglifyjs dist/js/genome-browser/genome-browser.js -o dist/js/genome-browser/genome-browser.min.js",
     "dist": "npm run clean && mkdir -p dist/js && npm run core && npm run genome-browser && npm run styles"
   },
   "license": "ALv2",
