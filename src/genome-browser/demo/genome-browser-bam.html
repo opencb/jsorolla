@@ -68,22 +68,10 @@
     opencgaClientConfig.setPrefix("gm");
     let opencgaClient = new OpenCGAClient(opencgaClientConfig);
 
-//     In this demo the opencga not need login but if you need to login to opencga:
-//    OPENCGA_USER = "user1";
-//    OPENCGA_PASSWORD = "user1_pass";
-//    opencgaClient.users().login(OPENCGA_USER, OPENCGA_PASSWORD)
-//        .then(function() {
-//            console.log("User " + OPENCGA_USER + " successfully logged in in opencga.");
-//            opencgaClient = new OpenCGAClient(opencgaClientConfig);
-//        })
-//        .catch(function(e) {
-//            console.log("Error logging in " + OPENCGA_USER, e);
-//        });
-
 
     // Take the file id to show the alignment track, this params are only necessary for Alignment Track
-    let fileId = "NA12877_S1.bam,NA12878_S1.bam,NA12879_S1.bam";
-    let study = "illumina_platinum";
+    let fileId = "NA12877_S1.bam";
+    let study = "platinum:illumina_platinum";
 
     getSpecies(function(s) {
         AVAILABLE_SPECIES = s;
@@ -112,7 +100,8 @@
 
     function run() {
         let species = AVAILABLE_SPECIES.vertebrates[0];
-        let region = new Region({chromosome: "13", start: 32996311, end: 33000856}); //initial region
+//        let region = new Region({chromosome: "13", start: 32996311, end: 33000856}); //initial region
+        let region = new Region({chromosome: "13", start: 32996311, end: 32996411}); //initial region
         let genomeBrowser = new GenomeBrowser({
             client: cellbaseClient,
             cellBaseHost: CELLBASE_HOST,
@@ -203,6 +192,7 @@
 
         let alignment = new AlignmentTrack({
             title: "Alignment",
+            type: 'alignment',
             closable: true,
             minHistogramRegionSize: 5000,
             maxLabelRegionSize: 3000,
