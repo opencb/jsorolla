@@ -553,14 +553,17 @@
                 this.fieldNamesMap = _fieldNamesMap;
 
                 let queryParams = {
-                    sid: this.opencgaClient._config.sessionId,
+//                    sid: this.opencgaClient._config.sessionId,
                     timeout: 60000
                 };
+                if (UtilsNew.isNotUndefinedOrNull(this.opencgaClient._config.sessionId)) {
+                    queryParams.sid = this.opencgaClient._config.sessionId;
+                }
                 Object.assign(queryParams, this.query);
 
-                if (UtilsNew.isNotEmpty(queryParams.sid)) {
-                    delete queryParams["sid"];
-                }
+//                if (UtilsNew.isNotEmpty(queryParams.sid)) {
+//                    delete queryParams["sid"];
+//                }
 
                 if (UtilsNew.isEmpty(queryParams.studies) || queryParams.studies.split(new RegExp("[,;]")).length === 1) {
                     queryParams.studies = this.project.alias + ":" + this.study.alias;
