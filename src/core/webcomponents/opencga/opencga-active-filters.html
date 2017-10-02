@@ -215,7 +215,7 @@
                         .then(function (response) {
                             let result = response.response[0].result;
                             if (result.length > 0) {
-                                if (UtilsNew.isUndefined(this.filters)) {
+                                if (UtilsNew.isUndefined(_this.filters)) {
                                     _this.filters = [];
                                 }
                                 for (let obj of result) {
