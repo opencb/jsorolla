@@ -192,7 +192,6 @@
 
         let alignment = new AlignmentTrack({
             title: "Alignment",
-            type: 'alignment',
             closable: true,
             minHistogramRegionSize: 5000,
             maxLabelRegionSize: 3000,
@@ -206,6 +205,7 @@
                         study: study
                     })
         });
+
         tracks.push(alignment);
 
         genomeBrowser.addTrack(tracks);
