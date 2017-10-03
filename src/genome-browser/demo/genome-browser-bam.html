@@ -198,7 +198,8 @@
             maxLabelRegionSize: 3000,
             visibleRegionSize: 100000000,
             height: 300,
-            renderer: new AlignmentRenderer(FEATURE_TYPES.alignment),
+            renderer: new AlignmentRenderer(FEATURE_TYPES.bam),
+//            renderer: new AlignmentRenderer({config: {}}),
             dataAdapter: new OpencgaAdapter(opencgaClient, "analysis/alignment", undefined, "query",
                     {
                         fileId: fileId,
