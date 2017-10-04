@@ -37,8 +37,7 @@
                 <div class="panel-heading" role="tab" id="{{prefix}}SampleSelectionHeading">
                     <h4 class="panel-title">
                         <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                           href="#{{prefix}}SampleSelection" aria-expanded="true"
-                           aria-controls="{{prefix}}SampleSelection">
+                           href="#{{prefix}}SampleSelection" aria-expanded="true" aria-controls="{{prefix}}SampleSelection">
                             Sample
                             <div style="float: right" class="tooltip-div">
                                 <a data-toggle="tooltip" title="Sample selection">
@@ -51,16 +50,10 @@
                 <div id="{{prefix}}SampleSelection" class="panel-collapse collapse in" role="tabpanel"
                      aria-labelledby="{{prefix}}SampleSelectionHeading">
                     <div class="panel-body">
-
                         <div class="form-group">
                             <label>Sample name</label>
                             <input type="text" id="{{prefix}}SampleName" class$="form-control {{prefix}}FilterTextInput"
                                    placeholder="HG01879, HG01880, HG01881..." on-keyup="calculateFilters">
-
-                            <label>Individual name</label>
-                            <input type="text" id="{{prefix}}IndividualName"
-                                   class$="form-control {{prefix}}FilterTextInput" placeholder="Smith, Grant ..."
-                                   on-keyup="calculateFilters">
                         </div>
 
                         <div class="form-group">
@@ -82,8 +75,7 @@
                                 <form class="form-inline">
                                     <div class="form-group row">
                                         <select class$="form-control {{prefix}}SelectInput codeDis input-sm"
-                                                id="{{prefix}}YearSelect" name="birthYear" required
-                                                on-change="calculateFilters" disabled>
+                                                id="{{prefix}}YearSelect" name="birthYear" required on-change="calculateFilters" disabled>
                                             <template is="dom-repeat" items="{{yearsToSearch}}">
                                                 <option value="{{item}}">{{item}}</option>
                                             </template>
@@ -91,8 +83,7 @@
 
                                         <label style="padding: 0px 2px">-</label>
                                         <select class$="form-control {{prefix}}SelectInput codeDis input-sm"
-                                                id="{{prefix}}MonthSelect" name="birthYear" required
-                                                on-change="calculateFilters" disabled>
+                                                id="{{prefix}}MonthSelect" name="birthYear" required on-change="calculateFilters" disabled>
                                             <option value="any">Any</option>
                                             <template is="dom-repeat" items="{{monthToSearch}}">
                                                 <option value="{{item}}">{{item}}</option>
@@ -101,8 +92,7 @@
 
                                         <label style="padding: 0px 2px">-</label>
                                         <select class$="form-control {{prefix}}SelectInput codeDis input-sm"
-                                                id="{{prefix}}DaySelect" name="birthYear" required
-                                                on-change="calculateFilters" disabled>
+                                                id="{{prefix}}DaySelect" name="birthYear" required on-change="calculateFilters" disabled>
                                             <option value="any">Any</option>
                                             <template is="dom-repeat" items="{{daysToSearch}}">
                                                 <option value="{{item}}">{{item}}</option>
@@ -112,17 +102,27 @@
                                 </form>
                             </div>
 
-                            <label>Other filters</label>
-                            <br>
-                            <input type="checkbox" name="selectionButtons" id="controls" value="controls"
-                                   class$="{{prefix}}FilterRadio" on-change="calculateFilters"
-                                   style="padding-left: 20px"> Controls
+                            <label>Patient Filters</label>
+                            <!--<input type="checkbox" name="selectionButtons" id="controls" value="controls"-->
+                                   <!--class$="{{prefix}}FilterRadio" on-change="calculateFilters"-->
+                                   <!--style="padding-left: 20px"> Controls-->
+                            <span style="padding-top: 10px">Individual ID</span>
+                            <input type="text" id="{{prefix}}PatientName" class$="form-control {{prefix}}FilterTextInput"
+                                   placeholder="Smith, Grant ..." on-keyup="calculateFilters">
+
+                            <span style="padding-top: 10px">HPO</span>
+                            <input type="text" id="{{prefix}}PatientHpo" class$="form-control {{prefix}}FilterTextInput"
+                                   placeholder="HP:000145" on-keyup="calculateFilters">
+
+                            <span style="padding-top: 10px">Diagnosis</span>
+                            <input type="text" id="{{prefix}}PatientDiagnosis" class$="form-control {{prefix}}FilterTextInput"
+                                   placeholder="Smith, Grant ..." on-keyup="calculateFilters">
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!--Sample characteristics-->
+            <!-- Sample characteristics -->
             <template is="dom-if" if="{{variableSets}}">
                 <div class="panel panel-default">
                     <div class="panel-heading" role="tab" id="{{prefix}}SampleGeneralFilterHeading">
@@ -143,14 +143,6 @@
                          aria-labelledby="{{prefix}}SampleGeneralFilterHeading">
 
                         <div class="panel-body">
-                            <!--<div class="form-group">-->
-                            <!--<label>Sample name</label>-->
-                            <!--<input type="text" id="{{prefix}}SampleName" class="form-control" placeholder="HG01879, HG01880, HG01881..." on-keyup="calculateFilters">-->
-
-                            <!--<label>Individual name</label>-->
-                            <!--<input type="text" id="{{prefix}}IndividualName" class="form-control" placeholder="Smith, Grant ..." on-keyup="calculateFilters">-->
-                            <!--</div>-->
-
                             <template is="dom-if" if="{{_displayCompactCheckBox}}">
                                 <div>
                                     <input type="checkbox" id="{{prefix}}CompactCheckbox" value="compact" checked
@@ -368,6 +360,13 @@
     <script>
 
         class OpencgaSampleFilter extends Polymer.Element {
+
+            constructor() {
+                super();
+
+                this.prefix = "VarSampleFilter-" + Utils.randomString(6);
+            }
+
             static get is() {
                 return 'opencga-sample-filter';
             }
@@ -385,17 +384,11 @@
                         type: Array,
                         notify: true
                     },
-                    prefix: {
-                        type: String
-                    },
                     query: {
                         type: Object,
                         value: {},
                         notify: true,
                         observer: 'onQueryUpdate'
-                    },
-                    config: {
-                        type: Object
                     },
                     search: {
                         type: Object,
@@ -414,12 +407,11 @@
                     },
                     compact: {
                         type: Boolean
+                    },
+                    config: {
+                        type: Object
                     }
                 }
-            }
-
-            constructor() {
-                super();
             }
 
             _attachDom(dom) {
@@ -428,9 +420,6 @@
 
             ready() {
                 super.ready();
-                if (UtilsNew.isEmpty(this.prefix)) {
-                    this.prefix = "VarSampleFilter" + Utils.randomString(6);
-                }
 
                 let _years = [];
                 let fullDate = new Date();
@@ -499,7 +488,7 @@
                     _query.name = name;
                 }
 
-                let individual = PolymerUtils.getValue(this.prefix + "IndividualName");
+                let individual = PolymerUtils.getValue(this.prefix + "PatientName");
                 if (!UtilsNew.isEmpty(individual)) {
                     _query.individual = individual;
                 }
@@ -682,18 +671,17 @@
                 let pairElement = '';
                 let divSuffix = '';
                 let message = '';
-                if (identifier.search('birthYear') != -1) // Birth year element raises the event -> check Test year
-                {
+                if (identifier.search('birthYear') != -1) { // Birth year element raises the event -> check Test year
                     pairElement =  PolymerUtils.getElementById(this.prefix + "testYear");
                     divSuffix = "birthYear";
                     message = "Year of Birth must be prior to year of Test";
-                }
-                else { // Year of test element raises the event -> swap elements and check the birth year
+                } else { // Year of test element raises the event -> swap elements and check the birth year
                     currentElement =  PolymerUtils.getElementById(this.prefix + "birthYear");
                     pairElement =  PolymerUtils.getElementById(e.target.id);
                     divSuffix = "testYear";
                     message = "Year of Test must be posterior to year of Birth";
                 }
+
                 if (PolymerUtils.querySelectorAll("option:selected",pairElement) !== ""
                     && (parseInt(PolymerUtils.querySelectorAll("option:selected", currentElement).textContent) > parseInt(PolymerUtils.querySelectorAll("option:selected", pairElement).textContent))) { // Year of birth cannot be lower than Year of test
                     PolymerUtils.innerHTML(this.prefix + "_errorDiv_" + divSuffix, message);
@@ -754,7 +742,5 @@
         }
 
         customElements.define(OpencgaSampleFilter.is, OpencgaSampleFilter);
-
-
     </script>
 </dom-module>
