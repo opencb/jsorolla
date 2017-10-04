@@ -9,7 +9,7 @@
   "scripts": {
     "build-clean": "rm -rf build",
     "build-network-viewer": "mkdir -p build/network-viewer && ./build-network-viewer.sh",
-    "build-genome-browser-demo": "for i in `ls src/genome-browser/demo`; do cat src/genome-browser/demo/$i | sed 's/..\\/..\\/..\\/node_modules/vendors/' | sed 's/..\\/..\\/..\\/dist/dist/' > build/genome-browser/$i; done",
+    "build-genome-browser-demo": "for i in `ls src/genome-browser/demo`; do cat src/genome-browser/demo/$i | sed 's/..\\/..\\/..\\/node_modules/vendors/' | sed 's/..\\/..\\/..\\/dist/dist/' | sed 's/..\\/webcomponent\\//webcomponent\\//'> build/genome-browser/$i; done",
     "build-genome-browser": "mkdir -p build/genome-browser/vendors && npm run build-genome-browser-demo && cp -r dist src/genome-browser/webcomponent build/genome-browser && cp -r node_modules/jquery node_modules/qtip2 node_modules/urijs node_modules/cookies-js node_modules/crypto-js node_modules/underscore node_modules/backbone node_modules/font-awesome node_modules/@webcomponents node_modules/@polymer build/genome-browser/vendors",
     "build": "npm run build-clean && npm run dist && npm run build-genome-browser",
     "clean": "rm -rf dist",
