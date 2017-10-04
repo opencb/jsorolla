@@ -22,15 +22,15 @@
             <div id="{{prefix}}ToolbarLeft" style="float: left;margin: 20px 0px 0px 0px">
                 <span style="font-size: 14px">Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> samples</span>
             </div>
-            <table id="{{prefix}}SampleSelector" data-search="true" data-show-columns="true"
-                   data-page-size="5" data-pagination="true" data-page-list="[5, 10]" style="cursor: pointer">
+
+            <table id="{{prefix}}SampleSelector" data-show-columns="true" data-show-export="true" data-show-pagination-switch="true"
+                   data-pagination="true" data-page-size="5" data-page-list="[5, 10]" style="cursor: pointer">
                 <thead style="background-color: #eee"></thead>
             </table>
         </div>
     </template>
 
     <script>
-
         class VariantSampleGrid extends Polymer.Element {
 
             constructor() {
@@ -47,11 +47,11 @@
                 return {
                     opencgaClient: {
                         type: Object,
-                        observer: 'renderFromServer'
+                        observer: 'renderTable'
                     },
                     study: {
                         type: Object,
-                        observer: 'renderFromServer'
+                        observer: 'renderTable'
                     },
                     samples: {
                         type: Array,
@@ -63,7 +63,7 @@
                     },
                     search: {
                         type: Object,
-                        observer: 'renderFromServer'
+                        observer: 'renderTable'
                     }
                 }
             }
@@ -90,7 +90,7 @@
                 this.search = {};
             }
 
-            renderFromServer() {
+            renderTable() {
                 let filters = this.search;
 
                 this.from = 1;
@@ -221,63 +221,6 @@
                 }
             }
 
-            stateFormatter(value, row, index) {
-                if (typeof this.field.context.samples != "undefined") {
-                    for (let idx in this.field.context.samples) {
-                        if (this.field.context.samples[idx].name == row.name) {
-                            break;
-                        }
-                    }
-                }
-            }
-
-            individualFormatter(value, row) {
-                if (UtilsNew.isNotUndefined(row.attributes.individual) && UtilsNew.isNotUndefined(row.attributes.individual.name)) {
-                    return row.attributes.individual.name;
-                } else {
-                    return '-'
-                }
-            }
-
-            dateFormatter(value, row) {
-                let pattern = /^(\d\d\d\d)(\d\d)(\d\d)/;
-                let matches = pattern.exec(value);
-                if (matches) {
-                    let [year, month, day] = [matches[1], matches[2] - 1, matches[3]];
-                    return year + "-" + month + "-" + day;
-                } else {
-                    return "Invalid date: '" + value + "'";
-                }
-            }
-
-            diagnosisFormatter(value, row) {
-                if (UtilsNew.isNotUndefined(row.attributes.individual) && UtilsNew.isNotEmptyArray(row.attributes.individual.ontologyTerms)) {
-                    return row.attributes.individual.ontologyTerms[1].name;
-                } else {
-                    return '-';
-                }
-            }
-
-            fatherFormatter(value, row) {
-                if (UtilsNew.isNotUndefined(row.attributes.individual) && row.attributes.individual.fatherId > 0) {
-                    return row.attributes.individual.fatherId;
-                } else {
-                    return '-';
-                }
-            }
-
-            motherFormatter(value, row) {
-                if (UtilsNew.isNotUndefined(row.attributes.individual) && row.attributes.individual.motherId > 0) {
-                    return row.attributes.individual.motherId;
-                } else {
-                    return '-';
-                }
-            }
-
-            cellTypeFormatter(value, row) {
-                return (row.somatic) ? "Somatic" : "Germline";
-            }
-
             /**
              * If filters have been removed, clean the values from the forms.
              */
@@ -392,23 +335,80 @@
                 this.search = filterParams;
             }
 
+
+            stateFormatter(value, row, index) {
+                if (typeof this.field.context.samples != "undefined") {
+                    for (let idx in this.field.context.samples) {
+                        if (this.field.context.samples[idx].name == row.name) {
+                            break;
+                        }
+                    }
+                }
+            }
+
+            individualFormatter(value, row) {
+                if (UtilsNew.isNotUndefined(row.attributes.individual) && UtilsNew.isNotUndefined(row.attributes.individual.name)) {
+                    return row.attributes.individual.name;
+                } else {
+                    return '-'
+                }
+            }
+
+            dateFormatter(value, row) {
+                let pattern = /^(\d\d\d\d)(\d\d)(\d\d)/;
+                let matches = pattern.exec(value);
+                if (matches) {
+                    let [year, month, day] = [matches[1], matches[2] - 1, matches[3]];
+                    return year + "-" + month + "-" + day;
+                } else {
+                    return "Invalid date: '" + value + "'";
+                }
+            }
+
+            diagnosisFormatter(value, row) {
+                if (UtilsNew.isNotUndefined(row.attributes.individual) && UtilsNew.isNotEmptyArray(row.attributes.individual.ontologyTerms)) {
+                    return row.attributes.individual.ontologyTerms[1].name;
+                } else {
+                    return '-';
+                }
+            }
+
+            fatherFormatter(value, row) {
+                if (UtilsNew.isNotUndefined(row.attributes.individual) && row.attributes.individual.fatherId > 0) {
+                    return row.attributes.individual.fatherId;
+                } else {
+                    return '-';
+                }
+            }
+
+            motherFormatter(value, row) {
+                if (UtilsNew.isNotUndefined(row.attributes.individual) && row.attributes.individual.motherId > 0) {
+                    return row.attributes.individual.motherId;
+                } else {
+                    return '-';
+                }
+            }
+
+            cellTypeFormatter(value, row) {
+                return (row.somatic) ? "Somatic" : "Germline";
+            }
+
             _initTableColumns() {
                 this._columns = [
                     [
                         {
-//                            title: 'Select',
                             field: {source: 'state', context: this},
                             checkbox: true,
                             formatter: this.stateFormatter
                         },
                         {
-                            title: 'Individual',
-                            field: 'individual.id',
-                            formatter: this.individualFormatter
-                        },
-                        {
                             title: 'Sample',
                             field: 'name'
+                        },
+                        {
+                            title: 'Patient ID',
+                            field: 'individual.id',
+                            formatter: this.individualFormatter
                         },
                         {
                             title: 'Date',
@@ -420,27 +420,34 @@
                             field: 'status.name'
                         },
                         {
-                            title: 'Gender',
+                            title: 'Sex',
                             field: 'individual.sex'
                         },
                         {
-                            title: 'Presumptive diagnosis',
+                            title: 'Diagnosis',
                             formatter: this.diagnosisFormatter
                         },
                         {
                             title: 'Father',
-//                            field: 'individual.fatherId',
                             formatter: this.fatherFormatter
                         },
                         {
                             title: 'Mother',
-//                            field: 'individual.motherId',
                             formatter: this.motherFormatter
                         },
                         {
-                            title: 'Cell Type',
-//                            field: 'somatic',
+                            title: 'Cell Line',
                             formatter: this.cellTypeFormatter
+                        },
+                        {
+                            title: 'Type',
+                            visible: false,
+                            field: 'type'
+                        },
+                        {
+                            title: 'Description',
+                            visible: false,
+                            field: 'description'
                         }
                     ]
                 ];
