@@ -173,7 +173,7 @@ class KaryotypePanel {
 
         this.client.get("genomic", "chromosome", undefined, "search")
             .then(function (data) {
-                _this.chromosomeList = data.response[0].result[0].chromosomes;
+                _this.chromosomeList = UtilsNew.removeDuplicates(data.response[0].result[0].chromosomes,"name");
                 _this.chromosomeList.sort(sortfunction);
                 _this._drawSvg(_this.chromosomeList);
             });
@@ -198,6 +198,7 @@ class KaryotypePanel {
                 biggerChr = size;
             }
         }
+
         _this.pixelBase = (_this.height - 10) / biggerChr;
         _this.chrOffsetY = {};
         _this.chrOffsetX = {};

@@ -100,7 +100,6 @@
 
     function run() {
         let species = AVAILABLE_SPECIES.vertebrates[0];
-//        let region = new Region({chromosome: "13", start: 32996311, end: 33000856}); //initial region
         let region = new Region({chromosome: "13", start: 32996311, end: 32996411}); //initial region
         let genomeBrowser = new GenomeBrowser({
             client: cellbaseClient,
@@ -133,7 +132,7 @@
             }
         });
 
-        tracks = [];
+        let tracks = [];
 
         /***************************************************************************/
         /***** Demo Gene overview Track using FeatureTrack and Cellbase adapter  ***/
