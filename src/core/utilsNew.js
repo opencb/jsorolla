@@ -46,4 +46,18 @@ class UtilsNew {
 
         return false;
     }
+
+    static removeDuplicates (array, prop) {
+        var newArray = [];
+        var lookupObject  = {};
+
+        for(let i in array) {
+            lookupObject[array[i][prop]] = array[i];
+        }
+
+        for(let i in lookupObject) {
+            newArray.push(lookupObject[i]);
+        }
+        return newArray;
+    }
 }

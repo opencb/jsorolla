@@ -78,7 +78,6 @@
 
     //GenomeBrowser, Region and Species:
     let genomeBrowser;
-//    let region = new Region({chromosome: "13", start: 32996311, end: 33000856}); //initial region
     let region = new Region({chromosome: "13", start: 32996311, end: 32996450}); //initial region
 
     getSpecies(function(s) {
@@ -139,7 +138,7 @@
             }
         });
 
-        tracks = [];
+        let tracks = [];
 
         /***************************************************************************/
         /***** Demo Gene overview Track using FeatureTrack and Cellbase adapter  ***/
