@@ -12,11 +12,12 @@
         </style>
 
         <div class="login-basic-margin">
+            <h3>{{loginTitle}}</h3>
             <div class="input-group login-fields">
                 <span class="input-group-addon" id="username">
                     <i class="fa fa-user fa-lg"></i>
                 </span>
-                <input type="text" id="opencgaUser" value="{{user}}" class="form-control" placeholder="Username" aria-describedby="username"
+                <input type="text" id="opencgaUser" value="{{userName}}" class="form-control" placeholder="User name" aria-describedby="username"
                        on-keyup="checkEnterKey">
             </div>
 
@@ -34,26 +35,36 @@
             </div>
 
             <div class="login-fields">
-                <button type="button" on-click="login" class="btn btn-primary" style="text-align: center;">{{loginText}}</button>
+                <button type="button" on-click="login" class="btn btn-primary" style="text-align: center;">{{buttonText}}</button>
             </div>
         </div>
-
     </template>
+
     <script>
         class OpencgaLogin extends Polymer.Element {
 
-            static get is() { return 'opencga-login'; }
+            constructor() {
+                super();
+            }
+
+            static get is() {
+                return 'opencga-login';
+            }
 
             static get properties() {
                 return {
                     opencgaClient: {
                         type: Object
                     },
-                    loginText: {
+                    loginTitle: {
                         type: String,
                         value: "Login"
                     },
-                    user: {
+                    buttonText: {
+                        type: String,
+                        value: "OK"
+                    },
+                    userName: {
                         type: String,
                         value: ""
                     },
@@ -62,10 +73,6 @@
                         value: ""
                     }
                 }
-            }
-
-            constructor() {
-                super();
             }
 
             _attachDom(dom) {
@@ -80,7 +87,7 @@
                 let user = this.$.opencgaUser.value;
                 let pass = this.$.opencgaPassword.value;
 
-                var _this = this;
+                let _this = this;
                 this.opencgaClient.users().login(user, pass)
                     .then(function(response) {
                         _this.$.opencgaUser.value = "";
@@ -100,12 +107,12 @@
             }
 
             checkEnterKey(e) {
-                if (e.keyCode == 13) { // Enter was clicked
+                if (e.keyCode === 13) {
                     this.login();
                 }
             }
         }
 
-        window.customElements.define(OpencgaLogin.is, OpencgaLogin);
+        customElements.define(OpencgaLogin.is, OpencgaLogin);
     </script>
 </dom-module>
