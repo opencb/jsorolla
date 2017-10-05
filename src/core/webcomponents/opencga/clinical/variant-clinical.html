@@ -220,7 +220,7 @@
                     </div>
 
                     <div style="width: 50%;padding-top: 20px">
-                        <button type="button" class="btn btn-primary" style="float: right" on-click="onX">
+                        <button type="button" class="btn btn-primary" style="float: right" on-click="onClickOkPrioritization">
                             <!--<i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px"></i>-->
                             OK
                         </button>
@@ -246,10 +246,53 @@
             </template>
 
             <template is="dom-if" if="{{activesTab.reportTab}}">
-                <div class="analysis-content" id="{{prefix}}ReportButtonDiv">
-                    <variant-clinical-report opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}"
-                                             title="{{title}}" analysis="{{analysis}}">
-                    </variant-clinical-report>
+                <template is="dom-if" if="{{!activeReport}}">
+                    <div class="col-md-8 col-md-offset-2">
+                        <div class="analysis-content" id="{{prefix}}ReportButtonDiv">
+                            <h3>Clinical Interpretation</h3>
+                                <div class="col-md-12" style="padding: 10px 15px">
+
+                                    <div class="form-group col-md-12" id="{{prefix}}selectInterpretationType">
+                                        <span>Select Recent Analysis:</span>
+                                        <div style="padding: 10px 20px">
+                                            <template is="dom-if" if="{{!recentInterpretations}}">
+                                                <h2>No recent interpretation found</h2>
+                                            </template>
+
+                                            <template is="dom-if" if="{{recentInterpretations}}">
+                                                <template is="dom-repeat" items="{{recentInterpretations}}" as="interpretation">
+                                                    <input id="{{prefix}}sampleRadio{{interpretation.id}}" type="radio" name="interpretationRecentRadioButtons"  value="{{interpretation.id}}"
+                                                           class$="{{prefix}}FilterRadio" on-change="selectInterpretationRecent"
+                                                           style="padding-left: 20px"> {{interpretation.name}}<br>
+                                                </template>
+                                            </template>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group col-md-12">
+                                        <div class="">
+                                            <span for="inputEmail3">Select analysis:</span>
+                                            <button id="inputEmail3" data-toggle="modal" role="button" data-placement="bottom" on-click="showClinicalSelector" class="btn btn-primary" style="display: inline">
+                                                Browse...
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="width: 50%;padding-top: 20px">
+                                <button type="button" class="btn btn-primary" style="float: right" on-click="onClickOkReport">
+                                    <!--<i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px"></i>-->
+                                    OK
+                                </button>
+                            </div>
+                        </div>
+
+                    </template>
+                    <template is="dom-if" if="{{activeReport}}">
+                        <variant-clinical-report opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}"
+                                                 title="{{title}}" analysis="{{analysis}}">
+                        </variant-clinical-report>
+                    </template>
                 </div>
             </template>
         </div>
@@ -381,6 +424,8 @@
 
                 this.mode = "clinical";
                 this.activePrioritization = false;
+                this.activeReport = false;
+
 //                this.recentAnalysis = [];
             }
 
@@ -406,6 +451,8 @@
 
                 if (e.currentTarget.id === this.prefix + "ReportButton") {
                     this.set("activesTab.reportTab", true);
+                    this.activeReport = false;
+
                 }
             }
 
@@ -435,10 +482,6 @@
 
             }
 
-            onX() {
-                this.activePrioritization = true;
-            }
-
             getRecentAnalysis(){
                 let params = {
                     study: this.project.alias + ":" + this.study.alias,
@@ -459,6 +502,23 @@
                 if(UtilsNew.isNotUndefinedOrNull(analysisId)){
                     this.clinicalAnalysisId = analysisId;
                 }
+            }
+
+            onClickOkPrioritization() {
+                this.activePrioritization = true;
+            }
+
+            getRecentInterpretations(){
+                //TODO Get interpretation from current analysis
+
+            }
+
+            selectInterpretationRecent(e){
+                //TODO Get i
+            }
+
+            onClickOkReport() {
+                this.activeReport = true;
             }
         }
         customElements.define(VariantClinical.is, VariantClinical);
