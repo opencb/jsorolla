@@ -483,7 +483,22 @@
                 interpretation.reportedVariants = this.checkedVariants;
                 interpretation.attributes = {};
 
-                return interpretation;
+                let params = {
+                    study: this.project.alias + ":" + this.study.alias
+                };
+
+                let body = {
+                    path: "analysis/"+ interpretation.clinicalAnalysis.id + "/" + interpretation.name + "/interpretation.json",
+                    content: JSON.stringify(interpretation),
+                    parents: true
+                };
+
+                this.opencgaClient.files().create(params, body)
+                    .then((response) => {
+                        console.log(response);
+                    // TODO We should update here clinicalAnalysis and add to interpretation list this file with its name from save interpertation form.
+                    });
+
             }
         }
 
