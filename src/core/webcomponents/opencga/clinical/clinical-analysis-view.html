@@ -19,162 +19,165 @@
 <dom-module id="clinical-analysis-view">
     <template>
 
-        <div class="row">
-            <template is="dom-if" if="{{showTitle}}">
-                <div style="margin: 10px">
-                <span>
-                    <i id="{{prefix}}SummaryCollapseIcon" class="fa fa-minus-square-o" aria-hidden="true" on-click="_summaryOnClick" style="cursor: pointer"></i>
-                    <h4  on-click="_summaryOnClick" style="cursor: pointer; display: inline">&nbsp;{{title}}</h4>
-                </span>
-                    <!--<hr style="margin: 5px">-->
-                </div>
-            </template>
+        <template is="dom-if" if="{{showSummary}}">
 
-            <div id="{{prefix}}ClinicalAnalysisViewPanel" class="col-md-12" style="padding: 10px 15px">
-                <div class="col-md-4">
-                    <label>Clinical Analysis</label>
-                    <hr style="margin: 2px 0px;border-top: 2px solid #eee">
-                    <form class="form-horizontal">
-                        <div class="form-group" style="margin: 0px 2px">
-                            <label class="col-md-4">Name:</label>
-                            <span class="col-md-8">{{clinicalAnalysis.name}}</span>
-                        </div>
-                        <!--<div class="form-group" style="margin: 0px 5px">-->
-                        <!--<label class="col-md-2">Subject:</label>-->
-                        <!--<span class="col-md-10">NA0001</span>-->
-                        <!--</div>-->
-                        <div class="form-group" style="margin: 0px 2px">
-                            <label class="col-md-4">Disease:</label>
-                            <span class="col-md-8">{{clinicalAnalysis.disease.name}} ({{clinicalAnalysis.disease.id}})</span>
-                        </div>
-                        <div class="form-group" style="margin: 0px 2px">
-                            <label class="col-md-4">Type:</label>
-                            <span class="col-md-8">{{clinicalAnalysis.type}}</span>
-                        </div>
-                        <div class="form-group" style="margin: 0px 2px">
-                            <label class="col-md-4">Date:</label>
-                            <span class="col-md-8">{{clinicalAnalysis.creationDate}}</span>
-                        </div>
-                        <div class="form-group" style="margin: 0px 2px">
-                            <label class="col-md-4">Description:</label>
-                            <span class="col-md-8">{{clinicalAnalysis.description}}</span>
-                        </div>
-                    </form>
-                </div>
-                <div class="col-md-4">
-                    <label>Sample</label>
-                    <hr style="margin: 2px 0px;border-top: 2px solid #eee">
-                    <form class="form-horizontal">
-                        <div class="form-group" style="margin: 0px 2px">
-                            <label class="col-md-4">Name:</label>
-                            <span class="col-md-8">
-                            {{clinicalAnalysis.subjects.0.samples.0.name}} &nbsp;&nbsp; (<a style="font-weight: bold"><i class="fa fa-external-link" aria-hidden="true"></i> Clinical Data</a>)
-                        </span>
-                        </div>
-                        <div class="form-group" style="margin: 0px 2px">
-                            <label class="col-md-4">File:</label>
-                            <span class="col-md-8">{{clinicalAnalysis.germline.name}}</span>
-                        </div>
-                        <div class="form-group" style="margin: 0px 2px">
-                            <label class="col-md-4">Genome Assembly:</label>
-                            <span class="col-md-8">{{clinicalAnalysis.germline.assembly}}</span>
-                        </div>
-                        <div class="form-group" style="margin: 0px 2px">
-                            <label class="col-md-4">Somatic:</label>
-                            <span class="col-md-8">{{clinicalAnalysis.subjects.0.samples.0.somatic}}</span>
-                        </div>
-                        <div class="form-group" style="margin: 0px 2px">
-                            <label class="col-md-4">Phenotypes:</label>
-                            <span class="col-md-8">
-                            <template is="dom-repeat" items="{{clinicalAnalysis.subjects.0.samples.0.ontologyTerms}}">
-                                <span>{{item.name}} (<a href="http://compbio.charite.de/hpoweb/showterm?id={{item.id}}" target="_blank">{{item.id}}</a>)</span>
-                                <br>
-                            </template>
-                        </span>
-                        </div>
-                        <div class="form-group" style="margin: 0px 2px">
-                            <label class="col-md-4">Description:</label>
-                            <span class="col-md-8">{{clinicalAnalysis.subjects.0.samples.0.description}}</span>
-                        </div>
-                    </form>
-                </div>
-                <div class="col-md-4">
-                    <label>Subject</label>
-                    <hr style="margin: 2px 0px;border-top: 2px solid #eee">
-                    <form class="form-horizontal">
-                        <div class="form-group" style="margin: 0px 2px">
-                            <label class="col-md-4">Name:</label>
-                            <span class="col-md-8">
-                            {{clinicalAnalysis.subjects.0.name}} &nbsp;&nbsp; (<a style="font-weight: bold"><i class="fa fa-external-link" aria-hidden="true"></i> Clinical Data</a>)
-                        </span>
-                        </div>
-                        <div class="form-group" style="margin: 0px 2px">
-                            <label class="col-md-4">Sex (karyotype):</label>
-                            <span class="col-md-8">{{clinicalAnalysis.subjects.0.sex}} &nbsp;&nbsp; ({{clinicalAnalysis.subjects.0.karyotypicSex}})</span>
-                        </div>
-                        <div class="form-group" style="margin: 0px 2px">
-                            <label class="col-md-4">Date of Birth:</label>
-                            <span class="col-md-8">{{clinicalAnalysis.subjects.0.dateOfBirth}} &nbsp;&nbsp; ({{clinicalAnalysis.subjects.0.lifeStatus}})</span>
-                        </div>
-                        <div class="form-group" style="margin: 0px 2px">
-                            <label class="col-md-4">Pedigree:</label>
-                            <span class="col-md-8"><a style="font-weight: bold"><i class="fa fa-external-link" aria-hidden="true"></i> Pedigree</a></span>
-                        </div>
-                        <div class="form-group" style="margin: 0px 2px">
-                            <label class="col-md-4">Phenotypes:</label>
-                            <span class="col-md-8">
-                            <template is="dom-repeat" items="{{clinicalAnalysis.subjects.0.ontologyTerms}}">
-                                <span>{{item.name}} (<a href="http://compbio.charite.de/hpoweb/showterm?id={{item.id}}" target="_blank">{{item.id}}</a>)</span>
-                                <br>
-                            </template>
-                        </span>
-                        </div>
-                        <div class="form-group" style="margin: 0px 2px">
-                            <label class="col-md-4">Description:</label>
-                            <span class="col-md-8">{{clinicalAnalysis.subjects.0.description}}</span>
-                        </div>
-                    </form>
-                </div>
-            </div>
+            <div class="row">
+                <template is="dom-if" if="{{showTitle}}">
+                    <div style="margin: 10px">
+                    <span>
+                        <i id="{{prefix}}SummaryCollapseIcon" class="fa fa-minus-square-o" aria-hidden="true" on-click="_summaryOnClick" style="cursor: pointer"></i>
+                        <h4  on-click="_summaryOnClick" style="cursor: pointer; display: inline">&nbsp;{{title}}</h4>
+                    </span>
+                        <!--<hr style="margin: 5px">-->
+                    </div>
+                </template>
 
-            <div id="{{prefix}}OtherPrioritisationsPanel" class="col-md-12" style="padding: 10px 15px">
-                <div class="col-md-12">
-                    <label>Other prioritisations</label>
-                    <div style="padding: 10px 5px">
-                        <table class="table">
-                            <thead>
-                            <tr>
-                                <th colspan="1">Name</th>
-                                <th colspan="1">Tool</th>
-                                <th colspan="1">Date</th>
-                                <th colspan="1">No. of Reported Variants</th>
-                                <th colspan="1">No. of Affected Genes</th>
-                                <th colspan="1">View</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr>
-                                <td>Prioritizaton-1</td>
-                                <td>TEAM</td>
-                                <td>5-9-2017</td>
-                                <td>26</td>
-                                <td>6</td>
-                                <td><a href="">Pending</a></td>
-                            </tr>
-                            <tr>
-                                <td>Tiering-1</td>
-                                <td>Tiering</td>
-                                <td>6-9-2017</td>
-                                <td>66</td>
-                                <td>12</td>
-                                <td><a href="">Pending</a></td>
-                            </tr>
-                            </tbody>
-                        </table>
+                <div id="{{prefix}}ClinicalAnalysisViewPanel" class="col-md-12" style="padding: 10px 15px">
+                    <div class="col-md-4">
+                        <label>Clinical Analysis</label>
+                        <hr style="margin: 2px 0px;border-top: 2px solid #eee">
+                        <form class="form-horizontal">
+                            <div class="form-group" style="margin: 0px 2px">
+                                <label class="col-md-4">Name:</label>
+                                <span class="col-md-8">{{clinicalAnalysis.name}}</span>
+                            </div>
+                            <!--<div class="form-group" style="margin: 0px 5px">-->
+                            <!--<label class="col-md-2">Subject:</label>-->
+                            <!--<span class="col-md-10">NA0001</span>-->
+                            <!--</div>-->
+                            <div class="form-group" style="margin: 0px 2px">
+                                <label class="col-md-4">Disease:</label>
+                                <span class="col-md-8">{{clinicalAnalysis.disease.name}} ({{clinicalAnalysis.disease.id}})</span>
+                            </div>
+                            <div class="form-group" style="margin: 0px 2px">
+                                <label class="col-md-4">Type:</label>
+                                <span class="col-md-8">{{clinicalAnalysis.type}}</span>
+                            </div>
+                            <div class="form-group" style="margin: 0px 2px">
+                                <label class="col-md-4">Date:</label>
+                                <span class="col-md-8">{{clinicalAnalysis.creationDate}}</span>
+                            </div>
+                            <div class="form-group" style="margin: 0px 2px">
+                                <label class="col-md-4">Description:</label>
+                                <span class="col-md-8">{{clinicalAnalysis.description}}</span>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Sample</label>
+                        <hr style="margin: 2px 0px;border-top: 2px solid #eee">
+                        <form class="form-horizontal">
+                            <div class="form-group" style="margin: 0px 2px">
+                                <label class="col-md-4">Name:</label>
+                                <span class="col-md-8">
+                                {{clinicalAnalysis.subjects.0.samples.0.name}} &nbsp;&nbsp; (<a style="font-weight: bold"><i class="fa fa-external-link" aria-hidden="true"></i> Clinical Data</a>)
+                            </span>
+                            </div>
+                            <div class="form-group" style="margin: 0px 2px">
+                                <label class="col-md-4">File:</label>
+                                <span class="col-md-8">{{clinicalAnalysis.germline.name}}</span>
+                            </div>
+                            <div class="form-group" style="margin: 0px 2px">
+                                <label class="col-md-4">Genome Assembly:</label>
+                                <span class="col-md-8">{{clinicalAnalysis.germline.assembly}}</span>
+                            </div>
+                            <div class="form-group" style="margin: 0px 2px">
+                                <label class="col-md-4">Somatic:</label>
+                                <span class="col-md-8">{{clinicalAnalysis.subjects.0.samples.0.somatic}}</span>
+                            </div>
+                            <div class="form-group" style="margin: 0px 2px">
+                                <label class="col-md-4">Phenotypes:</label>
+                                <span class="col-md-8">
+                                <template is="dom-repeat" items="{{clinicalAnalysis.subjects.0.samples.0.ontologyTerms}}">
+                                    <span>{{item.name}} (<a href="http://compbio.charite.de/hpoweb/showterm?id={{item.id}}" target="_blank">{{item.id}}</a>)</span>
+                                    <br>
+                                </template>
+                            </span>
+                            </div>
+                            <div class="form-group" style="margin: 0px 2px">
+                                <label class="col-md-4">Description:</label>
+                                <span class="col-md-8">{{clinicalAnalysis.subjects.0.samples.0.description}}</span>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Subject</label>
+                        <hr style="margin: 2px 0px;border-top: 2px solid #eee">
+                        <form class="form-horizontal">
+                            <div class="form-group" style="margin: 0px 2px">
+                                <label class="col-md-4">Name:</label>
+                                <span class="col-md-8">
+                                {{clinicalAnalysis.subjects.0.name}} &nbsp;&nbsp; (<a style="font-weight: bold"><i class="fa fa-external-link" aria-hidden="true"></i> Clinical Data</a>)
+                            </span>
+                            </div>
+                            <div class="form-group" style="margin: 0px 2px">
+                                <label class="col-md-4">Sex (karyotype):</label>
+                                <span class="col-md-8">{{clinicalAnalysis.subjects.0.sex}} &nbsp;&nbsp; ({{clinicalAnalysis.subjects.0.karyotypicSex}})</span>
+                            </div>
+                            <div class="form-group" style="margin: 0px 2px">
+                                <label class="col-md-4">Date of Birth:</label>
+                                <span class="col-md-8">{{clinicalAnalysis.subjects.0.dateOfBirth}} &nbsp;&nbsp; ({{clinicalAnalysis.subjects.0.lifeStatus}})</span>
+                            </div>
+                            <div class="form-group" style="margin: 0px 2px">
+                                <label class="col-md-4">Pedigree:</label>
+                                <span class="col-md-8"><a style="font-weight: bold"><i class="fa fa-external-link" aria-hidden="true"></i> Pedigree</a></span>
+                            </div>
+                            <div class="form-group" style="margin: 0px 2px">
+                                <label class="col-md-4">Phenotypes:</label>
+                                <span class="col-md-8">
+                                <template is="dom-repeat" items="{{clinicalAnalysis.subjects.0.ontologyTerms}}">
+                                    <span>{{item.name}} (<a href="http://compbio.charite.de/hpoweb/showterm?id={{item.id}}" target="_blank">{{item.id}}</a>)</span>
+                                    <br>
+                                </template>
+                            </span>
+                            </div>
+                            <div class="form-group" style="margin: 0px 2px">
+                                <label class="col-md-4">Description:</label>
+                                <span class="col-md-8">{{clinicalAnalysis.subjects.0.description}}</span>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div id="{{prefix}}OtherPrioritisationsPanel" class="col-md-12" style="padding: 10px 15px">
+                    <div class="col-md-12">
+                        <label>Other prioritisations</label>
+                        <div style="padding: 10px 5px">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th colspan="1">Name</th>
+                                    <th colspan="1">Tool</th>
+                                    <th colspan="1">Date</th>
+                                    <th colspan="1">No. of Reported Variants</th>
+                                    <th colspan="1">No. of Affected Genes</th>
+                                    <th colspan="1">View</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>Prioritizaton-1</td>
+                                    <td>TEAM</td>
+                                    <td>5-9-2017</td>
+                                    <td>26</td>
+                                    <td>6</td>
+                                    <td><a href="">Pending</a></td>
+                                </tr>
+                                <tr>
+                                    <td>Tiering-1</td>
+                                    <td>Tiering</td>
+                                    <td>6-9-2017</td>
+                                    <td>66</td>
+                                    <td>12</td>
+                                    <td><a href="">Pending</a></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </template>
     </template>
 
     <script>
@@ -195,15 +198,19 @@
                     opencgaClient: {
                         type: Object
                     },
+                    project: {
+                        type: Object
+                    },
                     study: {
                         type: Object
                     },
                     clinicalAnalysisId: {
-                        type: Number
+                        type: Number,
+                        observer: "searchAnalysis"
                     },
                     clinicalAnalysis: {
                         type: Object,
-//                        notify: true
+                        notify: true
                     },
                     title: {
                         type: String,
@@ -213,6 +220,10 @@
                         type: Boolean,
                         value: true
                     },
+                    showSummary: {
+                        type: Boolean,
+                        value: false
+                    },
                     config: {
                         type: Object
                     }
@@ -221,9 +232,7 @@
 
             ready() {
                 super.ready();
-
                 this._summaryCollapsed = false;
-//                this.showTitle = false;
             }
 
             _attachDom(dom) {
@@ -246,6 +255,25 @@
                 }
                 this._summaryCollapsed = !this._summaryCollapsed;
             }
+
+            searchAnalysis(){
+                if(UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysisId)){
+                    let params = {
+                        study: this.project.alias + ":" + this.study.alias
+                    };
+                    let _this = this;
+                    this.opencgaClient.clinical().info(this.clinicalAnalysisId, params, {})
+                        .then(function(response){
+                            _this.showSummary = false;
+                            if (response.response[0].numResults === 1) {
+                                _this.clinicalAnalysis = response.response[0].result[0];
+                                _this.showSummary = true;
+                            }
+
+                        });
+                }
+            }
+
         }
 
         customElements.define(ClinicalAnalysisView.is, ClinicalAnalysisView);

@@ -177,7 +177,7 @@
 
                                     <template is="dom-if" if="{{recentAnalysis}}">
                                         <template is="dom-repeat" items="{{recentAnalysis}}" as="analysis">
-                                            <input id="{{prefix}}sampleRadio{{analysis.name}}" type="radio"  value="{{analysis.name}}"
+                                            <input id="{{prefix}}sampleRadio{{analysis.id}}" type="radio"  value="{{analysis.id}}"
                                                    class$="{{prefix}}FilterRadio" on-change="selectAnalysisRecent"
                                                    style="padding-left: 20px"> {{analysis.name}}<br>
                                         </template>
@@ -197,8 +197,8 @@
 
                         <!-- Clinical Analysis View -->
                         <div class="col-md-12" style="padding: 10px 15px">
-                            <clinical-analysis-view study="{{study}}" config="{{config}}" opencga-client="{{opencgaClient}}"
-                                                    clinical-analysis="{{clinicalAnalysis}}" active-prioritization="{{activePrioritization}}">
+                            <clinical-analysis-view project="{{project}}" study="{{study}}" config="{{config}}" opencga-client="{{opencgaClient}}"
+                                                    clinical-analysis="{{clinicalAnalysis}}" clinical-analysis-id="{{clinicalAnalysisId}}" active-prioritization="{{activePrioritization}}">
                             </clinical-analysis-view>
                         </div>
 
@@ -239,7 +239,7 @@
                                                 cellbase-client="{{cellbaseClient}}"
                                                 ebi-config="{{config.ebiWS}}"
                                                 beacon-hosts="{{config.tools.beacon.hosts}}" on-gene="geneSelected"
-                                                clinical-analysis="{{clinicalAnalysis}}">
+                                                clinical-analysis="{{clinicalAnalysis}}" >
                         </variant-prioritization>
                     </div>
                 </template>
@@ -455,17 +455,10 @@
             }
 
             selectAnalysisRecent(e){
-                let analysisName = e.target.value;
-                if(UtilsNew.isNotUndefinedOrNull(analysisName)){
-                    let analysisSelected = this.recentAnalysis.find((analysis) => {
-                        return analysis.name === analysisName;
-                    });
-
-                    if(UtilsNew.isNotUndefinedOrNull(analysisSelected)){
-                        this.clinicalAnalysis = analysisSelected;
-                    }
+                let analysisId = e.target.value;
+                if(UtilsNew.isNotUndefinedOrNull(analysisId)){
+                    this.clinicalAnalysisId = analysisId;
                 }
-
             }
         }
         customElements.define(VariantClinical.is, VariantClinical);
