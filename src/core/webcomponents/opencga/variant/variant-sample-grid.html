@@ -367,7 +367,7 @@
 
             diagnosisFormatter(value, row) {
                 if (UtilsNew.isNotUndefined(row.attributes.individual) && UtilsNew.isNotEmptyArray(row.attributes.individual.ontologyTerms)) {
-                    return row.attributes.individual.ontologyTerms[1].name;
+                    return row.attributes.individual.ontologyTerms[0].name;
                 } else {
                     return '-';
                 }
