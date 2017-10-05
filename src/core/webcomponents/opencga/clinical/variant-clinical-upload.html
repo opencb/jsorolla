@@ -1143,7 +1143,10 @@
                 if (window.File && window.FileReader && window.FileList && window.Blob) {
                     let vcfFile = PolymerUtils.getPropertyById(this.prefix + 'FileToUpload', 'files')[0];
 
-                    if (vcfFile.type === 'text/vcard' && vcfFile.name.split('.').pop() === 'vcf') {
+                    // Linux text/vcard
+                    // Winwdows text/x-card
+                    ///MAC text/directory
+                    if ((vcfFile.type === 'text/vcard' || vcfFile.type === "text/x-card" || vcfFile.type === "text/directory") && vcfFile.name.split('.').pop() === 'vcf') {
 
                         let reader = new FileReader();
                         let _this = this;
