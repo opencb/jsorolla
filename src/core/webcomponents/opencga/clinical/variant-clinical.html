@@ -177,7 +177,7 @@
 
                                     <template is="dom-if" if="{{recentAnalysis}}">
                                         <template is="dom-repeat" items="{{recentAnalysis}}" as="analysis">
-                                            <input id="{{prefix}}sampleRadio{{analysis.id}}" type="radio"  value="{{analysis.id}}"
+                                            <input id="{{prefix}}sampleRadio{{analysis.id}}" type="radio" name="analysisRecentRadioButtons"  value="{{analysis.id}}"
                                                    class$="{{prefix}}FilterRadio" on-change="selectAnalysisRecent"
                                                    style="padding-left: 20px"> {{analysis.name}}<br>
                                         </template>
