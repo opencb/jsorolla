@@ -171,10 +171,16 @@
                             <div class="form-group col-md-12" id="{{prefix}}selectAnalysisType">
                                 <span>Select Recent Analysis:</span>
                                 <div style="padding: 10px 20px">
-                                    <template is="dom-repeat" items="{{recentAnalysis}}" as="analysis">
-                                        <input id="{{prefix}}sampleRadio{{analysis.name}}" type="radio"  value="{{analysis.name}}"
-                                               class$="{{prefix}}FilterRadio" on-change="selectAnalysisRecent"
-                                               style="padding-left: 20px"> {{analysis.name}}<br>
+                                    <template is="dom-if" if="{{!recentAnalysis}}">
+                                        <h2>No recent clinical analysis found</h2>
+                                    </template>
+
+                                    <template is="dom-if" if="{{recentAnalysis}}">
+                                        <template is="dom-repeat" items="{{recentAnalysis}}" as="analysis">
+                                            <input id="{{prefix}}sampleRadio{{analysis.name}}" type="radio"  value="{{analysis.name}}"
+                                                   class$="{{prefix}}FilterRadio" on-change="selectAnalysisRecent"
+                                                   style="padding-left: 20px"> {{analysis.name}}<br>
+                                        </template>
                                     </template>
                                 </div>
                             </div>
@@ -375,7 +381,7 @@
 
                 this.mode = "clinical";
                 this.activePrioritization = false;
-                this.recentAnalysis = [];
+//                this.recentAnalysis = [];
             }
 
             changeTool(e) {
@@ -407,7 +413,7 @@
                 return !isActive ? "btn-success" : "btn-primary";
             }
 
-            onClear(){
+            onClear() {
                 this.query = {studies: this.project.alias + ":" + this.study.alias};
                 this.search = {};
             }
@@ -436,10 +442,11 @@
             getRecentAnalysis(){
                 let params = {
                     study: this.project.alias + ":" + this.study.alias,
+                    include: "id,name",
                     limit: 5
                 };
                 let _this = this;
-                this.opencgaClient.clinical().search(params, {"method": "GET"})
+                this.opencgaClient.clinical().search(params, {})
                     .then(function(response){
                             if (response.response[0].numResults >= 1) {
                                 _this.recentAnalysis = response.response[0].result;
@@ -449,7 +456,7 @@
 
             selectAnalysisRecent(e){
                 let analysisName = e.target.value;
-                if(UtilsNew.isNotUndefinedOrNull(analysisName   )){
+                if(UtilsNew.isNotUndefinedOrNull(analysisName)){
                     let analysisSelected = this.recentAnalysis.find((analysis) => {
                         return analysis.name === analysisName;
                     });
