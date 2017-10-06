@@ -436,7 +436,7 @@ IndexedDBStore.prototype = {
                 dbConnection.close = true;
             };
             transaction.onerror = function (event) {
-                console.log("There was an error in the transaction put(" + key + ", ", value, ")");
+                console.log("There was an error in the transaction putAll(" + keyArray + ", ", valueArray, ")");
                 console.log(event);
             };
 
