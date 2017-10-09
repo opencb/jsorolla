@@ -164,7 +164,7 @@
             <template is="dom-if" if="{{activesTab.prioritizationTab}}">
                 <template is="dom-if" if="{{!activePrioritization}}">
                     <!--<div style="width: 60%; margin: auto">-->
-                    <div class="col-md-8 col-md-offset-2">
+                    <div class="col-md-offset-1 col-md-10 ">
                         <h3>Clinical Analysis</h3>
                         <div class="col-md-12" style="padding: 10px 15px">
 
@@ -249,7 +249,7 @@
 
             <template is="dom-if" if="{{activesTab.reportTab}}">
                 <template is="dom-if" if="{{!activeReport}}">
-                    <div class="col-md-8 col-md-offset-2">
+                    <div class="col-md-offset-1 col-md-10 ">
                         <div class="analysis-content" id="{{prefix}}ReportButtonDiv">
                             <h3>Clinical Interpretation</h3>
                                 <div class="col-md-12" style="padding: 10px 15px">
@@ -263,7 +263,7 @@
 
                                             <template is="dom-if" if="{{recentInterpretations}}">
                                                 <template is="dom-repeat" items="{{recentInterpretations}}" as="interpretation">
-                                                    <input id="{{prefix}}sampleRadio{{interpretation.id}}" type="radio" name="interpretationRecentRadioButtons"  value="{{interpretation.id}}"
+                                                    <input id="{{prefix}}sampleRadio{{interpretation.id}}" type="radio" name="interpretationRecentRadioButtons" value="{{interpretation.file.id}}"
                                                            class$="{{prefix}}FilterRadio" on-change="selectInterpretationRecent"
                                                            style="padding-left: 20px"> {{interpretation.name}}<br>
                                                 </template>
@@ -279,6 +279,13 @@
                                             </button>
                                         </div>
                                     </div>
+                                </div>
+                                <div class="col-md-12" style="padding: 10px 15px">
+                                    <clinical-interpretation-view id="id"  title="Interpretation View" interpretation-id={{interpretationId}} project="{{project}}"
+                                                                  study="{{study}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+                                                                  consequence-types="{{consequenceTypes}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                                  style="font-size: 12px">
+                                    </clinical-interpretation-view>
                                 </div>
                             </div>
                             <div style="width: 50%;padding-top: 20px">
@@ -448,12 +455,13 @@
                 if (e.currentTarget.id === this.prefix + "PrioritizationButton") {
                     this.set("activesTab.prioritizationTab", true);
                     this.activePrioritization = false;
-                    this.getRecentAnalysis()
+                    this.getRecentAnalysis();
                 }
 
                 if (e.currentTarget.id === this.prefix + "ReportButton") {
                     this.set("activesTab.reportTab", true);
                     this.activeReport = false;
+                    this.getRecentInterpretations();
 
                 }
             }
@@ -512,11 +520,16 @@
 
             getRecentInterpretations(){
                 //TODO Get interpretation from current analysis
-
+                this.recentInterpretations =  this.clinicalAnalysis.interpretations;
             }
 
             selectInterpretationRecent(e){
-                //TODO Get i
+                if (UtilsNew.isNotUndefinedOrNull(this.recentAnalysis)) {
+                    let interpretationId = e.target.value;
+                    if (UtilsNew.isNotUndefinedOrNull(interpretationId)) {
+                        this.interpretationId = interpretationId;
+                    }
+                }
             }
 
             onClickOkReport() {
