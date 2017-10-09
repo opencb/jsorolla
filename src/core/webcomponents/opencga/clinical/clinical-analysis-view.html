@@ -222,7 +222,8 @@
                     },
                     showSummary: {
                         type: Boolean,
-                        value: false
+                        value: false,
+                        notify: true
                     },
                     config: {
                         type: Object
@@ -268,6 +269,7 @@
                             if (response.response[0].numResults === 1) {
                                 _this.clinicalAnalysis = response.response[0].result[0];
                                 _this.showSummary = true;
+                                _this.title = _this.clinicalAnalysis.name + " Clinical Analysis Summary";
                             }
 
                         });

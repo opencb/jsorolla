@@ -198,7 +198,7 @@
                         <!-- Clinical Analysis View -->
                         <div class="col-md-12" style="padding: 10px 15px">
                             <clinical-analysis-view project="{{project}}" study="{{study}}" config="{{config}}" opencga-client="{{opencgaClient}}"
-                                                    clinical-analysis="{{clinicalAnalysis}}" clinical-analysis-id="{{clinicalAnalysisId}}" active-prioritization="{{activePrioritization}}">
+                                                    clinical-analysis="{{clinicalAnalysis}}" clinical-analysis-id="{{clinicalAnalysisId}}" show-summary="{{showSummary}}" active-prioritization="{{activePrioritization}}">
                             </clinical-analysis-view>
                         </div>
 
@@ -211,20 +211,22 @@
                             <br>
                             <span>Or a <span style="font-weight: bold">batch</span> algorithm that will be executed in the server:</span>
                             <br>
-                            <template is="dom-repeat" items="{{config.interpretation.algorithms}}" as="algorithm">
-                                <input id="{{algorithm}}Radio" type="radio" name="analysisRadioButtons" value="{{algorithm}}"
-                                       class$="{{prefix}}FilterRadio" on-change="selectAnalysisType"
-                                       style="padding-left: 20px"> {{algorithm}} (pending)<br>
-                            </template>
+                            <!--<template is="dom-repeat" items="{{config.interpretation.algorithms}}" as="algorithm">-->
+                                <!--<input id="{{algorithm}}Radio" type="radio" name="analysisRadioButtons" value="{{algorithm}}"-->
+                                       <!--class$="{{prefix}}FilterRadio" on-change="selectAnalysisType"-->
+                                       <!--style="padding-left: 20px"> {{algorithm}} (pending)<br>-->
+                            <!--</template>-->
                         </div>
                     </div>
 
-                    <div style="width: 50%;padding-top: 20px">
-                        <button type="button" class="btn btn-primary" style="float: right" on-click="onClickOkPrioritization">
-                            <!--<i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px"></i>-->
-                            OK
-                        </button>
-                    </div>
+                    <template is="dom-if" if="{{showSummary}}">
+                        <div style="width: 50%;padding-top: 20px">
+                            <button type="button" class="btn btn-primary" style="float: right" on-click="onClickOkPrioritization">
+                                <!--<i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px"></i>-->
+                                OK
+                            </button>
+                        </div>
+                    </template>
                 </template>
 
                 <template is="dom-if" if="{{activePrioritization}}">
