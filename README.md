@@ -2,7 +2,7 @@
 JSorolla is a JavaScript library for biological and genomic data visualization.
 
 ### Documentation
-You can find JSorolla documentation and tutorials at: https://github.com/opencb/jsorolla/wiki.
+You can find JSorolla documentation and tutorials at: http://docs.opencb.org/display/jsorolla/JSorolla+Home.
 
 ### Issue Tracking
 You can report bugs or request new features at [GitHub issue tracking](https://github.com/opencb/jsorolla/issues).
