@@ -255,7 +255,7 @@
                                 <div class="col-md-12" style="padding: 10px 15px">
 
                                     <div class="form-group col-md-12" id="{{prefix}}selectInterpretationType">
-                                        <span>Select Recent Analysis:</span>
+                                        <span>Select Recent Interpretation:</span>
                                         <div style="padding: 10px 20px">
                                             <template is="dom-if" if="{{!recentInterpretations}}">
                                                 <h2>No recent interpretation found</h2>
@@ -271,14 +271,14 @@
                                         </div>
                                     </div>
 
-                                    <div class="form-group col-md-12">
-                                        <div class="">
-                                            <span for="inputEmail3">Select analysis:</span>
-                                            <button id="inputEmail3" data-toggle="modal" role="button" data-placement="bottom" on-click="showClinicalSelector" class="btn btn-primary" style="display: inline">
-                                                Browse...
-                                            </button>
-                                        </div>
-                                    </div>
+                                    <!--<div class="form-group col-md-12">-->
+                                        <!--<div class="">-->
+                                            <!--<span for="inputEmail3">Select analysis:</span>-->
+                                            <!--<button id="inputEmail3" data-toggle="modal" role="button" data-placement="bottom" on-click="showClinicalSelector" class="btn btn-primary" style="display: inline">-->
+                                                <!--Browse...-->
+                                            <!--</button>-->
+                                        <!--</div>-->
+                                    <!--</div>-->
                                 </div>
                                 <div class="col-md-12" style="padding: 10px 15px">
                                     <clinical-interpretation-view id="id"  title="Interpretation View" interpretation-id={{interpretationId}} project="{{project}}"
@@ -287,12 +287,6 @@
                                                                   style="font-size: 12px">
                                     </clinical-interpretation-view>
                                 </div>
-                            </div>
-                            <div style="width: 50%;padding-top: 20px">
-                                <button type="button" class="btn btn-primary" style="float: right" on-click="onClickOkReport">
-                                    <!--<i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px"></i>-->
-                                    OK
-                                </button>
                             </div>
                         </div>
 
