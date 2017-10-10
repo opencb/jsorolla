@@ -140,7 +140,10 @@
                                                         <div class="form-group" style="margin: 0px 2px">
                                                             <label class="col-md-4">Pedigree:</label>
                                                             <span class="col-md-8">
-                                                            <img width="120px" src="https://openi.nlm.nih.gov/imgs/512/160/2743802/PMC2743802_mv-v15-1881-f1.png" style="padding: 10px 10px">
+                                                            <!--<img width="120px" src="https://openi.nlm.nih.gov/imgs/512/160/2743802/PMC2743802_mv-v15-1881-f1.png" style="padding: 10px 10px">-->
+                                                             <div class="col-md-12">
+                                                                 <div id="{{prefix}}PedigreeView"></div>
+                                                            </div>
                                                             <br>
                                                             <span>Click <a href="" style="font-weight: bold">here</a> for more info</span>
                                                         </span>
@@ -516,6 +519,7 @@
                 if(UtilsNew.isNotUndefinedOrNull(this.interpretation)){
                     PolymerUtils.show(this.prefix + "container-interpretation-view");
                     this.render();
+                    this.pedigreeRender();
 
                     let table = $('#' + this.prefix + 'mainTable');
                     let _this = this;
@@ -976,6 +980,45 @@
                         value: obj[key]
                     };
                 });
+            }
+
+
+            pedigreeRender() {
+                if (UtilsNew.isNotUndefinedOrNull(this.interpretation.clinicalAnalysis) && UtilsNew.isNotUndefinedOrNull(this.interpretation.clinicalAnalysis.family)) {
+                    if (UtilsNew.isNotUndefined(this.svg)) {
+                        PolymerUtils.getElementById(this.prefix + "PedigreeView").removeChild(this.svg);
+                    }
+                    let body = Object.assign({},this.interpretation.clinicalAnalysis.family);
+                    let membersNew =[];
+                    body.members.forEach((member) => {
+                        let newMember = Object.assign({},member);
+                        if (UtilsNew.isNotUndefinedOrNull(newMember.father) && UtilsNew.isNotUndefinedOrNull(newMember.father.id)) {
+                            let newFather = body.members.find((member) =>{
+                               return member.id === newMember.father.id;
+                            });
+                            if(UtilsNew.isNotUndefinedOrNull(newFather)){
+                                newMember.father = newFather.name;
+                            }
+                        }
+
+                        if (UtilsNew.isNotUndefinedOrNull(newMember.mother) && UtilsNew.isNotUndefinedOrNull(newMember.mother.id)) {
+                            let newMother = body.members.find((member) =>{
+                                return member.id === newMember.mother.id;
+                            });
+                            if(UtilsNew.isNotUndefinedOrNull(newMother)){
+                                newMember.mother = newMother.name;
+                            }
+                        }
+                        membersNew.push(newMember);
+                    });
+                    body.members = membersNew;
+
+                    // Render new Pedigree
+                    let querySelector = PolymerUtils.getElementById(this.prefix + "PedigreeView");
+                    let pedigree = new Pedigree(body, {selectShowSampleNames: true});
+                    this.svg = pedigree.pedigreeFromFamily(pedigree.pedigree);
+                    querySelector.appendChild(this.svg);
+                }
             }
 
 
