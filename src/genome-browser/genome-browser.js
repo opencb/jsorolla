@@ -43,7 +43,7 @@ class GenomeBrowser{
         this.navigationBarConfig = {};
         this.drawStatusBar = true;
         this.resizable = true;
-        this.sidePanel = true;//enable or disable sidePanel at construction
+        this.sidePanel = false;//enable or disable sidePanel at construction
         this.trackListTitle = "Detailed information";//enable or disable sidePanel at construction
         this.trackPanelScrollWidth = 18;
 
