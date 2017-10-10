@@ -159,6 +159,9 @@
 //                                    tracks.push(this._addAlignmentTrack(this.trackConfigs[this.tracks[i]]));
 //                                }
                             break;
+                        case 'template':
+                            _tracks.push(this._addTemplateTrack(track.config));
+                            break;
 //                            default:
 //                                tracks.push(this.addGenericTrack(this.trackConfigs[this.tracks[i]]));
 //                                break;
@@ -331,6 +334,47 @@
                     default:
                         return this.getAlignmentTrack(settings);
                 }
+            }
+
+            /* Building
+              example:
+                uriTemplate: "http://ws.babelomics.org/cellbase/webservices/rest/v4/hsapiens/genomic/region/13:32990000-32999999/snp?exclude={exclude}"
+                templateVariables: {exclude:'annotation.populationFrequencies,annotation.additionalAttributes,transcriptVariations,xrefs,samples'}
+             */
+            _addTemplateTrack(settings = {}) {
+
+                let uriTemplate = settings.uriTemplate;
+                let templateVariables = settings.templateVariables;
+                let title = settings.title;
+                let t = new FeatureTrack({
+                    title: title,
+                    closable: true,
+                    minHistogramRegionSize: 20000000,
+                    maxLabelRegionSize: 10000000,
+                    minTranscriptRegionSize: 200000,
+                    histogramColor: '#92de47',
+                    height: 100,
+                    renderer: new FeatureRenderer(FEATURE_TYPES.snp),
+                    dataAdapter: new FeatureTemplateAdapter({
+                        multiRegions: false,
+                        histogramMultiRegions: false,
+                        uriTemplate: uriTemplate,
+                        templateVariables: templateVariables,
+                        species: genomeBrowser.species,
+                        cacheConfig: {
+                            chunkSize: 100000
+                        },
+                        parse: function(response) {
+                            var chunks = [];
+                            for(var i = 0; i< response.response.length; i++){
+                                var res = response.response[i].result;
+                                chunks.push(res);
+                            }
+                            return chunks;
+                        }
+                    })
+                });
+                return(t);
             }
 
             _setRegion(region) {
