@@ -285,6 +285,7 @@
                                             <th>0/0</th>
                                             <th>0/1</th>
                                             <th>1/1</th>
+                                            <th>./.</th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -297,12 +298,12 @@
                                                            on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
                                                 <td><input type="checkbox" value="1/1" data-id$="{{sample.name}}"
                                                            on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
+                                                <td><input type="checkbox" value="./." data-id$="{{sample.name}}"
+                                                           on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
                                             </tr>
                                         </template>
                                         </tbody>
                                     </table>
-                                    <input type="checkbox" value="./." on-change="updateQueryFilters"
-                                           class$="genotypes {{prefix}}FilterCheckBox">&nbsp;Include missing
                                 </div>
                             </div>
                         </div>
