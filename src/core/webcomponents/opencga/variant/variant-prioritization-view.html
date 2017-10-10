@@ -70,7 +70,7 @@
                             <div class="btn-group" role="group" aria-label="..." style="padding: 10px 5px">
                                 <button id="{{prefix}}SaveInterpretationButton" type="button" class="btn btn-primary variant-prioritization-view-buttons"
                                         data-view="SaveInterpretation" on-click="_changeView" disabled>
-                                    <i class="fa fa-floppy-o" aria-hidden="true" style="padding-left: 5px;padding-right: 8px"></i>Save Interpretation
+                                    <i class="fa fa-floppy-o" aria-hidden="true" style="padding-left: 5px;padding-right: 8px"></i>Save Interpretation...
                                 </button>
                             </div>
                         </div>
@@ -183,6 +183,24 @@
 
                     <form id="{{prefix}}uploadForm" class="form-horizontal" data-toggle="validator" role="form">
                         <!-- GENERAL INFORMATION -->
+                        <!-- ID -->
+                        <div class="form-group has-feedback">
+                            <label for="{{prefix}}IDInterpretation" class="col-md-2 col-form-label">ID</label>
+                            <div class="col-md-8">
+                                <div class="input-group">
+                                    <input type="text" class$="form-control {{prefix}}TextInput codeDis"
+                                           id="{{prefix}}IDInterpretation" name="ID" placeholder="ID of this interpretation ..."
+                                           maxlength="50" required data-error="" pattern=".+" style="width: 240px">
+                                    <!--<span class="input-group-addon btn btn-primary" on-click="searchIndividual">-->
+                                    <!--<i class="fa fa-search" aria-hidden="true"></i>-->
+                                    <!--</span>-->
+                                </div>
+                                <span class="glyphicon form-control-feedback" aria-hidden="true" style="padding-right:60px; z-index:5"></span>
+                                <div class="help-block with-errors"></div>
+                            </div>
+                        </div>
+
+                        <!-- NAME -->
                         <div class="form-group has-feedback">
                             <label for="{{prefix}}NameInterpretation" class="col-md-2 col-form-label">Name</label>
                             <div class="col-md-8">
@@ -456,7 +474,8 @@
             _createInterpretation() {
                 let userID = Cookies.get(this.configOpencga.cookie.prefix + "_userId");
                 let interpretation = {};
-                interpretation.name = PolymerUtils.getValue(this.prefix + "NameInterpretation")
+                interpretation.id = this.clinicalAnalysis.id + "_" + PolymerUtils.getValue(this.prefix + "IDInterpretation");
+                interpretation.name = PolymerUtils.getValue(this.prefix + "NameInterpretation");
                 interpretation.description =  PolymerUtils.getValue(this.prefix + "DescriptionInterpretation");
                 interpretation.clinicalAnalysis = this.clinicalAnalysis;
                 interpretation.software = {
@@ -497,6 +516,16 @@
                     .then((response) => {
                         console.log(response);
                     // TODO We should update here clinicalAnalysis and add to interpretation list this file with its name from save interpertation form.
+                        if (UtilsNew.isNotUndefinedOrNull(interpretation) && UtilsNew.isNotUndefinedOrNull(interpretation.clinicalAnalysis)) {
+                            if (UtilsNew.isEmptyArray(interpretation.clinicalAnalysis.interpretations)) {
+                                interpretation.clinicalAnalysis.interpretations = [];
+                            }
+                            interpretation.clinicalAnalysis.interpretations.push({id: interpretation.id, name: interpretation.id, file: response.response[0].result[0].id});
+                        }
+                        this.opencgaClient.clinical().update(interpretation.clinicalAnalysis.id, params, {interpretations : interpretation.clinicalAnalysis.interpretations})
+                            .then((response) => {
+                                console.log(response);
+                            });
                     });
 
             }
