@@ -550,7 +550,7 @@
             isCheckedDefaultAnalysis(currentIndex, clinicalAnalysisId){
 //                let currrentIndex = e.target.getAttribute("data-index");
                 if (UtilsNew.isUndefinedOrNull(this.clinicalAnalysisId) && currentIndex === 0) {
-                    this.clinicalAnalysisId = analysisId;
+                    this.clinicalAnalysisId = clinicalAnalysisId;
                     return true;
                 } else if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysisId) && this.clinicalAnalysisId === clinicalAnalysisId){
                     return true;
