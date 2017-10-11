@@ -1052,12 +1052,14 @@
 
                     let hpoNames = formFields.HPO;
                     if (hpoNames !== "") {
-                        this.selectedTermsHPO.forEach((hpoTerm) => {
-//                            let groupsHpo = regexHPO.exec(hpoTerm);
-//                            if(UtilsNew.isNotUndefinedOrNull(groupsHpo) && groupsHpo.length > 0){
-                                listOntologyTerms.push({id: hpoTerm.obo_id, name: hpoTerm.label, source:"HPO"});
-//                            }
-                        });
+                        listOntologyTerms.push({id: Utils.randomString(6), name: hpoNames, source:"HPO"});
+
+//                        this.selectedTermsHPO.forEach((hpoTerm) => {
+////                            let groupsHpo = regexHPO.exec(hpoTerm);
+////                            if(UtilsNew.isNotUndefinedOrNull(groupsHpo) && groupsHpo.length > 0){
+//                                listOntologyTerms.push({id: hpoTerm.obo_id, name: hpoTerm.label, source:"HPO"});
+////                            }
+//                        });
                     }
 
 
