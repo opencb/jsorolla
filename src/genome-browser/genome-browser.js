@@ -1,5 +1,7 @@
-class GenomeBrowser{
-    constructor(args){
+
+class GenomeBrowser {
+
+    constructor(args) {
         Object.assign(this, Backbone.Events);
 
         let _this = this;
@@ -141,7 +143,7 @@ class GenomeBrowser{
             this.navigationBar = this._createNavigationBar(this.navigationbarDiv);
         }
 
-        /*karyotype Panel*/
+        /* karyotype Panel */
         if (this.drawKaryotypePanel) {
             this.karyotypePanel = this._drawKaryotypePanel(this.karyotypeDiv);
         }
@@ -178,14 +180,14 @@ class GenomeBrowser{
 
         $("html").bind("keydown.genomeViewer", function (e) {
             switch (e.keyCode) {
-                case 40://down arrow
-                case 109://minus key
+                case 40:    // down arrow
+                case 109:   // minus key
                     if (e.shiftKey) {
                         _this.increaseZoom(-10);
                     }
                     break;
-                case 38://up arrow
-                case 107://plus key
+                case 38:    // up arrow
+                case 107:   // plus key
                     if (e.shiftKey) {
                         _this.increaseZoom(10);
                     }
