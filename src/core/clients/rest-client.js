@@ -67,7 +67,6 @@ class RestClient {
 
         // Creating the promise
         return new Promise(function(resolve, reject) {
-
             let request = new XMLHttpRequest();
 
             request.onload = function(event) {
@@ -82,13 +81,11 @@ class RestClient {
                         }
 
                         // If the call is OK then we execute the success function from the user
-                        // console.log(options)
                         if (typeof options !== "undefined" && typeof options.success === "function"
                             && typeof options.cacheFn === "undefined") {
                             options.success(dataResponse);
                         }
                         console.timeEnd(`REST call to ${url}`);
-                        console.log("REST call query: ", options, `, Size: ${event.total} Bytes`);
                         resolve(dataResponse);
                     } else if (contentType.startsWith("text/plain")) {
                         resolve(this.response);
@@ -103,7 +100,6 @@ class RestClient {
             };
 
             request.onerror = function(event) {
-                // console.log(event)
                 console.error(`CellBaseClient: an error occurred when calling to '${url}'`);
                 if (typeof options.error === "function") {
                     options.error(this);

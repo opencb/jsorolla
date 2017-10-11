@@ -241,7 +241,7 @@ class OpenCGAParentClass {
                     _options["post-method"] = "form";
                 }
             }
-            console.log(`OpenCGA client calling to ${url}`);
+            // console.log(`OpenCGA client calling to ${url}`);
             // if the URL query fails we try with next host
             return RestClient.callPromise(url, _options);
         }
