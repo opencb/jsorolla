@@ -140,11 +140,17 @@
                                 _this.numTotalResults = 0;
                             }
                             if (_this.numTotalResults !== response.response[0].numTotalResults
-                                && response.response[0].numTotalResults > response.queryOptions.limit) {
+                                && response.queryOptions.skip === 0) {
                                 _this.numTotalResults = response.response[0].numTotalResults;
                             }
 
                             _this.numTotalResultsText = _this.numTotalResults.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+                            if(response.queryOptions.skip === 0 && _this.numTotalResults < response.queryOptions.limit){
+                                _this.from = 1;
+                                _this.to = _this.numTotalResults;
+                            }
+
                             return {
                                 total: _this.numTotalResults,
                                 rows: response.response[0].result
@@ -406,7 +412,7 @@
                             field: 'name'
                         },
                         {
-                            title: 'Patient ID',
+                            title: 'Individual ID',
                             field: 'individual.id',
                             formatter: this.individualFormatter
                         },

@@ -64,9 +64,9 @@
         </style>
 
         <br>
-        <div id="{{prefix}}reportDiv" class="panel panel-default" style="overflow-y: auto; height:550px;">
+        <div id="{{prefix}}reportDiv" class="panel panel-default" >
             <div class="panel-body">
-                <h2 style="margin: 10px 5px 15px 25px">{{title}} Report</h2>
+                <h2 style="margin: 10px 5px 15px 25px">{{title}}</h2>
                 <div style="float: right; padding: 0px 0px 10px 5px">
                     <span>{{requestDate}}</span>
                 </div>
@@ -83,7 +83,7 @@
                             <span class$=" {{prefix}}TextInput" id="{{prefix}}analysisID"
                                       name="analysis"></span>
                         </div>
-                        <div class="row" id="{{prefix}}analysisInformationResume">
+                        <div class="row" id="{{prefix}}analysisInformationResume" hidden>
 
                             <content class="col-xs-5">
                                 <label for="{{prefix}}analysisType" class="col-form-label">Analysis Type:</label>
@@ -206,38 +206,39 @@
                                     </td>
                              </tr>
 
-
-
-<!--    hola que aseeeeeeeeeeeeeeeeeeeeeeeeeeee-->
-                            <!-- Sample information related to variable set -->
+                                <!-- Sample information related to variable set -->
                                 <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}" as="variable"
                                           sort="_sortVariables">
 
                                         <template is="dom-if" if="{{checkSubType(variable, 'TEXT')}}">
-                                            <tr>
-                                                <td colspan="2">
-                                                <label for="{{prefix}}{{variable.name}}" class="col-xs-2 col-form-label">{{variable.title}}</label>
-                                                </td>
-                                            </tr>
-                                            <tr class="row" id="{{prefix}}{{variable.name}}Div">
-                                                <td class="col-xs-6">
-                                                    <textarea class$="form-control {{prefix}}TextInput"
-                                                              id="{{prefix}}{{variable.name}}" name="{{variable.name}}" disabled
-                                                              value="" style="resize:none" rows="3"></textarea>
-                                                </td>
-                                            </tr>
+                                                <tr id="{{prefix}}{{variable.name}}Div">
+                                                    <td colspan="2">
+                                                        <label for="{{prefix}}{{variable.name}}Value" class="col-xs-2 col-form-label">{{variable.title}}:</label>
+                                                        <textarea class$="form-control {{prefix}}TextInput"
+                                                                  id="{{prefix}}{{variable.name}}Value" name="{{variable.name}}" disabled
+                                                                  style="resize:none" rows="3">{{getValueVariableSet(variable.name)}}</textarea>
+                                                    </td>
+                                                </tr>
+                                            <!--<tr class="row" id="{{prefix}}{{variable.name}}Div">-->
+                                                <!--<td class="col-xs-6">-->
+                                                    <!---->
+                                                <!--</td>-->
+                                            <!--</tr>-->
                                         </template>
                                         <template is="dom-if" if="{{!checkSubType(variable, 'TEXT')}}">
-                                            <tr class="row col-xs-5 col-sm-5 col-md-5" id="{{prefix}}{{variable.name}}Div">
-                                                <label for="{{prefix}}{{variable.name}}" class="col-form-label">{{variable.title}}</label>
-                                                <span class$="col-form-control {{prefix}}TextInput"
-                                                       id="{{prefix}}{{variable.name}}" name="{{variable.name}}"></span>
+                                            <tr>
+                                                <td colspan="2" id="{{prefix}}{{variable.name}}Div" class="col-xs-5 col-sm-5 col-md-5">
+                                                    <label for="{{prefix}}{{variable.name}}Value" class="col-form-label">{{variable.title}}:</label>
+                                                    <span class$="col-form-control {{prefix}}TextInput" id="{{prefix}}{{variable.name}}Value"
+                                                            name="{{variable.name}}">{{getValueVariableSet(variable.name)}}</span>
+                                                </td>
                                             </tr>
                                         </template>
                                 </template>
                             </table>
+
                         <div style="margin: 15px 5px 15px 0px" class="sample-information col-sm-12"
-                         id="{{prefix}}analysisInformationFamilyDiv">
+                         id="{{prefix}}analysisInformationFamilyDiv" hidden>
                             <h4> Family </h4>
                             <div style="margin: 10px 0px 15px 5px" class="analysis-information col-sm-10">
                                 <div>
@@ -248,10 +249,10 @@
                     </div>
                 </div>
                 <div style="margin: 0px 5px 15px 50px" class="prioritization-information col-sm-12"
-                     id="{{prefix}}prioritizationInformationDiv" >
+                     id="{{prefix}}prioritizationInformationDiv" hidden>
                     <h3>Prioritization Information</h3>
                     <hr>
-                    <div class="prioritization-summary col-sm-10" id="{{prefix}}variantsTableDiv" hidden>
+                    <div class="prioritization-summary col-sm-10" id="{{prefix}}variantsTableDiv" >
                         <h4>Variants table</h4>
                         <table id="variantTable" class="table hover" style="border: 1px solid #dadada;
                         border-collapse: collapse;">
@@ -308,7 +309,7 @@
                         </div>
                     </div>
 
-                    <div class="prioritization-summary col-sm-12" id="{{prefix}}filterResumeDiv">
+                    <div class="prioritization-summary col-sm-12" id="{{prefix}}filterResumeDiv" hidden>
                         <h4>Filter resume</h4>
                         <template is="dom-if" if="{{filters}}">
                             For this analysis, the following filters were applied for prioritization:
@@ -423,89 +424,85 @@
             loadData() {
                 // Load data into report
 
-                // Remove content of all elements here before rendering -> TO BE DONE
+                if(UtilsNew.isNotUndefined(this.selection && this.selection.analysisSelected)){
+                    if (UtilsNew.isNotUndefined(this.interpretation.clinicalAnalysis) ) {
+                        // Analysis ID and analysis resume
+                        PolymerUtils.setPropertyById(this.prefix + "analysisID", "innerText", this.interpretation.clinicalAnalysis.id);
+                        PolymerUtils.setPropertyById(this.prefix + "analysisType", "innerText", this.interpretation.clinicalAnalysis.type);
+                        PolymerUtils.setPropertyById(this.prefix + "date", "innerText",this.interpretation.clinicalAnalysis.creationDate);
+                        this.analysisID = this.interpretation.clinicalAnalysis.id;
+    //                    // Sample Information
+                        PolymerUtils.setPropertyById(this.prefix + "IndividualID", "innerText", this.interpretation.clinicalAnalysis.subjects[0].name);
+                        PolymerUtils.setPropertyById(this.prefix + "AffectationStatus", "innerText",  this.interpretation.clinicalAnalysis.subjects[0].affectationStatus);
+                        PolymerUtils.setPropertyById(this.prefix + "BirthYear", "innerText",  this.interpretation.clinicalAnalysis.subjects[0].dateOfBirth);
+                        PolymerUtils.setPropertyById(this.prefix + "Ethnicity", "innerText", this.interpretation.clinicalAnalysis.subjects[0].ethnicity);
+                        PolymerUtils.setPropertyById(this.prefix + "ChromosomalGender", "innerText",  this.interpretation.clinicalAnalysis.subjects[0].karyotypicSex);
+                        PolymerUtils.setPropertyById(this.prefix + "lifeStatus", "innerText",  this.interpretation.clinicalAnalysis.subjects[0].lifeStatus);
+                        PolymerUtils.setPropertyById(this.prefix + "ParentalConsanguinity", "innerText",  this.interpretation.clinicalAnalysis.subjects[0].parentalConsanguinity);
+                        PolymerUtils.setPropertyById(this.prefix + "birthPlace", "innerText", this.interpretation.clinicalAnalysis.subjects[0].population.name);
+                        PolymerUtils.setPropertyById(this.prefix + "SampleID", "innerText",  this.interpretation.clinicalAnalysis.subjects[0].samples[0].name);
+    //
 
-                if (UtilsNew.isNotUndefined(this.interpretation.clinicalAnalysis)) {
-                    // Analysis ID and analysis resume
-                    PolymerUtils.setPropertyById(this.prefix + "analysisID", "innerText", this.interpretation.clinicalAnalysis.id);
-                    PolymerUtils.setPropertyById(this.prefix + "analysisType", "innerText", this.interpretation.clinicalAnalysis.type);
-                    PolymerUtils.setPropertyById(this.prefix + "date", "innerText",this.interpretation.clinicalAnalysis.creationDate);
-                    this.analysisID = this.interpretation.clinicalAnalysis.id;
-//                    // Sample Information
-                    PolymerUtils.setPropertyById(this.prefix + "IndividualID", "innerText", this.interpretation.clinicalAnalysis.subjects[0].name);
-                    PolymerUtils.setPropertyById(this.prefix + "AffectationStatus", "innerText",  this.interpretation.clinicalAnalysis.subjects[0].affectationStatus);
-                    PolymerUtils.setPropertyById(this.prefix + "BirthYear", "innerText",  this.interpretation.clinicalAnalysis.subjects[0].dateOfBirth);
-                    PolymerUtils.setPropertyById(this.prefix + "Ethnicity", "innerText", this.interpretation.clinicalAnalysis.subjects[0].ethnicity);
-                    PolymerUtils.setPropertyById(this.prefix + "ChromosomalGender", "innerText",  this.interpretation.clinicalAnalysis.subjects[0].karyotypicSex);
-                    PolymerUtils.setPropertyById(this.prefix + "lifeStatus", "innerText",  this.interpretation.clinicalAnalysis.subjects[0].lifeStatus);
-                    PolymerUtils.setPropertyById(this.prefix + "ParentalConsanguinity", "innerText",  this.interpretation.clinicalAnalysis.subjects[0].parentalConsanguinity);
-                    PolymerUtils.setPropertyById(this.prefix + "birthPlace", "innerText", this.interpretation.clinicalAnalysis.subjects[0].population.name);
-                    PolymerUtils.setPropertyById(this.prefix + "SampleID", "innerText",  this.interpretation.clinicalAnalysis.subjects[0].samples[0].name);
-//
-
-                    let HPODiseases = this.interpretation.clinicalAnalysis.subjects[0].ontologyTerms.filter((hpo) =>{
-                            return hpo.source === "HPO";
-                          }).map((hpo) => hpo.name).join(",");
-                    PolymerUtils.innerHTML(this.prefix + "HPO",  HPODiseases);
-                    let ICD10Diseases = this.interpretation.clinicalAnalysis.subjects[0].ontologyTerms.filter((icd) =>{
-                            return icd.source === "ICD10";
-                    }).map((icd) => icd.name).join(",");
-                    PolymerUtils.innerHTML(this.prefix + "Diagnosis",  ICD10Diseases);
-//
-                    PolymerUtils.setPropertyById(this.prefix + "cellLine", "innerText", this.interpretation.clinicalAnalysis.subjects[0].samples[0].somatic);
-                    PolymerUtils.setPropertyById(this.prefix + "sampleType", "innerText", this.interpretation.clinicalAnalysis.subjects[0].samples[0].type);
-
+                        let HPODiseases = this.interpretation.clinicalAnalysis.subjects[0].ontologyTerms.filter((hpo) =>{
+                                return hpo.source === "HPO";
+                              }).map((hpo) => hpo.name).join(",");
+                        PolymerUtils.innerHTML(this.prefix + "HPO",  HPODiseases);
+                        let ICD10Diseases = this.interpretation.clinicalAnalysis.subjects[0].ontologyTerms.filter((icd) =>{
+                                return icd.source === "ICD10";
+                        }).map((icd) => icd.name).join(",");
+                        PolymerUtils.innerHTML(this.prefix + "Diagnosis",  ICD10Diseases);
+    //
+                        PolymerUtils.setPropertyById(this.prefix + "cellLine", "innerText", this.interpretation.clinicalAnalysis.subjects[0].samples[0].somatic);
+                        PolymerUtils.setPropertyById(this.prefix + "sampleType", "innerText", this.interpretation.clinicalAnalysis.subjects[0].samples[0].type);
 
 
-                    // Family information (pedigree) -> Only for FAMILY, TRIO or DUO
-                    if (this.interpretation.clinicalAnalysis.type === "TRIO" || this.interpretation.clinicalAnalysis.type=== "DUO" || this.interpretation.clinicalAnalysis.type === "FAMILY") {
-                        let querySelector = PolymerUtils.getElementById(this.prefix + "PedigreeView");
-                        if (querySelector.hasChildNodes()) {
-                            let item = querySelector.childNodes[0];
-                            querySelector.removeChild(item);
+
+                        // Family information (pedigree) -> Only for FAMILY, TRIO or DUO
+    //                    if (this.interpretation.clinicalAnalysis.type === "TRIO" || this.interpretation.clinicalAnalysis.type=== "DUO" || this.interpretation.clinicalAnalysis.type === "FAMILY") {
+    //                        let querySelector = PolymerUtils.getElementById(this.prefix + "PedigreeView");
+    //                        if (querySelector.hasChildNodes()) {
+    //                            let item = querySelector.childNodes[0];
+    //                            querySelector.removeChild(item);
+    //                        }
+    //
+    //                        querySelector.appendChild(this.pedigreeRender(this.interpretation.clinicalAnalysis.family));
+    //                    }
+                        // Prioritization information (variants)
+                        if (UtilsNew.isNotUndefined(this.interpretation.reportedVariants)){
+                            this.loadVariantTable(this.interpretation.reportedVariants);
                         }
 
-                        querySelector.appendChild(this.pedigreeRender(this.interpretation.clinicalAnalysis.family));
+    //                    let _prioritization = this.interpretation.clinicalAnalysis.family.children[0].samples[0].attributes.PRIORITIZATION;
+                        let _dataTable = [];
+                        let _query = undefined;
+                        if (UtilsNew.isNotUndefined(this.interpretation)) {
+                            _dataTable = this.interpretation.reportedVariants;
+                            _query = this.interpretation.filters;
+                        }
+
+                        let _this = this;
+                        $(PolymerUtils.getElementById(this.prefix + "variantTable")).bootstrapTable('destroy');
+                        $(PolymerUtils.getElementById(this.prefix + "variantTable")).bootstrapTable({
+                            columns: _this._getTableColumns(),
+                            data: _dataTable
+                        });
+
+                        // Filter information
+                        if (UtilsNew.isNotUndefined(_query)) {
+                            let _filters = $.map(_query, function (value, key) {
+                                if (value !== "") {
+                                    return [{id: key, value: value}];
+                                }
+                            });
+                            this.filterPrioritization = _filters;
+                            this.filters = true;
+                        } else {
+                            this.filterPrioritization = "No filters were selected";
+                            this.filters = false;
+                        }
+
                     }
-                    // Prioritization information (variants)
-                    if (UtilsNew.isNotUndefined(this.interpretation.reportedVariants)){
-                        this.loadVariantTable(this.interpretation.reportedVariants);
-                    }
-
-//                    let _prioritization = this.analysisSelected.analysis.family.children[0].samples[0].attributes.PRIORITIZATION;
-//                    let _dataTable = [];
-//                    let _query = undefined;
-//                    if (UtilsNew.isNotUndefined(_prioritization)) {
-//                        _dataTable = this._getVariantsInfo(_prioritization.variants);
-//                        _query = _prioritization.query;
-//                    }
-//
-//                    let _this = this;
-//                    $(PolymerUtils.getElementById(this.prefix + "variantTable")).bootstrapTable('destroy');
-//                    $(PolymerUtils.getElementById(this.prefix + "variantTable")).bootstrapTable({
-//                        columns: _this._getTableColumns(),
-//                        data: _dataTable
-//                    });
-//
-//                    // Filter information
-//                    if (UtilsNew.isNotUndefined(_query)) {
-//                        let _filters = $.map(_query, function (value, key) {
-//                            if (value !== "") {
-//                                return [{id: key, value: value}];
-//                            }
-//                        });
-//                        this.filterPrioritization = _filters;
-//                        this.filters = true;
-//                    } else {
-//                        this.filterPrioritization = "No filters were selected";
-//                        this.filters = false;
-//                    }
-
-
-                    // Show divs
-                    PolymerUtils.removeAttribute(this.prefix + "analysisInformationDiv", "hidden")
-                    PolymerUtils.removeAttribute(this.prefix + "sampleInformationDiv", "hidden")
-                    PolymerUtils.removeAttribute(this.prefix + "analysisInformationID", "hidden")
+                    this.showSelection();
                 }
             }
             loadVariantTable(data){
@@ -528,37 +525,52 @@
             }
 
             loadVariableSet(){
+                this.variableSetMap = {};
                 let _this = this;
-//                    PolymerUtils.innerHTML(this.prefix + "technicalData", this.analysisSelected.analysis.proband.samples[0].annotationSets[0].annotations[4].value);
                 this.interpretation.clinicalAnalysis.subjects[0].samples[0].annotationSets[0].annotations.forEach((annotation) => {
-                    PolymerUtils.setValue(_this.prefix + annotation.name, annotation.value);
+                    _this.variableSetMap[annotation.name] = annotation.value;
                 });
+            }
+
+            getValueVariableSet(key){
+                return this.variableSetMap[key];
             }
 
             showSelection() {
                 // Analysis ID
-                if (UtilsNew.isNotUndefined(this.analysisSelected)) {
-                    PolymerUtils.removeAttribute(this.prefix + "sampleInformationDiv", "hidden")
+                if (UtilsNew.isNotUndefined(this.selection && this.selection.analysisSelected)) {
+                    PolymerUtils.removeAttribute(this.prefix + "sampleInformationDiv", "hidden");
+                    PolymerUtils.removeAttribute(this.prefix + "analysisInformationID", "hidden");
+                    PolymerUtils.removeAttribute(this.prefix + "analysisInformationDiv", "hidden")
                 }
+
+                // Family information (pedigree) -> Only for FAMILY, TRIO or DUO
+                if (UtilsNew.isNotUndefined(this.selection && this.selection.pedigree)) {
+                    PolymerUtils.setPropertyById(this.prefix + "analysisInformationFamilyDiv", "hidden", !this.selection.pedigree);
+                }
+//
 
                 // Analysis resume
                 if (UtilsNew.isNotUndefined(this.selection.analysisResume)) {
                     PolymerUtils.setPropertyById(this.prefix + "analysisInformationResume", "hidden", !this.selection.analysisResume)
-
                 }
-
-                // Sample Information
+//
+//                // Sample Information
                 if (UtilsNew.isNotUndefined(this.selection.sampleInfo)) {
                     for (let i = 0; i < this.selection.sampleInfo.length; i++) {
-                        //this.$$("#" + this.prefix + this.selection.sampleInfo[i].name + "Div").hidden = !this.selection.sampleInfo[i].value;
-                        PolymerUtils.setPropertyById(this.prefix + this.selection.sampleInfo[i].name + "Div", "hidden", !this.selection.sampleInfo[i].value);
+                        if (this.selection.sampleInfo[i].value) {
+                            PolymerUtils.show(this.prefix + this.selection.sampleInfo[i].name + "Div");
+                        } else {
+                            PolymerUtils.hide(this.prefix + this.selection.sampleInfo[i].name + "Div");
+                        }
                     }
                 }
 
-                // Family information (pedigree) -> Only for FAMILY, TRIO or DUO
-                if (this.analysisSelected.analysisType === "TRIO" || this.analysisSelected.analysisType === "DUO" || this.analysisSelected.analysisType === "FAMILY") {
-                    PolymerUtils.setPropertyById(this.prefix + "analysisInformationFamilyDiv", "hidden", !this.selection.pedigree);
+                // Editable conclusions
+                if (UtilsNew.isNotUndefined(this.selection.conclusions)) {
+                    PolymerUtils.setPropertyById(this.prefix + "conclusionsDiv", "hidden", !this.selection.conclusions);
                 }
+//
 
                 // Prioritization Information
                 if (UtilsNew.isNotUndefined(this.selection.prioritizationInfo)) {
@@ -583,11 +595,7 @@
                     }
                 }
 
-                // Editable conclusions
-                if (UtilsNew.isNotUndefined(this.selection.conclusions)) {
-                    PolymerUtils.setPropertyById(this.prefix + "conclusionsDiv", "hidden", !this.selection.conclusions);
 
-                }
             }
 
             print(data) {
@@ -678,15 +686,76 @@
 
             }
 
+
             pedigreeRender(body) {
-                // Remove SVG before render new one
+                if (UtilsNew.isNotUndefinedOrNull(this.interpretation.clinicalAnalysis) && UtilsNew.isNotUndefinedOrNull(this.interpretation.clinicalAnalysis.family)) {
+                    if (UtilsNew.isNotUndefined(this.svg)) {
+                        PolymerUtils.getElementById(this.prefix + "PedigreeView").removeChild(this.svg);
+                    }
+                    let body = Object.assign({},this.interpretation.clinicalAnalysis.family);
+                    let membersNew =[];
+                    body.members.forEach((member) => {
+                        let newMember = Object.assign({},member);
+                        if (UtilsNew.isNotUndefinedOrNull(newMember.father) && UtilsNew.isNotUndefinedOrNull(newMember.father.id)) {
+                            let newFather = body.members.find((member) =>{
+                                return member.id === newMember.father.id;
+                            });
+                            if(UtilsNew.isNotUndefinedOrNull(newFather)){
+                                newMember.father = newFather.name;
+                            }
+                        }
 
+                        if (UtilsNew.isNotUndefinedOrNull(newMember.mother) && UtilsNew.isNotUndefinedOrNull(newMember.mother.id)) {
+                            let newMother = body.members.find((member) =>{
+                                return member.id === newMember.mother.id;
+                            });
+                            if(UtilsNew.isNotUndefinedOrNull(newMother)){
+                                newMember.mother = newMother.name;
+                            }
+                        }
+                        membersNew.push(newMember);
+                    });
+                    body.members = membersNew;
 
-                // Render new Pedigree
-                let pedigree = new Pedigree(body);
-                this.svg = pedigree.render();
-                return this.svg;
+                    // Render new Pedigree
+                    let pedigree = new Pedigree(body, {selectShowSampleNames: true});
+                    this.svg = pedigree.pedigreeFromFamily(pedigree.pedigree, {
+                        width: 200,
+                        height: 180
+                    });
+                    return this.svg;
+                }
             }
+
+
+            _getTableColumns() {
+                this._columns = [
+                    [
+                        {
+                            title: 'Variant',
+                            field: 'variant'
+                        },
+                        {
+                            title: 'SNP Id',
+                            field: 'id'
+                        },
+                        {
+                            title: 'Genes',
+                            field: 'genes'
+                        },
+                        {
+                            title: 'Type',
+                            field: 'type'
+                        },
+                        {
+                            title: 'Consequence Type',
+                            field: 'consequenceType'
+                        }
+                    ]
+                ];
+                return this._columns;
+            }
+
 
         }
 

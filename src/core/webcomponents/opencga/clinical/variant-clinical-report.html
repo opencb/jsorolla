@@ -24,14 +24,12 @@
         <div class="col-md-2">
             <variant-report-filter opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}"
                                    selection="{{selection}}" exp-report="{{expReport}}" variables="{{variables}}"
-                                   analysis="{{analysis}}"
-                                   analysis-selected="{{analysisSelected}}"></variant-report-filter>
+                                   analysis-selected="{{analysis}}"></variant-report-filter>
         </div>
         <div class="col-md-10">
-            <variant-report-view opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}"
-                                 selection="{{selection}}" title="{{title}}" exp-report="{{expReport}}"
-                                 variables="{{variables}}"
-                                 analysis-selected="{{analysisSelected}}"></variant-report-view>
+            <variant-report-view study="{{study}}" config="{{config.tools.clinical}}"
+                                 title="{{title}}" variables="{{variables}}" selection="{{selection}}"
+                                 interpretation="{{interpretation}}" exp-report="{{expReport}}"></variant-report-view>
         </div>
     </template>
 
@@ -63,9 +61,12 @@
                         type: Boolean
                     },
                     analysis: {
-                        type: Array
+                        type: Object
                     },
-                    analysisSelected: {
+                    variables: {
+                        type: Object
+                    },
+                    interpretation: {
                         type: Object
                     }
 

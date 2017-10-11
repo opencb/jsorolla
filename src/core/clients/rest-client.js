@@ -90,6 +90,9 @@ class RestClient {
                         console.timeEnd(`REST call to ${url}`);
                         console.log("REST call query: ", options, `, Size: ${event.total} Bytes`);
                         resolve(dataResponse);
+                    } else if (contentType.startsWith("text/plain")) {
+                        resolve(this.response);
+
                     } else {
                         console.log(`Result is not JSON: ${this.response}`);
                     }

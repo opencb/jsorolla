@@ -2,7 +2,7 @@
 JSorolla is a JavaScript library for biological and genomic data visualization.
 
 ### Documentation
-You can find JSorolla documentation and tutorials at: https://github.com/opencb/jsorolla/wiki.
+You can find JSorolla documentation and tutorials at: http://docs.opencb.org/display/jsorolla/JSorolla+Home.
 
 ### Issue Tracking
 You can report bugs or request new features at [GitHub issue tracking](https://github.com/opencb/jsorolla/issues).
@@ -19,7 +19,7 @@ JSorolla is versioned following the rules from [Semantic versioning](http://semv
 The main developers and maintainers are:
 * Ignacio Medina (im411@cam.ac.uk) (_Founder and Project Leader_)
 * Susi Gallego (sgaort@gmail.com)
-* Alexis Martinez (alexismartinezchacon@gmail.com)
+* Alexis Martínez (alexis.martinez@juntadeandalucia.es)
 
 ##### Former Contributors
 * Francisco Salavert (fsalavert@cipf.es)

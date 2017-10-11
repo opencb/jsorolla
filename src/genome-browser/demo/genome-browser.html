@@ -114,9 +114,7 @@
             target: 'application',
             width: document.querySelector('#application').getBoundingClientRect().width,
             region: region,
-            availableSpecies: AVAILABLE_SPECIES,
             species: species,
-            sidePanel: false,
             autoRender: true,
             resizable: true,
             karyotypePanelConfig: {
@@ -127,10 +125,10 @@
                 collapsed: false,
                 collapsible: true
             },
-            navigationBarConfig: {
-                componentsConfig: {
-                }
-            },
+//            navigationBarConfig: {
+//                componentsConfig: {
+//                }
+//            },
             handlers: {
                 'region:change': function(e) {
                     console.log(e)

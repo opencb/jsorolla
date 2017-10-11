@@ -317,8 +317,13 @@ class Pedigree {
             if(typeof member.ontologyTerms !== "undefined" && member.ontologyTerms.length > 0) {
                 newMember.diseases = member.ontologyTerms.map((disease) => {return disease.id});
             }
-            newMember.father = member.father;
-            newMember.mother = member.mother;
+            if(UtilsNew.isNotUndefinedOrNull(member.father) && UtilsNew.isUndefinedOrNull(member.father.id)) {
+
+                newMember.father = member.father;
+            }
+            if(UtilsNew.isNotUndefinedOrNull(member.mother) && UtilsNew.isUndefinedOrNull(member.mother.id)) {
+                newMember.mother = member.mother;
+            }
             newMember.sex = member.sex;
             newMember.lifeStatus = member.lifeStatus;
             newMember.parentalConsanguinity = member.parentalConsanguinity;
@@ -334,9 +339,9 @@ class Pedigree {
         this.pedigree = pedigreFromFamily;
     }
 
-    pedigreeFromFamily(family){
+    pedigreeFromFamily(family, settings = null){
         this.parseFamilyToPedigree(family);
-        return this.render();
+        return this.render(settings);
     }
 
 }

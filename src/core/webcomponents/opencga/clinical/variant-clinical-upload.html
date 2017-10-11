@@ -178,11 +178,11 @@
                             <div class="input-group">
                                 <textarea class$="form-control {{prefix}}TextInput codeDis" id="{{prefix}}HPO"
                                           name="HPO"
-                                          placeholder="HP:0000947" data-error="An HPO term must be selected" readonly rows="2"
+                                          placeholder="HP:0000947" data-error="An HPO term must be selected" rows="2"
                                           style="resize:none"></textarea>
-                                <span class="input-group-addon btn btn-primary "on-click="openModalHpo">
-                                    <i class="fa fa-search" aria-hidden="true"></i>
-                                </span>
+                                <!--<span class="input-group-addon btn btn-primary "on-click="openModalHpo">-->
+                                    <!--<i class="fa fa-search" aria-hidden="true"></i>-->
+                                <!--</span>-->
                             </div>
                             <span class="glyphicon form-control-feedback" aria-hidden="true"
                                   style="padding-right:60px; padding-top:10px; z-index:5"></span>
@@ -304,12 +304,22 @@
                                     <template is="dom-if" if="{{checkSubType(variable, 'TEXT')}}">
                                         <!-- String subtype: include a text area and add suitable regular expression for text-->
                                         <div class="col-xs-6">
-                                            <textarea class$="form-control {{prefix}}TextInput"
-                                                      id="{{prefix}}{{variable.name}}" name="{{variable.name}}"
-                                                      placeholder="{{variable.defaultValue}}"
-                                                      maxlength="{{variable.attributes.maxLength}}" required rows="5"
-                                                      data-error="{{variable.attributes.errorPattern}}"
-                                                      pattern="{{variable.attributes.pattern}}"></textarea>
+                                            <template is="dom-if" if="{{variable.required}}">
+                                                <textarea class$="form-control {{prefix}}TextInput"
+                                                          id="{{prefix}}{{variable.name}}" name="{{variable.name}}"
+                                                          placeholder="{{variable.defaultValue}}"
+                                                          maxlength="{{variable.attributes.maxLength}}" required rows="5"
+                                                          data-error="{{variable.attributes.errorPattern}}"
+                                                          pattern="{{variable.attributes.pattern}}"></textarea>
+                                            </template>
+                                            <template is="dom-if" if="{{!variable.required}}">
+                                                <textarea class$="form-control {{prefix}}TextInput"
+                                                          id="{{prefix}}{{variable.name}}" name="{{variable.name}}"
+                                                          placeholder="{{variable.defaultValue}}"
+                                                          maxlength="{{variable.attributes.maxLength}}" rows="5"
+                                                          data-error="{{variable.attributes.errorPattern}}"
+                                                          pattern="{{variable.attributes.pattern}}"></textarea>
+                                            </template>
                                             <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
                                             <div class="help-block with-errors"></div>
                                         </div>
@@ -1052,12 +1062,14 @@
 
                     let hpoNames = formFields.HPO;
                     if (hpoNames !== "") {
-                        this.selectedTermsHPO.forEach((hpoTerm) => {
-//                            let groupsHpo = regexHPO.exec(hpoTerm);
-//                            if(UtilsNew.isNotUndefinedOrNull(groupsHpo) && groupsHpo.length > 0){
-                                listOntologyTerms.push({id: hpoTerm.obo_id, name: hpoTerm.label, source:"HPO"});
-//                            }
-                        });
+                        listOntologyTerms.push({id: Utils.randomString(6), name: hpoNames, source:"HPO"});
+
+//                        this.selectedTermsHPO.forEach((hpoTerm) => {
+////                            let groupsHpo = regexHPO.exec(hpoTerm);
+////                            if(UtilsNew.isNotUndefinedOrNull(groupsHpo) && groupsHpo.length > 0){
+//                                listOntologyTerms.push({id: hpoTerm.obo_id, name: hpoTerm.label, source:"HPO"});
+////                            }
+//                        });
                     }
 
 

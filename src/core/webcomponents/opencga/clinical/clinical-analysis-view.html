@@ -24,11 +24,10 @@
             <div class="row">
                 <template is="dom-if" if="{{showTitle}}">
                     <div style="margin: 10px">
-                    <span>
-                        <i id="{{prefix}}SummaryCollapseIcon" class="fa fa-minus-square-o" aria-hidden="true" on-click="_summaryOnClick" style="cursor: pointer"></i>
-                        <h4  on-click="_summaryOnClick" style="cursor: pointer; display: inline">&nbsp;{{title}}</h4>
-                    </span>
-                        <!--<hr style="margin: 5px">-->
+                        <span>
+                            <i id="{{prefix}}SummaryCollapseIcon" class="fa fa-minus-square-o" aria-hidden="true" on-click="_summaryOnClick" style="cursor: pointer"></i>
+                            <h4  on-click="_summaryOnClick" style="cursor: pointer; display: inline">&nbsp;{{title}}</h4>
+                        </span>
                     </div>
                 </template>
 
@@ -120,7 +119,9 @@
                             </div>
                             <div class="form-group" style="margin: 0px 2px">
                                 <label class="col-md-4">Pedigree:</label>
-                                <span class="col-md-8"><a style="font-weight: bold"><i class="fa fa-external-link" aria-hidden="true"></i> Pedigree</a></span>
+                                    <div class="col-md-12">
+                                         <div id="{{prefix}}PedigreeView"></div>
+                                    </div>
                             </div>
                             <div class="form-group" style="margin: 0px 2px">
                                 <label class="col-md-4">Phenotypes:</label>
@@ -139,43 +140,43 @@
                     </div>
                 </div>
 
-                <div id="{{prefix}}OtherPrioritisationsPanel" class="col-md-12" style="padding: 10px 15px">
-                    <div class="col-md-12">
-                        <label>Other prioritisations</label>
-                        <div style="padding: 10px 5px">
-                            <table class="table">
-                                <thead>
-                                <tr>
-                                    <th colspan="1">Name</th>
-                                    <th colspan="1">Tool</th>
-                                    <th colspan="1">Date</th>
-                                    <th colspan="1">No. of Reported Variants</th>
-                                    <th colspan="1">No. of Affected Genes</th>
-                                    <th colspan="1">View</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr>
-                                    <td>Prioritizaton-1</td>
-                                    <td>TEAM</td>
-                                    <td>5-9-2017</td>
-                                    <td>26</td>
-                                    <td>6</td>
-                                    <td><a href="">Pending</a></td>
-                                </tr>
-                                <tr>
-                                    <td>Tiering-1</td>
-                                    <td>Tiering</td>
-                                    <td>6-9-2017</td>
-                                    <td>66</td>
-                                    <td>12</td>
-                                    <td><a href="">Pending</a></td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+                <!--<div id="{{prefix}}OtherPrioritisationsPanel" class="col-md-12" style="padding: 10px 15px">-->
+                    <!--<div class="col-md-12">-->
+                        <!--<label>Other prioritisations</label>-->
+                        <!--<div style="padding: 10px 5px">-->
+                            <!--<table class="table">-->
+                                <!--<thead>-->
+                                <!--<tr>-->
+                                    <!--<th colspan="1">Name</th>-->
+                                    <!--<th colspan="1">Tool</th>-->
+                                    <!--<th colspan="1">Date</th>-->
+                                    <!--<th colspan="1">No. of Reported Variants</th>-->
+                                    <!--<th colspan="1">No. of Affected Genes</th>-->
+                                    <!--<th colspan="1">View</th>-->
+                                <!--</tr>-->
+                                <!--</thead>-->
+                                <!--<tbody>-->
+                                <!--<tr>-->
+                                    <!--<td>Prioritizaton-1</td>-->
+                                    <!--<td>TEAM</td>-->
+                                    <!--<td>5-9-2017</td>-->
+                                    <!--<td>26</td>-->
+                                    <!--<td>6</td>-->
+                                    <!--<td><a href="">Pending</a></td>-->
+                                <!--</tr>-->
+                                <!--<tr>-->
+                                    <!--<td>Tiering-1</td>-->
+                                    <!--<td>Tiering</td>-->
+                                    <!--<td>6-9-2017</td>-->
+                                    <!--<td>66</td>-->
+                                    <!--<td>12</td>-->
+                                    <!--<td><a href="">Pending</a></td>-->
+                                <!--</tr>-->
+                                <!--</tbody>-->
+                            <!--</table>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                <!--</div>-->
             </div>
         </template>
     </template>
@@ -222,7 +223,8 @@
                     },
                     showSummary: {
                         type: Boolean,
-                        value: false
+                        value: false,
+                        notify: true
                     },
                     config: {
                         type: Object
@@ -241,6 +243,7 @@
 
             connectedCallback() {
                 super.connectedCallback();
+                this.pedigreeRender();
             }
 
             _summaryOnClick() {
@@ -268,9 +271,52 @@
                             if (response.response[0].numResults === 1) {
                                 _this.clinicalAnalysis = response.response[0].result[0];
                                 _this.showSummary = true;
+                                _this.title = _this.clinicalAnalysis.name + " Clinical Analysis Summary";
+//                                _this.pedigreeRender();
                             }
 
                         });
+                }
+            }
+
+            pedigreeRender() {
+                if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis) && UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.family)) {
+                    if (UtilsNew.isNotUndefined(this.svg)) {
+                        PolymerUtils.getElementById(this.prefix + "PedigreeView").removeChild(this.svg);
+                    }
+                    let body = Object.assign({},this.clinicalAnalysis.family);
+                    let membersNew =[];
+                    body.members.forEach((member) => {
+                        let newMember = Object.assign({},member);
+                        if (UtilsNew.isNotUndefinedOrNull(newMember.father) && UtilsNew.isNotUndefinedOrNull(newMember.father.id)) {
+                            let newFather = body.members.find((member) =>{
+                                return member.id === newMember.father.id;
+                            });
+                            if(UtilsNew.isNotUndefinedOrNull(newFather)){
+                                newMember.father = newFather.name;
+                            }
+                        }
+
+                        if (UtilsNew.isNotUndefinedOrNull(newMember.mother) && UtilsNew.isNotUndefinedOrNull(newMember.mother.id)) {
+                            let newMother = body.members.find((member) =>{
+                                return member.id === newMember.mother.id;
+                            });
+                            if(UtilsNew.isNotUndefinedOrNull(newMother)){
+                                newMember.mother = newMother.name;
+                            }
+                        }
+                        membersNew.push(newMember);
+                    });
+                    body.members = membersNew;
+
+                    // Render new Pedigree
+                    let querySelector = PolymerUtils.getElementById(this.prefix + "PedigreeView");
+                    let pedigree = new Pedigree(body, {selectShowSampleNames: true});
+                    this.svg = pedigree.pedigreeFromFamily(pedigree.pedigree, {
+                        width: 200,
+                        height: 180
+                    });
+                    querySelector.appendChild(this.svg);
                 }
             }
 

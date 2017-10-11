@@ -951,6 +951,10 @@ class Clinical extends Acls {
         return this.post("clinical", undefined, "create", params, body, options);
     }
 
+    update(id, params, body, options) {
+        return this.post("clinical", id, "update", params, body, options);
+    }
+
     info(id, params, options) {
         return this.get("clinical", id, "info", params, options);
     }

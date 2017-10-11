@@ -547,7 +547,7 @@
                                                 }
                                                 break;
                                             case "polyphen":
-                                                if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score > max) {
+                                                if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score >= max) {
                                                     max = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score;
                                                     description.polyphen = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].description;
                                                 }
@@ -561,15 +561,17 @@
                 }
                 if (this.field.source == 'sift' && min != 10) {
                     return '<span style="color: ' + this.field.context.pssColor.get(description.sift) + '" title="' + min + '">' + description.sift + '</span>';
-                } else if (this.field.source == 'polyphen' && max != 0) {
-                    let str = description.polyphen;
-                    if (str.indexOf(' ') >= 0) {
-                        str = str
-                            .replace(/\s(.)/g, function($1) { return $1.toUpperCase(); })
-                            .replace(/\s/g, '')
-                            .replace(/^(.)/, function($1) { return $1.toLowerCase(); });
+                } else if (this.field.source == 'polyphen' && max >= 0) {
+                    if(UtilsNew.isNotUndefinedOrNull(description) && UtilsNew.isNotUndefinedOrNull(description.polyphen)){
+                        let str = description.polyphen;
+                        if (str.indexOf(' ') >= 0) {
+                            str = str
+                                .replace(/\s(.)/g, function($1) { return $1.toUpperCase(); })
+                                .replace(/\s/g, '')
+                                .replace(/^(.)/, function($1) { return $1.toLowerCase(); });
+                        }
+                        return '<span style="color: ' + this.field.context.pssColor.get(str) + '" title="' + max + '">' + description.polyphen + '</span>';
                     }
-                    return '<span style="color: ' + this.field.context.pssColor.get(str) + '" title="' + max + '">' + description.polyphen + '</span>';
                 }
                 return '-';
             }
