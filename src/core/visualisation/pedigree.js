@@ -339,9 +339,9 @@ class Pedigree {
         this.pedigree = pedigreFromFamily;
     }
 
-    pedigreeFromFamily(family){
+    pedigreeFromFamily(family, settings = null){
         this.parseFamilyToPedigree(family);
-        return this.render();
+        return this.render(settings);
     }
 
 }

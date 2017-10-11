@@ -140,7 +140,6 @@
                                                         <div class="form-group" style="margin: 0px 2px">
                                                             <label class="col-md-4">Pedigree:</label>
                                                             <span class="col-md-8">
-                                                            <!--<img width="120px" src="https://openi.nlm.nih.gov/imgs/512/160/2743802/PMC2743802_mv-v15-1881-f1.png" style="padding: 10px 10px">-->
                                                              <div class="col-md-12">
                                                                  <div id="{{prefix}}PedigreeView"></div>
                                                             </div>
@@ -1016,7 +1015,10 @@
                     // Render new Pedigree
                     let querySelector = PolymerUtils.getElementById(this.prefix + "PedigreeView");
                     let pedigree = new Pedigree(body, {selectShowSampleNames: true});
-                    this.svg = pedigree.pedigreeFromFamily(pedigree.pedigree);
+                    this.svg = pedigree.pedigreeFromFamily(pedigree.pedigree, {
+                        width: 200,
+                        height: 180
+                    });
                     querySelector.appendChild(this.svg);
                 }
             }
