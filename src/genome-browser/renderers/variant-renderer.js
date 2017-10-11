@@ -7,6 +7,7 @@
  * @type {Renderer}
  */
 class VariantRenderer extends Renderer {
+
     constructor(args) {
         super(args);
 
