@@ -29,7 +29,7 @@
         <div class="panel panel-default" style="margin-bottom: 5px">
             <div class="panel-body" style="padding: 10px">
                 <button type="button" class="btn btn-primary" on-click="clear">
-                    <i class="fa fa-refresh" aria-hidden="true"></i> Clear
+                    <i class="fa fa-refresh" aria-hidden="true" style="padding-right: 5px"></i> Clear
                 </button>
 
                 <span style="padding: 0px 20px">
@@ -38,29 +38,31 @@
                     </template>
 
                     <template is="dom-repeat" items="{{queryList}}">
+                        <!-- No multi=valued fitlers -->
                         <template is="dom-if" if="{{!_isMultiValued(item)}}">
                             <button type="button" class$="btn btn-warning btn-sm {{item.name}}" data-filter-name$="{{item.name}}" data-filter-value=""
-                                    on-click="onQueryFilterDelete" on-mouseover="xxx" on-mouseout="yyy">
+                                    on-click="onQueryFilterDelete" on-mouseover="_onMouseOver" on-mouseout="_onMouseOut">
                                 {{item.text}}
                             </button>
                         </template>
 
+                        <!-- Multi-valued filters -->
                         <template is="dom-if" if="{{_isMultiValued(item)}}">
                             <div class="btn-group">
                                 <button type="button" class$="btn btn-warning btn-sm {{item.name}}" data-filter-name$="{{item.name}}" data-filter-value=""
-                                        on-click="onQueryFilterDelete"  on-mouseover="xxx" on-mouseout="yyy">
+                                        on-click="onQueryFilterDelete" on-mouseover="_onMouseOver" on-mouseout="_onMouseOut">
                                     {{item.text}}
                                 </button>
-                                <button type="button" class="btn btn-warning btn-sm dropdown-toggle"
-                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <button type="button" class="btn btn-warning btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     <span class="caret"></span>
                                     <span class="sr-only">Toggle Dropdown</span>
                                 </button>
                                 <ul class="dropdown-menu">
                                     <template is="dom-repeat" items="{{item.items}}" as="filterItem">
                                         <li class="small active-filter-button" style="cursor: pointer">
-                                            <a on-click="onQueryFilterDelete" data-filter-name="{{item.name}}"
-                                               data-filter-value="{{filterItem}}">{{filterItem}}</a>
+                                            <a on-click="onQueryFilterDelete" data-filter-name$="{{item.name}}" data-filter-value$="{{filterItem}}">
+                                                {{filterItem}}
+                                            </a>
                                         </li>
                                     </template>
                                 </ul>
@@ -73,14 +75,13 @@
                 <template is="dom-if" if="{{checkSid(opencgaClient._config)}}">
                     <div class="btn-group" style="float: right">
                         <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fa fa-filter" aria-hidden="true" style="padding-right: 5px"></i>
-                            Filters <span class="caret"></span>
+                            <i class="fa fa-filter" aria-hidden="true" style="padding-right: 5px"></i> Filters <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-right">
                             <li><a style="font-weight: bold">Saved Filters</a></li>
                             <template is="dom-repeat" items="{{filters}}">
                                 <li>
-                                    <a data-filter-name="{{item.name}}" style="cursor: pointer" on-click="onFilterChange" class="filtersLink">&nbsp;&nbsp;{{item.name}}</a>
+                                    <a data-filter-name$="{{item.name}}" style="cursor: pointer" on-click="onFilterChange" class="filtersLink">&nbsp;&nbsp;{{item.name}}</a>
                                 </li>
                             </template>
                             <li role="separator" class="divider"></li>
@@ -168,9 +169,6 @@
                     refresh: {
                         type: Object,
                         observer: "searchClicked"
-                    },
-                    prefix: {
-                        type: String
                     }
                 }
             }
@@ -196,11 +194,11 @@
                 this.dispatchEvent(new CustomEvent('clear', {detail: {}, bubbles: true, composed: true}));
             }
 
-            xxx(e) {
+            _onMouseOver(e) {
                 PolymerUtils.addStyleByClass(e.target.dataset.filterName, "text-decoration", "line-through");
             }
 
-            yyy(e) {
+            _onMouseOut(e) {
                 PolymerUtils.addStyleByClass(e.target.dataset.filterName, "text-decoration", "none");
             }
 
@@ -268,16 +266,12 @@
                 if (!UtilsNew.isUndefinedOrNull(this.filters)) {
                     // We look for the filter name in the filters array
                     for (let f of this.filters) {
-                        if (f.name === e.target.dataFilterName) {
+                        if (f.name === e.target.dataset.filterName) {
                             PolymerUtils.addStyleByClass('filtersLink', 'color', 'black');
                             e.target.style.color = "green";
+
                             let _queryList = Object.assign({}, f.query);
-//                            this.fire("filterchange", _queryList);
-                            this.dispatchEvent(new CustomEvent("filterchange", {
-                                detail: _queryList,
-                                bubbles: true,
-                                composed: true
-                            }));
+                            this.dispatchEvent(new CustomEvent("filterchange", {detail: _queryList, bubbles: true, composed: true}));
                             break;
                         }
                     }
@@ -289,9 +283,8 @@
                 // Reset selected filters to none
                 PolymerUtils.addStyleByClass('filtersLink', 'color', 'black');
 
-
-                let name = e.target.dataFilterName;
-                let value = e.target.dataFilterValue;
+                let name = e.target.dataset.filterName;
+                let value = e.target.dataset.filterValue;
 
                 if (UtilsNew.isEmpty(value)) {
                     delete _queryList[name];
@@ -310,7 +303,6 @@
                             _queryList[name] = filterFields.join(";");
                         }
                     }
-
                 }
 
                 // When you delete any query filter we are not longer using any known Filter
@@ -320,12 +312,7 @@
                 }
 
                 _queryList = Object.assign({}, _queryList);
-//                this.fire("filterchange", _queryList);
-                this.dispatchEvent(new CustomEvent("filterchange", {
-                    detail: _queryList,
-                    bubbles: true,
-                    composed: true
-                }));
+                this.dispatchEvent(new CustomEvent("filterchange", {detail: _queryList, bubbles: true, composed: true}));
             }
 
             onQueryUpdate() {

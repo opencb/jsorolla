@@ -1206,7 +1206,7 @@
 //                let lofCheckBox = this.$$("#" + this.prefix + "LossOfFunctionCheckBox");
                 let lofCheckBox = PolymerUtils.getElementById(this.prefix + "LossOfFunctionCheckBox");
                 if (e.target.id === this.prefix + "LossOfFunctionCheckBox") {
-                    let checkBoxes = PolymerUtils.querySelectorAll("li input",this.prefix + "consequenceTypeFilter");
+                    let checkBoxes = PolymerUtils.querySelectorAll("li input", this.prefix + "consequenceTypeFilter");
                     for (let i = 0; i < this.consequenceTypes.lof.length; i++) {
                         for (let j = 0; j < checkBoxes.length; j++) {
                             if (checkBoxes[j].dataId === this.consequenceTypes.lof[i]) {
@@ -1321,27 +1321,31 @@
 
                 // XRefs, Gene and Variant Ids
                 if (typeof this.query["annot-xref"] !== "undefined") {
-                    this.$$("#" + this.prefix + "FeatureTextarea").value = this.query["annot-xref"];
+//                    this.$$("#" + this.prefix + "FeatureTextarea").value = this.query["annot-xref"];
+                    PolymerUtils.setValue(this.prefix + "FeatureTextarea", this.query["annot-xref"]);
 //                } else if (typeof this.query.gene !== "undefined") {
 //                    this.$$("#" + this.prefix + "FeatureTextarea").value = this.query.gene;
                 } else if (typeof this.query.ids !== "undefined") {
-                    this.$$("#" + this.prefix + "FeatureTextarea").value = this.query.ids;
+//                    this.$$("#" + this.prefix + "FeatureTextarea").value = this.query.ids;
+                    PolymerUtils.setValue(this.prefix + "FeatureTextarea", this.query.ids);
                 }
 
                 // Biotype
                 if (typeof this.query["annot-biotype"] !== "undefined") {
-                    this.$$("#" + this.prefix + "GeneBiotypes").value = this.query["annot-biotype"];
+                    PolymerUtils.setValue(this.prefix + "GeneBiotypes", this.query["annot-biotype"]);
                 }
 
-                //Panel - annot-panel
+                // Panel - annot-panel
                 if (typeof this.query["gene"] !== "undefined") {
-                    this.$$("#" + this.prefix + "PanelAppsTextarea").value = this.query.gene;
+//                    this.$$("#" + this.prefix + "PanelAppsTextarea").value = this.query.gene;
+                    PolymerUtils.setValue(this.prefix + "PanelAppsTextarea", this.query.gene);
                 }
 
                 // Type
                 if (typeof this.query.type !== "undefined") {
                     let types = this.query.type.split(",");
-                    let checkBoxes = this.$$("#" + this.prefix + "Type").querySelectorAll("input");
+//                    let checkBoxes = this.$$("#" + this.prefix + "Type").querySelectorAll("input");
+                    let checkBoxes = PolymerUtils.querySelectorAll("input", this.prefix + "Type");
                     for (let i = 0; i < types.length; i++) {
                         for (let j = 0; j < checkBoxes.length; j++) {
                             if (checkBoxes[j].value === types[i]) {
@@ -1430,16 +1434,16 @@
                         let source = fields[i].split(/[<=>]+/)[0];
                         switch (source) {
                             case "phylop":
-                                this.$$("#" + this.prefix + "PhylopInput").value = fields[i].split(/[<=>]+/)[1];
-                                this.$$("#" + this.prefix + "PhylopOperator").value = fields[i].split(/[-A-Za-z0-9]+/)[1];
+                                PolymerUtils.setValue(this.prefix + "PhylopInput", fields[i].split(/[<=>]+/)[1]);
+                                PolymerUtils.setValue(this.prefix + "PhylopOperator", fields[i].split(/[-A-Za-z0-9]+/)[1]);
                                 break;
                             case "phastCons":
-                                this.$$("#" + this.prefix + "PhastconsInput").value = fields[i].split(/[<=>]+/)[1];
-                                this.$$("#" + this.prefix + "PhastconsOperator").value = fields[i].split(/[-A-Za-z0-9]+/)[1];
+                                PolymerUtils.setValue(this.prefix + "PhastconsInput", fields[i].split(/[<=>]+/)[1]);
+                                PolymerUtils.setValue(this.prefix + "PhastconsOperator", fields[i].split(/[-A-Za-z0-9]+/)[1]);
                                 break;
                             case "gerp":
-                                this.$$("#" + this.prefix + "GerpInput").value = fields[i].split(/[<=>]+/)[1];
-                                this.$$("#" + this.prefix + "GerpOperator").value = fields[i].split(/[-A-Za-z0-9]+/)[1];
+                                PolymerUtils.setValue(this.prefix + "GerpInput", fields[i].split(/[<=>]+/)[1]);
+                                PolymerUtils.setValue(this.prefix + "GerpOperator", fields[i].split(/[-A-Za-z0-9]+/)[1]);
                                 break;
                         }
                     }
@@ -1448,7 +1452,7 @@
                 // Consequence Type
                 if (typeof this.query["annot-ct"] !== "undefined") {
                     let types = this.query["annot-ct"].split(",");
-                    let checkBoxes = this.$$("#consequenceTypeFilter").querySelectorAll("li input");
+                    let checkBoxes = PolymerUtils.querySelectorAll("li input", this.prefix + "consequenceTypeFilter");
                     for (let i = 0; i < types.length; i++) {
                         for (let j = 0; j < checkBoxes.length; j++) {
                             if (checkBoxes[j].dataId === types[i]) {
