@@ -322,6 +322,7 @@
                             queryParams.limit = params.limit;
                             queryParams.skip = params.offset;
 //                            queryParams.summary = true;
+
                             return queryParams;
                         },
                         responseHandler: function (res) {
@@ -390,10 +391,10 @@
                     let keys = Object.keys(queryParams);
                     for (let i = 0; i < keys.length; i++) {
                         let val = queryParams[keys[i]];
-                        if (typeof val == "string") {
+                        if (typeof val === "string") {
                             val = val.replace(/</g, "<<");
                             val = val.replace(/>/g, ">>");
-                            queryParams[keys[i]] = val;
+                            queryParams[keys[i]] = encodeURI(val);
                         }
                     }
                 }

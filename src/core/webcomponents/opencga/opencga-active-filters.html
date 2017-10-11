@@ -39,18 +39,16 @@
 
                     <template is="dom-repeat" items="{{queryList}}">
                         <template is="dom-if" if="{{!_isMultiValued(item)}}">
-                            <button type="button" class="btn btn-warning btn-sm active-filter-button"
-                                    data-filter-name="{{item.name}}" data-filter-value=""
-                                    on-click="onQueryFilterDelete">
+                            <button type="button" class$="btn btn-warning btn-sm {{item.name}}" data-filter-name$="{{item.name}}" data-filter-value=""
+                                    on-click="onQueryFilterDelete" on-mouseover="xxx" on-mouseout="yyy">
                                 {{item.text}}
                             </button>
                         </template>
 
                         <template is="dom-if" if="{{_isMultiValued(item)}}">
                             <div class="btn-group">
-                                <button type="button" class="btn btn-warning btn-sm active-filter-button"
-                                        data-filter-name="{{item.name}}" data-filter-value=""
-                                        on-click="onQueryFilterDelete">
+                                <button type="button" class$="btn btn-warning btn-sm {{item.name}}" data-filter-name$="{{item.name}}" data-filter-value=""
+                                        on-click="onQueryFilterDelete"  on-mouseover="xxx" on-mouseout="yyy">
                                     {{item.text}}
                                 </button>
                                 <button type="button" class="btn btn-warning btn-sm dropdown-toggle"
@@ -74,20 +72,20 @@
                 <!-- TODO we probably need a new property for this -->
                 <template is="dom-if" if="{{checkSid(opencgaClient._config)}}">
                     <div class="btn-group" style="float: right">
-                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"
-                                aria-haspopup="true" aria-expanded="false">
+                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class="fa fa-filter" aria-hidden="true" style="padding-right: 5px"></i>
                             Filters <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-right">
                             <li><a style="font-weight: bold">Saved Filters</a></li>
                             <template is="dom-repeat" items="{{filters}}">
-                                <li><a data-filter-name="{{item.name}}" style="cursor: pointer"
-                                       on-click="onFilterChange" class="filtersLink">&nbsp;&nbsp;{{item.name}}</a></li>
+                                <li>
+                                    <a data-filter-name="{{item.name}}" style="cursor: pointer" on-click="onFilterChange" class="filtersLink">&nbsp;&nbsp;{{item.name}}</a>
+                                </li>
                             </template>
                             <li role="separator" class="divider"></li>
-                            <li><a style="cursor: pointer" on-click="launchModal"><i class="fa fa-floppy-o"
-                                                                                     aria-hidden="true"></i> Save...</a>
+                            <li>
+                                <a style="cursor: pointer" on-click="launchModal"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save...</a>
                             </li>
                         </ul>
                     </div>
@@ -127,8 +125,15 @@
             </div>
         </div>
     </template>
+
     <script>
         class OpencgaActiveFilters extends Polymer.Element {
+
+            constructor() {
+                super();
+
+                this.prefix = "activeFilter_" + Utils.randomString(6);
+            }
 
             static get is() {
                 return 'opencga-active-filters';
@@ -174,20 +179,12 @@
                 return ['checkFilters(opencgaClient._config.*)']
             }
 
-            constructor() {
-                super();
-            }
-
             _attachDom(dom) {
                 this.appendChild(dom);
             }
 
             ready() {
                 super.ready();
-
-                if (UtilsNew.isEmpty(this.prefix)) {
-                    this.prefix = "activeFilter_" + Utils.randomString(6);
-                }
 
                 this.fixedFilterList = [];
             }
@@ -197,6 +194,14 @@
 
                 // Trigger clear event
                 this.dispatchEvent(new CustomEvent('clear', {detail: {}, bubbles: true, composed: true}));
+            }
+
+            xxx(e) {
+                PolymerUtils.addStyleByClass(e.target.dataset.filterName, "text-decoration", "line-through");
+            }
+
+            yyy(e) {
+                PolymerUtils.addStyleByClass(e.target.dataset.filterName, "text-decoration", "none");
             }
 
             launchModal() {
