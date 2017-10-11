@@ -41,15 +41,9 @@
                 <div id="{{prefix}}AnalysisSelector" class="panel-collapse collapse in" role="tabpanel"
                      aria-labelledby="{{prefix}}SampleFilterHeading">
                     <div class="panel-body">
-                        <label><i class="fa fa-sitemap" aria-hidden="true"></i>Select analysis:</label>
-                        <br>
-                        <button data-toggle="modal" role="button" data-placement="bottom"
-                                on-click="showClinicalSelector">
-                            Browse...
-                        </button>
-                        <div id="{{prefix}}analysisSelectedDiv" style="display:none">
+                        <div id="{{prefix}}analysisSelectedDiv" style="">
                             <label>Analysis selected:</label>
-                            <input type="text" class$="custom-sized-input {{prefix}}FilterTextInput"
+                            <input type="text" class$="custom-sized-input {{prefix}}FilterTextInput" id="{{prefix}}FilterTextInput"
                                    placeholder="{{currentAnalysisID}}" aria-describedby="basic-addon1" disabled>
                         </div>
                         <div id="{{prefix}}analysisResumeDiv" hidden>
@@ -62,7 +56,7 @@
 
             </div>
             <!-- Sample Information -->
-            <div class="panel panel-default" id="{{prefix}}SampleInformationDiv" style="display:none">
+            <div class="panel panel-default" id="{{prefix}}SampleInformationDiv" style="">
                 <div class="panel-heading" role="tab" id="{{prefix}}SampleInformationHeading">
                     <h4 class="panel-title">
                         <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
@@ -124,7 +118,7 @@
             </div>
 
             <!-- Prioritization information -->
-            <div class="panel panel-default" id="{{prefix}}PrioritizationInformationDiv" style="display:none">
+            <div class="panel panel-default" id="{{prefix}}PrioritizationInformationDiv" style="">
                 <div class="panel-heading" role="tab" id="{{prefix}}PrioritizationInformationHeading">
                     <h4 class="panel-title">
                         <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
@@ -157,7 +151,7 @@
                 </div>
             </div>
             <!-- Other information -->
-            <div class="panel panel-default" id="{{prefix}}OtherInformationDiv" style="display:none">
+            <div class="panel panel-default" id="{{prefix}}OtherInformationDiv" style="">
                 <div class="panel-heading" role="tab" id="{{prefix}}OtherInformationHeading">
                     <h4 class="panel-title">
                         <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
@@ -187,31 +181,31 @@
             </div>
         </div>
 
-        <!-- Modal dialog for Analysis Browser-->
-        <div class="modal fade" id="{{prefix}}AnalysisBrowser" tabindex="-1" role="dialog"
-             aria-labelledby="sampleBrowserLabel">
-            <div class="modal-dialog modal-lg" role="document" style="width: 1024px;">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                                aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title" id="{{prefix}}AnalysisBrowserLabel">Analysis Selector</h4>
-                    </div>
-                    <div class="modal-body" style="height: 650px">
-                        <!--<variant-clinical-selector opencga-client="{{opencgaClient}}" analysis="{{analysis}}" analysis-selected="{{analysisSelected}}"></variant-clinical-selector>-->
-                        <variant-clinical-selector opencga-client="{{opencgaClient}}"
-                                                   analysis-selected="{{analysisSelected}}" study="{{study}}"
-                                                   analysis-modal="{{analysisModal}}"
-                                                   show-pedigree="{{showPedigree}}"></variant-clinical-selector>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="showReportOptions">
-                            OK
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!--&lt;!&ndash; Modal dialog for Analysis Browser&ndash;&gt;-->
+        <!--<div class="modal fade" id="{{prefix}}AnalysisBrowser" tabindex="-1" role="dialog"-->
+             <!--aria-labelledby="sampleBrowserLabel">-->
+            <!--<div class="modal-dialog modal-lg" role="document" style="width: 1024px;">-->
+                <!--<div class="modal-content">-->
+                    <!--<div class="modal-header">-->
+                        <!--<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span-->
+                                <!--aria-hidden="true">&times;</span></button>-->
+                        <!--<h4 class="modal-title" id="{{prefix}}AnalysisBrowserLabel">Analysis Selector</h4>-->
+                    <!--</div>-->
+                    <!--<div class="modal-body" style="height: 650px">-->
+                        <!--&lt;!&ndash;<variant-clinical-selector opencga-client="{{opencgaClient}}" analysis="{{analysis}}" analysis-selected="{{analysisSelected}}"></variant-clinical-selector>&ndash;&gt;-->
+                        <!--<variant-clinical-selector opencga-client="{{opencgaClient}}"-->
+                                                   <!--analysis-selected="{{analysisSelected}}" study="{{study}}"-->
+                                                   <!--analysis-modal="{{analysisModal}}"-->
+                                                   <!--show-pedigree="{{showPedigree}}"></variant-clinical-selector>-->
+                    <!--</div>-->
+                    <!--<div class="modal-footer">-->
+                        <!--<button type="button" class="btn btn-primary" data-dismiss="modal" on-click="showReportOptions">-->
+                            <!--OK-->
+                        <!--</button>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</div>-->
         <div style="width: 60%;margin: 0 auto">
             <button type="button" class="btn btn-primary btn-md" style="width: 100%" on-click="onSave">
                 <i class="fa fa-floppy-o" aria-hidden="true" style="padding: 0px 5px 0px 5px"></i>
@@ -264,15 +258,7 @@
                         notify: true
                     },
                     analysisSelected: {
-                        type: Object,
-                        notify: true
-                    },
-                    analysis: {
-                        type: Array
-                    },
-                    analysisModal: {
-                        type: Boolean,
-                        //notify: true
+                        type: Object
                     }
                 }
 
@@ -292,6 +278,11 @@
                     this.prefix = "repFilter" + Utils.randomString(6);
                 }
                 this.showPedigree = false;
+            }
+
+            connectedCallback(){
+                super.connectedCallback();
+                this.showReportOptions();
             }
 
             updateVariableSets() {
@@ -380,14 +371,26 @@
                 this.showMessageModal = true;
             }
 
-            showReportOptions(e) {
-                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+            showReportOptions() {
+//                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+//                    PolymerUtils.show(this.prefix + "PrioritizationInformationDiv");
+//                    PolymerUtils.show(this.prefix + "OtherInformationDiv");
+                if (UtilsNew.isNotUndefinedOrNull(this.analysisSelected)) {
+                    this.showAnalysisSelecteDefault();
+                    PolymerUtils.setValue(this.prefix + "FilterTextInput",this.analysisSelected.name);
+
+                }
+            }
+
+            showAnalysisSelecteDefault(){
                 PolymerUtils.show(this.prefix + "analysisSelectedDiv");
-                PolymerUtils.show(this.prefix + "analysisResumeDiv");
                 PolymerUtils.show(this.prefix + "SampleInformationDiv");
-                PolymerUtils.show(this.prefix + "PrioritizationInformationDiv");
-                PolymerUtils.show(this.prefix + "OtherInformationDiv");
+                PolymerUtils.show(this.prefix + "analysisResumeDiv");
+
+
                 this.currentAnalysisID = this.analysisSelected.analysisID;
+                let _obj = Object.assign({}, this.selection, {analysisSelected: true});
+                this.selection = _obj;
             }
 
             showAnalysisResume(e) {
@@ -397,9 +400,11 @@
             }
 
             showPedigreeIn(e) {
-                let _obj = Object.assign({}, this.selection, {pedigree: e.target.checked});
-                this.selection = _obj;
-
+                e.preventDefault();
+                if (this.analysisSelected.type === "TRIO" || this.analysisSelected.type === "DUO" || this.analysisSelected.type === "FAMILY") {
+                    let _obj = Object.assign({}, this.selection, {pedigree: e.target.checked});
+                    this.selection = _obj;
+                }
             }
 
             showPrioritization(e) {
@@ -424,17 +429,17 @@
 
             }
 
-            showClinicalSelector(e) {
-                e.preventDefault();
-                if (UtilsNew.isUndefined(this.analysisModal)) {
-                    this.analysisModal = true;
-                }
-                else {
-                    this.analysisModal = !this.analysisModal;
-                }
-                //TODO Refactor
-                $(PolymerUtils.getElementById(this.prefix + "AnalysisBrowser")).modal('show');
-            }
+//            showClinicalSelector(e) {
+//                e.preventDefault();
+//                if (UtilsNew.isUndefined(this.analysisModal)) {
+//                    this.analysisModal = true;
+//                }
+//                else {
+//                    this.analysisModal = !this.analysisModal;
+//                }
+//                //TODO Refactor
+//                $(PolymerUtils.getElementById(this.prefix + "AnalysisBrowser")).modal('show');
+//            }
         }
 
         customElements.define(VariantReportFilter.is, VariantReportFilter);
