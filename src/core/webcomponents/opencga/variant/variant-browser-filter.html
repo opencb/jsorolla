@@ -352,7 +352,7 @@
                 </template>
 
                 <br>
-                <!-- Region filter -->
+                <!-- Genomic filter -->
                 <div class="panel panel-default">
                     <div class="panel-heading" role="tab" id="{{prefix}}PositionHeading">
                         <h4 class="panel-title">
@@ -367,7 +367,7 @@
                             </a>
                         </h4>
                     </div>
-                    <div id="{{prefix}}Position" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}PositionHeading">
+                    <div id="{{prefix}}Position" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}PositionHeading">
                         <div class="panel-body">
                             <div class="form-group">
                                 <span class="browser-subsection">Chromosomal Location
@@ -1203,7 +1203,6 @@
 
             updateConsequenceTypeFilter(e) {
                 // Select LoF term checkboxes
-//                let lofCheckBox = this.$$("#" + this.prefix + "LossOfFunctionCheckBox");
                 let lofCheckBox = PolymerUtils.getElementById(this.prefix + "LossOfFunctionCheckBox");
                 if (e.target.id === this.prefix + "LossOfFunctionCheckBox") {
                     let checkBoxes = PolymerUtils.querySelectorAll("li input", this.prefix + "consequenceTypeFilter");
@@ -1291,8 +1290,10 @@
                         let [study, cohortFreq] = cohortArray[i].split(':');
                         let [cohort, freq] = cohortFreq.split(/[<=>]+/);
                         let operator = cohortFreq.split(/[-A-Za-z0-9._:]+/)[1];
-                        this.$$("#" + this.prefix + study + cohort + "Cohort").value = freq;
-                        this.$$("#" + this.prefix + study + cohort + "CohortOperator").value = operator;
+//                        this.$$("#" + this.prefix + study + cohort + "Cohort").value = freq;
+//                        this.$$("#" + this.prefix + study + cohort + "CohortOperator").value = operator;
+                        PolymerUtils.setValue(this.prefix + study + cohort + "Cohort", freq);
+                        PolymerUtils.setValue(this.prefix + study + cohort + "CohortOperator", operator);
                     }
                 }
 
@@ -1301,7 +1302,8 @@
                     if (this.$.includeOtherStudy !== null && this.$.differentStudies !== null) {
                         let studies = this.query.studies.split(new RegExp("[,;]"));
                         if (studies.length > 1) {
-                            let checkBoxes = this.$$("#differentStudies").querySelectorAll("input");
+//                            let checkBoxes = this.$$("#differentStudies").querySelectorAll("input");
+                            let checkBoxes = PolymerUtils.querySelectorAll("input", this.prefix + "differentStudies");
                             for (let i = 0; i < studies.length; i++) {
                                 let study = studies[i].split(':')[1];
                                 for (let j = 0; j < checkBoxes.length; j++) {
@@ -1321,12 +1323,10 @@
 
                 // XRefs, Gene and Variant Ids
                 if (typeof this.query["annot-xref"] !== "undefined") {
-//                    this.$$("#" + this.prefix + "FeatureTextarea").value = this.query["annot-xref"];
                     PolymerUtils.setValue(this.prefix + "FeatureTextarea", this.query["annot-xref"]);
 //                } else if (typeof this.query.gene !== "undefined") {
 //                    this.$$("#" + this.prefix + "FeatureTextarea").value = this.query.gene;
                 } else if (typeof this.query.ids !== "undefined") {
-//                    this.$$("#" + this.prefix + "FeatureTextarea").value = this.query.ids;
                     PolymerUtils.setValue(this.prefix + "FeatureTextarea", this.query.ids);
                 }
 
@@ -1337,14 +1337,12 @@
 
                 // Panel - annot-panel
                 if (typeof this.query["gene"] !== "undefined") {
-//                    this.$$("#" + this.prefix + "PanelAppsTextarea").value = this.query.gene;
                     PolymerUtils.setValue(this.prefix + "PanelAppsTextarea", this.query.gene);
                 }
 
                 // Type
                 if (typeof this.query.type !== "undefined") {
                     let types = this.query.type.split(",");
-//                    let checkBoxes = this.$$("#" + this.prefix + "Type").querySelectorAll("input");
                     let checkBoxes = PolymerUtils.querySelectorAll("input", this.prefix + "Type");
                     for (let i = 0; i < types.length; i++) {
                         for (let j = 0; j < checkBoxes.length; j++) {
@@ -1369,8 +1367,10 @@
                                 for (let k = 0; k < pfArray.length; k++) {
                                     let pf = pfArray[k];
                                     if (pf.startsWith(study + ":" + population)) {
-                                        this.$$("#" + this.prefix + study + population).value = pf.split(/[<=>]+/)[1];
-                                        this.$$("#" + this.prefix + study + population + "Operator").value = pf.split(/[-A-Za-z0-9._:]+/)[1];
+//                                        this.$$("#" + this.prefix + study + population).value = pf.split(/[<=>]+/)[1];
+//                                        this.$$("#" + this.prefix + study + population + "Operator").value = pf.split(/[-A-Za-z0-9._:]+/)[1];
+                                        PolymerUtils.setValue(this.prefix + study + population, pf.split(/[<=>]+/)[1]);
+                                        PolymerUtils.setValue(this.prefix + study + population + "Operator", pf.split(/[-A-Za-z0-9._:]+/)[1]);
                                         break;
                                     }
                                 }
@@ -1387,20 +1387,26 @@
                             if (pss[i].startsWith("sift")) {
                                 let value = pss[i].split("sift")[1];
                                 if (value.startsWith("<") || value.startsWith(">")) {
-                                    this.$$("#" + this.prefix + "SiftInput").value = value.split(/[<=>]+/)[1];
-                                    this.$$("#" + this.prefix + "SiftOperator").value = value.split(/[-0-9.]+/)[0];
+//                                    this.$$("#" + this.prefix + "SiftInput").value = value.split(/[<=>]+/)[1];
+//                                    this.$$("#" + this.prefix + "SiftOperator").value = value.split(/[-0-9.]+/)[0];
+                                    PolymerUtils.setValue(this.prefix + "SiftInput", value.split(/[<=>]+/)[1]);
+                                    PolymerUtils.setValue(this.prefix + "SiftOperator", value.split(/[-0-9.]+/)[0]);
                                 } else {
-                                    this.$$("#" + this.prefix + "SiftValues").value = value.split('==')[1];
+//                                    this.$$("#" + this.prefix + "SiftValues").value = value.split('==')[1];
+                                    PolymerUtils.setValue(this.prefix + "SiftValues", value.split('==')[1]);
                                 }
                                 this.$$("#" + this.prefix + "SiftInput").disabled = !(value.startsWith("<") || value.startsWith(">"));
                                 this.$$("#" + this.prefix + "SiftOperator").disabled = !(value.startsWith("<") || value.startsWith(">"));
                             } else if (pss[i].startsWith("polyphen")) {
                                 let value = pss[i].split("polyphen")[1];
                                 if (value.startsWith("<") || value.startsWith(">")) {
-                                    this.$$("#" + this.prefix + "PolyphenInput").value = value.split(/[<=>]+/)[1];
-                                    this.$$("#" + this.prefix + "PolyphenOperator").value = value.split(/[-0-9.]+/)[0];
+//                                    this.$$("#" + this.prefix + "PolyphenInput").value = value.split(/[<=>]+/)[1];
+//                                    this.$$("#" + this.prefix + "PolyphenOperator").value = value.split(/[-0-9.]+/)[0];
+                                    PolymerUtils.setValue(this.prefix + "PolyphenInput", value.split(/[<=>]+/)[1]);
+                                    PolymerUtils.setValue(this.prefix + "PolyphenOperator", value.split(/[-0-9.]+/)[0]);
                                 } else {
-                                    this.$$("#" + this.prefix + "PolyphenValues").value = value.split('==')[1];
+//                                    this.$$("#" + this.prefix + "PolyphenValues").value = value.split('==')[1];
+                                    PolymerUtils.setValue(this.prefix + "PolyphenValues", value.split('==')[1]);
                                 }
                                 this.$$("#" + this.prefix + "PolyphenInput").disabled = !(value.startsWith("<") || value.startsWith(">"));
                                 this.$$("#" + this.prefix + "PolyphenOperator").disabled = !(value.startsWith("<") || value.startsWith(">"));
@@ -1416,12 +1422,12 @@
                         let source = fields[i].split(/[<=>]+/)[0];
                         switch (source) {
                             case "cadd_raw":
-                                this.$$("#" + this.prefix + "CaddRawInput").value = fields[i].split(/[<=>]+/)[1];
-                                this.$$("#" + this.prefix + "CaddRawOperator").value = fields[i].split(/[-A-Za-z0-9_]+/)[1];
+                                PolymerUtils.setValue(this.prefix + "CaddRawInput", fields[i].split(/[<=>]+/)[1]);
+                                PolymerUtils.setValue(this.prefix + "CaddRawOperator", fields[i].split(/[-A-Za-z0-9_]+/)[1]);
                                 break;
                             case "cadd_scaled":
-                                this.$$("#" + this.prefix + "CaddScaledInput").value = fields[i].split(/[<=>]+/)[1];
-                                this.$$("#" + this.prefix + "CaddScaledOperator").value = fields[i].split(/[-A-Za-z0-9_]+/)[1];
+                                PolymerUtils.setValue(this.prefix + "CaddScaledInput", fields[i].split(/[<=>]+/)[1]);
+                                PolymerUtils.setValue(this.prefix + "CaddScaledOperator", fields[i].split(/[-A-Za-z0-9_]+/)[1]);
                                 break;
                         }
                     }
@@ -1466,13 +1472,13 @@
 
                 // Gene Ontology and Human Phenotype Ontology
                 if (typeof this.query["annot-go"] !== "undefined") {
-                    this.$$("#" + this.prefix + "GeneOntologyTextarea").value = this.query["annot-go"];
+                    PolymerUtils.setValue(this.prefix + "GeneOntologyTextarea", this.query["annot-go"]);
                 }
                 if (typeof this.query["annot-hpo"] !== "undefined") {
-                    this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value = this.query["annot-hpo"];
+                    PolymerUtils.setValue(this.prefix + "HumanPhenotypeOntologyTextarea", this.query["annot-hpo"]);
                 }
                 if (typeof this.query["clinvar"] !== "undefined") {
-                    this.$$("#" + this.prefix + "ClinVarTextarea").value = this.query["clinvar"];
+                    PolymerUtils.setValue(this.prefix + "ClinVarTextarea", this.query["clinvar"]);
                 }
             }
 

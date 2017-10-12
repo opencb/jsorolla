@@ -35,8 +35,7 @@
 
         <div>
             <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" filters="{{config.filters}}"
-                                    filter-bioformat="VARIANT" fixed-filters="{{fixedFilters}}"
-                                    alias="{{activeFilterAlias}}" refresh="{{search}}">
+                                    filter-bioformat="VARIANT" default-study="{{study.alias}}" alias="{{activeFilterAlias}}" refresh="{{search}}">
             </opencga-active-filters>
 
 
@@ -241,6 +240,13 @@
     <script>
         class VariantBrowserView extends Polymer.Element {
 
+            constructor() {
+                super();
+
+                this.prefix = "varBrowserView" + Utils.randomString(6);
+                this.summary = true;
+            }
+
             static get is() {
                 return 'variant-browser-view';
             }
@@ -313,12 +319,6 @@
                 }
             }
 
-            constructor() {
-                super();
-
-                this.summary = true;
-            }
-
             static get observers() {
                 return [
                     'projectStudyObtained(project, study)'
@@ -331,10 +331,6 @@
 
             ready() {
                 super.ready();
-
-                if (typeof this.prefix === "undefined" || this.prefix === "") {
-                    this.prefix = "view" + Utils.randomString(6);
-                }
 
                 this.genotypeColor = {
                     "0/0": "#6698FF",
@@ -360,7 +356,6 @@
                     "annot-hpo": "HPO"
                 };
 
-                this.fixedFilters = ["studies"];
             }
 
             projectStudyObtained(project, study) {
