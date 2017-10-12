@@ -81,7 +81,7 @@
                             <li><a style="font-weight: bold">Saved Filters</a></li>
                             <template is="dom-repeat" items="{{filters}}">
                                 <li>
-                                    <a data-filter-name$="{{item.name}}" style="cursor: pointer" on-click="onFilterChange" class="filtersLink">&nbsp;&nbsp;{{item.name}}</a>
+                                    <a data-filter-name$="{{item.name}}" style="cursor: pointer" on-click="onServerFilterChange" class="filtersLink">&nbsp;&nbsp;{{item.name}}</a>
                                 </li>
                             </template>
                             <li role="separator" class="divider"></li>
@@ -150,21 +150,20 @@
                     },
                     query: {
                         type: Object,
-                        notify: true,
+//                        notify: true,
                         observer: 'onQueryUpdate'
                     },
                     filters: {
                         type: Array
                     },
-                    alias: {
-                        type: Object,
-                    },
                     filterBioformat: {
                         type: String
                     },
-                    fixedFilters: {
-                        type: Array,
-                        observer: "fixedFiltersObtained"
+                    alias: {
+                        type: Object,
+                    },
+                    defaultStudy: {
+                        type: String
                     },
                     refresh: {
                         type: Object,
@@ -183,8 +182,6 @@
 
             ready() {
                 super.ready();
-
-                this.fixedFilterList = [];
             }
 
             clear() {
@@ -262,7 +259,7 @@
                     });
             }
 
-            onFilterChange(e) {
+            onServerFilterChange(e) {
                 if (!UtilsNew.isUndefinedOrNull(this.filters)) {
                     // We look for the filter name in the filters array
                     for (let f of this.filters) {
@@ -290,18 +287,12 @@
                     delete _queryList[name];
                 } else {
                     let filterFields = _queryList[name].split(new RegExp("[,;]"));
-                    // Check if the deleted value is one among the fixed filters
-                    if (this.fixedFilterList.indexOf(name + " = " + value) !== -1) {
-                        alert("This filter can't be removed as it is mandatory");
-                        return;
+                    let indexOfValue = filterFields.indexOf(value);
+                    filterFields.splice(indexOfValue, 1);
+                    if (_queryList[name].indexOf(',') !== -1) {
+                        _queryList[name] = filterFields.join(",");
                     } else {
-                        let indexOfValue = filterFields.indexOf(value);
-                        filterFields.splice(indexOfValue, 1);
-                        if (_queryList[name].indexOf(',') !== -1) {
-                            _queryList[name] = filterFields.join(",");
-                        } else {
-                            _queryList[name] = filterFields.join(";");
-                        }
+                        _queryList[name] = filterFields.join(";");
                     }
                 }
 
@@ -320,48 +311,61 @@
                 let keys = Object.keys(this.query);
                 for (let keyIdx in keys) {
                     let key = keys[keyIdx];
-                    if (!UtilsNew.isEmpty(this.query[key])) {
+                    if (UtilsNew.isNotEmpty(this.query[key])) {
                         if (keys.length === 1 && key === "studies" && this.query[key].split(new RegExp("[,;]")).length === 1) {
                             // Show warning when filters are altered
-                            PolymerUtils.hide( this.prefix + 'Warning');
+                            PolymerUtils.hide(this.prefix + 'Warning');
                         } else {
                             // Show warning when filters are altered
-                            PolymerUtils.show( this.prefix + 'Warning');
+                            PolymerUtils.show(this.prefix + 'Warning');
                         }
 
                         // We use the alias to rename the key
                         let title = key;
-                        if (UtilsNew.isNotUndefined(this.alias) && UtilsNew.isNotUndefined(this.alias[key])) {
+                        if (UtilsNew.isNotUndefinedOrNull(this.alias) && UtilsNew.isNotUndefinedOrNull(this.alias[key])) {
                             title = this.alias[key];
                         }
-                        // We convert the Query object into an array of small objects (queryList)
+
+                        // We convert the Query entry object into an array of small objects (queryList)
                         let value = this.query[key];
                         let filterFields = value.split(new RegExp("[,;]"));
+
+                        // We fist have need to remove defaultStudy from 'filterFields' and 'value'
+                        if (key === "studies") {
+                            let otherStudies = [];
+                            for (let study of filterFields) {
+                                if (!study.includes(this.defaultStudy)) {
+                                    otherStudies.push(study);
+                                }
+                            }
+
+                            if (otherStudies.length === 0) {
+                                // defaultStudy was the only one present so no need to render anything
+                                continue;
+                            } else {
+                                // defaultStudy was just one of the studies selected, we need to set filterFields and value
+                                filterFields = otherStudies;
+                                if (value.indexOf(",") !== -1) {
+                                    value = filterFields.join(",");
+                                } else {
+                                    value = filterFields.join(";");
+                                }
+                            }
+                        }
+
                         // Just in case one is a flag
                         if (filterFields.length === 0) {
                             _queryList.push({name: key, text: title});
                         } else {
                             if (filterFields.length === 1) {
-                                // Check if the filter is one among the fixed filters
-                                if (UtilsNew.isNotUndefined(this.fixedFilters) && this.fixedFilters.indexOf(key) !== -1) {
-                                    this.showFixedFilters = true;
-
-                                    // Push into Fixed filter list only if it is not present before
-                                    if (this.fixedFilterList.indexOf(key + " = " + value) === -1) {
-                                        this.push("fixedFilterList", key + " = " + value);
-                                    }
+                                if (value.indexOf(">") !== -1 || value.indexOf("<") !== -1 || value.indexOf("=") !== -1) {
+                                    _queryList.push({name: key, text: title + ": " + value});
                                 } else {
-                                    if (value.indexOf(">") !== -1 || value.indexOf("<") !== -1 || value.indexOf("=") !== -1) {
-                                        _queryList.push({name: key, text: title + ": " + value});
-                                    } else {
-                                        _queryList.push({name: key, text: title + " = " + value});
-                                    }
+                                    _queryList.push({name: key, text: title + " = " + value});
                                 }
+//                                }
                             } else {
                                 _queryList.push({name: key, text: title, items: filterFields});
-                                if (UtilsNew.isNotUndefined(this.fixedFilters) && this.fixedFilters.indexOf(key) !== -1) {
-                                    this.showFixedFilters = false;
-                                }
                             }
                         }
                     }
@@ -372,10 +376,6 @@
 
             searchClicked() {
                 PolymerUtils.hide(this.prefix + "Warning");
-            }
-
-            fixedFiltersObtained() {
-                this.showFixedFilters = true;
             }
 
             _isQueryListEmpty(item) {
