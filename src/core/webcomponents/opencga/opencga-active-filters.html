@@ -182,6 +182,8 @@
 
             ready() {
                 super.ready();
+
+                this._previousQuery = undefined;
             }
 
             clear() {
@@ -312,12 +314,10 @@
                 for (let keyIdx in keys) {
                     let key = keys[keyIdx];
                     if (UtilsNew.isNotEmpty(this.query[key])) {
-                        if (keys.length === 1 && key === "studies" && this.query[key].split(new RegExp("[,;]")).length === 1) {
-                            // Show warning when filters are altered
-                            PolymerUtils.hide(this.prefix + 'Warning');
-                        } else {
-                            // Show warning when filters are altered
+                        if (JSON.stringify(this.query) !== JSON.stringify(this._previousQuery)) {
                             PolymerUtils.show(this.prefix + 'Warning');
+                        } else {
+                            PolymerUtils.hide(this.prefix + 'Warning');
                         }
 
                         // We use the alias to rename the key
@@ -376,6 +376,7 @@
 
             searchClicked() {
                 PolymerUtils.hide(this.prefix + "Warning");
+                this._previousQuery = this.query;
             }
 
             _isQueryListEmpty(item) {
