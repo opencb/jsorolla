@@ -1,10 +1,10 @@
 
-const CELLBASE_HOST = "bioinfo.hpc.cam.ac.uk/cellbase";
-const CELLBASE_VERSION = "v4";
+var CELLBASE_HOST = "bioinfo.hpc.cam.ac.uk/cellbase";
+var CELLBASE_VERSION = "v4";
 
-const OPENCGA_HOST = "bioinfo.hpc.cam.ac.uk/hgva";
-const OPENCGA_USER = "";
-const OPENCGA_PASSWORD = "";
+var OPENCGA_HOST = "bioinfo.hpc.cam.ac.uk/hgva";
+var OPENCGA_USER = "";
+var OPENCGA_PASSWORD = "";
 
 
 const CODON_CONFIG = {
