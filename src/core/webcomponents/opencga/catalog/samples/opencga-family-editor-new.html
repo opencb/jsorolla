@@ -538,15 +538,25 @@
                         if(UtilsNew.isNotUndefinedOrNull(parent)) {
                             parent.sex = "FEMALE";
                         }
-                        sampleSelected.member.mother = parent.name;
-                        this.family.members[sampleId].mother = parent.name;
+                        if (UtilsNew.isNotUndefinedOrNull(parent)) {
+                            sampleSelected.member.mother = parent.name;
+                            this.family.members[sampleId].mother = parent.name;
+                        } else {
+                            sampleSelected.member.mother = null;
+                            this.family.members[sampleId].mother = null;
+                        }
 
                     } else if (isFather === "true") {
                         if(UtilsNew.isNotUndefinedOrNull(parent)) {
                             parent.sex = "MALE";
                         }
-                        sampleSelected.member.father = parent.name;
-                        this.family.members[sampleId].father = parent.name;
+                        if (UtilsNew.isNotUndefinedOrNull(parent)) {
+                            sampleSelected.member.father = parent.name;
+                            this.family.members[sampleId].father = parent.name;
+                        } else {
+                            sampleSelected.member.father = null;
+                            this.family.members[sampleId].father = null;
+                        }
                     }
                     this._updateFamily();
                 }
