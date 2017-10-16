@@ -480,9 +480,11 @@
                 let sampleId = e.target.getAttribute("data-sample-id");
                 let sampleSelected = this.findSample(sampleId);
                 if(UtilsNew.isNotUndefinedOrNull(sampleSelected)) {
-                    sampleSelected.member.lifeStatus = "";
+
                     if(e.target.checked){
                         sampleSelected.member.lifeStatus = "DECEASED";
+                    } else {
+                        sampleSelected.member.lifeStatus = "UNKNOWN";
                     }
                     this.family.members[sampleId].lifeStatus = sampleSelected.member.lifeStatus;
                     this._updateFamily();

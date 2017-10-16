@@ -759,9 +759,9 @@
 
                     res = '<select id='+ this.prefix + 'selectedSubject' + this.currentAnalysis.analysisIDinternal + ' class="form-control form-control-sm">';
                     affectedMembers.forEach((affected) => {
-                        if(selected === affected.name){
+                        if (selected === affected.name) {
                             res = res +  '<option value="'+affected.name+'" selected>'+affected.name+'</option>';
-                        }else{
+                        } else {
                             res = res +  '<option value="'+affected.name+'">'+affected.name+'</option>';
                         }
                     });
