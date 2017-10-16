@@ -398,7 +398,7 @@
             addAnalysis(e) {
 
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-                let analysisId = Math.floor(Math.random() * 100) + 1;
+                let analysisId = Math.floor(Math.random() * 10000) + 1;
                 // Get the type of analysisId
                 let analysisType = "";
                 let _properMembers = -1;
@@ -781,7 +781,8 @@
             }
 
             analysisFormatter(analysisID, randomString) {
-                return '<input type="text" id="' + this.prefix + 'analysisID' + randomString + '" class="form-control" value="' + analysisID + '" maxlength="75">';
+//                return '<input type="text" id="' + this.prefix + 'analysisID' + randomString + '" class="form-control" value="' + analysisID + '" maxlength="75">';
+                return analysisID;
             }
 
             analysisError(analysisType, introducedLength, properLength) {
