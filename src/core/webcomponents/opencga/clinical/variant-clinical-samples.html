@@ -66,7 +66,9 @@
 
                 <div style="padding: 10px 0px">
                     <h3>Clinical Analysis</h3>
-
+                    <template is="dom-if" if="{{messageSuccess}}">
+                        <div class="alert alert-success" role="alert" id="{{prefix}}messageSuccess" style="margin:0 auto;">{{messageSuccessText}}</div>
+                    </template>
                     <template is="dom-if" if="{{messageError}}">
                         <div class="alert alert-danger" role="alert" id="{{prefix}}messageError" style="margin:0 auto;">{{messageErrorText}}</div>
                     </template>
@@ -408,6 +410,7 @@
                 let analysisType = "";
                 let _properMembers = -1;
                 let _familyEditor = false;
+                this.family = {};
 
                 switch (e.currentTarget.id) {
                     case "familyButton":
@@ -507,7 +510,9 @@
 
                     let _analysisType = "";
                     this.messageErrorText = "";
+                    this.messageSuccessText = "";
                     this.messageError = false;
+                    this.messageSuccess = false;
                     switch (rowInfo.analysisType) {
                         case "Single":
                             _analysisType = "SINGLE";
@@ -579,14 +584,14 @@
                     let checkExistsNames = true;
                     let checkFamilyName = _this.opencgaClient.families().search(Object.assign({name: bodyFamily.name}, params), {"method": "GET"})
                         .then(function(response){
-                            if (response.response[0].numResults >= 1) {
+                            if (response.response[0].numResults >= 1 || UtilsNew.isUndefinedOrNull(bodyFamily.name) || UtilsNew.isEmpty(bodyFamily.name)) {
                                 checkExistsNames = false;
                             }
                         });
                     checkPromises.push(checkFamilyName);
                     let checkAnalysisName = _this.opencgaClient.clinical().search(Object.assign({name: analysisInfo.analysisID}, params), {"method": "GET"})
                         .then(function(response){
-                            if (response.response[0].numResults >= 1) {
+                            if (response.response[0].numResults >= 1 || UtilsNew.isUndefinedOrNull(analysisInfo.analysisID) || UtilsNew.isEmpty(analysisInfo.analysisID)) {
                                 checkExistsNames = false;
                             }
                         });
@@ -668,7 +673,7 @@
                             }else{
                                 //@TODO Show message warning with name duplicate
                                 _this.messageError = true;
-                                _this.messageErrorText = "Family name or Analysis name already exists.";
+                                _this.messageErrorText = "Family name or Analysis name is not correct.";
                                 PolymerUtils.innerHTML(_this.prefix + "messageError", _this.messageErrorText);
                             }
                         });
@@ -718,6 +723,9 @@
                 this.opencgaClient.clinical().create(params, body)
                     .then(function (response) {
                         _this.unsavedAnalysis--;
+                        _this.messageSuccess = true;
+                        _this.messageSuccessText = body.name + " analysis has been created correctly.";
+                        PolymerUtils.innerHTML(_this.prefix + "messageSuccess", _this.messageSuccessText);
                     })
                     .catch(function (response) {
                         _this.messageError = true;
