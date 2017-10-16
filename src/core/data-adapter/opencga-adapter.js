@@ -92,9 +92,6 @@ class OpencgaAdapter extends FeatureAdapter {
         let params = {};
 
         Object.assign(params, this.params, args.params);
-        // Object.assign(params, args.params);
-
-        // this._checks(args);
 
         /** 4 chunkSize check **/
         let chunkSize = params.interval ? params.interval : this.options.chunkSize; // this.cache.defaultChunkSize should be the same
@@ -145,15 +142,9 @@ class OpencgaAdapter extends FeatureAdapter {
 
         let params = {};
         Object.assign(params, this.params, args.params);
-        // Object.assign(params, args.params);
 
         /** 1 region check **/
         let region = args.region;
-        // if (region.start > 300000000 || region.end < 1) {
-        //     return;
-        // }
-        // region.start = (region.start < 1) ? 1 : region.start;
-        // region.end = (region.end > 300000000) ? 300000000 : region.end;
         region = super._checkRegion(region);
 
         /** 2 category check **/
@@ -443,18 +434,11 @@ class OpencgaAdapter extends FeatureAdapter {
         /** time log **/
         let responseItems = [];
         for (let i = 0; i < data.response.length; i++) {
-            // var chunks = [];
-            // var queryResult = data.response[i].result;
             responseItems.push({
                 chunkKey: data.response[i].id,
                 region: new Region(data.response[i].id),
                 value: data.response[i].result
             });
-            // for (var j = 0; j < queryResult.length; j++) {
-            //     chunks.push(queryResult[j])
-            // }
-            // var items = this._adaptChunks(queryResult, categories[i], dataType, chunkSize);
-            // responseItems = responseItems.concat(items);
         }
         console.log(data);
         /** time log **/
@@ -498,14 +482,14 @@ class OpencgaAdapter extends FeatureAdapter {
             }
         }
         console.log(response);
-        //for (let i = 0; i < regions.length; i++) {
-            let chunkStartId = Math.floor(regions[0].start / chunkSize);
+
+        let chunkStartId = Math.floor(regions[0].start / chunkSize);
         return {
-                chunkKey: `${regions[0].chromosome}:${chunkStartId}_${dataType}_${chunkSize}`,
-                region: regions[0],
-                value: response.response[0].result,
-                dataType: dataType
-            };
+            chunkKey: `${regions[0].chromosome}:${chunkStartId}_${dataType}_${chunkSize}`,
+            region: regions[0],
+            value: response.response[0].result,
+            dataType: dataType
+        };
 
         /** time log **/
         //console.timeEnd(timeId);
@@ -533,7 +517,7 @@ class OpencgaAdapter extends FeatureAdapter {
         let chunks;
         let regions;
         let items = [];
-//        debugger
+
         if (queryResult.resultType == "org.opencb.biodata.models.variant.Variant") {
             chunks = [];
             regions = [];
@@ -554,7 +538,6 @@ class OpencgaAdapter extends FeatureAdapter {
                 chunks[keyToPair[key]].push(variation);
             }
 
-//            debugger
             items = this.cache.putByRegions(regions, chunks, category, dataType, chunkSize);
         } else { //if(queryResult.resultType == "org.opencb.biodata.models.alignment.AlignmentRegion") {
             regions = [];
@@ -563,10 +546,6 @@ class OpencgaAdapter extends FeatureAdapter {
             }
             chunks = queryResult.result;
 
-//            if (data.response[i].result.length == 1) {
-//            } else {
-//                console.log("unexpected data structure");
-//            }
             items = this.cache.putByRegions(regions, chunks, category, dataType, chunkSize);
         }
         return items;
