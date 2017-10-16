@@ -48,8 +48,6 @@ class SequenceRenderer extends Renderer {
             });
         }
 
-        //    this.trackSvgLayout.setNucleotidPosition(this.position);
-
         /* Time */
         console.timeEnd("Sequence render " + timeId);
         /**/

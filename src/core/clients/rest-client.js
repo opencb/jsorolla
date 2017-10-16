@@ -72,8 +72,8 @@ class RestClient {
             request.onload = function(event) {
                 if (request.status === 200) {
                     let contentType = this.getResponseHeader("Content-Type");
-                    // startsWith() is used because sometimes the contentType is 'application/json;charset=utf-8'
-                    if (contentType.startsWith("application/json")) {
+                    // indexOf() is used because sometimes the contentType is 'application/json;charset=utf-8'
+                    if (contentType.indexOf("application/json")!= -1) {
                         dataResponse = JSON.parse(this.response);
 
                         if (typeof options !== "undefined" && typeof options.cacheFn === "function") {
