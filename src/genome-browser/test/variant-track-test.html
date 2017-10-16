@@ -38,7 +38,7 @@
     <!-- /build -->
 
     <!-- build:[src] vendor/cookies.js/src/ -->
-    <script type="text/javascript" src="../../../bower_components/cookies-js/src/cookies.js"></script>
+    <script type="text/javascript" src="../../../node_modules/cookies-js/src/cookies.js"></script>
     <!-- /build -->
 
     <!-- build:[src] vendor/crypto.js/src/ -->
@@ -54,9 +54,7 @@
     <script type="text/javascript" src="../../core/utilsNew.js"></script>
     <script type="text/javascript" src="../../core/region.js"></script>
     <script type="text/javascript" src="../feature-binary-search-tree.js"></script>
-    <!--<script type="text/javascript" src="../lib/cellbase-manager.js"></script>-->
-    <!--<script type="text/javascript" src="../lib/ensembl-manager.js"></script> obsolete-->
-    <!--<script type="text/javascript" src="../lib/opencga-manager.js"></script>-->
+
 
     <script type="text/javascript" src="../../core/cache/file-feature-cache.js"></script>
     <script type="text/javascript" src="../../core/cache/feature-chunk-cache.js"></script>
@@ -65,8 +63,6 @@
     <script type="text/javascript" src="../../core/cache/bam-cache.js"></script>
 
 
-    <!--<script type="text/javascript" src="../lib/data-adapter/feature/ensembl-adapter.js"></script> obsolete-->
-    <!--<script type="text/javascript" src="../lib/data-adapter/feature/opencga-adapter.js"></script>-->
     <script type="text/javascript" src="../../core/data-adapter/feature-template-adapter.js"></script>
 
     <!--**-->
@@ -88,8 +84,6 @@
     <script type="text/javascript" src="../../core/widgets/feature/info/transcript-info-widget.js"></script>
     <script type="text/javascript" src="../../core/widgets/feature/info/vcf-variant-info-widget.js"></script>
 
-    <!-- <script type="text/javascript" src="../../check-deprecated/legend-panel.js"></script> -->
-    <!-- <script type="text/javascript" src="../../check-deprecated/legend-widget.js"></script> -->
 
     <script type="text/javascript" src="../../core/widgets/ux-window.js"></script>
 
@@ -101,7 +95,7 @@
     <script type="text/javascript" src="../status-bar.js"></script>
 
     <script type="text/javascript" src="../tracks/tracklist-panel.js"></script>
-    <!--&lt;!&ndash;<script type="text/javascript" src="tracks/track.js"></script>&ndash;&gt;   !!!!!!!!!!!!!!!!!!!!!!!!! mirrarrrr-->
+
     <script type="text/javascript" src="../tracks/feature-track.js"></script>
     <script type="text/javascript" src="../tracks/gene-track.js"></script>
     <script type="text/javascript" src="../tracks/alignment-track.js"></script>
@@ -117,9 +111,6 @@
     <script type="text/javascript" src="../renderers/variant-renderer.js"></script>
 
 
-    <!--<script type="text/javascript" src="fakeBam.js"></script>-->
-
-
     <script type="text/javascript" src="../genome-browser.js"></script>
     <!-- /build -->
 
@@ -130,10 +121,8 @@
     <script type="text/javascript" src="../../core/data-adapter/opencga-adapter.js"></script>
     <script type="text/javascript" src="../../core/cache/indexeddb-cache.js"></script>
     <script type="text/javascript" src="../../core/clients/cellbase-client.js"></script>
-    <!--<script type="text/javascript" src="../lib/clients/cellbase-client-config.js"></script> obsolete-->
     <script type="text/javascript" src="../../core/clients/rest-client.js"></script>
     <script type="text/javascript" src="../../core/clients/opencga-client.js"></script>
-    <!--<script type="text/javascript" src="../lib/clients/opencga-client-config.js"></script> obsolete-->
 
 
     <!-- Google Analytics -->
@@ -219,14 +208,6 @@
     opencgaClientConfig.setPrefix("gm");
     var opencgaClient = new OpenCGAClient(opencgaClientConfig);
 
-//    opencgaClient.users().login(OPENCGA_USER, OPENCGA_PASSWORD)
-//            .then(function() {
-//                console.log("User " + OPENCGA_USER + " successfully logged in in opencga.");
-//                opencgaClient = new OpenCGAClient(opencgaClientConfig);
-//            })
-//            .catch(function(e) {
-//                console.log("Error logging in " + OPENCGA_USER, e);
-//            });
 
     // Take the file id to show the alignment track
     let fileId;
