@@ -8,7 +8,6 @@ class HistogramRenderer extends Renderer {
         //set default args
         this.histogramHeight = 75;
         this.histogramColor = "#428bca";
-        //    this.multiplier = 7;
 
         this.maxValue = 10;
         this.updateScale(args);
@@ -18,7 +17,6 @@ class HistogramRenderer extends Renderer {
 
     _checkFeatureValue(feature) {
         if (feature.features_count === null) {
-            //            var height = Math.log(features[i].absolute);
             if (feature.absolute !== 0 && feature.absolute > 0) {
                 // take care of feature.absolute==1 counts and set scaled value to 0.2 as log(2) ~= 0.3
                 feature.features_count = Math.max(0.2, Math.log(feature.absolute));
@@ -41,7 +39,6 @@ class HistogramRenderer extends Renderer {
                 this.maxValue = args.histogramMaxFreqValue;
             }
         }
-        //this.multiplier = 7;
         this.multiplier = this.histogramHeight / this.maxValue;
     }
 
@@ -94,8 +91,6 @@ class HistogramRenderer extends Renderer {
         if (points !== "") {
             SVG.addChild(args.svgCanvasFeatures, "polyline", {
                 "points": points,
-                //        "stroke": "#000000",
-                //        "stroke-width": 0.2,
                 "fill": this.histogramColor,
                 "cursor": "pointer"
             });
