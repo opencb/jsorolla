@@ -66,6 +66,10 @@
 
                 <div style="padding: 10px 0px">
                     <h3>Clinical Analysis</h3>
+
+                    <template is="dom-if" if="{{messageError}}">
+                        <div class="alert alert-danger" role="alert" id="{{prefix}}messageError" style="margin:0 auto;">{{messageErrorText}}</div>
+                    </template>
                     <template is="dom-if" if="{{unsavedAnalysis}}">
                         <div class="alert alert-warning" role="alert" style="margin:0 auto;">There are unsaved analyses!</div>
                     </template>
@@ -208,6 +212,7 @@
                 this.currentAnalysis = {};
                 this.selectedRow = -1;
                 this.unsavedAnalysis = 0;
+                this.messageError = false;
                 this.fixedFilters = ["studies"];
             }
 
@@ -398,7 +403,7 @@
             addAnalysis(e) {
 
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-                let analysisId = Math.floor(Math.random() * 100) + 1;
+                let analysisId = Math.floor(Math.random() * 10000) + 1;
                 // Get the type of analysisId
                 let analysisType = "";
                 let _properMembers = -1;
@@ -501,6 +506,8 @@
                 if (this.opencgaClient instanceof OpenCGAClient) {
 
                     let _analysisType = "";
+                    this.messageErrorText = "";
+                    this.messageError = false;
                     switch (rowInfo.analysisType) {
                         case "Single":
                             _analysisType = "SINGLE";
@@ -561,7 +568,7 @@
                     subjects.push({name: subjectName, samples:samplesName});
 
                     let analysisInfo = {
-                        analysisID: PolymerUtils.getElementById(_this.prefix + "analysisID" + rowInfo.analysisIDinternal).value,
+                        analysisID: rowInfo.analysisID,
                         type: _analysisType,
                         familyID: rowInfo.family !== null ? rowInfo.family.name : "",
                         subjects:  subjects,
@@ -584,6 +591,7 @@
                             }
                         });
                     checkPromises.push(checkAnalysisName);
+
 
                     // Once all checkExistsName promise are resolved we try to create family
                     Promise.all(checkPromises)
@@ -616,19 +624,30 @@
                                                                 if ((_analysisType !== "TRIO" && _analysisType !== "FAMILY") || UtilsNew.isNotUndefinedOrNull(individualPromises) &&
                                                                     UtilsNew.isNotEmptyArray(individualPromises) && individualPromises.length > 0) {
                                                                     _this.createFamily(params, bodyFamily, rowInfo, subjectName, samplesName, analysisInfo);
+                                                                } else {
+                                                                    _this.messageError = true;
+                                                                    _this.messageErrorText = "We cannot create a family. Individuals are not correct.";
+                                                                    PolymerUtils.innerHTML(_this.prefix + "messageError", _this.messageErrorText);
                                                                 }
                                                             })
                                                             .catch(function (response) {
-                                                                _this.settingsMessageModal = {
-                                                                    messageHeader: "Error",
-                                                                    messageBody: [response.error],
-                                                                    type: "danger",
-                                                                    height: "100px",
-                                                                    width: "500px"
-                                                                };
-                                                                _this.set('settingsMessageModal', _this.settingsMessageModal);
-                                                                _this.showMessageModal = true;
+                                                                _this.messageError = true;
+                                                                _this.messageErrorText = response.error;
+                                                                PolymerUtils.innerHTML(_this.prefix + "messageError", _this.messageErrorText);
+//                                                                _this.settingsMessageModal = {
+//                                                                    messageHeader: "Error",
+//                                                                    messageBody: [response.error],
+//                                                                    type: "danger",
+//                                                                    height: "100px",
+//                                                                    width: "500px"
+//                                                                };
+//                                                                _this.set('settingsMessageModal', _this.settingsMessageModal);
+//                                                                _this.showMessageModal = true;
                                                             });
+                                                    } else {
+                                                        _this.messageError = true;
+                                                        _this.messageErrorText = individualToUpdate.name +" individual already has parents.";
+                                                        PolymerUtils.innerHTML(_this.prefix + "messageError", _this.messageErrorText);
                                                     }
                                                 }
 
@@ -638,12 +657,19 @@
                                     if((_analysisType !== "TRIO" && _analysisType !== "FAMILY") || UtilsNew.isNotUndefinedOrNull(individualPromises) &&
                                         UtilsNew.isNotEmptyArray(individualPromises) && individualPromises.length > 0) {
                                         _this.createFamily(params, bodyFamily, rowInfo, subjectName, samplesName, analysisInfo);
+                                    }  else {
+                                        _this.messageError = true;
+                                        _this.messageErrorText = "We cannot create a family. Analysis type is not correct.";
+                                        PolymerUtils.innerHTML(_this.prefix + "messageError", _this.messageErrorText);
                                     }
                                 }
 
 
                             }else{
                                 //@TODO Show message warning with name duplicate
+                                _this.messageError = true;
+                                _this.messageErrorText = "Family name or Analysis name already exists.";
+                                PolymerUtils.innerHTML(_this.prefix + "messageError", _this.messageErrorText);
                             }
                         });
                 }
@@ -658,15 +684,18 @@
                         }
                     })
                     .catch(function (response) {
-                        _this.settingsMessageModal = {
-                            messageHeader: "Error",
-                            messageBody: [response.error],
-                            type: "danger",
-                            height: "100px",
-                            width: "500px"
-                        };
-
-                        _this.showMessageModal = true;
+                        _this.messageError = true;
+                        _this.messageErrorText = response.error;
+                        PolymerUtils.innerHTML(_this.prefix + "messageError", _this.messageErrorText);
+//                        _this.settingsMessageModal = {
+//                            messageHeader: "Error",
+//                            messageBody: [response.error],
+//                            type: "danger",
+//                            height: "100px",
+//                            width: "500px"
+//                        };
+//
+//                        _this.showMessageModal = true;
                     });
             }
 
@@ -691,14 +720,17 @@
                         _this.unsavedAnalysis--;
                     })
                     .catch(function (response) {
-                        _this.settingsMessageModal = {
-                            messageHeader: "Error",
-                            messageBody: [response.error],
-                            type: "danger",
-                            height: "100px",
-                            width: "500px"
-                        };
-                        _this.showMessageModal = true;
+                        _this.messageError = true;
+                        _this.messageErrorText = response.error;
+                        PolymerUtils.innerHTML(_this.prefix + "messageError", _this.messageErrorText);
+//                        _this.settingsMessageModal = {
+//                            messageHeader: "Error",
+//                            messageBody: [response.error],
+//                            type: "danger",
+//                            height: "100px",
+//                            width: "500px"
+//                        };
+//                        _this.showMessageModal = true;
                     });
             }
 
@@ -781,7 +813,8 @@
             }
 
             analysisFormatter(analysisID, randomString) {
-                return '<input type="text" id="' + this.prefix + 'analysisID' + randomString + '" class="form-control" value="' + analysisID + '" maxlength="75">';
+//                return '<input type="text" id="' + this.prefix + 'analysisID' + randomString + '" class="form-control" value="' + analysisID + '" maxlength="75">';
+                return analysisID;
             }
 
             analysisError(analysisType, introducedLength, properLength) {
@@ -862,7 +895,7 @@
                         },
                         {
                             field: 'editFamily',
-                            title: 'Family'
+                            title: 'Definition'
                         },
                         {
                             field: 'action',
