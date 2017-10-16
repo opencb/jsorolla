@@ -107,7 +107,7 @@
             <div style="width: 60%;margin: 0 auto">
                 <button type="button" class="btn btn-primary btn-lg" style="width: 100%" on-click="onSearch">
                     <i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px"></i>
-                    Search
+                    Filter
                 </button>
             </div>
 
@@ -188,12 +188,12 @@
                         <div class="panel-heading" role="tab" id="{{prefix}}SampleFilterHeading">
                             <h4 class="panel-title">
                                 <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                                   href="#{{prefix}}SampleFilter" aria-expanded="true" aria-controls="{{prefix}}SampleFilter">
+                                   href="#{{prefix}}SampleFilter" aria-expanded="false" aria-controls="{{prefix}}SampleFilter">
                                     Analysis
                                 </a>
                             </h4>
                         </div>
-                        <div id="{{prefix}}SampleFilter" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}SampleFilterHeading">
+                        <div id="{{prefix}}SampleFilter" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}SampleFilterHeading">
                             <div class="panel-body" style="padding-top: 5px">
                                 <div class="form-group" style="margin-bottom: 5px" id="{{prefix}}selectAnalysisType" >
                                     <label>Select Analysis Type:</label>
@@ -305,7 +305,7 @@
                             <h4 class="panel-title">
                                 <a class="collapsed" role="button" data-toggle="collapse"
                                    data-parent="#{{prefix}}Accordion" href="#{{prefix}}AnalysisSelector"
-                                   aria-expanded="true" aria-controls="{{prefix}}AnalysisSelector">
+                                   aria-expanded="false" aria-controls="{{prefix}}AnalysisSelector">
                                     Analysis
                                     <div style="float: right" class="tooltip-div">
                                         <a data-toggle="tooltip" title="Select from the Clinical Analysis list sample(s) defined in the Analysis tab for prioritization">
@@ -316,7 +316,7 @@
                             </h4>
                         </div>
 
-                        <div id="{{prefix}}AnalysisSelector" class="panel-collapse collapse in" role="tabpanel"
+                        <div id="{{prefix}}AnalysisSelector" class="panel-collapse collapse" role="tabpanel"
                              aria-labelledby="{{prefix}}SampleFilterHeading">
                             <div class="panel-body">
                                 <label><i class="fa fa-sitemap" aria-hidden="true"></i>Select analysis:</label>

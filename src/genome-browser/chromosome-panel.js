@@ -10,7 +10,7 @@ class ChromosomePanel {
         this.autoRender = true;
         this.client;
 
-        this.pixelBase;
+        this.pixelBase = 0;
         this.species = 'hsapiens'; // change to config species
         this.width = 600;
         this.height = 75;
@@ -25,7 +25,7 @@ class ChromosomePanel {
         this.region = new Region(this.region);
 
         this.lastChromosome = "";
-        this.data;
+        this.data = null;
 
         this.on(this.handlers);
 

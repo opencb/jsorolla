@@ -64,7 +64,6 @@ class FeatureRenderer extends Renderer {
             // transform to pixel position
             let width = length * args.pixelBase;
 
-            //        var svgLabelWidth = this.getLabelWidth(label, args);
             let svgLabelWidth = label.length * 6.4;
 
             //calculate x to draw svg rect
@@ -118,7 +117,6 @@ class FeatureRenderer extends Renderer {
                     if ("tooltipText" in this) {
                         $(featureGroup).qtip({
                             content: {text: tooltipText, title: tooltipTitle},
-                            //                        position: {target: "mouse", adjust: {x: 15, y: 0}, effect: false},
                             position: {viewport: $(window), target: "mouse", adjust: {x: 25, y: 15}},
                             style: {width: true, classes: this.toolTipfontClass + " ui-tooltip ui-tooltip-shadow"},
                             show: {delay: 300},

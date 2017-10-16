@@ -23,7 +23,7 @@ class GeneRenderer extends Renderer {
         let _this = this;
         let draw = function (feature) {
             // get feature render configuration
-            _this.setFeatureConfig(_this._getDefaultConfigGene().gene);
+            _this.setFeatureConfig(_this.getDefaultConfigGene().gene);
             let color = _.isFunction(_this.color) ? _this.color(feature) : _this.color;
             let label = _.isFunction(_this.label) ? _this.label(feature) : _this.label;
             let height = _.isFunction(_this.height) ? _this.height(feature) : _this.height;
@@ -145,7 +145,7 @@ class GeneRenderer extends Renderer {
                             let transcriptWidth = (transcript.end - transcript.start + 1) * ( args.pixelBase);
 
                             //get type settings object
-                            _this.setFeatureConfig(_this._getDefaultConfigGene().transcript);
+                            _this.setFeatureConfig(_this.getDefaultConfigGene().transcript);
                             let transcriptColor = _.isFunction(_this.color) ? _this.color(transcript) : _this.color;
                             let label = _.isFunction(_this.label) ? _this.label(transcript) : _this.label;
                             let height = _.isFunction(_this.height) ? _this.height(transcript) : _this.height;
@@ -153,8 +153,8 @@ class GeneRenderer extends Renderer {
                             let tooltipText = _.isFunction(_this.tooltipText) ? _this.tooltipText(transcript) : _this.tooltipText;
                             let infoWidgetId = _.isFunction(_this.infoWidgetId) ? _this.infoWidgetId(transcript) : _this.infoWidgetId;
 
-                            //  se resta el trozo del final del gen hasta el principio del transcrito y se le suma el texto del transcrito
-                            // var svgLabelWidth = _this.getLabelWidth(label, args);
+                            //the length of the end of the gene is subtracted to the beginning of the transcript and is added the text of the transcript
+
                             let svgLabelWidth = label.length * 6.4;
                             let maxWidth = Math.max(width, width - ((feature.end - transcript.start) * ( args.pixelBase)) + svgLabelWidth);
 
@@ -220,7 +220,7 @@ class GeneRenderer extends Renderer {
                                 let exonWidth = (exonEnd - exonStart + 1) * ( args.pixelBase);
 
 
-                                _this.setFeatureConfig(_this._getDefaultConfigGene().exon);
+                                _this.setFeatureConfig(_this.getDefaultConfigGene().exon);
                                 let color = _.isFunction(_this.color) ? _this.color(exon) : _this.color;
                                 let label = _.isFunction(_this.label) ? _this.label(exon) : _this.label;
                                 let height = _.isFunction(_this.height) ? _this.height(exon) : _this.height;
@@ -361,7 +361,7 @@ class GeneRenderer extends Renderer {
         }
     }
 
-    _getDefaultConfigGene() {
+    getDefaultConfigGene() {
         return {
             gene: {
                 label(f) {

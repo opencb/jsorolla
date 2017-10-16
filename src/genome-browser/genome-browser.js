@@ -4,7 +4,6 @@ class GenomeBrowser {
     constructor(args) {
         Object.assign(this, Backbone.Events);
 
-        let _this = this;
         this.id = Utils.genId("GenomeBrowser");
 
         //set default args
@@ -12,8 +11,8 @@ class GenomeBrowser {
         this.version = 'Powered by <a target="_blank" href="http://www.opencb.org/">OpenCB</a>';
         this.target;
 
-        this.width;
-        this.height;
+        this.width = 1;
+        this.height = 1;
 
         this.client;
         this.cellBaseHost = "http://bioinfo.hpc.cam.ac.uk/cellbase";
@@ -49,10 +48,10 @@ class GenomeBrowser {
         this.trackListTitle = "Detailed information";//enable or disable sidePanel at construction
         this.trackPanelScrollWidth = 18;
 
-        this.zoom;
+        this.zoom = 1;
 
         this.chromosomes = [];
-        this.chromosomeList;
+        this.chromosomeList = [];
 
         //set instantiation args, must be last
         Object.assign(this, args);
@@ -227,7 +226,7 @@ class GenomeBrowser {
             return chromosomes;
         };
 
-        if (typeof this.chromosomeList !== "undefined") {
+        if (typeof this.chromosomeList !== 'undefined' && this.chromosomeList !== null && this.chromosomeList.length > 0) {
             this.chromosomes = saveChromosomes(this.chromosomeList);
             this.species.chromosomes = this.chromosomes;
         } else {

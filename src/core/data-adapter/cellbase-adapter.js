@@ -37,7 +37,7 @@ class CellBaseAdapter extends FeatureAdapter {
 
         // Extend backbone events
         Object.assign(this, Backbone.Events);
-        // _.extend(this, args);
+
         this.on(this.handlers);
     }
 

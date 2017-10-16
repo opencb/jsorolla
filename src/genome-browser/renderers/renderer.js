@@ -13,7 +13,7 @@ class Renderer {
     render(items) {
     }
 
-    getFeatureX(start, args) {//returns svg feature x value from feature genomic position
+    getFeatureX(start, args) {    // returns svg feature x value from feature genomic position
         let middle = args.width / 2;
         let x = args.pixelPosition + middle - ((args.position - start) * args.pixelBase);
         return x;

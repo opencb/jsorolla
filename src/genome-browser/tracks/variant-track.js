@@ -20,8 +20,6 @@ class VariantTrack extends FeatureTrack {
         // Set OpenCGA adapter as default. OpenCGA Client constructor(client, category, subcategory, resource, params = {}, options = {}, handlers = {}) {
         if (UtilsNew.isUndefinedOrNull(this.dataAdapter)) {
             if (UtilsNew.isNotUndefinedOrNull(this.opencga)) {
-                // let opencgaClientConfig = new OpenCGAClientConfig(this.opencga.host, this.opencga.version);
-                // opencgaConfig.cache.active = false;
                 if (UtilsNew.isNotUndefinedOrNull(this.opencga.client)) {
                     this.dataAdapter = new OpencgaAdapter(this.opencga.client, "analysis/variant", "", "query", {
                         studies: this.opencga.studies,

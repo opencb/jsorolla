@@ -12,7 +12,7 @@ class KaryotypePanel {
 
         this.client;
 
-        this.pixelBase;
+        this.pixelBase = 0;
         this.species;
         this.width = 600;
         this.height = 75;
@@ -28,7 +28,7 @@ class KaryotypePanel {
 
         this.lastSpecies = this.species;
 
-        this.chromosomeList;
+        this.chromosomeList = [];
         this.data2;
 
         this.on(this.handlers);

@@ -18,7 +18,7 @@ class VariantRenderer extends Renderer {
 
         // Extend and add Backbone Events
         Object.assign(this, Backbone.Events);
-        Object.assign(this, this._getDefaultConfig(), this.config);
+        Object.assign(this, this.getDefaultConfig(), this.config);
 
         this.on(this.handlers);
     }
@@ -54,23 +54,8 @@ class VariantRenderer extends Renderer {
 
                 const _this = this;
                 $(sampleSvg).click(function (event) {
-                    // $(this).css({"strokeWidth":"3","stroke":"#ff7200"}).hide(100).show(500).css({"stroke":"#51c000"})});
-                    // amarillo FCFC92
                     const label = $(this);
-                    // label.css({"stroke":"#ff7200"}).hide(100).show(500).css({"stroke":"#ff7200"});
 
-                    // POSIBILIDAD 1
-                    // let rect = SVG.addChild(_this.track.main,  "rect",{
-                    //    'x': 0,
-                    //    'y': label[0].y.baseVal[0].value-7,
-                    //    'width': _this.track.width,
-                    //    'height': 8,
-                    //    'stroke': '#FFFF00',
-                    //    'fill': '#FCFC92'
-                    // });
-                    // $(rect).css({"z-index": -1});
-
-                    // POSIBILIDAD 2
                     const yrect = label[0].y.baseVal[0].value - 7;
                     if (this.getAttribute("stroke") === "black") {
                         label.css({ stroke: "#ff7200" }).hide(100).show(500).css({ stroke: "#ff7200" });
@@ -92,34 +77,13 @@ class VariantRenderer extends Renderer {
                         this.setAttribute("stroke", "black");
                         label.css({ stroke: "black" });
                     }
-
-                    // let divpadre = _this.track.main.parentNode;
-                    // let selBox = $('<div id="' + this.id + 'selBox"></div>')[0];
-                    // divpadre.append(selBox);
-                    // $(selBox).css({
-                    //    'z-index': 0,
-                    //    'position': 'absolute',
-                    //    'left': 0,
-                    //    'top': label[0].y.baseVal[0].value-8,
-                    //    'height': 8,
-                    //    'width':'100%',
-                    //    'border': '2px solid #FFFF00',
-                    //    'opacity': 0.5,
-                    //    //'visibility': 'hidden',
-                    //    'background-color': '#F2F5A9'
-                    // });
-                    // $(selBox).click(function(event){
-                    //    this.parentNode.removeChild(this);
-                    // });
                 });
             }
         }
     }
 
     render(features, args) {
-        // for (let i = 0; i < features.length; i++) {
-        //     this._renderExtendedGenotypes(features[i], args);
-        // }
+
         if (typeof this.sampleNames !== "undefined" && this.sampleNames !== null && this.sampleNames.length > 0) {
             this._renderExtendedGenotypes(features, args);
         } else {
@@ -132,12 +96,8 @@ class VariantRenderer extends Renderer {
 
         for (const feature of features) {
             // get feature render configuration
-            // let color = _.isFunction(this.color) ? this.color(feature) : this.color;
-            // let label = _.isFunction(this.label) ? this.label(feature) : this.label;
-            // let height = _.isFunction(this.height) ? this.height(feature) : this.height;
             const tooltipTitle = _.isFunction(this.tooltipTitle) ? this.tooltipTitle(feature) : this.tooltipTitle;
             const tooltipText = _.isFunction(this.tooltipText) ? this.tooltipText(feature) : this.tooltipText;
-            // let infoWidgetId = _.isFunction(this.infoWidgetId) ? this.infoWidgetId(feature) : this.infoWidgetId;
 
             // get feature genomic information
             const start = feature.start;
@@ -152,28 +112,19 @@ class VariantRenderer extends Renderer {
             let width = length * args.pixelBase;
             width = Math.max(width, 1);
 
-            // let svgLabelWidth = this.getLabelWidth(label, args);
+
             // calculate x to draw svg rect
-            const x = this.getFeatureX(start, args);
-            // let maxWidth = Math.max(width, 2);
-            // let textHeight = 0;
-            // if (args.regionSize < args.maxLabelRegionSize) {
-            //     textHeight = 9;
-            //     maxWidth = Math.max(width, svgLabelWidth);
-            // }
-            // let rowY = 0;
-            // let textY = textHeight + height;
-            // let rowHeight = textHeight + height + 2;
+            const x = this.getFeatureX(start, args)
 
             // Color: Dark blue: 0/0, Orange: 0/1, Red: 1/1, Black: ./.
             let d00 = "";
             let dDD = "";
             let d11 = "";
             let d01 = "";
-            const xs = x; // x start
+            const xs = x;         // x start
             const xe = x + width; // x end
-            let ys = 5; // y
-            const yi = 10; // y increment
+            let ys = 5;           // y
+            const yi = 10;        // y increment
             const yi2 = this.sampleTrackHeight; // y increment
 
             let samplesCount = feature.studies[0].samplesData.length;
@@ -245,9 +196,7 @@ class VariantRenderer extends Renderer {
 
             let lastSampleIndex = 0;
             $(featureGroup).qtip({
-                //        content: {text: tooltipText + '<br>' + feature.files[lastSampleIndex], title: tooltipTitle},
                 content: { text: `${tooltipText}<br>${samplesCount} samples`, title: tooltipTitle },
-                //                        position: {target: "mouse", adjust: {x: 15, y: 0}, effect: false},
                 position: { target: "mouse", adjust: { x: 25, y: 15 } },
                 style: { width: true, classes: `${this.toolTipfontClass} ui-tooltip ui-tooltip-shadow` },
                 show: { delay: 300 },
@@ -325,7 +274,6 @@ class VariantRenderer extends Renderer {
             // transform to pixel position
             const width = length * args.pixelBase;
 
-            //        var svgLabelWidth = this.getLabelWidth(label, args);
             const svgLabelWidth = label.length * 6.4;
 
             // calculate x to draw svg rect
@@ -414,26 +362,35 @@ class VariantRenderer extends Renderer {
         console.timeEnd("Variant Compact Renderer");
     }
 
-    _getDefaultConfig() {
+    getDefaultConfig() {
         return {
             label(f) {
                 const tokens = [];
-                if (f.id) tokens.push(f.id);
-                if (f.name) tokens.push(f.name);
+                if (f.id) {
+                    tokens.push(f.id);
+                }
+                if (f.name) {
+                    tokens.push(f.name);
+                }
                 return tokens.join(" - ");
             },
             tooltipTitle(f) {
                 const tokens = [];
-                if (f.featureType) tokens.push(f.featureType);
-                if (f.id) tokens.push(f.id);
-                if (f.name) tokens.push(f.name);
+                if (f.featureType) {
+                    tokens.push(f.featureType);
+                }
+                if (f.id) {
+                    tokens.push(f.id);
+                }
+                if (f.name) {
+                    tokens.push(f.name);
+                }
                 return tokens.join(" - ");
             },
             tooltipText(f) {
                 const strand = (f.strand != null) ? f.strand : "NA";
                 const region = `start-end:&nbsp;<span style="font-weight: bold">${f.start}-${f.end} (${strand})</span><br>` +
                         `length:&nbsp;<span style="font-weight: bold; color:#005fdb">${(f.end - f.start + 1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")}</span><br>`;
-
 
                 let s = "";
                 for (let key in f) {

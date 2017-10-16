@@ -1,50 +1,26 @@
-/*
- * Copyright (c) 2012 Francisco Salavert (ICM-CIPF)
- * Copyright (c) 2012 Ruben Sanchez (ICM-CIPF)
- * Copyright (c) 2012 Ignacio Medina (ICM-CIPF)
- *
- * This file is part of JS Common Libs.
- *
- * JS Common Libs is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
- *
- * JS Common Libs is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
- */
+class StatusBar {
 
-function StatusBar(args) {
+    constructor(args) {
+        Object.assign(this, Backbone.Events);
 
-    // Using Underscore 'extend' function to extend and add Backbone Events
-    _.extend(this, Backbone.Events);
+        this.id = Utils.genId("StatusBar");
 
-    var _this = this;
+        this.target;
+        this.autoRender = true;
 
-    this.id = Utils.genId("StatusBar");
+        //set instantiation args, must be last
+        Object.assign(this, args);
 
-    this.target;
-    this.autoRender = true;
+        //set new region object
+        this.region = new Region(this.region);
 
-    //set instantiation args, must be last
-    _.extend(this, args);
-
-    //set new region object
-    this.region = new Region(this.region);
-
-    this.rendered = false;
-    if (this.autoRender) {
-        this.render();
+        this.rendered = false;
+        if (this.autoRender) {
+            this.render();
+        }
     }
-};
 
-StatusBar.prototype = {
-    render: function () {
+    render() {
 
         this.div = $('<div id="' + this.id + '" class="ocb-gv-status-bar"></div>')[0];
 
@@ -65,22 +41,24 @@ StatusBar.prototype = {
         $(this.leftDiv).append(this.versionEl);
 
         this.rendered = true;
-    },
-    draw: function () {
-        var _this = this;
+    }
+
+    draw () {
         this.targetDiv = (this.target instanceof HTMLElement) ? this.target : document.querySelector('#' + this.target);
         if (!this.targetDiv) {
             console.log('target not found');
             return;
         }
         this.targetDiv.appendChild(this.div);
-    },
-    setRegion: function (event) {
+    }
+
+    setRegion (event) {
         this.region.load(event.region);
         this.mousePositionBase.textContent = "";
         this.mousePositionRegion.textContent = this.region.chromosome + ':' + Utils.formatNumber(event.region.center());
-    },
-    setMousePosition: function (event) {
+    }
+
+    setMousePosition (event) {
         this.mousePositionBase.style.color = SEQUENCE_COLORS[event.base];
         this.mousePositionBase.textContent = event.base;
 
