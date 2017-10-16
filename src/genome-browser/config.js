@@ -135,33 +135,42 @@ const FEATURE_TYPES = {
     getTipCommons: function (f) {
         let strand = (f.strand !== null) ? f.strand : "NA";
         return `start-end:&nbsp;<span style="font-weight: bold">${f.start}-${f.end} (${strand})</span><br>` +
-            // `strand:&nbsp;<span style="font-weight: bold">${strand}</span><br>` +
             `length:&nbsp;<span style="font-weight: bold; color:#005fdb">${(f.end - f.start + 1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")}</span><br>`;
     },
     getTipTitleCommons: function (f) {
         let tokens = [];
-        if (f.featureType) tokens.push(f.featureType);
-        if (f.id) tokens.push(f.id);
-        if (f.name) tokens.push(f.name);
+        if (f.featureType) {
+            tokens.push(f.featureType);
+        }
+        if (f.id) {
+            tokens.push(f.id);
+        }
+        if (f.name) {
+            tokens.push(f.name);
+        }
         return tokens.join(" - ");
     },
     getLabelCommons: function (f) {
         let tokens = [];
-        if (f.id) tokens.push(f.id);
-        if (f.name) tokens.push(f.name);
+        if (f.id) {
+            tokens.push(f.id);
+        }
+        if (f.name) {
+            tokens.push(f.name);
+        }
         return tokens.join(" - ");
     },
     _getSimpleKeys: function (f) {
         let s = "";
-        for (key in f) {
+        for (let key in f) {
             if (key == "start" || key == "end" || key == "id" || key == "name" || key == "length") {
                 continue;
             }
             if (_.isNumber(f[key]) || _.isString(f[key])) {
-                s += key + ":&nbsp;<span style=\"font-weight: bold\">" + f[key] + "</span><br>"
+                s += key + ":&nbsp;<span style=\"font-weight: bold\">" + f[key] + "</span><br>";
             }
         }
-        return s
+        return s;
     },
 
     //items
@@ -183,7 +192,7 @@ const FEATURE_TYPES = {
         color: "#aaa",
         infoWidgetId: "id",
         height: 10,
-        histogramColor: "lightgray",
+        histogramColor: "lightgray"
     },
     gene: {
         label: function (f) {
@@ -259,37 +268,6 @@ const FEATURE_TYPES = {
     vcf: {
         label: function (f) {
             return f.id;
-            try {
-                let fields = f.sampleData.split("\t");
-            } catch (e) {
-                //Uncaught TypeError: Cannot call method 'split' of undefined
-                console.log(e)
-            }
-
-            if (fields.length > 10 || fields.length == 9)
-                return f.id + " " + f.ref + "/" + f.alt + "";
-            else {
-                var gt = fields[9].split(":")[0];
-                if (gt.indexOf(".") != -1 || gt.indexOf("-") != -1)
-                    return gt;
-                var label = "";
-                var alt = f.alt.split(",");
-                if (gt.charAt(0) == "0")
-                    label = f.ref;
-                else {
-                    var pos = gt.charAt(0) - 1;
-                    label = alt[pos];
-                }
-                label += gt.charAt(1);
-                if (gt.charAt(2) == "0")
-                    label += f.ref;
-                else {
-                    var pos = gt.charAt(2) - 1
-                    label += alt[pos]
-                }
-
-                return label;
-            }
         },
         tooltipTitle: function (f) {
             return "VCF variant - <span class=\"ok\">" + f.id + "</span>";
@@ -309,7 +287,7 @@ const FEATURE_TYPES = {
     },
     gff2: {
         label: function (f) {
-            var str = "";
+            let str = "";
             str += f.label;
             return str;
         },
@@ -330,7 +308,7 @@ const FEATURE_TYPES = {
     },
     gff3: {
         label: function (f) {
-            var str = "";
+            let str = "";
             str += f.label;
             return str;
         },
@@ -360,7 +338,7 @@ const FEATURE_TYPES = {
     },
     gtf: {
         label: function (f) {
-            var str = "";
+            let str = "";
             str += f.label;
             return str;
         },
@@ -390,7 +368,7 @@ const FEATURE_TYPES = {
     },
     bed: {
         label: function (f) {
-            var str = "";
+            let str = "";
             str += f.label;
             return str;
         },
@@ -402,13 +380,13 @@ const FEATURE_TYPES = {
         },
         color: function (f) {
             //XXX convert RGB to Hex
-            var rgbColor = new Array();
+            let rgbColor = new Array();
             rgbColor = f.itemRgb.split(",");
-            var hex = function (x) {
-                var hexDigits = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"];
+            let hex = function (x) {
+                let hexDigits = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"];
                 return isNaN(x) ? "00" : hexDigits[(x - x % 16) / 16] + hexDigits[x % 16];
             };
-            var hexColor = hex(rgbColor[0]) + hex(rgbColor[1]) + hex(rgbColor[2]);
+            let hexColor = hex(rgbColor[0]) + hex(rgbColor[1]) + hex(rgbColor[2]);
             return "#" + hexColor;
         },
         height: 8,
@@ -425,8 +403,8 @@ const FEATURE_TYPES = {
     },
     bam: {
         explainFlags: function (flags) {
-            var summary = "<div style=\"background:#FFEF93;font-weight:bold;\">flags : <span>" + flags + "</span></div>";
-            for (var i = 0; i < SAM_FLAGS.length; i++) {
+            let summary = "<div style=\"background:#FFEF93;font-weight:bold;\">flags : <span>" + flags + "</span></div>";
+            for (let i = 0; i < SAM_FLAGS.length; i++) {
                 if (SAM_FLAGS[i][1] & flags) {
                     summary += SAM_FLAGS[i][0] + "<br>";
                 }
@@ -441,13 +419,13 @@ const FEATURE_TYPES = {
         },
         tooltipText: function (f) {
             f.strand = this.strand(f);
-            var cigar = "";
-            for (var i = 0; i < f.differences.length; i++) {
-                var d = f.differences[i];
-                cigar += d.length + d.op
+            let cigar = "";
+            for (let i = 0; i < f.differences.length; i++) {
+                let d = f.differences[i];
+                cigar += d.length + d.op;
             }
 
-            var one = "CIGAR:&nbsp;<b>" + cigar + "</b><br>" +
+            let one = "CIGAR:&nbsp;<b>" + cigar + "</b><br>" +
                 "TLEN:&nbsp;<b>" + f.TLEN + "</b><br>" +
                 "RNAME:&nbsp;<b>" + f.RNAME + "</b><br>" +
                 "POS:&nbsp;<b>" + f.POS + "</b><br>" +
@@ -457,11 +435,11 @@ const FEATURE_TYPES = {
                 FEATURE_TYPES.getTipCommons(f) + "<br>" +
                 this.explainFlags(f.FLAG)+ "<br>";
 
-            var three = "<div style=\"background:#FFEF93;font-weight:bold;\">Optional fields</div>";
-            for (var key in f.OPTIONAL) {
+            let three = "<div style=\"background:#FFEF93;font-weight:bold;\">Optional fields</div>";
+            for (let key in f.OPTIONAL) {
                 three += key + ":" + f.OPTIONAL[key] + "<br>";
             }
-            var style = "background:#FFEF93;font-weight:bold;";
+            let style = "background:#FFEF93;font-weight:bold;";
             return "<div>" + one + "</div>" +
                 "<div>" + three + "</div>";
         },
@@ -471,11 +449,10 @@ const FEATURE_TYPES = {
             }else{
                 return "lightgreen";
             }
-            /**/
         },
         strokeColor: function (f) {
             if (this.mateUnmappedFlag(f)) {
-                return "tomato"
+                return "tomato";
             }
             return (parseInt(f.FLAG) & (0x10)) == 0 ? "LightGray" : "DarkGray";
         },
@@ -498,37 +475,6 @@ const FEATURE_TYPES = {
     variantMulti: {
         label: function (f) {
             return f.id;
-            try {
-                var fields = f.sampleData.split("\t");
-            } catch (e) {
-                //Uncaught TypeError: Cannot call method 'split' of undefined
-                console.log(e)
-            }
-
-            if (fields.length > 10 || fields.length == 9)
-                return f.id + " " + f.ref + "/" + f.alt + "";
-            else {
-                var gt = fields[9].split(":")[0];
-                if (gt.indexOf(".") !== -1 || gt.indexOf("-") !== -1)
-                    return gt;
-                var label = "";
-                var alt = f.alt.split(",");
-                if (gt.charAt(0) === "0")
-                    label = f.ref;
-                else {
-                    var pos = gt.charAt(0) - 1
-                    label = alt[pos]
-                }
-                label += gt.charAt(1)
-                if (gt.charAt(2) === "0") {
-                    label += f.ref;
-                } else {
-                    var pos = gt.charAt(2) - 1
-                    label += alt[pos]
-                }
-
-                return label;
-            }
         },
         tooltipTitle: function (f) {
             return "VCF variant - <span class=\"ok\">" + f.id + "</span>";
