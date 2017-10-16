@@ -494,6 +494,31 @@
                     _query.individual = individual;
                 }
 
+                let hpo = PolymerUtils.getValue(this.prefix + "PatientHpo");
+                let diagnosis = PolymerUtils.getValue(this.prefix + "PatientDiagnosis");
+
+                if (UtilsNew.isNotUndefinedOrNull(hpo) || UtilsNew.isNotUndefinedOrNull(diagnosis) ) {
+
+                    if (UtilsNew.isUndefinedOrNull(_query.ontologies)) {
+                        _query.ontologies = [];
+                    }
+                    if (UtilsNew.isNotEmpty(hpo)) {
+                        _query.ontologies.push(hpo);
+                    }
+                    if (UtilsNew.isNotEmpty(diagnosis)) {
+                        _query.ontologies.push(diagnosis);
+                    }
+
+                    if(UtilsNew.isNotEmptyArray(_query.ontologies)){
+                        _query.ontologies = _query.ontologies.join(",");
+                    }else{
+                        _query.ontologies = undefined;
+                    }
+                }
+
+
+
+
                 //TODO Refactor
                 let dateOption = $("#" + this.prefix + "DateRadioButton input[type='radio']:checked").val();
                 switch (dateOption) {

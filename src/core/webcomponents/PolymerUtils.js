@@ -160,7 +160,7 @@ class PolymerUtils {
 
     static addStyle(id, key, value) {
         if (UtilsNew.isNotUndefinedOrNull(id)) {
-            const el = this.getElementById(id);
+            const el = PolymerUtils.getElementById(id);
             if (UtilsNew.isNotUndefinedOrNull(el)) {
                 el.style[key] = value;
             }
@@ -170,7 +170,7 @@ class PolymerUtils {
 
     static addStyleByClass(className, key, value) {
         if (UtilsNew.isNotUndefinedOrNull(className)) {
-            const els = this.getElementsByClassName(className);
+            const els = PolymerUtils.getElementsByClassName(className);
             if (UtilsNew.isNotUndefinedOrNull(els)) {
                 Array.from(els).forEach((element) => {
                     element.style[key] = value;
@@ -184,6 +184,17 @@ class PolymerUtils {
             const el = PolymerUtils.getElementById(id);
             if (!UtilsNew.isUndefinedOrNull(el)) {
                 delete el.style[key];
+            }
+        }
+    }
+
+    static removeStyleByClass(className, key) {
+        if (UtilsNew.isNotUndefinedOrNull(className)) {
+            const els = PolymerUtils.getElementsByClassName(className);
+            if (UtilsNew.isNotUndefinedOrNull(els)) {
+                Array.from(els).forEach((element) => {
+                    delete element.style[key];
+                });
             }
         }
     }

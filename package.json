@@ -19,11 +19,11 @@
     "genome-browser": "mkdir -p dist/js/genome-browser && cd src/genome-browser && cp -r webcomponent ../../dist/js/genome-browser && cat *.js renderers/renderer.js renderers/*-renderer.js tracks/feature-track.js tracks/gene-track.js tracks/alignment-track.js tracks/variant-track.js tracks/tracklist-panel.js > ../../dist/js/genome-browser/genome-browser.js && cd ../.. && node_modules/uglify-es/bin/uglifyjs dist/js/genome-browser/genome-browser.js -o dist/js/genome-browser/genome-browser.min.js",
     "dist": "npm run clean && mkdir -p dist/js && npm run core && npm run genome-browser && npm run styles"
   },
-  "license": "ALv2",
+  "license": "Apache-2.0",
   "dependencies": {
-    "@polymer/polymer": "~2.0.2",
-    "@webcomponents/webcomponentsjs": "~1.0.2",
-    "@webcomponents/shadycss": "~1.0.1",
+    "@polymer/polymer": "~2.1.1",
+    "@webcomponents/webcomponentsjs": "~1.0.7",
+    "@webcomponents/shadycss": "~1.0.4",
     "bootstrap": "3.3.6",
     "bootstrap-table": "1.11.1",
     "bootstrap-treeview": "1.2.0",

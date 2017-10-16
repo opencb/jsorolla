@@ -10,7 +10,7 @@ class ChromosomePanel {
         this.autoRender = true;
         this.client;
 
-        this.pixelBase;
+        this.pixelBase = 0;
         this.species = 'hsapiens'; // change to config species
         this.width = 600;
         this.height = 75;
