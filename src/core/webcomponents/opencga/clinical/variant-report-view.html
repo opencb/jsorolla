@@ -546,7 +546,18 @@
 
                 // Family information (pedigree) -> Only for FAMILY, TRIO or DUO
                 if (UtilsNew.isNotUndefined(this.selection && this.selection.pedigree)) {
+
                     PolymerUtils.setPropertyById(this.prefix + "analysisInformationFamilyDiv", "hidden", !this.selection.pedigree);
+                    // Family information (pedigree) -> Only for FAMILY, TRIO or DUO
+                    if (this.selection.pedigree && (this.interpretation.clinicalAnalysis.type === "TRIO" || this.interpretation.clinicalAnalysis.type=== "DUO" || this.interpretation.clinicalAnalysis.type === "FAMILY")) {
+                        let querySelector = PolymerUtils.getElementById(this.prefix + "PedigreeView");
+                        if (querySelector.hasChildNodes()) {
+                            let item = querySelector.childNodes[0];
+                            querySelector.removeChild(item);
+                        }
+                        querySelector.appendChild(this.pedigreeRender(this.interpretation.clinicalAnalysis.family));
+                    }
+
                 }
 //
 
