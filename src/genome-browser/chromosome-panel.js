@@ -25,7 +25,7 @@ class ChromosomePanel {
         this.region = new Region(this.region);
 
         this.lastChromosome = "";
-        this.data;
+        this.data = null;
 
         this.on(this.handlers);
 

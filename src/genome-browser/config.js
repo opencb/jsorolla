@@ -394,10 +394,10 @@ const FEATURE_TYPES = {
         infoWidgetId: "id",
         handlers: {
             "feature:mouseover": function (e) {
-                console.log(e)
+                console.log(e);
             },
             "feature:click": function (e) {
-                console.log(e)
+                console.log(e);
             }
         }
     },
