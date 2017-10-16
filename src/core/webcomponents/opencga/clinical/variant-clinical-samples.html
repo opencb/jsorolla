@@ -412,6 +412,7 @@
                 let _familyEditor = false;
                 this.family = {};
 
+
                 switch (e.currentTarget.id) {
                     case "familyButton":
                         analysisType = "Family";
@@ -447,7 +448,8 @@
                         break;
                 }
 
-                if (this.analysisError(analysisType, this.samples.length, _properMembers)) {
+
+               if (this.analysisError(analysisType, this.samples.length, _properMembers, this.samples)) {
                     let fullDate = new Date();
                     let twoDigitMonth = ((fullDate.getMonth().length + 1) === 1) ? (fullDate.getMonth() + 1) : '0' + (fullDate.getMonth() + 1);
                     let currentDate = fullDate.getDate() + "/" + twoDigitMonth + "/" + fullDate.getFullYear();
@@ -825,13 +827,17 @@
                 return analysisID;
             }
 
-            analysisError(analysisType, introducedLength, properLength) {
+            analysisError(analysisType, introducedLength, properLength, samples) {
                 if ((analysisType === 'Trio' || analysisType === 'Duo' || analysisType === 'Single' || analysisType === 'Auto comparative') && introducedLength != properLength) {
                     PolymerUtils.innerHTML(this.prefix + "warningMsgDiv", "Incorrect number of samples selected (" + introducedLength.toString() + ") for " + analysisType + " analysis (" + properLength.toString() + ")");
                     $(PolymerUtils.getElementById(this.prefix + "warningModal")).modal('show');
                     return false;
                 } else if ((analysisType === 'Family' || analysisType === 'Multisample') && introducedLength < properLength) {
                     PolymerUtils.innerHTML(this.prefix + "warningMsgDiv", "Incorrect number of samples selected (" + introducedLength.toString() + ") for " + analysisType + " analysis (at least " + properLength.toString() + ")");
+                    $(PolymerUtils.getElementById(this.prefix + "warningModal")).modal('show');
+                    return false;
+                } else if(analysisType === "Single" && UtilsNew.isNotUndefinedOrNull(samples[0]) && UtilsNew.isEmptyArray(samples[0].ontologyTerms)) {
+                    PolymerUtils.innerHTML(this.prefix + "warningMsgDiv", "Incorrect single analysis without diseases");
                     $(PolymerUtils.getElementById(this.prefix + "warningModal")).modal('show');
                     return false;
                 } else {
