@@ -259,7 +259,7 @@
             initFamily() {
                 if (UtilsNew.isNotUndefinedOrNull(this._samplesAnalysis)) {
                     this.family = {};
-                    this.family.name = "";
+                    this.family.name = "FA-" + Math.floor(Math.random() * 10000) + 1;
                     this.family.description = "";
                     this.family.diseases = [];
                     this.family.members = [];
