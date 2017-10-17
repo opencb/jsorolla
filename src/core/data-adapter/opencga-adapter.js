@@ -268,16 +268,14 @@ class OpencgaAdapter extends FeatureAdapter {
 
         // Create the chunks to be retrieved
         let start = this._getStartChunkPosition(region.start);
-        let end = this._getStartChunkPosition(region.end);
 
         let regions = [];
-        let myRegion = start;
         args.webServiceCallCount = 0;
 
         do {
-            regions.push(`chr${region.chromosome}:${myRegion}-${myRegion + this.options.chunkSize - 1}`);
-            myRegion += this.options.chunkSize;
-        } while(myRegion < end);
+            regions.push(`chr${region.chromosome}:${start}-${start + this.options.chunkSize - 1}`);
+            start += this.options.chunkSize;
+        } while(start < region.end);
 
         let groupedRegions = this._groupQueries(regions);
         args.regions = groupedRegions;
@@ -460,7 +458,7 @@ class OpencgaAdapter extends FeatureAdapter {
                 chunks.push(res);
 
             }
-            console.log("Los chunks son:");
+            console.log("Chunks:");
             console.log(chunks);
 
             var regionSplit = queryRegion.split(',');
