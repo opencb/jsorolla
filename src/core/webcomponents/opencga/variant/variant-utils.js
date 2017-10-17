@@ -7,6 +7,27 @@ class VariantUtils {
     static jsonToTabConvert(json) {
         let dataString = [];
         let variantString = [];
+
+
+        for (var key in json[0]) {
+            console.log(key);
+        }
+
+        variantString.push("Variant");
+        variantString.push("SNP ID");
+        variantString.push("Genes");
+        variantString.push("Type");
+        variantString.push("Consequence Type");
+        variantString.push("SIFT");
+        variantString.push("Polyphen");
+        variantString.push("CADD");
+        variantString.push("PhyloP");
+        variantString.push("PhastCons");
+        variantString.push("GERP");
+        variantString.push("Clinvar");
+        variantString.push("Cosmic");
+        dataString.push(variantString.join('\t'));
+        variantString = [];
         for (let i = 0; i < json.length; i++) {
             variantString.push(json[i].chromosome + ':' + json[i].start + " " + json[i].reference + '/' + json[i].alternate);
             variantString.push(json[i].id);

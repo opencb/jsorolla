@@ -106,13 +106,15 @@
 
                             <opencga-family-editor-new study="{{study}}" samples="{{_samplesAnalysis}}"
                                                        opencga-client="{{opencgaClient}}" family="{{family}}"
-                                                       on-familychange="familyChange">
+                                                       on-familychange="familyChange" message-error-family="{{messageErrorFamily}}">
                             </opencga-family-editor-new>
                         </template>
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="checkFamily">OK
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel
+                        </button>
+                        <button type="button" class="btn btn-primary" on-click="checkFamily">OK
                         </button>
                     </div>
                 </div>
@@ -243,6 +245,9 @@
                             _this._samplesAnalysis = row.sampleList;
                             _this.currentAnalysis = row;
                             _this.selectedRow = elem.parent().data("index");
+                            _this.messageErrorFamily = [];
+                            _this.messageErrorFamily = [];
+
                             if (UtilsNew.isNotUndefinedOrNull(row.family)) {
                                 _this.family = row.family;
                             } else {
@@ -857,21 +862,33 @@
                 e.preventDefault();
 
                 let _this = this;
+                let checkFamilyValidate = false;
+                let messageErrorFamily = [];
+                if (UtilsNew.isNotUndefinedOrNull(this.family.name) && UtilsNew.isNotEmpty(this.family.name)) {
+                    checkFamilyValidate = true;
+                } else {
+                    messageErrorFamily.push("Name is required.");
+                }
 
-                // We have to do this before updateRow to get the selectedValue in member select. Instead we will get the first value of the all options
-                let subjectSelected = PolymerUtils.getValue(this.prefix + "selectedSubject" + this.currentAnalysis.analysisIDinternal);
-                let diseaseSelected = PolymerUtils.getValue(this.prefix + "selectedDisease" + this.currentAnalysis.analysisIDinternal);
-                $(PolymerUtils.getElementById(this.prefix + "tableAnalysis")).bootstrapTable('updateRow', {
-                    index: _this.selectedRow, row: {
-                        family: _this.family,
-                        samples: _this.samples
-                    }
-                });
-                $(PolymerUtils.getElementById(this.prefix + "tableAnalysis")).bootstrapTable("updateCell",{ index: _this.selectedRow, field: "subjectSelected", value: _this.subjectFormatter(this.currentAnalysis.analysisIDinternal, subjectSelected)});
-                $(PolymerUtils.getElementById(this.prefix + "tableAnalysis")).bootstrapTable("updateCell",{ index: _this.selectedRow, field: "diseaseSelected", value: _this.diseaseFormatter(this.currentAnalysis.analysisIDinternal, diseaseSelected)});
-                PolymerUtils.getElementById(this.prefix + 'selectedSubject' + this.currentAnalysis.analysisIDinternal).addEventListener('change', e => this.selectSubject(e));
-                PolymerUtils.removeAttribute(this.prefix + "Save" + this.currentAnalysis.analysisIDinternal, "disabled");
-                PolymerUtils.removeClass(this.prefix + "Save" + this.currentAnalysis.analysisIDinternal, "disabled");
+                if (checkFamilyValidate) {
+                    // We have to do this before updateRow to get the last selectedValue in member select. Instead we will get the first value of the all options
+                    let subjectSelected = PolymerUtils.getValue(this.prefix + "selectedSubject" + this.currentAnalysis.analysisIDinternal);
+                    let diseaseSelected = PolymerUtils.getValue(this.prefix + "selectedDisease" + this.currentAnalysis.analysisIDinternal);
+                    $(PolymerUtils.getElementById(this.prefix + "tableAnalysis")).bootstrapTable('updateRow', {
+                        index: _this.selectedRow, row: {
+                            family: _this.family,
+                            samples: _this.samples
+                        }
+                    });
+                    $(PolymerUtils.getElementById(this.prefix + "tableAnalysis")).bootstrapTable("updateCell",{ index: _this.selectedRow, field: "subjectSelected", value: _this.subjectFormatter(this.currentAnalysis.analysisIDinternal, subjectSelected)});
+                    $(PolymerUtils.getElementById(this.prefix + "tableAnalysis")).bootstrapTable("updateCell",{ index: _this.selectedRow, field: "diseaseSelected", value: _this.diseaseFormatter(this.currentAnalysis.analysisIDinternal, diseaseSelected)});
+                    PolymerUtils.getElementById(this.prefix + 'selectedSubject' + this.currentAnalysis.analysisIDinternal).addEventListener('change', e => this.selectSubject(e));
+                    PolymerUtils.removeAttribute(this.prefix + "Save" + this.currentAnalysis.analysisIDinternal, "disabled");
+                    PolymerUtils.removeClass(this.prefix + "Save" + this.currentAnalysis.analysisIDinternal, "disabled");
+                    $(PolymerUtils.getElementById(this.prefix + "FamilyEditor")).modal('hide');
+                }
+
+                this.messageErrorFamily = messageErrorFamily.slice();
             }
 
             _getClinicalAnalysisColumns() {

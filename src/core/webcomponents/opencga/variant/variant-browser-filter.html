@@ -605,10 +605,11 @@
                                     </option>
                                 </select>
                                 <select name="polyphenOperator" id="{{prefix}}PolyphenOperator" on-change="updateQueryFilters" class$="{{prefix}}FilterSelect">
-                                    <option value="<" ><</option>
-                                    <option value="<="><=</option>
                                     <option value=">" selected>></option>
                                     <option value=">=">>=</option>
+                                    <option value="<" ><</option>
+                                    <option value="<="><=</option>
+
                                 </select>
                                 <input type="text" value="" class$="browser-custom-sized-input {{prefix}}FilterTextInput"
                                        id="{{prefix}}PolyphenInput" name="Polyphen" on-keyup="updateQueryFilters">
@@ -702,7 +703,7 @@
                                         on-change="updateQueryFilters" class$="{{prefix}}FilterSelect">
                                     <option value="<" ><</option>
                                     <option value="<="><=</option>
-                                    <option value=">"> selected></option>
+                                    <option value=">" selected>></option>
                                     <option value=">=">>=</option>
                                 </select>
                                 <input type="text" value="" class$="browser-custom-sized-input {{prefix}}FilterTextInput"
