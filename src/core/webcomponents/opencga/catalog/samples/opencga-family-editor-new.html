@@ -17,6 +17,12 @@
             </div>
         </template>
         <template is="dom-if" if="{{_sampleExists}}">
+                <template is="dom-repeat" items="{{messageError}}">
+                    <div class="alert alert-danger" role="alert">
+                        {{item}}
+                    </div>
+                </template>
+
             <div id="{{prefix}}FilterMenu1" class="col-md-12">
                 <form class="form-inline">
                     <div class="row" style="padding: 15px 10px">
@@ -252,6 +258,11 @@
                     },
                     family: {
                         type: Object
+                    },
+                    messageErrorFamily: {
+                        type: Array,
+                        observer: 'updateError'
+
                     }
                 }
             }
@@ -642,6 +653,11 @@
                     $("#" + this.prefix + "SummaryCollapseIcon").removeClass("fa-minus-square-o").addClass("fa-plus-square-o");
                 }
                 this._summaryCollapsed = !this._summaryCollapsed;
+            }
+
+            updateError(){
+                this.messageError = this.messageErrorFamily.slice();
+//                console.log("hola")
             }
         }
 
