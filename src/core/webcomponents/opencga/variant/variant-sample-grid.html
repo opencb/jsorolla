@@ -194,6 +194,38 @@
                             _this.splice('_samples', sampleToDeleteIdx, 1);
                             _this.set('samples', _this._samples.slice());
                         },
+                        onCheckAll: function (rows) {
+                            let newSamples = _this._samples.slice();
+                            // check sample is not already selected
+                            rows.forEach((sample) => {
+                                let existsNewSelected = _this._samples.some((sampleSelected) => {
+                                   return  sampleSelected.name === sample.name;
+                                });
+
+                                if(!existsNewSelected){
+                                    newSamples.push(sample);
+                                }
+                            });
+
+                            // we add samples to selected samples
+                            _this._samples = newSamples;
+                            _this.set('samples', newSamples.slice());
+
+                        },
+                        onUncheckAll: function (rows) {
+                            // check sample is not already selected
+                            rows.forEach((sample) => {
+                                _this._samples = _this._samples.filter((sampleSelected) => {
+                                    return sampleSelected.name !== sample.name;
+                                });
+
+                            });
+
+                            // we add samples to selected samples
+//                            _this.push("_samples", row);
+                            _this.set('samples', _this._samples.slice());
+
+                        },
                         onLoadSuccess: function (data) {
                             // Check all already selected rows. Selected samples are stored in this.samples array
                             if (_this.samples !== "undefined") {

@@ -26,8 +26,7 @@ class VariantUtils {
         variantString.push("GERP");
         variantString.push("Clinvar");
         variantString.push("Cosmic");
-        variantString.push("\n");
-        dataString.push(variantString.join('\t##\t'));
+        dataString.push(variantString.join('\t'));
         variantString = [];
         for (let i = 0; i < json.length; i++) {
             variantString.push(json[i].chromosome + ':' + json[i].start + " " + json[i].reference + '/' + json[i].alternate);
@@ -184,7 +183,6 @@ class VariantUtils {
                 variantString.push("-");
             }
 
-            variantString.push("\n");
             dataString.push(variantString.join('\t'));
             variantString = [];
         }
