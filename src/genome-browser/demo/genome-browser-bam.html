@@ -100,7 +100,9 @@
 
     function run() {
         let species = AVAILABLE_SPECIES.vertebrates[0];
-        let region = new Region({chromosome: "13", start: 32996311, end: 32996411}); //initial region
+//        let region = new Region({chromosome: "13", start: 32996311, end: 32996411}); //initial region
+//        let region = new Region({chromosome: "13", start: 32996311, end: 32999411}); //initial region
+        let region = new Region({chromosome: "13", start: 33002147, end: 33002293}); //initial region
         let genomeBrowser = new GenomeBrowser({
             client: cellbaseClient,
             cellBaseHost: CELLBASE_HOST,
