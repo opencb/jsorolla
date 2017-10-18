@@ -26,6 +26,8 @@
                 width: 95%;
             }
         </style>
+
+        <template is="dom-if" if="{{!checkPermissions}}">
             <div class="panel" style="margin-bottom: 15px">
                 <h3 style="margin: 10px 10px 10px 15px">
                 <span on-click="onCollapse" style="cursor: pointer;margin: 0px 30px 0px 0px">
@@ -35,7 +37,7 @@
                 </h3>
             </div>
 
-            <div id="{{prefix}}FilterMenu" class="col-md-2" hidden$="{{checkProject(project)}}">
+            <div id="{{prefix}}FilterMenu" class="col-md-2" >
                 <variant-browser-filter study="{{study}}" project="{{project}}" studies="{{studies}}"
                                         cohorts="{{cohorts}}" biotypes={{biotypes}} config="{{config}}"
                                         samples="{{samples}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
@@ -46,7 +48,7 @@
                 </variant-browser-filter>
             </div>
 
-            <div id="{{prefix}}MainWindow" class="col-md-10" hidden$="{{checkProject(project)}}">
+            <div id="{{prefix}}MainWindow" class="col-md-10" >
                 <variant-browser-view title="{{title}}" project="{{project}}" study="{{study}}" cohorts="{{cohorts}}"
                                       prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
                                       cellbase-client="{{cellbaseClient}}"
@@ -58,9 +60,10 @@
                                       on-filterchange="onFilterChange" summary="{{summary}}" full-screen="{{_collapsed}}">
                 </variant-browser-view>
             </div>
+        </template>
 
 
-        <template is="dom-if" if="{{checkProject(project)}}">
+        <template is="dom-if" if="{{checkPermissions}}">
             <span style="text-align: center"><h3>No public projects available to browse. Please login to continue</h3></span>
         </template>
     </template>
@@ -124,6 +127,10 @@
                     },
                     biotypes: {
                         type: Array
+                    },
+                    checkPermissions: {
+                        type: Boolean,
+                        computed: '_checkPermissions(project)'
                     }
                 }
             }
@@ -186,9 +193,6 @@
                 }
             }
 
-            checkProject(project) {
-                return Object.keys(project).length === 0;
-            }
 
             propagateGeneEvent(e) {
                 //TODO cambiar por dispatchEvent
@@ -203,6 +207,10 @@
             onFilterChange(e) {
                 this.query = e.detail;
                 this.search = e.detail;
+            }
+
+            _checkPermissions(project) {
+                return UtilsNew.checkPermissions(project);
             }
         }
 
