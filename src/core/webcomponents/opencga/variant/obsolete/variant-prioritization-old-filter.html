@@ -766,8 +766,8 @@
                 }
 
                 if (popFreqs.length > 0) {
-                    query['annot-population-maf'] = popFreqs.join(";");
-                    if (query['annot-population-maf'].indexOf("error") >= 0) {
+                    query['alternate_frequency'] = popFreqs.join(";");
+                    if (query['alternate_frequency'].indexOf("error") >= 0) {
                         return;
                     }
                 }

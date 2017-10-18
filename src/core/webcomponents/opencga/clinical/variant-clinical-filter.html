@@ -844,8 +844,8 @@
 
                 // Population Freqs
                 let pfArray = [];
-                if (UtilsNew.isNotUndefined(this.query["annot-population-maf"])){
-                    pfArray = this.query["annot-population-maf"].split(new RegExp("[,;]"));
+                if (UtilsNew.isNotUndefined(this.query["alternate_frequency"])){
+                    pfArray = this.query["alternate_frequency"].split(new RegExp("[,;]"));
                 }
                 if (UtilsNew.isNotUndefined(this.populationFrequencies) && UtilsNew.isNotUndefined(this.populationFrequencies.studies) && this.populationFrequencies.studies.length > 0) {
                     for (let i = 0; i < this.populationFrequencies.studies.length; i++) {
@@ -1043,7 +1043,7 @@
                     }
                 }
                 if (popFreq.length > 0) {
-                    _filters["annot-population-maf"] = popFreq.join(';');
+                    _filters["alternate_frequency"] = popFreq.join(';');
                 }
 
                 // Protein Substitution scores

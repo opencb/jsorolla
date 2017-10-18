@@ -518,7 +518,7 @@
                                         <template is="dom-repeat" items="{{study.populations}}" as="popFreq">
                                             <label class="browser-popFreqName">{{popFreq.title}}</label>
                                             <div class="horizontal layout">
-                                                <span>MAF</span>
+                                                <span>ALT</span>
                                                 <span>
                                                     <select id="{{prefix}}{{study.id}}{{popFreq.id}}Operator" name="{{popFreq.id}}Operator"
                                                             on-change="updateQueryFilters" class$="{{prefix}}FilterSelect">
