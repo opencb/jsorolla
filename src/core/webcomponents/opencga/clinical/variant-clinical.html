@@ -107,225 +107,231 @@
             }
         </style>
 
-        <div class="panel">
-            <h3 style="margin: 10px 10px 10px 15px">
-                <i class="fa fa-sitemap" aria-hidden="true"></i>
-                &nbsp;{{title}}
-            </h3>
-        </div>
+        <template is="dom-if" if="{{checkPermissions}}">
+            <span style="text-align: center"><h3>No public projects available to browse. Please login to continue</h3></span>
+        </template>
 
-        <div class="col-md-12">
-            <div class="col-md-6" style="float: none;margin: auto">
-                <button id="{{prefix}}UploadButton" type="button"
-                        class$="analysis-button btn {{computedClassTabs(activesTab.uploadTab)}} btn-arrow-right"
-                        on-click="changeTool" data-toggle="tooltip" data-placement="top" title="Upload sample">
-                    <i class="fa fa-upload" aria-hidden="true"></i> Upload
-                </button>
-                <button id="{{prefix}}SamplesButton" type="button"
-                        class$="analysis-button btn {{computedClassTabs(activesTab.analysisTab)}} btn-arrow-right"
-                        on-click="changeTool" data-toggle="tooltip" data-placement="top"
-                        title="Connect, link & choose analysis of samples" >
-                    <i class="fa fa-sitemap" aria-hidden="true"></i> Analysis
-                </button>
-                <button id="{{prefix}}PrioritizationButton" type="button"
-                        class$="analysis-button btn {{computedClassTabs(activesTab.prioritizationTab)}} btn-arrow-right"
-                        on-click="changeTool"
-                        data-toggle="tooltip" data-placement="top" title="Filter & Prioritization">
-                    <i class="fa fa-filter" aria-hidden="true"></i> Prioritization
-                </button>
-                <button id="{{prefix}}ReportButton" type="button"
-                        class$="analysis-button btn {{computedClassTabs(activesTab.reportTab)}} btn-arrow-right"
-                        on-click="changeTool"
-                        data-toggle="tooltip" data-placement="top" title="Generate report">
-                    <i class="fa fa-file-text" aria-hidden="true"></i> Report
-                </button>
+        <template is="dom-if" if="{{!checkPermissions}}">
+
+            <div class="panel">
+                <h3 style="margin: 10px 10px 10px 15px">
+                    <i class="fa fa-sitemap" aria-hidden="true"></i>
+                    &nbsp;{{title}}
+                </h3>
             </div>
-        </div>
 
-        <div class="col-md-12">
-            <template is="dom-if" if="{{activesTab.uploadTab}}">
-                <div class$="analysis-content" id="{{prefix}}UploadButtonDiv">
-                    <variant-clinical-upload opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}"
-                                             clear-dom="{{clearDomUpload}}" ebi-config="{{ebiConfig}}">
-                    </variant-clinical-upload>
+            <div class="col-md-12">
+                <div class="col-md-6" style="float: none;margin: auto">
+                    <button id="{{prefix}}UploadButton" type="button"
+                            class$="analysis-button btn {{computedClassTabs(activesTab.uploadTab)}} btn-arrow-right"
+                            on-click="changeTool" data-toggle="tooltip" data-placement="top" title="Upload sample">
+                        <i class="fa fa-upload" aria-hidden="true"></i> Upload
+                    </button>
+                    <button id="{{prefix}}SamplesButton" type="button"
+                            class$="analysis-button btn {{computedClassTabs(activesTab.analysisTab)}} btn-arrow-right"
+                            on-click="changeTool" data-toggle="tooltip" data-placement="top"
+                            title="Connect, link & choose analysis of samples" >
+                        <i class="fa fa-sitemap" aria-hidden="true"></i> Analysis
+                    </button>
+                    <button id="{{prefix}}PrioritizationButton" type="button"
+                            class$="analysis-button btn {{computedClassTabs(activesTab.prioritizationTab)}} btn-arrow-right"
+                            on-click="changeTool"
+                            data-toggle="tooltip" data-placement="top" title="Filter & Prioritization">
+                        <i class="fa fa-filter" aria-hidden="true"></i> Prioritization
+                    </button>
+                    <button id="{{prefix}}ReportButton" type="button"
+                            class$="analysis-button btn {{computedClassTabs(activesTab.reportTab)}} btn-arrow-right"
+                            on-click="changeTool"
+                            data-toggle="tooltip" data-placement="top" title="Generate report">
+                        <i class="fa fa-file-text" aria-hidden="true"></i> Report
+                    </button>
                 </div>
-            </template>
+            </div>
 
-
-            <template is="dom-if" if="{{activesTab.analysisTab}}">
-                <div class$="analysis-content" id="{{prefix}}SamplesButtonDiv">
-                    <variant-clinical-samples opencga-client="{{opencgaClient}}" project="{{project}}" study="{{study}}"
-                                              samples="{{samples}}" prefix="{{prefix}}" config="{{config}}">
-                    </variant-clinical-samples>
-                </div>
-            </template>
-
-
-            <template is="dom-if" if="{{activesTab.prioritizationTab}}">
-                <template is="dom-if" if="{{!activePrioritization}}">
-                    <!--<div style="width: 60%; margin: auto">-->
-                    <div class="col-md-offset-1 col-md-10 ">
-                        <h3>Clinical Analysis {{clinicalAnalysis.name}}</h3>
-                        <div class="col-md-12" style="padding: 10px 15px">
-
-                            <div class="form-group col-md-12" id="{{prefix}}selectAnalysisType">
-                                <h4>Select Recent Analysis:</h4>
-                                <div style="padding: 10px 20px">
-                                    <template is="dom-if" if="{{!checkExistsRecentAnalysis}}">
-                                        <span>No recent clinical analysis found</span>
-                                    </template>
-                                    <template is="dom-if" if="{{checkExistsRecentAnalysis}}">
-                                        <template is="dom-repeat" items="{{recentAnalysis}}" as="analysis" index-as="j">
-
-                                            <input id="{{prefix}}sampleRadio{{analysis.id}}" type="radio" name="analysisRecentRadioButtons" checked$="{{isCheckedDefaultAnalysis(j, analysis.id)}}" value="{{analysis.id}}"
-                                                   class$="{{prefix}}FilterRadio" on-change="selectAnalysisRecent"
-                                                   style="padding-left: 20px"> {{analysis.name}}<br>
-                                        </template>
-                                    </template>
-                                </div>
-                            </div>
-
-                            <div class="form-group col-md-12">
-                                <div class="">
-                                    <span for="inputEmail3">Select analysis:</span>
-                                    <button id="inputEmail3" data-toggle="modal" role="button" data-placement="bottom" on-click="showClinicalSelector" class="btn btn-primary" style="display: inline">
-                                        Browse...
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Clinical Analysis View -->
-                        <div class="col-md-12" style="padding: 10px 15px">
-                            <clinical-analysis-view project="{{project}}" study="{{study}}" config="{{config}}" opencga-client="{{opencgaClient}}"
-                                                   clinical-analysis="{{clinicalAnalysis}}" clinical-analysis-id="{{clinicalAnalysisId}}" show-summary="{{showSummary}}" active-prioritization="{{activePrioritization}}">
-                            </clinical-analysis-view>
-                        </div>
-
-                        <br>
-                        <h3>Interpretation Algorithms</h3>
-                        <div class="form-group" style="margin-bottom: 5px">
-                            <p>Several prioritization and interpretation algorithms are available, you can choose an <span style="font-weight: bold">interactive</span> tool:</p>
-                            <input id="interactiveRadio" type="radio" name="analysisRadioButtons" value="sample" class$="{{prefix}}FilterRadio"
-                                   checked on-change="selectAnalysisType" style="padding-left: 20px"> Interactive Prioritization (based on <a href="https://www.ncbi.nlm.nih.gov/pubmed/24861626" target="_blank" style="font-weight: bold">TEAM</a> paper)<br>
-                            <!--<br>-->
-                            <!--<span>Or a <span style="font-weight: bold">batch</span> algorithm that will be executed in the server:</span>-->
-                            <!--<br>-->
-                            <!--<template is="dom-repeat" items="{{config.interpretation.algorithms}}" as="algorithm">-->
-                                <!--<input id="{{algorithm}}Radio" type="radio" name="analysisRadioButtons" value="{{algorithm}}"-->
-                                       <!--class$="{{prefix}}FilterRadio" on-change="selectAnalysisType"-->
-                                       <!--style="padding-left: 20px"> {{algorithm}} (pending)<br>-->
-                            <!--</template>-->
-                        </div>
+            <div class="col-md-12">
+                <template is="dom-if" if="{{activesTab.uploadTab}}">
+                    <div class$="analysis-content" id="{{prefix}}UploadButtonDiv">
+                        <variant-clinical-upload opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}"
+                                                 clear-dom="{{clearDomUpload}}" ebi-config="{{ebiConfig}}">
+                        </variant-clinical-upload>
                     </div>
+                </template>
 
-                    <template is="dom-if" if="{{showSummary}}">
-                        <div style="width: 50%;padding-top: 20px">
-                            <button type="button" class="btn btn-primary" style="float: right" on-click="onClickOkPrioritization">
+
+                <template is="dom-if" if="{{activesTab.analysisTab}}">
+                    <div class$="analysis-content" id="{{prefix}}SamplesButtonDiv">
+                        <variant-clinical-samples opencga-client="{{opencgaClient}}" project="{{project}}" study="{{study}}"
+                                                  samples="{{samples}}" prefix="{{prefix}}" config="{{config}}">
+                        </variant-clinical-samples>
+                    </div>
+                </template>
+
+
+                <template is="dom-if" if="{{activesTab.prioritizationTab}}">
+                    <template is="dom-if" if="{{!activePrioritization}}">
+                        <!--<div style="width: 60%; margin: auto">-->
+                        <div class="col-md-offset-1 col-md-10 ">
+                            <h3>Clinical Analysis {{clinicalAnalysis.name}}</h3>
+                            <div class="col-md-12" style="padding: 10px 15px">
+
+                                <div class="form-group col-md-12" id="{{prefix}}selectAnalysisType">
+                                    <h4>Select Recent Analysis:</h4>
+                                    <div style="padding: 10px 20px">
+                                        <template is="dom-if" if="{{!checkExistsRecentAnalysis}}">
+                                            <span>No recent clinical analysis found</span>
+                                        </template>
+                                        <template is="dom-if" if="{{checkExistsRecentAnalysis}}">
+                                            <template is="dom-repeat" items="{{recentAnalysis}}" as="analysis" index-as="j">
+
+                                                <input id="{{prefix}}sampleRadio{{analysis.id}}" type="radio" name="analysisRecentRadioButtons" checked$="{{isCheckedDefaultAnalysis(j, analysis.id)}}" value="{{analysis.id}}"
+                                                       class$="{{prefix}}FilterRadio" on-change="selectAnalysisRecent"
+                                                       style="padding-left: 20px"> {{analysis.name}}<br>
+                                            </template>
+                                        </template>
+                                    </div>
+                                </div>
+
+                                <div class="form-group col-md-12">
+                                    <div class="">
+                                        <span for="inputEmail3">Select analysis:</span>
+                                        <button id="inputEmail3" data-toggle="modal" role="button" data-placement="bottom" on-click="showClinicalSelector" class="btn btn-primary" style="display: inline">
+                                            Browse...
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Clinical Analysis View -->
+                            <div class="col-md-12" style="padding: 10px 15px">
+                                <clinical-analysis-view project="{{project}}" study="{{study}}" config="{{config}}" opencga-client="{{opencgaClient}}"
+                                                       clinical-analysis="{{clinicalAnalysis}}" clinical-analysis-id="{{clinicalAnalysisId}}" show-summary="{{showSummary}}" active-prioritization="{{activePrioritization}}">
+                                </clinical-analysis-view>
+                            </div>
+
+                            <br>
+                            <h3>Interpretation Algorithms</h3>
+                            <div class="form-group" style="margin-bottom: 5px">
+                                <p>Several prioritization and interpretation algorithms are available, you can choose an <span style="font-weight: bold">interactive</span> tool:</p>
+                                <input id="interactiveRadio" type="radio" name="analysisRadioButtons" value="sample" class$="{{prefix}}FilterRadio"
+                                       checked on-change="selectAnalysisType" style="padding-left: 20px"> Interactive Prioritization (based on <a href="https://www.ncbi.nlm.nih.gov/pubmed/24861626" target="_blank" style="font-weight: bold">TEAM</a> paper)<br>
+                                <!--<br>-->
+                                <!--<span>Or a <span style="font-weight: bold">batch</span> algorithm that will be executed in the server:</span>-->
+                                <!--<br>-->
+                                <!--<template is="dom-repeat" items="{{config.interpretation.algorithms}}" as="algorithm">-->
+                                    <!--<input id="{{algorithm}}Radio" type="radio" name="analysisRadioButtons" value="{{algorithm}}"-->
+                                           <!--class$="{{prefix}}FilterRadio" on-change="selectAnalysisType"-->
+                                           <!--style="padding-left: 20px"> {{algorithm}} (pending)<br>-->
+                                <!--</template>-->
+                            </div>
+                        </div>
+
+                        <template is="dom-if" if="{{showSummary}}">
+                            <div style="width: 50%;padding-top: 20px">
+                                <button type="button" class="btn btn-primary" style="float: right" on-click="onClickOkPrioritization">
+                                    OK
+                                </button>
+                            </div>
+                        </template>
+                    </template>
+
+                    <template is="dom-if" if="{{activePrioritization}}">
+                        <div style="margin: auto">
+                            <variant-prioritization mode="prioritization" title="Prioritization"
+                                                    project="{{project}}" study="{{study}}" samples="{{samples}}"
+                                                    config="{{configPrioritization}}" config-opencga="{{configOpencga}}" biotypes="{{biotypes}}"
+                                                    population-frequencies="{{populationFrequencies}}"
+                                                    protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                    consequence-types="{{consequenceTypes}}"
+                                                    opencga-client="{{opencgaClient}}"
+                                                    cellbase-client="{{cellbaseClient}}"
+                                                    ebi-config="{{config.ebiWS}}"
+                                                    beacon-hosts="{{config.tools.beacon.hosts}}" on-gene="geneSelected"
+                                                    clinical-analysis="{{clinicalAnalysis}}" >
+                            </variant-prioritization>
+                        </div>
+                    </template>
+                </template>
+
+                <template is="dom-if" if="{{activesTab.reportTab}}">
+                    <template is="dom-if" if="{{!activeReport}}">
+                        <div class="col-md-offset-1 col-md-10 ">
+                            <div class="analysis-content" id="{{prefix}}ReportButtonDiv">
+                                 <h3>Clinical Analysis {{clinicalAnalysis.name}}</h3>
+                                    <div class="col-md-12" style="padding: 10px 15px">
+                                        <div class="form-group col-md-12">
+                                            <div class="">
+                                                <h4>Select analysis:</h4>
+                                                <button  data-toggle="modal" role="button"
+                                                        data-placement="bottom" on-click="showClinicalSelector"
+                                                        class="btn btn-primary" style="display: inline">
+                                                    Browse...
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <h3>Clinical Interpretation</h3>
+                                    <div class="col-md-12" style="padding: 10px 15px">
+
+                                        <div class="form-group col-md-12" id="{{prefix}}selectInterpretationType">
+                                            <h4>Select Interpretation:</h4>
+                                            <div style="padding: 10px 20px">
+                                                <template is="dom-if" if="{{!checkExistsRecentInterpretations}}">
+                                                    <span>No interpretation found</span>
+                                                </template>
+
+                                                <template is="dom-if" if="{{checkExistsRecentInterpretations}}" >
+                                                    <template is="dom-repeat" items="{{recentInterpretations}}" as="interpretation" index-as="i">
+                                                        <input id="{{prefix}}sampleRadio{{interpretation.id}}" type="radio" name="interpretationRecentRadioButtons" value="{{interpretation.file.id}}"
+                                                               class$="{{prefix}}FilterRadio" on-change="selectInterpretationRecent" checked$="{{isCheckedDefaultInterpretation(i, interpretation.file.id)}}"
+                                                               style="padding-left: 20px"> {{interpretation.name}}<br>
+                                                    </template>
+                                                </template>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="col-md-12" style="padding: 10px 15px">
+                                        <clinical-interpretation-view id="id"  title="Interpretation View" interpretation-id={{interpretationId}} project="{{project}}"
+                                                                      study="{{study}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+                                                                      consequence-types="{{consequenceTypes}}" protein-substitution-scores="{{proteinSubstitutionScores}}" on-createreport="onCreateReport"
+                                                                      style="font-size: 12px">
+                                        </clinical-interpretation-view>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </template>
+                        <template is="dom-if" if="{{activeReport}}">
+                            <variant-clinical-report opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}"
+                                                     title="Generate Report" interpretation="{{interpretationReport}}"
+                                                     analysis="{{clinicalAnalysis}}" expReport="true">
+                            </variant-clinical-report>
+                        </template>
+                    </div>
+                </template>
+            </div>
+
+            <opencga-message-dialog opencga-client="{{opencgaClient}}" show-message-modal="{{showMessageModal}}" settings-message-modal="{{settingsMessageModal}}"></opencga-message-dialog>
+
+            <div class="modal fade" id="{{prefix}}AnalysisBrowser" tabindex="-1" role="dialog" aria-labelledby="sampleBrowserLabel">
+                <div class="modal-dialog modal-lg" role="document" style="width: 1280px;">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="{{prefix}}AnalysisBrowserLabel">Analysis Selector</h4>
+                        </div>
+                        <div class="modal-body" style="height: 780px">
+                            <variant-clinical-selector opencga-client="{{opencgaClient}}" analysis-selected="{{analysisSelected}}" analysis-modal="{{analysisModal}}" study="{{study}}" show-pedigree="true"></variant-clinical-selector>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="onAnalysisSelected">
                                 OK
                             </button>
                         </div>
-                    </template>
-                </template>
-
-                <template is="dom-if" if="{{activePrioritization}}">
-                    <div style="margin: auto">
-                        <variant-prioritization mode="prioritization" title="Prioritization"
-                                                project="{{project}}" study="{{study}}" samples="{{samples}}"
-                                                config="{{configPrioritization}}" config-opencga="{{configOpencga}}" biotypes="{{biotypes}}"
-                                                population-frequencies="{{populationFrequencies}}"
-                                                protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                                consequence-types="{{consequenceTypes}}"
-                                                opencga-client="{{opencgaClient}}"
-                                                cellbase-client="{{cellbaseClient}}"
-                                                ebi-config="{{config.ebiWS}}"
-                                                beacon-hosts="{{config.tools.beacon.hosts}}" on-gene="geneSelected"
-                                                clinical-analysis="{{clinicalAnalysis}}" >
-                        </variant-prioritization>
-                    </div>
-                </template>
-            </template>
-
-            <template is="dom-if" if="{{activesTab.reportTab}}">
-                <template is="dom-if" if="{{!activeReport}}">
-                    <div class="col-md-offset-1 col-md-10 ">
-                        <div class="analysis-content" id="{{prefix}}ReportButtonDiv">
-                             <h3>Clinical Analysis {{clinicalAnalysis.name}}</h3>
-                                <div class="col-md-12" style="padding: 10px 15px">
-                                    <div class="form-group col-md-12">
-                                        <div class="">
-                                            <h4>Select analysis:</h4>
-                                            <button  data-toggle="modal" role="button"
-                                                    data-placement="bottom" on-click="showClinicalSelector"
-                                                    class="btn btn-primary" style="display: inline">
-                                                Browse...
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            <h3>Clinical Interpretation</h3>
-                                <div class="col-md-12" style="padding: 10px 15px">
-
-                                    <div class="form-group col-md-12" id="{{prefix}}selectInterpretationType">
-                                        <h4>Select Interpretation:</h4>
-                                        <div style="padding: 10px 20px">
-                                            <template is="dom-if" if="{{!checkExistsRecentInterpretations}}">
-                                                <span>No interpretation found</span>
-                                            </template>
-
-                                            <template is="dom-if" if="{{checkExistsRecentInterpretations}}" >
-                                                <template is="dom-repeat" items="{{recentInterpretations}}" as="interpretation" index-as="i">
-                                                    <input id="{{prefix}}sampleRadio{{interpretation.id}}" type="radio" name="interpretationRecentRadioButtons" value="{{interpretation.file.id}}"
-                                                           class$="{{prefix}}FilterRadio" on-change="selectInterpretationRecent" checked$="{{isCheckedDefaultInterpretation(i, interpretation.file.id)}}"
-                                                           style="padding-left: 20px"> {{interpretation.name}}<br>
-                                                </template>
-                                            </template>
-                                        </div>
-                                    </div>
-
-                                </div>
-                                <div class="col-md-12" style="padding: 10px 15px">
-                                    <clinical-interpretation-view id="id"  title="Interpretation View" interpretation-id={{interpretationId}} project="{{project}}"
-                                                                  study="{{study}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
-                                                                  consequence-types="{{consequenceTypes}}" protein-substitution-scores="{{proteinSubstitutionScores}}" on-createreport="onCreateReport"
-                                                                  style="font-size: 12px">
-                                    </clinical-interpretation-view>
-                                </div>
-                            </div>
-                        </div>
-
-                    </template>
-                    <template is="dom-if" if="{{activeReport}}">
-                        <variant-clinical-report opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}"
-                                                 title="Generate Report" interpretation="{{interpretationReport}}"
-                                                 analysis="{{clinicalAnalysis}}" expReport="true">
-                        </variant-clinical-report>
-                    </template>
-                </div>
-            </template>
-        </div>
-
-        <opencga-message-dialog opencga-client="{{opencgaClient}}" show-message-modal="{{showMessageModal}}" settings-message-modal="{{settingsMessageModal}}"></opencga-message-dialog>
-
-        <div class="modal fade" id="{{prefix}}AnalysisBrowser" tabindex="-1" role="dialog" aria-labelledby="sampleBrowserLabel">
-            <div class="modal-dialog modal-lg" role="document" style="width: 1280px;">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title" id="{{prefix}}AnalysisBrowserLabel">Analysis Selector</h4>
-                    </div>
-                    <div class="modal-body" style="height: 780px">
-                        <variant-clinical-selector opencga-client="{{opencgaClient}}" analysis-selected="{{analysisSelected}}" analysis-modal="{{analysisModal}}" study="{{study}}" show-pedigree="true"></variant-clinical-selector>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="onAnalysisSelected">
-                            OK
-                        </button>
                     </div>
                 </div>
             </div>
-        </div>
-
+        </template>
     </template>
 
     <script>
@@ -333,7 +339,6 @@
 
             constructor() {
                 super();
-
                 this.prefix = "clinical-analysis-view-" + Utils.randomString(6);
             }
 
@@ -389,9 +394,6 @@
                     proteinSubstitutionScores: {
                         type: Object
                     },
-                    prefix: {
-                        type: String
-                    },
                     query: {
                         type: Object
                     },
@@ -413,6 +415,10 @@
                     settingsMessageModal: {
                         type: Object,
                         notify: true
+                    },
+                    checkPermissions: {
+                        type: Boolean,
+                        computed: '_checkPermissions(project)'
                     }
                 }
             }
@@ -555,9 +561,12 @@
             }
 
             onCreateReport(e, data){
-                console.log("create Report");
                 this.interpretationReport = data.interpretation;
                 this.activeReport = true;
+            }
+
+            _checkPermissions(project) {
+                return UtilsNew.checkPermissions(project);
             }
 
         }
