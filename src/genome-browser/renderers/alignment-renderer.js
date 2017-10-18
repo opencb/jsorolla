@@ -59,13 +59,8 @@ class AlignmentRenderer extends Renderer {
         });
 
         const drawCoverage = function (chunk) {
-debugger
-            let coverageList = [];
-            if(chunk.dataType != "histogram"){
-                coverageList = chunk.coverage.value;
-            }else{
-                coverageList = chunk.value;
-            }
+
+            let coverageList = chunk.coverage.value;
 
             const start = parseInt(chunk.region.start);
             const end = parseInt(chunk.region.end);

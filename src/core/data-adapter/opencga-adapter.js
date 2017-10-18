@@ -348,42 +348,46 @@ class OpencgaAdapter extends FeatureAdapter {
                         });
                 }
             } else { // histogram
-                _this.client.alignments().coverage(fileId,
-                    {
-                        region: `chr${region.chromosome}:${region.start}-${region.end - 1}`,
-                        study: study,
-                        windowSize: Math.round((region.end - region.start) / 500)
-                    })
-                    .then(function (response) {
-                        let aux = _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
-                        let auxArray = [];
 
-                        for (let i = 0; i < aux.length; i++) {
-                            let windowSize = aux[i].value[0].windowSize;
-                            let start = aux[i].region.start;
+                let chunks = [];
+                for (let i = 0; i < groupedRegions.length; i++) {
+                    args.webServiceCallCount++;
 
-                            for (let j = 0; j < aux[i].value[0].values.length; j++) {
-                                auxArray.push({
-                                    value: {
-                                        start: start,
-                                        end: start + windowSize - 1,
-                                        features_count: aux[i].value[0].values[j]
+                    let coverage = _this.client.alignments().coverage(fileId,
+                        {
+                            region: groupedRegions[i],
+                            study: study,
+                            //windowSize: Math.round((region.end - region.start) / 500)
+                        })
+                        .then(function (response) {
+                            let aux = _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
+                            let auxArray = [];
+                            // Create object for renderer
+                            for (let i = 0; i < aux.length; i++) {
+                                let auxObject = {
+                                    region: aux[i].region,
+                                    chunkKey: aux[i].chunkKey,
+                                    alignments: [],
+                                    coverage: {
+                                        windowSize: aux[i].value[0].windowSize,
+                                        value: aux[i].value[0].values
                                     }
-                                });
+                                };
+                                auxArray.push(auxObject);
 
-                                start += windowSize;
                             }
-                        }
+                            args.webServiceCallCount--;
 
-                        resolve({
-                            items: auxArray, dataType: dataType, chunkSize: chunkSize, sender: _this
+                            chunks = chunks.concat(auxArray);
+
+                            if (args.webServiceCallCount === 0) {
+                                resolve({
+                                    items: chunks, dataType: dataType, chunkSize: chunkSize, sender: _this
+                                });
+                            }
                         });
 
-
-                    })
-                    .catch(function(response){
-                        reject("Error when trying to fetch the alignment histogram");
-                    });
+                }
             }
         });
     }
