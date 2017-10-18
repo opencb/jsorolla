@@ -268,6 +268,7 @@ class OpencgaAdapter extends FeatureAdapter {
 
         // Create the chunks to be retrieved
         let start = this._getStartChunkPosition(region.start);
+        //let end = this._getStartChunkPosition(region.end);
 
         let regions = [];
         args.webServiceCallCount = 0;
@@ -349,9 +350,9 @@ class OpencgaAdapter extends FeatureAdapter {
             } else { // histogram
                 _this.client.alignments().coverage(fileId,
                     {
-                        region: `chr${region.chromosome}:${start}-${end - 1}`,
+                        region: `chr${region.chromosome}:${region.start}-${region.end - 1}`,
                         study: study,
-                        windowSize: Math.round((end - start) / 500)
+                        windowSize: Math.round((region.end - region.start) / 500)
                     })
                     .then(function (response) {
                         let aux = _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
