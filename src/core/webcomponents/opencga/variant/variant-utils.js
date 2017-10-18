@@ -24,6 +24,7 @@ class VariantUtils {
         variantString.push("PhyloP");
         variantString.push("PhastCons");
         variantString.push("GERP");
+        variantString.push("Population frequencies");
         variantString.push("Clinvar");
         variantString.push("Cosmic");
         dataString.push(variantString.join('\t'));
