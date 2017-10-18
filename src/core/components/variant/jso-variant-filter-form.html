@@ -732,7 +732,7 @@
                 }
 
                 if (_load == -1) { // This filter is new (has not been selected from the history)
-                    if (query.genotype != null || query.region != null || query.gene != null || query.ids != null || query.type != "" || query['annot-population-maf'] != null || query.sift != null || query.polyphen != null || query.functional != null || query.hpo != null || query.go != null || query.conservation != null || query["annot-ct"] != null) {
+                    if (query.genotype != null || query.region != null || query.gene != null || query.ids != null || query.type != "" || query['alternate_frequency'] != null || query.sift != null || query.polyphen != null || query.functional != null || query.hpo != null || query.go != null || query.conservation != null || query["annot-ct"] != null) {
                         var dateAux = new Date();
                         var minAux = dateAux.getMinutes();
                         if (minAux < 10) {
@@ -1132,8 +1132,8 @@
             }
 
             if (popFreq.length > 0) {
-                query['annot-population-maf'] = popFreq.join(";");
-                if (query['annot-population-maf'].indexOf("error") >= 0) {
+                query['alternate_frequency'] = popFreq.join(";");
+                if (query['alternate_frequency'].indexOf("error") >= 0) {
                     return;
                 }
             }
@@ -1348,8 +1348,8 @@
             }
 
             //Populaions
-            if (hf['annot-population-maf'] != "" && hf['annot-population-maf'] != null) {
-                var pops = hf['annot-population-maf'].split(";");
+            if (hf['alternate_frequency'] != "" && hf['alternate_frequency'] != null) {
+                var pops = hf['alternate_frequency'].split(";");
                 for (var i = 0; i < pops.length; i++) {
                     var type = pops[i].split(":");
                     if (type[0] == "1000GENOMES_phase_3") {
@@ -1376,7 +1376,7 @@
                         }
                     }
                 }
-                filterName.push("Population: " + hf['annot-population-maf'] + " ");
+                filterName.push("Population: " + hf['alternate_frequency'] + " ");
             }
 
             // Sift

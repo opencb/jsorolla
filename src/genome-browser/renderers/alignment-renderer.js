@@ -20,13 +20,11 @@ class AlignmentRenderer extends Renderer {
     render(response, args) {
         const _this = this;
 
-        // const sequenceDataAdapter = args.trackListPanel.getSequenceTrack().dataAdapter;
-
-        // CHECK VISUALIZATON MODE
-        if (_.isUndefined(response.params)) {
+        if (UtilsNew.isUndefined(response.params)) {
             response.params = {};
         }
 
+        // CHECK VISUALIZATON MODE
         let viewAsPairs = false;
         if (UtilsNew.isNotUndefinedOrNull(response.params.view_as_pairs)) {
             viewAsPairs = true;
@@ -39,20 +37,17 @@ class AlignmentRenderer extends Renderer {
             insertSizeMin = response.params.insert_size_interval.split(",")[0];
             insertSizeMax = response.params.insert_size_interval.split(",")[1];
         }
-        console.log(`insertSizeMin ${insertSizeMin}`);
-        console.log(`insertSizeMin ${insertSizeMax}`);
+        console.log(`insertSizeMin: ${insertSizeMin}, insertSizeMax: ${insertSizeMax}`);
+        // console.log(`insertSizeMax ${insertSizeMax}`);
 
         // Prevent browser context menu
         $(args.svgCanvasFeatures).contextmenu((e) => {
             console.log("right click");
-            // e.preventDefault();
         });
 
         console.time(`BamRender ${response.params.resource}`);
 
         const chunkList = response.items;
-
-        //    var middle = this.width / 2;
 
         const bamCoverGroup = SVG.addChild(args.svgCanvasFeatures, "g", {
             class: "bamCoverage",
@@ -64,22 +59,15 @@ class AlignmentRenderer extends Renderer {
         });
 
         const drawCoverage = function (chunk) {
-            // var coverageList = chunk.coverage.all;
-            const coverageList = chunk.coverage.value;
-            // var coverageListA = chunk.coverage.a;
-            // var coverageListC = chunk.coverage.c;
-            // var coverageListG = chunk.coverage.g;
-            // var coverageListT = chunk.coverage.t;
+
+            let coverageList = chunk.coverage.value;
+
             const start = parseInt(chunk.region.start);
             const end = parseInt(chunk.region.end);
             const pixelWidth = (end - start + 1) * args.pixelBase;
 
             const middle = args.width / 2;
-            // const baseMid = (args.pixelBase / 2) - 0.5; // 4.5 cuando pixelBase = 10
 
-            // var x, y, p = parseInt(chunk.start);
-            // var lineA = "", lineC = "", lineG = "", lineT = "";
-            // const coverageNorm = 200;
             const covHeight = 50;
 
             const histogram = [];
@@ -102,9 +90,7 @@ class AlignmentRenderer extends Renderer {
                             // We need to add the previous position as well to make a flat line between positions with equal coverage
                             const x = args.pixelPosition + middle - ((args.position - (start + (i - 1))) * args.pixelBase);
                             const y = covHeight - (coverageList[i - 1] * maxValueRatio);
-                            if (y < 0 || y > covHeight) {
-                                // debugger
-                            }
+
                             histogram.push(`${x},${y}`);
                         }
                         previousPosition = i;
@@ -149,28 +135,18 @@ class AlignmentRenderer extends Renderer {
                 if (pos < 0 || pos >= coverageList.length) {
                     return;
                 }
-                /*
-                 if(coverageList[pos]!=null){
-                 var str = 'depth: <span class="ssel">' + coverageList[pos] + '</span><br>' +
-                 '<span style="color:green">A</span>: <span class="ssel">' + chunk.coverage.a[pos] + '</span><br>' +
-                 '<span style="color:blue">C</span>: <span class="ssel">' + chunk.coverage.c[pos] + '</span><br>' +
-                 '<span style="color:darkgoldenrod">G</span>: <span class="ssel">' + chunk.coverage.g[pos] + '</span><br>' +
-                 '<span style="color:red">T</span>: <span class="ssel">' + chunk.coverage.t[pos] + '</span><br>';
-                 */
+
                 const str = `depth: <span class="ssel">${coverageList[pos]}</span><br>`;
                 $(dummyRect).qtip("option", "content.text", str);
-                /* } */
+
             });
         };
 
         const addSingleRead = function (feature, polyDrawing) {
-            /*
-             var start = feature.start;
-             var end = feature.end;
-             */
+
             const differences = [];
             const start = feature.alignment.position.position;
-            // let length = 0;
+
             let cigar = "";
             let relativePosition = 0;
             const insertions = [];
@@ -184,7 +160,6 @@ class AlignmentRenderer extends Renderer {
                     break;
                 case "ALIGNMENT_MATCH":
                     cigar += "M";
-                    // length += parseInt(feature.alignment.cigar[i].operationLength);
                     relativePosition += parseInt(feature.alignment.cigar[i].operationLength);
                     break;
                 case "INSERT":
@@ -209,12 +184,10 @@ class AlignmentRenderer extends Renderer {
                     myLength = parseInt(feature.alignment.cigar[i].operationLength);
                     differences.push({
                         pos: relativePosition,
-                        // seq: feature.alignedSequence.slice(relativePosition, relativePosition + myLength),
                         op: "D",
                         length: myLength,
                     });
                     relativePosition += myLength;
-                    // length += myLength;
                     break;
                 case "SKIP":
                     cigar += "N";
@@ -381,11 +354,10 @@ class AlignmentRenderer extends Renderer {
         };
 
         const drawSingleRead = function (feature) {
-            // var start = feature.start;
-            // var end = feature.end;
+
             const differences = [];
             const start = feature.alignment.position.position;
-            // let length = 0;
+
             let cigar = "";
             let relativePosition = 0;
             const insertions = [];
@@ -429,7 +401,7 @@ class AlignmentRenderer extends Renderer {
                         length: myLength,
                     });
                     relativePosition += myLength;
-                    // length += myLength;
+
                     break;
                 case "SKIP":
                     cigar += "N";
@@ -524,17 +496,8 @@ class AlignmentRenderer extends Renderer {
             const width = length * args.pixelBase;
             // calculate x to draw svg rect
             const x = _this.getFeatureX(start, args);
-            //		try{
-            //			var maxWidth = Math.max(width, /*settings.getLabel(feature).length*8*/0); //XXX cuidado : text.getComputedTextLength()
-            //		}catch(e){
-            //			var maxWidth = 72;
-            //		}
-            const maxWidth = width;
-            // if(length <0){
-            //    debugger
-            // }
-            // console.log(length + ' in px: ' + width);
 
+            const maxWidth = width;
 
             const rowHeight = 16;
             let rowY = 70;

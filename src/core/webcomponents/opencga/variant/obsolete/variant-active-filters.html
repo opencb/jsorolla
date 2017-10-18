@@ -223,7 +223,7 @@
                 let value = e.target.dataFilterValue;
                 switch (name) {
                     case "conservation":
-                    case "annot-population-maf":
+                    case "alternate_frequency":
                         // In some cases filters are separated with commas (logical OR)
                         if (_queryList[name].indexOf(',') != -1) {
                             _queryList[name] = _queryList[name]
@@ -266,7 +266,7 @@
                                 }
                             case "protein_substitution":
                             case "conservation":
-                            case "annot-population-maf":
+                            case "alternate_frequency":
                             case "annot-functional-score":
                                 // Split filters by comma
                                 let filterFields = value.split(new RegExp("[,;]"));

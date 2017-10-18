@@ -518,7 +518,7 @@
                                         <template is="dom-repeat" items="{{study.populations}}" as="popFreq">
                                             <label class="browser-popFreqName">{{popFreq.title}}</label>
                                             <div class="horizontal layout">
-                                                <span>MAF</span>
+                                                <span>ALT</span>
                                                 <span>
                                                     <select id="{{prefix}}{{study.id}}{{popFreq.id}}Operator" name="{{popFreq.id}}Operator"
                                                             on-change="updateQueryFilters" class$="{{prefix}}FilterSelect">
@@ -1356,8 +1356,8 @@
 
                 // Population Freqs
                 let pfArray = [];
-                if (typeof this.query["annot-population-maf"] !== "undefined") {
-                    pfArray = this.query["annot-population-maf"].split(new RegExp("[,;]"));
+                if (typeof this.query["alternate_frequency"] !== "undefined") {
+                    pfArray = this.query["alternate_frequency"].split(new RegExp("[,;]"));
                 }
                 if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.studies !== "undefined" && this.populationFrequencies.studies.length > 0) {
                     for (let i = 0; i < this.populationFrequencies.studies.length; i++) {
@@ -1644,7 +1644,7 @@
                     }
                 }
                 if (popFreq.length > 0) {
-                    _filters["annot-population-maf"] = popFreq.join(';');
+                    _filters["alternate_frequency"] = popFreq.join(';');
                 }
 
                 // Protein Substitution Scores -  Sift and Polyphen

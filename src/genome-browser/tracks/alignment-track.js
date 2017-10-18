@@ -13,9 +13,7 @@ class AlignmentTrack extends FeatureTrack {
         Object.assign(this, args);
 
         this._init();
-        // if (typeof this.renderer === "undefined") {
-        //     this.renderer = new AlignmentRenderer(FEATURE_TYPES.alignment);
-        // }
+
     }
 
     _init() {
