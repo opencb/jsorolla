@@ -35,6 +35,14 @@
                 }
             }
 
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            ready() {
+                super.ready();
+            }
+
             render() {
                 let popArray = [];
                 let mafArray = [];
