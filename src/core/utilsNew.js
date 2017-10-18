@@ -60,4 +60,10 @@ class UtilsNew {
         }
         return newArray;
     }
+
+    static checkPermissions(project) {
+        return Object.keys(project).length === 0;
+    }
+
+
 }

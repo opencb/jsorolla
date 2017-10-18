@@ -20,33 +20,35 @@
 <dom-module id="variant-facet">
     <template>
         <style include="jso-styles"></style>
+        <template is="dom-if" if="{{!checkPermissions}}">
 
-        <div class="panel" style="margin-bottom: 15px">
-            <h3 style="margin: 10px 10px 10px 15px">
-                <i class="fa fa-bar-chart" aria-hidden="true"></i>
-                &nbsp;{{title}}
-            </h3>
-        </div>
+            <div class="panel" style="margin-bottom: 15px">
+                <h3 style="margin: 10px 10px 10px 15px">
+                    <i class="fa fa-bar-chart" aria-hidden="true"></i>
+                    &nbsp;{{title}}
+                </h3>
+            </div>
 
-        <div class="col-md-2" hidden$="{{checkProject(project)}}">
-            <variant-browser-filter study="{{study}}" project="{{project}}" studies="{{studies}}"
+            <div class="col-md-2" hidden$="{{checkProject(project)}}">
+                <variant-browser-filter study="{{study}}" project="{{project}}" studies="{{studies}}"
+                                        opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+                                        population-frequencies="{{populationFrequencies}}"
+                                        consequence-types="{{consequenceTypes}}"
+                                        query="{{query}}" search="{{search}}" style="font-size: 12px">
+                </variant-browser-filter>
+            </div>
+
+            <div class="col-md-10" hidden$="{{checkProject(project)}}">
+                <variant-facet-view study="{{study}}" project="{{project}}" config="{{config}}"
                                     opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
-                                    population-frequencies="{{populationFrequencies}}"
-                                    consequence-types="{{consequenceTypes}}"
-                                    query="{{query}}" search="{{search}}" style="font-size: 12px">
-            </variant-browser-filter>
-        </div>
+                                    population-frequencies="{{populationFrequencies}}" query="{{query}}" search="{{search}}"
+                                    on-clear="onClear"
+                                    on-filterchange="onFilterChange">
+                </variant-facet-view>
+            </div>
+        </template>
 
-        <div class="col-md-10" hidden$="{{checkProject(project)}}">
-            <variant-facet-view study="{{study}}" project="{{project}}" config="{{config}}"
-                                opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
-                                population-frequencies="{{populationFrequencies}}" query="{{query}}" search="{{search}}"
-                                on-clear="onClear"
-                                on-filterchange="onFilterChange">
-            </variant-facet-view>
-        </div>
-
-        <template is="dom-if" if="{{checkProject(project)}}">
+        <template is="dom-if" if="{{checkPermissions}}">
             <span style="text-align: center"><h3>No public projects available to browse. Please login to continue</h3></span>
         </template>
 
@@ -97,6 +99,10 @@
                     },
                     search: {
                         type: Object
+                    },
+                    checkPermissions: {
+                        type: Boolean,
+                        computed: '_checkPermissions(project)'
                     }
                 }
             }
@@ -113,10 +119,6 @@
                 super.ready();
             }
 
-            checkProject(project) {
-                return Object.keys(project).length == 0;
-            }
-
             onClear() {
                 this.query = {};
                 this.search = {};
@@ -126,6 +128,11 @@
                 this.query = e.detail;
                 this.search = e.detail;
             }
+
+            _checkPermissions(project) {
+                return UtilsNew.checkPermissions(project);
+            }
+
         }
 
         customElements.define(VariantFacet.is, VariantFacet);
