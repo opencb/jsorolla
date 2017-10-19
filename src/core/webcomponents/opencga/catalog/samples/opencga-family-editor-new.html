@@ -133,9 +133,16 @@
                                                     </option>
                                                 </template>
                                                 <template is="dom-if" if="{{!isSelectedParent(0, sampleFather.id, sample.id)}}">
-                                                    <option value="{{sampleFather.id}}">
-                                                        {{sampleFather.name}}
-                                                    </option>
+                                                    <template is="dom-if" if="{{isDisabledParent(sampleFather.id, sample.id)}}">
+                                                        <option disabled value="{{sampleFather.id}}">
+                                                            {{sampleFather.name}}
+                                                        </option>
+                                                    </template>
+                                                    <template is="dom-if" if="{{!isDisabledParent(sampleFather.id, sample.id)}}">
+                                                        <option value="{{sampleFather.id}}">
+                                                            {{sampleFather.name}}
+                                                        </option>
+                                                    </template>
                                                 </template>
                                             </template>
                                         </select>
@@ -159,9 +166,16 @@
                                                     </option>
                                                 </template>
                                                 <template is="dom-if" if="{{!isSelectedParent(1, sampleMother.id, sample.id)}}">
-                                                    <option value="{{sampleMother.id}}">
-                                                        {{sampleMother.name}}
-                                                    </option>
+                                                    <template is="dom-if" if="{{isDisabledParent(sampleMother.id, sample.id)}}">
+                                                        <option disabled value="{{sampleMother.id}}">
+                                                            {{sampleMother.name}}
+                                                        </option>
+                                                    </template>
+                                                    <template is="dom-if" if="{{!isDisabledParent(sampleMother.id, sample.id)}}">
+                                                        <option value="{{sampleMother.id}}">
+                                                            {{sampleMother.name}}
+                                                        </option>
+                                                    </template>
                                                 </template>
                                             </template>
                                         </select>
@@ -284,11 +298,11 @@
             initData() {
                 this.data = {};
                 this.data.showSelectParents = false;
-                if(PolymerUtils.getElementById("samplesTable")!=null) {
+                if(PolymerUtils.getElementById("samplesTable") != null) {
                     PolymerUtils.getElementById("samplesTable").render();
                 }
                 if (UtilsNew.isNotUndefinedOrNull(this.samples)) {
-                    this.data.showSelectParents = this.samples.length > 2;
+                    this.data.showSelectParents = this.samples.length > 1;
                     this.data.name = this.family.name;
                     this.data.description = this.family.description;
                     this.data.diseases = this.family.diseases;
@@ -434,6 +448,18 @@
                     }
                 }
 
+                return parentSelected;
+            }
+
+            isDisabledParent(sampleParentId, sampleId) {
+                let sampleSelected = this.findSample(sampleId);
+                let sampleCurrentParent = this.findSample(sampleParentId);
+                let parentSelected = false;
+
+                if(UtilsNew.isNotUndefinedOrNull(sampleSelected) && UtilsNew.isNotUndefinedOrNull(sampleCurrentParent) &&
+                    UtilsNew.isNotUndefinedOrNull(sampleCurrentParent.individual) && UtilsNew.isNotUndefinedOrNull(sampleCurrentParent.individual.name)) {
+                        parentSelected = sampleSelected.id === sampleCurrentParent.id;
+                }
                 return parentSelected;
             }
 
