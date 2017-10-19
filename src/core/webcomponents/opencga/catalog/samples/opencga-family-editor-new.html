@@ -284,11 +284,11 @@
             initData() {
                 this.data = {};
                 this.data.showSelectParents = false;
-                if(PolymerUtils.getElementById("samplesTable")!=null) {
+                if(PolymerUtils.getElementById("samplesTable") != null) {
                     PolymerUtils.getElementById("samplesTable").render();
                 }
                 if (UtilsNew.isNotUndefinedOrNull(this.samples)) {
-                    this.data.showSelectParents = this.samples.length > 2;
+                    this.data.showSelectParents = this.samples.length > 1;
                     this.data.name = this.family.name;
                     this.data.description = this.family.description;
                     this.data.diseases = this.family.diseases;

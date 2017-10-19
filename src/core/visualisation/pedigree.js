@@ -78,7 +78,8 @@ class Pedigree {
         // Draw the lines between parents and children
         if (typeof pedigree.father !== "undefined" || typeof pedigree.mother !== "undefined") {
             let verticalBarOffset = 0;
-            if (pedigree.father.partnerConsaguinity || pedigree.mother.partnerConsaguinity) {
+            if (typeof pedigree.father !== "undefined" && typeof pedigree.mother !== "undefined" &&
+                ( pedigree.father.partnerConsaguinity || pedigree.mother.partnerConsaguinity)) {
                 verticalBarOffset = 2;
                 SVG.addChild(svg, "line", {
                     x1: xCenter - settings.box,     y1: 10 + radius - verticalBarOffset,
@@ -220,15 +221,23 @@ class Pedigree {
 
         family.children = [];
         for (let m of family.members) {
-            if (m.father !== undefined && m.mother !== undefined ) {
-                map[m.father].partner = m.mother;
-                map[m.mother].partner = m.father;
+            if (m.father !== undefined || m.mother !== undefined ) {
+                if (m.father !== undefined) {
 
-                map[m.father].partnerConsaguinity = m.parentalConsanguinity;
-                map[m.mother].partnerConsaguinity = m.parentalConsanguinity;
+                    map[m.father].partner = m.mother;
+                    map[m.father].partnerConsaguinity = m.parentalConsanguinity;
+                }
 
-                if (this._isOrphan(map[m.father] && this._isOrphan(map[m.mother]))) {
+                if(m.mother !== undefined) {
+                    map[m.mother].partner = m.father;
+                    map[m.mother].partnerConsaguinity = m.parentalConsanguinity;
+                }
+
+                if (m.father !== undefined && this._isOrphan(map[m.father])) {
                     family.father = map[m.father];
+                }
+
+                if(m.mother!== undefined && this._isOrphan(map[m.mother])){
                     family.mother = map[m.mother];
                 }
 
