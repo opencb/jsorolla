@@ -243,7 +243,7 @@
 
             connectedCallback() {
                 super.connectedCallback();
-                this.pedigreeRender();
+//                this.pedigreeRender();
             }
 
             _summaryOnClick() {
@@ -272,7 +272,7 @@
                                 _this.clinicalAnalysis = response.response[0].result[0];
                                 _this.showSummary = true;
                                 _this.title = _this.clinicalAnalysis.name + " Clinical Analysis Summary";
-//                                _this.pedigreeRender();
+                                _this.pedigreeRender();
                             }
 
                         });
@@ -281,7 +281,7 @@
 
             pedigreeRender() {
                 if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis) && UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.family)) {
-                    if (UtilsNew.isNotUndefined(this.svg)) {
+                    if (UtilsNew.isNotUndefined(this.svg) && PolymerUtils.getElementById(this.prefix + "PedigreeView").hasChildNodes()) {
                         PolymerUtils.getElementById(this.prefix + "PedigreeView").removeChild(this.svg);
                     }
                     let body = Object.assign({},this.clinicalAnalysis.family);
@@ -319,6 +319,7 @@
                     querySelector.appendChild(this.svg);
                 }
             }
+
 
         }
 
