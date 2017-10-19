@@ -318,7 +318,8 @@
                     this.samples.forEach((sample) => {
                         sample.member = _this.family.members[sample.id];
 
-                        if (UtilsNew.isNotUndefinedOrNull(sample.attributes) && UtilsNew.isNotUndefinedOrNull(sample.attributes.individual) && sample.attributes.individual.id > 0) {
+                        if (UtilsNew.isNotUndefinedOrNull(sample.attributes) && UtilsNew.isNotUndefinedOrNull(sample.attributes.individual)
+                            && sample.attributes.individual.id > 0) {
                             // Fetch every individual from Webservices to get every ontologyTerm and create array of custom diseases and array of selected diseases from create individual form.
                             this.opencgaClient.individuals().info(sample.attributes.individual.id, params, {method: "GET"})
                                 .then(function (response) {
@@ -326,9 +327,10 @@
                                         sample.attributes.individual = response.response[0].result[0];
                                     }
                                     // Union of all ontologyTerms of every sample and we save it in diseases.
-                                    if(UtilsNew.isNotUndefinedOrNull(sample.attributes.individual.ontologyTerms && UtilsNew.isNotEmptyArray(sample.attributes.individual.ontologyTerms))){
+                                    if(UtilsNew.isNotUndefinedOrNull(sample.attributes.individual.ontologyTerms
+                                            && UtilsNew.isNotEmptyArray(sample.attributes.individual.ontologyTerms))){
                                         sample.individual.ontologyTerms.forEach((term) => {
-                                            if(term.id !== ""){
+                                            if (UtilsNew.isNotEmpty(term.id)) {
                                                 // check if exists already this term in data.diseases
                                                 let existsTerm = _this.data.diseases.find((element) => {
                                                     return element.id === term.id;
@@ -365,8 +367,6 @@
 
                                     // Made this to update dom-repeat in from the component prioritization-view
                                     _this.set('data.samples', _samples.slice());
-
-
                                 })
                                 .catch(function (response) {
                                     _this.settingsMessageModal = {
@@ -393,18 +393,17 @@
             }
 
             findSample(sampleId) {
-                if(UtilsNew.isNotUndefinedOrNull(this.data) && UtilsNew.isNotUndefinedOrNull(this.data.samples)) {
+                if (UtilsNew.isNotUndefinedOrNull(this.data) && UtilsNew.isNotUndefinedOrNull(this.data.samples)) {
                     return this.data.samples.find((sample) => {
                         return parseInt(sampleId) === sample.id;
                     });
                 }
-
                 return null;
             }
 
             isCheckedDisease(sampleId, diseaseId) {
                 let sampleSelected = this.findSample(sampleId);
-                if(UtilsNew.isNotUndefinedOrNull(sampleSelected) && UtilsNew.isNotUndefinedOrNull(sampleSelected.member)
+                if (UtilsNew.isNotUndefinedOrNull(sampleSelected) && UtilsNew.isNotUndefinedOrNull(sampleSelected.member)
                     && UtilsNew.isNotUndefinedOrNull(sampleSelected.member.ontologyTerms)) {
 
                     let existsSelectedDisease = sampleSelected.member.ontologyTerms.find((disease) => {
@@ -418,7 +417,8 @@
 
             isCheckedParentalConsanguinity(sampleId) {
                 let sampleSelected = this.findSample(sampleId);
-                if(UtilsNew.isNotUndefinedOrNull(sampleSelected) && UtilsNew.isNotUndefinedOrNull(sampleSelected.member) && UtilsNew.isNotUndefinedOrNull(sampleSelected.member.parentalConsanguinity)) {
+                if(UtilsNew.isNotUndefinedOrNull(sampleSelected) && UtilsNew.isNotUndefinedOrNull(sampleSelected.member)
+                    && UtilsNew.isNotUndefinedOrNull(sampleSelected.member.parentalConsanguinity)) {
                     return sampleSelected.member.parentalConsanguinity;
                 }
 
@@ -427,7 +427,8 @@
 
             isCheckedDeceased(sampleId) {
                 let sampleSelected = this.findSample(sampleId);
-                if(UtilsNew.isNotUndefinedOrNull(sampleSelected) && UtilsNew.isNotUndefinedOrNull(sampleSelected.member) && UtilsNew.isNotUndefinedOrNull(sampleSelected.member.lifeStatus)) {
+                if(UtilsNew.isNotUndefinedOrNull(sampleSelected) && UtilsNew.isNotUndefinedOrNull(sampleSelected.member)
+                    && UtilsNew.isNotUndefinedOrNull(sampleSelected.member.lifeStatus)) {
                     return sampleSelected.member.lifeStatus === "DECEASED";
                 }
 
@@ -472,7 +473,7 @@
                     this._sampleExists = false;
                 }
 
-                if(UtilsNew.isNotUndefinedOrNull(PolymerUtils.getElementById("samplesTable"))){
+                if (UtilsNew.isNotUndefinedOrNull(PolymerUtils.getElementById("samplesTable"))) {
                     PolymerUtils.getElementById("samplesTable").render();
                 }
             }
@@ -564,7 +565,7 @@
                 }
                 if (UtilsNew.isNotUndefinedOrNull(sampleSelected)) {
 
-                    // If selected individual sex is unddefined
+                    // If selected individual sex is undefined
                     if(UtilsNew.isUndefinedOrNull(sampleSelected.member.sex)){
                         sampleSelected.member.sex = "UNKNOWN";
                         this.family.members[sampleId].sex = "UNKNOWN";
@@ -683,7 +684,6 @@
 
             updateError(){
                 this.messageError = this.messageErrorFamily.slice();
-//                console.log("hola")
             }
         }
 
