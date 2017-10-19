@@ -182,8 +182,13 @@
 
             ready() {
                 super.ready();
+            }
 
-                this._previousQuery = undefined;
+            connectedCallback() {
+                super.connectedCallback();
+
+                // We need to init _previousQuery with query in order to work before executing any search
+                this._previousQuery = this.query;
             }
 
             clear() {
