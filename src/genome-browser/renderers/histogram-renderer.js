@@ -1,3 +1,13 @@
+/**
+  @param  args example:
+        {
+            height: number, <- height of div
+            histogramColor: String
+            histogramHeight: number <- height of histogram
+            histogramMaxFreqValue: number
+            ...
+        }
+ */
 class HistogramRenderer extends Renderer {
 
     constructor(args) {
@@ -13,6 +23,7 @@ class HistogramRenderer extends Renderer {
         this.updateScale(args);
         //set instantiation args
         Object.assign(this, args);
+
     }
 
     _checkFeatureValue(feature) {
@@ -32,16 +43,30 @@ class HistogramRenderer extends Renderer {
      */
     updateScale(args) {
         if (args !== null) {
-            if (args.height !== null) {
+            if (UtilsNew.isNotUndefinedOrNull(args.height)) {
                 this.histogramHeight = args.height * 0.95;
             }
-            if (args.histogramMaxFreqValue !== null) {
+            if (UtilsNew.isNotUndefinedOrNull(args.histogramMaxFreqValue)) {
                 this.maxValue = args.histogramMaxFreqValue;
             }
         }
         this.multiplier = this.histogramHeight / this.maxValue;
     }
+    /**
+    @param features  Array containing chunks example
+            [   {chunkKey:"13:3298_histogram_10000"
+                 region: Region{chromosome: "13", start:329800000, end:32980016}
+                 value:{_id: 1940000, chromosome:"13", start: 32980000, end: 32980016, features_count:0},
+                 ...
+                 }
+            ]
+     @param args example
+                {pixelPosition: number,
+                position: number,
+                svgCanvasFeatures
+                }
 
+     */
     render(features, args) {
         features.sort(function (a, b) {
             return a.value.start - b.value.start;
