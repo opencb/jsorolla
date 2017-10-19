@@ -221,7 +221,7 @@ class OpencgaAdapter extends FeatureAdapter {
                     });
                 });
             } else { // histogram
-
+                console.log("To be implemented")
             }
         });
 
