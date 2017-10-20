@@ -197,7 +197,9 @@ class OpencgaAdapter extends FeatureAdapter {
                 resolve({
                     items: response, dataType: dataType, chunkSize: chunkSize, sender: _this
                 });
+
             });
+
 
         });
 

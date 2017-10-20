@@ -322,7 +322,7 @@
                                 <label><i class="fa fa-sitemap" aria-hidden="true"></i>Select analysis:</label>
                                 <br>
                                 <button data-toggle="modal" role="button" data-placement="bottom"
-                                          on-click="showClinicalSelector">
+                                        on-click="showClinicalSelector">
                                     Browse...
                                 </button>
                                 <div id="analysisSelectedDiv" style="display:none">
@@ -448,8 +448,10 @@
                                         </a>
                                     </div>
                                 </span>
-                                <select class$="form-control {{prefix}}FilterSelect" id="{{prefix}}GeneBiotypes" on-change="updateQueryFilters">
-                                    <option value="none">Select a biotype...</option>
+
+                                <select class="selectpicker form-control" id="{{prefix}}GeneBiotypes" on-change="updateQueryFilters"
+                                        data-size="10" data-live-search="true" data-selected-text-format="count" multiple>
+                                    <!--<option value="none">Select a biotype...</option>-->
                                     <template is="dom-repeat" items="{{biotypes}}">
                                         <option value="{{item}}">{{item}}</option>
                                     </template>
@@ -903,7 +905,7 @@
 
 
         <variant-modal-ontology prefix="{{prefix}}" ebi-config="{{ebiConfig}}" on-propagateok="propagateOkHPO" ontology-filter="{{ontologyFilter}}"
-                           term="{{ontologyTerm}}" selected-terms="{{selectedTermsOntology}}"></variant-modal-ontology>
+                                term="{{ontologyTerm}}" selected-terms="{{selectedTermsOntology}}"></variant-modal-ontology>
 
 
         <!-- Modal dialog for Sample Browser in prioritization-->
@@ -1304,7 +1306,7 @@
                         let studies = this.query.studies.split(new RegExp("[,;]"));
                         if (studies.length > 1) {
 //                            let checkBoxes = this.$$("#differentStudies").querySelectorAll("input");
-                            let checkBoxes = PolymerUtils.querySelectorAll("input", this.prefix + "differentStudies");
+                            let checkBoxes = PolymerUtils.querySelectorAll("input", this.prefix + "DifferentStudies");
                             for (let i = 0; i < studies.length; i++) {
                                 let study = studies[i].split(':')[1];
                                 for (let j = 0; j < checkBoxes.length; j++) {
@@ -1333,7 +1335,8 @@
 
                 // Biotype
                 if (typeof this.query["annot-biotype"] !== "undefined") {
-                    PolymerUtils.setValue(this.prefix + "GeneBiotypes", this.query["annot-biotype"]);
+//                    PolymerUtils.setValue(this.prefix + "GeneBiotypes", this.query["annot-biotype"]);
+                    $("#" + this.prefix + "GeneBiotypes").selectpicker('val', this.query["annot-biotype"].split(","));
                 }
 
                 // Panel - annot-panel
@@ -1608,8 +1611,11 @@
 
                 // Biotype
                 let biotypeDropdown = PolymerUtils.getElementById(this.prefix + "GeneBiotypes");
-                if (UtilsNew.isNotUndefinedOrNull(biotypeDropdown) && UtilsNew.isNotEmpty(biotypeDropdown.value) && biotypeDropdown.value !== "none") {
-                    _filters["annot-biotype"] = biotypeDropdown.value;
+                if (UtilsNew.isNotUndefinedOrNull(biotypeDropdown) && UtilsNew.isNotEmpty(biotypeDropdown.value)) {
+                    let types = PolymerUtils.querySelectorAll("option:checked", biotypeDropdown);
+                    let biotypes = [];
+                    types.forEach(option => biotypes.push(option.value));
+                    _filters["annot-biotype"] = biotypes.join(",");
                 }
 
                 // Type
@@ -1841,6 +1847,10 @@
                 $("." + this.prefix + "FilterRadio").prop("checked", false);
                 $("." + this.prefix + "FilterRadio").filter('[value="or"]').prop('checked', true);
                 $("." + this.prefix + "FilterRadio").prop("disabled", true);
+
+                // Deselect bootstrap-select dropdowns
+//                $('.selectpicker').selectpicker('deselectAll');
+                $("#" + this.prefix + "GeneBiotypes").selectpicker('val', []);
             }
 
             _updateMode() {
@@ -1913,7 +1923,7 @@
             isDisabledRadioAnalysisAndSettings(){
 
                 if(UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
-                        return true;
+                    return true;
                 }
 
                 return false;

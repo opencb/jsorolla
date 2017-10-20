@@ -71,6 +71,12 @@
     <script>
         class VariantBrowser extends Polymer.Element {
 
+            constructor() {
+                super();
+
+                this.prefix = "varbrowser" + Utils.randomString(6);
+            }
+
             static get is() {
                 return 'variant-browser';
             }
@@ -135,20 +141,12 @@
                 }
             }
 
-            constructor() {
-                super();
-            }
-
             _attachDom(dom) {
                 this.appendChild(dom);
             }
 
             ready() {
                 super.ready();
-
-                if (typeof this.prefix === "undefined" || this.prefix === "") {
-                    this.prefix = "varbrowser" + Utils.randomString(6);
-                }
 
                 this._collapsed = false;
             }

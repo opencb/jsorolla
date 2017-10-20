@@ -8,6 +8,15 @@
  */
 class VariantRenderer extends Renderer {
 
+    /*
+     *
+     * args: {
+     *      sampleTrackY = 15,
+     *      config: {
+     *          height: 10
+     *      }
+     * }
+     */
     constructor(args) {
         super(args);
 
@@ -364,8 +373,13 @@ class VariantRenderer extends Renderer {
 
     getDefaultConfig() {
         return {
+            infoWidgetId: "id",
+            color: "#8BC34A",
+            strokeColor: "#555",
+            height: 10,
+            histogramColor: "#58f3f0",
             label(f) {
-                const tokens = [];
+                let tokens = [];
                 if (f.id) {
                     tokens.push(f.id);
                 }
@@ -375,7 +389,7 @@ class VariantRenderer extends Renderer {
                 return tokens.join(" - ");
             },
             tooltipTitle(f) {
-                const tokens = [];
+                let tokens = [];
                 if (f.featureType) {
                     tokens.push(f.featureType);
                 }
@@ -388,8 +402,8 @@ class VariantRenderer extends Renderer {
                 return tokens.join(" - ");
             },
             tooltipText(f) {
-                const strand = (f.strand != null) ? f.strand : "NA";
-                const region = `start-end:&nbsp;<span style="font-weight: bold">${f.start}-${f.end} (${strand})</span><br>` +
+                let strand = (f.strand !== null) ? f.strand : "NA";
+                let region = `start-end:&nbsp;<span style="font-weight: bold">${f.start}-${f.end} (${strand})</span><br>` +
                         `length:&nbsp;<span style="font-weight: bold; color:#005fdb">${(f.end - f.start + 1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")}</span><br>`;
 
                 let s = "";
@@ -402,12 +416,7 @@ class VariantRenderer extends Renderer {
                     }
                 }
                 return `${region} ${s}`;
-            },
-            color: "#8BC34A",
-            strokeColor: "#555",
-            infoWidgetId: "id",
-            height: 10,
-            histogramColor: "#58f3f0",
+            }
         };
     }
 }

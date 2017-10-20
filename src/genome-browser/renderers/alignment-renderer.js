@@ -37,8 +37,8 @@ class AlignmentRenderer extends Renderer {
             insertSizeMin = response.params.insert_size_interval.split(",")[0];
             insertSizeMax = response.params.insert_size_interval.split(",")[1];
         }
-        console.log(`insertSizeMin ${insertSizeMin}`);
-        console.log(`insertSizeMin ${insertSizeMax}`);
+        console.log(`insertSizeMin: ${insertSizeMin}, insertSizeMax: ${insertSizeMax}`);
+        // console.log(`insertSizeMax ${insertSizeMax}`);
 
         // Prevent browser context menu
         $(args.svgCanvasFeatures).contextmenu((e) => {

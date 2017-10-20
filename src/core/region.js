@@ -6,7 +6,7 @@ class Region {
         this.start = null;
         this.end = null;
 
-        this.chromosomeAlias = ['chromosome', 'sequenceName'];
+        this.chromosomeAlias = ["chromosome", "sequenceName"];
         if (_.isObject(args)) {
             this.load(args);
         } else if (_.isString(args)) {
@@ -20,13 +20,13 @@ class Region {
         }
         this.chromosome = this._checkChromosomeAlias(obj) || this.chromosome;
 
-        if (typeof obj.position !== 'undefined') {
+        if (typeof obj.position !== "undefined") {
             obj.start = parseInt(obj.position);
             obj.end = obj.start;
         }
 
-        (_.isUndefined(obj.start)) ? this.start = parseInt(this.start) : this.start = parseInt(obj.start);
-        (_.isUndefined(obj.end)) ? this.end = parseInt(this.end) : this.end = parseInt(obj.end);
+        (UtilsNew.isUndefinedOrNull(obj.start)) ? this.start = parseInt(this.start) : this.start = parseInt(obj.start);
+        (UtilsNew.isUndefinedOrNull(obj.end)) ? this.end = parseInt(this.end) : this.end = parseInt(obj.end);
     }
 
     parse(str) {
@@ -36,12 +36,12 @@ class Region {
         const pattern = /^([a-zA-Z0-9_])+\:([0-9])+\-([0-9])+$/;
         const pattern2 = /^([a-zA-Z0-9_])+\:([0-9])+$/;
         if (pattern.test(str) || pattern2.test(str)) {
-            const splitDots = str.split(':');
-            if (splitDots.length == 2) {
-                const splitDash = splitDots[1].split('-');
+            const splitDots = str.split(":");
+            if (splitDots.length === 2) {
+                const splitDash = splitDots[1].split("-");
                 this.chromosome = splitDots[0];
                 this.start = parseInt(splitDash[0]);
-                if (splitDash.length == 2) {
+                if (splitDash.length === 2) {
                     this.end = parseInt(splitDash[1]);
                 } else {
                     this.end = this.start;
@@ -66,7 +66,7 @@ class Region {
 
         const regions = [];
         if (pattern.test(withoutBrackets)) {
-            const splitRegions = withoutBrackets.split(',');
+            const splitRegions = withoutBrackets.split(",");
             for (let i = 0; i < splitRegions.length; i++) {
                 regions.push(new Region(splitRegions[i]));
             }
@@ -85,9 +85,10 @@ class Region {
     equals(r) {
         return (this.chromosome === r.chromosome && this.start === r.start && this.end === r.end);
     }
-    toString(formated) {
+
+    toString(formatted) {
         let str;
-        if (formated == true) {
+        if (formatted === true) {
             str = `${this.chromosome}:${Utils.formatNumber(this.start)}-${Utils.formatNumber(this.end)}`;
         } else {
             str = `${this.chromosome}:${this.start}-${this.end}`;
@@ -103,6 +104,7 @@ class Region {
             }
         }
     }
+
 }
 
 
