@@ -162,7 +162,11 @@ class AlignmentTrack extends FeatureTrack {
                 })
                     .then(function(response){
                         _this.addNewAlignments(response, "left");
-                        _this.getDataHandler(_this.retrievedAlignments);
+                        if(response.dataType === "histogram"){
+                            _this.getDataHandler(response);
+                        }else {
+                            _this.getDataHandler(_this.retrievedAlignments);
+                        }
                         _this.setLoading(false);
                     })
                     .catch(function(reason){

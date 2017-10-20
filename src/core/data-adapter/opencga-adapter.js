@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2016 Pedro Furio (Genomics England)
+ * Copyright (c) 2016 Asunción Gallego (CIPF)
  * Copyright (c) 2016 Ignacio Medina (University of Cambridge)
  *
  * This file is part of JS Common Libs.
@@ -44,37 +45,14 @@ class OpencgaAdapter extends FeatureAdapter {
         Object.assign(this, Backbone.Events);
         this.on(this.handlers);
     }
-
     // Deprecated method
     setSpecies(species) {
-        // this.species = species;
+            // this.species = species;
     }
-
-    // Deprecated, moved to parent class
-    // _checks(args){
-    //
-    //     /** 1 region check **/
-    //     let region = args.region;
-    //     if (region.start > 300000000 || region.end < 1) {
-    //         return;
-    //     }
-    //     region.start = (region.start < 1) ? 1 : region.start;
-    //     region.end = (region.end > 300000000) ? 300000000 : region.end;
-    //
-    //     /** 2 category check **/
-    //     let categories = this.resource.toString().split(',');   // in this adapter
-    //
-    //     /** 3 dataType check **/
-    //     let dataType = args.dataType;
-    //     if (_.isUndefined(dataType)) {
-    //         console.error("dataType must be provided!!!");
-    //         return;
-    //     }
-    // }
 
     getData(args){
         switch(this.category) {
-            case "analysis/variant": //FIX analysis/data?
+            case "analysis/variant":
                 return this._getVariant(args);
                 break;
             case "analysis/alignment":
@@ -138,7 +116,7 @@ class OpencgaAdapter extends FeatureAdapter {
     }
 
     _getVariant(args){
-        console.debug("OpenCGA Data Adapter: fetching Variants");
+        console.log("OpenCGA Data Adapter: fetching Variants");
 
         let params = {};
         Object.assign(params, this.params, args.params);
@@ -147,33 +125,35 @@ class OpencgaAdapter extends FeatureAdapter {
         let region = args.region;
         region = super._checkRegion(region);
 
-        /** 2 category check **/
-        let categories = this.resource.toString().split(",");   // in this adapter
-
-        /** 3 dataType check **/
+        /** 2 dataType check **/
         let dataType = args.dataType;
         if (_.isUndefined(dataType)) {
             console.error("dataType must be provided!!!");
             return;
         }
 
-        /** 4 chunkSize check **/
+        /** 3 chunkSize check **/
         let chunkSize = params.interval ? params.interval : this.options.chunkSize; // this.cache.defaultChunkSize should be the same
         if (this.debug) {
             console.log(chunkSize);
         }
 
-        /** 5 studies check **/
+        /** 4 studies check **/
         let studies = params.studies;
         if (studies === undefined) {
             return;
         }
 
-        /** 6 exclude check **/
-        let exclude = params.exclude;
-        if (exclude === undefined) {
-            exclude = "studies,annotation"; //For FeatureRender
-            //exclude= "studies.files,studies.stats,annotation" For VariantRender
+        /** 5 exclude check **/
+        if (params.exclude === 'undefined') {
+            params.exclude = "studies.files,studies.stats,annotation";// For sample-genotype mode less exclusive than browse mode
+        }
+        /** 6 check type data **/
+        if (UtilsNew.isNotUndefinedOrNull(params.returnedSamples)){   //When there are samples not display histogram
+            dataType = "features";
+            params["histogram"]= "undefined";
+            params["histogramLogarithm"] = "undefined";
+            params["histogramMax"]= "undefined";
         }
 
         let _this = this;
@@ -186,43 +166,39 @@ class OpencgaAdapter extends FeatureAdapter {
                 start += _this.options.chunkSize;
             } while (start <= region.end);
 
-            if (dataType === "features") {
-                    // _this.client.variants().query({
-                    //     region: groupedRegions[i],
-                    //     studies: studies,
-                    //     exclude: exclude
-                    //     //exclude: "studies, annotation"
-                    //     //exclude: "studies.files,studies.stats,annotation"
-                    // })
-
-                let p = {};
-                for (let param of Object.keys(params)) {
-                    if (typeof params[param] !== "undefined") {
-                        p[param] = params[param];
-                    }
+            let p = {};
+            for (let param of Object.keys(params)) {
+                if (typeof params[param] !== "undefined") {
+                    p[param] = params[param];
                 }
-                let chuncksByRegion =[];
-
-                for (let i = 0; i < regions.length; i++) {
-                    p["region"] = regions[i];
-                    chuncksByRegion[i] =_this.client.variants().query(p)
-                        .then(function (response) {
-                            // return  _this._variantsuccess(response, categories, dataType, p.region, p.region, chunkSize);
-                            return _this._variantsuccess(response, categories, dataType, regions[i], regions[i], chunkSize);
-                        })
-                        .catch(function (reason) {
-                            reject("Server error, getting variants: " + reason);
-                        });
-                }
-
-                Promise.all(chuncksByRegion).then(function (response) {
-                    resolve({
-                        items: response, dataType: dataType, chunkSize: chunkSize, sender: _this
-                    });
-                });
-            } else { // histogram
-
             }
+            let chuncksByRegion =[];
+
+                // The query is similar to:
+                // _this.client.variants().query({
+                //     region: groupedRegions[i],
+                //     studies: studies,
+                //     //exclude: "studies, annotation"
+                //     //exclude: "studies.files,studies.stats,annotation"
+                // })
+
+            for (let i = 0; i < regions.length; i++) {
+                p["region"] = regions[i];
+                chuncksByRegion[i] =_this.client.variants().query(p)
+                    .then(function (response) {
+                        return _this._variantsuccess(response, dataType, regions[i], chunkSize);
+                    })
+                    .catch(function (reason) {
+                        reject("Server error, getting variants: " + reason);
+                    });
+            }
+
+            Promise.all(chuncksByRegion).then(function (response) {
+                resolve({
+                    items: response, dataType: dataType, chunkSize: chunkSize, sender: _this
+                });
+            });
+
         });
 
     }
@@ -268,7 +244,6 @@ class OpencgaAdapter extends FeatureAdapter {
 
         // Create the chunks to be retrieved
         let start = this._getStartChunkPosition(region.start);
-        //let end = this._getStartChunkPosition(region.end);
 
         let regions = [];
         args.webServiceCallCount = 0;
@@ -450,52 +425,61 @@ class OpencgaAdapter extends FeatureAdapter {
         return responseItems;
     }
 
-    _variantsuccess(response, categories, dataType, queryRegion, originalRegion, chunkSize) {
+    _variantsuccess(response, dataType, queryRegion, chunkSize) {
 
         //console.time(timeId);
         /** time log **/
-        // debugger
-        var regions = [];
-        var chunks = [];
+
+        let regions = [];
+        let chunks = [];
         if (dataType !== 'histogram') {
             for(let i = 0; i< response.response.length; i++){
                 let res = response.response[i].result;
                 chunks.push(res);
 
             }
-            console.log("Chunks:");
-            console.log(chunks);
-
-            var regionSplit = queryRegion.split(',');
-            for (var i = 0; i < regionSplit.length; i++) {
-                var regionStr = regionSplit[i];
+            //console.log("Chunks:", chunks);
+            let regionSplit = queryRegion.split(',');
+            for (let i = 0; i < regionSplit.length; i++) {
+                let regionStr = regionSplit[i];
                 regions.push(new Region(regionStr));
             }
+
+            let chunkStartId = Math.floor(regions[0].start / chunkSize);
+            //need return a object
+            return  {
+                chunkKey: `${regions[0].chromosome}:${chunkStartId}_${dataType}_${chunkSize}`,
+                region: regions[0],
+                value: response.response[0].result,
+                dataType: dataType
+            };
+
         } else {
+            let queryResult;
             if (typeof this.parseHistogram === 'function') {
-                chunks = this.parseHistogram(response);
+                queryResult = this.parseHistogram(response);
             } else {
-                chunks = response;
+                queryResult = response.response[0];
             }
-            for (let i = 0; i < chunks.length; i++) {
-                let interval = chunks[i];
+
+            for (let j = 0; j < queryResult.result.length; j++) {
+                let interval = queryResult.result[j];
                 let region = new Region(interval);
-                region.chromosome = originalRegion.chromosome;
                 regions.push(region);
+                chunks.push(interval);
             }
+
+            let items = [];
+            for (let i = 0; i < regions.length; i++) {
+                let chunkStartId = Math.floor(regions[i].start / this.options.chunkSize);
+                items.push({
+                    chunkKey: `${regions[i].chromosome}:${chunkStartId}_${dataType}_${chunkSize}`,
+                    region: regions[i],
+                    value: chunks[i]
+                });
+            }
+            return items;
         }
-        console.log(response);
-
-        let chunkStartId = Math.floor(regions[0].start / chunkSize);
-        return {
-            chunkKey: `${regions[0].chromosome}:${chunkStartId}_${dataType}_${chunkSize}`,
-            region: regions[0],
-            value: response.response[0].result,
-            dataType: dataType
-        };
-
-        /** time log **/
-        //console.timeEnd(timeId);
     }
 
     _getStartChunkPosition (position) {
@@ -514,44 +498,6 @@ class OpencgaAdapter extends FeatureAdapter {
             queriesLists.push(uncachedRegions.splice(0, groupSize).toString());
         }
         return queriesLists;
-    }
-
-    _adaptChunks(queryResult, category, dataType, chunkSize) {
-        let chunks;
-        let regions;
-        let items = [];
-
-        if (queryResult.resultType == "org.opencb.biodata.models.variant.Variant") {
-            chunks = [];
-            regions = [];
-            let keyToPair = {};
-            for (let i = 0; i < queryResult.result.length; i++) {
-                let variation = queryResult.result[i];
-                let chunkId = this.cache.getChunkId(variation.start, chunkSize);
-                let key = this.cache.getChunkKey(variation.chromosome,
-                    chunkId,
-                    dataType,
-                    chunkSize);
-
-                if (keyToPair[key] == undefined) {
-                    keyToPair[key] = chunks.length;
-                    regions.push(new Region({chromosome: variation.chromosome, start: chunkId * chunkSize, end: (chunkId + 1) * chunkSize - 1}));
-                    chunks.push([]);
-                }
-                chunks[keyToPair[key]].push(variation);
-            }
-
-            items = this.cache.putByRegions(regions, chunks, category, dataType, chunkSize);
-        } else { //if(queryResult.resultType == "org.opencb.biodata.models.alignment.AlignmentRegion") {
-            regions = [];
-            for (let j = 0; j < queryResult.result.length; j++) {
-                regions.push(new Region(queryResult.result[j]));
-            }
-            chunks = queryResult.result;
-
-            items = this.cache.putByRegions(regions, chunks, category, dataType, chunkSize);
-        }
-        return items;
     }
 
 }

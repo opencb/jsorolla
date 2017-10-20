@@ -48,7 +48,7 @@ class FeatureTrack {
         this.chunksDisplayed = {}; //used to avoid painting multiple times features contained in more than 1 chunk
 
         if ("handlers" in this) {
-            for (eventName in this.handlers) {
+            for (let eventName in this.handlers) {
                 this.on(eventName, this.handlers[eventName]);
             }
         }
