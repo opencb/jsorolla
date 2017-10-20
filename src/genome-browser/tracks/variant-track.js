@@ -73,13 +73,13 @@ class VariantTrack extends FeatureTrack {
         this.updateHeight();
         this.renderer.init();
     }
-    getDataHandler(event) {
-        console.time("Total VariantTrack -> getDataHandler " + event.sender.category);
 
-        console.time("Chunks() VariantTrack -> getDataHandler " + event.sender.category);
+    getDataHandler(event) {
+        //console.time("Total VariantTrack -> getDataHandler " + event.sender.category);
+        //
+        //console.time("Chunks() VariantTrack -> getDataHandler " + event.sender.category);
         let renderer;
         let features;
-        debugger
         if (event.dataType !== "histogram" || UtilsNew.isNotUndefinedOrNull(this.renderer.config.sampleNames)) {
             renderer = this.renderer;
             features = this.getFeaturesToRenderByChunk(event);
@@ -102,19 +102,20 @@ class VariantTrack extends FeatureTrack {
                 species: this.species,
                 featureType: this.featureType
             });
-            console.timeEnd("render() VariantTrack -> getDataHandler " + event.sender.category);
+            //console.timeEnd("render() VariantTrack -> getDataHandler " + event.sender.category);
 
             this.updateHeight();
-            console.timeEnd("Total VariantTrack -> getDataHandler " + event.sender.category);
+            //console.timeEnd("Total VariantTrack -> getDataHandler " + event.sender.category);
+
         } else { //(event.dataType == "histogram") {
+
             renderer = this.histogramRenderer;
-            //let originalevent = event;
             for ( let i = 0; i < event.items.length; i ++){
                 features = event.items[i];
 
-                console.timeEnd("Chunks() VariantTrack -> getDataHandler " + event.sender.category);
-
-                console.time("render() VariantTrack -> getDataHandler " + event.sender.category);
+                //console.timeEnd("Chunks() VariantTrack -> getDataHandler " + event.sender.category);
+                //
+                //console.time("render() VariantTrack -> getDataHandler " + event.sender.category);
                 renderer.render(features, {
                     cacheItems: features,
                     svgCanvasFeatures: this.svgCanvasFeatures,
@@ -130,10 +131,10 @@ class VariantTrack extends FeatureTrack {
                     species: this.species,
                     featureType: this.featureType
                 });
-                console.timeEnd("render() VariantTrack -> getDataHandler " + event.sender.category);
+                //console.timeEnd("render() VariantTrack -> getDataHandler " + event.sender.category);
 
                 this.updateHeight();
-                console.timeEnd("Total VariantTrack -> getDataHandler " + event.sender.category);
+                //console.timeEnd("Total VariantTrack -> getDataHandler " + event.sender.category);
             }
         }
 
