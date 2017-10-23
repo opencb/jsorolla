@@ -34,7 +34,7 @@ class VariantRenderer extends Renderer {
 
     init(svgGroup, sample) {
         // Prevent browser context menu
-        console.log(this.track.main);
+        //console.log(this.track.main);
         $(svgGroup).contextmenu((e) => {
             console.log("right click");
             e.preventDefault();

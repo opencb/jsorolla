@@ -83,8 +83,7 @@ class Region {
     }
 
     equals(r) {
-        return this.chromosome === r.chromosome && this.start === r.start && this.end === r.end;
-
+        return (this.chromosome === r.chromosome && this.start === r.start && this.end === r.end);
     }
 
     toString(formatted) {

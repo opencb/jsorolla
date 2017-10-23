@@ -107,8 +107,8 @@ class CellBaseAdapter extends FeatureAdapter {
     }
 
     _cellbaseSuccess (data, dataType, chunkSize) {
-        let timeId = `${Utils.randomString(4) + this.resource} save`;
-        console.time(timeId);
+        //let timeId = `${Utils.randomString(4) + this.resource} save`;
+        //console.time(timeId);
         /** time log **/
 
         let regions = [];
@@ -133,13 +133,12 @@ class CellBaseAdapter extends FeatureAdapter {
             let chunkStartId = Math.floor(regions[i].start / this.options.chunkSize);
             items.push({
                 chunkKey: `${regions[i].chromosome}:${chunkStartId}_${dataType}_${chunkSize}`,
-                // chunkKey: this._getChunkKey(regions[i].chromosome, chunkStartId),
                 region: regions[i],
                 value: chunks[i]
             });
         }
         /** time log **/
-        console.timeEnd(timeId);
+        //console.timeEnd(timeId);
         return items;
     }
 }
