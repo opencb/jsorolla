@@ -223,7 +223,7 @@
                     },
                     showSummary: {
                         type: Boolean,
-                        value: false,
+                        value: true,
                         notify: true
                     },
                     config: {
@@ -235,6 +235,7 @@
             ready() {
                 super.ready();
                 this._summaryCollapsed = false;
+
             }
 
             _attachDom(dom) {

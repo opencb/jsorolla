@@ -36,28 +36,30 @@
                     <i class="fa fa-search" aria-hidden="true"></i>&nbsp;{{title}}
                 </h3>
             </div>
+            <div class="row">
 
-            <div id="{{prefix}}FilterMenu" class="col-md-2" >
-                <variant-browser-filter study="{{study}}" project="{{project}}" studies="{{studies}}"
-                                        cohorts="{{cohorts}}" biotypes={{biotypes}} config="{{config}}"
-                                        samples="{{samples}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
-                                        cellbase-client="{{cellbaseClient}}"
-                                        population-frequencies="{{populationFrequencies}}" ebi-config="{{ebiConfig}}"
-                                        consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}">
-                </variant-browser-filter>
-            </div>
+                <div id="{{prefix}}FilterMenu" class="col-md-2">
+                    <variant-browser-filter study="{{study}}" project="{{project}}" studies="{{studies}}"
+                                            cohorts="{{cohorts}}" biotypes={{biotypes}} config="{{config}}"
+                                            samples="{{samples}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
+                                            cellbase-client="{{cellbaseClient}}"
+                                            population-frequencies="{{populationFrequencies}}" ebi-config="{{ebiConfig}}"
+                                            consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}">
+                    </variant-browser-filter>
+                </div>
 
-            <div id="{{prefix}}MainWindow" class="col-md-10" >
-                <variant-browser-view title="{{title}}" project="{{project}}" study="{{study}}" cohorts="{{cohorts}}"
-                                      prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
-                                      cellbase-client="{{cellbaseClient}}"
-                                      population-frequencies="{{populationFrequencies}}"
-                                      protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                      consequence-types="{{consequenceTypes}}" beacon-hosts="{{beaconHosts}}"
-                                      query="{{query}}" search="[[search]]"
-                                      on-propagate="propagateGeneEvent" config="{{config}}" on-clear="onClear"
-                                      on-filterchange="onFilterChange" summary="{{summary}}" full-screen="{{_collapsed}}">
-                </variant-browser-view>
+                <div id="{{prefix}}MainWindow" class="col-md-10">
+                    <variant-browser-view title="{{title}}" project="{{project}}" study="{{study}}" cohorts="{{cohorts}}"
+                                          prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
+                                          cellbase-client="{{cellbaseClient}}"
+                                          population-frequencies="{{populationFrequencies}}"
+                                          protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                          consequence-types="{{consequenceTypes}}" beacon-hosts="{{beaconHosts}}"
+                                          query="{{query}}" search="[[search]]"
+                                          on-propagate="propagateGeneEvent" config="{{config}}" on-clear="onClear"
+                                          on-filterchange="onFilterChange" summary="{{summary}}" full-screen="{{_collapsed}}">
+                    </variant-browser-view>
+                </div>
             </div>
         </template>
 
