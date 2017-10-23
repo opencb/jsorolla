@@ -443,11 +443,11 @@
                         PolymerUtils.setPropertyById(this.prefix + "SampleID", "innerText",  this.interpretation.clinicalAnalysis.subjects[0].samples[0].name);
     //
 
-                        let HPODiseases = this.interpretation.clinicalAnalysis.subjects[0].ontologyTerms.filter((hpo) =>{
+                        let HPODiseases = this.interpretation.clinicalAnalysis.subjects[0].phenotypes.filter((hpo) =>{
                                 return hpo.source === "HPO";
                               }).map((hpo) => hpo.name).join(",");
                         PolymerUtils.innerHTML(this.prefix + "HPO",  HPODiseases);
-                        let ICD10Diseases = this.interpretation.clinicalAnalysis.subjects[0].ontologyTerms.filter((icd) =>{
+                        let ICD10Diseases = this.interpretation.clinicalAnalysis.subjects[0].phenotypes.filter((icd) =>{
                                 return icd.source === "ICD10";
                         }).map((icd) => icd.name).join(",");
                         PolymerUtils.innerHTML(this.prefix + "Diagnosis",  ICD10Diseases);

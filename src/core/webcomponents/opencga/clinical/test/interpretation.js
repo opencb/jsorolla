@@ -44,7 +44,7 @@ const interpretationJson = {
                 population: {
                     name: "Italy"
                 },
-                ontologyTerms: [
+                phenotypes: [
                     {id: "HP:0000478", name: "Abnormality of the eye", source: "HPO"}, {
                         "id": "H00-H59",
                         "name": "VII. Diseases of the eye and adnexa ",
@@ -62,7 +62,7 @@ const interpretationJson = {
                         name: "NA12877",
                         somatic: false,
                         type: "blood",
-                        ontologyTerms: [
+                        phenotypes: [
                             {id: "HP:0000478", name: "Abnormality of the eye", source: "HPO"},  {
                                 id: "HP:001233",
                                 name: "Aaaa",
