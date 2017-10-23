@@ -196,7 +196,31 @@ const tools = {
                 },
             },
         ],
-        active: false
+        active: false,
+        filter: {
+            missing: true,
+            study: {
+                title: "Sample and Cohorts",
+                samples: {
+                    visibility: "public",
+                    selector: false,
+                    segregation: ["Autosomal Dominant", "Autosomal Recessive", "Compound Heterocygotous", "Recessive X-linked"]
+                },
+                cohorts: {
+                    visibility: "public",
+                    cohortPerStudy: {
+                        "1kG_phase3": [{id: "ALL", name: "All"}, {id: "MXL", name: "Mexican"}],
+                        "illumina_platinum": [{id: "ALL", name: "All"}]
+                    }
+                },
+                studies: {
+                    visibility: "public"
+                },
+                clinicalData: {
+                    visibility: "none"
+                },
+            }
+        }
     }
 };
 
