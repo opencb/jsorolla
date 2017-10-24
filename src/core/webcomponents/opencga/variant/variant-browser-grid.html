@@ -431,11 +431,22 @@
                 return "<span style='white-space: nowrap'>" + row.chromosome + ':' + row.start + " " + ref + '/' + alt + "</span>";
             }
             snpFormatter(value, row, index) {
+                /*
+                In first time the SNP Id id is taken from the identifier of the variant(this identifier comes from the file).
+                If this identifier not is a "rs..." (is a variant format id: "13:20277279:-:T") then we collect the rs of the cellbase annotation.
+                This field is in annnotation.xref when source: "dbSNP". If this not exist then el id is "-".
+                 */
                 if (typeof row.id !== "undefined" && row.id.startsWith("rs")) {
                     return "<a target='_blank' href='http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + row.id + "'>" + row.id + "</a>";
-                } else {
-                    return '-';
+                } else  if (typeof row.annotation !== "undefined" && typeof row.annotation.xrefs !== "undefined" && row.annotation.xrefs.length > 0) {
+                    let annotation = row.annotation.xrefs.find(function (elemento) {
+                        return elemento.source === "dbSNP";
+                    })
+                    if (annotation !== "undefined") {
+                        return "<a target='_blank' href='http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + annotation.id + "'>" + annotation.id + "</a>";
+                    }
                 }
+                return '-';
             }
             geneFormatter(value, row, index) {
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
