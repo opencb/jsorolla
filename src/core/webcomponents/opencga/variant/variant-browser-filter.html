@@ -95,7 +95,11 @@
                 font-weight: bold;
                 padding: 5px 0px;
                 color: #444444;
-                border-bottom: 1px solid #dddddd;
+                border-bottom: 1px solid rgba(221, 221, 221, 0.8);
+            }
+
+            .subsection-content {
+                margin: 5px 5px;
             }
 
             span.searchingSpan{
@@ -134,7 +138,7 @@
                             </h4>
                         </div>
 
-                        <div id="{{prefix}}Studies" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}StudiesHeading">
+                        <div id="{{prefix}}Studies" class="panel-collapse collapse " role="tabpanel" aria-labelledby="{{prefix}}StudiesHeading">
                             <div class="panel-body">
 
                                 <!-- Samples sub-section -->
@@ -334,116 +338,116 @@
                 <!--<template is="dom-if" if="{{!isPrioritizationMode}}">-->
                 <!--<br>-->
                 <!--<div class="panel panel-default">-->
-                    <!--<div class="panel-heading" role="tab" id="{{prefix}}SampleFilterHeading">-->
-                        <!--<h4 class="panel-title">-->
-                            <!--<a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"-->
-                               <!--href="#{{prefix}}SampleFilter" aria-expanded="false" aria-controls="{{prefix}}SampleFilter">-->
-                                <!--Analysis-->
-                            <!--</a>-->
-                        <!--</h4>-->
-                    <!--</div>-->
-                    <!--<div id="{{prefix}}SampleFilter" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}SampleFilterHeading">-->
-                        <!--<div class="panel-body" style="padding-top: 5px">-->
-                            <!--<div class="form-group" style="margin-bottom: 5px" id="{{prefix}}selectAnalysisType" >-->
-                                <!--<label>Select Analysis Type:</label>-->
-                                <!--<br>-->
-                                <!--<input id="sampleRadio" type="radio" name="analysisRadioButtons" value="sample"-->
-                                       <!--class$="{{prefix}}FilterRadio" checked$="{{isCheckedRadioAnalysis('sample')}}" disabled$="{{isDisabledRadioAnalysisAndSettings()}}" on-change="selectAnalysisType"-->
-                                       <!--style="padding-left: 20px"> Samples<br>-->
-                                <!--<input id="familyRadio" type="radio" name="analysisRadioButtons" value="family"-->
-                                       <!--class$="{{prefix}}FilterRadio" checked$="{{isCheckedRadioAnalysis('family')}}" disabled$="{{isDisabledRadioAnalysisAndSettings()}}" on-change="selectAnalysisType"-->
-                                       <!--style="padding-left: 20px"> Family<br>-->
-                                <!--<input id="cancerRadio" type="radio" name="analysisRadioButtons" value="cancer"-->
-                                       <!--class$="{{prefix}}FilterRadio" checked$="{{isCheckedRadioAnalysis('cancer')}}" disabled$="{{isDisabledRadioAnalysisAndSettings()}}" on-change="selectAnalysisType"-->
-                                       <!--style="padding-left: 20px"> Cancer<br>-->
-                            <!--</div>-->
+                <!--<div class="panel-heading" role="tab" id="{{prefix}}SampleFilterHeading">-->
+                <!--<h4 class="panel-title">-->
+                <!--<a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"-->
+                <!--href="#{{prefix}}SampleFilter" aria-expanded="false" aria-controls="{{prefix}}SampleFilter">-->
+                <!--Analysis-->
+                <!--</a>-->
+                <!--</h4>-->
+                <!--</div>-->
+                <!--<div id="{{prefix}}SampleFilter" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}SampleFilterHeading">-->
+                <!--<div class="panel-body" style="padding-top: 5px">-->
+                <!--<div class="form-group" style="margin-bottom: 5px" id="{{prefix}}selectAnalysisType" >-->
+                <!--<label>Select Analysis Type:</label>-->
+                <!--<br>-->
+                <!--<input id="sampleRadio" type="radio" name="analysisRadioButtons" value="sample"-->
+                <!--class$="{{prefix}}FilterRadio" checked$="{{isCheckedRadioAnalysis('sample')}}" disabled$="{{isDisabledRadioAnalysisAndSettings()}}" on-change="selectAnalysisType"-->
+                <!--style="padding-left: 20px"> Samples<br>-->
+                <!--<input id="familyRadio" type="radio" name="analysisRadioButtons" value="family"-->
+                <!--class$="{{prefix}}FilterRadio" checked$="{{isCheckedRadioAnalysis('family')}}" disabled$="{{isDisabledRadioAnalysisAndSettings()}}" on-change="selectAnalysisType"-->
+                <!--style="padding-left: 20px"> Family<br>-->
+                <!--<input id="cancerRadio" type="radio" name="analysisRadioButtons" value="cancer"-->
+                <!--class$="{{prefix}}FilterRadio" checked$="{{isCheckedRadioAnalysis('cancer')}}" disabled$="{{isDisabledRadioAnalysisAndSettings()}}" on-change="selectAnalysisType"-->
+                <!--style="padding-left: 20px"> Cancer<br>-->
+                <!--</div>-->
 
-                            <!--<div style="padding-left: 7px" id="{{prefix}}analysisSettings" >-->
-                                <!--<label><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;&nbsp;Analysis Settings</label>-->
-                                <!--<br>-->
-                                <!--<template is="dom-if" if="{{isSampleAnalysis}}">-->
-                                    <!--&lt;!&ndash;<label><i class="fa fa-users" aria-hidden="true"></i>&nbsp;&nbsp;Sample Analysis Settings</label>&ndash;&gt;-->
-                                    <!--&lt;!&ndash;<br>&ndash;&gt;-->
+                <!--<div style="padding-left: 7px" id="{{prefix}}analysisSettings" >-->
+                <!--<label><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;&nbsp;Analysis Settings</label>-->
+                <!--<br>-->
+                <!--<template is="dom-if" if="{{isSampleAnalysis}}">-->
+                <!--&lt;!&ndash;<label><i class="fa fa-users" aria-hidden="true"></i>&nbsp;&nbsp;Sample Analysis Settings</label>&ndash;&gt;-->
+                <!--&lt;!&ndash;<br>&ndash;&gt;-->
 
-                                    <!--<div style="padding-left: 5px">Select samples: &nbsp;-->
-                                        <!--<button data-toggle="modal" role="button" data-placement="bottom"-->
-                                                <!--data-target$="#{{prefix}}SampleBrowser" on-click="refreshSegregationTable" disabled$="{{isDisabledRadioAnalysisAndSettings()}}">-->
-                                            <!--Browse...-->
-                                        <!--</button>-->
-                                        <!--<br>-->
-                                        <!--<input type="checkbox" value="./." on-change="updateQueryFilters"-->
-                                               <!--class$="genotypes {{prefix}}FilterCheckBox">&nbsp;Only variants form samples-->
-                                    <!--</div>-->
-                                <!--</template>-->
+                <!--<div style="padding-left: 5px">Select samples: &nbsp;-->
+                <!--<button data-toggle="modal" role="button" data-placement="bottom"-->
+                <!--data-target$="#{{prefix}}SampleBrowser" on-click="refreshSegregationTable" disabled$="{{isDisabledRadioAnalysisAndSettings()}}">-->
+                <!--Browse...-->
+                <!--</button>-->
+                <!--<br>-->
+                <!--<input type="checkbox" value="./." on-change="updateQueryFilters"-->
+                <!--class$="genotypes {{prefix}}FilterCheckBox">&nbsp;Only variants form samples-->
+                <!--</div>-->
+                <!--</template>-->
 
-                                <!--<template is="dom-if" if="{{isFamilyAnalysis}}">-->
-                                    <!--&lt;!&ndash;<label><i class="fa fa-sitemap" aria-hidden="true"></i>&nbsp;&nbsp;Family Analysis Settings</label>&ndash;&gt;-->
-                                    <!--&lt;!&ndash;<br>&ndash;&gt;-->
-                                    <!--&lt;!&ndash;Not ready yet, work in progress.&ndash;&gt;-->
-                                    <!--<div style="padding-left: 5px">Select family: &nbsp;-->
-                                        <!--<button data-toggle="modal" role="button" data-placement="bottom"-->
-                                                <!--data-target$="#{{prefix}}SampleBrowser" on-click="refreshSegregationTable" disabled$="{{isDisabledRadioAnalysisAndSettings()}}">-->
-                                            <!--Browse...-->
-                                        <!--</button>-->
-                                    <!--</div>-->
-                                    <!--<div style="margin: 5px 5px">Segregation: &nbsp;-->
-                                        <!--<div class="btn-group">-->
-                                            <!--<button class="btn btn-default btn-sm dropdown-toggle" type="button"-->
-                                                    <!--id="segregationPrioritizationDropdown" data-toggle="dropdown"-->
-                                                    <!--aria-haspopup="true" aria-expanded="true" disabled$="{{isDisabledRadioAnalysisAndSettings()}}">-->
-                                                <!--Select ...-->
-                                                <!--<span class="caret"></span>-->
-                                            <!--</button>-->
-                                            <!--<ul class="dropdown-menu" aria-labelledby="segregationPrioritizationDropdown"-->
-                                                <!--on-click="selectSegregation">-->
-                                                <!--<template is="dom-repeat" items="{{config.segregation}}">-->
-                                                    <!--<li><a>{{item}}</a></li>-->
-                                                <!--</template>-->
-                                            <!--</ul>-->
-                                        <!--</div>-->
-                                    <!--</div>-->
-                                <!--</template>-->
+                <!--<template is="dom-if" if="{{isFamilyAnalysis}}">-->
+                <!--&lt;!&ndash;<label><i class="fa fa-sitemap" aria-hidden="true"></i>&nbsp;&nbsp;Family Analysis Settings</label>&ndash;&gt;-->
+                <!--&lt;!&ndash;<br>&ndash;&gt;-->
+                <!--&lt;!&ndash;Not ready yet, work in progress.&ndash;&gt;-->
+                <!--<div style="padding-left: 5px">Select family: &nbsp;-->
+                <!--<button data-toggle="modal" role="button" data-placement="bottom"-->
+                <!--data-target$="#{{prefix}}SampleBrowser" on-click="refreshSegregationTable" disabled$="{{isDisabledRadioAnalysisAndSettings()}}">-->
+                <!--Browse...-->
+                <!--</button>-->
+                <!--</div>-->
+                <!--<div style="margin: 5px 5px">Segregation: &nbsp;-->
+                <!--<div class="btn-group">-->
+                <!--<button class="btn btn-default btn-sm dropdown-toggle" type="button"-->
+                <!--id="segregationPrioritizationDropdown" data-toggle="dropdown"-->
+                <!--aria-haspopup="true" aria-expanded="true" disabled$="{{isDisabledRadioAnalysisAndSettings()}}">-->
+                <!--Select ...-->
+                <!--<span class="caret"></span>-->
+                <!--</button>-->
+                <!--<ul class="dropdown-menu" aria-labelledby="segregationPrioritizationDropdown"-->
+                <!--on-click="selectSegregation">-->
+                <!--<template is="dom-repeat" items="{{config.segregation}}">-->
+                <!--<li><a>{{item}}</a></li>-->
+                <!--</template>-->
+                <!--</ul>-->
+                <!--</div>-->
+                <!--</div>-->
+                <!--</template>-->
 
-                                <!--<template is="dom-if" if="{{isCancerAnalysis}}">-->
-                                    <!--&lt;!&ndash;<label><i class="fa fa-user-times" aria-hidden="true"></i>&nbsp;&nbsp;Cancer Analysis Settings</label>&ndash;&gt;-->
-                                    <!--&lt;!&ndash;<br>&ndash;&gt;-->
-                                    <!--Not ready yet, work in progress.-->
-                                <!--</template>-->
-                            <!--</div>-->
+                <!--<template is="dom-if" if="{{isCancerAnalysis}}">-->
+                <!--&lt;!&ndash;<label><i class="fa fa-user-times" aria-hidden="true"></i>&nbsp;&nbsp;Cancer Analysis Settings</label>&ndash;&gt;-->
+                <!--&lt;!&ndash;<br>&ndash;&gt;-->
+                <!--Not ready yet, work in progress.-->
+                <!--</template>-->
+                <!--</div>-->
 
-                            <!--<div>-->
-                                <!--<br>-->
-                                <!--<label>Sample Genotypes:</label>-->
-                                <!--<br>-->
-                                <!--<table class="table table-hover" id="segregationTable">-->
-                                    <!--<thead>-->
-                                    <!--<tr>-->
-                                        <!--<th>Sample</th>-->
-                                        <!--<th>0/0</th>-->
-                                        <!--<th>0/1</th>-->
-                                        <!--<th>1/1</th>-->
-                                        <!--<th>./.</th>-->
-                                    <!--</tr>-->
-                                    <!--</thead>-->
-                                    <!--<tbody>-->
-                                    <!--<template is="dom-repeat" items="{{samples}}" as="sample">-->
-                                        <!--<tr id="{{sample.name}}">-->
-                                            <!--<td id="{{prefix}}{{sample.name}}RowName" class$="{{sample.className}}">{{sample.name}}</td>-->
-                                            <!--<td><input type="checkbox" value="0/0" data-id$="{{sample.name}}"-->
-                                                       <!--on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>-->
-                                            <!--<td><input type="checkbox" value="0/1" data-id$="{{sample.name}}"-->
-                                                       <!--on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>-->
-                                            <!--<td><input type="checkbox" value="1/1" data-id$="{{sample.name}}"-->
-                                                       <!--on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>-->
-                                            <!--<td><input type="checkbox" value="./." data-id$="{{sample.name}}"-->
-                                                       <!--on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>-->
-                                        <!--</tr>-->
-                                    <!--</template>-->
-                                    <!--</tbody>-->
-                                <!--</table>-->
-                            <!--</div>-->
-                        <!--</div>-->
-                    <!--</div>-->
+                <!--<div>-->
+                <!--<br>-->
+                <!--<label>Sample Genotypes:</label>-->
+                <!--<br>-->
+                <!--<table class="table table-hover" id="segregationTable">-->
+                <!--<thead>-->
+                <!--<tr>-->
+                <!--<th>Sample</th>-->
+                <!--<th>0/0</th>-->
+                <!--<th>0/1</th>-->
+                <!--<th>1/1</th>-->
+                <!--<th>./.</th>-->
+                <!--</tr>-->
+                <!--</thead>-->
+                <!--<tbody>-->
+                <!--<template is="dom-repeat" items="{{samples}}" as="sample">-->
+                <!--<tr id="{{sample.name}}">-->
+                <!--<td id="{{prefix}}{{sample.name}}RowName" class$="{{sample.className}}">{{sample.name}}</td>-->
+                <!--<td><input type="checkbox" value="0/0" data-id$="{{sample.name}}"-->
+                <!--on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>-->
+                <!--<td><input type="checkbox" value="0/1" data-id$="{{sample.name}}"-->
+                <!--on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>-->
+                <!--<td><input type="checkbox" value="1/1" data-id$="{{sample.name}}"-->
+                <!--on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>-->
+                <!--<td><input type="checkbox" value="./." data-id$="{{sample.name}}"-->
+                <!--on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>-->
+                <!--</tr>-->
+                <!--</template>-->
+                <!--</tbody>-->
+                <!--</table>-->
+                <!--</div>-->
+                <!--</div>-->
+                <!--</div>-->
                 <!--</div>-->
                 <!--</template>-->
 
@@ -463,116 +467,117 @@
                             </a>
                         </h4>
                     </div>
-                    <div id="{{prefix}}Position" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}PositionHeading">
+                    <div id="{{prefix}}Position" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}PositionHeading">
                         <div class="panel-body">
-                            <div class="form-group">
-                                <span class="browser-subsection">Chromosomal Location
-                                  <div style="float: right" class="tooltip-div">
-                                    <a data-toggle="tooltip" title="Filter out variants falling outside the genomic interval(s) defined">
-                                        <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                    </a>
-                                </div>
-                                </span>
-                                <textarea id="{{prefix}}LocationTextarea" name="location" class$="form-control clearable {{prefix}}FilterTextInput"
-                                          rows="3" placeholder="3:444-55555,1:1-100000" on-keyup="updateQueryFilters"></textarea>
-                            </div>
 
                             <div class="form-group">
-                                <span class="browser-subsection">Feature IDs (gene, transcript, SNP, ...)
-                                 <div style="float: right" class="tooltip-div">
-                                    <a data-toggle="tooltip" title="Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined">
-                                        <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                    </a>
-                                </div>
-                                </span>
-                                <div class="form-row">
-                                    <div class="col-sm-10" style="padding: 0px 0px 0px 0px">
-                                        <input id="{{prefix}}FeatureIdText" type="text" class="form-control" list="datalist"
-                                               placeholder="Search for Gene Symbols" value="" on-keyup="callAutocomplete">
-                                        <datalist id="datalist">
-                                            <template is="dom-repeat" items="{{autocompleteData}}">
-                                                <option value="{{item.name}}">
-                                            </template>
-                                        </datalist>
-                                    </div>
-                                    <div class="col-sm-2" style="padding: 0px 0px 0px 5px">
-                                        <button type="button" class="btn btn-default btn-sm form-control" on-click="addFeatureId">
-                                            <i class="fa fa-plus"></i>
-                                        </button>
+                                <div class="browser-subsection">Chromosomal Location
+                                    <div style="float: right" class="tooltip-div">
+                                        <a data-toggle="tooltip" title="Filter out variants falling outside the genomic interval(s) defined">
+                                            <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                        </a>
                                     </div>
                                 </div>
-                                <div style="padding-top: 45px">
-                                    <textarea id="{{prefix}}FeatureTextarea" name="geneSnp" class$="form-control clearable {{prefix}}FilterTextInput"
-                                              rows="3" placeholder="BRCA2,ENSG00000139618,ENST00000544455,rs28897700"
-                                              on-keyup="updateQueryFilters"></textarea>
-                                </div>
-                            </div>
-
-                            <!--TODO: Update when server side starts to support all xrefs and with/without rs ids-->
-                            <!--<textarea id="{{prefix}}FeatureTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="5" placeholder="BRCA2, ENSG00000139618, ENST00000544455, P51587, 13:19748038:C:T, rs28897700, VAR_020705, RCV000162901, COSM3468368"-->
-                            <!--name="geneSnp" on-keyup="updateQueryFilters"></textarea>-->
-                            <!--<br>-->
-                            <!--<span class="browser-subsection">Gene Panels</span>-->
-                            <!--<input type="checkbox" value="" class$="{{prefix}}FilterCheckBox"> With / Without dbSNP rs IDs<br>-->
-
-                            <div class="form-group">
-                                <span class="browser-subsection">Gene Disease Panels
-                                <div style="float: right" class="tooltip-div">
-                                    <a data-toggle="tooltip" title="Filter out variants falling outside the genomic intervals (typically genes) defined by the panel(s) chosen">
-                                        <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                    </a>
-                                </div>
-                                </span>
-                                <select class$="form-control {{prefix}}FilterSelect" id="{{prefix}}PanelApps" on-change="onGeneDiseasePanelChange">
-                                    <option value="none">Select a panel...</option>
-                                    <template is="dom-repeat" items="{{panelList}}" sort="sortPanelApp">
-                                        <option value="{{item.name}}">{{item.title}} ({{item.genes.length}})</option>
-                                    </template>
-                                </select>
-                                <div style="padding-top: 10px">
-                                    <textarea id="{{prefix}}PanelAppsTextarea" name="panelAppsTextarea"
-                                              class$="form-control clearable {{prefix}}FilterTextInput"
-                                              rows="3" placeholder="No panel selected" on-keyup="updateQueryFilters"></textarea>
+                                <div class="subsection-content">
+                                    <textarea id="{{prefix}}LocationTextarea" name="location" class$="form-control clearable {{prefix}}FilterTextInput"
+                                              rows="3" placeholder="3:444-55555,1:1-100000" on-keyup="updateQueryFilters"></textarea>
                                 </div>
                             </div>
 
                             <div class="form-group">
-                                <span class="browser-subsection">Gene Biotype
+                                <div class="browser-subsection">Feature IDs (gene, transcript, SNP, ...)
+                                    <div style="float: right" class="tooltip-div">
+                                        <a data-toggle="tooltip" title="Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined">
+                                            <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="subsection-content">
+                                    <div class="form-inline">
+                                        <div class="form-group">
+                                            <input id="{{prefix}}FeatureIdText" type="text" class="form-control" list="datalist"
+                                                   placeholder="Search for Gene Symbols" value="" on-keyup="callAutocomplete">
+                                            <datalist id="datalist">
+                                                <template is="dom-repeat" items="{{autocompleteData}}">
+                                                    <option value="{{item.name}}">
+                                                </template>
+                                            </datalist>
+                                            <button type="button" class="btn btn-default btn-sm form-control" on-click="addFeatureId">
+                                                <i class="fa fa-plus"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <textarea id="{{prefix}}FeatureTextarea" name="geneSnp" class$="form-control clearable {{prefix}}FilterTextInput"
+                                                  rows="3" placeholder="BRCA2,ENSG00000139618,ENST00000544455,rs28897700"
+                                                  on-keyup="updateQueryFilters" style="margin-top: 5px"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="browser-subsection">Gene Disease Panels
+                                    <div style="float: right" class="tooltip-div">
+                                        <a data-toggle="tooltip" title="Filter out variants falling outside the genomic intervals (typically genes) defined by the panel(s) chosen">
+                                            <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="subsection-content">
+                                    <select class$="form-control {{prefix}}FilterSelect" id="{{prefix}}PanelApps" on-change="onGeneDiseasePanelChange">
+                                        <option value="none">Select a panel...</option>
+                                        <template is="dom-repeat" items="{{panelList}}" sort="sortPanelApp">
+                                            <option value="{{item.name}}">{{item.title}} ({{item.genes.length}})</option>
+                                        </template>
+                                    </select>
+                                    <div style="padding-top: 5px">
+                                        <textarea id="{{prefix}}PanelAppsTextarea" name="panelAppsTextarea"
+                                                  class$="form-control clearable {{prefix}}FilterTextInput"
+                                                  rows="3" placeholder="No panel selected" on-keyup="updateQueryFilters">
+                                        </textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="browser-subsection">Gene Biotype
                                     <div style="float: right" class="tooltip-div">
                                         <a data-toggle="tooltip" title="Only considers variants falling within the specified gene biotypes">
                                             <i class="fa fa-info-circle" aria-hidden="true"></i>
                                         </a>
                                     </div>
-                                </span>
-
-                                <select class="selectpicker form-control" id="{{prefix}}GeneBiotypes" on-change="updateQueryFilters"
-                                        data-size="10" data-live-search="true" data-selected-text-format="count" multiple>
-                                    <!--<option value="none">Select a biotype...</option>-->
-                                    <template is="dom-repeat" items="{{biotypes}}">
-                                        <option value="{{item}}">{{item}}</option>
-                                    </template>
-                                </select>
+                                </div>
+                                <div class="subsection-content">
+                                    <select class="selectpicker form-control" id="{{prefix}}GeneBiotypes" on-change="updateQueryFilters"
+                                            data-size="10" data-live-search="true" data-selected-text-format="count" multiple>
+                                        <template is="dom-repeat" items="{{biotypes}}">
+                                            <option value="{{item}}">{{item}}</option>
+                                        </template>
+                                    </select>
+                                </div>
                             </div>
 
-                            <div class="form-group">
-                                <span class="browser-subsection">Variant Type
-                                  <div style="float: right" class="tooltip-div">
-                                    <a data-toggle="tooltip" title="Only considers variants of the selected type">
-                                        <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                    </a>
+                            <div class="form-group" style="margin-bottom: 5px">
+                                <div class="browser-subsection">Variant Type
+                                    <div style="float: right" class="tooltip-div">
+                                        <a data-toggle="tooltip" title="Only considers variants of the selected type">
+                                            <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                        </a>
+                                    </div>
                                 </div>
-                                </span>
-                                <div id="{{prefix}}Type">
-                                    <input type="checkbox" value="SNV,SNP" on-change="updateQueryFilters"
-                                           class$="{{prefix}}FilterCheckBox"> SNV<br>
-                                    <input type="checkbox" value="MNV" on-change="updateQueryFilters"
-                                           class$="{{prefix}}FilterCheckBox"> MNV<br>
-                                    <input type="checkbox" value="CNV" on-change="updateQueryFilters"
-                                           class$="{{prefix}}FilterCheckBox"> CNV<br>
-                                    <input type="checkbox" value="SV" on-change="updateQueryFilters"
-                                           class$="{{prefix}}FilterCheckBox"> SV<br>
-                                    <input type="checkbox" value="INDEL" on-change="updateQueryFilters"
-                                           class$="{{prefix}}FilterCheckBox"> INDEL
+                                <div class="subsection-content">
+                                    <div id="{{prefix}}Type">
+                                        <input type="checkbox" value="SNV,SNP" on-change="updateQueryFilters"
+                                               class$="{{prefix}}FilterCheckBox"> SNV<br>
+                                        <input type="checkbox" value="MNV" on-change="updateQueryFilters"
+                                               class$="{{prefix}}FilterCheckBox"> MNV<br>
+                                        <input type="checkbox" value="CNV" on-change="updateQueryFilters"
+                                               class$="{{prefix}}FilterCheckBox"> CNV<br>
+                                        <input type="checkbox" value="SV" on-change="updateQueryFilters"
+                                               class$="{{prefix}}FilterCheckBox"> SV<br>
+                                        <input type="checkbox" value="INDEL" on-change="updateQueryFilters"
+                                               class$="{{prefix}}FilterCheckBox"> INDEL
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -600,46 +605,68 @@
 
                             <!-- This code create the population frequencies menu filter form populationFrequencies from config.js -->
                             <template is="dom-repeat" items="{{populationFrequencies.studies}}" as="study">
-                                <label style="font-weight: bold;">
-                                    <i id="{{prefix}}{{study.id}}Icon" data-id="{{prefix}}{{study.id}}"
-                                       on-click="handleCollapseAction" class="fa fa-plus" style="cursor: pointer;"></i>
-                                    &nbsp;{{study.title}}
-                                    <div style="float: right" class="tooltip-div">
-                                        <a data-toggle="tooltip" title="{{study.tooltip}}">
-                                            <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                        </a>
-                                    </div>
-                                </label>
-                                <!-- If there is not submenu we just display a button -->
-                                <template is="dom-if" if="{{study.populations}}">
-                                    <div id="{{prefix}}{{study.id}}" hidden>
-                                        <template is="dom-repeat" items="{{study.populations}}" as="popFreq">
-                                            <label class="browser-popFreqName">{{popFreq.title}}</label>
-                                            <div class="horizontal layout">
-                                                <span>ALT</span>
-                                                <span>
-                                                    <select id="{{prefix}}{{study.id}}{{popFreq.id}}Operator" name="{{popFreq.id}}Operator"
-                                                            on-change="updateQueryFilters" class$="{{prefix}}FilterSelect">
-                                                        <option value="<" selected><</option>
-                                                        <option value="<="><=</option>
-                                                        <option value=">">></option>
-                                                        <option value=">=">>=</option>
-                                                    </select>
-                                                </span>
-                                                <span>
-                                                    <input type="text" value="" class$="browser-custom-sized-input {{prefix}}FilterTextInput"
-                                                           name="{{study.id}}_{{popFreq.id}}" id="{{prefix}}{{study.id}}{{popFreq.id}}"
-                                                           on-keyup="updateQueryFilters">
-                                                </span>
+                                <!--<label style="font-weight: bold;">-->
+                                <!--<i id="{{prefix}}{{study.id}}Icon" data-id="{{prefix}}{{study.id}}"-->
+                                <!--on-click="handleCollapseAction" class="fa fa-plus" style="cursor: pointer;"></i>-->
+                                <!--&nbsp;{{study.title}}-->
+                                <!--<div style="float: right" class="tooltip-div">-->
+                                <!--<a data-toggle="tooltip" title="{{study.tooltip}}">-->
+                                <!--<i class="fa fa-info-circle" aria-hidden="true"></i>-->
+                                <!--</a>-->
+                                <!--</div>-->
+                                <!--</label>-->
+                                <div class="subsection-content">
+                                    <div class="form-group">
+
+                                        <div class="browser-subsection">
+                                            <i id="{{prefix}}{{study.id}}Icon" data-id="{{prefix}}{{study.id}}"
+                                               on-click="handleCollapseAction" class="fa fa-plus" style="cursor: pointer;padding-right: 10px"></i>
+                                            {{study.title}}
+                                            <div style="float: right" class="tooltip-div">
+                                                <a data-toggle="tooltip" title="{{study.tooltip}}">
+                                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                                </a>
                                             </div>
-                                        </template>
+                                        </div>
                                     </div>
-                                    <br>
-                                </template>
+
+                                    <!-- If there is not submenu we just display a button -->
+                                    <template is="dom-if" if="{{study.populations}}">
+                                        <div id="{{prefix}}{{study.id}}" class="form-horizontal" hidden>
+                                            <template is="dom-repeat" items="{{study.populations}}" as="popFreq">
+                                                <div class="form-group" style="margin: 10px 0px">
+                                                    <!--<label class="browser-popFreqName">{{popFreq.title}}</label>-->
+                                                    <label class="col-md-4 control-label" data-toggle="tooltip" data-placement="top" title$="{{popFreq.title}}">{{popFreq.id}}</label>
+                                                    <!--<div class="horizontal layout">-->
+                                                    <!--<span>ALT</span>-->
+                                                    <!--<span>-->
+                                                    <div class="col-md-4">
+                                                        <select id="{{prefix}}{{study.id}}{{popFreq.id}}Operator" name="{{popFreq.id}}Operator"
+                                                                on-change="updateQueryFilters" class$="form-control input-sm {{prefix}}FilterSelect">
+                                                            <option value="<" selected><</option>
+                                                            <option value="<="><=</option>
+                                                            <option value=">">></option>
+                                                            <option value=">=">>=</option>
+                                                        </select>
+                                                    </div>
+                                                    <!--</span>-->
+                                                    <div class="col-md-4">
+                                                        <input type="text" value="" class$="browser-custom-sized-input form-control input-sm {{prefix}}FilterTextInput"
+                                                               name="{{study.id}}_{{popFreq.id}}" id="{{prefix}}{{study.id}}{{popFreq.id}}"
+                                                               on-keyup="updateQueryFilters">
+                                                    </div>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </template>
+                                </div>
+                                <!--<br>-->
                             </template>
                         </div>
+                        <!--</template>-->
                     </div>
                 </div>
+                <!--</div>-->
 
                 <!--Protein Substitution Scores filter-->
                 <div class="panel panel-default">
@@ -1192,7 +1219,7 @@
                     cohorts: _studyConfig.cohorts !== undefined && _studyConfig.cohorts.visibility === "public",
                     scores: _studyConfig.scores !== undefined && _studyConfig.scores.visibility === "public",
                     studies: UtilsNew.isNotUndefinedOrNull(_studyConfig.studies) && _studyConfig.studies.visibility === "public"
-                                && UtilsNew.isNotEmptyArray(this.studies) && this.studies.length > 1,
+                    && UtilsNew.isNotEmptyArray(this.studies) && this.studies.length > 1,
                     clinicalData: _studyConfig.samples !== undefined && _studyConfig.clinicalData.visibility === "public",
                     visible: this.config.filter.study.samples.visibility === "public" || this.config.filter.study.cohorts.visibility === "public"
                     || this.config.filter.study.studies.visibility === "public" || this.config.filter.study.clinicalData.visibility === "public"
