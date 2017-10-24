@@ -26,6 +26,7 @@
             .infoHpo {
                 margin-top: 15px;
             }
+
         </style>
 
         <div class="col-md-12">
@@ -178,11 +179,11 @@
                             <div class="input-group">
                                 <textarea class$="form-control {{prefix}}TextInput codeDis" id="{{prefix}}HPO"
                                           name="HPO"
-                                          placeholder="HP:0000947" data-error="An HPO term must be selected" rows="2"
+                                          placeholder="HP:0000947" data-error="An HPO term must be selected" readonly rows="2"
                                           style="resize:none"></textarea>
-                                <!--<span class="input-group-addon btn btn-primary "on-click="openModalHpo">-->
-                                    <!--<i class="fa fa-search" aria-hidden="true"></i>-->
-                                <!--</span>-->
+                                <span class="input-group-addon btn btn-primary" on-click="openModalHpo">
+                                    <i class="fa fa-search" aria-hidden="true"></i>
+                                </span>
                             </div>
                             <span class="glyphicon form-control-feedback" aria-hidden="true"
                                   style="padding-right:60px; padding-top:10px; z-index:5"></span>
@@ -345,10 +346,20 @@
                                 <template is="dom-if" if="{{checkVarType(variable, 'INTEGER')}}">
                                     <!-- INTEGER type: include an input text and add suitable regular expression for numbers -->
                                     <div class="col-xs-6">
-                                        <input type="text" class$="form-control {{prefix}}TextInput"
-                                               id="{{prefix}}{{variable.name}}" name="{{variable.name}}"
-                                               placeholder="{{variable.name}} number" pattern="^[0-9]+$" maxlength="75"
-                                               required data-error="Mandatory field. Only numbers are allowed ">
+                                        <template is="dom-if" if="{{variable.attributes.disabled}}">
+
+                                            <input type="text" class$="form-control {{prefix}}TextInput"
+                                                   id="{{prefix}}{{variable.name}}" disabled name="{{variable.name}}"
+                                                   placeholder="{{variable.name}} number" pattern="^[0-9]+$" maxlength="75"
+                                                   required data-error="Mandatory field. Only numbers are allowed ">
+                                        </template>
+                                        <template is="dom-if" if="{{!variable.attributes.disabled}}">
+
+                                            <input type="text" class$="form-control {{prefix}}TextInput"
+                                                   id="{{prefix}}{{variable.name}}" name="{{variable.name}}"
+                                                   placeholder="{{variable.name}} number" pattern="^[0-9]+$" maxlength="75"
+                                                   required data-error="Mandatory field. Only numbers are allowed ">
+                                        </template>
                                         <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
                                         <div class="help-block with-errors"></div>
                                     </div>
@@ -756,7 +767,7 @@
             }
 
             checkYears(e) {
-                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+//                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
 
                 PolymerUtils.innerHTML(this.prefix + '_errorDiv_birthYear', '');
                 PolymerUtils.innerHTML(this.prefix + '_errorDiv_testYear', '');
@@ -771,7 +782,7 @@
                 if (identifier.search('birthYear') != -1) {    // Birth year element raises the event -> check Test year
                     // Check Year of Test
                     PolymerUtils.innerHTML(this.prefix + '_errorDiv_age', '');
-                    currentElement = PolymerUtils.getElementById(e.target.id);
+                    currentElement = PolymerUtils.getElementById(identifier);
                     valueCE = PolymerUtils.querySelector('option:checked', currentElement).textContent;
                     pairElement = PolymerUtils.getElementById(this.prefix + "testYear");
                     valuePE = PolymerUtils.querySelector('option:checked', pairElement).textContent;
@@ -780,15 +791,8 @@
                         message = "Year of Birth must be prior to year of Test. ";
                         PolymerUtils.innerHTML(this.prefix + '_errorDiv_birthYear', message);
                     }
-                    // Check Age
-                    pairElement = PolymerUtils.getElementById(this.prefix + "testAge");
-                    valuePE = PolymerUtils.querySelector('option:checked', pairElement).textContent;
-                    let fullDate = new Date();
-                    if (UtilsNew.isNotEmpty(valuePE) && !(parseInt(valuePE) >= (fullDate.getFullYear() - parseInt(valueCE) - 1)
-                            && parseInt(valuePE) <= fullDate.getFullYear() - parseInt(valueCE))) {
-                        // If year of birth is 2015, person is 1 or 2 years old (assuming 2017 is current year)
-                        PolymerUtils.innerHTML(this.prefix + '_errorDiv_birthYear', message + 'Year of Birth does not match age');
-                    }
+                    this.calculateYearOfTest();
+
                 }
 
             }
@@ -906,9 +910,8 @@
                 PolymerUtils.innerHTML(this.prefix + "_errorDiv_testAge", "");
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
                 let currentElementId = e.target.id;
-                let currentElement = PolymerUtils.getElementById(e.target.id);
                 // Dropdown related to birthplace
-                if (currentElementId == (this.prefix + 'birthPlace')) {
+
                     if (PolymerUtils.getValue(currentElementId) == 'Spain') {
                         //hide
                         PolymerUtils.hide('otherCountryDiv');
@@ -930,20 +933,9 @@
                             PolymerUtils.removeAttribute(this.prefix + 'otherCountry', 'required');
                         }
                     }
-                } else if (currentElementId == (this.prefix + 'testAge')) {
-                    // Dropdown related to age of Test -> check hat year of birth is correct
-                    let pairElement = PolymerUtils.getElementById(this.prefix + 'birthYear');
-                    let valuePE = PolymerUtils.querySelector("option:checked", pairElement).textContent;
-                    if (UtilsNew.isNotEmpty(valuePE)) {
-                        let birthYear = parseInt(valuePE);
-                        let fullDate = new Date();
-                        if (!(parseInt(PolymerUtils.getValue(currentElementId)) >= (fullDate.getFullYear() - birthYear - 1)
-                                && parseInt(PolymerUtils.getValue(currentElementId)) <= fullDate.getFullYear() - birthYear)) {
-                            PolymerUtils.innerHTML(this.prefix + '_errorDiv_testAge', 'Age selected does not match year of Birth');
-                        }
-                    }
-                } else if (currentElementId == (this.prefix + 'testYear')) { // Year of test element raises the event -> swap elements and check the birth year
-                    let currentElement = PolymerUtils.getElementById(this.prefix + 'birthYear');
+
+// Year of test element raises the event -> swap elements and check the birth year
+                let currentElement = PolymerUtils.getElementById(this.prefix + 'birthYear');
                     let valueCE = PolymerUtils.querySelector('option:checked', currentElement).textContent;
                     let pairElement = PolymerUtils.getElementById(e.target.id);
                     let valuePE = PolymerUtils.querySelector('option:checked', pairElement).textContent;
@@ -951,7 +943,8 @@
                     if (valuePE != '' && (parseInt(valueCE) > parseInt(valuePE))) { // Year of birth cannot be lower than Year of test
                         PolymerUtils.innerHTML(this.prefix + '_errorDiv_testYear', 'Year of Test must be posterior to year of Birth');
                     }
-                }
+                    this.calculateYearOfTest();
+//                }
             }
 
             _clearHtmlDom() {
@@ -1062,14 +1055,14 @@
 
                     let hpoNames = formFields.HPO;
                     if (hpoNames !== "") {
-                        listOntologyTerms.push({id: Utils.randomString(6), name: hpoNames, source:"HPO"});
+//                        listOntologyTerms.push({id: Utils.randomString(6), name: hpoNames, source:"HPO"});
 
-//                        this.selectedTermsHPO.forEach((hpoTerm) => {
-////                            let groupsHpo = regexHPO.exec(hpoTerm);
-////                            if(UtilsNew.isNotUndefinedOrNull(groupsHpo) && groupsHpo.length > 0){
-//                                listOntologyTerms.push({id: hpoTerm.obo_id, name: hpoTerm.label, source:"HPO"});
-////                            }
-//                        });
+                        this.selectedTermsHPO.forEach((hpoTerm) => {
+//                            let groupsHpo = regexHPO.exec(hpoTerm);
+//                            if(UtilsNew.isNotUndefinedOrNull(groupsHpo) && groupsHpo.length > 0){
+                                listOntologyTerms.push({id: hpoTerm.obo_id, name: hpoTerm.label, source:"HPO"});
+//                            }
+                        });
                     }
 
 
@@ -1097,7 +1090,7 @@
                             "lifeStatus": formFields.lifeStatus,
                             "affectationStatus": formFields.status,
                             "parentalConsanguinity": hasParentalConsanguinity,
-                            "ontologyTerms": listOntologyTerms,
+                            "phenotypes": listOntologyTerms,
                             "samples":[{
                                 "name": sampleId,
                                 "type": formFields.sampleType,
@@ -1109,7 +1102,7 @@
                                         "annotations": jsonAnnotation
                                     }
                                 ],
-                                "ontologyTerms": listOntologyTerms
+                                "phenotypes": listOntologyTerms
                             }]
                         };
 
@@ -1320,6 +1313,29 @@
                 PolymerUtils.getElementById(this.prefix + "diagnosis").focus();
                 //TODO Refactor
                 $(PolymerUtils.getElementById(this.prefix + "uploadForm")).validator('update');
+            }
+
+            dinamycFields(e){
+                let identifier = e.target.id;
+
+                if (identifier === this.prefix + "testYear" ) {
+                    this.calculateYearOfTest();
+                }
+            }
+
+            calculateYearOfTest(){
+                let birthYear = PolymerUtils.getValue(this.prefix + "birthYear");
+                let testYear = PolymerUtils.getValue(this.prefix + "testYear");
+                let yearOfTest = 0;
+                if (UtilsNew.isNotUndefinedOrNull(birthYear) && UtilsNew.isNotUndefinedOrNull(testYear)) {
+                    let birthYearInt = parseInt(birthYear);
+                    let testYearInt = parseInt(testYear);
+
+                    if(birthYearInt > 0 && testYear > 0 && birthYear <= testYearInt){
+                        yearOfTest = testYearInt - birthYear;
+                        PolymerUtils.setValue(this.prefix + "testAge", yearOfTest);
+                    }
+                }
             }
         }
         customElements.define(VariantClinicalUpload.is, VariantClinicalUpload);

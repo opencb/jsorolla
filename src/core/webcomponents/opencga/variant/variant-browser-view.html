@@ -31,193 +31,198 @@
             th {
                 text-align: center
             }
+
+            .icon-padding {
+                padding-left: 4px;
+                padding-right: 8px;
+            }
         </style>
 
-        <div>
-            <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" filters="{{config.filters}}"
-                                    filter-bioformat="VARIANT" default-study="{{study.alias}}" alias="{{activeFilterAlias}}" refresh="{{search}}">
-            </opencga-active-filters>
+        <!--<div>-->
+        <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" filters="{{config.filters}}"
+                                filter-bioformat="VARIANT" default-study="{{study.alias}}" alias="{{activeFilterAlias}}" refresh="{{search}}">
+        </opencga-active-filters>
 
-
-            <div id="{{prefix}}LeftToolbar" style="padding-bottom: 0px">
-                <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-success variant-browser-view-buttons active"
-                            data-view="TableResult" on-click="_changeView">
-                        <i class="fa fa-table" aria-hidden="true"></i> Table Result
-                    </button>
-                    <button type="button" class="btn btn-success variant-browser-view-buttons" data-view="Summary"
-                            on-click="_changeView">
-                        <i class="fa fa-line-chart" aria-hidden="true"></i> Summary (Beta)
-                    </button>
-                    <button type="button" class="btn btn-success variant-browser-view-buttons" data-view="GenomeBrowser"
-                            on-click="_changeView">
-                        <i class="fa fa-list-alt" aria-hidden="true"></i> Genome Browser (Beta)
-                    </button>
+        <div class="col-md-12" style="padding: 5px 0px 5px 0px">
+            <div class="btn-toolbar" role="toolbar" aria-label="..." style="padding: 10px 0px;margin-left: 0px">
+                <div id="{{prefix}}LeftToolbar" style="padding-bottom: 0px">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-success variant-browser-view-buttons active" data-view="TableResult" on-click="_changeView">
+                            <i class="fa fa-table icon-padding" aria-hidden="true" data-view="TableResult" on-click="_changeView"></i> Table Result
+                        </button>
+                        <button type="button" class="btn btn-success variant-browser-view-buttons" data-view="Summary" on-click="_changeView">
+                            <i class="fa fa-line-chart icon-padding" aria-hidden="true" data-view="Summary" on-click="_changeView"></i> Summary (Beta)
+                        </button>
+                        <button type="button" class="btn btn-success variant-browser-view-buttons" data-view="GenomeBrowser" on-click="_changeView">
+                            <i class="fa fa-list-alt icon-padding" aria-hidden="true" data-view="GenomeBrowser" on-click="_changeView"></i> Genome Browser (Beta)
+                        </button>
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <div>
-                <!-- First TAB -->
-                <div id="{{prefix}}TableResult" class="variant-browser-content">
-                    <!-- Variant Browser Grid -->
-                    <variant-browser-grid study="{{study}}" project="{{project}}" cohorts="{{cohorts}}"
-                                          opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
-                                          population-frequencies="{{populationFrequencies}}" active="{{active}}"
-                                          protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                          consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}"
-                                          variant="{{variant}}" on-selected="selectedGene"
-                                          on-selectvariant="onSelectVariant" style="font-size: 12px" config="{{config}}"
-                                          summary="{{summary}}" samples="{{samples}}">
-                    </variant-browser-grid>
+        <div>
+            <!-- First TAB -->
+            <div id="{{prefix}}TableResult" class="variant-browser-content">
+                <!-- Variant Browser Grid -->
+                <variant-browser-grid study="{{study}}" project="{{project}}" cohorts="{{cohorts}}"
+                                      opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+                                      population-frequencies="{{populationFrequencies}}" active="{{active}}"
+                                      protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                      consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}"
+                                      variant="{{variant}}" on-selected="selectedGene"
+                                      on-selectvariant="onSelectVariant" style="font-size: 12px" config="{{config}}"
+                                      summary="{{summary}}" samples="{{samples}}">
+                </variant-browser-grid>
 
 
-                    <!-- Bottom tabs with specific variant information -->
-                    <div style="padding-top: 20px" hidden$="{{!checkVariant(variant)}}">
-                        <h3>Variant: {{variant}}</h3>
-                        <div style="padding-top: 20px">
-                            <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
-                                <li role="presentation" class="active"><a href="#{{prefix}}Annotation" role="tab"
-                                                                          data-toggle="tab"
-                                                                          class="browser-variant-tab-title">Advanced
-                                    Annotation</a></li>
-                                <li role="presentation"><a href="#{{prefix}}Genotype" role="tab" data-toggle="tab"
-                                                           class="browser-variant-tab-title">Genotype Stats</a></li>
-                                <!--<li role="presentation"><a href="#{{prefix}}GenomeView" role="tab" data-toggle="tab" class="browser-variant-tab-title">Genome Context</a></li>-->
-                                <li role="presentation"><a href="#{{prefix}}Beacon" role="tab" data-toggle="tab"
-                                                           class="browser-variant-tab-title">Beacon Network</a></li>
-                            </ul>
+                <!-- Bottom tabs with specific variant information -->
+                <div style="padding-top: 20px" hidden$="{{!checkVariant(variant)}}">
+                    <h3>Variant: {{variant}}</h3>
+                    <div style="padding-top: 20px">
+                        <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
+                            <li role="presentation" class="active"><a href="#{{prefix}}Annotation" role="tab"
+                                                                      data-toggle="tab"
+                                                                      class="browser-variant-tab-title">Advanced
+                                Annotation</a></li>
+                            <li role="presentation"><a href="#{{prefix}}Genotype" role="tab" data-toggle="tab"
+                                                       class="browser-variant-tab-title">Genotype Stats</a></li>
+                            <!--<li role="presentation"><a href="#{{prefix}}GenomeView" role="tab" data-toggle="tab" class="browser-variant-tab-title">Genome Context</a></li>-->
+                            <li role="presentation"><a href="#{{prefix}}Beacon" role="tab" data-toggle="tab"
+                                                       class="browser-variant-tab-title">Beacon Network</a></li>
+                        </ul>
 
-                            <div class="tab-content" style="height: 680px">
-                                <!--Annotation Tab-->
-                                <div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">
-                                    <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}"
-                                                                     cellbase-client="{{cellbaseClient}}"
-                                                                     mode="vertical"
-                                                                     hash-fragment-credentials="{{hashFragmentCredentials}}"
-                                                                     consequence-types="{{consequenceTypes}}"
-                                                                     protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                                                     style="font-size: 12px">
-                                    </cellbase-variantannotation-view>
-                                </div>
+                        <div class="tab-content" style="height: 680px">
+                            <!--Annotation Tab-->
+                            <div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">
+                                <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}"
+                                                                 cellbase-client="{{cellbaseClient}}"
+                                                                 mode="vertical"
+                                                                 hash-fragment-credentials="{{hashFragmentCredentials}}"
+                                                                 consequence-types="{{consequenceTypes}}"
+                                                                 protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                                 style="font-size: 12px">
+                                </cellbase-variantannotation-view>
+                            </div>
 
-                                <!--Genotypes & Files Tab-->
-                                <div role="tabpanel" class="tab-pane" id="{{prefix}}Genotype">
-                                    <template is="dom-repeat" items="{{variantStudies}}" as="study" id="variantStudies">
-                                        <div class="col-md-10" style="padding-top: 8px">
-                                            <h4 style="font-weight: bold;padding: 20px 0px 0px 0px">
-                                                <i class="fa fa-minus-circle" on-click="handleCollapseAction"
-                                                   data-id="{{getStudy(study.studyId)}}" style="cursor: pointer;"></i>&nbsp;{{getStudy(study.studyId)}}
-                                            </h4>
+                            <!--Genotypes & Files Tab-->
+                            <div role="tabpanel" class="tab-pane" id="{{prefix}}Genotype">
+                                <template is="dom-repeat" items="{{variantStudies}}" as="study" id="variantStudies">
+                                    <div class="col-md-10" style="padding-top: 8px">
+                                        <h4 style="font-weight: bold;padding: 20px 0px 0px 0px">
+                                            <i class="fa fa-minus-circle" on-click="handleCollapseAction"
+                                               data-id="{{getStudy(study.studyId)}}" style="cursor: pointer;"></i>&nbsp;{{getStudy(study.studyId)}}
+                                        </h4>
 
-                                            <div id="{{getStudy(study.studyId)}}">
-                                                <div hidden$="{{!checkStatsAvailable(study.stats)}}">
-                                                    <table class="table table-bordered" style="width: 70%">
-                                                        <thead style="background-color: #eee;">
+                                        <div id="{{getStudy(study.studyId)}}">
+                                            <div hidden$="{{!checkStatsAvailable(study.stats)}}">
+                                                <table class="table table-bordered" style="width: 70%">
+                                                    <thead style="background-color: #eee;">
+                                                    <tr>
+                                                        <th scope="col" rowspan="2">Cohort</th>
+                                                        <th scope="col" rowspan="2">Reference</th>
+                                                        <th scope="col" rowspan="2">Alternate</th>
+                                                        <th scope="col" rowspan="2">MAF (allele)</th>
+                                                        <th colspan="2" scope="colgroup">Allele Frequencies</th>
+                                                        <th colspan="3" scope="colgroup">Genotype Frequencies</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <th scope="col">Reference (count)</th>
+                                                        <th scope="col">Alternate (count)</th>
+                                                        <th scope="col">0/0 (count)</th>
+                                                        <th scope="col">0/1 (count)</th>
+                                                        <th scope="col">1/1 (count)</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    <template is="dom-repeat" items="{{study.stats}}" as="cohort">
                                                         <tr>
-                                                            <th scope="col" rowspan="2">Cohort</th>
-                                                            <th scope="col" rowspan="2">Reference</th>
-                                                            <th scope="col" rowspan="2">Alternate</th>
-                                                            <th scope="col" rowspan="2">MAF (allele)</th>
-                                                            <th colspan="2" scope="colgroup">Allele Frequencies</th>
-                                                            <th colspan="3" scope="colgroup">Genotype Frequencies</th>
+                                                            <td>{{cohort.name}}</td>
+                                                            <td>{{cohort.value.refAllele}}</td>
+                                                            <td>{{cohort.value.altAllele}}</td>
+                                                            <td>{{cohort.value.maf}} ({{cohort.value.mafAllele}})
+                                                            </td>
+                                                            <td>{{cohort.value.refAlleleFreq}}
+                                                                ({{cohort.value.refAlleleCount}})
+                                                            </td>
+                                                            <td>{{cohort.value.altAlleleFreq}}
+                                                                ({{cohort.value.altAlleleCount}})
+                                                            </td>
+                                                            <td>{{cohort.value.genotypesFreq.homref}}
+                                                                ({{cohort.value.genotypesCount.homref}})
+                                                            </td>
+                                                            <td>{{cohort.value.genotypesFreq.het}}
+                                                                ({{cohort.value.genotypesCount.het}})
+                                                            </td>
+                                                            <td>{{cohort.value.genotypesFreq.homalt}}
+                                                                ({{cohort.value.genotypesCount.homalt}})
+                                                            </td>
                                                         </tr>
-                                                        <tr>
-                                                            <th scope="col">Reference (count)</th>
-                                                            <th scope="col">Alternate (count)</th>
-                                                            <th scope="col">0/0 (count)</th>
-                                                            <th scope="col">0/1 (count)</th>
-                                                            <th scope="col">1/1 (count)</th>
-                                                        </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                        <template is="dom-repeat" items="{{study.stats}}" as="cohort">
-                                                            <tr>
-                                                                <td>{{cohort.name}}</td>
-                                                                <td>{{cohort.value.refAllele}}</td>
-                                                                <td>{{cohort.value.altAllele}}</td>
-                                                                <td>{{cohort.value.maf}} ({{cohort.value.mafAllele}})
-                                                                </td>
-                                                                <td>{{cohort.value.refAlleleFreq}}
-                                                                    ({{cohort.value.refAlleleCount}})
-                                                                </td>
-                                                                <td>{{cohort.value.altAlleleFreq}}
-                                                                    ({{cohort.value.altAlleleCount}})
-                                                                </td>
-                                                                <td>{{cohort.value.genotypesFreq.homref}}
-                                                                    ({{cohort.value.genotypesCount.homref}})
-                                                                </td>
-                                                                <td>{{cohort.value.genotypesFreq.het}}
-                                                                    ({{cohort.value.genotypesCount.het}})
-                                                                </td>
-                                                                <td>{{cohort.value.genotypesFreq.homalt}}
-                                                                    ({{cohort.value.genotypesCount.homalt}})
-                                                                </td>
-                                                            </tr>
-                                                        </template>
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                                <div hidden$="{{checkStatsAvailable(study.stats)}}">
-                                                    No Genotypes statistics available
-                                                </div>
+                                                    </template>
+                                                    </tbody>
+                                                </table>
                                             </div>
-                                            <br>
+                                            <div hidden$="{{checkStatsAvailable(study.stats)}}">
+                                                No Genotypes statistics available
+                                            </div>
                                         </div>
-                                    </template>
-                                </div>
+                                        <br>
+                                    </div>
+                                </template>
+                            </div>
 
-                                <!--Beacon network-->
-                                <div role="tabpanel" class="tab-pane" id="{{prefix}}Beacon">
-                                    <br>
-                                    <button class="btn btn-primary" type="button" on-click="triggerBeacon">Search Beacon
-                                        Network
-                                    </button>
-                                    <a data-toggle="tooltip"
-                                       title="Beacon Network is a search engine across the world's public beacons. You can find it here - https://beacon-network.org/#/"><i
-                                            class="fa fa-info-circle" aria-hidden="true"></i></a>
-                                    <br><br>
-                                    <variant-beacon-network hosts="{{beaconHosts}}" clear="{{variant}}"
-                                                            variant="{{variantToBeacon}}"></variant-beacon-network>
-                                </div>
+                            <!--Beacon network-->
+                            <div role="tabpanel" class="tab-pane" id="{{prefix}}Beacon">
+                                <br>
+                                <button class="btn btn-primary" type="button" on-click="triggerBeacon">Search Beacon
+                                    Network
+                                </button>
+                                <a data-toggle="tooltip"
+                                   title="Beacon Network is a search engine across the world's public beacons. You can find it here - https://beacon-network.org/#/"><i
+                                        class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                <br><br>
+                                <variant-beacon-network hosts="{{beaconHosts}}" clear="{{variant}}"
+                                                        variant="{{variantToBeacon}}"></variant-beacon-network>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <!-- Second TAB -->
-                <div id="{{prefix}}Summary" class="variant-browser-content" style="display: none">
-                    <br>
-                    <div class="col-md-6">
-                        <h4>Consequence Type</h4>
-                        <div id="{{prefix}}soAcc"></div>
-                    </div>
-                    <div class="col-md-6">
-                        <h4>Gene</h4>
-                        <div id="{{prefix}}genes"></div>
-                    </div>
-                    <div class="col-md-6">
-                        <h4>Variant Type</h4>
-                        <div id="{{prefix}}type"></div>
-                    </div>
-                    <div class="col-md-6">
-                        <h4>Studies</h4>
-                        <div id="{{prefix}}studies"></div>
-                    </div>
-                </div>
-
-                <!-- Third TAB -->
-                <div id="{{prefix}}GenomeBrowser" class="variant-browser-content" style="display: none">
-                    <br>
-                    <br>
-                    <variant-genome-browser project="{{project}}" study="{{study}}" opencga-client="{{opencgaClient}}"
-                                            cellbase-client="{{cellbaseClient}}"
-                                            query={{query}} search={{search}} species={{config.species}}
-                                            region="{{region}}" active="{{_genomeBrowserActive}}" full-screen="{{fullScreen}}">
-                    </variant-genome-browser>
-                </div>
-
             </div>
+
+            <!-- Second TAB -->
+            <div id="{{prefix}}Summary" class="variant-browser-content" style="display: none">
+                <br>
+                <div class="col-md-6">
+                    <h4>Consequence Type</h4>
+                    <div id="{{prefix}}soAcc"></div>
+                </div>
+                <div class="col-md-6">
+                    <h4>Gene</h4>
+                    <div id="{{prefix}}genes"></div>
+                </div>
+                <div class="col-md-6">
+                    <h4>Variant Type</h4>
+                    <div id="{{prefix}}type"></div>
+                </div>
+                <div class="col-md-6">
+                    <h4>Studies</h4>
+                    <div id="{{prefix}}studies"></div>
+                </div>
+            </div>
+
+            <!-- Third TAB -->
+            <div id="{{prefix}}GenomeBrowser" class="variant-browser-content" style="display: none">
+                <br>
+                <br>
+                <variant-genome-browser project="{{project}}" study="{{study}}" opencga-client="{{opencgaClient}}"
+                                        cellbase-client="{{cellbaseClient}}"
+                                        query={{query}} search={{search}} species={{config.species}}
+                                        region="{{region}}" active="{{_genomeBrowserActive}}" full-screen="{{fullScreen}}">
+                </variant-genome-browser>
+            </div>
+
         </div>
+        <!--</div>-->
 
         <div class="modal fade" id="{{prefix}}LoadingModal" data-backdrop="static" data-keyboard="false" tabindex="-1"
              role="dialog"
@@ -390,25 +395,25 @@
             }
 
             variantChanged(e) {
-                    if (this.variant.split(':').length > 2) {
-                        let [chromosome, start, ref, alt] = this.variant.split(":");
-                        this.region = new Region(chromosome + ":" + start);
-                        let params = {
-                            ids: this.variant,
-                            studies: this.project.alias + ":" + this.study.alias,
-                            exclude: "annotation,studies.files,studies.samplesData"
-                        };
-                        let _this = this;
-                        this.opencgaClient.variants().query(params)
-                            .then(function (response) {
-                                if (typeof response.response[0].result[0] !== "undefined") {
-                                    let _variantStudies = response.response[0].result[0].studies;
-                                    for (let i = 0; i < _variantStudies.length; i++) {
-                                        let study = _variantStudies[i].studyId.split(':')[1];
-                                        let statsObject = _variantStudies[i].stats;
-                                        let statsArray = [];
-                                        Object.keys(statsObject).map(key => {
-                                            statsObject[key].maf = _this._freqFormatter(statsObject[key].maf || 0);
+                if (this.variant.split(':').length > 2) {
+                    let [chromosome, start, ref, alt] = this.variant.split(":");
+                    this.region = new Region(chromosome + ":" + start);
+                    let params = {
+                        ids: this.variant,
+                        studies: this.project.alias + ":" + this.study.alias,
+                        exclude: "annotation,studies.files,studies.samplesData"
+                    };
+                    let _this = this;
+                    this.opencgaClient.variants().query(params)
+                        .then(function (response) {
+                            if (typeof response.response[0].result[0] !== "undefined") {
+                                let _variantStudies = response.response[0].result[0].studies;
+                                for (let i = 0; i < _variantStudies.length; i++) {
+                                    let study = _variantStudies[i].studyId.split(':')[1];
+                                    let statsObject = _variantStudies[i].stats;
+                                    let statsArray = [];
+                                    Object.keys(statsObject).map(key => {
+                                        statsObject[key].maf = _this._freqFormatter(statsObject[key].maf || 0);
                                         statsObject[key].mafAllele = statsObject[key].mafAllele || '-';
 
                                         statsObject[key].refAlleleFreq = _this._freqFormatter(statsObject[key].refAlleleFreq || 0);
@@ -437,37 +442,37 @@
                                             })
                                         }
                                     });
-                                        _variantStudies[i].stats = statsArray;
-                                    }
-                                    _this.set("variantStudies", _variantStudies);
+                                    _variantStudies[i].stats = statsArray;
                                 }
-                            })
-                            .catch(function (reason) {
-                                console.error(reason)
-                            });
-                    }
+                                _this.set("variantStudies", _variantStudies);
+                            }
+                        })
+                        .catch(function (reason) {
+                            console.error(reason)
+                        });
+                }
             }
 
             fetchFacets() {
-                    let queryParams = {
-                        sid: this.opencgaClient._config.sessionId,
-                        studies: this.project.alias + ":" + this.study.alias,
-                        facet: "type;genes;soAcc;studies",
-                        timeout: 60000
-                    };
-                    Object.assign(queryParams, this.query);
+                let queryParams = {
+                    sid: this.opencgaClient._config.sessionId,
+                    studies: this.project.alias + ":" + this.study.alias,
+                    facet: "type;genes;soAcc;studies",
+                    timeout: 60000
+                };
+                Object.assign(queryParams, this.query);
 
-                    if (typeof queryParams.sid === "undefined" || queryParams.sid === "") {
-                        delete queryParams["sid"];
-                    }
+                if (typeof queryParams.sid === "undefined" || queryParams.sid === "") {
+                    delete queryParams["sid"];
+                }
 
-                    let _this = this;
+                let _this = this;
 
-                    // Shows loading modal
-                    $("#" + "MainLoadingModal").modal("show");
+                // Shows loading modal
+                $("#" + "MainLoadingModal").modal("show");
 
-                    setTimeout(_ => {
-                        this.opencgaClient.variants().facet(queryParams, {})
+                setTimeout(_ => {
+                    this.opencgaClient.variants().facet(queryParams, {})
                         .then(function (queryResponse) {
                             _this.facetResults = queryResponse.response[0].result[0].result.fields;
                             for (let result of _this.facetResults) {

@@ -266,7 +266,7 @@
                     this.family = {};
                     this.family.name = "FA-" + Math.floor(Math.random() * 10000) + 1;
                     this.family.description = "";
-                    this.family.diseases = [];
+                    this.family.phenotypes = [];
                     this.family.members = [];
                     this.family.annotationSets = [];
                     this.family.attributes = {};
@@ -275,7 +275,7 @@
                         _this.family.members[sample.id] = {
                             father: undefined,
                             mother: undefined,
-                            ontologyTerms: [],
+                            phenotypes: [],
                             parentalConsanguinity: false
                         }
                     });
@@ -433,7 +433,7 @@
                     case "singleButton":
                         analysisType = "Single";
                         _properMembers = 1;
-                        _familyEditor = !UtilsNew.isNotUndefinedOrNull(this.samples[0].attributes.individual) && UtilsNew.isNotEmptyArray(this.samples[0].attributes.ontologyTerms);
+                        _familyEditor = !UtilsNew.isNotUndefinedOrNull(this.samples[0].attributes.individual) && UtilsNew.isNotEmptyArray(this.samples[0].attributes.phenotypes);
                         break;
                     case "autoButton":
                         analysisType = "Auto comparative";
@@ -579,8 +579,8 @@
                             let diseases = [];
                             rowInfo.sampleList.forEach((sample) => {
                                 if (UtilsNew.isNotUndefinedOrNull(sample.attributes) && UtilsNew.isNotUndefinedOrNull(sample.attributes.individual)
-                                    && UtilsNew.isNotEmptyArray(sample.attributes.individual.ontologyTerms)) {
-                                    let ontologyTerms = sample.attributes.individual.ontologyTerms;
+                                    && UtilsNew.isNotEmptyArray(sample.attributes.individual.phenotypes)) {
+                                    let ontologyTerms = sample.attributes.individual.phenotypes;
                                     ontologyTerms.forEach((term) => {
                                         if (term.id !== "") {
                                             // check if exists already this term in data.diseases
@@ -601,7 +601,7 @@
                             });
                         } else {
                             // When Analysis type is != SINGLE
-                            diseaseAnalysis = rowInfo.family.diseases.find((disease) => {
+                            diseaseAnalysis = rowInfo.family.phenotypes.find((disease) => {
                                 return disease.id === diseaseSelected
                             });
                         }
@@ -611,7 +611,7 @@
                         let analysisInfo = {
                             analysisID: rowInfo.analysisID,
                             type: _analysisType,
-                            familyID: rowInfo.family !== null ? rowInfo.family.name : "",
+                            familyID: rowInfo.family !== null ? rowInfo.family.name : undefined,
                             subjects: subjects,
                             disease: diseaseAnalysis
                         };
@@ -803,8 +803,8 @@
                     if (UtilsNew.isEmptyArray(diseasesFromFamily)) {
                         let affectedMembers = samples.forEach((sample) => {
                             if (UtilsNew.isNotUndefinedOrNull(sample.attributes) && UtilsNew.isNotUndefinedOrNull(sample.attributes.individual)
-                                && UtilsNew.isNotEmptyArray(sample.attributes.individual.ontologyTerms)) {
-                                let ontologyTerms = sample.attributes.individual.ontologyTerms;
+                                && UtilsNew.isNotEmptyArray(sample.attributes.individual.phenotypes)) {
+                                let ontologyTerms = sample.attributes.individual.phenotypes;
                                 ontologyTerms.forEach((term) => {
                                     if (UtilsNew.isNotEmpty(term.id)) {
                                         // check if exists already this term in data.diseases
@@ -903,7 +903,7 @@
                         }
                     });
                     $(PolymerUtils.getElementById(this.prefix + "tableAnalysis")).bootstrapTable("updateCell",{ index: _this.selectedRow, field: "subjectSelected", value: _this.subjectFormatter(this.currentAnalysis.analysisIDinternal,this.samples, subjectSelected)});
-                    $(PolymerUtils.getElementById(this.prefix + "tableAnalysis")).bootstrapTable("updateCell",{ index: _this.selectedRow, field: "diseaseSelected", value: _this.diseaseFormatter(this.currentAnalysis.analysisIDinternal, this.samples, this.family.diseases , diseaseSelected)});
+                    $(PolymerUtils.getElementById(this.prefix + "tableAnalysis")).bootstrapTable("updateCell",{ index: _this.selectedRow, field: "diseaseSelected", value: _this.diseaseFormatter(this.currentAnalysis.analysisIDinternal, this.samples, this.family.phenotypes , diseaseSelected)});
                     PolymerUtils.getElementById(this.prefix + 'selectedSubject' + this.currentAnalysis.analysisIDinternal).addEventListener('change', e => this.selectSubject(e));
                     PolymerUtils.removeAttribute(this.prefix + "Save" + this.currentAnalysis.analysisIDinternal, "disabled");
                     PolymerUtils.removeClass(this.prefix + "Save" + this.currentAnalysis.analysisIDinternal, "disabled");

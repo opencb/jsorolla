@@ -107,7 +107,7 @@
                         <th>Sample ID</th>
                         <th>Father</th>
                         <th>Mother</th>
-                        <th>Diseases</th>
+                        <th>Phenotypes</th>
                         <th>Deceased</th>
                         <th>Parental Consanguinity</th>
                         <th>Sex</th>
@@ -187,7 +187,7 @@
                             </td>
 
                             <td style="width: 150px;">
-                                <template is="dom-repeat" items="{{data.diseases}}" as="disease">
+                                <template is="dom-repeat" items="{{data.phenotypes}}" as="disease">
                                     <input id="{{prefix}}{{disease.id}}Affected" data-sample-id$="{{sample.id}}"
                                            data-disease-id$="{{disease.id}}"
                                            checked$="{{isCheckedDisease(sample.id, disease.id)}}"
@@ -267,9 +267,6 @@
                         type: Array,
                         observer: '_updateSamples'
                     },
-                    diseases: {
-                        type: Array
-                    },
                     family: {
                         type: Object
                     },
@@ -305,7 +302,7 @@
                     this.data.showSelectParents = this.samples.length > 1;
                     this.data.name = this.family.name;
                     this.data.description = this.family.description;
-                    this.data.diseases = this.family.diseases;
+                    this.data.phenotypes = this.family.phenotypes;
                     // This are the set of ontology terms name of all member of the family
                     this.data.ontologyTermsDiseases = [];
                     this.data.customDiseases = [];
@@ -327,12 +324,12 @@
                                         sample.attributes.individual = response.response[0].result[0];
                                     }
                                     // Union of all ontologyTerms of every sample and we save it in diseases.
-                                    if(UtilsNew.isNotUndefinedOrNull(sample.attributes.individual.ontologyTerms
-                                            && UtilsNew.isNotEmptyArray(sample.attributes.individual.ontologyTerms))){
-                                        sample.individual.ontologyTerms.forEach((term) => {
+                                    if(UtilsNew.isNotUndefinedOrNull(sample.attributes.individual.phenotypes
+                                            && UtilsNew.isNotEmptyArray(sample.attributes.individual.phenotypes))){
+                                        sample.attributes.individual.phenotypes.forEach((term) => {
                                             if (UtilsNew.isNotEmpty(term.id)) {
                                                 // check if exists already this term in data.diseases
-                                                let existsTerm = _this.data.diseases.find((element) => {
+                                                let existsTerm = _this.data.phenotypes.find((element) => {
                                                     return element.id === term.id;
                                                 });
 
@@ -346,14 +343,14 @@
                                                 }
 
                                                 if(UtilsNew.isUndefinedOrNull(existsTerm)){
-                                                    _this.data.diseases.push(term);
+                                                    _this.data.phenotypes.push(term);
                                                 }
                                             }
                                         });
                                     }
 
                                     // Difference between ontologyTermsDiseases and diseases are the custom diseases
-                                    _this.data.customDiseases = _this.data.diseases.filter(disease => !_this.data.ontologyTermsDiseases.some(ar2 => ar2.id === disease.id));
+                                    _this.data.customDiseases = _this.data.phenotypes.filter(disease => !_this.data.ontologyTermsDiseases.some(ar2 => ar2.id === disease.id));
                                     // Made this to update dom-repeat in from the component prioritization-view
                                     _this.set("data.customDiseases", _this.data.customDiseases.slice());
                                     _this.set("data.ontologyTermsDiseases", _this.data.ontologyTermsDiseases.slice());
@@ -404,9 +401,9 @@
             isCheckedDisease(sampleId, diseaseId) {
                 let sampleSelected = this.findSample(sampleId);
                 if (UtilsNew.isNotUndefinedOrNull(sampleSelected) && UtilsNew.isNotUndefinedOrNull(sampleSelected.member)
-                    && UtilsNew.isNotUndefinedOrNull(sampleSelected.member.ontologyTerms)) {
+                    && UtilsNew.isNotUndefinedOrNull(sampleSelected.member.phenotypes)) {
 
-                    let existsSelectedDisease = sampleSelected.member.ontologyTerms.find((disease) => {
+                    let existsSelectedDisease = sampleSelected.member.phenotypes.find((disease) => {
                         return disease.id === diseaseId;
                     });
 
@@ -495,21 +492,21 @@
                 let diseaseId = e.target.getAttribute("data-disease-id");
                 let sampleSelected = this.findSample(sampleId);
                 if(UtilsNew.isNotUndefinedOrNull(sampleSelected)) {
-                    let existsSelectedDisease = sampleSelected.member.ontologyTerms.find((disease) => {
+                    let existsSelectedDisease = sampleSelected.member.phenotypes.find((disease) => {
                         return disease.id === diseaseId;
                     });
                     if (UtilsNew.isUndefinedOrNull(existsSelectedDisease)) {
-                        let selectedDisease = this.data.diseases.find((disease) => {
+                        let selectedDisease = this.data.phenotypes.find((disease) => {
                             return disease.id === diseaseId;
                         });
-                        sampleSelected.member.ontologyTerms.push(selectedDisease);
+                        sampleSelected.member.phenotypes.push(selectedDisease);
                     } else {
-                        sampleSelected.member.ontologyTerms = sampleSelected.member.ontologyTerms.filter((disease) => {
+                        sampleSelected.member.phenotypes = sampleSelected.member.phenotypes.filter((disease) => {
                             return disease.id !== diseaseId;
                         });
                     }
 
-                    this.family.members[sampleId].ontologyTerms = sampleSelected.member.ontologyTerms;
+                    this.family.members[sampleId].phenotypes = sampleSelected.member.phenotypes;
                     this._updateFamily();
                 }
             }
@@ -609,7 +606,7 @@
                 PolymerUtils.setValue(this.prefix + "srcDisease", "");
 
                 // Add by polymer array pushing a new disease to the family diseases array and to the custom diseases
-                this.push("data.diseases",{
+                this.push("data.phenotypes",{
                     id: this.newDisease.id.toString(),
                     name: this.newDisease.name,
                     source: this.newDisease.src
@@ -621,7 +618,7 @@
                 });
 
                 this.newDisease = {};
-                this.family.diseases = this.data.diseases;
+                this.family.phenotypes = this.data.phenotypes;
                 this._updateFamily();
             }
 
@@ -660,16 +657,16 @@
             deletedTermFromList(e){
                 let deletedTerm = JSON.parse(e.target.getAttribute("data-selected-term"));
 
-                let diseasesWithoutElement = this.data.diseases.filter((element) => {
+                let diseasesWithoutElement = this.data.phenotypes.filter((element) => {
                     return element.id !== deletedTerm.id;
                 });
                 let customDiseasesWithoutElement = this.data.customDiseases.filter((element) => {
                     return element.id !== deletedTerm.id;
                 });
-                this.set('data.diseases', diseasesWithoutElement);
+                this.set('data.phenotypes', diseasesWithoutElement);
                 this.set('data.customDiseases', customDiseasesWithoutElement);
-                this.family.diseases = this.data.diseases;
-                this.push("data.diseases");
+                this.family.phenotypes = this.data.phenotypes;
+                this.push("data.phenotypes");
                 this._updateFamily();
             }
 

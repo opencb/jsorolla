@@ -18,9 +18,12 @@
     <template>
         <style include="jso-styles"></style>
 
-        <div id="{{prefix}}ToolbarLeft" style="float: left;margin: 20px 0px 0px 0px">
-            <span style="font-size: 14px">Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> variants</span>
+        <div id="{{prefix}}ToolbarLeft" style="float: left;margin: 10px 0px 0px 0px">
+            <span>
+                Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> variants
+            </span>
         </div>
+
         <div id="{{prefix}}toolbar" style="float:right;margin: 10px 0px 10px 0px">
             <div class="btn-group">
                 <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

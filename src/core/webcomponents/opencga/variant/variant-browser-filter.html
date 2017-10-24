@@ -91,8 +91,11 @@
             }
 
             .browser-subsection {
-                padding: 5px 0px 5px 0px;
+                font-size: 1.35rem;
                 font-weight: bold;
+                padding: 5px 0px;
+                color: #444444;
+                border-bottom: 1px solid #dddddd;
             }
 
             span.searchingSpan{
@@ -113,243 +116,336 @@
 
             <br>
             <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true">
+
                 <!-- STUDY filters -->
-                <template is="dom-if" if="{{isBrowserMode}}">
-                    <template is="dom-if" if="{{_studyCohortBoolean}}">
-                        <div class="panel panel-default">
-                            <div class="panel-heading" role="tab" id="{{prefix}}StudiesHeading">
-                                <h4 class="panel-title">
-                                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                                       href="#{{prefix}}Studies" aria-expanded="true" aria-controls="{{prefix}}Studies">
-                                        Study
-                                        <div style="float: right" class="tooltip-div">
-                                            <a data-toggle="tooltip"
-                                               title="Use this filter to find variants which are: 1) also present in all of the selected studies below, 2) not present in any of the studies selected below or 3) present in at least one of the studies selected below">
-                                                <i class="fa fa-info-circle" aria-hidden="true"></i></a>
-                                        </div>
-                                    </a>
-                                </h4>
-                            </div>
-                            <div id="{{prefix}}Studies" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}StudiesHeading">
-                                <div class="panel-body">
-                                    <template is="dom-if" if="{{cohortsPresent(_cohorts)}}">
-                                        <span class="browser-subsection">Cohort MAF filter</span>
-                                        <template is="dom-repeat" items="{{_cohorts}}" as="cohort">
-                                            <div class="horizontal layout" style="padding: 4px 0px 4px 0px">
-                                                <span>{{cohort.name}}</span>
-                                                <span>
-                                                <select id="{{prefix}}{{study.alias}}{{cohort.id}}CohortOperator" name="{{cohort.id}}Operator"
-                                                        class$="{{prefix}}FilterSelect" on-change="updateQueryFilters">
-                                                    <option value="<" selected><</option>
-                                                    <option value="<="><=</option>
-                                                    <option value=">">></option>
-                                                    <option value=">=">>=</option>
-                                                </select>
-                                            </span>
-                                                <span>
-                                                    <input type="text" value="" class$="browser-custom-sized-input {{prefix}}FilterTextInput"
-                                                           name="{{study.alias}}_{{cohort.id}}" id="{{prefix}}{{study.alias}}{{cohort.id}}Cohort"
-                                                           on-keyup="updateQueryFilters">
-                                                </span>
-                                            </div>
-                                        </template>
-                                        <br>
-                                    </template>
-
-                                    <template is="dom-if" if="{{moreStudiesPresent(studies)}}">
-                                        <span class="browser-subsection">Studies Filter</span>
-                                        <select class$="form-control {{prefix}}FilterSelect" id="includeOtherStudy"
-                                                style="width: 50%;" on-change="updateQueryFilters">
-                                            <option value="in" selected>In (AND)</option>
-                                            <!--<option value="not in">Not In</option>-->
-                                            <option value="atleast">At least (OR)</option>
-                                        </select>
-                                        <div id="{{prefix}}DifferentStudies">
-                                            <input type="checkbox" value="{{study.alias}}" data-id="{{study.id}}"
-                                                   checked disabled> {{study.alias}}<br>
-                                            <template is="dom-repeat" items="{{differentStudies}}">
-                                                <input type="checkbox" value="{{item.alias}}" data-id="{{item.id}}"
-                                                       on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox">
-                                                {{item.alias}}
-                                                <br>
-                                            </template>
-                                        </div>
-                                    </template>
-                                </div>
-                            </div>
-                        </div>
-                    </template>
-                </template>
-
-                <!-- PRIORITIZATION filters -->
-                <template is="dom-if" if="{{isPrioritizationMode}}">
-                    <br>
+                <template is="dom-if" if="{{studyFilterVisibility.visible}}">
                     <div class="panel panel-default">
-                        <div class="panel-heading" role="tab" id="{{prefix}}SampleFilterHeading">
+                        <div class="panel-heading" role="tab" id="{{prefix}}StudiesHeading">
                             <h4 class="panel-title">
                                 <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                                   href="#{{prefix}}SampleFilter" aria-expanded="false" aria-controls="{{prefix}}SampleFilter">
-                                    Analysis
-                                </a>
-                            </h4>
-                        </div>
-                        <div id="{{prefix}}SampleFilter" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}SampleFilterHeading">
-                            <div class="panel-body" style="padding-top: 5px">
-                                <div class="form-group" style="margin-bottom: 5px" id="{{prefix}}selectAnalysisType" >
-                                    <label>Select Analysis Type:</label>
-                                    <br>
-                                    <input id="sampleRadio" type="radio" name="analysisRadioButtons" value="sample"
-                                           class$="{{prefix}}FilterRadio" checked$="{{isCheckedRadioAnalysis('sample')}}" disabled$="{{isDisabledRadioAnalysisAndSettings()}}" on-change="selectAnalysisType"
-                                           style="padding-left: 20px"> Samples<br>
-                                    <input id="familyRadio" type="radio" name="analysisRadioButtons" value="family"
-                                           class$="{{prefix}}FilterRadio" checked$="{{isCheckedRadioAnalysis('family')}}" disabled$="{{isDisabledRadioAnalysisAndSettings()}}" on-change="selectAnalysisType"
-                                           style="padding-left: 20px"> Family<br>
-                                    <input id="cancerRadio" type="radio" name="analysisRadioButtons" value="cancer"
-                                           class$="{{prefix}}FilterRadio" checked$="{{isCheckedRadioAnalysis('cancer')}}" disabled$="{{isDisabledRadioAnalysisAndSettings()}}" on-change="selectAnalysisType"
-                                           style="padding-left: 20px"> Cancer<br>
-                                </div>
-
-                                <div style="padding-left: 7px" id="{{prefix}}analysisSettings" >
-                                    <label><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;&nbsp;Analysis Settings</label>
-                                    <br>
-                                    <template is="dom-if" if="{{isSampleAnalysis}}">
-                                        <!--<label><i class="fa fa-users" aria-hidden="true"></i>&nbsp;&nbsp;Sample Analysis Settings</label>-->
-                                        <!--<br>-->
-
-                                        <div style="padding-left: 5px">Select samples: &nbsp;
-                                            <button data-toggle="modal" role="button" data-placement="bottom"
-                                                    data-target$="#{{prefix}}SampleBrowser" on-click="refreshSegregationTable" disabled$="{{isDisabledRadioAnalysisAndSettings()}}">
-                                                Browse...
-                                            </button>
-                                            <br>
-                                            <input type="checkbox" value="./." on-change="updateQueryFilters"
-                                                   class$="genotypes {{prefix}}FilterCheckBox">&nbsp;Only variants form samples
-                                        </div>
-                                    </template>
-
-                                    <template is="dom-if" if="{{isFamilyAnalysis}}">
-                                        <!--<label><i class="fa fa-sitemap" aria-hidden="true"></i>&nbsp;&nbsp;Family Analysis Settings</label>-->
-                                        <!--<br>-->
-                                        <!--Not ready yet, work in progress.-->
-                                        <div style="padding-left: 5px">Select family: &nbsp;
-                                            <button data-toggle="modal" role="button" data-placement="bottom"
-                                                    data-target$="#{{prefix}}SampleBrowser" on-click="refreshSegregationTable" disabled$="{{isDisabledRadioAnalysisAndSettings()}}">
-                                                Browse...
-                                            </button>
-                                        </div>
-                                        <div style="margin: 5px 5px">Segregation: &nbsp;
-                                            <div class="btn-group">
-                                                <button class="btn btn-default btn-sm dropdown-toggle" type="button"
-                                                        id="segregationPrioritizationDropdown" data-toggle="dropdown"
-                                                        aria-haspopup="true" aria-expanded="true" disabled$="{{isDisabledRadioAnalysisAndSettings()}}">
-                                                    Select ...
-                                                    <span class="caret"></span>
-                                                </button>
-                                                <ul class="dropdown-menu" aria-labelledby="segregationPrioritizationDropdown"
-                                                    on-click="selectSegregation">
-                                                    <template is="dom-repeat" items="{{config.segregation}}">
-                                                        <li><a>{{item}}</a></li>
-                                                    </template>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </template>
-
-                                    <template is="dom-if" if="{{isCancerAnalysis}}">
-                                        <!--<label><i class="fa fa-user-times" aria-hidden="true"></i>&nbsp;&nbsp;Cancer Analysis Settings</label>-->
-                                        <!--<br>-->
-                                        Not ready yet, work in progress.
-                                    </template>
-                                </div>
-
-                                <div>
-                                    <br>
-                                    <label>Sample Genotypes:</label>
-                                    <br>
-                                    <table class="table table-hover" id="segregationTable">
-                                        <thead>
-                                        <tr>
-                                            <th>Sample</th>
-                                            <th>0/0</th>
-                                            <th>0/1</th>
-                                            <th>1/1</th>
-                                            <th>./.</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <template is="dom-repeat" items="{{samples}}" as="sample">
-                                            <tr id="{{sample.name}}">
-                                                <td id="{{prefix}}{{sample.name}}RowName" class$="{{sample.className}}">{{sample.name}}</td>
-                                                <td><input type="checkbox" value="0/0" data-id$="{{sample.name}}"
-                                                           on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
-                                                <td><input type="checkbox" value="0/1" data-id$="{{sample.name}}"
-                                                           on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
-                                                <td><input type="checkbox" value="1/1" data-id$="{{sample.name}}"
-                                                           on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
-                                                <td><input type="checkbox" value="./." data-id$="{{sample.name}}"
-                                                           on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
-                                            </tr>
-                                        </template>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </template>
-
-                <!-- CLINICAL filters -->
-                <template is="dom-if" if="{{isClinicalMode}}">
-                    <div class="panel panel-default">
-                        <div class="panel-heading" role="tab" id="{{prefix}}SampleAnalysisHeading">
-                            <h4 class="panel-title">
-                                <a class="collapsed" role="button" data-toggle="collapse"
-                                   data-parent="#{{prefix}}Accordion" href="#{{prefix}}AnalysisSelector"
-                                   aria-expanded="false" aria-controls="{{prefix}}AnalysisSelector">
-                                    Analysis
+                                   href="#{{prefix}}Studies" aria-expanded="true" aria-controls="{{prefix}}Studies">
+                                    {{config.filter.study.title}}
                                     <div style="float: right" class="tooltip-div">
-                                        <a data-toggle="tooltip" title="Select from the Clinical Analysis list sample(s) defined in the Analysis tab for prioritization">
-                                            <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                        </a>
+                                        <a data-toggle="tooltip"
+                                           title="Use this filter to find variants which are: 1) also present in all of the selected studies below, 2) not present in any of the studies selected below or 3) present in at least one of the studies selected below">
+                                            <i class="fa fa-info-circle" aria-hidden="true"></i></a>
                                     </div>
                                 </a>
                             </h4>
                         </div>
 
-                        <div id="{{prefix}}AnalysisSelector" class="panel-collapse collapse" role="tabpanel"
-                             aria-labelledby="{{prefix}}SampleFilterHeading">
+                        <div id="{{prefix}}Studies" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}StudiesHeading">
                             <div class="panel-body">
-                                <label><i class="fa fa-sitemap" aria-hidden="true"></i>Select analysis:</label>
-                                <br>
-                                <button data-toggle="modal" role="button" data-placement="bottom"
-                                        on-click="showClinicalSelector">
-                                    Browse...
-                                </button>
-                                <div id="analysisSelectedDiv" style="display:none">
-                                    <label>Analysis selected:</label>
-                                    <input type="text" class$="browser-custom-sized-input {{prefix}}FilterTextInput"
-                                           placeholder="{{analysisSelected.analysis.name}}" aria-describedby="basic-addon1" disabled>
-                                </div>
 
-                                <div class="dropdown" id="segregationDropdownDiv" style="display: none">
-                                    <button class="btn btn-default btn-sm dropdown-toggle" type="button"
-                                            id="segregationDropdown" data-toggle="dropdown" aria-haspopup="true"
-                                            aria-expanded="true">
-                                        {{segregation}}
-                                        <span class="caret"></span>
-                                    </button>
-                                    <ul class="dropdown-menu" aria-labelledby="segregationDropdown"
-                                        on-click="selectSegregation">
-                                        <template is="dom-repeat" items="{{config.segregation}}">
-                                            <li><a>{{item}}</a></li>
+                                <!-- Samples sub-section -->
+                                <template is="dom-if" if="{{studyFilterVisibility.samples}}">
+                                    <div style="padding: 0px 0px 5px 0px">
+                                        <div class="browser-subsection">Samples</div>
+
+                                        <template is="dom-if" if="{{config.filter.study.samples.selector}}">
+                                            <div style="margin: 5px 5px">
+
+                                                <label>Select Sample:</label>
+
+                                                <div class="form-inline">
+                                                    <div class="form-group">
+                                                        <input id="{{prefix}}AutocompleteSampleSearchInput" type="text" class="form-control" placeholder="Search for Sample Name"
+                                                               list$="{{prefix}}AutocompleteSampleSearchDataList" on-keyup="_autocompleteSampleSearch">
+                                                        <datalist id="{{prefix}}AutocompleteSampleSearchDataList">
+                                                            <template is="dom-repeat" items="{{autocompleteSampleData}}">
+                                                                <option id="{{prefix}}Sample{{item.name}}" value="{{item.name}}" data-sample="{{item}}">
+                                                            </template>
+                                                        </datalist>
+                                                        <button type="button" class="btn btn-default btn-sm form-control" on-click="onSampleChange">
+                                                            <i class="fa fa-plus"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </template>
-                                    </ul>
-                                </div>
 
+                                        <div style="margin: 5px 5px">
+                                            <label>Select Sample Genotypes:</label>
+
+                                            <template is="dom-if" if="{{!showSampleGenotypes}}">
+                                                <br>
+                                                <label style="color: darkred;padding: 5px 0px 0px 10px">No samples selected</label>
+                                            </template>
+
+                                            <template is="dom-if" if="{{showSampleGenotypes}}">
+                                                <template is="dom-if" if="{{showFamilySegregationSelector}}">
+                                                    <div class="form-inline">
+                                                        <div class="form-group" style="margin: 5px 0px">
+                                                            <label class="col-md-4" style="padding-left: 8px">Segregation:</label>
+                                                            <div class="col-md-8">
+                                                                <!--<button class="btn btn-default btn-sm dropdown-toggle" type="button"-->
+                                                                <!--id="segregationPrioritizationDropdown" data-toggle="dropdown"-->
+                                                                <!--aria-haspopup="true" aria-expanded="true" disabled$="{{isDisabledRadioAnalysisAndSettings()}}">-->
+                                                                <!--Select ...-->
+                                                                <!--<span class="caret"></span>-->
+                                                                <!--</button>-->
+                                                                <!--<ul class="dropdown-menu" aria-labelledby="segregationPrioritizationDropdown"-->
+                                                                <!--on-click="selectSegregation">-->
+                                                                <!--<template is="dom-repeat" items="{{config.segregation}}">-->
+                                                                <!--<li><a>{{item}}</a></li>-->
+                                                                <!--</template>-->
+                                                                <!--</ul>-->
+
+                                                                <select id="{{prefix}}{{study.alias}}{{cohort.id}}CohortOperator2" name="{{cohort.id}}Operator"
+                                                                        class$="form-control input-sm {{prefix}}FilterSelect" on-change="selectSegregation" style="width: 150px">
+                                                                    <template is="dom-repeat" items="{{config.filter.study.samples.segregation}}">
+                                                                        <option value$="{{item}}">{{item}}</option>
+                                                                    </template>
+                                                                </select>
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </template>
+
+                                                <table class="table table-hover" style="margin-bottom: 5px">
+                                                    <thead>
+                                                    <tr>
+                                                        <th>Sample</th>
+                                                        <th>0/0</th>
+                                                        <th>0/1</th>
+                                                        <th>1/1</th>
+                                                        <th>./.</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    <template is="dom-repeat" items="{{samples}}" as="sample">
+                                                        <tr id="{{sample.name}}">
+                                                            <td id="{{prefix}}{{sample.name}}RowName" class$="{{sample.className}}">{{sample.name}}</td>
+                                                            <td><input type="checkbox" value="0/0" data-id$="{{sample.name}}"
+                                                                       on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
+                                                            <td><input type="checkbox" value="0/1" data-id$="{{sample.name}}"
+                                                                       on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
+                                                            <td><input type="checkbox" value="1/1" data-id$="{{sample.name}}"
+                                                                       on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
+                                                            <td><input type="checkbox" value="./." data-id$="{{sample.name}}"
+                                                                       on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
+                                                        </tr>
+                                                    </template>
+                                                    </tbody>
+                                                </table>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </template>
+
+                                <!-- Cohorts sub-section -->
+                                <template is="dom-if" if="{{studyFilterVisibility.cohorts}}">
+                                    <div style="padding: 10px 0px">
+                                        <div class="browser-subsection">Cohort Stats (MAF)</div>
+
+                                        <template is="dom-if" if="{{!_isNotEmptyArray('_cohorts')}}">
+                                            <label style="color: darkred;padding: 10px 0px 0px 15px">No cohorts defined</label>
+                                        </template>
+
+                                        <template is="dom-repeat" items="{{_cohorts}}" as="cohort">
+                                            <div class="form-horizontal">
+                                                <div class="form-group" style="margin: 5px 0px">
+                                                    <label class="col-md-4 control-label">{{cohort.name}}</label>
+                                                    <div class="col-md-4">
+                                                        <select id="{{prefix}}{{study.alias}}{{cohort.id}}CohortOperator" name="{{cohort.id}}Operator"
+                                                                class$="form-control input-sm {{prefix}}FilterSelect" on-change="updateQueryFilters">
+                                                            <option value="<" selected><</option>
+                                                            <option value="<="><=</option>
+                                                            <option value=">">></option>
+                                                            <option value=">=">>=</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <input type="text" value="" class$="form-control input-sm col-md-4 browser-custom-sized-input {{prefix}}FilterTextInput"
+                                                               name="{{study.alias}}_{{cohort.id}}" id="{{prefix}}{{study.alias}}{{cohort.id}}Cohort"
+                                                               on-keyup="updateQueryFilters">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </template>
+
+                                <!-- Scores sub-section -->
+                                <template is="dom-if" if="{{studyFilterVisibility.scores}}">
+                                    <div style="padding: 10px 0px">
+                                        <div class="browser-subsection">Variant Scores</div>
+                                        <label style="color: darkred;padding: 10px 0px 0px 15px">Coming soon</label>
+                                    </div>
+                                </template>
+
+                                <!-- Studies sub-section -->
+                                <template is="dom-if" if="{{studyFilterVisibility.studies}}">
+                                    <div style="padding: 10px 0px">
+                                        <div class="browser-subsection">Studies Filter</div>
+
+                                        <div style="margin: 5px 5px">
+
+                                            <select class$="form-control input-sm {{prefix}}FilterSelect" id="includeOtherStudy" style="width: 50%;" on-change="updateQueryFilters">
+                                                <option value="in" selected>In (AND)</option>
+                                                <!--<option value="not in">Not In</option>-->
+                                                <option value="atleast">At least (OR)</option>
+                                            </select>
+
+                                            <!--<div class="form-horizontal">-->
+
+                                            <div id="{{prefix}}DifferentStudies" class="form-group">
+                                                <!--<div class="checkbox">-->
+                                                <!--<label>-->
+                                                <br>
+                                                <input type="checkbox" value="{{study.alias}}" data-id="{{study.id}}" checked disabled>
+                                                <span style="font-weight: bold;font-style: italic;color: darkred">
+                                                                {{study.alias}}
+                                                            </span>
+                                                <!--</label>-->
+                                                <!--</div>-->
+                                                <!--<br>-->
+                                                <template is="dom-repeat" items="{{differentStudies}}">
+                                                    <!--<div class="checkbox">-->
+                                                    <!--<label>-->
+                                                    <br>
+                                                    <input type="checkbox" value$="{{item.alias}}" data-id="{{item.id}}"
+                                                           on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox">
+                                                    {{item.alias}}
+                                                    <!--<br>-->
+                                                    <!--</label>-->
+                                                    <!--</div>-->
+                                                </template>
+                                            </div>
+                                            <!--</div>-->
+                                        </div>
+                                    </div>
+                                </template>
+
+                                <!-- Clinical Data sub-section -->
+                                <template is="dom-if" if="{{studyFilterVisibility.clinicalData}}">
+                                    <div style="padding: 10px 0px">
+                                        <div class="browser-subsection">Clinical Data</div>
+                                        <label style="color: darkred;padding: 10px 0px 0px 15px">Coming soon</label>
+                                    </div>
+                                </template>
                             </div>
                         </div>
                     </div>
                 </template>
+
+                <!-- PRIORITIZATION filters -->
+                <!--<template is="dom-if" if="{{!isPrioritizationMode}}">-->
+                <!--<br>-->
+                <!--<div class="panel panel-default">-->
+                    <!--<div class="panel-heading" role="tab" id="{{prefix}}SampleFilterHeading">-->
+                        <!--<h4 class="panel-title">-->
+                            <!--<a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"-->
+                               <!--href="#{{prefix}}SampleFilter" aria-expanded="false" aria-controls="{{prefix}}SampleFilter">-->
+                                <!--Analysis-->
+                            <!--</a>-->
+                        <!--</h4>-->
+                    <!--</div>-->
+                    <!--<div id="{{prefix}}SampleFilter" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}SampleFilterHeading">-->
+                        <!--<div class="panel-body" style="padding-top: 5px">-->
+                            <!--<div class="form-group" style="margin-bottom: 5px" id="{{prefix}}selectAnalysisType" >-->
+                                <!--<label>Select Analysis Type:</label>-->
+                                <!--<br>-->
+                                <!--<input id="sampleRadio" type="radio" name="analysisRadioButtons" value="sample"-->
+                                       <!--class$="{{prefix}}FilterRadio" checked$="{{isCheckedRadioAnalysis('sample')}}" disabled$="{{isDisabledRadioAnalysisAndSettings()}}" on-change="selectAnalysisType"-->
+                                       <!--style="padding-left: 20px"> Samples<br>-->
+                                <!--<input id="familyRadio" type="radio" name="analysisRadioButtons" value="family"-->
+                                       <!--class$="{{prefix}}FilterRadio" checked$="{{isCheckedRadioAnalysis('family')}}" disabled$="{{isDisabledRadioAnalysisAndSettings()}}" on-change="selectAnalysisType"-->
+                                       <!--style="padding-left: 20px"> Family<br>-->
+                                <!--<input id="cancerRadio" type="radio" name="analysisRadioButtons" value="cancer"-->
+                                       <!--class$="{{prefix}}FilterRadio" checked$="{{isCheckedRadioAnalysis('cancer')}}" disabled$="{{isDisabledRadioAnalysisAndSettings()}}" on-change="selectAnalysisType"-->
+                                       <!--style="padding-left: 20px"> Cancer<br>-->
+                            <!--</div>-->
+
+                            <!--<div style="padding-left: 7px" id="{{prefix}}analysisSettings" >-->
+                                <!--<label><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;&nbsp;Analysis Settings</label>-->
+                                <!--<br>-->
+                                <!--<template is="dom-if" if="{{isSampleAnalysis}}">-->
+                                    <!--&lt;!&ndash;<label><i class="fa fa-users" aria-hidden="true"></i>&nbsp;&nbsp;Sample Analysis Settings</label>&ndash;&gt;-->
+                                    <!--&lt;!&ndash;<br>&ndash;&gt;-->
+
+                                    <!--<div style="padding-left: 5px">Select samples: &nbsp;-->
+                                        <!--<button data-toggle="modal" role="button" data-placement="bottom"-->
+                                                <!--data-target$="#{{prefix}}SampleBrowser" on-click="refreshSegregationTable" disabled$="{{isDisabledRadioAnalysisAndSettings()}}">-->
+                                            <!--Browse...-->
+                                        <!--</button>-->
+                                        <!--<br>-->
+                                        <!--<input type="checkbox" value="./." on-change="updateQueryFilters"-->
+                                               <!--class$="genotypes {{prefix}}FilterCheckBox">&nbsp;Only variants form samples-->
+                                    <!--</div>-->
+                                <!--</template>-->
+
+                                <!--<template is="dom-if" if="{{isFamilyAnalysis}}">-->
+                                    <!--&lt;!&ndash;<label><i class="fa fa-sitemap" aria-hidden="true"></i>&nbsp;&nbsp;Family Analysis Settings</label>&ndash;&gt;-->
+                                    <!--&lt;!&ndash;<br>&ndash;&gt;-->
+                                    <!--&lt;!&ndash;Not ready yet, work in progress.&ndash;&gt;-->
+                                    <!--<div style="padding-left: 5px">Select family: &nbsp;-->
+                                        <!--<button data-toggle="modal" role="button" data-placement="bottom"-->
+                                                <!--data-target$="#{{prefix}}SampleBrowser" on-click="refreshSegregationTable" disabled$="{{isDisabledRadioAnalysisAndSettings()}}">-->
+                                            <!--Browse...-->
+                                        <!--</button>-->
+                                    <!--</div>-->
+                                    <!--<div style="margin: 5px 5px">Segregation: &nbsp;-->
+                                        <!--<div class="btn-group">-->
+                                            <!--<button class="btn btn-default btn-sm dropdown-toggle" type="button"-->
+                                                    <!--id="segregationPrioritizationDropdown" data-toggle="dropdown"-->
+                                                    <!--aria-haspopup="true" aria-expanded="true" disabled$="{{isDisabledRadioAnalysisAndSettings()}}">-->
+                                                <!--Select ...-->
+                                                <!--<span class="caret"></span>-->
+                                            <!--</button>-->
+                                            <!--<ul class="dropdown-menu" aria-labelledby="segregationPrioritizationDropdown"-->
+                                                <!--on-click="selectSegregation">-->
+                                                <!--<template is="dom-repeat" items="{{config.segregation}}">-->
+                                                    <!--<li><a>{{item}}</a></li>-->
+                                                <!--</template>-->
+                                            <!--</ul>-->
+                                        <!--</div>-->
+                                    <!--</div>-->
+                                <!--</template>-->
+
+                                <!--<template is="dom-if" if="{{isCancerAnalysis}}">-->
+                                    <!--&lt;!&ndash;<label><i class="fa fa-user-times" aria-hidden="true"></i>&nbsp;&nbsp;Cancer Analysis Settings</label>&ndash;&gt;-->
+                                    <!--&lt;!&ndash;<br>&ndash;&gt;-->
+                                    <!--Not ready yet, work in progress.-->
+                                <!--</template>-->
+                            <!--</div>-->
+
+                            <!--<div>-->
+                                <!--<br>-->
+                                <!--<label>Sample Genotypes:</label>-->
+                                <!--<br>-->
+                                <!--<table class="table table-hover" id="segregationTable">-->
+                                    <!--<thead>-->
+                                    <!--<tr>-->
+                                        <!--<th>Sample</th>-->
+                                        <!--<th>0/0</th>-->
+                                        <!--<th>0/1</th>-->
+                                        <!--<th>1/1</th>-->
+                                        <!--<th>./.</th>-->
+                                    <!--</tr>-->
+                                    <!--</thead>-->
+                                    <!--<tbody>-->
+                                    <!--<template is="dom-repeat" items="{{samples}}" as="sample">-->
+                                        <!--<tr id="{{sample.name}}">-->
+                                            <!--<td id="{{prefix}}{{sample.name}}RowName" class$="{{sample.className}}">{{sample.name}}</td>-->
+                                            <!--<td><input type="checkbox" value="0/0" data-id$="{{sample.name}}"-->
+                                                       <!--on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>-->
+                                            <!--<td><input type="checkbox" value="0/1" data-id$="{{sample.name}}"-->
+                                                       <!--on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>-->
+                                            <!--<td><input type="checkbox" value="1/1" data-id$="{{sample.name}}"-->
+                                                       <!--on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>-->
+                                            <!--<td><input type="checkbox" value="./." data-id$="{{sample.name}}"-->
+                                                       <!--on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>-->
+                                        <!--</tr>-->
+                                    <!--</template>-->
+                                    <!--</tbody>-->
+                                <!--</table>-->
+                            <!--</div>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                <!--</div>-->
+                <!--</template>-->
 
                 <br>
                 <!-- Genomic filter -->
@@ -564,7 +660,7 @@
                     <div id="{{prefix}}ProteinSubstitutionScore" class="panel-collapse collapse" role="tabpanel"
                          aria-labelledby="{{prefix}}ProteinSubstitutionScoreHeading">
                         <div class="panel-body">
-                            <b>Protein Substitution Score</b>
+                            <div class="browser-subsection">Protein Substitution Score</div>
                             <div style="padding-top: 10px">
                                 <label style="font-weight: normal;">SIFT</label>
                                 <div style="float: right" class="tooltip-div">
@@ -629,7 +725,7 @@
                             </form>
                             <br>
 
-                            <b>CADD</b>
+                            <div class="browser-subsection">CADD</div>
                             <div class="block" style="padding-top: 10px">
                                 <label>Raw</label>
                                 <select name="caddRawOperator" id="{{prefix}}CaddRawOperator"
@@ -852,6 +948,7 @@
                                 <textarea id="{{prefix}}GeneOntologyTextarea" readonly class$="form-control clearable {{prefix}}FilterTextInput"
                                           rows="3" name="geneOntology" placeholder="GO:0000145" on-keyup="updateQueryFilters"></textarea>
                                 <span class="input-group-addon btn btn-primary searchingSpan" on-click="openModalGo">
+                                    <strong style="color: white;" >Add Go Term</strong>
                                     <i class="fa fa-search searchingButton" aria-hidden="true"></i>
                                 </span>
                             </div>
@@ -877,6 +974,7 @@
                                 <textarea id="{{prefix}}HumanPhenotypeOntologyTextarea" readonly class$="form-control clearable {{prefix}}FilterTextInput"
                                           rows="3" name="hpo" placeholder="HP:0000001, HP:3000079" on-keyup="updateQueryFilters"></textarea>
                                 <span class="input-group-addon btn btn-primary searchingSpan" on-click="openModalHpo">
+                                    <strong style="color: white;" >Add HPO Term</strong>
                                     <i class="fa fa-search searchingButton" aria-hidden="true"></i>
                                 </span>
                             </div>
@@ -979,8 +1077,8 @@
                         observer: 'updateDifferentStudies'
                     },
                     studies: {
-                        type: Array,
-                        observer: 'updateDifferentStudies'
+                        type: Array
+//                        observer: 'updateDifferentStudies'
                     },
                     opencgaClient: {
                         type: Object
@@ -997,11 +1095,11 @@
                     consequenceTypes: {
                         type: Object
                     },
-                    mode: {
-                        type: String,
-                        value: "browser",
-                        observer: '_updateMode'
-                    },
+//                    mode: {
+//                        type: String,
+//                        value: "browser",
+//                        observer: '_updateMode'
+//                    },
                     query: {
                         type: Object,
                         notify: true,
@@ -1012,16 +1110,17 @@
                         notify: true
                     },
                     samples: {
-                        type: Array,
-                        notify: true,
-                        observer: "sampleChanged"
+                        type: Array
+//                        notify: true,
+//                        observer: "onSampleChange"
                     },
                     family: {
-                        type: Object
+                        type: Object,
+                        observer: "onFamilyChange"
                     },
-                    cohorts: {
-                        type: Object
-                    },
+//                    cohorts: {
+//                        type: Object
+//                    },
                     biotypes: {
                         type: Array
                     },
@@ -1045,69 +1144,114 @@
                 this.appendChild(dom);
             }
 
+            connectedCallback() {
+                super.connectedCallback();
+
+                this.clinicalAnalysisExistObserver();
+            }
+
+            static get observers() {
+                return [
+                ]
+            }
+
             ready() {
                 super.ready();
 
+                // We initialise all objects
+                this.init();
+            }
+
+            init() {
                 this.sampleGenotypesObj = {};
                 this.query = {};
-                this.selectedAnalysisType();
-                this.set('panelList', PANELS);
+//                this.selectedAnalysisType();
 
-                this.family = {};
-                this.modalHpoActive = false;
-
-                this.modalGoActive = false;
-            }
-
-            connectedCallback() {
-                super.connectedCallback();
-                this.clinicalAnalysisExistObserver();
-
-            }
-
-            sampleChanged(family) {
-//                console.log("SAMPLE")
-//                debugger
-            }
+                if (typeof PANELS !== "undefined") {
+                    this.set('panelList', PANELS);
+                }
 
 
-            onFamilyChange(e, family) {
-//                console.log("FAMILY - Browser Filter")
-//                debugger
-//                if (UtilsNew.isNotUndefinedOrNull(family)) {
-//                    // First we prepare the family info in a helper object
-//                    let sampleInfo = {};
-//                    if (typeof family.pedigree.father !== "undefined") {
-//                        let father = family.pedigree.father;
-//                        sampleInfo[father.name] = {role: "father", title: father.name, affected: father.affected};
-//                    }
-//                    if (typeof family.pedigree.mother !== "undefined") {
-//                        let mother = family.pedigree.mother;
-//                        sampleInfo[mother.name] = {role: "mother", title: mother.name, affected: mother.affected};
-//                    }
-//
-//                    for (let child of family.pedigree.children) {
-//                        let role = child.gender === "male" ? "son" : "daughter";
-//                        sampleInfo[child.name] = {role: role, title: child.name, affected: child.affected};
-//                    }
-//
-//                    // Second
-//                    if (UtilsNew.isNotUndefinedOrNull(this.samples)) {
-//                        for (let sample of this.samples) {
-//                            if (typeof sampleInfo[sample.name] === "undefined") {
-//                                PolymerUtils.getElementById(this.prefix + sample.name + "RowName").innerHTML = "<span>" + sample.name + "</span>";
-//                            } else {
-//                                let affectationColor = (sampleInfo[sample.name].affected) ? "red": "blue";
-//                                PolymerUtils.getElementById(this.prefix + sample.name + "RowName").innerHTML
-//                                    = sample.name + "<span style='color:" + affectationColor + "'>" + " (" + sampleInfo[sample.name].role + ")" + "</span>";
-//                            }
-//                        }
-//                    }
+//                if (UtilsNew.isNotUndefinedOrNull(this.family)) {
+//                    this._addSample(this.family.members);
 //                }
+                if (UtilsNew.isUndefinedOrNull(this.samples)) {
+                    this.samples = [];
+                }
+                this.showSampleGenotypes = this.samples.length > 0;
+
+                this.showFamilySegregationSelector = this.family !== undefined && this.family !== null;
+
+
+                this.modalHpoActive = false;
+                this.modalGoActive = false;
+
+
+                let _studyConfig = this.config.filter.study;
+
+                this.studyFilterVisibility = {
+                    samples: _studyConfig.samples !== undefined && _studyConfig.samples.visibility === "public",
+                    cohorts: _studyConfig.cohorts !== undefined && _studyConfig.cohorts.visibility === "public",
+                    scores: _studyConfig.scores !== undefined && _studyConfig.scores.visibility === "public",
+                    studies: UtilsNew.isNotUndefinedOrNull(_studyConfig.studies) && _studyConfig.studies.visibility === "public"
+                                && UtilsNew.isNotEmptyArray(this.studies) && this.studies.length > 1,
+                    clinicalData: _studyConfig.samples !== undefined && _studyConfig.clinicalData.visibility === "public",
+                    visible: this.config.filter.study.samples.visibility === "public" || this.config.filter.study.cohorts.visibility === "public"
+                    || this.config.filter.study.studies.visibility === "public" || this.config.filter.study.clinicalData.visibility === "public"
+                };
+
+                // Show cohorts
+
             }
 
+            _autocompleteSampleSearch(e) {
+                // Only gene symbols are going to be searched and not Ensembl IDs
+                let sampleNamePrefix = PolymerUtils.getElementById(this.prefix  + "AutocompleteSampleSearchInput").value;
+                if (UtilsNew.isNotUndefinedOrNull(sampleNamePrefix) && sampleNamePrefix.length >= 4) {
+                    let _this = this;
+                    this.opencgaClient.samples().search({
+                        study: _this.project.alias + ":" + _this.study.alias,
+                        name: "~^" + sampleNamePrefix,
+                        include: "id,name",
+                        limit: 20}, {})
+                        .then(function (response) {
+                            _this.autocompleteSampleData = response.response[0].result;
+                        });
+                }
+            }
 
-            propagateOkHPO(e){
+            onSampleChange(e) {
+                let sampleSearchInput = PolymerUtils.getElementById(this.prefix  + "AutocompleteSampleSearchInput");
+                let sampleObj = PolymerUtils.getElementById(this.prefix  + "Sample" + sampleSearchInput.value).dataSample;
+
+                this._addSample(sampleObj);
+
+                // Empty previous Sample selection
+                this.autocompleteSampleData = [];
+                sampleSearchInput.value = "";
+            }
+
+            // This method manipulates this.samples object including dispatching the event and refreshing web
+            _addSample(sample) {
+                // If 'sample' is an array we need to set instead of push to avoid multiple refresh events
+                if (Array.isArray(sample)) {
+                    this.set("samples", sample);
+                } else {
+                    // If 'sample' is an object we just push it
+                    this.push("samples", sample);
+                }
+
+                // Launch and refresh the web
+                this.dispatchEvent(new CustomEvent("samplechange", {detail: {samples: this.samples}, bubbles: true, composed: true}));
+                this.showSampleGenotypes = this.samples.length > 0;
+//                this.updateQueryFilters();
+            }
+
+            onFamilyChange(e) {
+                this._addSample(this.family.members);
+            }
+
+            propagateOkHPO(e) {
                 if(this.openHPO){
                     PolymerUtils.setValue(this.prefix + "HumanPhenotypeOntologyTextarea", e.detail.result.join(","));
                     this.selectedTermsHPO = e.detail.originalResult;
@@ -1119,19 +1263,19 @@
                 this.updateQueryFilters();
             }
 
-            openModalOntology(){
+            openModalOntology() {
                 this.selectedTermsOntology = this.selectedTermsHPO;
                 $("#" + this.prefix + "ontologyModal").modal('show');
             }
 
-            openModalHpo(){
+            openModalHpo() {
                 this.openHPO = true;
                 this.ontologyFilter = "hp";
                 this.ontologyTerm = "HPO";
                 this.openModalOntology();
             }
 
-            openModalGo(){
+            openModalGo() {
                 this.openHPO = false;
                 this.ontologyFilter = "go";
                 this.ontologyTerm = "GO";
@@ -1144,8 +1288,8 @@
 
             onQueryUpdate() {
                 if (this._reset) {
-                    console.log("onQueryUpdate: calling to 'renderQueryFilters()'")
-                    this.renderQueryFilters();
+                    console.log("onQueryUpdate: calling to 'setQueryFilters()'")
+                    this.setQueryFilters();
                 } else {
                     this._reset = true;
                 }
@@ -1166,38 +1310,41 @@
                 return typeof consequenceType.title !== "undefined" && consequenceType.title !== null;
             }
 
-            moreStudiesPresent(studies) {
-                if (typeof studies !== "undefined") {
-                    return studies.length > 1;
-                } else {
-                    return false;
-                }
-            }
+//            moreStudiesPresent(studies) {
+//                if (typeof studies !== "undefined") {
+//                    return studies.length > 1;
+//                } else {
+//                    return false;
+//                }
+//            }
 
-            cohortsPresent(cohorts) {
-                if (typeof cohorts !== "undefined") {
-                    return cohorts.length > 0;
-                } else {
-                    return false;
-                }
-            }
+//            cohortsPresent(cohorts) {
+//                if (typeof cohorts !== "undefined") {
+//                    return cohorts.length > 0;
+//                } else {
+//                    return false;
+//                }
+//            }
 
             updateDifferentStudies() {
                 let differentStudies = [];
-                if (typeof this.study !== "undefined" && typeof this.studies !== "undefined") {
-                    for (let i = 0; i < this.studies.length; i++) {
-                        if (this.study.alias !== this.studies[i].alias) {
-                            differentStudies.push(this.studies[i]);
+                if (typeof this.study !== "undefined") {
+
+                    if (UtilsNew.isNotUndefinedOrNull(this.studies)) {
+                        for (let i = 0; i < this.studies.length; i++) {
+                            if (this.study.alias !== this.studies[i].alias) {
+                                differentStudies.push(this.studies[i]);
+                            }
                         }
+                        this.differentStudies = differentStudies;
                     }
-                    this.differentStudies = differentStudies;
 
                     // Update cohorts from config, this updates the Cohort filter MAF
-                    if (typeof this.config !== "undefined" && typeof this.config.cohorts !== "undefined") {
-                        this._cohorts = this.config.cohorts[this.study.alias];
+                    if (typeof this.config !== "undefined" && typeof this.config.filter.study.cohorts.cohortPerStudy !== "undefined") {
+                        this._cohorts = this.config.filter.study.cohorts.cohortPerStudy[this.study.alias];
                     }
 
-                    this._studyCohortBoolean = differentStudies.length > 0 || (typeof this._cohorts !== "undefined" && this._cohorts.length > 0);
+//                    this._studyCohortBoolean = differentStudies.length > 0 || (typeof this._cohorts !== "undefined" && this._cohorts.length > 0);
 
                     // Setting mandatory field for variant query
                     this.query = {studies: this.project.alias + ":" + this.study.alias};
@@ -1257,14 +1404,14 @@
             }
 
             clear() {
-                // This will trigger the event that call to renderQueryFilters
+                // This will trigger the event that call to setQueryFilters
                 this.query = {};
 
                 // This refresh the variant main grid
                 this.search = {};
             }
 
-            renderQueryFilters() {
+            setQueryFilters() {
                 // Empty everything before rendering
                 this._clearHtmlDom();
 
@@ -1538,14 +1685,17 @@
                 if (typeof this._cohorts !== "undefined" && this._cohorts.length > 0) {
                     for (let i = 0; i < this._cohorts.length; i++) {
                         let cohort = this._cohorts[i].id;
-                        if (this.$$("#" + this.prefix + this.study.alias + cohort + "Cohort").value !== "" || this.$$("#" + this.prefix + this.study.alias + cohort + "CohortOperator").value !== "<") {
-                            let operator = this.$$("#" + this.prefix + this.study.alias + cohort + "CohortOperator").value;
+                        let cohortInput = PolymerUtils.getElementById(this.prefix + this.study.alias + cohort + "Cohort");
+                        let operator = PolymerUtils.getElementById(this.prefix + this.study.alias + cohort + "CohortOperator");
+//                        if (this.$$("#" + this.prefix + this.study.alias + cohort + "Cohort").value !== "" || this.$$("#" + this.prefix + this.study.alias + cohort + "CohortOperator").value !== "<") {
+                        if ((cohortInput !== null && cohortInput.value !== "") || (operator !== null && operator.value !== "<")) {
+                            let operator = operator.value;
                             let study = this.study.alias;
                             // to be removed!!
                             if (study === "BRIDGE") {
                                 study = "bridge";
                             }
-                            let pf = study + ":" + cohort + operator + this.$$("#" + this.prefix + this.study.alias + cohort + "Cohort").value;
+                            let pf = study + ":" + cohort + operator + cohortInput.value;
                             cohortFreq.push(pf);
                         }
                     }
@@ -1661,10 +1811,10 @@
                     let dropdownValues = PolymerUtils.getElementById(this.prefix + subsScore + "Values");
                     let textboxInput = PolymerUtils.getElementById(this.prefix + subsScore + "Input");
                     let operator = PolymerUtils.getElementById(this.prefix + subsScore + "Operator");
-                    if (dropdownValues.value === "score" && textboxInput.value !== "") {
+                    if (dropdownValues !== null && dropdownValues.value === "score" && textboxInput !== null && textboxInput.value !== "") {
                         pss.push(subsScore.toLowerCase() + operator.value + textboxInput.value);
                         numFilters++;
-                    } else if (dropdownValues.value !== "score") {
+                    } else if (dropdownValues !== null && dropdownValues.value !== "score") {
 //                        let value = dropdownValues.value;
 //                        let splitValues = value.split(',');
 //                        for (let i = 0; i < splitValues.length; i++) {
@@ -1753,7 +1903,7 @@
                 }
 
 
-                // To prevent to call renderQueryFilters we set this to false
+                // To prevent to call setQueryFilters we set this to false
                 this._reset = false;
                 this.query = _filters;
                 this._reset = true;
@@ -1788,54 +1938,51 @@
                 this.updateQueryFilters();
             }
 
-            // Exclusive for prioritization
-            refreshSegregationTable() {
-//                this.samples = [];
-            }
 
-            selectAnalysisType(e) {
-                e.preventDefault();
-                this.analysisType = e.target.value;
-                this.isSampleAnalysis = this.isFamilyAnalysis = this.isCancerAnalysis = false;
 
-                if (this.analysisType === "sample") {
-                    this.isSampleAnalysis = true;
-                } else {
-                    if (this.analysisType === "family") {
-                        this.isFamilyAnalysis = true;
-                    } else {
-                        this.isCancerAnalysis = true;
-                    }
-                }
-            }
+//            selectAnalysisType(e) {
+//                e.preventDefault();
+//                this.analysisType = e.target.value;
+//                this.isSampleAnalysis = this.isFamilyAnalysis = this.isCancerAnalysis = false;
+//
+//                if (this.analysisType === "sample") {
+//                    this.isSampleAnalysis = true;
+//                } else {
+//                    if (this.analysisType === "family") {
+//                        this.isFamilyAnalysis = true;
+//                    } else {
+//                        this.isCancerAnalysis = true;
+//                    }
+//                }
+//            }
 
             selectSegregation(e) {
                 e.preventDefault();
                 this.segregation = e.target.innerHTML;
             }
 
-            sampleGenotypeManual() {
-                let arr = [];
-                if (this.samples !== "" && this.samples.length > 1) {
-                    for (let i = 0; i < this.samples.length; i++) {
-                        let sample = this.samples[i].name;
-                        let gts = [];
-                        let children = $("#" + sample).children();
-                        for (let j = 0; j < children.length; j++) {
-                            let child = $("#" + sample).children()[j];
-                            let input = $(child).children()[0];
-                            let cb = $(input)[0];
-                            if ($(cb).is(':checked')) {
-                                gts.push($(cb).val().replace('/', '|'));
-                            }
-                        }
-                        if (gts.length > 0) {
-                            arr.push(sample + ':' + gts.join(','));
-                        }
-                    }
-                }
-                this.sampleGenotypes = arr.join(';');
-            }
+//            sampleGenotypeManual() {
+//                let arr = [];
+//                if (this.samples !== "" && this.samples.length > 1) {
+//                    for (let i = 0; i < this.samples.length; i++) {
+//                        let sample = this.samples[i].name;
+//                        let gts = [];
+//                        let children = $("#" + sample).children();
+//                        for (let j = 0; j < children.length; j++) {
+//                            let child = $("#" + sample).children()[j];
+//                            let input = $(child).children()[0];
+//                            let cb = $(input)[0];
+//                            if ($(cb).is(':checked')) {
+//                                gts.push($(cb).val().replace('/', '|'));
+//                            }
+//                        }
+//                        if (gts.length > 0) {
+//                            arr.push(sample + ':' + gts.join(','));
+//                        }
+//                    }
+//                }
+//                this.sampleGenotypes = arr.join(';');
+//            }
 
             _clearHtmlDom() {
                 // Empty everything before rendering
@@ -1853,23 +2000,23 @@
                 $("#" + this.prefix + "GeneBiotypes").selectpicker('val', []);
             }
 
-            _updateMode() {
-                switch (this.mode) {
-                    case "browser":
-                        this.isBrowserMode = true;
-                        break;
-                    case "prioritization":
-                        this.isPrioritizationMode = true;
-                        break;
-                    case "analysis":
-                    case "clinical":
-                        this.isClinicalMode = true;
-                        break;
-                    default:
-                        this.isBrowserMode = true;
-                        break;
-                }
-            }
+//            _updateMode() {
+//                switch (this.mode) {
+//                    case "browser":
+//                        this.isBrowserMode = true;
+//                        break;
+//                    case "prioritization":
+//                        this.isPrioritizationMode = true;
+//                        break;
+//                    case "analysis":
+//                    case "clinical":
+//                        this.isClinicalMode = true;
+//                        break;
+//                    default:
+//                        this.isBrowserMode = true;
+//                        break;
+//                }
+//            }
 
             showSegregation(e) {
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
@@ -1883,17 +2030,17 @@
                 this.dispatchEvent(new CustomEvent("closemodalsample", {detail: {}, bubbles: true, composed: true}));
             }
 
-            showClinicalSelector(e){
-                e.preventDefault();
-                if (UtilsNew.isUndefined(this.analysisModal)){
-                    this.analysisModal = true;
-                }
-                else {
-                    this.analysisModal = ! this.analysisModal;
-                }
-                $("#" + this.prefix + "AnalysisBrowser").modal('show');
-
-            }
+//            showClinicalSelector(e){
+//                e.preventDefault();
+//                if (UtilsNew.isUndefined(this.analysisModal)){
+//                    this.analysisModal = true;
+//                }
+//                else {
+//                    this.analysisModal = ! this.analysisModal;
+//                }
+//                $("#" + this.prefix + "AnalysisBrowser").modal('show');
+//
+//            }
 
             clinicalAnalysisExistObserver(e){
 //                if(UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)){
@@ -1902,45 +2049,70 @@
 //                }
             }
 
-            isCheckedRadioAnalysis(name){
-                if(UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
+//            isCheckedRadioAnalysis(name){
+//                if(UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
+//
+//                    let isFamily = (this.clinicalAnalysis.type === "TRIO" || this.clinicalAnalysis.type === "DUO" || this.clinicalAnalysis.type === "FAMILY") && name=== "family";
+//                    let isSample = this.clinicalAnalysis.type === "SINGLE" && name === "sample";
+//                    let isCancer= this.clinicalAnalysis.type === "MULTISAMPLE" && name === "cancer";
+//
+//                    if (isFamily || isSample || isCancer) {
+//
+//                        return true;
+//                    }
+//                } else if(name === "sample") {
+//                    return true;
+//                }
+//
+//                return false;
+//            }
 
-                    let isFamily = (this.clinicalAnalysis.type === "TRIO" || this.clinicalAnalysis.type === "DUO" || this.clinicalAnalysis.type === "FAMILY") && name=== "family";
-                    let isSample = this.clinicalAnalysis.type === "SINGLE" && name === "sample";
-                    let isCancer= this.clinicalAnalysis.type === "MULTISAMPLE" && name === "cancer";
+//            isDisabledRadioAnalysisAndSettings(){
+//
+//                if(UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
+//                    return true;
+//                }
+//
+//                return false;
+//            }
 
-                    if (isFamily || isSample || isCancer) {
+//            selectedAnalysisType() {
+//                if(UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
+//                    if(this.clinicalAnalysis.type === "TRIO" || this.clinicalAnalysis.type === "DUO" || this.clinicalAnalysis.type === "FAMILY"){
+//                        this.isFamilyAnalysis = true;
+//                    }else if(this.clinicalAnalysis.type === "SINGLE"){
+//                        this.isSampleAnalysis = true;
+//                    }else if (this.clinicalAnalysis.type === "MULTISAMPLE"){
+//                        this.isCancerAnalysis = true;
+//                    }
+////                    PolymerUtils.setAttribute(this.prefix + "selectAnalysisType", "disabled", true);
+//                } else {
+//                    this.isSampleAnalysis = true;
+//                }
+//            }
 
-                        return true;
-                    }
-                } else if(name === "sample") {
-                    return true;
-                }
+//            _checkStudyMenuVisibility(item) {
+//                if (UtilsNew.isNotUndefinedOrNull(item)) {
+//                    switch (item.visibility) {
+//                        case 'public':
+//                            return true;
+//                        case 'private':
+//                            return this._logged;
+//                        case 'none':
+//                        default:
+//                            return false;
+//                    }
+//                } else {
+//                    // if item is undefined or null we return true if at least one of the four sections is visible
+//                    return this.filterConfig.study.samples.visibility === "public" || this.filterConfig.study.cohorts.visibility === "public"
+//                        || this.filterConfig.study.studies.visibility === "public" || this.filterConfig.study.clinicalData.visibility === "public"
+//                }
+//
+//            }
 
-                return false;
-            }
-
-            isDisabledRadioAnalysisAndSettings(){
-
-                if(UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
-                    return true;
-                }
-
-                return false;
-            }
-            selectedAnalysisType(){
-                if(UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
-                    if(this.clinicalAnalysis.type === "TRIO" || this.clinicalAnalysis.type === "DUO" || this.clinicalAnalysis.type === "FAMILY"){
-                        this.isFamilyAnalysis = true;
-                    }else if(this.clinicalAnalysis.type === "SINGLE"){
-                        this.isSampleAnalysis = true;
-                    }else if (this.clinicalAnalysis.type === "MULTISAMPLE"){
-                        this.isCancerAnalysis = true;
-                    }
-//                    PolymerUtils.setAttribute(this.prefix + "selectAnalysisType", "disabled", true);
-                } else {
-                    this.isSampleAnalysis = true;
-                }
+            _isNotEmptyArray(str) {
+                let arr = this[str];
+                return UtilsNew.isNotEmptyArray(arr);
             }
         }
 

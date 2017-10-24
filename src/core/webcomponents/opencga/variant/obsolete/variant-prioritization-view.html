@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright 2015 OpenCB
+  ~ Copyright 2015-2016 OpenCB
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -14,13 +14,13 @@
   ~ limitations under the License.
   -->
 
-<link rel="import" href="../opencga-active-filters.html">
-<link rel="import" href="variant-browser-grid.html">
-<link rel="import" href="../../cellbase/variation/cellbase-variantannotation-view.html">
-<link rel="import" href="variant-beacon-network.html">
-<link rel="import" href="variant-genome-browser.html">
-<link rel="import" href="../clinical/clinical-analysis-view.html">
-<link rel="import" href="../clinical/clinical-interpretation-view.html">
+<link rel="import" href="../../opencga-active-filters.html">
+<link rel="import" href="../variant-browser-grid.html">
+<link rel="import" href="../../../cellbase/variation/cellbase-variantannotation-view.html">
+<link rel="import" href="../variant-beacon-network.html">
+<link rel="import" href="../variant-genome-browser.html">
+<link rel="import" href="../../clinical/clinical-analysis-view.html">
+<link rel="import" href="../../clinical/clinical-interpretation-view.html">
 
 <dom-module id="variant-prioritization-view">
     <template>
@@ -184,7 +184,7 @@
                         <!-- GENERAL INFORMATION -->
                         <!-- ID -->
                         <div class="form-group has-feedback">
-                            <label for="{{prefix}}IDInterpretation" class="col-md-2 col-form-label">ID</label>
+                            <label for="{{prefix}}IDInterpretation" class="col-md-2 col-form-label">ID*</label>
                             <div class="col-md-8">
                                 <div class="input-group">
                                     <input type="text" class$="form-control {{prefix}}TextInput codeDis"
@@ -201,7 +201,7 @@
 
                         <!-- NAME -->
                         <div class="form-group has-feedback">
-                            <label for="{{prefix}}NameInterpretation" class="col-md-2 col-form-label">Name</label>
+                            <label for="{{prefix}}NameInterpretation" class="col-md-2 col-form-label">Name*</label>
                             <div class="col-md-8">
                                 <div class="input-group">
                                     <input type="text" class$="form-control {{prefix}}TextInput codeDis"
@@ -218,7 +218,7 @@
 
                         <!-- DESCRIPTION -->
                         <div class="form-group has-feedback">
-                            <label for="{{prefix}}DescriptionInterpretation" class="col-md-2 col-form-label">Description</label>
+                            <label for="{{prefix}}DescriptionInterpretation" class="col-md-2 col-form-label">Description*</label>
                             <div class="col-md-8">
                                 <div class="input-group">
                                     <input type="text" class$="form-control {{prefix}}TextInput codeDis"
@@ -232,7 +232,7 @@
 
                         <!-- COMMENT -->
                         <div class="form-group has-feedback">
-                            <label for="{{prefix}}CommentInterpretation" class="col-md-2 col-form-label">Comment</label>
+                            <label for="{{prefix}}CommentInterpretation" class="col-md-2 col-form-label">Comment*</label>
                             <div class="col-md-8">
                                 <div class="input-group">
                                     <input type="text" class$="form-control {{prefix}}TextInput codeDis"
