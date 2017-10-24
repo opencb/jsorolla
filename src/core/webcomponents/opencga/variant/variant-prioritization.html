@@ -14,8 +14,15 @@
   ~ limitations under the License.
   -->
 
+<link rel="import" href="../opencga-active-filters.html">
 <link rel="import" href="variant-browser-filter.html">
-<link rel="import" href="variant-prioritization-view.html">
+<link rel="import" href="variant-browser-grid.html">
+<link rel="import" href="../../cellbase/variation/cellbase-variantannotation-view.html">
+<link rel="import" href="variant-beacon-network.html">
+<link rel="import" href="variant-genome-browser.html">
+<link rel="import" href="../clinical/clinical-analysis-view.html">
+<link rel="import" href="../clinical/clinical-interpretation-view.html">
+
 
 <dom-module id="variant-prioritization">
     <template>
@@ -25,9 +32,19 @@
                 text-align: justify;
                 width: 95%;
             }
-        </style>
-        <template is="dom-if" if="{{!checkPermissions}}">
 
+            .prioritization-variant-tab-title {
+                font-size: 115%;
+                font-weight: bold;
+            }
+
+            .icon-padding {
+                padding-left: 4px;
+                padding-right: 8px;
+            }
+        </style>
+
+        <template is="dom-if" if="{{!checkPermissions}}">
             <div class="panel" style="margin-bottom: 15px">
                 <h3 style="margin: 10px 10px 10px 15px">
                      <span on-click="onCollapse" style="cursor: pointer;margin: 0px 30px 0px 0px">
@@ -37,35 +54,258 @@
                 </h3>
             </div>
 
-            <div id="{{prefix}}FilterMenu" class="col-md-2" >
-                <variant-browser-filter mode="{{mode}}" study="{{study}}" project="{{project}}" samples="{{samples}}"
-                                        prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
-                                        cellbase-client="{{cellbaseClient}}" config="{{config}}"
-                                        population-frequencies="{{populationFrequencies}}" biotypes="{{biotypes}}"
-                                        consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}"
-                                        on-closemodalsample="onCloseModalSample" ebi-config="{{ebiConfig}}" clinical-analysis="{{clinicalAnalysis}}" style="font-size: 12px">
-                </variant-browser-filter>
-            </div>
+            <div class="row">
 
-            <div id="{{prefix}}MainWindow" class="col-md-10" >
-                <variant-prioritization-view mode="{{mode}}" title="{{title}}" project="{{project}}" study="{{study}}"
-                                             samples="{{_samples}}" prefix="{{prefix}}"
-                                             opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
-                                             population-frequencies="{{populationFrequencies}}"
-                                             protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                             consequence-types="{{consequenceTypes}}"
-                                             beacon-hosts="{{beaconHosts}}" query="{{query}}" search="{{search}}"
-                                             on-clear="onClear" on-filterchange="onFilterChange"
-                                             on-propagate="propagateGeneEvent" full-screen="{{_collapsed}}"
-                                             clinical-analysis="{{clinicalAnalysis}}" on-samplechange="onSampleChange"
-                                             config-opencga="{{configOpencga}}">
-                </variant-prioritization-view>
+                <div id="{{prefix}}FilterMenu" class="col-md-2" >
+                    <variant-browser-filter mode="{{mode}}" study="{{study}}" project="{{project}}" samples="{{samples}}"
+                                            prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
+                                            cellbase-client="{{cellbaseClient}}" config="{{config}}"
+                                            population-frequencies="{{populationFrequencies}}" biotypes="{{biotypes}}"
+                                            consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}"
+                                            family="{{clinicalAnalysis.family}}"
+                                            on-closemodalsample="onCloseModalSample" ebi-config="{{ebiConfig}}" clinical-analysis="{{clinicalAnalysis}}">
+                    </variant-browser-filter>
+                </div>
+
+                <div id="{{prefix}}MainWindow" class="col-md-10">
+
+                    <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" filters="{{config.filters}}" on-filterchange="onFilterChange" on-clear="onClear"
+                                            filter-bioformat="VARIANT" default-study="{{study.alias}}" alias="{{activeFilterAlias}}" refresh="{{search}}">
+                    </opencga-active-filters>
+
+
+                    <!--<template is="dom-if" if="{{_isPrioritizationMode}}">-->
+                    <div class="col-md-12" style="padding: 5px 0px 5px 0px">
+                        <div class="btn-toolbar" role="toolbar" aria-label="..." style="padding: 10px 0px">
+                            <div class="btn-group" role="group" aria-label="..." >
+                                <button type="button" class="btn btn-success variant-prioritization-view-buttons active" data-view="TableResult" on-click="_changeView">
+                                    <i class="fa fa-table icon-padding" aria-hidden="true" data-view="TableResult" on-click="_changeView"></i>Table Result
+                                </button>
+                                <button type="button" class="btn btn-success variant-prioritization-view-buttons" data-view="GenomeBrowser" on-click="_changeView">
+                                    <i class="fa fa-list-alt icon-padding" aria-hidden="true" data-view="GenomeBrowser" on-click="_changeView"></i>Genome Browser (Beta)
+                                </button>
+                            </div>
+
+                            <!--<template is="dom-if" if="{{clinicalAnalysis}}">-->
+                            <div style="float: right">
+                                <div class="btn-group" role="group" aria-label="..." style="padding: 0px 5px">
+                                    <button type="button" class="btn btn-success variant-prioritization-view-buttons" data-view="Panels" on-click="_changeView">
+                                        <i class="fa fa-columns icon-padding" aria-hidden="true" data-view="Panels" on-click="_changeView"></i>Panels
+                                    </button>
+                                    <button type="button" class="btn btn-success variant-prioritization-view-buttons" data-view="ClinicalData" on-click="_changeView">
+                                        <i class="fa fa-user-md icon-padding" aria-hidden="true" data-view="ClinicalData" on-click="_changeView"></i>Analysis and Clinical Data
+                                    </button>
+                                </div>
+
+                                <div class="btn-group" role="group" aria-label="...">
+                                    <button id="{{prefix}}OpenClinicalButton" type="button" class="btn btn-primary variant-prioritization-view-buttons"
+                                            data-view="OpenClinicalAnalysis" on-click="_changeView">
+                                        <i class="fa fa-search icon-padding" aria-hidden="true" data-view="OpenClinicalAnalysis" on-click="_changeView"></i>Clinical Analysis
+                                    </button>
+                                    <button id="{{prefix}}SaveInterpretationButton" type="button" class="btn btn-primary variant-prioritization-view-buttons"
+                                            data-view="SaveInterpretation" on-click="_changeView" disabled>
+                                        <i class="fa fa-floppy-o icon-padding" aria-hidden="true" data-view="SaveInterpretation" on-click="_changeView"></i>Save Interpretation...
+                                    </button>
+                                </div>
+                            </div>
+                            <!--</template>-->
+                        </div>
+                    </div>
+                    <!--</template>-->
+
+                    <div>
+                        <!-- TABLE RESULT -->
+                        <div id="{{prefix}}TableResult" class="variant-prioritization-content">
+                            <!-- Variant Browser Grid -->
+                            <variant-browser-grid mode="{{mode}}" study="{{study}}" project="{{project}}" prefix="{{prefix}}"
+                                                  opencga-client="{{opencgaClient}}"
+                                                  cellbase-client="{{cellbaseClient}}"
+                                                  population-frequencies="{{populationFrequencies}}"
+                                                  samples="{{samples}}"
+                                                  protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                  consequence-types="{{consequenceTypes}}"
+                                                  query="[[query]]" search="[[search]]" variant="{{variant}}"
+                                                  on-selected="selectedGene" on-selectvariant="onSelectVariant" on-checkvariant="onCheckVariant"
+                                                  show-select="{{showSelect}}" style="font-size: 12px">
+                            </variant-browser-grid>
+
+                            <!-- Bottom tabs with specific variant information -->
+                            <div style="padding-top: 20px" hidden$="{{!checkVariant(variant)}}">
+                                <h3>Variant: {{variant}}</h3>
+                                <div style="padding-top: 20px">
+                                    <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
+                                        <li role="presentation" class="active">
+                                            <a href="#{{prefix}}Annotation" role="tab" data-toggle="tab" class="prioritization-variant-tab-title">
+                                                Advanced Annotation
+                                            </a>
+                                        </li>
+                                        <li role="presentation">
+                                            <a href="#{{prefix}}Beacon" role="tab" data-toggle="tab" class="prioritization-variant-tab-title">
+                                                Beacon Network
+                                            </a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content" style="height: 680px">
+                                        <!--Annotation Tab-->
+                                        <div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">
+                                            <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}"
+                                                                             cellbase-client="{{cellbaseClient}}"
+                                                                             mode="vertical"
+                                                                             hash-fragment-credentials="{{hashFragmentCredentials}}"
+                                                                             consequence-types="{{consequenceTypes}}"
+                                                                             protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                                             style="font-size: 12px">
+                                            </cellbase-variantannotation-view>
+                                        </div>
+
+                                        <!--Beacon network-->
+                                        <div role="tabpanel" class="tab-pane" id="{{prefix}}Beacon">
+                                            <br>
+                                            <button class="btn btn-primary" type="button" on-click="triggerBeacon">Search Beacon
+                                                Network
+                                            </button>
+                                            <a data-toggle="tooltip"
+                                               title="Beacon Network is a search engine across the world's public beacons. You can find it here - https://beacon-network.org/#/"><i
+                                                    class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                            <br><br>
+                                            <variant-beacon-network hosts="{{beaconHosts}}" clear="{{variant}}"variant="{{variantToBeacon}}"></variant-beacon-network>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- GENOME BROWSER -->
+                        <div id="{{prefix}}GenomeBrowser" class="variant-prioritization-content" style="display: none">
+                            <br>
+                            <br>
+                            <variant-genome-browser project="{{project}}" study="{{study}}" samples="{{samples}}" opencga-client="{{opencgaClient}}"
+                                                    cellbase-client="{{cellbaseClient}}" query={{query}} search={{search}} region="{{region}}"
+                                                    active="{{_genomeBrowserActive}}" full-screen="{{fullScreen}}">
+                            </variant-genome-browser>
+                        </div>
+
+
+                        <!-- PANELS -->
+                        <div id="{{prefix}}Panels" class="variant-prioritization-content" style="display: none">
+                            <br>
+                            <br>
+                            <br>
+                            <div class="alert alert-warning" role="alert" id="{{prefix}}PanelsAlert" style="padding: 10px;margin: 10px">
+                                <span style="font-weight: bold;font-size: 1.20em">Work in progress</span>
+                                &nbsp;&nbsp;This will create and save virtual disease Panels
+                            </div>
+                        </div>
+
+                        <!-- ANALYSIS AND CLINICAL DATA -->
+                        <div id="{{prefix}}ClinicalData" class="variant-prioritization-content" style="display: none">
+                            <br>
+                            <!--<opencga-sample-comparator opencga-client="{{opencgaClient}}" samples="{{samples}}"-->
+                            <!--variable-sets="{{variableSets}}">-->
+                            <!--</opencga-sample-comparator>-->
+                            <clinical-analysis-view clinical-analysis={{clinicalAnalysis}} study="{{study}}" opencga-client="{{opencgaClient}}" config="{{config}}"
+                                                    class="col-md-10 col-md-offset-1" style="font-size: 12px">
+                            </clinical-analysis-view>
+                        </div>
+
+                        <!-- SAVE INTERPRETATION TAB -->
+                        <div id="{{prefix}}SaveInterpretation" class="variant-prioritization-content" style="display: none">
+                            <div class="col-md-12">
+                                <h2 class="clinical-title">Save Interpretation</h2>
+                                <hr style="margin-top: 5px">
+
+                                <form id="{{prefix}}uploadForm" class="form-horizontal" data-toggle="validator" role="form">
+                                    <!-- GENERAL INFORMATION -->
+                                    <!-- ID -->
+                                    <div class="form-group has-feedback">
+                                        <label for="{{prefix}}IDInterpretation" class="col-md-2 col-form-label">ID</label>
+                                        <div class="col-md-8">
+                                            <div class="input-group">
+                                                <input type="text" class$="form-control {{prefix}}TextInput codeDis"
+                                                       id="{{prefix}}IDInterpretation" name="ID" placeholder="ID of this interpretation ..."
+                                                       maxlength="50" required data-error="" pattern=".+" style="width: 240px">
+                                                <!--<span class="input-group-addon btn btn-primary" on-click="searchIndividual">-->
+                                                <!--<i class="fa fa-search" aria-hidden="true"></i>-->
+                                                <!--</span>-->
+                                            </div>
+                                            <span class="glyphicon form-control-feedback" aria-hidden="true" style="padding-right:60px; z-index:5"></span>
+                                            <div class="help-block with-errors"></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- NAME -->
+                                    <div class="form-group has-feedback">
+                                        <label for="{{prefix}}NameInterpretation" class="col-md-2 col-form-label">Name</label>
+                                        <div class="col-md-8">
+                                            <div class="input-group">
+                                                <input type="text" class$="form-control {{prefix}}TextInput codeDis"
+                                                       id="{{prefix}}NameInterpretation" name="Name" placeholder="Name of this interpretation ..."
+                                                       maxlength="50" required data-error="" pattern=".+" style="width: 240px">
+                                                <!--<span class="input-group-addon btn btn-primary" on-click="searchIndividual">-->
+                                                <!--<i class="fa fa-search" aria-hidden="true"></i>-->
+                                                <!--</span>-->
+                                            </div>
+                                            <span class="glyphicon form-control-feedback" aria-hidden="true" style="padding-right:60px; z-index:5"></span>
+                                            <div class="help-block with-errors"></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- DESCRIPTION -->
+                                    <div class="form-group has-feedback">
+                                        <label for="{{prefix}}DescriptionInterpretation" class="col-md-2 col-form-label">Description</label>
+                                        <div class="col-md-8">
+                                            <div class="input-group">
+                                                <input type="text" class$="form-control {{prefix}}TextInput codeDis"
+                                                       id="{{prefix}}DescriptionInterpretation" name="Name" placeholder="Description of this interpretation ..."
+                                                       maxlength="250" required data-error="" pattern=".+" style="width: 480px">
+                                            </div>
+                                            <span class="glyphicon form-control-feedback" aria-hidden="true" style="padding-right:60px; z-index:5"></span>
+                                            <div class="help-block with-errors"></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- COMMENT -->
+                                    <div class="form-group has-feedback">
+                                        <label for="{{prefix}}CommentInterpretation" class="col-md-2 col-form-label">Comment</label>
+                                        <div class="col-md-8">
+                                            <div class="input-group">
+                                                <input type="text" class$="form-control {{prefix}}TextInput codeDis"
+                                                       id="{{prefix}}CommentInterpretation" name="Name" placeholder="Add a comment ..."
+                                                       maxlength="250" required data-error="" pattern=".+" style="width: 480px">
+                                            </div>
+                                            <span class="glyphicon form-control-feedback" aria-hidden="true" style="padding-right:60px; z-index:5"></span>
+                                            <div class="help-block with-errors"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row" style="padding-left: 240px;">
+                                        <button type="button" class="btn btn-primary" on-click="onViewInterpretation">View</button>
+                                        <button type="button" class="btn btn-primary" on-click="onSaveInterpretation">Save</button>
+                                    </div>
+
+                                </form>
+                            </div>
+
+                            <div class="col-md-12">
+                                <template is="dom-if" if="{{interpretationView}}">
+                                    <clinical-interpretation-view id="id" interpretation="{{interpretationView}}" title="Interpretation View" project="{{project}}"
+                                                                  study="{{study}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+                                                                  consequence-types="{{consequenceTypes}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                                  style="font-size: 12px">
+                                    </clinical-interpretation-view>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </template>
 
         <template is="dom-if" if="{{checkPermissions}}">
             <span style="text-align: center"><h3>No public projects available to browse. Please login to continue</h3></span>
         </template>
+
     </template>
 
     <script>
@@ -74,7 +314,7 @@
             constructor() {
                 super();
 
-                this.prefix = "prior" + Utils.randomString(6);
+                this.prefix = "prioritization-" + Utils.randomString(6);
             }
 
             static get is() {
@@ -84,9 +324,6 @@
             static get properties() {
                 return {
                     mode: {
-                        type: String
-                    },
-                    host: {
                         type: String
                     },
                     project: {
@@ -107,6 +344,12 @@
                         type: Object
                     },
                     cellbaseClient: {
+                        type: Object
+                    },
+                    clinicalAnalysisId: {
+                        type: String
+                    },
+                    clinicalAnalysis: {
                         type: Object
                     },
                     beaconHosts: {
@@ -130,12 +373,6 @@
                     biotypes: {
                         type: Array
                     },
-                    clinicalAnalysisId: {
-                        type: String
-                    },
-                    clinicalAnalysis: {
-                        type: Object
-                    },
                     config: {
                         type: Object
                     },
@@ -154,6 +391,22 @@
                 super.ready();
 
                 this._collapsed = false;
+                this.resultsViewActive = true;
+                this.activeFilterAlias = {
+                    "annot-xref": "XRef",
+                    "annot-biotype": "Biotype",
+                    "annot-ct": "Consequence Types",
+                    "alternate_frequency": "Population Frequency",
+                    "annot-functional-score": "CADD",
+                    "protein_substitution": "Protein Substitution",
+                    "annot-go": "GO",
+                    "annot-hpo": "HPO"
+                };
+
+                this._isPrioritizationMode = this.mode === "prioritization";
+//                this._isClinicalMode = this.mode === "clinical";
+
+                this.showSelect = true;
             }
 
             propagateGeneEvent(e) {
@@ -194,6 +447,156 @@
 
             _checkPermissions(project) {
                 return UtilsNew.checkPermissions(project);
+            }
+
+
+
+            checkVariant(variant) {
+                return variant.split(':').length > 2;
+            }
+
+            onSelectVariant(e) {
+                this.variant = e.detail.id;
+//                debugger
+            }
+
+            onCheckVariant(e) {
+                // Alexis: we need to do something like this:
+                this.checkedVariants = e.detail.variants;
+
+                // We set/remove disable status to Save button
+                if (this.checkedVariants.length > 0) {
+                    PolymerUtils.removeAttribute(this.prefix + 'SaveInterpretationButton', 'disabled');
+                } else {
+                    PolymerUtils.setAttribute(this.prefix + 'SaveInterpretationButton', 'disabled', true);
+                }
+            }
+
+            selectedGene(e) {
+                this.fire('propagate', {gene: e.detail.gene});
+            }
+
+            _clinicalAnalysisChanged() {
+                let _samples = [];
+
+                if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.family) && UtilsNew.isNotEmptyArray(this.clinicalAnalysis.family.members)){
+                    this.clinicalAnalysis.family.members.forEach((member) => {
+                        member.samples.map((sample) => {
+                            _samples.push(sample)
+                        });
+                    });
+                }
+//                    let _samples = this.clinicalAnalysis.subjects[0].samples;
+                this.samples = _samples;
+
+                this.dispatchEvent(new CustomEvent('samplechange', {detail: {samples: this.samples}}));
+            }
+
+            _changeView(e) {
+                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+                PolymerUtils.hide(this.prefix + "TableResult");
+                PolymerUtils.hide(this.prefix + "GenomeBrowser");
+                PolymerUtils.hide(this.prefix + "Panels");
+                PolymerUtils.hide(this.prefix + "ClinicalData");
+                PolymerUtils.hide(this.prefix + "SaveInterpretation");
+
+                if (typeof e.target !== "undefined" && typeof e.target.dataset.view !== "undefined") {
+                    PolymerUtils.show(this.prefix + e.target.dataset.view); // get the href and use it find which div to show
+                }
+
+                // Show the active button
+                if (this._isPrioritizationMode) {
+                    PolymerUtils.removeClass(".variant-prioritization-view-buttons", "active");
+                } else {
+                    // Dead code, to be removed
+                    PolymerUtils.removeClass(".prioritization-variant-menu-link", "active");
+                }
+                $(e.target).addClass("active");
+
+
+                if (e.target.dataset.view === "GenomeBrowser") {
+                    this._genomeBrowserActive = true;
+                } else {
+                    this._genomeBrowserActive = false;
+                }
+            }
+
+            _goToReport(e) {
+                this.dispatchEvent(new CustomEvent('gotoreport', {detail: {interpretation: this.interpretation}}));
+            }
+
+            triggerBeacon(e) {
+                this.variantToBeacon = this.variant;
+            }
+
+            onViewInterpretation(e) {
+                this.interpretationView = this._createInterpretation();
+
+            }
+
+            onSaveInterpretation(e, obj) {
+                let interpretation = this._createInterpretation();
+
+                this.interpretation = interpretation;
+                PolymerUtils.removeAttribute(this.prefix + 'GoToReportButton', 'disabled');
+            }
+
+            _createInterpretation() {
+                let userID = Cookies.get(this.configOpencga.cookie.prefix + "_userId");
+                let interpretation = {};
+                interpretation.id = this.clinicalAnalysis.id + "_" + PolymerUtils.getValue(this.prefix + "IDInterpretation");
+                interpretation.name = PolymerUtils.getValue(this.prefix + "NameInterpretation");
+                interpretation.description =  PolymerUtils.getValue(this.prefix + "DescriptionInterpretation");
+                interpretation.clinicalAnalysis = this.clinicalAnalysis;
+                interpretation.software = {
+                    name: "TEAM",
+                    version: "2.0",
+                    website: "https://www.ncbi.nlm.nih.gov/pubmed/24861626",
+                    repository: "https://github.com/opencb/opencga",
+                    commit: "f43372aa",
+                    params: {}
+                };
+                interpretation.analyst = {
+                    name: userID,
+                    email: "",
+                    company: ""
+                };
+                interpretation.versions =  [
+                    {
+                        id: "cellbase", name: "CellBase", type: "DDBB", version: "4.5.0"
+                    }
+                ];
+                interpretation.filters = this.query;
+//                interpretation.creationDate = Date();
+                interpretation.comments =  PolymerUtils.getValue(this.prefix + "CommentInterpretation");
+                interpretation.reportedVariants = this.checkedVariants;
+                interpretation.attributes = {};
+
+                let params = {
+                    study: this.project.alias + ":" + this.study.alias
+                };
+
+                let body = {
+                    path: "analysis/"+ interpretation.clinicalAnalysis.id + "/" + interpretation.name + "/interpretation.json",
+                    content: JSON.stringify(interpretation),
+                    parents: true
+                };
+
+                this.opencgaClient.files().create(params, body)
+                    .then((response) => {
+                        console.log(response);
+                        // TODO We should update here clinicalAnalysis and add to interpretation list this file with its name from save interpertation form.
+                        if (UtilsNew.isNotUndefinedOrNull(interpretation) && UtilsNew.isNotUndefinedOrNull(interpretation.clinicalAnalysis)) {
+                            if (UtilsNew.isEmptyArray(interpretation.clinicalAnalysis.interpretations)) {
+                                interpretation.clinicalAnalysis.interpretations = [];
+                            }
+                            interpretation.clinicalAnalysis.interpretations.push({id: interpretation.id, name: interpretation.id, file: response.response[0].result[0].id});
+                        }
+                        this.opencgaClient.clinical().update(interpretation.clinicalAnalysis.id, params, {interpretations : interpretation.clinicalAnalysis.interpretations})
+                            .then((response) => {
+                                console.log(response);
+                            });
+                    });
             }
         }
 

@@ -23,6 +23,7 @@
     <!-- CSS links -->
     <link rel="stylesheet" href="../../../../../../node_modules/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="../../../../../../node_modules/bootstrap-table/dist/bootstrap-table.min.css">
+    <link rel="stylesheet" href="../../../../../../node_modules/bootstrap-select/dist/css/bootstrap-select.min.css">
     <link rel="stylesheet" href="../../../../../../node_modules/font-awesome/css/font-awesome.min.css">
     <link rel="stylesheet" href="../../../../../../node_modules/qtip2/dist/jquery.qtip.min.css">
 
@@ -44,6 +45,7 @@
     <script type="text/javascript" src="../../../../utilsNew.js"></script>
     <script type="text/javascript" src="../../../../utils.js"></script>
     <script type="text/javascript" src="../../../../region.js"></script>
+    <script type="text/javascript" src="../../../../visualisation/pedigree.js"></script>
     <script type="text/javascript" src="../../../PolymerUtils.js"></script>
     <script type="text/javascript" src="../../../../clients/rest-client.js"></script>
     <script type="text/javascript" src="../../../../clients/cellbase-client.js"></script>
@@ -93,7 +95,6 @@
 <body>
 <dom-module id="variant-prioritization-test">
     <template>
-
         <variant-prioritization mode="prioritization" title="Prioritization" host="{{opencga.host}}"
                                 project="{{project}}" study="{{study}}" samples="{{samples}}"
                                 config="{{config.tools.prioritization}}"  config-opencga="{{config.opencga}}" biotypes="{{config.biotypes}}"
@@ -104,10 +105,12 @@
                                 cellbase-client="{{cellbaseClient}}"
                                 active="{{config.tools.prioritization.active}}" ebi-config="{{config.ebiWS}}"
                                 beacon-hosts="{{config.tools.beacon.hosts}}" on-gene="geneSelected"
-                                clinical-analysis="{{clinicalAnalysis}}">
+                                samples="{{samples}}"
+                                clinical-analysis="{{interpretationJson.clinicalAnalysis}}"
+                                style="font-size: 12px">
         </variant-prioritization>
-
     </template>
+
     <script>
         HTMLImports.whenReady(function() {
 
@@ -148,6 +151,8 @@
                     this.clinicalAnalysis = interpretationJson.clinicalAnalysis;
 
                     this.region = new Region({chromosome: "21", start: 22859462, end: 22859610});
+
+                    this.samples = [{name: "aaa"}, {name: "bbb"}];
                 }
 
                 static get is() {

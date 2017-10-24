@@ -92,7 +92,7 @@ const interpretationJson = {
             description: "",
             release: 1,
             version: 2,
-            diseases: [
+            phenotypes: [
                 {
                     id: "HP:001233",
                     name: "Aaaa",
@@ -119,7 +119,7 @@ const interpretationJson = {
                     "id": 10, "version": 1, "name": "NA12877", sex: "male",
                     father: "NA0003",
                     mother: "NA0004",
-                    diseases: [ {
+                    phenotypes: [ {
                         id: "OMIM:056789",
                         name: "Cccc",
                         source: "OMIM"
@@ -136,7 +136,7 @@ const interpretationJson = {
                     "id": 13, "version": 1, "name": "NA0002", sex: "female",
                     father: "NA0003",
                     mother: "NA0004",
-                    diseases: [],
+                    phenotypes: [],
                     carrier: [{
                         id: "OMIM:056789",
                         name: "Cccc",
@@ -149,7 +149,7 @@ const interpretationJson = {
                     "id": 11, "version": 1, "name": "NA0003", sex: "male", lifeStatus: "deceased",
                     // father: {"id": -1, "version": 1},
                     // mother: {"id": -1, "version": 1},
-                    diseases: [ {
+                    phenotypes: [ {
                         id: "HP:001233",
                         name: "Aaaa",
                         source: "HPO"
@@ -162,7 +162,7 @@ const interpretationJson = {
                     "id": 12, "version": 1, "name": "NA0004", sex: "female",
                     // father: {"id": -1, "version": 1},
                     // mother: {"id": -1, "version": 1},
-                    diseases: [  {
+                    phenotypes: [  {
                         "id": "H00-H59",
                         "name": "VII. Diseases of the eye and adnexa ",
                         "source": "ICD10"
