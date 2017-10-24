@@ -57,12 +57,10 @@
             <div class="row">
 
                 <div id="{{prefix}}FilterMenu" class="col-md-2" >
-                    <variant-browser-filter mode="{{mode}}" study="{{study}}" project="{{project}}" samples="{{samples}}"
-                                            prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
-                                            cellbase-client="{{cellbaseClient}}" config="{{config}}"
-                                            population-frequencies="{{populationFrequencies}}" biotypes="{{biotypes}}"
+                    <variant-browser-filter project="{{project}}" study="{{study}}" studies="{{studies}}" samples="{{samples}}"
+                                            opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"
+                                            family="{{clinicalAnalysis.family}}" population-frequencies="{{populationFrequencies}}" biotypes="{{biotypes}}"
                                             consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}"
-                                            family="{{clinicalAnalysis.family}}"
                                             on-closemodalsample="onCloseModalSample" ebi-config="{{ebiConfig}}" clinical-analysis="{{clinicalAnalysis}}">
                     </variant-browser-filter>
                 </div>
@@ -323,18 +321,18 @@
 
             static get properties() {
                 return {
-                    mode: {
-                        type: String
-                    },
                     project: {
                         type: Object
                     },
                     study: {
                         type: Object
                     },
+                    studies: {
+                        type: Array
+                    },
                     title: {
                         type: String,
-                        value: ""
+                        value: "Prioritization"
                     },
                     samples: {
                         type: Array,
@@ -371,15 +369,15 @@
                     consequenceTypes: {
                         type: Object
                     },
+                    checkPermissions: {
+                        type: Boolean,
+                        computed: '_checkPermissions(project)'
+                    },
                     biotypes: {
                         type: Array
                     },
                     config: {
                         type: Object
-                    },
-                    checkPermissions: {
-                        type: Boolean,
-                        computed: '_checkPermissions(project)'
                     }
                 }
             }
@@ -404,10 +402,16 @@
                     "annot-hpo": "HPO"
                 };
 
-                this._isPrioritizationMode = this.mode === "prioritization";
+//                this._isPrioritizationMode = this.mode === "prioritization";
 //                this._isClinicalMode = this.mode === "clinical";
 
                 this.showSelect = true;
+
+            }
+
+            connectedCallback() {
+                super.connectedCallback();
+
             }
 
             propagateGeneEvent(e) {
