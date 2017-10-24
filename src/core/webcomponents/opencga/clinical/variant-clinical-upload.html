@@ -350,14 +350,14 @@
 
                                             <input type="text" class$="form-control {{prefix}}TextInput"
                                                    id="{{prefix}}{{variable.name}}" disabled name="{{variable.name}}"
-                                                   placeholder="{{variable.name}} number" pattern="^[0-9]+$" maxlength="75"
+                                                   placeholder="{{variable.title}} number" pattern="^[0-9]+$" maxlength="75"
                                                    required data-error="Mandatory field. Only numbers are allowed ">
                                         </template>
                                         <template is="dom-if" if="{{!variable.attributes.disabled}}">
 
                                             <input type="text" class$="form-control {{prefix}}TextInput"
                                                    id="{{prefix}}{{variable.name}}" name="{{variable.name}}"
-                                                   placeholder="{{variable.name}} number" pattern="^[0-9]+$" maxlength="75"
+                                                   placeholder="{{variable.title}} number" pattern="^[0-9]+$" maxlength="75"
                                                    required data-error="Mandatory field. Only numbers are allowed ">
                                         </template>
                                         <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
