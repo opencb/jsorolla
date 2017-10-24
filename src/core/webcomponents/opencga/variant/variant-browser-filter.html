@@ -23,16 +23,6 @@
 <dom-module id="variant-browser-filter">
     <template>
         <style include="jso-styles">
-            .browser-popFreqName {
-                font-size: 12px;
-                color: #797979;
-            }
-
-            .browser-custom-sized-input {
-                max-width: 60px;
-                height: 20px;
-            }
-
             span + span {
                 margin-left: 10px;
             }
@@ -261,7 +251,7 @@
                                                         </select>
                                                     </div>
                                                     <div class="col-md-4">
-                                                        <input type="text" value="" class$="form-control input-sm col-md-4 browser-custom-sized-input {{prefix}}FilterTextInput"
+                                                        <input type="text" value="" class$="form-control input-sm col-md-4 {{prefix}}FilterTextInput"
                                                                name="{{study.alias}}_{{cohort.id}}" id="{{prefix}}{{study.alias}}{{cohort.id}}Cohort"
                                                                on-keyup="updateQueryFilters">
                                                     </div>
@@ -300,8 +290,8 @@
                                                 <br>
                                                 <input type="checkbox" value="{{study.alias}}" data-id="{{study.id}}" checked disabled>
                                                 <span style="font-weight: bold;font-style: italic;color: darkred">
-                                                                {{study.alias}}
-                                                            </span>
+                                                    {{study.alias}}
+                                                </span>
                                                 <!--</label>-->
                                                 <!--</div>-->
                                                 <!--<br>-->
@@ -333,123 +323,6 @@
                         </div>
                     </div>
                 </template>
-
-                <!-- PRIORITIZATION filters -->
-                <!--<template is="dom-if" if="{{!isPrioritizationMode}}">-->
-                <!--<br>-->
-                <!--<div class="panel panel-default">-->
-                <!--<div class="panel-heading" role="tab" id="{{prefix}}SampleFilterHeading">-->
-                <!--<h4 class="panel-title">-->
-                <!--<a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"-->
-                <!--href="#{{prefix}}SampleFilter" aria-expanded="false" aria-controls="{{prefix}}SampleFilter">-->
-                <!--Analysis-->
-                <!--</a>-->
-                <!--</h4>-->
-                <!--</div>-->
-                <!--<div id="{{prefix}}SampleFilter" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}SampleFilterHeading">-->
-                <!--<div class="panel-body" style="padding-top: 5px">-->
-                <!--<div class="form-group" style="margin-bottom: 5px" id="{{prefix}}selectAnalysisType" >-->
-                <!--<label>Select Analysis Type:</label>-->
-                <!--<br>-->
-                <!--<input id="sampleRadio" type="radio" name="analysisRadioButtons" value="sample"-->
-                <!--class$="{{prefix}}FilterRadio" checked$="{{isCheckedRadioAnalysis('sample')}}" disabled$="{{isDisabledRadioAnalysisAndSettings()}}" on-change="selectAnalysisType"-->
-                <!--style="padding-left: 20px"> Samples<br>-->
-                <!--<input id="familyRadio" type="radio" name="analysisRadioButtons" value="family"-->
-                <!--class$="{{prefix}}FilterRadio" checked$="{{isCheckedRadioAnalysis('family')}}" disabled$="{{isDisabledRadioAnalysisAndSettings()}}" on-change="selectAnalysisType"-->
-                <!--style="padding-left: 20px"> Family<br>-->
-                <!--<input id="cancerRadio" type="radio" name="analysisRadioButtons" value="cancer"-->
-                <!--class$="{{prefix}}FilterRadio" checked$="{{isCheckedRadioAnalysis('cancer')}}" disabled$="{{isDisabledRadioAnalysisAndSettings()}}" on-change="selectAnalysisType"-->
-                <!--style="padding-left: 20px"> Cancer<br>-->
-                <!--</div>-->
-
-                <!--<div style="padding-left: 7px" id="{{prefix}}analysisSettings" >-->
-                <!--<label><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;&nbsp;Analysis Settings</label>-->
-                <!--<br>-->
-                <!--<template is="dom-if" if="{{isSampleAnalysis}}">-->
-                <!--&lt;!&ndash;<label><i class="fa fa-users" aria-hidden="true"></i>&nbsp;&nbsp;Sample Analysis Settings</label>&ndash;&gt;-->
-                <!--&lt;!&ndash;<br>&ndash;&gt;-->
-
-                <!--<div style="padding-left: 5px">Select samples: &nbsp;-->
-                <!--<button data-toggle="modal" role="button" data-placement="bottom"-->
-                <!--data-target$="#{{prefix}}SampleBrowser" on-click="refreshSegregationTable" disabled$="{{isDisabledRadioAnalysisAndSettings()}}">-->
-                <!--Browse...-->
-                <!--</button>-->
-                <!--<br>-->
-                <!--<input type="checkbox" value="./." on-change="updateQueryFilters"-->
-                <!--class$="genotypes {{prefix}}FilterCheckBox">&nbsp;Only variants form samples-->
-                <!--</div>-->
-                <!--</template>-->
-
-                <!--<template is="dom-if" if="{{isFamilyAnalysis}}">-->
-                <!--&lt;!&ndash;<label><i class="fa fa-sitemap" aria-hidden="true"></i>&nbsp;&nbsp;Family Analysis Settings</label>&ndash;&gt;-->
-                <!--&lt;!&ndash;<br>&ndash;&gt;-->
-                <!--&lt;!&ndash;Not ready yet, work in progress.&ndash;&gt;-->
-                <!--<div style="padding-left: 5px">Select family: &nbsp;-->
-                <!--<button data-toggle="modal" role="button" data-placement="bottom"-->
-                <!--data-target$="#{{prefix}}SampleBrowser" on-click="refreshSegregationTable" disabled$="{{isDisabledRadioAnalysisAndSettings()}}">-->
-                <!--Browse...-->
-                <!--</button>-->
-                <!--</div>-->
-                <!--<div style="margin: 5px 5px">Segregation: &nbsp;-->
-                <!--<div class="btn-group">-->
-                <!--<button class="btn btn-default btn-sm dropdown-toggle" type="button"-->
-                <!--id="segregationPrioritizationDropdown" data-toggle="dropdown"-->
-                <!--aria-haspopup="true" aria-expanded="true" disabled$="{{isDisabledRadioAnalysisAndSettings()}}">-->
-                <!--Select ...-->
-                <!--<span class="caret"></span>-->
-                <!--</button>-->
-                <!--<ul class="dropdown-menu" aria-labelledby="segregationPrioritizationDropdown"-->
-                <!--on-click="selectSegregation">-->
-                <!--<template is="dom-repeat" items="{{config.segregation}}">-->
-                <!--<li><a>{{item}}</a></li>-->
-                <!--</template>-->
-                <!--</ul>-->
-                <!--</div>-->
-                <!--</div>-->
-                <!--</template>-->
-
-                <!--<template is="dom-if" if="{{isCancerAnalysis}}">-->
-                <!--&lt;!&ndash;<label><i class="fa fa-user-times" aria-hidden="true"></i>&nbsp;&nbsp;Cancer Analysis Settings</label>&ndash;&gt;-->
-                <!--&lt;!&ndash;<br>&ndash;&gt;-->
-                <!--Not ready yet, work in progress.-->
-                <!--</template>-->
-                <!--</div>-->
-
-                <!--<div>-->
-                <!--<br>-->
-                <!--<label>Sample Genotypes:</label>-->
-                <!--<br>-->
-                <!--<table class="table table-hover" id="segregationTable">-->
-                <!--<thead>-->
-                <!--<tr>-->
-                <!--<th>Sample</th>-->
-                <!--<th>0/0</th>-->
-                <!--<th>0/1</th>-->
-                <!--<th>1/1</th>-->
-                <!--<th>./.</th>-->
-                <!--</tr>-->
-                <!--</thead>-->
-                <!--<tbody>-->
-                <!--<template is="dom-repeat" items="{{samples}}" as="sample">-->
-                <!--<tr id="{{sample.name}}">-->
-                <!--<td id="{{prefix}}{{sample.name}}RowName" class$="{{sample.className}}">{{sample.name}}</td>-->
-                <!--<td><input type="checkbox" value="0/0" data-id$="{{sample.name}}"-->
-                <!--on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>-->
-                <!--<td><input type="checkbox" value="0/1" data-id$="{{sample.name}}"-->
-                <!--on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>-->
-                <!--<td><input type="checkbox" value="1/1" data-id$="{{sample.name}}"-->
-                <!--on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>-->
-                <!--<td><input type="checkbox" value="./." data-id$="{{sample.name}}"-->
-                <!--on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>-->
-                <!--</tr>-->
-                <!--</template>-->
-                <!--</tbody>-->
-                <!--</table>-->
-                <!--</div>-->
-                <!--</div>-->
-                <!--</div>-->
-                <!--</div>-->
-                <!--</template>-->
 
                 <br>
                 <!-- Genomic filter -->
@@ -599,25 +472,14 @@
                             </a>
                         </h4>
                     </div>
-                    <div id="{{prefix}}PopulationFrequency" class="panel-collapse collapse" role="tabpanel"
-                         aria-labelledby="{{prefix}}PopulationFrequencyHeading">
+                    <div id="{{prefix}}PopulationFrequency" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}PopulationFrequencyHeading">
                         <div class="panel-body">
 
                             <!-- This code create the population frequencies menu filter form populationFrequencies from config.js -->
                             <template is="dom-repeat" items="{{populationFrequencies.studies}}" as="study">
-                                <!--<label style="font-weight: bold;">-->
-                                <!--<i id="{{prefix}}{{study.id}}Icon" data-id="{{prefix}}{{study.id}}"-->
-                                <!--on-click="handleCollapseAction" class="fa fa-plus" style="cursor: pointer;"></i>-->
-                                <!--&nbsp;{{study.title}}-->
-                                <!--<div style="float: right" class="tooltip-div">-->
-                                <!--<a data-toggle="tooltip" title="{{study.tooltip}}">-->
-                                <!--<i class="fa fa-info-circle" aria-hidden="true"></i>-->
-                                <!--</a>-->
-                                <!--</div>-->
-                                <!--</label>-->
+
                                 <div class="subsection-content">
                                     <div class="form-group">
-
                                         <div class="browser-subsection">
                                             <i id="{{prefix}}{{study.id}}Icon" data-id="{{prefix}}{{study.id}}"
                                                on-click="handleCollapseAction" class="fa fa-plus" style="cursor: pointer;padding-right: 10px"></i>
@@ -637,9 +499,6 @@
                                                 <div class="form-group" style="margin: 10px 0px">
                                                     <!--<label class="browser-popFreqName">{{popFreq.title}}</label>-->
                                                     <label class="col-md-4 control-label" data-toggle="tooltip" data-placement="top" title$="{{popFreq.title}}">{{popFreq.id}}</label>
-                                                    <!--<div class="horizontal layout">-->
-                                                    <!--<span>ALT</span>-->
-                                                    <!--<span>-->
                                                     <div class="col-md-4">
                                                         <select id="{{prefix}}{{study.id}}{{popFreq.id}}Operator" name="{{popFreq.id}}Operator"
                                                                 on-change="updateQueryFilters" class$="form-control input-sm {{prefix}}FilterSelect">
@@ -649,9 +508,8 @@
                                                             <option value=">=">>=</option>
                                                         </select>
                                                     </div>
-                                                    <!--</span>-->
                                                     <div class="col-md-4">
-                                                        <input type="text" value="" class$="browser-custom-sized-input form-control input-sm {{prefix}}FilterTextInput"
+                                                        <input type="text" value="" class$="form-control input-sm {{prefix}}FilterTextInput"
                                                                name="{{study.id}}_{{popFreq.id}}" id="{{prefix}}{{study.id}}{{popFreq.id}}"
                                                                on-keyup="updateQueryFilters">
                                                     </div>
@@ -660,13 +518,10 @@
                                         </div>
                                     </template>
                                 </div>
-                                <!--<br>-->
                             </template>
                         </div>
-                        <!--</template>-->
                     </div>
                 </div>
-                <!--</div>-->
 
                 <!--Protein Substitution Scores filter-->
                 <div class="panel panel-default">
@@ -708,7 +563,7 @@
                                     <option value=">=">>=</option>
                                 </select>
                                 <input id="{{prefix}}SiftInput" name="Sift" type="text" value=""
-                                       class$="browser-custom-sized-input {{prefix}}FilterTextInput" on-keyup="updateQueryFilters">
+                                       class$="{{prefix}}FilterTextInput" on-keyup="updateQueryFilters">
                             </div>
                             <br>
                             <div>
@@ -736,7 +591,7 @@
                                     <option value="<="><=</option>
 
                                 </select>
-                                <input type="text" value="" class$="browser-custom-sized-input {{prefix}}FilterTextInput"
+                                <input type="text" value="" class$="{{prefix}}FilterTextInput"
                                        id="{{prefix}}PolyphenInput" name="Polyphen" on-keyup="updateQueryFilters">
 
 
@@ -763,7 +618,7 @@
                                     <option value=">=">>=</option>
                                 </select>
                                 <input type="text" value=""
-                                       class$="browser-custom-sized-input {{prefix}}FilterTextInput"
+                                       class$="{{prefix}}FilterTextInput"
                                        id="{{prefix}}CaddRawInput" name="caddRaw" on-keyup="updateQueryFilters">
                                 <div style="float: right" class="tooltip-div">
                                     <a data-toggle="tooltip"
@@ -781,7 +636,7 @@
                                     <option value=">=">>=</option>
                                 </select>
                                 <input type="text" value=""
-                                       class$="browser-custom-sized-input {{prefix}}FilterTextInput"
+                                       class$="{{prefix}}FilterTextInput"
                                        id="{{prefix}}CaddScaledInput" name="caddScaled" on-keyup="updateQueryFilters">
                                 <div style="float: right" class="tooltip-div">
                                     <a data-toggle="tooltip"
@@ -814,7 +669,7 @@
                                     <option value=">" selected>></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class$="browser-custom-sized-input {{prefix}}FilterTextInput"
+                                <input type="text" value="" class$="{{prefix}}FilterTextInput"
                                        id="{{prefix}}PhylopInput" name="phylop" on-keyup="updateQueryFilters">
                                 <div style="float: right" class="tooltip-div">
                                     <a data-toggle="tooltip"
@@ -831,7 +686,7 @@
                                     <option value=">" selected>></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class$="browser-custom-sized-input {{prefix}}FilterTextInput"
+                                <input type="text" value="" class$="{{prefix}}FilterTextInput"
                                        id="{{prefix}}PhastconsInput" name="phastCons" on-keyup="updateQueryFilters">
                                 <div style="float: right" class="tooltip-div">
                                     <a data-toggle="tooltip"
@@ -848,7 +703,7 @@
                                     <option value=">" selected>></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class$="browser-custom-sized-input {{prefix}}FilterTextInput"
+                                <input type="text" value="" class$="{{prefix}}FilterTextInput"
                                        id="{{prefix}}GerpInput" name="gerp" on-keyup="updateQueryFilters">
                                 <div style="float: right" class="tooltip-div">
                                     <a data-toggle="tooltip"
@@ -1006,7 +861,6 @@
                                 </span>
                             </div>
 
-                            <!--<br>-->
                             <div class="form-group">
                                 <span class="browser-subsection">ClinVar Accessions</span>
                                 <textarea id="{{prefix}}ClinVarTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="3"
@@ -1029,56 +883,57 @@
         </div>
 
 
-        <variant-modal-ontology prefix="{{prefix}}" ebi-config="{{ebiConfig}}" on-propagateok="propagateOkHPO" ontology-filter="{{ontologyFilter}}"
-                                term="{{ontologyTerm}}" selected-terms="{{selectedTermsOntology}}"></variant-modal-ontology>
+        <variant-modal-ontology prefix="{{prefix}}" ebi-config="{{ebiConfig}}" on-propagateok="propagateOkHPO"
+                                ontology-filter="{{ontologyFilter}}" term="{{ontologyTerm}}" selected-terms="{{selectedTermsOntology}}">
+        </variant-modal-ontology>
 
 
         <!-- Modal dialog for Sample Browser in prioritization-->
-        <div class="modal fade" id="{{prefix}}SampleBrowser" tabindex="-1" role="dialog"
-             aria-labelledby="sampleBrowserLabel">
-            <div class="modal-dialog modal-lg" role="document" style="width: 1440px;">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                                aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title" id="{{prefix}}SampleBrowserLabel">Family Selector</h4>
-                    </div>
-                    <div class="modal-body" style="height: 680px">
-                        <!--<opencga-family-selector opencga-client="{{opencgaClient}}" study-id="{{study.id}}" samples="{{samples}}" prefix="{{prefix}}"></opencga-family-selector>-->
-                        <variant-sample-selector opencga-client="{{opencgaClient}}" project="{{project}}" study="{{study}}"
-                                                 mode="{{analysisType}}" samples="{{samples}}" on-familychange="onFamilyChange">
-                        </variant-sample-selector>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="closeModalSample">
-                            OK
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!--<div class="modal fade" id="{{prefix}}SampleBrowser" tabindex="-1" role="dialog"-->
+             <!--aria-labelledby="sampleBrowserLabel">-->
+            <!--<div class="modal-dialog modal-lg" role="document" style="width: 1440px;">-->
+                <!--<div class="modal-content">-->
+                    <!--<div class="modal-header">-->
+                        <!--<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span-->
+                                <!--aria-hidden="true">&times;</span></button>-->
+                        <!--<h4 class="modal-title" id="{{prefix}}SampleBrowserLabel">Family Selector</h4>-->
+                    <!--</div>-->
+                    <!--<div class="modal-body" style="height: 680px">-->
+                        <!--&lt;!&ndash;<opencga-family-selector opencga-client="{{opencgaClient}}" study-id="{{study.id}}" samples="{{samples}}" prefix="{{prefix}}"></opencga-family-selector>&ndash;&gt;-->
+                        <!--<variant-sample-selector opencga-client="{{opencgaClient}}" project="{{project}}" study="{{study}}"-->
+                                                 <!--mode="{{analysisType}}" samples="{{samples}}" on-familychange="onFamilyChange">-->
+                        <!--</variant-sample-selector>-->
+                    <!--</div>-->
+                    <!--<div class="modal-footer">-->
+                        <!--<button type="button" class="btn btn-primary" data-dismiss="modal" on-click="closeModalSample">-->
+                            <!--OK-->
+                        <!--</button>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</div>-->
 
         <!--Modal dialog for Analysis Browser-->
-        <div class="modal fade" id="{{prefix}}AnalysisBrowser" tabindex="-1" role="dialog"
-             aria-labelledby="sampleBrowserLabel">
-            <div class="modal-dialog modal-lg" role="document" style="width: 1280px;">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                                aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title" id="{{prefix}}AnalysisBrowserLabel">Analysis Selector</h4>
-                    </div>
-                    <div class="modal-body" style="height: 780px">
-                        <variant-clinical-selector opencga-client="{{opencgaClient}}" analysis-selected="{{analysisSelected}}" analysis-modal="{{analysisModal}}" study="{{study}}" show-pedigree="{{showPedigree}}"></variant-clinical-selector>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="showSegregation">
-                            OK
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!--<div class="modal fade" id="{{prefix}}AnalysisBrowser" tabindex="-1" role="dialog"-->
+             <!--aria-labelledby="sampleBrowserLabel">-->
+            <!--<div class="modal-dialog modal-lg" role="document" style="width: 1280px;">-->
+                <!--<div class="modal-content">-->
+                    <!--<div class="modal-header">-->
+                        <!--<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span-->
+                                <!--aria-hidden="true">&times;</span></button>-->
+                        <!--<h4 class="modal-title" id="{{prefix}}AnalysisBrowserLabel">Analysis Selector</h4>-->
+                    <!--</div>-->
+                    <!--<div class="modal-body" style="height: 780px">-->
+                        <!--<variant-clinical-selector opencga-client="{{opencgaClient}}" analysis-selected="{{analysisSelected}}" analysis-modal="{{analysisModal}}" study="{{study}}" show-pedigree="{{showPedigree}}"></variant-clinical-selector>-->
+                    <!--</div>-->
+                    <!--<div class="modal-footer">-->
+                        <!--<button type="button" class="btn btn-primary" data-dismiss="modal" on-click="showSegregation">-->
+                            <!--OK-->
+                        <!--</button>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</div>-->
     </template>
 
     <script>
@@ -1087,7 +942,7 @@
             constructor() {
                 super();
 
-                this.prefix = "browser" + Utils.randomString(6);
+                this.prefix = "var-browser-filter-" + Utils.randomString(6);
             }
 
             static get is() {
@@ -1122,11 +977,6 @@
                     consequenceTypes: {
                         type: Object
                     },
-//                    mode: {
-//                        type: String,
-//                        value: "browser",
-//                        observer: '_updateMode'
-//                    },
                     query: {
                         type: Object,
                         notify: true,
@@ -1138,16 +988,12 @@
                     },
                     samples: {
                         type: Array
-//                        notify: true,
 //                        observer: "onSampleChange"
                     },
                     family: {
                         type: Object,
                         observer: "onFamilyChange"
                     },
-//                    cohorts: {
-//                        type: Object
-//                    },
                     biotypes: {
                         type: Array
                     },
@@ -1336,22 +1182,6 @@
             checkTitle(consequenceType) {
                 return typeof consequenceType.title !== "undefined" && consequenceType.title !== null;
             }
-
-//            moreStudiesPresent(studies) {
-//                if (typeof studies !== "undefined") {
-//                    return studies.length > 1;
-//                } else {
-//                    return false;
-//                }
-//            }
-
-//            cohortsPresent(cohorts) {
-//                if (typeof cohorts !== "undefined") {
-//                    return cohorts.length > 0;
-//                } else {
-//                    return false;
-//                }
-//            }
 
             updateDifferentStudies() {
                 let differentStudies = [];
@@ -1965,51 +1795,10 @@
                 this.updateQueryFilters();
             }
 
-
-
-//            selectAnalysisType(e) {
-//                e.preventDefault();
-//                this.analysisType = e.target.value;
-//                this.isSampleAnalysis = this.isFamilyAnalysis = this.isCancerAnalysis = false;
-//
-//                if (this.analysisType === "sample") {
-//                    this.isSampleAnalysis = true;
-//                } else {
-//                    if (this.analysisType === "family") {
-//                        this.isFamilyAnalysis = true;
-//                    } else {
-//                        this.isCancerAnalysis = true;
-//                    }
-//                }
-//            }
-
             selectSegregation(e) {
                 e.preventDefault();
                 this.segregation = e.target.innerHTML;
             }
-
-//            sampleGenotypeManual() {
-//                let arr = [];
-//                if (this.samples !== "" && this.samples.length > 1) {
-//                    for (let i = 0; i < this.samples.length; i++) {
-//                        let sample = this.samples[i].name;
-//                        let gts = [];
-//                        let children = $("#" + sample).children();
-//                        for (let j = 0; j < children.length; j++) {
-//                            let child = $("#" + sample).children()[j];
-//                            let input = $(child).children()[0];
-//                            let cb = $(input)[0];
-//                            if ($(cb).is(':checked')) {
-//                                gts.push($(cb).val().replace('/', '|'));
-//                            }
-//                        }
-//                        if (gts.length > 0) {
-//                            arr.push(sample + ':' + gts.join(','));
-//                        }
-//                    }
-//                }
-//                this.sampleGenotypes = arr.join(';');
-//            }
 
             _clearHtmlDom() {
                 // Empty everything before rendering
@@ -2023,27 +1812,8 @@
                 $("." + this.prefix + "FilterRadio").prop("disabled", true);
 
                 // Deselect bootstrap-select dropdowns
-//                $('.selectpicker').selectpicker('deselectAll');
                 $("#" + this.prefix + "GeneBiotypes").selectpicker('val', []);
             }
-
-//            _updateMode() {
-//                switch (this.mode) {
-//                    case "browser":
-//                        this.isBrowserMode = true;
-//                        break;
-//                    case "prioritization":
-//                        this.isPrioritizationMode = true;
-//                        break;
-//                    case "analysis":
-//                    case "clinical":
-//                        this.isClinicalMode = true;
-//                        break;
-//                    default:
-//                        this.isBrowserMode = true;
-//                        break;
-//                }
-//            }
 
             showSegregation(e) {
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
@@ -2075,67 +1845,6 @@
 //                    PolymerUtils.setAttribute(this.prefix + "selectAnalysisType", "disabled", "disabled");
 //                }
             }
-
-//            isCheckedRadioAnalysis(name){
-//                if(UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
-//
-//                    let isFamily = (this.clinicalAnalysis.type === "TRIO" || this.clinicalAnalysis.type === "DUO" || this.clinicalAnalysis.type === "FAMILY") && name=== "family";
-//                    let isSample = this.clinicalAnalysis.type === "SINGLE" && name === "sample";
-//                    let isCancer= this.clinicalAnalysis.type === "MULTISAMPLE" && name === "cancer";
-//
-//                    if (isFamily || isSample || isCancer) {
-//
-//                        return true;
-//                    }
-//                } else if(name === "sample") {
-//                    return true;
-//                }
-//
-//                return false;
-//            }
-
-//            isDisabledRadioAnalysisAndSettings(){
-//
-//                if(UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
-//                    return true;
-//                }
-//
-//                return false;
-//            }
-
-//            selectedAnalysisType() {
-//                if(UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
-//                    if(this.clinicalAnalysis.type === "TRIO" || this.clinicalAnalysis.type === "DUO" || this.clinicalAnalysis.type === "FAMILY"){
-//                        this.isFamilyAnalysis = true;
-//                    }else if(this.clinicalAnalysis.type === "SINGLE"){
-//                        this.isSampleAnalysis = true;
-//                    }else if (this.clinicalAnalysis.type === "MULTISAMPLE"){
-//                        this.isCancerAnalysis = true;
-//                    }
-////                    PolymerUtils.setAttribute(this.prefix + "selectAnalysisType", "disabled", true);
-//                } else {
-//                    this.isSampleAnalysis = true;
-//                }
-//            }
-
-//            _checkStudyMenuVisibility(item) {
-//                if (UtilsNew.isNotUndefinedOrNull(item)) {
-//                    switch (item.visibility) {
-//                        case 'public':
-//                            return true;
-//                        case 'private':
-//                            return this._logged;
-//                        case 'none':
-//                        default:
-//                            return false;
-//                    }
-//                } else {
-//                    // if item is undefined or null we return true if at least one of the four sections is visible
-//                    return this.filterConfig.study.samples.visibility === "public" || this.filterConfig.study.cohorts.visibility === "public"
-//                        || this.filterConfig.study.studies.visibility === "public" || this.filterConfig.study.clinicalData.visibility === "public"
-//                }
-//
-//            }
 
             _isNotEmptyArray(str) {
                 let arr = this[str];
