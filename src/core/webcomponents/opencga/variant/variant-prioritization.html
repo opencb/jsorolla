@@ -350,7 +350,8 @@
                         type: String
                     },
                     clinicalAnalysis: {
-                        type: Object
+                        type: Object,
+                        observer: '_clinicalAnalysisChanged'
                     },
                     beaconHosts: {
                         type: Array
@@ -485,8 +486,13 @@
                             _samples.push(sample)
                         });
                     });
+                } else if(UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.subjects) && UtilsNew.isNotEmptyArray(this.clinicalAnalysis.subjects)) {
+                    this.clinicalAnalysis.subjects.forEach((individual) => {
+                        individual.samples.map((sample) => {
+                            _samples.push(sample)
+                        });
+                    });
                 }
-//                    let _samples = this.clinicalAnalysis.subjects[0].samples;
                 this.samples = _samples;
 
                 this.dispatchEvent(new CustomEvent('samplechange', {detail: {samples: this.samples}}));
