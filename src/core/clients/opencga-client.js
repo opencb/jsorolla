@@ -408,22 +408,32 @@ class Users extends OpenCGAParentClass {
     }
 
     logout() {
-        return this.get("users", this._getUserId(), "logout").then(function(response) {
-            if (response.error === "") {
-                if (this._config.hasOwnProperty("cookieUserId")) {
-                    // Cookies being used
-                    Cookies.expire(this._config.cookieSessionId);
-                    Cookies.expire(this._config.cookieUserId);
-                    Cookies.expire(this._config.cookiePassword);
-                    Cookies.expire(this._config.cookieLoginResponse);
-                    console.log("Cookies properly removed");
-                }
-                this._config.userId = "";
-                this._config.sessionId = "";
-                return response;
-            }
-        }.bind(this));
-
+        if (this._config.hasOwnProperty("cookieUserId")) {
+            // Cookies being used
+            Cookies.expire(this._config.cookieSessionId);
+            Cookies.expire(this._config.cookieUserId);
+            Cookies.expire(this._config.cookiePassword);
+            Cookies.expire(this._config.cookieLoginResponse);
+            console.log("Cookies properly removed");
+        }
+        this._config.userId = "";
+        this._config.sessionId = "";
+        // return this.get("users", this._getUserId(), "logout")
+        //     .then(function(response) {
+        //         if (response.error === "") {
+        //             if (this._config.hasOwnProperty("cookieUserId")) {
+        //                 // Cookies being used
+        //                 Cookies.expire(this._config.cookieSessionId);
+        //                 Cookies.expire(this._config.cookieUserId);
+        //                 Cookies.expire(this._config.cookiePassword);
+        //                 Cookies.expire(this._config.cookieLoginResponse);
+        //                 console.log("Cookies properly removed");
+        //             }
+        //             this._config.userId = "";
+        //             this._config.sessionId = "";
+        //             return response;
+        //         }
+        //     }.bind(this));
     }
 
     changeEmail(newMail) {
