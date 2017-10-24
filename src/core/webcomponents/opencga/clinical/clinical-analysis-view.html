@@ -286,37 +286,39 @@
                     }
                     let body = Object.assign({},this.clinicalAnalysis.family);
                     let membersNew =[];
-                    body.members.forEach((member) => {
-                        let newMember = Object.assign({},member);
-                        if (UtilsNew.isNotUndefinedOrNull(newMember.father) && UtilsNew.isNotUndefinedOrNull(newMember.father.id)) {
-                            let newFather = body.members.find((member) =>{
-                                return member.id === newMember.father.id;
-                            });
-                            if(UtilsNew.isNotUndefinedOrNull(newFather)){
-                                newMember.father = newFather.name;
+                    if(UtilsNew.isNotUndefinedOrNull(body) && UtilsNew.isNotEmpty(body.members)) {
+                        body.members.forEach((member) => {
+                            let newMember = Object.assign({}, member);
+                            if (UtilsNew.isNotUndefinedOrNull(newMember.father) && UtilsNew.isNotUndefinedOrNull(newMember.father.id)) {
+                                let newFather = body.members.find((member) => {
+                                    return member.id === newMember.father.id;
+                                });
+                                if (UtilsNew.isNotUndefinedOrNull(newFather)) {
+                                    newMember.father = newFather.name;
+                                }
                             }
-                        }
 
-                        if (UtilsNew.isNotUndefinedOrNull(newMember.mother) && UtilsNew.isNotUndefinedOrNull(newMember.mother.id)) {
-                            let newMother = body.members.find((member) =>{
-                                return member.id === newMember.mother.id;
-                            });
-                            if(UtilsNew.isNotUndefinedOrNull(newMother)){
-                                newMember.mother = newMother.name;
+                            if (UtilsNew.isNotUndefinedOrNull(newMember.mother) && UtilsNew.isNotUndefinedOrNull(newMember.mother.id)) {
+                                let newMother = body.members.find((member) => {
+                                    return member.id === newMember.mother.id;
+                                });
+                                if (UtilsNew.isNotUndefinedOrNull(newMother)) {
+                                    newMember.mother = newMother.name;
+                                }
                             }
-                        }
-                        membersNew.push(newMember);
-                    });
-                    body.members = membersNew;
+                            membersNew.push(newMember);
+                        });
+                        body.members = membersNew;
+                        // Render new Pedigree
+                        let querySelector = PolymerUtils.getElementById(this.prefix + "PedigreeView");
+                        let pedigree = new Pedigree(body, {selectShowSampleNames: true});
+                        this.svg = pedigree.pedigreeFromFamily(pedigree.pedigree, {
+                            width: 200,
+                            height: 180
+                        });
+                        querySelector.appendChild(this.svg);
+                    }
 
-                    // Render new Pedigree
-                    let querySelector = PolymerUtils.getElementById(this.prefix + "PedigreeView");
-                    let pedigree = new Pedigree(body, {selectShowSampleNames: true});
-                    this.svg = pedigree.pedigreeFromFamily(pedigree.pedigree, {
-                        width: 200,
-                        height: 180
-                    });
-                    querySelector.appendChild(this.svg);
                 }
             }
 
