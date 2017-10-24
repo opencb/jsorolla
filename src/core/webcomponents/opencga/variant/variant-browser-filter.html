@@ -1106,8 +1106,7 @@
 
             // This method manipulates this.samples object including dispatching the event and refreshing web
             _addSample(sample) {
-
-                if(UtilsNew.isNotUndefinedOrNull(sample) && UtilsNew.isNotUndefinedOrNull(this.samples)){
+                if (UtilsNew.isNotUndefinedOrNull(sample) && UtilsNew.isNotUndefinedOrNull(this.samples)) {
                     // If 'sample' is an array we need to set instead of push to avoid multiple refresh events
                     if (Array.isArray(sample)) {
                         this.set("samples", sample);
@@ -1116,12 +1115,10 @@
                         this.push("samples", sample);
                     }
 
-
                     // Launch and refresh the web
                     this.dispatchEvent(new CustomEvent("samplechange", {detail: {samples: this.samples}, bubbles: true, composed: true}));
                     this.showSampleGenotypes = this.samples.length > 0;
                 }
-//                this.updateQueryFilters();
             }
 
             onFamilyChange(e) {
@@ -1129,7 +1126,7 @@
             }
 
             propagateOkHPO(e) {
-                if(this.openHPO){
+                if (this.openHPO) {
                     PolymerUtils.setValue(this.prefix + "HumanPhenotypeOntologyTextarea", e.detail.result.join(","));
                     this.selectedTermsHPO = e.detail.originalResult;
                 } else {
