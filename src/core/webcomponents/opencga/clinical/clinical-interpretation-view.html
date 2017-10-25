@@ -864,10 +864,16 @@
 
             _refreshTableColumns() {
                 this.cols = this._createDefaultColumns();
-                if (typeof this.cols !== "undefined" && typeof this.interpretation.clinicalAnalysis.family !== "undefined"
-                    && Object.keys(this.interpretation.clinicalAnalysis.family.members).length > 0) {
+                if (typeof this.cols !== "undefined" && ((UtilsNew.isNotUndefinedOrNull(this.interpretation.clinicalAnalysis.family) && this.interpretation.clinicalAnalysis.family.id > 0 &&
+                    Object.keys(this.interpretation.clinicalAnalysis.family.members).length > 0)
+                    || UtilsNew.isNotUndefinedOrNull(this.interpretation.clinicalAnalysis.subjects) && UtilsNew.isNotEmptyArray(this.interpretation.clinicalAnalysis.subjects))) {
                     let zigosityIdx = 5;
-                    let members = this.interpretation.clinicalAnalysis.family.members;
+                    let members = [];
+                    if (UtilsNew.isNotUndefinedOrNull(this.interpretation.clinicalAnalysis.family) && this.interpretation.clinicalAnalysis.family.id > 0 ) {
+                        members = this.interpretation.clinicalAnalysis.family.members;
+                    } else {
+                        members.push(this.interpretation.clinicalAnalysis.subjects[0]);
+                    }
                     this.cols[0].splice(zigosityIdx, 0, {
                         title: "Zigosity",
                         rowspan: 1,
@@ -983,7 +989,7 @@
 
 
             pedigreeRender() {
-                if (UtilsNew.isNotUndefinedOrNull(this.interpretation.clinicalAnalysis) && UtilsNew.isNotUndefinedOrNull(this.interpretation.clinicalAnalysis.family)) {
+                if (UtilsNew.isNotUndefinedOrNull(this.interpretation.clinicalAnalysis) && UtilsNew.isNotUndefinedOrNull(this.interpretation.clinicalAnalysis.family) && this.interpretation.clinicalAnalysis.family.id > 0 ) {
                     if (UtilsNew.isNotUndefined(this.svg)) {
                         PolymerUtils.getElementById(this.prefix + "PedigreeView").removeChild(this.svg);
                     }

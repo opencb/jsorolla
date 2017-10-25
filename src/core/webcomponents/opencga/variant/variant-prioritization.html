@@ -212,12 +212,19 @@
                             <div class="col-md-12">
                                 <h2 class="clinical-title">Save Interpretation</h2>
                                 <hr style="margin-top: 5px">
-
+                                <template is="dom-if" if="{{messageError}}">
+                                    <div class="alert alert-danger" role="alert" id="{{prefix}}messageError" style="margin:5px auto;">{{messageErrorText}}</div>
+                                </template>
+                                <template is="dom-if" if="{{messageSuccess}}">
+                                    <div class="alert alert-success" role="alert" id="{{prefix}}messageSuccess" style="margin:5px auto;">{{messageSuccessText}}</div>
+                                </template>
+                            </div>
+                            <div class="col-md-12">
                                 <form id="{{prefix}}uploadForm" class="form-horizontal" data-toggle="validator" role="form">
                                     <!-- GENERAL INFORMATION -->
                                     <!-- ID -->
                                     <div class="form-group has-feedback">
-                                        <label for="{{prefix}}IDInterpretation" class="col-md-2 col-form-label">ID</label>
+                                        <label for="{{prefix}}IDInterpretation" class="col-md-2 col-form-label">ID*</label>
                                         <div class="col-md-8">
                                             <div class="input-group">
                                                 <input type="text" class$="form-control {{prefix}}TextInput codeDis"
@@ -234,7 +241,7 @@
 
                                     <!-- NAME -->
                                     <div class="form-group has-feedback">
-                                        <label for="{{prefix}}NameInterpretation" class="col-md-2 col-form-label">Name</label>
+                                        <label for="{{prefix}}NameInterpretation" class="col-md-2 col-form-label">Name*</label>
                                         <div class="col-md-8">
                                             <div class="input-group">
                                                 <input type="text" class$="form-control {{prefix}}TextInput codeDis"
@@ -251,7 +258,7 @@
 
                                     <!-- DESCRIPTION -->
                                     <div class="form-group has-feedback">
-                                        <label for="{{prefix}}DescriptionInterpretation" class="col-md-2 col-form-label">Description</label>
+                                        <label for="{{prefix}}DescriptionInterpretation" class="col-md-2 col-form-label">Description*</label>
                                         <div class="col-md-8">
                                             <div class="input-group">
                                                 <input type="text" class$="form-control {{prefix}}TextInput codeDis"
@@ -265,7 +272,7 @@
 
                                     <!-- COMMENT -->
                                     <div class="form-group has-feedback">
-                                        <label for="{{prefix}}CommentInterpretation" class="col-md-2 col-form-label">Comment</label>
+                                        <label for="{{prefix}}CommentInterpretation" class="col-md-2 col-form-label">Comment*</label>
                                         <div class="col-md-8">
                                             <div class="input-group">
                                                 <input type="text" class$="form-control {{prefix}}TextInput codeDis"
@@ -406,12 +413,13 @@
 //                this._isClinicalMode = this.mode === "clinical";
 
                 this.showSelect = true;
+                this.messageError = false;
+                this.messageSuccess = false;
 
             }
 
             connectedCallback() {
                 super.connectedCallback();
-
             }
 
             propagateGeneEvent(e) {
@@ -455,7 +463,6 @@
             }
 
 
-
             checkVariant(variant) {
                 return variant.split(':').length > 2;
             }
@@ -484,13 +491,13 @@
             _clinicalAnalysisChanged() {
                 let _samples = [];
 
-                if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.family) && UtilsNew.isNotEmptyArray(this.clinicalAnalysis.family.members)){
+                if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.family) && UtilsNew.isNotEmptyArray(this.clinicalAnalysis.family.members)) {
                     this.clinicalAnalysis.family.members.forEach((member) => {
                         member.samples.map((sample) => {
                             _samples.push(sample)
                         });
                     });
-                } else if(UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.subjects) && UtilsNew.isNotEmptyArray(this.clinicalAnalysis.subjects)) {
+                } else if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.subjects) && UtilsNew.isNotEmptyArray(this.clinicalAnalysis.subjects)) {
                     this.clinicalAnalysis.subjects.forEach((individual) => {
                         individual.samples.map((sample) => {
                             _samples.push(sample)
@@ -552,61 +559,86 @@
             }
 
             _createInterpretation() {
-                let userID = Cookies.get(this.configOpencga.cookie.prefix + "_userId");
-                let interpretation = {};
-                interpretation.id = this.clinicalAnalysis.id + "_" + PolymerUtils.getValue(this.prefix + "IDInterpretation");
-                interpretation.name = PolymerUtils.getValue(this.prefix + "NameInterpretation");
-                interpretation.description =  PolymerUtils.getValue(this.prefix + "DescriptionInterpretation");
-                interpretation.clinicalAnalysis = this.clinicalAnalysis;
-                interpretation.software = {
-                    name: "TEAM",
-                    version: "2.0",
-                    website: "https://www.ncbi.nlm.nih.gov/pubmed/24861626",
-                    repository: "https://github.com/opencb/opencga",
-                    commit: "f43372aa",
-                    params: {}
-                };
-                interpretation.analyst = {
-                    name: userID,
-                    email: "",
-                    company: ""
-                };
-                interpretation.versions =  [
-                    {
-                        id: "cellbase", name: "CellBase", type: "DDBB", version: "4.5.0"
-                    }
-                ];
-                interpretation.filters = this.query;
-//                interpretation.creationDate = Date();
-                interpretation.comments =  PolymerUtils.getValue(this.prefix + "CommentInterpretation");
-                interpretation.reportedVariants = this.checkedVariants;
-                interpretation.attributes = {};
-
-                let params = {
-                    study: this.project.alias + ":" + this.study.alias
-                };
-
-                let body = {
-                    path: "analysis/"+ interpretation.clinicalAnalysis.id + "/" + interpretation.name + "/interpretation.json",
-                    content: JSON.stringify(interpretation),
-                    parents: true
-                };
-
-                this.opencgaClient.files().create(params, body)
-                    .then((response) => {
-                        console.log(response);
-                        // TODO We should update here clinicalAnalysis and add to interpretation list this file with its name from save interpertation form.
-                        if (UtilsNew.isNotUndefinedOrNull(interpretation) && UtilsNew.isNotUndefinedOrNull(interpretation.clinicalAnalysis)) {
-                            if (UtilsNew.isEmptyArray(interpretation.clinicalAnalysis.interpretations)) {
-                                interpretation.clinicalAnalysis.interpretations = [];
-                            }
-                            interpretation.clinicalAnalysis.interpretations.push({id: interpretation.id, name: interpretation.id, file: response.response[0].result[0].id});
+                try {
+                    this.messageErrorText = "";
+                    this.messageSuccessText = "";
+                    this.messageError = false;
+                    this.messageSuccess = false;
+                    let userID = Cookies.get(this.configOpencga.cookie.prefix + "_userId");
+                    let interpretation = {};
+                    interpretation.id = this.clinicalAnalysis.id + "_" + PolymerUtils.getValue(this.prefix + "IDInterpretation");
+                    interpretation.name = PolymerUtils.getValue(this.prefix + "NameInterpretation");
+                    interpretation.description = PolymerUtils.getValue(this.prefix + "DescriptionInterpretation");
+                    interpretation.clinicalAnalysis = this.clinicalAnalysis;
+                    interpretation.software = {
+                        name: "TEAM",
+                        version: "2.0",
+                        website: "https://www.ncbi.nlm.nih.gov/pubmed/24861626",
+                        repository: "https://github.com/opencb/opencga",
+                        commit: "f43372aa",
+                        params: {}
+                    };
+                    interpretation.analyst = {
+                        name: userID,
+                        email: "",
+                        company: ""
+                    };
+                    interpretation.versions = [
+                        {
+                            id: "cellbase", name: "CellBase", type: "DDBB", version: "4.5.0"
                         }
-                        this.opencgaClient.clinical().update(interpretation.clinicalAnalysis.id, params, {interpretations : interpretation.clinicalAnalysis.interpretations})
-                            .then((response) => {
-                                console.log(response);
-                            });
-                    });
+                    ];
+                    interpretation.filters = this.query;
+                    //                interpretation.creationDate = Date();
+                    interpretation.comments = PolymerUtils.getValue(this.prefix + "CommentInterpretation");
+                    interpretation.reportedVariants = this.checkedVariants;
+                    interpretation.attributes = {};
+
+                    let params = {
+                        study: this.project.alias + ":" + this.study.alias
+                    };
+
+                    let body = {
+                        path: "analysis/" + interpretation.clinicalAnalysis.id + "/" + interpretation.name + "/interpretation.json",
+                        content: JSON.stringify(interpretation),
+                        parents: true
+                    };
+
+                    let _this = this;
+                    this.opencgaClient.files().create(params, body)
+                        .then((response) => {
+                            console.log(response);
+                            // TODO We should update here clinicalAnalysis and add to interpretation list this file with its name from save interpertation form.
+                            if (UtilsNew.isNotUndefinedOrNull(interpretation) && UtilsNew.isNotUndefinedOrNull(interpretation.clinicalAnalysis)) {
+                                if (UtilsNew.isEmptyArray(interpretation.clinicalAnalysis.interpretations)) {
+                                    interpretation.clinicalAnalysis.interpretations = [];
+                                }
+                                interpretation.clinicalAnalysis.interpretations.push({
+                                    id: interpretation.id,
+                                    name: interpretation.id,
+                                    file: response.response[0].result[0].id
+                                });
+                            }
+
+                            params = {
+                                study: _this.project.alias + ":" + _this.study.alias
+                            };
+                            _this.opencgaClient.clinical().update(interpretation.clinicalAnalysis.id, params, {interpretations: interpretation.clinicalAnalysis.interpretations})
+                                .then((response) => {
+                                    _this.messageSuccess = true;
+                                    _this.messageSuccessText = interpretation.id + " interpretation has been created correctly.";
+                                    console.log(response);
+                                })
+                                .catch((err) => {
+                                    _this.messageError = true;
+                                    _this.messageErrorText = err.error;
+                                });
+                        });
+
+                } catch (err) {
+                    this.messageError = true;
+                    this.messageErrorText = err;
+                }
             }
         }
 

@@ -445,7 +445,7 @@
                     let annotation = row.annotation.xrefs.find(function (elemento) {
                         return elemento.source === "dbSNP";
                     })
-                    if (annotation !== "undefined") {
+                    if (typeof annotation !== "undefined") {
                         return "<a target='_blank' href='http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + annotation.id + "'>" + annotation.id + "</a>";
                     }
                 }
