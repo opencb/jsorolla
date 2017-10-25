@@ -59,7 +59,7 @@
                 <div id="{{prefix}}FilterMenu" class="col-md-2" >
                     <variant-browser-filter project="{{project}}" study="{{study}}" studies="{{studies}}" samples="{{samples}}"
                                             opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"
-                                            family="{{clinicalAnalysis.family}}" population-frequencies="{{populationFrequencies}}" biotypes="{{biotypes}}"
+                                             population-frequencies="{{populationFrequencies}}" biotypes="{{biotypes}}"
                                             consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}"
                                             on-closemodalsample="onCloseModalSample" ebi-config="{{ebiConfig}}" clinical-analysis="{{clinicalAnalysis}}">
                     </variant-browser-filter>
@@ -352,11 +352,14 @@
                         type: Object
                     },
                     clinicalAnalysisId: {
-                        type: String
+                        type: String,
+
                     },
                     clinicalAnalysis: {
                         type: Object,
-                        observer: '_clinicalAnalysisChanged'
+                        observer: '_clinicalAnalysisChanged',
+                        notify: true
+
                     },
                     beaconHosts: {
                         type: Array
@@ -612,6 +615,10 @@
                             if (UtilsNew.isNotUndefinedOrNull(interpretation) && UtilsNew.isNotUndefinedOrNull(interpretation.clinicalAnalysis)) {
                                 if (UtilsNew.isEmptyArray(interpretation.clinicalAnalysis.interpretations)) {
                                     interpretation.clinicalAnalysis.interpretations = [];
+                                } else {
+                                    interpretation.clinicalAnalysis.interpretations = interpretation.clinicalAnalysis.interpretations.map((interpretation) => {
+                                       return { id: interpretation.id, name: interpretation.name, file:  interpretation.file.id };
+                                    });
                                 }
                                 interpretation.clinicalAnalysis.interpretations.push({
                                     id: interpretation.id,
@@ -623,11 +630,14 @@
                             params = {
                                 study: _this.project.alias + ":" + _this.study.alias
                             };
-                            _this.opencgaClient.clinical().update(interpretation.clinicalAnalysis.id, params, {interpretations: interpretation.clinicalAnalysis.interpretations})
+                            let interpretations =  { interpretations: interpretation.clinicalAnalysis.interpretations };
+                            _this.opencgaClient.clinical().update(interpretation.clinicalAnalysis.id, params, interpretations)
                                 .then((response) => {
                                     _this.messageSuccess = true;
                                     _this.messageSuccessText = interpretation.id + " interpretation has been created correctly.";
                                     console.log(response);
+                                    // Update analysis with new interpretations
+                                    _this.getAnalysisInterpretations();
                                 })
                                 .catch((err) => {
                                     _this.messageError = true;
@@ -639,6 +649,21 @@
                     this.messageError = true;
                     this.messageErrorText = err;
                 }
+            }
+
+            getAnalysisInterpretations(){
+                let params = {
+                    study: this.project.alias + ":" + this.study.alias
+                };
+                let _this = this;
+                this.opencgaClient.clinical().info(this.clinicalAnalysis.id, params, {})
+                    .then(function(response){
+                        _this.showSummary = false;
+                        if (response.response[0].numResults === 1) {
+                            _this.clinicalAnalysis = response.response[0].result[0];
+                        }
+
+                    });
             }
         }
 
