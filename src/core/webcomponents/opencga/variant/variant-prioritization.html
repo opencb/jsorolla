@@ -342,8 +342,8 @@
                         value: "Prioritization"
                     },
                     samples: {
-                        type: Array,
-                        notify: true
+                        type: Array
+//                        notify: true
                     },
                     opencgaClient: {
                         type: Object
@@ -376,12 +376,12 @@
                     consequenceTypes: {
                         type: Object
                     },
+                    biotypes: {
+                        type: Array
+                    },
                     checkPermissions: {
                         type: Boolean,
                         computed: '_checkPermissions(project)'
-                    },
-                    biotypes: {
-                        type: Array
                     },
                     config: {
                         type: Object

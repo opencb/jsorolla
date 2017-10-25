@@ -84,9 +84,6 @@
 
             static get properties() {
                 return {
-                    host: {
-                        type: String
-                    },
                     project: {
                         type: Object
                     },
@@ -97,12 +94,12 @@
                     studies: {
                         type: Array
                     },
+                    samples: {
+                        type: Array
+                    },
                     title: {
                         type: String,
-                        value: ""
-                    },
-                    config: {
-                        type: Object
+                        value: "Variant Browser"
                     },
                     opencgaClient: {
                         type: Object
@@ -138,6 +135,9 @@
                     checkPermissions: {
                         type: Boolean,
                         computed: '_checkPermissions(project)'
+                    },
+                    config: {
+                        type: Object
                     }
                 }
             }
