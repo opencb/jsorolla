@@ -104,7 +104,7 @@
             <div style="width: 60%;margin: 0 auto">
                 <button type="button" class="btn btn-primary btn-lg" style="width: 100%" on-click="onSearch">
                     <i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px"></i>
-                    Filter
+                    {{config.filter.searchButtonText}}
                 </button>
             </div>
 
@@ -128,7 +128,7 @@
                             </h4>
                         </div>
 
-                        <div id="{{prefix}}Studies" class="panel-collapse collapse " role="tabpanel" aria-labelledby="{{prefix}}StudiesHeading">
+                        <div id="{{prefix}}Studies" class$="panel-collapse collapse {{collapsed}}" role="tabpanel" aria-labelledby="{{prefix}}StudiesHeading">
                             <div class="panel-body">
 
                                 <!-- Samples sub-section -->
@@ -137,8 +137,7 @@
                                         <div class="browser-subsection">Samples</div>
 
                                         <template is="dom-if" if="{{config.filter.study.samples.selector}}">
-                                            <div style="margin: 5px 5px">
-
+                                            <div style="margin: 10px 5px">
                                                 <label>Select Sample:</label>
 
                                                 <div class="form-inline">
@@ -340,7 +339,7 @@
                             </a>
                         </h4>
                     </div>
-                    <div id="{{prefix}}Position" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}PositionHeading">
+                    <div id="{{prefix}}Position" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}PositionHeading">
                         <div class="panel-body">
 
                             <div class="form-group">
@@ -1074,7 +1073,9 @@
                 };
 
                 // Show cohorts
-
+                if (!this.config.filter.study.collapsed) {
+                    this.collapsed = "in";
+                }
             }
 
             _autocompleteSampleSearch(e) {
@@ -1106,8 +1107,7 @@
 
             // This method manipulates this.samples object including dispatching the event and refreshing web
             _addSample(sample) {
-
-                if(UtilsNew.isNotUndefinedOrNull(sample) && UtilsNew.isNotUndefinedOrNull(this.samples)){
+                if (UtilsNew.isNotUndefinedOrNull(sample) && UtilsNew.isNotUndefinedOrNull(this.samples)) {
                     // If 'sample' is an array we need to set instead of push to avoid multiple refresh events
                     if (Array.isArray(sample)) {
                         this.set("samples", sample);
@@ -1116,12 +1116,10 @@
                         this.push("samples", sample);
                     }
 
-
                     // Launch and refresh the web
                     this.dispatchEvent(new CustomEvent("samplechange", {detail: {samples: this.samples}, bubbles: true, composed: true}));
                     this.showSampleGenotypes = this.samples.length > 0;
                 }
-//                this.updateQueryFilters();
             }
 
             onFamilyChange(e) {
@@ -1129,7 +1127,7 @@
             }
 
             propagateOkHPO(e) {
-                if(this.openHPO){
+                if (this.openHPO) {
                     PolymerUtils.setValue(this.prefix + "HumanPhenotypeOntologyTextarea", e.detail.result.join(","));
                     this.selectedTermsHPO = e.detail.originalResult;
                 } else {
