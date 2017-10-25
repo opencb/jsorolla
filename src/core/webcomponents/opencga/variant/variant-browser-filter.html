@@ -138,7 +138,7 @@
 
                                         <template is="dom-if" if="{{config.filter.study.samples.selector}}">
                                             <div style="margin: 10px 5px">
-                                                <label>Select Sample:</label>
+                                                <span>Select Sample:</span>
 
                                                 <div class="form-inline">
                                                     <div class="form-group">
@@ -158,7 +158,7 @@
                                         </template>
 
                                         <div style="margin: 5px 5px">
-                                            <label>Select Sample Genotypes:</label>
+                                            <span>Select Sample Genotypes:</span>
 
                                             <template is="dom-if" if="{{!showSampleGenotypes}}">
                                                 <br>
@@ -239,7 +239,7 @@
                                         <template is="dom-repeat" items="{{_cohorts}}" as="cohort">
                                             <div class="form-horizontal">
                                                 <div class="form-group" style="margin: 5px 0px">
-                                                    <label class="col-md-4 control-label">{{cohort.name}}</label>
+                                                    <span class="col-md-4 control-label">{{cohort.name}}</span>
                                                     <div class="col-md-4">
                                                         <select id="{{prefix}}{{study.alias}}{{cohort.id}}CohortOperator" name="{{cohort.id}}Operator"
                                                                 class$="form-control input-sm {{prefix}}FilterSelect" on-change="updateQueryFilters">
@@ -497,7 +497,7 @@
                                             <template is="dom-repeat" items="{{study.populations}}" as="popFreq">
                                                 <div class="form-group" style="margin: 10px 0px">
                                                     <!--<label class="browser-popFreqName">{{popFreq.title}}</label>-->
-                                                    <label class="col-md-4 control-label" data-toggle="tooltip" data-placement="top" title$="{{popFreq.title}}">{{popFreq.id}}</label>
+                                                    <span class="col-md-3 control-label" data-toggle="tooltip" data-placement="top" title$="{{popFreq.title}}">{{popFreq.id}}</span>
                                                     <div class="col-md-4">
                                                         <select id="{{prefix}}{{study.id}}{{popFreq.id}}Operator" name="{{popFreq.id}}Operator"
                                                                 on-change="updateQueryFilters" class$="form-control input-sm {{prefix}}FilterSelect">
@@ -507,7 +507,7 @@
                                                             <option value=">=">>=</option>
                                                         </select>
                                                     </div>
-                                                    <div class="col-md-4">
+                                                    <div class="col-md-5">
                                                         <input type="text" value="" class$="form-control input-sm {{prefix}}FilterTextInput"
                                                                name="{{study.id}}_{{popFreq.id}}" id="{{prefix}}{{study.id}}{{popFreq.id}}"
                                                                on-keyup="updateQueryFilters">
@@ -541,7 +541,14 @@
                     <div id="{{prefix}}ProteinSubstitutionScore" class="panel-collapse collapse" role="tabpanel"
                          aria-labelledby="{{prefix}}ProteinSubstitutionScoreHeading">
                         <div class="panel-body">
-                            <div class="browser-subsection">Protein Substitution Score</div>
+                            <div class="browser-subsection">Protein Substitution Score
+                                <!-- New Tooltip in the sub-section title -->
+                                <div style="float: right" class="tooltip-div">
+                                    <a data-toggle="tooltip"
+                                       title="SIFT score. Choose either a Tolerated/Deleterious qualitative score or provide below a quantitative impact value. SIFT scores <0.05 are considered deleterious"><i
+                                            class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                </div>
+                            </div>
                             <div style="padding-top: 10px">
                                 <label style="font-weight: normal;">SIFT</label>
                                 <div style="float: right" class="tooltip-div">
