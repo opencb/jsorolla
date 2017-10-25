@@ -54,7 +54,8 @@
                 </h3>
             </div>
 
-            <div class="row">
+            <!--<div class="row">-->
+            <div>
 
                 <div id="{{prefix}}FilterMenu" class="col-md-2" >
                     <variant-browser-filter project="{{project}}" study="{{study}}" studies="{{studies}}" samples="{{samples}}"
@@ -343,7 +344,6 @@
                     },
                     samples: {
                         type: Array
-//                        notify: true
                     },
                     opencgaClient: {
                         type: Object
@@ -412,13 +412,9 @@
                     "annot-hpo": "HPO"
                 };
 
-//                this._isPrioritizationMode = this.mode === "prioritization";
-//                this._isClinicalMode = this.mode === "clinical";
-
                 this.showSelect = true;
                 this.messageError = false;
                 this.messageSuccess = false;
-
             }
 
             connectedCallback() {
@@ -458,7 +454,9 @@
             }
 
             onSampleChange(e) {
+                this.samples = [];
                 this.samples = e.detail.samples;
+//                this.set('samples', e.detail.samples);
             }
 
             _checkPermissions(project) {
@@ -525,20 +523,11 @@
                 }
 
                 // Show the active button
-                if (this._isPrioritizationMode) {
-                    PolymerUtils.removeClass(".variant-prioritization-view-buttons", "active");
-                } else {
-                    // Dead code, to be removed
-                    PolymerUtils.removeClass(".prioritization-variant-menu-link", "active");
-                }
+                PolymerUtils.removeClass(".variant-prioritization-view-buttons", "active");
                 $(e.target).addClass("active");
 
-
-                if (e.target.dataset.view === "GenomeBrowser") {
-                    this._genomeBrowserActive = true;
-                } else {
-                    this._genomeBrowserActive = false;
-                }
+                // Make Genome Browser active
+                this._genomeBrowserActive = (e.target.dataset.view === "GenomeBrowser");
             }
 
             _goToReport(e) {
@@ -551,13 +540,10 @@
 
             onViewInterpretation(e) {
                 this.interpretationView = this._createInterpretation();
-
             }
 
             onSaveInterpretation(e, obj) {
-                let interpretation = this._createInterpretation();
-
-                this.interpretation = interpretation;
+                this.interpretation = this._createInterpretation();
                 PolymerUtils.removeAttribute(this.prefix + 'GoToReportButton', 'disabled');
             }
 
@@ -651,7 +637,7 @@
                 }
             }
 
-            getAnalysisInterpretations(){
+            getAnalysisInterpretations() {
                 let params = {
                     study: this.project.alias + ":" + this.study.alias
                 };

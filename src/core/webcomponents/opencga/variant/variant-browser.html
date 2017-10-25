@@ -36,8 +36,8 @@
                     <i class="fa fa-search" aria-hidden="true"></i>&nbsp;{{title}}
                 </h3>
             </div>
-            <div class="row">
 
+            <!--<div class="row">-->
                 <div id="{{prefix}}FilterMenu" class="col-md-2">
                     <variant-browser-filter study="{{study}}" project="{{project}}" studies="{{studies}}"
                                             cohorts="{{cohorts}}" biotypes={{biotypes}} config="{{config}}"
@@ -57,10 +57,10 @@
                                           consequence-types="{{consequenceTypes}}" beacon-hosts="{{beaconHosts}}"
                                           query="{{query}}" search="[[search]]"
                                           on-propagate="propagateGeneEvent" config="{{config}}" on-clear="onClear"
-                                          on-filterchange="onFilterChange" summary="{{summary}}" full-screen="{{_collapsed}}">
+                                          on-filterchange="onFilterChange" full-screen="{{_collapsed}}">
                     </variant-browser-view>
                 </div>
-            </div>
+            <!--</div>-->
         </template>
 
 
@@ -125,9 +125,6 @@
                     search: {
                         type: Object,
                         observer: 'renderHashQueryParams'
-                    },
-                    summary: {
-                        type: Boolean
                     },
                     biotypes: {
                         type: Array

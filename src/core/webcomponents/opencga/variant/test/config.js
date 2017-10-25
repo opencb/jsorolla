@@ -36,7 +36,7 @@ const opencga = {
         //     ]
         // }
     ],
-    summary: true,
+    // summary: true,
     cookie: {
         prefix: "iva",
     },
