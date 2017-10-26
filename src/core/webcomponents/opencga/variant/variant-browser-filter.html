@@ -342,9 +342,9 @@
                                href="#{{prefix}}Position" aria-expanded="true" aria-controls="{{prefix}}Position">
                                 Genomic
                                 <!--<div style="float: right" class="tooltip-div">-->
-                                    <!--<a data-toggle="tooltip" title="Set filters related with genomic position, which include genomic intervals, gene and other genomic features, panels, gene biotypes, etc.">-->
-                                        <!--<i class="fa fa-info-circle" aria-hidden="true"></i>-->
-                                    <!--</a>-->
+                                <!--<a data-toggle="tooltip" title="Set filters related with genomic position, which include genomic intervals, gene and other genomic features, panels, gene biotypes, etc.">-->
+                                <!--<i class="fa fa-info-circle" aria-hidden="true"></i>-->
+                                <!--</a>-->
                                 <!--</div>-->
                             </a>
                         </h4>
@@ -356,9 +356,9 @@
                                 <div class="browser-subsection">Chromosomal Location
                                     <div id ="ChromosomalLocationqtip"></div>
                                     <!--<div style="float: right" class="tooltip-div">-->
-                                        <!--<a data-toggle="tooltip" title="Filter out variants falling outside the genomic interval(s) defined">-->
-                                            <!--<i class="fa fa-info-circle" aria-hidden="true"></i>-->
-                                        <!--</a>-->
+                                    <!--<a data-toggle="tooltip" title="Filter out variants falling outside the genomic interval(s) defined">-->
+                                    <!--<i class="fa fa-info-circle" aria-hidden="true"></i>-->
+                                    <!--</a>-->
                                     <!--</div>-->
                                 </div>
                                 <div class="subsection-content">
@@ -368,7 +368,7 @@
                             </div>
 
                             <div class="form-group">
-                                <div class="browser-subsection">Feature IDs (gene, transcript, SNP, ...)
+                                <div class="browser-subsection">Feature IDs (gene, SNP, ...)
                                     <div style="float: right" class="tooltip-div">
                                         <a data-toggle="tooltip" title="Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined">
                                             <i class="fa fa-info-circle" aria-hidden="true"></i>
@@ -505,19 +505,19 @@
                                     <template is="dom-if" if="{{study.populations}}">
                                         <div id="{{prefix}}{{study.id}}" class="form-horizontal" hidden>
                                             <template is="dom-repeat" items="{{study.populations}}" as="popFreq">
-                                                <div class="form-group" style="margin: 10px 0px">
+                                                <div class="row" style="margin: 5px 0px">
                                                     <!--<label class="browser-popFreqName">{{popFreq.title}}</label>-->
                                                     <span class="col-md-3 control-label" data-toggle="tooltip" data-placement="top" title$="{{popFreq.title}}">{{popFreq.id}}</span>
-                                                    <div class="col-md-4">
+                                                    <div class="col-md-4" style="padding: 0px 10px">
                                                         <select id="{{prefix}}{{study.id}}{{popFreq.id}}Operator" name="{{popFreq.id}}Operator"
-                                                                on-change="updateQueryFilters" class$="form-control input-sm {{prefix}}FilterSelect">
+                                                                on-change="updateQueryFilters" class$="form-control input-sm {{prefix}}FilterSelect" style="padding: 0px 5px">
                                                             <option value="<" selected><</option>
                                                             <option value="<="><=</option>
                                                             <option value=">">></option>
                                                             <option value=">=">>=</option>
                                                         </select>
                                                     </div>
-                                                    <div class="col-md-5">
+                                                    <div class="col-md-5" style="padding: 0px 10px">
                                                         <input type="text" value="" class$="form-control input-sm {{prefix}}FilterTextInput"
                                                                name="{{study.id}}_{{popFreq.id}}" id="{{prefix}}{{study.id}}{{popFreq.id}}"
                                                                on-keyup="updateQueryFilters">
@@ -555,48 +555,46 @@
                                 <!-- New Tooltip in the sub-section title -->
                                 <div style="float: right" class="tooltip-div">
                                     <a data-toggle="tooltip"
-                                       title="SIFT score. Choose either a Tolerated/Deleterious qualitative score or provide below a quantitative impact value. SIFT scores <0.05 are considered deleterious"><i
-                                            class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                       title="SIFT score. Choose either a Tolerated/Deleterious qualitative score or provide below a quantitative impact value. SIFT scores <0.05 are considered deleterious"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
                                 </div>
                             </div>
-                            <section style="padding-top: 10px; " class="container-fluid">
-                                <label style="font-weight: normal; padding-left: 0px;">SIFT</label>
 
-                                <br>
-                                    <section class="form-group row">
-                                        <section class="col-sm-4" style="padding: 0px">
-                                            <select class="options" name="Sift" id="{{prefix}}SiftValues"  on-change="checkScore" class$="{{prefix}}FilterSelect form-control input-sm">
-                                                <option value="score" selected>Score...</option>
-                                                <option value="tolerated">Tolerated</option>
-                                                <option value="deleterious">Deleterious</option>
-                                            </select>
-                                        </section>
-                                        <section class="col-sm-3" style="padding-right: 0px" >
-                                            <select name="siftOperator" id="{{prefix}}SiftOperator" on-change="updateQueryFilters" class$="{{prefix}}FilterSelect form-control input-sm" style="padding:0px">
-                                                <option value="<" ><</option>
-                                                <option value="<="><=</option>
-                                                <option value=">"selected>></option>
-                                                <option value=">=">>=</option>
-                                            </select>
-                                        </section>
-                                        <section class="col-sm-5" style="padding-right: 0px">
-                                            <input id="{{prefix}}SiftInput" name="Sift" type="text" value=""
-                                                   class$="{{prefix}}FilterTextInput form-control input-sm" on-keyup="updateQueryFilters">
-                                            </section>
-                                    </section>
+                            <div style="padding-top: 10px">
+                                <span style="padding-left: 0px;">SIFT</span>
 
+                                <div class="row">
+                                    <div class="col-md-5" style="padding-right: 5px">
+                                        <select class="options" name="Sift" id="{{prefix}}SiftValues"  on-change="checkScore" class$="{{prefix}}FilterSelect form-control input-sm">
+                                            <option value="score" selected>Score...</option>
+                                            <option value="tolerated">Tolerated</option>
+                                            <option value="deleterious">Deleterious</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3" style="padding: 0px 5px">
+                                        <select name="siftOperator" id="{{prefix}}SiftOperator" on-change="updateQueryFilters" class$="{{prefix}}FilterSelect form-control input-sm" style="padding: 0px 5px">
+                                            <option value="<"><</option>
+                                            <option value="<="><=</option>
+                                            <option value=">"selected>></option>
+                                            <option value=">=">>=</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4" style="padding-left: 5px">
+                                        <input id="{{prefix}}SiftInput" name="Sift" type="text" value=""
+                                               class$="{{prefix}}FilterTextInput form-control input-sm" on-keyup="updateQueryFilters">
+                                    </div>
+                                </div>
+                            </div>
 
-                            <!--<br>-->
-                            <!--<div>-->
-                                <label style="font-weight: normal; padding-left: 0px;">Polyphen</label>
+                            <div style="padding-top: 15px">
+                                <span style="padding-top: 10px;padding-left: 0px;">Polyphen</span>
                                 <!--<div style="float: right" class="tooltip-div">-->
-                                    <!--<a data-toggle="tooltip"-->
-                                       <!--title=" Choose, either a Benign/probably damaging qualitative score or provide below a quantitative impact value. Polyphen scores are considered Benign (<0.15), Possibly damaging (0.15-0.85) or Damaging (>0.85)"><i-->
-                                            <!--class="fa fa-info-circle" aria-hidden="true"></i></a>-->
+                                <!--<a data-toggle="tooltip"-->
+                                <!--title=" Choose, either a Benign/probably damaging qualitative score or provide below a quantitative impact value. Polyphen scores are considered Benign (<0.15), Possibly damaging (0.15-0.85) or Damaging (>0.85)"><i-->
+                                <!--class="fa fa-info-circle" aria-hidden="true"></i></a>-->
                                 <!--</div>-->
-                                <br>
-                                <section class="form-group row">
-                                    <section class="col-sm-4" style="padding: 0px">
+                                <!--<br>-->
+                                <div class="row">
+                                    <div class="col-sm-5" style="padding-right: 5px">
                                         <select class="options" name="Polyphen" id="{{prefix}}PolyphenValues" on-change="checkScore" class$="{{prefix}}FilterSelect form-control input-sm">
                                             <option value="score" selected>Score...</option>
                                             <option value="benign">Benign</option>
@@ -606,77 +604,81 @@
                                             <option value="possibly damaging,probably damaging">Possibly & Probably damaging
                                             </option>
                                         </select>
-                                    </section>
-                                    <section class="col-sm-3" style="padding-right: 0px">
-                                        <select name="polyphenOperator" id="{{prefix}}PolyphenOperator" on-change="updateQueryFilters" class$="{{prefix}}FilterSelect form-control input-sm" style="padding: 0px">
+                                    </div>
+                                    <div class="col-sm-3" style="padding: 0px 5px">
+                                        <select name="polyphenOperator" id="{{prefix}}PolyphenOperator" on-change="updateQueryFilters" class$="{{prefix}}FilterSelect form-control input-sm" style="padding: 0px 5px">
                                             <option value=">" selected>></option>
                                             <option value=">=">>=</option>
                                             <option value="<" ><</option>
                                             <option value="<="><=</option>
                                         </select>
-                                    </section>
-                                    <section class="col-sm-5" style="padding-right: 0px">
+                                    </div>
+                                    <div class="col-sm-4" style="padding-left: 5px">
                                         <input type="text" value="" class$="{{prefix}}FilterTextInput form-control input-sm"
                                                id="{{prefix}}PolyphenInput" name="Polyphen" on-keyup="updateQueryFilters">
-                                    </section>
-                                </section>
-                            <form>
-                                <label style="font-weight: normal;">Logical Operator</label>
-                                <input type="radio" name="pss" id="pssOrRadio" value="or" class$="{{prefix}}FilterRadio"
-                                       checked disabled on-change="updateQueryFilters" style="margin-left: 10px"> OR<br>
-                                <input type="radio" name="pss" id="pssAndRadio" value="and"
-                                       class$="{{prefix}}FilterRadio" disabled on-change="updateQueryFilters"
-                                       style="margin-left: 102px"> AND<br>
-                            </form>
-                            <br>
-                        </section>
+                                    </div>
+                                </div>
+
+                                <form style="padding-top: 15px">
+                                    <label style="font-weight: normal;">Logical Operator</label>
+                                    <input type="radio" name="pss" id="pssOrRadio" value="or" class$="{{prefix}}FilterRadio"
+                                           checked disabled on-change="updateQueryFilters" style="margin-left: 10px"> OR<br>
+                                    <input type="radio" name="pss" id="pssAndRadio" value="and"
+                                           class$="{{prefix}}FilterRadio" disabled on-change="updateQueryFilters"
+                                           style="margin-left: 102px"> AND<br>
+                                </form>
+                                <br>
+                            </div>
+
+
                             <div class="browser-subsection">CADD</div>
-                            <div class="block container-fluid" style="padding-top: 10px">
+                            <div style="padding-top: 10px">
 
-                                <section class="form-group row">
-                                    <span class="col-md-4 control-label">Raw</span>
-
-                                    <section class="col-md-3" style="padding-right: 0px">
+                                <div class="row">
+                                    <div class="col-md-5 form-group" style="padding-right: 5px">
+                                        <span class="control-label">Raw</span>
+                                    </div>
+                                    <div class="col-md-3" style="padding: 0px 5px">
                                         <select name="caddRawOperator" id="{{prefix}}CaddRawOperator"
-                                                on-change="updateQueryFilters" class$="{{prefix}}FilterSelect form-control input-sm" style="padding: 0px">
+                                                on-change="updateQueryFilters" class$="{{prefix}}FilterSelect form-control input-sm" style="padding: 0px 5px">
                                             <option value="<"><</option>
                                             <option value="<="><=</option>
                                             <option value=">" selected>></option>
                                             <option value=">=">>=</option>
                                         </select>
-                                    </section>
-                                    <section class="col-md-5" style="padding-right: 0px">
-                                        <input type="text" value=""
-                                               class$="{{prefix}}FilterTextInput form-control input-sm"
+                                    </div>
+                                    <div class="col-md-4" style="padding-left: 5px">
+                                        <input type="text" value="" class$="{{prefix}}FilterTextInput form-control input-sm"
                                                id="{{prefix}}CaddRawInput" name="caddRaw" on-keyup="updateQueryFilters">
-                                    </section>
-                                        <!--<div style="float: right" class="tooltip-div">-->
-                                            <!--<a data-toggle="tooltip"-->
-                                               <!--title="Raw values have relative meaning, with higher values indicating that a variant is more likely to be simulated (or not observed) and therefore more likely to have deleterious effects. If discovering causal variants within an individual, or small groups, of exomes or genomes te use of the scaled CADD score is recommended."><i-->
-                                                    <!--class="fa fa-info-circle" aria-hidden="true"></i></a>-->
-                                        <!--</div>-->
-                                </section>
+                                    </div>
+                                    <!--<div style="float: right" class="tooltip-div">-->
+                                    <!--<a data-toggle="tooltip"-->
+                                    <!--title="Raw values have relative meaning, with higher values indicating that a variant is more likely to be simulated (or not observed) and therefore more likely to have deleterious effects. If discovering causal variants within an individual, or small groups, of exomes or genomes te use of the scaled CADD score is recommended."><i-->
+                                    <!--class="fa fa-info-circle" aria-hidden="true"></i></a>-->
+                                    <!--</div>-->
+                                </div>
                             </div>
-                            <div class="block container-fluid">
-                                <div class="form-group row">
-                                    <span class="col-md-4 control-label">Scaled</span>
-                                    <section class="col-md-3" style="padding-right: 0px">
+
+                            <div style="padding-top: 10px">
+                                <div class="row">
+                                    <span class="col-md-5 control-label" style="padding-right: 5px">Scaled</span>
+                                    <div class="col-md-3" style="padding: 0px 5px">
                                         <select name="caddRScaledOperator" id="{{prefix}}CaddScaledOperator"
-                                                on-change="updateQueryFilters" class$="{{prefix}}FilterSelect form-control input-sm" style="padding: 0px">
+                                                on-change="updateQueryFilters" class$="{{prefix}}FilterSelect form-control input-sm" style="padding: 0px 5px">
                                             <option value="<" selected><</option>
                                             <option value="<="><=</option>
                                             <option value=">">></option>
                                             <option value=">=">>=</option>
                                         </select>
-                                    </section>
-                                    <section class="col-md-5" style="padding-right: 0px">
+                                    </div>
+                                    <div class="col-md-4" style="padding-left: 5px">
                                         <input type="text" value="" class$="{{prefix}}FilterTextInput form-control input-sm"
-                                           id="{{prefix}}CaddScaledInput" name="caddScaled" on-keyup="updateQueryFilters">
-                                    </section>
+                                               id="{{prefix}}CaddScaledInput" name="caddScaled" on-keyup="updateQueryFilters">
+                                    </div>
                                     <!--<div style="float: right" class="tooltip-div">-->
-                                        <!--<a data-toggle="tooltip"-->
-                                           <!--title="A scaled C-score of greater of equal 10 indicates that the substitution is predicted to be within the 10% most deleterious substitutions that you can do to the human genome, a score of greater or equal 20 indicates the 1% most deleterious and so on. If you would like to apply a cutoff on deleteriousness, it is suggested by the CADD authors to put a cutoff somewhere between 10 and 20. Maybe at 15, as this also happens to be the median value for all possible canonical splice site changes and non-synonymous variants"><i-->
-                                                <!--class="fa fa-info-circle" aria-hidden="true"></i></a>-->
+                                    <!--<a data-toggle="tooltip"-->
+                                    <!--title="A scaled C-score of greater of equal 10 indicates that the substitution is predicted to be within the 10% most deleterious substitutions that you can do to the human genome, a score of greater or equal 20 indicates the 1% most deleterious and so on. If you would like to apply a cutoff on deleteriousness, it is suggested by the CADD authors to put a cutoff somewhere between 10 and 20. Maybe at 15, as this also happens to be the median value for all possible canonical splice site changes and non-synonymous variants"><i-->
+                                    <!--class="fa fa-info-circle" aria-hidden="true"></i></a>-->
                                     <!--</div>-->
                                 </div>
                             </div>
@@ -697,75 +699,78 @@
                     <div id="{{prefix}}ConservationFilter" class="panel-collapse collapse" role="tabpanel"
                          aria-labelledby="{{prefix}}conservationFilterHeading">
                         <div class="panel-body">
-                            <div class="block container-fluid">
-                                <section class="form-group row">
-                                    <span class="col-md-4 control-label"> PhyloP</span>
-                                    <section class="col-md-3" style="padding-right: 0px">
-                                        <select name="phylopOperator" id="{{prefix}}PhylopOperator" on-change="updateQueryFilters" class$="{{prefix}}FilterSelect form-control input-sm" style="padding-right: 0px">
+                            <!--<div class="block container-fluid">-->
+                            <div style="padding-top: 10px">
+                                <div class="row">
+                                    <span class="col-md-5 control-label" style="padding-right: 5px"> PhyloP</span>
+                                    <div class="col-md-3" style="padding: 0px 5px">
+                                        <select name="phylopOperator" id="{{prefix}}PhylopOperator" on-change="updateQueryFilters" class$="{{prefix}}FilterSelect form-control input-sm" style="padding: 0px 5px">
                                             <option value="<"><</option>
                                             <option value="<="><=</option>
                                             <option value=">" selected>></option>
                                             <option value=">=">>=</option>
                                         </select>
-                                    </section>
-                                    <section class="col-md-5" style="padding-right: 0px">
+                                    </div>
+                                    <div class="col-md-4" style="padding-left: 5px">
                                         <input type="text" value="" class$="{{prefix}}FilterTextInput form-control input-sm"
                                                id="{{prefix}}PhylopInput" name="phylop" on-keyup="updateQueryFilters">
-                                    </section>
-                                </section>
-                                        <!--<div style="float: right" class="tooltip-div">-->
-                                            <!--<a data-toggle="tooltip"-->
-                                               <!--title="PhyloP scores measure evolutionary conservation at individual alignment sites. The scores are interpreted as follows compared to the evolution expected under neutral drift: positive scores (max 3.0) mean conserved positions and negative scores (min -14.0) indicate positive selection.  PhyloP scores are useful to evaluate signatures of selection at particular nucleotides or classes of nucleotides (e.g., third codon positions, or first positions of miRNA target sites)"><i-->
-                                                    <!--class="fa fa-info-circle" aria-hidden="true"></i></a>-->
-                                        <!--</div>-->
-                            </div>
-                            <div class="block container-fluid">
-                                <section class="form-group row">
-                                    <span class="col-md-4 control-label">PhastCons</span>
-                                    <section class="col-md-3" style="padding-right: 0px">
-                                    <select name="phastconsOperator" id="{{prefix}}PhastconsOperator"
-                                            on-change="updateQueryFilters" class$="{{prefix}}FilterSelect form-control input-sm" style="padding-right: 0px">
-                                        <option value="<" ><</option>
-                                        <option value="<="><=</option>
-                                        <option value=">" selected>></option>
-                                        <option value=">=">>=</option>
-                                    </select>
-                                    </section>
-                                    <section class="col-md-5" style="padding-right: 0px">
+                                    </div>
+                                </div>
+                                </div>
+                                <!--<div style="float: right" class="tooltip-div">-->
+                                <!--<a data-toggle="tooltip"-->
+                                <!--title="PhyloP scores measure evolutionary conservation at individual alignment sites. The scores are interpreted as follows compared to the evolution expected under neutral drift: positive scores (max 3.0) mean conserved positions and negative scores (min -14.0) indicate positive selection.  PhyloP scores are useful to evaluate signatures of selection at particular nucleotides or classes of nucleotides (e.g., third codon positions, or first positions of miRNA target sites)"><i-->
+                                <!--class="fa fa-info-circle" aria-hidden="true"></i></a>-->
+                                <!--</div>-->
+                            <!--</div>-->
+                            <!--<div class="block container-fluid">-->
+                            <div style="padding-top: 10px">
+                                <div class="row">
+                                    <span class="col-md-5 control-label" style="padding-right: 5px">PhastCons</span>
+                                    <div class="col-md-3" style="padding: 0px 5px">
+                                        <select name="phastconsOperator" id="{{prefix}}PhastconsOperator"
+                                                on-change="updateQueryFilters" class$="{{prefix}}FilterSelect form-control input-sm" style="padding: 0px 5px">
+                                            <option value="<" ><</option>
+                                            <option value="<="><=</option>
+                                            <option value=">" selected>></option>
+                                            <option value=">=">>=</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4" style="padding-left: 5px">
                                         <input type="text" value="" class$="{{prefix}}FilterTextInput form-control input-sm"
                                                id="{{prefix}}PhastconsInput" name="phastCons" on-keyup="updateQueryFilters">
                                         <!--<div style="float: right" class="tooltip-div">-->
-                                            <!--<a data-toggle="tooltip"-->
-                                               <!--title="PhastCons estimates the probability that each nucleotide belongs to a conserved element, based on the multiple alignment. The phastCons scores represent probabilities of negative selection and range between 0 (non-conserved) and 1 (highly conserved)."><i-->
-                                                    <!--class="fa fa-info-circle" aria-hidden="true"></i></a>-->
+                                        <!--<a data-toggle="tooltip"-->
+                                        <!--title="PhastCons estimates the probability that each nucleotide belongs to a conserved element, based on the multiple alignment. The phastCons scores represent probabilities of negative selection and range between 0 (non-conserved) and 1 (highly conserved)."><i-->
+                                        <!--class="fa fa-info-circle" aria-hidden="true"></i></a>-->
                                         <!--</div>-->
-                                    </section>
-                                </section>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="d-inline-block container-fluid">
-                                <section class="form-group row">
-                                    <span class="col-md-4 control-label">Gerp</span>
-                                    <section class="col-md-3" style="padding-right: 0px">
+                            <div style="padding-top: 10px">
+                                <div class="row">
+                                    <span class="col-md-5 control-label" style="padding-right: 5px">Gerp</span>
+                                    <div class="col-md-3" style="padding: 0px 5px">
                                         <select name="gerpOperator" id="{{prefix}}GerpOperator" on-change="updateQueryFilters"
-                                                class$="{{prefix}}FilterSelect form-control input-sm" style="padding-right: 0px">
+                                                class$="{{prefix}}FilterSelect form-control input-sm" style="padding: 0px 5px">
                                             <option value="<"><</option>
                                             <option value="<="><=</option>
                                             <option value=">" selected>></option>
                                             <option value=">=">>=</option>
                                         </select>
-                                    </section>
-                                    <section class="col-md-5" style="padding-right: 0px">
+                                    </div>
+                                    <div class="col-md-4" style="padding-left: 5px">
                                         <input type="text" value="" class$="{{prefix}}FilterTextInput form-control input-sm"
                                                id="{{prefix}}GerpInput" name="gerp" on-keyup="updateQueryFilters">
                                         <!--<div style="float: right" class="tooltip-div">-->
-                                            <!--<a data-toggle="tooltip"-->
-                                               <!--title="Genomic Evolutionary Rate Profiling (GERP) score estimate the level of conservation of positions . Scores ≥ 2 indicate evolutionary constraint to and ≥ 3 indicate purifying selection."><i-->
-                                                    <!--class="fa fa-info-circle" aria-hidden="true"></i></a>-->
+                                        <!--<a data-toggle="tooltip"-->
+                                        <!--title="Genomic Evolutionary Rate Profiling (GERP) score estimate the level of conservation of positions . Scores ≥ 2 indicate evolutionary constraint to and ≥ 3 indicate purifying selection."><i-->
+                                        <!--class="fa fa-info-circle" aria-hidden="true"></i></a>-->
                                         <!--</div>-->
-                                    </section>
-                                </section>
+                                    </div>
+                                </div>
 
-                                <form>
+                                <form style="padding-top: 15px">
                                     <label style="font-weight: normal;">Logical Operator</label>
                                     <input type="radio" name="conservation" id="conservationOrRadio" value="or"
                                            class$="{{prefix}}FilterRadio" checked disabled on-change="updateQueryFilters" style="margin-left: 10px"> OR<br>
@@ -782,59 +787,56 @@
                     <div class="panel-heading" role="tab" id="{{prefix}}ConsequenceTypeHeading">
                         <h4 class="panel-title">
                             <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                               href="#{{prefix}}ConsequenceType" aria-expanded="false"
-                               aria-controls="{{prefix}}ConsequenceType">
+                               href="#{{prefix}}ConsequenceType" aria-expanded="false" aria-controls="{{prefix}}ConsequenceType">
                                 Consequence Type
                                 <!--<div style="float: right" class="tooltip-div">-->
-                                    <!--<a data-toggle="tooltip" title="Only considers variants falling in the specified gene regions and with the specified effect, as defined by the consequence types">-->
-                                        <!--<i class="fa fa-info-circle" aria-hidden="true"></i>-->
-                                    <!--</a>-->
+                                <!--<a data-toggle="tooltip" title="Only considers variants falling in the specified gene regions and with the specified effect, as defined by the consequence types">-->
+                                <!--<i class="fa fa-info-circle" aria-hidden="true"></i>-->
+                                <!--</a>-->
                                 <!--</div>-->
                             </a>
                         </h4>
                     </div>
-                    <div id="{{prefix}}ConsequenceType" class="panel-collapse collapse" role="tabpanel"
-                         aria-labelledby="{{prefix}}consequenceTypeHeading">
+                    <div id="{{prefix}}ConsequenceType" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}consequenceTypeHeading">
                         <div class="panel-body browser-ct-scroll">
                             <div class="form-group">
-                                <span class="browser-subsection">Select Loss-of-Function terms</span>
-                                <br>
+                                <div class="browser-subsection">Loss-of-Function (LoF) terms</div>
                                 <div class="form-check" style="margin-top: 5px;">
-                                    <label class="form-check-label notbold">
-                                        <input id="{{prefix}}LossOfFunctionCheckBox" type="checkbox"
-                                               on-change="updateConsequenceTypeFilter" class$="{{prefix}}FilterCheckBox form-check-input">
-                                        LoF terms
-                                    </label>
+                                    <div class="form-check-label">
+
+                                        <label id="{{prefix}}LossOfFunctionCheckBoxLabel" class="notbold">
+                                            <input id="{{prefix}}LossOfFunctionCheckBox" type="checkbox"
+                                                   class$="{{prefix}}FilterCheckBox form-check-input" on-change="updateConsequenceTypeFilter">
+                                            LoF terms</label>
+                                    </div>
                                 </div>
                             </div>
 
                             <div class="form-group">
-                                <span class="browser-subsection">Select consequence type terms</span>
+                                <div class="browser-subsection">Consequence Type terms</div>
+
                                 <div class="browser-ct-tree-view browser-ct-item">
                                     <ul id="{{prefix}}consequenceTypeFilter">
                                         <template is="dom-repeat" items="{{consequenceTypes.categories}}" as="category">
-                                            <li id="{{category.title}}">
+                                            <li id="{{category.title}}" class="form-check" style="margin-top: 10px;">
                                                 <!--First check if there is a title for that category-->
                                                 <template is="dom-if" if="{{checkTitle(category)}}">
                                                     <!--If it is a category, only title is shown as it doesn't have any SO term associated with it-->
                                                     <template is="dom-if" if="{{category.isCategory}}">
-                                                        <div class="form-check" style="margin-top: 10px;">
-                                                            <label class="form-check-label notbold">
-                                                                <input type="checkbox" on-change="updateConsequenceTypeFilter"
-                                                                       class$="{{prefix}}FilterCheckBox"> {{category.title}}
-                                                            </label>
-                                                        </div>
+                                                        <label class="form-check-label notbold">
+                                                            <input type="checkbox" on-change="updateConsequenceTypeFilter"
+                                                                   class$="{{prefix}}FilterCheckBox"> {{category.title}}
+                                                        </label>
                                                     </template>
                                                     <!--If it is not a category, SO terms should be shown along with its actual title-->
                                                     <template is="dom-if" if="{{!category.isCategory}}">
-
-                                                                <input type="checkbox" on-change="updateConsequenceTypeFilter"
-                                                                       data-id="{{category.name}}"
-                                                                       class$="soTermCheckBox {{prefix}}FilterCheckBox">
-                                                                <span title="{{item.description}}">
+                                                        <input type="checkbox" on-change="updateConsequenceTypeFilter"
+                                                               data-id="{{category.name}}"
+                                                               class$="soTermCheckBox {{prefix}}FilterCheckBox">
+                                                        <span title="{{item.description}}">
                                                                 {{category.title}} (<a
-                                                                        href="http://www.sequenceontology.org/browser/current_svn/term/{{category.id}}"
-                                                                        target="_blank">{{category.id}}</a>)</span>
+                                                                href="http://www.sequenceontology.org/browser/current_svn/term/{{category.id}}"
+                                                                target="_blank">{{category.id}}</a>)</span>
 
                                                     </template>
                                                 </template>
@@ -844,8 +846,8 @@
                                                     <template is="dom-if" if="{{category.isCategory}}">
                                                         <div class="form-check" style="margin-top: 10px;">
                                                             <label class="form-check-label notbold">
-                                                            <input type="checkbox" on-change="updateConsequenceTypeFilter"
-                                                                   class$="{{prefix}}FilterCheckBox"> {{category.name}}
+                                                                <input type="checkbox" on-change="updateConsequenceTypeFilter"
+                                                                       class$="{{prefix}}FilterCheckBox"> {{category.name}}
                                                             </label>
                                                         </div>
                                                     </template>
@@ -853,15 +855,15 @@
                                                     <template is="dom-if" if="{{!category.isCategory}}">
                                                         <div class="form-check" style="margin-top: 10px;">
                                                             <label class="form-check-label notbold">
-                                                        <input type="checkbox" on-change="updateConsequenceTypeFilter"
-                                                               data-id="{{category.name}}"
-                                                               class$="soTermCheckBox {{prefix}}FilterCheckBox">
-                                                        <span title="{{item.description}}">
+                                                                <input type="checkbox" on-change="updateConsequenceTypeFilter"
+                                                                       data-id="{{category.name}}"
+                                                                       class$="soTermCheckBox {{prefix}}FilterCheckBox">
+                                                                <span title="{{item.description}}">
                                                         {{category.name}} (<a
-                                                                href="http://www.sequenceontology.org/browser/current_svn/term/{{category.id}}"
-                                                                target="_blank">{{category.id}}</a>)</span>
-                                                                </label>
-                                                            </div>
+                                                                        href="http://www.sequenceontology.org/browser/current_svn/term/{{category.id}}"
+                                                                        target="_blank">{{category.id}}</a>)</span>
+                                                            </label>
+                                                        </div>
                                                     </template>
                                                 </template>
                                                 <ul>
@@ -869,11 +871,11 @@
                                                         <li class="form-check">
                                                             <label class="form-check-label notbold">
                                                                 <input type="checkbox" data-id="{{item.name}}" on-change="updateConsequenceTypeFilter"
-                                                               class$="soTermCheckBox {{prefix}}FilterCheckBox">
+                                                                       class$="soTermCheckBox {{prefix}}FilterCheckBox">
                                                                 <span title="{{item.description}}">
                                                                 {{item.name}} (<a
-                                                                href="http://www.sequenceontology.org/browser/current_svn/term/{{item.id}}"
-                                                                target="_blank">{{item.id}}</a>)
+                                                                        href="http://www.sequenceontology.org/browser/current_svn/term/{{item.id}}"
+                                                                        target="_blank">{{item.id}}</a>)
                                                                 </span>
                                                             </label>
                                                         </li>
@@ -966,49 +968,49 @@
 
         <!-- Modal dialog for Sample Browser in prioritization-->
         <!--<div class="modal fade" id="{{prefix}}SampleBrowser" tabindex="-1" role="dialog"-->
-             <!--aria-labelledby="sampleBrowserLabel">-->
-            <!--<div class="modal-dialog modal-lg" role="document" style="width: 1440px;">-->
-                <!--<div class="modal-content">-->
-                    <!--<div class="modal-header">-->
-                        <!--<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span-->
-                                <!--aria-hidden="true">&times;</span></button>-->
-                        <!--<h4 class="modal-title" id="{{prefix}}SampleBrowserLabel">Family Selector</h4>-->
-                    <!--</div>-->
-                    <!--<div class="modal-body" style="height: 680px">-->
-                        <!--&lt;!&ndash;<opencga-family-selector opencga-client="{{opencgaClient}}" study-id="{{study.id}}" samples="{{samples}}" prefix="{{prefix}}"></opencga-family-selector>&ndash;&gt;-->
-                        <!--<variant-sample-selector opencga-client="{{opencgaClient}}" project="{{project}}" study="{{study}}"-->
-                                                 <!--mode="{{analysisType}}" samples="{{samples}}" on-familychange="onFamilyChange">-->
-                        <!--</variant-sample-selector>-->
-                    <!--</div>-->
-                    <!--<div class="modal-footer">-->
-                        <!--<button type="button" class="btn btn-primary" data-dismiss="modal" on-click="closeModalSample">-->
-                            <!--OK-->
-                        <!--</button>-->
-                    <!--</div>-->
-                <!--</div>-->
-            <!--</div>-->
+        <!--aria-labelledby="sampleBrowserLabel">-->
+        <!--<div class="modal-dialog modal-lg" role="document" style="width: 1440px;">-->
+        <!--<div class="modal-content">-->
+        <!--<div class="modal-header">-->
+        <!--<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span-->
+        <!--aria-hidden="true">&times;</span></button>-->
+        <!--<h4 class="modal-title" id="{{prefix}}SampleBrowserLabel">Family Selector</h4>-->
+        <!--</div>-->
+        <!--<div class="modal-body" style="height: 680px">-->
+        <!--&lt;!&ndash;<opencga-family-selector opencga-client="{{opencgaClient}}" study-id="{{study.id}}" samples="{{samples}}" prefix="{{prefix}}"></opencga-family-selector>&ndash;&gt;-->
+        <!--<variant-sample-selector opencga-client="{{opencgaClient}}" project="{{project}}" study="{{study}}"-->
+        <!--mode="{{analysisType}}" samples="{{samples}}" on-familychange="onFamilyChange">-->
+        <!--</variant-sample-selector>-->
+        <!--</div>-->
+        <!--<div class="modal-footer">-->
+        <!--<button type="button" class="btn btn-primary" data-dismiss="modal" on-click="closeModalSample">-->
+        <!--OK-->
+        <!--</button>-->
+        <!--</div>-->
+        <!--</div>-->
+        <!--</div>-->
         <!--</div>-->
 
         <!--Modal dialog for Analysis Browser-->
         <!--<div class="modal fade" id="{{prefix}}AnalysisBrowser" tabindex="-1" role="dialog"-->
-             <!--aria-labelledby="sampleBrowserLabel">-->
-            <!--<div class="modal-dialog modal-lg" role="document" style="width: 1280px;">-->
-                <!--<div class="modal-content">-->
-                    <!--<div class="modal-header">-->
-                        <!--<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span-->
-                                <!--aria-hidden="true">&times;</span></button>-->
-                        <!--<h4 class="modal-title" id="{{prefix}}AnalysisBrowserLabel">Analysis Selector</h4>-->
-                    <!--</div>-->
-                    <!--<div class="modal-body" style="height: 780px">-->
-                        <!--<variant-clinical-selector opencga-client="{{opencgaClient}}" analysis-selected="{{analysisSelected}}" analysis-modal="{{analysisModal}}" study="{{study}}" show-pedigree="{{showPedigree}}"></variant-clinical-selector>-->
-                    <!--</div>-->
-                    <!--<div class="modal-footer">-->
-                        <!--<button type="button" class="btn btn-primary" data-dismiss="modal" on-click="showSegregation">-->
-                            <!--OK-->
-                        <!--</button>-->
-                    <!--</div>-->
-                <!--</div>-->
-            <!--</div>-->
+        <!--aria-labelledby="sampleBrowserLabel">-->
+        <!--<div class="modal-dialog modal-lg" role="document" style="width: 1280px;">-->
+        <!--<div class="modal-content">-->
+        <!--<div class="modal-header">-->
+        <!--<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span-->
+        <!--aria-hidden="true">&times;</span></button>-->
+        <!--<h4 class="modal-title" id="{{prefix}}AnalysisBrowserLabel">Analysis Selector</h4>-->
+        <!--</div>-->
+        <!--<div class="modal-body" style="height: 780px">-->
+        <!--<variant-clinical-selector opencga-client="{{opencgaClient}}" analysis-selected="{{analysisSelected}}" analysis-modal="{{analysisModal}}" study="{{study}}" show-pedigree="{{showPedigree}}"></variant-clinical-selector>-->
+        <!--</div>-->
+        <!--<div class="modal-footer">-->
+        <!--<button type="button" class="btn btn-primary" data-dismiss="modal" on-click="showSegregation">-->
+        <!--OK-->
+        <!--</button>-->
+        <!--</div>-->
+        <!--</div>-->
+        <!--</div>-->
         <!--</div>-->
     </template>
 
@@ -1303,8 +1305,8 @@
                 }
 
                 // Select/Unselect the items from one category
-                if (e.target.parentNode.id !== "") {
-                    $("#" + e.target.parentNode.id).children('ul').children('li').children('input').prop("checked", e.target.checked);
+                if (e.target.parentNode.parentNode.id !== "") {
+                    $("#" + e.target.parentNode.parentNode.id).children('ul').children('li').children('label').children('input').prop("checked", e.target.checked);
                 }
 //                let selected = $('.soTermCheckBox');
                 let soTerms = [];

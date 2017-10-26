@@ -717,6 +717,7 @@
             }
             _refreshTableColumns() {
                 this.cols = this._createDefaultColumns();
+
                 if (typeof this.cols !== "undefined" && typeof this.cohorts !== "undefined" && Object.keys(this.cohorts).length > 0) {
                     let cohortIdx = 6;
                     let cohortStudies = Object.keys(this.cohorts);
