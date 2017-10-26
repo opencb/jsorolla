@@ -133,12 +133,12 @@
                                                     </option>
                                                 </template>
                                                 <template is="dom-if" if="{{!isSelectedParent(0, sampleFather.id, sample.id)}}">
-                                                    <template is="dom-if" if="{{isDisabledParent(sampleFather.id, sample.id)}}">
+                                                    <template is="dom-if" if="{{isDisabledParent(0, sampleFather.id, sample.id)}}">
                                                         <option disabled value="{{sampleFather.id}}">
                                                             {{sampleFather.name}}
                                                         </option>
                                                     </template>
-                                                    <template is="dom-if" if="{{!isDisabledParent(sampleFather.id, sample.id)}}">
+                                                    <template is="dom-if" if="{{!isDisabledParent(0, sampleFather.id, sample.id)}}">
                                                         <option value="{{sampleFather.id}}">
                                                             {{sampleFather.name}}
                                                         </option>
@@ -166,12 +166,12 @@
                                                     </option>
                                                 </template>
                                                 <template is="dom-if" if="{{!isSelectedParent(1, sampleMother.id, sample.id)}}">
-                                                    <template is="dom-if" if="{{isDisabledParent(sampleMother.id, sample.id)}}">
+                                                    <template is="dom-if" if="{{isDisabledParent(1, sampleMother.id, sample.id)}}">
                                                         <option disabled value="{{sampleMother.id}}">
                                                             {{sampleMother.name}}
                                                         </option>
                                                     </template>
-                                                    <template is="dom-if" if="{{!isDisabledParent(sampleMother.id, sample.id)}}">
+                                                    <template is="dom-if" if="{{!isDisabledParent(1, sampleMother.id, sample.id)}}">
                                                         <option value="{{sampleMother.id}}">
                                                             {{sampleMother.name}}
                                                         </option>
@@ -449,14 +449,15 @@
                 return parentSelected;
             }
 
-            isDisabledParent(sampleParentId, sampleId) {
+            isDisabledParent(isMother, sampleParentId, sampleId) {
                 let sampleSelected = this.findSample(sampleId);
                 let sampleCurrentParent = this.findSample(sampleParentId);
                 let parentSelected = false;
 
+                let gender = isMother ? "FEMALE" : "MALE";
                 if(UtilsNew.isNotUndefinedOrNull(sampleSelected) && UtilsNew.isNotUndefinedOrNull(sampleCurrentParent) &&
                     UtilsNew.isNotUndefinedOrNull(sampleCurrentParent.individual) && UtilsNew.isNotUndefinedOrNull(sampleCurrentParent.individual.name)) {
-                        parentSelected = sampleSelected.id === sampleCurrentParent.id;
+                        parentSelected = sampleSelected.id === sampleCurrentParent.id || sampleCurrentParent.individual.sex === gender;
                 }
                 return parentSelected;
             }
