@@ -120,12 +120,6 @@
                         type: Boolean,
                         value: false
                     },
-                    summary: {
-                        type: Boolean
-                    },
-                    config: {
-                        type: Object
-                    },
                     variant: {
                         type: String,
                         notify: true
@@ -133,6 +127,9 @@
                     showSelect: {
                         type: Boolean,
                         value: false
+                    },
+                    config: {
+                        type: Object
                     }
                 }
             }
@@ -145,6 +142,7 @@
                 super.ready();
 
                 this.analysisMode = "family";
+                this._summary = true;
             }
 
             connectedCallback() {
@@ -221,7 +219,7 @@
                         },
                         responseHandler: function (res) {
                             if (_numTotal === -1) {
-                                if (_this.summary
+                                if (_this._summary
                                     || (typeof _this.query !== 'undefined' && typeof _this.query.gene !== 'undefined' && _this.query.gene !== "")) {
                                     _numTotal = res.response[0].numTotalResults;
 //                                    _numTotal = 1150;
@@ -361,7 +359,7 @@
                 let queryParams = {
                     sid: this.opencgaClient._config.sessionId,
                     timeout: 60000,
-                    summary: this.summary,
+                    summary: this._summary,
 //                    count: true
                 };
 
@@ -719,7 +717,7 @@
             }
             _refreshTableColumns() {
                 this.cols = this._createDefaultColumns();
-
+debugger
                 if (typeof this.cols !== "undefined" && typeof this.cohorts !== "undefined" && Object.keys(this.cohorts).length > 0) {
                     let cohortIdx = 6;
                     let cohortStudies = Object.keys(this.cohorts);

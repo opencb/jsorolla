@@ -36,8 +36,8 @@
                     <i class="fa fa-search" aria-hidden="true"></i>&nbsp;{{title}}
                 </h3>
             </div>
-            <div class="row">
 
+            <!--<div class="row">-->
                 <div id="{{prefix}}FilterMenu" class="col-md-2">
                     <variant-browser-filter study="{{study}}" project="{{project}}" studies="{{studies}}"
                                             cohorts="{{cohorts}}" biotypes={{biotypes}} config="{{config}}"
@@ -57,10 +57,10 @@
                                           consequence-types="{{consequenceTypes}}" beacon-hosts="{{beaconHosts}}"
                                           query="{{query}}" search="[[search]]"
                                           on-propagate="propagateGeneEvent" config="{{config}}" on-clear="onClear"
-                                          on-filterchange="onFilterChange" summary="{{summary}}" full-screen="{{_collapsed}}">
+                                          on-filterchange="onFilterChange" full-screen="{{_collapsed}}">
                     </variant-browser-view>
                 </div>
-            </div>
+            <!--</div>-->
         </template>
 
 
@@ -84,9 +84,6 @@
 
             static get properties() {
                 return {
-                    host: {
-                        type: String
-                    },
                     project: {
                         type: Object
                     },
@@ -97,12 +94,12 @@
                     studies: {
                         type: Array
                     },
+                    samples: {
+                        type: Array
+                    },
                     title: {
                         type: String,
-                        value: ""
-                    },
-                    config: {
-                        type: Object
+                        value: "Variant Browser"
                     },
                     opencgaClient: {
                         type: Object
@@ -129,15 +126,15 @@
                         type: Object,
                         observer: 'renderHashQueryParams'
                     },
-                    summary: {
-                        type: Boolean
-                    },
                     biotypes: {
                         type: Array
                     },
                     checkPermissions: {
                         type: Boolean,
                         computed: '_checkPermissions(project)'
+                    },
+                    config: {
+                        type: Object
                     }
                 }
             }

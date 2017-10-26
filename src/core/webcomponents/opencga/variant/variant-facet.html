@@ -34,7 +34,7 @@
                                         opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
                                         population-frequencies="{{populationFrequencies}}"
                                         consequence-types="{{consequenceTypes}}"
-                                        query="{{query}}" search="{{search}}" style="font-size: 12px">
+                                        query="{{query}}" search="{{search}}" config="{{config}}" style="font-size: 12px">
                 </variant-browser-filter>
             </div>
 
@@ -57,6 +57,10 @@
 
         class VariantFacet extends Polymer.Element {
 
+            constructor() {
+                super();
+            }
+
             static get is() {
                 return 'variant-facet';
             }
@@ -74,10 +78,7 @@
                     },
                     title: {
                         type: String,
-                        value: ""
-                    },
-                    config: {
-                        type: Object
+                        value: "Facet Analysis"
                     },
                     opencgaClient: {
                         type: Object
@@ -103,13 +104,13 @@
                     checkPermissions: {
                         type: Boolean,
                         computed: '_checkPermissions(project)'
+                    },
+                    config: {
+                        type: Object
                     }
                 }
             }
 
-            constructor() {
-                super();
-            }
 
             _attachDom(dom) {
                 this.appendChild(dom);
@@ -117,6 +118,13 @@
 
             ready() {
                 super.ready();
+
+                // At the moment we do not support Study accordion in facets, we disable all of them.
+                this.config.filter.study.samples.visibility = "none";
+                this.config.filter.study.cohorts.visibility = "none";
+                this.config.filter.study.scores.visibility = "none";
+                this.config.filter.study.studies.visibility = "none";
+                this.config.filter.study.clinicalData.visibility = "none";
             }
 
             onClear() {

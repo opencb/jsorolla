@@ -410,8 +410,7 @@
                                     <div style="padding-top: 5px">
                                         <textarea id="{{prefix}}PanelAppsTextarea" name="panelAppsTextarea"
                                                   class$="form-control clearable {{prefix}}FilterTextInput"
-                                                  rows="3" placeholder="No panel selected" on-keyup="updateQueryFilters">
-                                        </textarea>
+                                                  rows="3" placeholder="No panel selected" on-keyup="updateQueryFilters"></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -1832,7 +1831,6 @@
                 if (UtilsNew.isNotEmpty(inputTextArea.value)) {
                     _filters["traits"] = inputTextArea.value;
                 }
-
 
                 // To prevent to call setQueryFilters we set this to false
                 this._reset = false;
