@@ -624,8 +624,9 @@
 
             _updateFamily() {
                 // Updating family in parents sending an event.
+                let _this = this;
                 this.dispatchEvent(new CustomEvent('familychange', {
-                    detail: this.family,
+                    detail: { _family: _this.family, _samples: _this.samples},
                     bubbles: true,
                     composed: true
                 }));
