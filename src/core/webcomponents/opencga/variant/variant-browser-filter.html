@@ -368,7 +368,7 @@
                             </div>
 
                             <div class="form-group">
-                                <div class="browser-subsection">Feature IDs (gene, transcript, SNP, ...)
+                                <div class="browser-subsection">Feature IDs (gene, SNP, ...)
                                     <div style="float: right" class="tooltip-div">
                                         <a data-toggle="tooltip" title="Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined">
                                             <i class="fa fa-info-circle" aria-hidden="true"></i>
@@ -784,8 +784,7 @@
                     <div class="panel-heading" role="tab" id="{{prefix}}ConsequenceTypeHeading">
                         <h4 class="panel-title">
                             <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                               href="#{{prefix}}ConsequenceType" aria-expanded="false"
-                               aria-controls="{{prefix}}ConsequenceType">
+                               href="#{{prefix}}ConsequenceType" aria-expanded="false" aria-controls="{{prefix}}ConsequenceType">
                                 Consequence Type
                                 <!--<div style="float: right" class="tooltip-div">-->
                                 <!--<a data-toggle="tooltip" title="Only considers variants falling in the specified gene regions and with the specified effect, as defined by the consequence types">-->
@@ -798,19 +797,21 @@
                     <div id="{{prefix}}ConsequenceType" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}consequenceTypeHeading">
                         <div class="panel-body browser-ct-scroll">
                             <div class="form-group">
-                                <span class="browser-subsection">Select Loss-of-Function terms</span>
-                                <br>
+                                <div class="browser-subsection">Loss-of-Function (LoF) terms</div>
                                 <div class="form-check" style="margin-top: 5px;">
-                                    <label class="form-check-label">
-                                        <input id="{{prefix}}LossOfFunctionCheckBox" type="checkbox"
-                                               on-change="updateConsequenceTypeFilter" class$="{{prefix}}FilterCheckBox form-check-input">
-                                        LoF terms
-                                    </label>
+                                    <div class="form-check-label">
+
+                                        <label id="{{prefix}}LossOfFunctionCheckBoxLabel" class="notbold">
+                                            <input id="{{prefix}}LossOfFunctionCheckBox" type="checkbox"
+                                                   class$="{{prefix}}FilterCheckBox form-check-input" on-change="updateConsequenceTypeFilter">
+                                            LoF terms</label>
+                                    </div>
                                 </div>
                             </div>
 
                             <div class="form-group">
-                                <span class="browser-subsection">Select consequence type terms</span>
+                                <div class="browser-subsection">Consequence Type terms</div>
+
                                 <div class="browser-ct-tree-view browser-ct-item">
                                     <ul id="{{prefix}}consequenceTypeFilter">
                                         <template is="dom-repeat" items="{{consequenceTypes.categories}}" as="category">
@@ -828,7 +829,6 @@
                                                     </template>
                                                     <!--If it is not a category, SO terms should be shown along with its actual title-->
                                                     <template is="dom-if" if="{{!category.isCategory}}">
-
                                                         <input type="checkbox" on-change="updateConsequenceTypeFilter"
                                                                data-id="{{category.name}}"
                                                                class$="soTermCheckBox {{prefix}}FilterCheckBox">
