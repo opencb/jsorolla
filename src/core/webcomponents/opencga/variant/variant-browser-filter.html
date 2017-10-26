@@ -140,20 +140,26 @@
                                             <div style="margin: 10px 5px">
                                                 <span>Select Sample:</span>
 
-                                                <div class="form-inline">
-                                                    <div class="form-group">
-                                                        <input id="{{prefix}}AutocompleteSampleSearchInput" type="text" class="form-control" placeholder="Search for Sample Name"
+                                                <!--<div class="form-inline">-->
+                                                <!--<div class="form-group">-->
+                                                <div class="row">
+                                                    <div class="col-md-9">
+                                                        <input id="{{prefix}}AutocompleteSampleSearchInput" type="text" class="form-control" placeholder="Search name..."
                                                                list$="{{prefix}}AutocompleteSampleSearchDataList" on-keyup="_autocompleteSampleSearch">
                                                         <datalist id="{{prefix}}AutocompleteSampleSearchDataList">
                                                             <template is="dom-repeat" items="{{autocompleteSampleData}}">
                                                                 <option id="{{prefix}}Sample{{item.name}}" value="{{item.name}}" data-sample="{{item}}">
                                                             </template>
                                                         </datalist>
+                                                    </div>
+                                                    <div class="col-md-3">
                                                         <button type="button" class="btn btn-default btn-sm form-control" on-click="onSampleChange">
                                                             <i class="fa fa-plus"></i>
                                                         </button>
                                                     </div>
                                                 </div>
+                                                <!--</div>-->
+                                                <!--</div>-->
                                             </div>
                                         </template>
 
