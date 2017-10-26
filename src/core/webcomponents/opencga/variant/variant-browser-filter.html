@@ -571,7 +571,7 @@
                                         </select>
                                     </div>
                                     <div class="col-md-3" style="padding: 0px 5px">
-                                        <select name="siftOperator" id="{{prefix}}SiftOperator" on-change="updateQueryFilters" class$="{{prefix}}FilterSelect form-control input-sm">
+                                        <select name="siftOperator" id="{{prefix}}SiftOperator" on-change="updateQueryFilters" class$="{{prefix}}FilterSelect form-control input-sm" style="padding: 0px 5px">
                                             <option value="<"><</option>
                                             <option value="<="><=</option>
                                             <option value=">"selected>></option>
@@ -606,7 +606,7 @@
                                         </select>
                                     </div>
                                     <div class="col-sm-3" style="padding: 0px 5px">
-                                        <select name="polyphenOperator" id="{{prefix}}PolyphenOperator" on-change="updateQueryFilters" class$="{{prefix}}FilterSelect form-control input-sm">
+                                        <select name="polyphenOperator" id="{{prefix}}PolyphenOperator" on-change="updateQueryFilters" class$="{{prefix}}FilterSelect form-control input-sm" style="padding: 0px 5px">
                                             <option value=">" selected>></option>
                                             <option value=">=">>=</option>
                                             <option value="<" ><</option>
@@ -640,7 +640,7 @@
                                     </div>
                                     <div class="col-md-3" style="padding: 0px 5px">
                                         <select name="caddRawOperator" id="{{prefix}}CaddRawOperator"
-                                                on-change="updateQueryFilters" class$="{{prefix}}FilterSelect form-control input-sm">
+                                                on-change="updateQueryFilters" class$="{{prefix}}FilterSelect form-control input-sm" style="padding: 0px 5px">
                                             <option value="<"><</option>
                                             <option value="<="><=</option>
                                             <option value=">" selected>></option>
@@ -664,7 +664,7 @@
                                     <span class="col-md-5 control-label" style="padding-right: 5px">Scaled</span>
                                     <div class="col-md-3" style="padding: 0px 5px">
                                         <select name="caddRScaledOperator" id="{{prefix}}CaddScaledOperator"
-                                                on-change="updateQueryFilters" class$="{{prefix}}FilterSelect form-control input-sm">
+                                                on-change="updateQueryFilters" class$="{{prefix}}FilterSelect form-control input-sm" style="padding: 0px 5px">
                                             <option value="<" selected><</option>
                                             <option value="<="><=</option>
                                             <option value=">">></option>
@@ -699,41 +699,44 @@
                     <div id="{{prefix}}ConservationFilter" class="panel-collapse collapse" role="tabpanel"
                          aria-labelledby="{{prefix}}conservationFilterHeading">
                         <div class="panel-body">
-                            <div class="block container-fluid">
-                                <section class="form-group row">
-                                    <span class="col-md-4 control-label"> PhyloP</span>
-                                    <section class="col-md-3" style="padding-right: 0px">
-                                        <select name="phylopOperator" id="{{prefix}}PhylopOperator" on-change="updateQueryFilters" class$="{{prefix}}FilterSelect form-control input-sm" style="padding-right: 0px">
+                            <!--<div class="block container-fluid">-->
+                            <div style="padding-top: 10px">
+                                <div class="row">
+                                    <span class="col-md-5 control-label" style="padding-right: 5px"> PhyloP</span>
+                                    <div class="col-md-3" style="padding: 0px 5px">
+                                        <select name="phylopOperator" id="{{prefix}}PhylopOperator" on-change="updateQueryFilters" class$="{{prefix}}FilterSelect form-control input-sm" style="padding: 0px 5px">
                                             <option value="<"><</option>
                                             <option value="<="><=</option>
                                             <option value=">" selected>></option>
                                             <option value=">=">>=</option>
                                         </select>
-                                    </section>
-                                    <section class="col-md-5" style="padding-right: 0px">
+                                    </div>
+                                    <div class="col-md-4" style="padding-left: 5px">
                                         <input type="text" value="" class$="{{prefix}}FilterTextInput form-control input-sm"
                                                id="{{prefix}}PhylopInput" name="phylop" on-keyup="updateQueryFilters">
-                                    </section>
-                                </section>
+                                    </div>
+                                </div>
+                                </div>
                                 <!--<div style="float: right" class="tooltip-div">-->
                                 <!--<a data-toggle="tooltip"-->
                                 <!--title="PhyloP scores measure evolutionary conservation at individual alignment sites. The scores are interpreted as follows compared to the evolution expected under neutral drift: positive scores (max 3.0) mean conserved positions and negative scores (min -14.0) indicate positive selection.  PhyloP scores are useful to evaluate signatures of selection at particular nucleotides or classes of nucleotides (e.g., third codon positions, or first positions of miRNA target sites)"><i-->
                                 <!--class="fa fa-info-circle" aria-hidden="true"></i></a>-->
                                 <!--</div>-->
-                            </div>
-                            <div class="block container-fluid">
-                                <section class="form-group row">
-                                    <span class="col-md-4 control-label">PhastCons</span>
-                                    <section class="col-md-3" style="padding-right: 0px">
+                            <!--</div>-->
+                            <!--<div class="block container-fluid">-->
+                            <div style="padding-top: 10px">
+                                <div class="row">
+                                    <span class="col-md-5 control-label" style="padding-right: 5px">PhastCons</span>
+                                    <div class="col-md-3" style="padding: 0px 5px">
                                         <select name="phastconsOperator" id="{{prefix}}PhastconsOperator"
-                                                on-change="updateQueryFilters" class$="{{prefix}}FilterSelect form-control input-sm" style="padding-right: 0px">
+                                                on-change="updateQueryFilters" class$="{{prefix}}FilterSelect form-control input-sm" style="padding: 0px 5px">
                                             <option value="<" ><</option>
                                             <option value="<="><=</option>
                                             <option value=">" selected>></option>
                                             <option value=">=">>=</option>
                                         </select>
-                                    </section>
-                                    <section class="col-md-5" style="padding-right: 0px">
+                                    </div>
+                                    <div class="col-md-4" style="padding-left: 5px">
                                         <input type="text" value="" class$="{{prefix}}FilterTextInput form-control input-sm"
                                                id="{{prefix}}PhastconsInput" name="phastCons" on-keyup="updateQueryFilters">
                                         <!--<div style="float: right" class="tooltip-div">-->
@@ -741,22 +744,22 @@
                                         <!--title="PhastCons estimates the probability that each nucleotide belongs to a conserved element, based on the multiple alignment. The phastCons scores represent probabilities of negative selection and range between 0 (non-conserved) and 1 (highly conserved)."><i-->
                                         <!--class="fa fa-info-circle" aria-hidden="true"></i></a>-->
                                         <!--</div>-->
-                                    </section>
-                                </section>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="d-inline-block container-fluid">
-                                <section class="form-group row">
-                                    <span class="col-md-4 control-label">Gerp</span>
-                                    <section class="col-md-3" style="padding-right: 0px">
+                            <div style="padding-top: 10px">
+                                <div class="row">
+                                    <span class="col-md-5 control-label" style="padding-right: 5px">Gerp</span>
+                                    <div class="col-md-3" style="padding: 0px 5px">
                                         <select name="gerpOperator" id="{{prefix}}GerpOperator" on-change="updateQueryFilters"
-                                                class$="{{prefix}}FilterSelect form-control input-sm" style="padding-right: 0px">
+                                                class$="{{prefix}}FilterSelect form-control input-sm" style="padding: 0px 5px">
                                             <option value="<"><</option>
                                             <option value="<="><=</option>
                                             <option value=">" selected>></option>
                                             <option value=">=">>=</option>
                                         </select>
-                                    </section>
-                                    <section class="col-md-5" style="padding-right: 0px">
+                                    </div>
+                                    <div class="col-md-4" style="padding-left: 5px">
                                         <input type="text" value="" class$="{{prefix}}FilterTextInput form-control input-sm"
                                                id="{{prefix}}GerpInput" name="gerp" on-keyup="updateQueryFilters">
                                         <!--<div style="float: right" class="tooltip-div">-->
@@ -764,10 +767,10 @@
                                         <!--title="Genomic Evolutionary Rate Profiling (GERP) score estimate the level of conservation of positions . Scores ≥ 2 indicate evolutionary constraint to and ≥ 3 indicate purifying selection."><i-->
                                         <!--class="fa fa-info-circle" aria-hidden="true"></i></a>-->
                                         <!--</div>-->
-                                    </section>
-                                </section>
+                                    </div>
+                                </div>
 
-                                <form>
+                                <form style="padding-top: 15px">
                                     <label style="font-weight: normal;">Logical Operator</label>
                                     <input type="radio" name="conservation" id="conservationOrRadio" value="or"
                                            class$="{{prefix}}FilterRadio" checked disabled on-change="updateQueryFilters" style="margin-left: 10px"> OR<br>
