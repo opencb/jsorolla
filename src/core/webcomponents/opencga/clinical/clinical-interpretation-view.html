@@ -801,22 +801,25 @@
                 let res = "";
                 if (UtilsNew.isNotUndefinedOrNull(row.studies)) {
                     let left, right;
-                    switch (row.studies[0].samplesData[this.field.memberIdx][0]) {
-                        case "0/0":
-                        case "0|0":
-                            left = "white";
-                            right = "white";
-                            break;
-                        case "0/1":
-                        case "1/0":
-                            left = "black";
-                            right = "white";
-                            break;
-                        case "1/1":
-                        case "1|1":
-                            left = "black";
-                            right = "black";
-                            break;
+                    if (UtilsNew.isNotUndefinedOrNull(row.studies[0]) && UtilsNew.isNotUndefinedOrNull(row.studies[0].samplesData) &&
+                        UtilsNew.isNotUndefinedOrNull(row.studies[0].samplesData[this.field.memberIdx]) && UtilsNew.isNotUndefinedOrNull(row.studies[0].samplesData[this.field.memberIdx][0])) {
+                        switch (row.studies[0].samplesData[this.field.memberIdx][0]) {
+                            case "0/0":
+                            case "0|0":
+                                left = "white";
+                                right = "white";
+                                break;
+                            case "0/1":
+                            case "1/0":
+                                left = "black";
+                                right = "white";
+                                break;
+                            case "1/1":
+                            case "1|1":
+                                left = "black";
+                                right = "black";
+                                break;
+                        }
                     }
                     res = `<table>
                                 <tr style="padding: 0px;">
@@ -829,7 +832,7 @@
             }
             fileMetricsFormatter(value, row, index) {
                 let val;
-                if (row !== undefined && row.studies !== undefined && row.studies.length > 0) {
+                if (row !== undefined && row.studies !== undefined && row.studies.length > 0 && row.studies[0].files.length > 0 && UtilsNew.isNotUndefinedOrNull(row.studies[0].files[0].attributes)) {
                     val = `<div class="col-md-12" style="padding: 0px">
                                 <form class="form-horizontal">
                                     <div class="form-group" style="margin: 0px 2px">
