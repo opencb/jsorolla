@@ -818,17 +818,15 @@
                                 <div class="browser-ct-tree-view browser-ct-item">
                                     <ul id="{{prefix}}consequenceTypeFilter">
                                         <template is="dom-repeat" items="{{consequenceTypes.categories}}" as="category">
-                                            <li id="{{category.title}}">
+                                            <li id="{{category.title}}" class="form-check" style="margin-top: 10px;">
                                                 <!--First check if there is a title for that category-->
                                                 <template is="dom-if" if="{{checkTitle(category)}}">
                                                     <!--If it is a category, only title is shown as it doesn't have any SO term associated with it-->
                                                     <template is="dom-if" if="{{category.isCategory}}">
-                                                        <div class="form-check" style="margin-top: 10px;">
-                                                            <label class="form-check-label notbold">
-                                                                <input type="checkbox" on-change="updateConsequenceTypeFilter"
-                                                                       class$="{{prefix}}FilterCheckBox"> {{category.title}}
-                                                            </label>
-                                                        </div>
+                                                        <label class="form-check-label notbold">
+                                                            <input type="checkbox" on-change="updateConsequenceTypeFilter"
+                                                                   class$="{{prefix}}FilterCheckBox"> {{category.title}}
+                                                        </label>
                                                     </template>
                                                     <!--If it is not a category, SO terms should be shown along with its actual title-->
                                                     <template is="dom-if" if="{{!category.isCategory}}">
@@ -1307,8 +1305,8 @@
                 }
 
                 // Select/Unselect the items from one category
-                if (e.target.parentNode.id !== "") {
-                    $("#" + e.target.parentNode.id).children('ul').children('li').children('input').prop("checked", e.target.checked);
+                if (e.target.parentNode.parentNode.id !== "") {
+                    $("#" + e.target.parentNode.parentNode.id).children('ul').children('li').children('label').children('input').prop("checked", e.target.checked);
                 }
 //                let selected = $('.soTermCheckBox');
                 let soTerms = [];
