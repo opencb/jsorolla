@@ -16,12 +16,12 @@
 
 <link rel="import" href="variant-clinical-upload.html">
 <link rel="import" href="variant-clinical-samples.html">
-<link rel="import" href="../variant/obsolete/variant-prioritization-view.html">
-<link rel="import" href="clinical-analysis-view.html">
+<link rel="import" href="../variant/variant-prioritization.html">
 <link rel="import" href="variant-clinical-report.html">
-<link rel="import" href="variant-clinical-filter.html">
-<link rel="import" href="../opencga-message-dialog.html">
 <link rel="import" href="variant-clinical-selector.html">
+<link rel="import" href="clinical-analysis-view.html">
+<link rel="import" href="clinical-interpretation-view.html">
+<link rel="import" href="../opencga-message-dialog.html">
 
 <dom-module id="variant-clinical">
     <template>
@@ -148,6 +148,7 @@
                 </div>
             </div>
 
+            <!-- UPLOAD TAB -->
             <div class="col-md-12">
                 <template is="dom-if" if="{{activesTab.uploadTab}}">
                     <div class$="analysis-content" id="{{prefix}}UploadButtonDiv">
@@ -157,7 +158,7 @@
                     </div>
                 </template>
 
-
+                <!-- ANALYSIS TAB -->
                 <template is="dom-if" if="{{activesTab.analysisTab}}">
                     <div class$="analysis-content" id="{{prefix}}SamplesButtonDiv">
                         <variant-clinical-samples opencga-client="{{opencgaClient}}" project="{{project}}" study="{{study}}"
@@ -166,10 +167,9 @@
                     </div>
                 </template>
 
-
+                <!-- PRIORITIZATION TAB -->
                 <template is="dom-if" if="{{activesTab.prioritizationTab}}">
                     <template is="dom-if" if="{{!activePrioritization}}">
-                        <!--<div style="width: 60%; margin: auto">-->
                         <div class="col-md-offset-1 col-md-10 ">
                             <h3>Clinical Analysis {{clinicalAnalysis.name}}</h3>
                             <div class="col-md-12" style="padding: 10px 15px">
@@ -183,7 +183,8 @@
                                         <template is="dom-if" if="{{checkExistsRecentAnalysis}}">
                                             <template is="dom-repeat" items="{{recentAnalysis}}" as="analysis" index-as="j">
 
-                                                <input id="{{prefix}}sampleRadio{{analysis.id}}" type="radio" name="analysisRecentRadioButtons" checked$="{{isCheckedDefaultAnalysis(j, analysis.id)}}" value="{{analysis.id}}"
+                                                <input id="{{prefix}}sampleRadio{{analysis.id}}" type="radio" name="analysisRecentRadioButtons"
+                                                       checked$="{{isCheckedDefaultAnalysis(j, analysis.id)}}" value="{{analysis.id}}"
                                                        class$="{{prefix}}FilterRadio" on-change="selectAnalysisRecent"
                                                        style="padding-left: 20px"> {{analysis.name}}<br>
                                             </template>
@@ -204,7 +205,8 @@
                             <!-- Clinical Analysis View -->
                             <div class="col-md-12" style="padding: 10px 15px">
                                 <clinical-analysis-view project="{{project}}" study="{{study}}" config="{{config}}" opencga-client="{{opencgaClient}}"
-                                                       clinical-analysis="{{clinicalAnalysis}}" clinical-analysis-id="{{clinicalAnalysisId}}" show-summary="{{showSummary}}" active-prioritization="{{activePrioritization}}">
+                                                       clinical-analysis="{{clinicalAnalysis}}" clinical-analysis-id="{{clinicalAnalysisId}}" show-summary="{{showSummary}}"
+                                                        active-prioritization="{{activePrioritization}}">
                                 </clinical-analysis-view>
                             </div>
 
@@ -252,6 +254,7 @@
                     </template>
                 </template>
 
+                <!-- REPORT TAB -->
                 <template is="dom-if" if="{{activesTab.reportTab}}">
                     <template is="dom-if" if="{{!activeReport}}">
                         <div class="col-md-offset-1 col-md-10 ">
@@ -282,8 +285,8 @@
                                                 <template is="dom-if" if="{{checkExistsRecentInterpretations}}" >
                                                     <template is="dom-repeat" items="{{recentInterpretations}}" as="interpretation" index-as="i">
                                                         <input id="{{prefix}}sampleRadio{{interpretation.id}}" type="radio" name="interpretationRecentRadioButtons" value="{{interpretation.file.id}}"
-                                                               class$="{{prefix}}FilterRadio" on-change="selectInterpretationRecent" checked$="{{isCheckedDefaultInterpretation(i, interpretation.file.id)}}"
-                                                               style="padding-left: 20px"> {{interpretation.name}}<br>
+                                                               class$="{{prefix}}FilterRadio" on-change="selectInterpretationRecent"
+                                                               checked$="{{isCheckedDefaultInterpretation(i, interpretation.file.id)}}" style="padding-left: 20px"> {{interpretation.name}}<br>
                                                     </template>
                                                 </template>
                                             </div>
@@ -294,8 +297,8 @@
                                         <template is="dom-if" if="{{interpretationId}}">
                                             <clinical-interpretation-view id="id"  title="Interpretation View" interpretation-id={{interpretationId}} project="{{project}}"
                                                                           study="{{study}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
-                                                                          consequence-types="{{consequenceTypes}}" protein-substitution-scores="{{proteinSubstitutionScores}}" on-createreport="onCreateReport"
-                                                                          style="font-size: 12px">
+                                                                          consequence-types="{{consequenceTypes}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                                          on-createreport="onCreateReport" style="font-size: 12px">
                                             </clinical-interpretation-view>
                                         </template>
                                     </div>
@@ -305,11 +308,9 @@
                         </template>
                         <template is="dom-if" if="{{activeReport}}">
                             <variant-clinical-report opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}"
-                                                     title="Generate Report" interpretation="{{interpretationReport}}"
-                                                     analysis="{{clinicalAnalysis}}" expReport="true">
+                                                     title="Generate Report" interpretation="{{interpretationReport}}" analysis="{{clinicalAnalysis}}" expReport="true">
                             </variant-clinical-report>
                         </template>
-                    </div>
                 </template>
             </div>
 
@@ -323,7 +324,8 @@
                             <h4 class="modal-title" id="{{prefix}}AnalysisBrowserLabel">Analysis Selector</h4>
                         </div>
                         <div class="modal-body" style="height: 780px">
-                            <variant-clinical-selector opencga-client="{{opencgaClient}}" analysis-selected="{{analysisSelected}}" analysis-modal="{{analysisModal}}" study="{{study}}" show-pedigree="true"></variant-clinical-selector>
+                            <variant-clinical-selector opencga-client="{{opencgaClient}}" analysis-selected="{{analysisSelected}}"
+                                                       analysis-modal="{{analysisModal}}" study="{{study}}" show-pedigree="true"></variant-clinical-selector>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="onAnalysisSelected">
@@ -487,7 +489,7 @@
                 this.clinicalAnalysisId = this.clinicalAnalysis.id;
             }
 
-            getRecentAnalysis(){
+            getRecentAnalysis() {
                 let params = {
                     study: this.project.alias + ":" + this.study.alias,
                     include: "id,name",
@@ -495,18 +497,15 @@
                 };
                 let _this = this;
                 this.opencgaClient.clinical().search(params, {})
-                    .then(function(response){
+                    .then(function(response) {
                             if (response.response[0].numResults >= 1) {
                                 _this.recentAnalysis = response.response[0].result;
-                                _this.checkExistsRecentAnalysis = true;
-                                if (UtilsNew.isEmptyArray(_this.recentAnalysis)) {
-                                    _this.checkExistsRecentAnalysis = false;
-                                }
+                                _this.checkExistsRecentAnalysis = !UtilsNew.isEmptyArray(_this.recentAnalysis);
                             }
                         });
             }
 
-            selectAnalysisRecent(e){
+            selectAnalysisRecent(e) {
                 let analysisId = e.target.value;
                 if (UtilsNew.isNotUndefinedOrNull(analysisId)) {
                     this.clinicalAnalysisId = analysisId;
@@ -517,49 +516,43 @@
                 this.activePrioritization = true;
             }
 
-            getRecentInterpretations(){
+            getRecentInterpretations() {
                 if(UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
                     this.recentInterpretations = this.clinicalAnalysis.interpretations;
                     this.interpretationId = null;
-                    this.checkExistsRecentInterpretations = true;
-                    if (UtilsNew.isEmptyArray(this.recentInterpretations)) {
-                        this.checkExistsRecentInterpretations = false;
-                    }
+                    this.checkExistsRecentInterpretations = !UtilsNew.isEmptyArray(this.recentInterpretations);
                 }
             }
 
             selectInterpretationRecent(e) {
-                if (UtilsNew.isNotUndefinedOrNull(this.recentAnalysis)) {
-                    let interpretationId = e.target.value;
-                    if (UtilsNew.isNotUndefinedOrNull(interpretationId)) {
-                        this.interpretationId = interpretationId;
-                    }
+                if (UtilsNew.isNotUndefinedOrNull(this.recentAnalysis) && UtilsNew.isNotUndefinedOrNull(e.target.value)) {
+                    this.interpretationId = e.target.value;
                 }
             }
 
-            isCheckedDefaultAnalysis(currentIndex, clinicalAnalysisId){
+            isCheckedDefaultAnalysis(currentIndex, clinicalAnalysisId) {
                 if (UtilsNew.isUndefinedOrNull(this.clinicalAnalysisId) && currentIndex === 0) {
                     this.clinicalAnalysisId = clinicalAnalysisId;
                     return true;
-                } else if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysisId) && this.clinicalAnalysisId === clinicalAnalysisId){
+                } else if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysisId) && this.clinicalAnalysisId === clinicalAnalysisId) {
                     return true;
                 }
 
                 return false
             }
 
-            isCheckedDefaultInterpretation(currentIndex, interpretationId){
+            isCheckedDefaultInterpretation(currentIndex, interpretationId) {
                 if (UtilsNew.isUndefinedOrNull(this.interpretationId) && currentIndex === 0) {
                     this.interpretationId = interpretationId;
                     return true;
-                } else if (UtilsNew.isNotUndefinedOrNull(this.interpretationId) && this.interpretationId === interpretationId){
+                } else if (UtilsNew.isNotUndefinedOrNull(this.interpretationId) && this.interpretationId === interpretationId) {
                     return true;
                 }
 
                 return false
             }
 
-            onCreateReport(e, data){
+            onCreateReport(e, data) {
                 this.interpretationReport = data.interpretation;
                 this.activeReport = true;
             }
