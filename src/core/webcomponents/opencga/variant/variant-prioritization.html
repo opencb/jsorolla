@@ -225,7 +225,7 @@
                                     <!-- GENERAL INFORMATION -->
                                     <!-- ID -->
                                     <div class="form-group has-feedback">
-                                        <label for="{{prefix}}IDInterpretation" class="col-md-2 col-form-label">ID*</label>
+                                        <label for="{{prefix}}IDInterpretation" class="col-md-2 col-form-label">ID</label>
                                         <div class="col-md-8">
                                             <div class="input-group">
                                                 <input type="text" class$="form-control {{prefix}}TextInput codeDis"
@@ -242,7 +242,7 @@
 
                                     <!-- NAME -->
                                     <div class="form-group has-feedback">
-                                        <label for="{{prefix}}NameInterpretation" class="col-md-2 col-form-label">Name*</label>
+                                        <label for="{{prefix}}NameInterpretation" class="col-md-2 col-form-label">Name</label>
                                         <div class="col-md-8">
                                             <div class="input-group">
                                                 <input type="text" class$="form-control {{prefix}}TextInput codeDis"
@@ -259,7 +259,7 @@
 
                                     <!-- DESCRIPTION -->
                                     <div class="form-group has-feedback">
-                                        <label for="{{prefix}}DescriptionInterpretation" class="col-md-2 col-form-label">Description*</label>
+                                        <label for="{{prefix}}DescriptionInterpretation" class="col-md-2 col-form-label">Description</label>
                                         <div class="col-md-8">
                                             <div class="input-group">
                                                 <input type="text" class$="form-control {{prefix}}TextInput codeDis"
@@ -273,7 +273,7 @@
 
                                     <!-- COMMENT -->
                                     <div class="form-group has-feedback">
-                                        <label for="{{prefix}}CommentInterpretation" class="col-md-2 col-form-label">Comment*</label>
+                                        <label for="{{prefix}}CommentInterpretation" class="col-md-2 col-form-label">Comment</label>
                                         <div class="col-md-8">
                                             <div class="input-group">
                                                 <input type="text" class$="form-control {{prefix}}TextInput codeDis"
@@ -543,8 +543,23 @@
             }
 
             onSaveInterpretation(e, obj) {
-                this.interpretation = this._createInterpretation();
-                PolymerUtils.removeAttribute(this.prefix + 'GoToReportButton', 'disabled');
+                let id = PolymerUtils.getValue(this.prefix + "IDInterpretation");
+                let name = PolymerUtils.getValue(this.prefix + "NameInterpretation");
+                let description = PolymerUtils.getValue(this.prefix + "DescriptionInterpretation");
+                let comment = PolymerUtils.getValue(this.prefix + "CommentInterpretation");
+
+                if (UtilsNew.isNotEmpty(id) && UtilsNew.isNotEmpty(name)) {
+                    if ((/\s/.test(name)) ||  (/\s/.test(id))) {
+                            this.messageError = true;
+                            this.messageErrorText = "ID or Name must not contains blanks.";
+                    } else {
+                        this.interpretation = this._createInterpretation();
+                    }
+                } else {
+                    this.messageError = true;
+                    this.messageErrorText = "ID or Name must not be empty.";
+                }
+//                PolymerUtils.removeAttribute(this.prefix + 'GoToReportButton', 'disabled');
             }
 
             _createInterpretation() {
@@ -621,6 +636,7 @@
                                 .then((response) => {
                                     _this.messageSuccess = true;
                                     _this.messageSuccessText = interpretation.id + " interpretation has been created correctly.";
+                                    _this.cleanSaveInterpretation();
                                     console.log(response);
                                     // Update analysis with new interpretations
                                     _this.getAnalysisInterpretations();
@@ -635,6 +651,13 @@
                     this.messageError = true;
                     this.messageErrorText = err;
                 }
+            }
+
+            cleanSaveInterpretation() {
+                PolymerUtils.setValue(this.prefix + "IDInterpretation", "");
+                PolymerUtils.setValue(this.prefix + "NameInterpretation", "");
+                PolymerUtils.setValue(this.prefix + "DescriptionInterpretation", "");
+                PolymerUtils.setValue(this.prefix + "CommentInterpretation", "");
             }
 
             getAnalysisInterpretations() {
