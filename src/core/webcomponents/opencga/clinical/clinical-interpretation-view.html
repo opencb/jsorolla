@@ -625,7 +625,7 @@
                     study: this.project.alias + ":" + this.study.alias
                  };
                  let _this = this;
-                if(UtilsNew.isNotUndefinedOrNull(this.interpretationId)){
+                if (UtilsNew.isNotUndefinedOrNull(this.interpretationId)) {
                     this.opencgaClient.files().content(this.interpretationId, params)
                         .then((response) => {
                             _this.interpretation = JSON.parse(response);

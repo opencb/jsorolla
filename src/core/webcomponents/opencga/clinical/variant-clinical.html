@@ -291,11 +291,13 @@
 
                                     </div>
                                     <div class="col-md-12" style="padding: 10px 15px">
-                                        <clinical-interpretation-view id="id"  title="Interpretation View" interpretation-id={{interpretationId}} project="{{project}}"
-                                                                      study="{{study}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
-                                                                      consequence-types="{{consequenceTypes}}" protein-substitution-scores="{{proteinSubstitutionScores}}" on-createreport="onCreateReport"
-                                                                      style="font-size: 12px">
-                                        </clinical-interpretation-view>
+                                        <template is="dom-if" if="{{interpretationId}}">
+                                            <clinical-interpretation-view id="id"  title="Interpretation View" interpretation-id={{interpretationId}} project="{{project}}"
+                                                                          study="{{study}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+                                                                          consequence-types="{{consequenceTypes}}" protein-substitution-scores="{{proteinSubstitutionScores}}" on-createreport="onCreateReport"
+                                                                          style="font-size: 12px">
+                                            </clinical-interpretation-view>
+                                        </template>
                                     </div>
                                 </div>
                             </div>
@@ -522,6 +524,7 @@
             getRecentInterpretations(){
                 if(UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
                     this.recentInterpretations = this.clinicalAnalysis.interpretations;
+                    this.interpretationId = null;
                     this.checkExistsRecentInterpretations = true;
                     if (UtilsNew.isEmptyArray(this.recentInterpretations)) {
                         this.checkExistsRecentInterpretations = false;
