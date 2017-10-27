@@ -152,7 +152,7 @@
                 <template is="dom-if" if="{{activesTab.uploadTab}}">
                     <div class$="analysis-content" id="{{prefix}}UploadButtonDiv">
                         <variant-clinical-upload opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}"
-                                                 clear-dom="{{clearDomUpload}}" ebi-config="{{ebiConfig}}">
+                                                 ebi-config="{{ebiConfig}}">
                         </variant-clinical-upload>
                     </div>
                 </template>
@@ -350,17 +350,6 @@
 
             static get properties() {
                 return {
-                    activesTab: {
-                        type: Object,
-                        value: function () {
-                            return {
-                                uploadTab: true,
-                                analysisTab: false,
-                                prioritizationTab: false,
-                                reportTab: false
-                            };
-                        }
-                    },
                     host: {
                         type: String
                     },
@@ -393,6 +382,15 @@
                     config: {
                         type: Object
                     },
+                    configOpencga: {
+                        type: Object
+                    },
+                    biotypes:{
+                        type: Array
+                    },
+                    ebiConfig: {
+                        type: Object
+                    },
                     proteinSubstitutionScores: {
                         type: Object
                     },
@@ -401,10 +399,6 @@
                     },
                     search: {
                         type: Object
-                    },
-                    clearDomUpload: {
-                        type: Object,
-                        notify: true
                     },
                     clinicalAnalysis: {
                         type: Object,
@@ -436,6 +430,13 @@
                 this.activeReport = false;
                 this.checkExistsRecentInterpretations = false;
                 this.checkExistsRecentAnalysis = false;
+                this.activesTab = {
+                            uploadTab: true,
+                            analysisTab: false,
+                            prioritizationTab: false,
+                            reportTab: false
+                        };
+
             }
 
             changeTool(e) {
@@ -476,12 +477,7 @@
 
             showClinicalSelector(e) {
                 e.preventDefault();
-                if (UtilsNew.isUndefined(this.analysisModal)){
-                    this.analysisModal = true;
-                } else {
-                    this.analysisModal = !this.analysisModal;
-                }
-
+                this.analysisModal = UtilsNew.isUndefined(this.analysisModal) ? true : !this.analysisModal;
                 $("#" + this.prefix + "AnalysisBrowser").modal('show');
             }
 
