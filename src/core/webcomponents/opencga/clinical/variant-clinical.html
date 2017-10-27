@@ -550,7 +550,7 @@
             }
 
             isCheckedDefaultInterpretation(currentIndex, interpretationId){
-                if(UtilsNew.isUndefinedOrNull(this.interpretationId) && currentIndex === 0){
+                if (UtilsNew.isUndefinedOrNull(this.interpretationId) && currentIndex === 0) {
                     this.interpretationId = interpretationId;
                     return true;
                 } else if (UtilsNew.isNotUndefinedOrNull(this.interpretationId) && this.interpretationId === interpretationId){
