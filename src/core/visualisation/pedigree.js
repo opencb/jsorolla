@@ -54,7 +54,7 @@ class Pedigree {
         }
 
         // We merge user's setting with default settings, by doing this users do not have to write al possible settings
-        settings = Object.assign(this.getDefaultSetting(), settings);
+        settings = Object.assign(this.getDefaultSetting(), settings, this.settings);
 
         let pedigree = this._preprocessFamily(ped);
 
