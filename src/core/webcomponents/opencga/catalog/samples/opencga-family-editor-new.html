@@ -457,7 +457,7 @@
                 let gender = isMother ? "FEMALE" : "MALE";
                 if(UtilsNew.isNotUndefinedOrNull(sampleSelected) && UtilsNew.isNotUndefinedOrNull(sampleCurrentParent) &&
                     UtilsNew.isNotUndefinedOrNull(sampleCurrentParent.individual) && UtilsNew.isNotUndefinedOrNull(sampleCurrentParent.individual.name)) {
-                        parentSelected = sampleSelected.id === sampleCurrentParent.id || sampleCurrentParent.individual.sex === gender;
+                        parentSelected = sampleSelected.id === sampleCurrentParent.id || sampleCurrentParent.individual.sex !== gender;
                 }
                 return parentSelected;
             }
