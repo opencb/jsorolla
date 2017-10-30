@@ -61,25 +61,29 @@
                 <label class="align-left">Most Severe Deleterious Score</label>
                 <div class="align-right">
                     <!-- Sift -->
-                    <label style="width:10%">Sift</label>
-                    <span id="{{prefix}}Sift" title="{{proteinSubScore.sift.score}}">{{proteinSubScore.sift.description}}</span>
-                    <template is="dom-if" if="{{isTranscriptAvailable(proteinSubScore.sift.transcript)}}">
-                        (<b>Gene:</b>{{proteinSubScore.sift.gene}}, <b>Transcript: </b>{{proteinSubScore.sift.transcript}})
-                    </template>
-                    <br>
-
+                    <div class = "row" style="padding-left: 12px">
+                        <label style="width:10%">Sift</label>
+                        <span id="{{prefix}}Sift" title="{{proteinSubScore.sift.score}}">{{proteinSubScore.sift.description}}</span>
+                        <template is="dom-if" if="{{isTranscriptAvailable(proteinSubScore.sift.transcript)}}">
+                            (<b>Gene:</b>{{proteinSubScore.sift.gene}}, <b>Transcript: </b>{{proteinSubScore.sift.transcript}})
+                        </template>
+                        <br>
+                    </div>
                     <!-- Polyphen -->
-                    <label style="width:10%">Polyphen</label>
-                    <span id="{{prefix}}Polyphen" title="{{proteinSubScore.polyphen.score}}">{{proteinSubScore.polyphen.description}}</span>
-                    <template is="dom-if" if="{{isTranscriptAvailable(proteinSubScore.polyphen.transcript)}}">
-                        (<b>Gene:</b>{{proteinSubScore.polyphen.gene}}, <b>Transcript: </b>{{proteinSubScore.polyphen.transcript}})
-                    </template>
-                    <br>
-
+                    <div class = "row" style="padding-left: 12px">
+                        <label style="width:10%">Polyphen</label>
+                        <span id="{{prefix}}Polyphen" title="{{proteinSubScore.polyphen.score}}">{{proteinSubScore.polyphen.description}}</span>
+                        <template is="dom-if" if="{{isTranscriptAvailable(proteinSubScore.polyphen.transcript)}}">
+                            (<b>Gene:</b>{{proteinSubScore.polyphen.gene}}, <b>Transcript: </b>{{proteinSubScore.polyphen.transcript}})
+                        </template>
+                        <br>
+                    </div>
                     <!--CADD-->
-                    <label style="width:10%">CADD Scaled</label>
-                    <span id="{{prefix}}Cadd">{{caddScaled}}</span>
-                    <br>
+                    <div class = "row" style="padding-left: 12px">
+                        <label style="width:10%">CADD Scaled</label>
+                        <span id="{{prefix}}Cadd">{{caddScaled}}</span>
+                        <br>
+                    </div>
                 </div> <br>
             </div>
 
