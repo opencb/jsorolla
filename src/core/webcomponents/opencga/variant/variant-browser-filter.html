@@ -376,22 +376,22 @@
                                     </div>
                                 </div>
                                 <div class="subsection-content">
-                                    <div class="row">
-                                        <div class="col-md-9">
-                                            <input id="{{prefix}}FeatureIdText" type="text" class="form-control" list="datalist"
-                                                   placeholder="Search for Gene Symbols" value="" on-keyup="callAutocomplete">
-                                            <datalist id="datalist">
-                                                <template is="dom-repeat" items="{{autocompleteData}}">
-                                                    <option value="{{item.name}}">
-                                                </template>
-                                            </datalist>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <button type="button" class="btn btn-default btn-sm form-control" on-click="addFeatureId">
-                                                <i class="fa fa-plus"></i>
-                                            </button>
-                                        </div>
-                                    </div>
+                                    <!--<div class="row">-->
+                                        <!--<div class="col-md-9">-->
+                                            <!--<input id="{{prefix}}FeatureIdText" type="text" class="form-control" list="datalist"-->
+                                                   <!--placeholder="Search for Gene Symbols" value="" on-keyup="callAutocomplete">-->
+                                            <!--<datalist id="datalist">-->
+                                                <!--<template is="dom-repeat" items="{{autocompleteData}}">-->
+                                                    <!--<option value="{{item.name}}">-->
+                                                <!--</template>-->
+                                            <!--</datalist>-->
+                                        <!--</div>-->
+                                        <!--<div class="col-md-3">-->
+                                            <!--<button type="button" class="btn btn-default btn-sm form-control" on-click="addFeatureId">-->
+                                                <!--<i class="fa fa-plus"></i>-->
+                                            <!--</button>-->
+                                        <!--</div>-->
+                                    <!--</div>-->
                                     <div class="form-group">
                                         <textarea id="{{prefix}}FeatureTextarea" name="geneSnp" class$="form-control clearable {{prefix}}FilterTextInput"
                                                   rows="3" placeholder="BRCA2,ENSG00000139618,ENST00000544455,rs28897700"
@@ -423,23 +423,23 @@
                                 </div>
                             </div>
 
-                            <div class="form-group">
-                                <div class="browser-subsection" id="geneBiotypeId" name="Gene Biotype">Gene Biotype
-                                    <div style="float: right" class="tooltip-div">
-                                        <!--<a data-toggle="tooltip" title="Only considers variants falling within the specified gene biotypes">-->
-                                            <a><i class="fa fa-info-circle" aria-hidden="true" id = "geneBiotypeTooltip"></i></a>
-                                        <!--</a>-->
-                                    </div>
-                                </div>
-                                <div class="subsection-content">
-                                    <select class="selectpicker form-control" id="{{prefix}}GeneBiotypes" on-change="updateQueryFilters"
-                                            data-size="10" data-live-search="true" data-selected-text-format="count" multiple>
-                                        <template is="dom-repeat" items="{{biotypes}}">
-                                            <option value="{{item}}">{{item}}</option>
-                                        </template>
-                                    </select>
-                                </div>
-                            </div>
+                            <!--<div class="form-group">-->
+                                <!--<div class="browser-subsection" id="geneBiotypeId" name="Gene Biotype">Gene Biotype-->
+                                    <!--<div style="float: right" class="tooltip-div">-->
+                                        <!--&lt;!&ndash;<a data-toggle="tooltip" title="Only considers variants falling within the specified gene biotypes">&ndash;&gt;-->
+                                            <!--<a><i class="fa fa-info-circle" aria-hidden="true" id = "geneBiotypeTooltip"></i></a>-->
+                                        <!--&lt;!&ndash;</a>&ndash;&gt;-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                                <!--<div class="subsection-content">-->
+                                    <!--<select class="selectpicker form-control" id="{{prefix}}GeneBiotypes" on-change="updateQueryFilters"-->
+                                            <!--data-size="10" data-live-search="true" data-selected-text-format="count" multiple>-->
+                                        <!--<template is="dom-repeat" items="{{biotypes}}">-->
+                                            <!--<option value="{{item}}">{{item}}</option>-->
+                                        <!--</template>-->
+                                    <!--</select>-->
+                                <!--</div>-->
+                            <!--</div>-->
 
                             <div class="form-group" style="margin-bottom: 5px">
                                 <div class="browser-subsection" id="variantTypeId" name="Variant Type">Variant Type
@@ -613,7 +613,7 @@
                                                         </select>
                                                     </div>
                                                     <div class="col-md-5" style="padding: 0px 10px">
-                                                        <input type="text" value="" class$="form-control input-sm {{prefix}}FilterTextInput"
+                                                        <input type="number" value="" class$="form-control input-sm {{prefix}}FilterTextInput"
                                                                name="{{study.id}}_{{popFreq.id}}" id="{{prefix}}{{study.id}}{{popFreq.id}}"
                                                                on-keyup="updateQueryFilters">
                                                     </div>
@@ -666,14 +666,14 @@
                                     </div>
                                     <div class="col-md-3" style="padding: 0px 5px">
                                         <select name="siftOperator" id="{{prefix}}SiftOperator" on-change="updateQueryFilters" class$="{{prefix}}FilterSelect form-control input-sm" style="padding: 0px 5px">
-                                            <option value="<"><</option>
+                                            <option value="<" selected><</option>
                                             <option value="<="><=</option>
-                                            <option value=">"selected>></option>
+                                            <option value=">">></option>
                                             <option value=">=">>=</option>
                                         </select>
                                     </div>
                                     <div class="col-md-4" style="padding-left: 5px">
-                                        <input id="{{prefix}}SiftInput" name="Sift" type="text" value=""
+                                        <input id="{{prefix}}SiftInput" name="Sift" type="number" value=""
                                                class$="{{prefix}}FilterTextInput form-control input-sm" on-keyup="updateQueryFilters">
                                     </div>
                                 </div>
@@ -708,7 +708,7 @@
                                         </select>
                                     </div>
                                     <div class="col-sm-4" style="padding-left: 5px">
-                                        <input type="text" value="" class$="{{prefix}}FilterTextInput form-control input-sm"
+                                        <input type="number" value="" class$="{{prefix}}FilterTextInput form-control input-sm"
                                                id="{{prefix}}PolyphenInput" name="Polyphen" on-keyup="updateQueryFilters">
                                     </div>
                                 </div>
@@ -731,14 +731,34 @@
                                 <i class="fa fa-info-circle" aria-hidden="true" id ="cADDTooltip"></i></a>
                                 </div>
                             </div>
-                            <div style="padding-top: 10px">
+                            <!--<div style="padding-top: 10px">-->
 
+                                <!--<div class="row">-->
+                                    <!--<div class="col-md-5 form-group" style="padding-right: 5px">-->
+                                        <!--<span class="control-label">Raw</span>-->
+                                    <!--</div>-->
+                                    <!--<div class="col-md-3" style="padding: 0px 5px">-->
+                                        <!--<select name="caddRawOperator" id="{{prefix}}CaddRawOperator"-->
+                                                <!--on-change="updateQueryFilters" class$="{{prefix}}FilterSelect form-control input-sm" style="padding: 0px 5px">-->
+                                            <!--<option value="<"><</option>-->
+                                            <!--<option value="<="><=</option>-->
+                                            <!--<option value=">" selected>></option>-->
+                                            <!--<option value=">=">>=</option>-->
+                                        <!--</select>-->
+                                    <!--</div>-->
+                                    <!--<div class="col-md-4" style="padding-left: 5px">-->
+                                        <!--<input type="number" value="" class$="{{prefix}}FilterTextInput form-control input-sm"-->
+                                               <!--id="{{prefix}}CaddRawInput" name="caddRaw" on-keyup="updateQueryFilters">-->
+                                    <!--</div>-->
+
+                                <!--</div>-->
+                            <!--</div>-->
+
+                            <div style="padding-top: 10px">
                                 <div class="row">
-                                    <div class="col-md-5 form-group" style="padding-right: 5px">
-                                        <span class="control-label">Raw</span>
-                                    </div>
+                                    <span class="col-md-5 control-label" style="padding-right: 5px">Scaled</span>
                                     <div class="col-md-3" style="padding: 0px 5px">
-                                        <select name="caddRawOperator" id="{{prefix}}CaddRawOperator"
+                                        <select name="caddRScaledOperator" id="{{prefix}}CaddScaledOperator"
                                                 on-change="updateQueryFilters" class$="{{prefix}}FilterSelect form-control input-sm" style="padding: 0px 5px">
                                             <option value="<"><</option>
                                             <option value="<="><=</option>
@@ -747,27 +767,7 @@
                                         </select>
                                     </div>
                                     <div class="col-md-4" style="padding-left: 5px">
-                                        <input type="text" value="" class$="{{prefix}}FilterTextInput form-control input-sm"
-                                               id="{{prefix}}CaddRawInput" name="caddRaw" on-keyup="updateQueryFilters">
-                                    </div>
-
-                                </div>
-                            </div>
-
-                            <div style="padding-top: 10px">
-                                <div class="row">
-                                    <span class="col-md-5 control-label" style="padding-right: 5px">Scaled</span>
-                                    <div class="col-md-3" style="padding: 0px 5px">
-                                        <select name="caddRScaledOperator" id="{{prefix}}CaddScaledOperator"
-                                                on-change="updateQueryFilters" class$="{{prefix}}FilterSelect form-control input-sm" style="padding: 0px 5px">
-                                            <option value="<" selected><</option>
-                                            <option value="<="><=</option>
-                                            <option value=">">></option>
-                                            <option value=">=">>=</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4" style="padding-left: 5px">
-                                        <input type="text" value="" class$="{{prefix}}FilterTextInput form-control input-sm"
+                                        <input type="number" value="" class$="{{prefix}}FilterTextInput form-control input-sm"
                                                id="{{prefix}}CaddScaledInput" name="caddScaled" on-keyup="updateQueryFilters">
                                     </div>
                                     <!--<div style="float: right" class="tooltip-div">-->
@@ -807,7 +807,7 @@
                                         </select>
                                     </div>
                                     <div class="col-md-4" style="padding-left: 5px">
-                                        <input type="text" value="" class$="{{prefix}}FilterTextInput form-control input-sm"
+                                        <input type="number" value="" class$="{{prefix}}FilterTextInput form-control input-sm"
                                                id="{{prefix}}PhylopInput" name="phylop" on-keyup="updateQueryFilters">
                                     </div>
                                 </div>
@@ -832,7 +832,7 @@
                                         </select>
                                     </div>
                                     <div class="col-md-4" style="padding-left: 5px">
-                                        <input type="text" value="" class$="{{prefix}}FilterTextInput form-control input-sm"
+                                        <input type="number" value="" class$="{{prefix}}FilterTextInput form-control input-sm"
                                                id="{{prefix}}PhastconsInput" name="phastCons" on-keyup="updateQueryFilters">
                                         <!--<div style="float: right" class="tooltip-div">-->
                                         <!--<a data-toggle="tooltip"-->
@@ -855,7 +855,7 @@
                                         </select>
                                     </div>
                                     <div class="col-md-4" style="padding-left: 5px">
-                                        <input type="text" value="" class$="{{prefix}}FilterTextInput form-control input-sm"
+                                        <input type="number" value="" class$="{{prefix}}FilterTextInput form-control input-sm"
                                                id="{{prefix}}GerpInput" name="gerp" on-keyup="updateQueryFilters">
                                         <!--<div style="float: right" class="tooltip-div">-->
                                         <!--<a data-toggle="tooltip"-->
@@ -1017,21 +1017,21 @@
                                 </span>
                             </div>
 
-                            <div class="form-group">
-                                <span class="browser-subsection">ClinVar Accessions</span>
-                                <textarea id="{{prefix}}ClinVarTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="3"
-                                          name="clinvar" placeholder="RCV000058226"
-                                          on-keyup="updateQueryFilters"></textarea>
-                            </div>
+                            <!--<div class="form-group">-->
+                                <!--<span class="browser-subsection">ClinVar Accessions</span>-->
+                                <!--<textarea id="{{prefix}}ClinVarTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="3"-->
+                                          <!--name="clinvar" placeholder="RCV000058226"-->
+                                          <!--on-keyup="updateQueryFilters"></textarea>-->
+                            <!--</div>-->
 
-                            <div class="form-group">
-                                <span class="browser-subsection">Full-text search on HPO, ClinVar, protein domains or keywords.
-                                    Some OMIM and Orphanet IDs are also supported (<span style="color: red">New!</span>)
-                                </span>
-                                <textarea id="{{prefix}}TraitsTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="5"
-                                          name="traits" placeholder="Full-text search, e.g. *melanoma*"
-                                          on-keyup="updateQueryFilters"></textarea>
-                            </div>
+                            <!--<div class="form-group">-->
+                                <!--<span class="browser-subsection">Full-text search on HPO, ClinVar, protein domains or keywords.-->
+                                    <!--Some OMIM and Orphanet IDs are also supported (<span style="color: red">New!</span>)-->
+                                <!--</span>-->
+                                <!--<textarea id="{{prefix}}TraitsTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="5"-->
+                                          <!--name="traits" placeholder="Full-text search, e.g. *melanoma*"-->
+                                          <!--on-keyup="updateQueryFilters"></textarea>-->
+                            <!--</div>-->
                         </div>
                     </div>
                 </div>
@@ -1669,7 +1669,13 @@
                 return a.title < b.title ? -1 : 1;
             }
 
+            validateInputs(){
+
+            }
+
             updateQueryFilters() {
+                this.validateInputs();
+
                 let _filters = {};
 
                 // Adding sample genotypes filter
@@ -1857,11 +1863,11 @@
                 // Cadd scores
                 let cadd = [];
                 let caddInput = PolymerUtils.getElementById(this.prefix + "CaddRawInput");
-                if (UtilsNew.isNotEmpty(caddInput.value)) {
+                if (UtilsNew.isNotUndefinedOrNull(caddInput) && UtilsNew.isNotEmpty(caddInput.value)) {
                     cadd.push("cadd_raw" + PolymerUtils.getElementById(this.prefix + "CaddRawOperator").value + caddInput.value);
                 }
                 caddInput = PolymerUtils.getElementById(this.prefix + "CaddScaledInput");
-                if (UtilsNew.isNotEmpty(caddInput.value)) {
+                if (UtilsNew.isNotUndefinedOrNull(caddInput) && UtilsNew.isNotEmpty(caddInput.value)) {
                     cadd.push("cadd_scaled" + PolymerUtils.getElementById(this.prefix + "CaddScaledOperator").value + caddInput.value);
                 }
                 if (cadd.length > 0) {
@@ -1910,12 +1916,12 @@
                 }
 
                 inputTextArea = PolymerUtils.getElementById(this.prefix + "ClinVarTextarea");
-                if (UtilsNew.isNotEmpty(inputTextArea.value)) {
+                if (UtilsNew.isNotUndefinedOrNull(inputTextArea) && UtilsNew.isNotEmpty(inputTextArea.value)) {
                     _filters["clinvar"] = inputTextArea.value;
                 }
 
                 inputTextArea = PolymerUtils.getElementById(this.prefix + "TraitsTextarea");
-                if (UtilsNew.isNotEmpty(inputTextArea.value)) {
+                if (UtilsNew.isNotUndefinedOrNull(inputTextArea) && UtilsNew.isNotEmpty(inputTextArea.value)) {
                     _filters["traits"] = inputTextArea.value;
                 }
 
@@ -1933,6 +1939,9 @@
                     _this.cellbaseClient.get('feature', 'id', featureId.toUpperCase(), 'starts_with', {}, {})
                         .then(function (response) {
                             _this.autocompleteData = response.response[0].result;
+                            if(response.response[0].numResults > 10) {
+                                _this.autocompleteData = _this.autocompleteData.slice(0,10);
+                            }
                         });
                 }
             }
