@@ -52,7 +52,7 @@
                                                         <div class="form-group" style="margin: 0px 2px">
                                                             <label class="col-md-4">Name:</label>
                                                             <span class="col-md-8">
-                                                            {{interpretation.clinicalAnalysis.subjects.0.samples.0.name}} &nbsp;&nbsp; (<a style="font-weight: bold"><i class="fa fa-external-link" aria-hidden="true"></i> Clinical Data</a>)
+                                                            {{interpretation.clinicalAnalysis.subjects.0.samples.0.name}}
                                                         </span>
                                                         </div>
                                                         <div class="form-group" style="margin: 0px 2px">
@@ -65,7 +65,7 @@
                                                         </div>
                                                         <div class="form-group" style="margin: 0px 2px">
                                                             <label class="col-md-4">Somatic:</label>
-                                                            <span class="col-md-8">{{interpretation.clinicalAnalysis.subjects.0.samples.0.somatic}}</span>
+                                                            <span class="col-md-6">{{interpretation.clinicalAnalysis.subjects.0.samples.0.somatic}}</span>
                                                         </div>
                                                         <div class="form-group" style="margin: 0px 2px">
                                                             <label class="col-md-4">Phenotypes:</label>
@@ -89,7 +89,7 @@
                                                         <div class="form-group" style="margin: 0px 2px">
                                                             <label class="col-md-4">Name:</label>
                                                             <span class="col-md-8">
-                                                            {{interpretation.clinicalAnalysis.subjects.0.name}} &nbsp;&nbsp; (<a style="font-weight: bold"><i class="fa fa-external-link" aria-hidden="true"></i> Clinical Data</a>)
+                                                            {{interpretation.clinicalAnalysis.subjects.0.name}}
                                                         </span>
                                                         </div>
                                                         <div class="form-group" style="margin: 0px 2px">
@@ -143,8 +143,10 @@
                                                              <div class="col-md-12">
                                                                  <div id="{{prefix}}PedigreeView"></div>
                                                             </div>
-                                                            <br>
+                                                            <!--<br>-->
+<!--
                                                             <span>Click <a href="" style="font-weight: bold">here</a> for more info</span>
+-->
                                                         </span>
                                                         </div>
                                                     </form>
@@ -230,47 +232,47 @@
                                     <!--<div class="row">-->
                                     <div class="col-md-12" style="padding: 5px 0px 15px 0px">
                                         <div class="btn-toolbar" role="toolbar" aria-label="..." style="float: right">
-                                            <div class="btn-group btn-group-sm" role="group" aria-label="..." style="padding: 10px 0px">
-                                                <button type="button" class="btn btn-default btn-warning gene-ct-buttons active" on-click="updateQuery">
-                                                    All
-                                                </button>
-                                                <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
-                                                    SNV
-                                                </button>
-                                                <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
-                                                    INDEL
-                                                </button>
-                                                <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
-                                                    SV
-                                                </button>
-                                            </div>
+                                            <!--<div class="btn-group btn-group-sm" role="group" aria-label="..." style="padding: 10px 0px">-->
+                                                <!--<button type="button" class="btn btn-default btn-warning gene-ct-buttons active" on-click="updateQuery">-->
+                                                    <!--All-->
+                                                <!--</button>-->
+                                                <!--<button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">-->
+                                                    <!--SNV-->
+                                                <!--</button>-->
+                                                <!--<button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">-->
+                                                    <!--INDEL-->
+                                                <!--</button>-->
+                                                <!--<button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">-->
+                                                    <!--SV-->
+                                                <!--</button>-->
+                                            <!--</div>-->
 
-                                            <div class="btn-group btn-group-sm" role="group" aria-label="..." style="padding: 10px 0px">
-                                                <button type="button" class="btn btn-default btn-warning gene-ct-buttons active" on-click="updateQuery">
-                                                    All
-                                                </button>
-                                                <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
-                                                    Missense
-                                                </button>
-                                                <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
-                                                    LoF
-                                                </button>
-                                            </div>
+                                            <!--<div class="btn-group btn-group-sm" role="group" aria-label="..." style="padding: 10px 0px">-->
+                                                <!--<button type="button" class="btn btn-default btn-warning gene-ct-buttons active" on-click="updateQuery">-->
+                                                    <!--All-->
+                                                <!--</button>-->
+                                                <!--<button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">-->
+                                                    <!--Missense-->
+                                                <!--</button>-->
+                                                <!--<button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">-->
+                                                    <!--LoF-->
+                                                <!--</button>-->
+                                            <!--</div>-->
 
-                                            <div class="btn-group btn-group-sm" role="group" aria-label="..." style="padding: 10px 0px">
-                                                <button type="button" class="btn btn-default btn-warning gene-ct-buttons active" on-click="updateQuery">
-                                                    All
-                                                </button>
-                                                <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
-                                                    Tier 1
-                                                </button>
-                                                <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
-                                                    Tier 2
-                                                </button>
-                                                <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
-                                                    Tier 3
-                                                </button>
-                                            </div>
+                                            <!--<div class="btn-group btn-group-sm" role="group" aria-label="..." style="padding: 10px 0px">-->
+                                                <!--<button type="button" class="btn btn-default btn-warning gene-ct-buttons active" on-click="updateQuery">-->
+                                                    <!--All-->
+                                                <!--</button>-->
+                                                <!--<button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">-->
+                                                    <!--Tier 1-->
+                                                <!--</button>-->
+                                                <!--<button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">-->
+                                                    <!--Tier 2-->
+                                                <!--</button>-->
+                                                <!--<button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">-->
+                                                    <!--Tier 3-->
+                                                <!--</button>-->
+                                            <!--</div>-->
                                         </div>
                                     </div>
                                     <!--</div>-->
@@ -289,20 +291,20 @@
                                     <div class="form-inline">
                                         <div class="form-group" style="padding: 0px;float: right">
                                             <div class="input-group">
-                                                <input type="text" class="form-control" name="date" size="20" placeholder="Search for...">
-                                                <span class="input-group-btn">
-                                                    <button type="button" class="btn btn-default"><i class="fa fa-search" aria-hidden="true"></i></button>
-                                                </span>
+                                                <!--<input type="text" class="form-control" name="date" size="20" placeholder="Search for...">-->
+                                                <!--<span class="input-group-btn">-->
+                                                    <!--<button type="button" class="btn btn-default"><i class="fa fa-search" aria-hidden="true"></i></button>-->
+                                                <!--</span>-->
                                             </div>
 
                                             <template is="dom-if" if="{{config.toolbar}}">
                                                 <div class="btn-group">
-                                                    <button type="button" class="btn btn-primary">
-                                                        <i class="fa fa-pencil" aria-hidden="true"></i>&nbsp;&nbsp;Update
-                                                    </button>
-                                                    <button type="button" class="btn btn-primary">
-                                                        <i class="fa fa-comments-o" aria-hidden="true"></i>&nbsp;&nbsp;Review Case
-                                                    </button>
+                                                    <!--<button type="button" class="btn btn-primary">-->
+                                                        <!--<i class="fa fa-pencil" aria-hidden="true"></i>&nbsp;&nbsp;Update-->
+                                                    <!--</button>-->
+                                                    <!--<button type="button" class="btn btn-primary">-->
+                                                        <!--<i class="fa fa-comments-o" aria-hidden="true"></i>&nbsp;&nbsp;Review Case-->
+                                                    <!--</button>-->
                                                     <button type="button" class="btn btn-primary" on-click="onCreateReport">
                                                         <i class="fa fa-file-text-o" aria-hidden="true"></i>&nbsp;&nbsp;Create Report&nbsp;&nbsp;<span class="badge" style="font-size: 75%">{{reportVariants.length}}</span>
                                                     </button>
@@ -322,7 +324,7 @@
                         </div>
 
 
-                        <div style="padding-top: 10px">
+                        <div class="" style="padding-top: 10px">
                             <h3>Variant Detail View: {{variant}}</h3>
                             <!-- Bottom TABs -->
                             <div style="padding-top: 20px">
@@ -332,26 +334,26 @@
                                             Current Annotation
                                         </a>
                                     </li>
-                                    <li role="presentation">
-                                        <a href="#{{prefix}}Genotype" role="tab" data-toggle="tab" class="clinical-bottom-tab-title">
-                                            Genotype Stats
-                                        </a>
-                                    </li>
-                                    <li role="presentation">
-                                        <a href="#{{prefix}}FileMetrics" role="tab" data-toggle="tab" class="clinical-bottom-tab-title">
-                                            File Metrics
-                                        </a>
-                                    </li>
+                                    <!--<li role="presentation">-->
+                                        <!--<a href="#{{prefix}}Genotype" role="tab" data-toggle="tab" class="clinical-bottom-tab-title">-->
+                                            <!--Genotype Stats-->
+                                        <!--</a>-->
+                                    <!--</li>-->
+                                    <!--<li role="presentation">-->
+                                        <!--<a href="#{{prefix}}FileMetrics" role="tab" data-toggle="tab" class="clinical-bottom-tab-title">-->
+                                            <!--File Metrics-->
+                                        <!--</a>-->
+                                    <!--</li>-->
                                     <li role="presentation">
                                         <a href="#{{prefix}}BeaconNetwork" role="tab" data-toggle="tab" class="clinical-bottom-tab-title">
                                             Beacon Network
                                         </a>
                                     </li>
-                                    <li role="presentation">
-                                        <a href="#{{prefix}}GenomeBrowser" role="tab" data-toggle="tab" class="clinical-bottom-tab-title">
-                                            Genome Browser
-                                        </a>
-                                    </li>
+                                    <!--<li role="presentation">-->
+                                        <!--<a href="#{{prefix}}GenomeBrowser" role="tab" data-toggle="tab" class="clinical-bottom-tab-title">-->
+                                            <!--Genome Browser-->
+                                        <!--</a>-->
+                                    <!--</li>-->
                                 </ul>
 
                                 <div class="tab-content" style="height: 680px">
@@ -367,36 +369,36 @@
                                         </cellbase-variantannotation-view>
                                     </div>
 
-                                    <!-- Genotypes & Files Tab -->
-                                    <div id="{{prefix}}Genotype" role="tabpanel" class="tab-pane">
-                                        Under construction.
-                                    </div>
+                                    <!--&lt;!&ndash; Genotypes & Files Tab &ndash;&gt;-->
+                                    <!--<div id="{{prefix}}Genotype" role="tabpanel" class="tab-pane">-->
+                                        <!--Under construction.-->
+                                    <!--</div>-->
 
                                     <!-- File Metrics Tab -->
-                                    <div id="{{prefix}}FileMetrics" role="tabpanel" class="tab-pane">
-                                        <div class="col-md-8 col-md-offset-1" style="padding-top: 20px">
-                                            <table class="table table-hover">
-                                                <thead>
-                                                <tr>
-                                                    <th>VCF Attribute</th>
-                                                    <template is="dom-repeat" items="{{interpretation.clinicalAnalysis.family.members}}" as="member">
-                                                        <th>{{member.name}}</th>
-                                                    </template>
-                                                </tr>
-                                                </thead>
-                                                <tbody id="{{prefix}}TableTBody">
-                                                <template is="dom-repeat" items="{{_getFileMetricsArray(variantObj.studies.0.files)}}" as="attrs">
-                                                    <tr id="{{attrs.name}}" class$="file-metrics-table-{{attrs.name}}">
-                                                        <td><span style="font-weight: bold">{{attrs.name}}</span></td>
-                                                        <template is="dom-repeat" items="{{attrs.values}}" as="attr">
-                                                            <td>{{attr}}</td>
-                                                        </template>
-                                                    </tr>
-                                                </template>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
+                                    <!--<div id="{{prefix}}FileMetrics" role="tabpanel" class="tab-pane">-->
+                                        <!--<div class="col-md-8 col-md-offset-1" style="padding-top: 20px">-->
+                                            <!--<table class="table table-hover">-->
+                                                <!--<thead>-->
+                                                <!--<tr>-->
+                                                    <!--<th>VCF Attribute</th>-->
+                                                    <!--<template is="dom-repeat" items="{{interpretation.clinicalAnalysis.family.members}}" as="member">-->
+                                                        <!--<th>{{member.name}}</th>-->
+                                                    <!--</template>-->
+                                                <!--</tr>-->
+                                                <!--</thead>-->
+                                                <!--<tbody id="{{prefix}}TableTBody">-->
+                                                <!--<template is="dom-repeat" items="{{_getFileMetricsArray(variantObj.studies.0.files)}}" as="attrs">-->
+                                                    <!--<tr id="{{attrs.name}}" class$="file-metrics-table-{{attrs.name}}">-->
+                                                        <!--<td><span style="font-weight: bold">{{attrs.name}}</span></td>-->
+                                                        <!--<template is="dom-repeat" items="{{attrs.values}}" as="attr">-->
+                                                            <!--<td>{{attr}}</td>-->
+                                                        <!--</template>-->
+                                                    <!--</tr>-->
+                                                <!--</template>-->
+                                                <!--</tbody>-->
+                                            <!--</table>-->
+                                        <!--</div>-->
+                                    <!--</div>-->
 
                                     <!--Beacon network-->
                                     <div role="tabpanel" class="tab-pane" id="{{prefix}}BeaconNetwork">
@@ -411,17 +413,17 @@
                                     </div>
 
                                     <!-- Genome Browser -->
-                                    <div role="tabpanel" class="tab-pane" id="{{prefix}}GenomeBrowser">
-                                        <div class="" style="padding: 0px 5px">
-                                            <!--<variant-genome-browser project="{{project}}" study="{{study}}" samples="{{samples}}" active="{{_genomeBrowserActive}}"-->
-                                            <!--opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" region="{{regionGenomeBrowser}}">-->
-                                            <!--</variant-genome-browser>-->
-                                            <genome-browser cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}"
-                                                            region="{{regionGenomeBrowser}}"
-                                                            study="{{study}}" project="{{project}}" active="{{_genomeBrowserActive}}">
-                                            </genome-browser>
-                                        </div>
-                                    </div>
+                                    <!--<div role="tabpanel" class="tab-pane" id="{{prefix}}GenomeBrowser">-->
+                                        <!--<div class="" style="padding: 0px 5px">-->
+                                            <!--&lt;!&ndash;<variant-genome-browser project="{{project}}" study="{{study}}" samples="{{samples}}" active="{{_genomeBrowserActive}}"&ndash;&gt;-->
+                                            <!--&lt;!&ndash;opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" region="{{regionGenomeBrowser}}">&ndash;&gt;-->
+                                            <!--&lt;!&ndash;</variant-genome-browser>&ndash;&gt;-->
+                                            <!--<genome-browser cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}"-->
+                                                            <!--region="{{regionGenomeBrowser}}"-->
+                                                            <!--study="{{study}}" project="{{project}}" active="{{_genomeBrowserActive}}">-->
+                                            <!--</genome-browser>-->
+                                        <!--</div>-->
+                                    <!--</div>-->
                                 </div>
                             </div>
                         </div>
@@ -730,9 +732,12 @@
             }
             _onSelectVariant(row) {
                 if (typeof row !== "undefined") {
+
 //                    let _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
-                    this.variant = row.id;
+//                    this.variant = row.id;
+                    this.variant  = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
                     this.variantObj = row;
+
                     this.dispatchEvent(new CustomEvent('selectvariant', {detail: {id: this.variant, variant: row}, bubbles: true, composed: true}));
                 }
             }
@@ -745,18 +750,22 @@
                 }
             }
             variantIdFormatter(value, row, index) {
-                let res = "";
-                if (UtilsNew.isNotUndefinedOrNull(row.id)) {
-                    res += "<label>" + row.id + "</label><br>";
-                    if (row.annotation.cytoband !== undefined) {
-                        res += "<label>" + row.annotation.cytoband[0].name + "</label><br>";
-                    }
-                }
-                if (UtilsNew.isNotUndefinedOrNull(row.names) && row.names.length > 0) {
-                    res += "<label><a href='https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?searchType=adhoc_search&type=rs&rs="
-                        + row.names[0]+ "' target='_blank'>dbSNP " + row.names[0] + "</a></label>";
-                }
-                return res;
+//                let res = "";
+                let ref = (row.reference != "") ? row.reference : "-";
+                let alt = (row.alternate != "") ? row.alternate : "-";
+                return "<span style='white-space: nowrap'>" + row.chromosome + ':' + row.start + " " + ref + '/' + alt + "</span>";
+//
+//                if (UtilsNew.isNotUndefinedOrNull(row.id)) {
+//                    res += "<label>" + row.id + "</label><br>";
+//                    if (row.annotation.cytoband !== undefined) {
+//                        res += "<label>" + row.annotation.cytoband[0].name + "</label><br>";
+//                    }
+//                }
+//                if (UtilsNew.isNotUndefinedOrNull(row.names) && row.names.length > 0) {
+//                    res += "<label><a href='https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?searchType=adhoc_search&type=rs&rs="
+//                        + row.names[0]+ "' target='_blank'>dbSNP " + row.names[0] + "</a></label>";
+//                }
+//                return res;
             }
             geneFormatter(value, row, index) {
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
@@ -781,7 +790,7 @@
                 return '-';
             }
             geneAnnotationFormatter(value, row, index) {
-                let val = "<span style='color: red'>missense_variant</span><br>c123T>C";
+                let val = "<span style='color: red'>missense_variant</span>";
                 return val;
             }
             prediciotnFormatter(value, row, index) {
@@ -992,10 +1001,13 @@
 
 
             pedigreeRender() {
+                if (UtilsNew.isNotUndefinedOrNull(PolymerUtils.getElementById(this.prefix + "PedigreeView"))) {
+                    PolymerUtils.innerHTML(this.prefix + "PedigreeView", "");
+                }
                 if (UtilsNew.isNotUndefinedOrNull(this.interpretation.clinicalAnalysis) && UtilsNew.isNotUndefinedOrNull(this.interpretation.clinicalAnalysis.family) && this.interpretation.clinicalAnalysis.family.id > 0 ) {
-                    if (UtilsNew.isNotUndefined(this.svg)) {
-                        PolymerUtils.getElementById(this.prefix + "PedigreeView").removeChild(this.svg);
-                    }
+//                    if (UtilsNew.isNotUndefined(this.svg)) {
+//                        PolymerUtils.getElementById(this.prefix + "PedigreeView").removeChild(this.svg);
+//                    }
                     let body = Object.assign({},this.interpretation.clinicalAnalysis.family);
                     let membersNew =[];
                     body.members.forEach((member) => {
