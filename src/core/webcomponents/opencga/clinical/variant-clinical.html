@@ -122,28 +122,28 @@
 
             <div class="col-md-12">
                 <div class="col-md-6" style="float: none;margin: auto">
-                    <button id="{{prefix}}UploadButton" type="button"
+                    <button id="{{prefix}}UploadButton" type="button" data-id="UploadButton"
                             class$="analysis-button btn {{computedClassTabs(activesTab.uploadTab)}} btn-arrow-right"
                             on-click="changeTool" data-toggle="tooltip" data-placement="top" title="Upload sample">
-                        <i class="fa fa-upload" aria-hidden="true"></i> Upload
+                        <i class="fa fa-upload"  data-id="UploadButton" aria-hidden="true"></i> Upload
                     </button>
-                    <button id="{{prefix}}SamplesButton" type="button"
+                    <button id="{{prefix}}SamplesButton" type="button" data-id="SamplesButton"
                             class$="analysis-button btn {{computedClassTabs(activesTab.analysisTab)}} btn-arrow-right"
                             on-click="changeTool" data-toggle="tooltip" data-placement="top"
                             title="Connect, link & choose analysis of samples" >
-                        <i class="fa fa-sitemap" aria-hidden="true"></i> Analysis
+                        <i class="fa fa-sitemap" data-id="SamplesButton" aria-hidden="true"></i> Analysis
                     </button>
-                    <button id="{{prefix}}PrioritizationButton" type="button"
+                    <button id="{{prefix}}PrioritizationButton" type="button"  data-id="PrioritizationButton"
                             class$="analysis-button btn {{computedClassTabs(activesTab.prioritizationTab)}} btn-arrow-right"
                             on-click="changeTool"
                             data-toggle="tooltip" data-placement="top" title="Filter & Prioritization">
-                        <i class="fa fa-filter" aria-hidden="true"></i> Prioritization
+                        <i class="fa fa-filter" data-id="PrioritizationButton" aria-hidden="true"></i> Prioritization
                     </button>
-                    <button id="{{prefix}}ReportButton" type="button"
+                    <button id="{{prefix}}ReportButton" type="button" data-id="ReportButton"
                             class$="analysis-button btn {{computedClassTabs(activesTab.reportTab)}} btn-arrow-right"
                             on-click="changeTool"
                             data-toggle="tooltip" data-placement="top" title="Generate report">
-                        <i class="fa fa-file-text" aria-hidden="true"></i> Report
+                        <i class="fa fa-file-text"  data-id="ReportButton" aria-hidden="true"></i> Report
                     </button>
                 </div>
             </div>
@@ -246,9 +246,9 @@
                                                     consequence-types="{{consequenceTypes}}"
                                                     opencga-client="{{opencgaClient}}"
                                                     cellbase-client="{{cellbaseClient}}"
-                                                    ebi-config="{{config.ebiWS}}"
+                                                    ebi-config="{{ebiConfig}}"
                                                     beacon-hosts="{{config.tools.beacon.hosts}}" on-gene="geneSelected"
-                                                    clinical-analysis="{{clinicalAnalysis}}" >
+                                                    clinical-analysis="{{clinicalAnalysis}}" on-backtoselectanalysis="changeTool" >
                             </variant-prioritization>
                         </div>
                     </template>
@@ -447,26 +447,39 @@
                     this.set("activesTab." + property, false);
                 }
 
-                if (e.currentTarget.id === this.prefix + "SamplesButton") {
+                let id = this.prefix;
+                if (UtilsNew.isNotUndefinedOrNull(e.detail.idTab) && UtilsNew.isNotUndefinedOrNull(e.detail.idTab)){
+                    id += e.detail.idTab;
+                } else {
+                    id += e.target.getAttribute("data-id");
+                }
+
+                this.changeToolById(id);
+            }
+
+            changeToolById(id){
+
+                if (id === this.prefix + "SamplesButton") {
                     this.set("activesTab.analysisTab", true);
                 }
 
-                if (e.currentTarget.id === this.prefix + "UploadButton") {
+                if (id === this.prefix + "UploadButton") {
                     this.set("activesTab.uploadTab", true);
                 }
 
-                if (e.currentTarget.id === this.prefix + "PrioritizationButton") {
+                if (id === this.prefix + "PrioritizationButton") {
                     this.set("activesTab.prioritizationTab", true);
                     this.activePrioritization = false;
                     this.getRecentAnalysis();
                 }
 
-                if (e.currentTarget.id === this.prefix + "ReportButton") {
+                if (id === this.prefix + "ReportButton") {
                     this.set("activesTab.reportTab", true);
                     this.activeReport = false;
                     this.getRecentAnalysis();
                 }
             }
+
 
             computedClassTabs(isActive) {
                 return !isActive ? "btn-success" : "btn-primary";
