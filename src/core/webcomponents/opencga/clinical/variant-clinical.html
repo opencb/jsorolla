@@ -308,7 +308,7 @@
                         </template>
                         <template is="dom-if" if="{{activeReport}}">
                             <variant-clinical-report opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}"
-                                                     title="Generate Report" interpretation="{{interpretationReport}}" analysis="{{clinicalAnalysis}}" expReport="true">
+                                                     title="Report of {{clinicalAnalysis.name}}" interpretation="{{interpretationReport}}" analysis="{{clinicalAnalysis}}" expReport="true">
                             </variant-clinical-report>
                         </template>
                 </template>
