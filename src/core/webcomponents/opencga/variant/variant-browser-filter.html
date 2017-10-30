@@ -464,7 +464,100 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="browser-subsection">Consequence Type</div>
+
+                            <div class="panel-body browser-ct-scroll">
+                                <div class="form-group">
+                                    <div class="browser-subsection">Loss-of-Function (LoF) terms</div>
+                                    <div class="form-check" style="margin-top: 5px;">
+                                        <div class="form-check-label">
+
+                                            <label id="{{prefix}}LossOfFunctionCheckBoxLabel" class="notbold">
+                                                <input id="{{prefix}}LossOfFunctionCheckBox" type="checkbox"
+                                                       class$="{{prefix}}FilterCheckBox form-check-input" on-change="updateConsequenceTypeFilter">
+                                                LoF terms</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="browser-subsection">Consequence Type terms</div>
+
+                                    <div class="browser-ct-tree-view browser-ct-item">
+                                        <ul id="{{prefix}}consequenceTypeFilter">
+                                            <template is="dom-repeat" items="{{consequenceTypes.categories}}" as="category">
+                                                <li id="{{category.title}}" class="form-check" style="margin-top: 10px;">
+                                                    <!--First check if there is a title for that category-->
+                                                    <template is="dom-if" if="{{checkTitle(category)}}">
+                                                        <!--If it is a category, only title is shown as it doesn't have any SO term associated with it-->
+                                                        <template is="dom-if" if="{{category.isCategory}}">
+                                                            <label class="form-check-label notbold">
+                                                                <input type="checkbox" on-change="updateConsequenceTypeFilter"
+                                                                       class$="{{prefix}}FilterCheckBox"> {{category.title}}
+                                                            </label>
+                                                        </template>
+                                                        <!--If it is not a category, SO terms should be shown along with its actual title-->
+                                                        <template is="dom-if" if="{{!category.isCategory}}">
+                                                            <input type="checkbox" on-change="updateConsequenceTypeFilter"
+                                                                   data-id="{{category.name}}"
+                                                                   class$="soTermCheckBox {{prefix}}FilterCheckBox">
+                                                            <span title="{{item.description}}">
+                                                                {{category.title}} (<a
+                                                                    href="http://www.sequenceontology.org/browser/current_svn/term/{{category.id}}"
+                                                                    target="_blank">{{category.id}}</a>)</span>
+
+                                                        </template>
+                                                    </template>
+                                                    <!--Title is optional. Consequence type name is taken in case title is not given-->
+                                                    <template is="dom-if" if="{{!checkTitle(category)}}">
+                                                        <!--If it is a category, only name is shown as it doesn't have any SO term associated with it-->
+                                                        <template is="dom-if" if="{{category.isCategory}}">
+                                                            <div class="form-check" style="margin-top: 10px;">
+                                                                <label class="form-check-label notbold">
+                                                                    <input type="checkbox" on-change="updateConsequenceTypeFilter"
+                                                                           class$="{{prefix}}FilterCheckBox"> {{category.name}}
+                                                                </label>
+                                                            </div>
+                                                        </template>
+                                                        <!--If it is not a category, SO terms should be shown along with its actual name-->
+                                                        <template is="dom-if" if="{{!category.isCategory}}">
+                                                            <div class="form-check" style="margin-top: 10px;">
+                                                                <label class="form-check-label notbold">
+                                                                    <input type="checkbox" on-change="updateConsequenceTypeFilter"
+                                                                           data-id="{{category.name}}"
+                                                                           class$="soTermCheckBox {{prefix}}FilterCheckBox">
+                                                                    <span title="{{item.description}}">
+                                                        {{category.name}} (<a
+                                                                            href="http://www.sequenceontology.org/browser/current_svn/term/{{category.id}}"
+                                                                            target="_blank">{{category.id}}</a>)</span>
+                                                                </label>
+                                                            </div>
+                                                        </template>
+                                                    </template>
+                                                    <ul>
+                                                        <template is="dom-repeat" items="{{category.terms}}">
+                                                            <li class="form-check">
+                                                                <label class="form-check-label notbold">
+                                                                    <input type="checkbox" data-id="{{item.name}}" on-change="updateConsequenceTypeFilter"
+                                                                           class$="soTermCheckBox {{prefix}}FilterCheckBox">
+                                                                    <span title="{{item.description}}">
+                                                                {{item.name}} (<a
+                                                                            href="http://www.sequenceontology.org/browser/current_svn/term/{{item.id}}"
+                                                                            target="_blank">{{item.id}}</a>)
+                                                                </span>
+                                                                </label>
+                                                            </li>
+                                                        </template>
+                                                    </ul>
+                                                </li>
+                                            </template>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
+
                     </div>
                 </div>
 
@@ -621,12 +714,11 @@
                                 </div>
 
                                 <form style="padding-top: 15px">
-                                    <label style="font-weight: normal;">Logical Operator</label>
+                                    <!--<label style="font-weight: normal;">Logical Operator</label>-->
                                     <input type="radio" name="pss" id="pssOrRadio" value="or" class$="{{prefix}}FilterRadio"
-                                           checked disabled on-change="updateQueryFilters" style="margin-left: 10px"> OR<br>
+                                           checked disabled on-change="updateQueryFilters" style="margin-right: 5px"> OR
                                     <input type="radio" name="pss" id="pssAndRadio" value="and"
-                                           class$="{{prefix}}FilterRadio" disabled on-change="updateQueryFilters"
-                                           style="margin-left: 102px"> AND<br>
+                                           class$="{{prefix}}FilterRadio" disabled on-change="updateQueryFilters"> AND<br>
                                 </form>
                                 <br>
                             </div>
@@ -774,11 +866,11 @@
                                 </div>
 
                                 <form style="padding-top: 15px">
-                                    <label style="font-weight: normal;">Logical Operator</label>
+                                    <!--<label style="font-weight: normal;">Logical Operator</label>-->
                                     <input type="radio" name="conservation" id="conservationOrRadio" value="or"
-                                           class$="{{prefix}}FilterRadio" checked disabled on-change="updateQueryFilters" style="margin-left: 10px"> OR<br>
+                                           class$="{{prefix}}FilterRadio" checked disabled on-change="updateQueryFilters" style="margin-right: 5px"> OR
                                     <input type="radio" name="conservation" id="conservationAndRadio" value="and"
-                                           class$="{{prefix}}FilterRadio" disabled on-change="updateQueryFilters" style="margin-left: 102px"> AND<br>
+                                           class$="{{prefix}}FilterRadio" disabled on-change="updateQueryFilters" > AND<br>
                                 </form>
                             </div>
                         </div>
@@ -786,138 +878,112 @@
                 </div>
 
                 <!--Consequence Type filter-->
-                <div class="panel panel-default">
-                    <div class="panel-heading" role="tab" id="{{prefix}}ConsequenceTypeHeading">
-                        <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                               href="#{{prefix}}ConsequenceType" aria-expanded="false" aria-controls="{{prefix}}ConsequenceType">
-                                Consequence Type
-                                <!--<div style="float: right" class="tooltip-div">-->
-                                <!--<a data-toggle="tooltip" title="Only considers variants falling in the specified gene regions and with the specified effect, as defined by the consequence types">-->
-                                <!--<i class="fa fa-info-circle" aria-hidden="true"></i>-->
-                                <!--</a>-->
+                <!--<div class="panel panel-default">-->
+                    <!--<div class="panel-heading" role="tab" id="{{prefix}}ConsequenceTypeHeading">-->
+                        <!--<h4 class="panel-title">-->
+                            <!--<a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"-->
+                               <!--href="#{{prefix}}ConsequenceType" aria-expanded="false" aria-controls="{{prefix}}ConsequenceType">-->
+                                <!--Consequence Type-->
+                                <!--&lt;!&ndash;<div style="float: right" class="tooltip-div">&ndash;&gt;-->
+                                <!--&lt;!&ndash;<a data-toggle="tooltip" title="Only considers variants falling in the specified gene regions and with the specified effect, as defined by the consequence types">&ndash;&gt;-->
+                                <!--&lt;!&ndash;<i class="fa fa-info-circle" aria-hidden="true"></i>&ndash;&gt;-->
+                                <!--&lt;!&ndash;</a>&ndash;&gt;-->
+                                <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                            <!--</a>-->
+                        <!--</h4>-->
+                    <!--</div>-->
+                    <!--<div id="{{prefix}}ConsequenceType" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}consequenceTypeHeading">-->
+                        <!--<div class="panel-body browser-ct-scroll">-->
+                            <!--<div class="form-group">-->
+                                <!--<div class="browser-subsection">Loss-of-Function (LoF) terms</div>-->
+                                <!--<div class="form-check" style="margin-top: 5px;">-->
+                                    <!--<div class="form-check-label">-->
+
+                                        <!--<label id="{{prefix}}LossOfFunctionCheckBoxLabel" class="notbold">-->
+                                            <!--<input id="{{prefix}}LossOfFunctionCheckBox" type="checkbox"-->
+                                                   <!--class$="{{prefix}}FilterCheckBox form-check-input" on-change="updateConsequenceTypeFilter">-->
+                                            <!--LoF terms</label>-->
+                                    <!--</div>-->
                                 <!--</div>-->
-                            </a>
-                        </h4>
-                    </div>
-                    <div id="{{prefix}}ConsequenceType" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}consequenceTypeHeading">
-                        <div class="panel-body browser-ct-scroll">
-                            <div class="form-group">
-                                <div class="browser-subsection">Loss-of-Function (LoF) terms</div>
-                                <div class="form-check" style="margin-top: 5px;">
-                                    <div class="form-check-label">
+                            <!--</div>-->
 
-                                        <label id="{{prefix}}LossOfFunctionCheckBoxLabel" class="notbold">
-                                            <input id="{{prefix}}LossOfFunctionCheckBox" type="checkbox"
-                                                   class$="{{prefix}}FilterCheckBox form-check-input" on-change="updateConsequenceTypeFilter">
-                                            LoF terms</label>
-                                    </div>
-                                </div>
-                            </div>
+                            <!--<div class="form-group">-->
+                                <!--<div class="browser-subsection">Consequence Type terms</div>-->
 
-                            <div class="form-group">
-                                <div class="browser-subsection">Consequence Type terms</div>
+                                <!--<div class="browser-ct-tree-view browser-ct-item">-->
+                                    <!--<ul id="{{prefix}}consequenceTypeFilter">-->
+                                        <!--<template is="dom-repeat" items="{{consequenceTypes.categories}}" as="category">-->
+                                            <!--<li id="{{category.title}}" class="form-check" style="margin-top: 10px;">-->
+                                                <!--&lt;!&ndash;First check if there is a title for that category&ndash;&gt;-->
+                                                <!--<template is="dom-if" if="{{checkTitle(category)}}">-->
+                                                    <!--&lt;!&ndash;If it is a category, only title is shown as it doesn't have any SO term associated with it&ndash;&gt;-->
+                                                    <!--<template is="dom-if" if="{{category.isCategory}}">-->
+                                                        <!--<label class="form-check-label notbold">-->
+                                                            <!--<input type="checkbox" on-change="updateConsequenceTypeFilter"-->
+                                                                   <!--class$="{{prefix}}FilterCheckBox"> {{category.title}}-->
+                                                        <!--</label>-->
+                                                    <!--</template>-->
+                                                    <!--&lt;!&ndash;If it is not a category, SO terms should be shown along with its actual title&ndash;&gt;-->
+                                                    <!--<template is="dom-if" if="{{!category.isCategory}}">-->
+                                                        <!--<input type="checkbox" on-change="updateConsequenceTypeFilter"-->
+                                                               <!--data-id="{{category.name}}"-->
+                                                               <!--class$="soTermCheckBox {{prefix}}FilterCheckBox">-->
+                                                        <!--<span title="{{item.description}}">-->
+                                                                <!--{{category.title}} (<a-->
+                                                                <!--href="http://www.sequenceontology.org/browser/current_svn/term/{{category.id}}"-->
+                                                                <!--target="_blank">{{category.id}}</a>)</span>-->
 
-                                <div class="browser-ct-tree-view browser-ct-item">
-                                    <ul id="{{prefix}}consequenceTypeFilter">
-                                        <template is="dom-repeat" items="{{consequenceTypes.categories}}" as="category">
-                                            <li id="{{category.title}}" class="form-check" style="margin-top: 10px;">
-                                                <!--First check if there is a title for that category-->
-                                                <template is="dom-if" if="{{checkTitle(category)}}">
-                                                    <!--If it is a category, only title is shown as it doesn't have any SO term associated with it-->
-                                                    <template is="dom-if" if="{{category.isCategory}}">
-                                                        <label class="form-check-label notbold">
-                                                            <input type="checkbox" on-change="updateConsequenceTypeFilter"
-                                                                   class$="{{prefix}}FilterCheckBox"> {{category.title}}
-                                                        </label>
-                                                    </template>
-                                                    <!--If it is not a category, SO terms should be shown along with its actual title-->
-                                                    <template is="dom-if" if="{{!category.isCategory}}">
-                                                        <input type="checkbox" on-change="updateConsequenceTypeFilter"
-                                                               data-id="{{category.name}}"
-                                                               class$="soTermCheckBox {{prefix}}FilterCheckBox">
-                                                        <span title="{{item.description}}">
-                                                                {{category.title}} (<a
-                                                                href="http://www.sequenceontology.org/browser/current_svn/term/{{category.id}}"
-                                                                target="_blank">{{category.id}}</a>)</span>
-
-                                                    </template>
-                                                </template>
-                                                <!--Title is optional. Consequence type name is taken in case title is not given-->
-                                                <template is="dom-if" if="{{!checkTitle(category)}}">
-                                                    <!--If it is a category, only name is shown as it doesn't have any SO term associated with it-->
-                                                    <template is="dom-if" if="{{category.isCategory}}">
-                                                        <div class="form-check" style="margin-top: 10px;">
-                                                            <label class="form-check-label notbold">
-                                                                <input type="checkbox" on-change="updateConsequenceTypeFilter"
-                                                                       class$="{{prefix}}FilterCheckBox"> {{category.name}}
-                                                            </label>
-                                                        </div>
-                                                    </template>
-                                                    <!--If it is not a category, SO terms should be shown along with its actual name-->
-                                                    <template is="dom-if" if="{{!category.isCategory}}">
-                                                        <div class="form-check" style="margin-top: 10px;">
-                                                            <label class="form-check-label notbold">
-                                                                <input type="checkbox" on-change="updateConsequenceTypeFilter"
-                                                                       data-id="{{category.name}}"
-                                                                       class$="soTermCheckBox {{prefix}}FilterCheckBox">
-                                                                <span title="{{item.description}}">
-                                                        {{category.name}} (<a
-                                                                        href="http://www.sequenceontology.org/browser/current_svn/term/{{category.id}}"
-                                                                        target="_blank">{{category.id}}</a>)</span>
-                                                            </label>
-                                                        </div>
-                                                    </template>
-                                                </template>
-                                                <ul>
-                                                    <template is="dom-repeat" items="{{category.terms}}">
-                                                        <li class="form-check">
-                                                            <label class="form-check-label notbold">
-                                                                <input type="checkbox" data-id="{{item.name}}" on-change="updateConsequenceTypeFilter"
-                                                                       class$="soTermCheckBox {{prefix}}FilterCheckBox">
-                                                                <span title="{{item.description}}">
-                                                                {{item.name}} (<a
-                                                                        href="http://www.sequenceontology.org/browser/current_svn/term/{{item.id}}"
-                                                                        target="_blank">{{item.id}}</a>)
-                                                                </span>
-                                                            </label>
-                                                        </li>
-                                                    </template>
-                                                </ul>
-                                            </li>
-                                        </template>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Gene Ontology filter-->
-                <div class="panel panel-default">
-                    <div class="panel-heading" role="tab" id="{{prefix}}GeneOntologyHeading">
-                        <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                               href="#{{prefix}}GeneOntology" aria-expanded="false" aria-controls="{{prefix}}GeneOntology">
-                                Gene Ontology
-                            </a>
-                        </h4>
-                    </div>
-                    <div id="{{prefix}}GeneOntology" class="panel-collapse collapse" role="tabpanel"
-                         aria-labelledby="{{prefix}}GeneOntologyHeading">
-                        <div class="panel-body">
-                            <span class="browser-subsection">GO Accessions</span>
-                            <div class="form-group">
-                                <textarea id="{{prefix}}GeneOntologyTextarea" readonly class$="form-control clearable {{prefix}}FilterTextInput"
-                                          rows="3" name="geneOntology" placeholder="GO:0000145" on-keyup="updateQueryFilters"></textarea>
-                                <span class="input-group-addon btn btn-primary searchingSpan" on-click="openModalGo">
-                                    <strong style="color: white;" >Add Go Term</strong>
-                                    <i class="fa fa-search searchingButton" aria-hidden="true"></i>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                                                    <!--</template>-->
+                                                <!--</template>-->
+                                                <!--&lt;!&ndash;Title is optional. Consequence type name is taken in case title is not given&ndash;&gt;-->
+                                                <!--<template is="dom-if" if="{{!checkTitle(category)}}">-->
+                                                    <!--&lt;!&ndash;If it is a category, only name is shown as it doesn't have any SO term associated with it&ndash;&gt;-->
+                                                    <!--<template is="dom-if" if="{{category.isCategory}}">-->
+                                                        <!--<div class="form-check" style="margin-top: 10px;">-->
+                                                            <!--<label class="form-check-label notbold">-->
+                                                                <!--<input type="checkbox" on-change="updateConsequenceTypeFilter"-->
+                                                                       <!--class$="{{prefix}}FilterCheckBox"> {{category.name}}-->
+                                                            <!--</label>-->
+                                                        <!--</div>-->
+                                                    <!--</template>-->
+                                                    <!--&lt;!&ndash;If it is not a category, SO terms should be shown along with its actual name&ndash;&gt;-->
+                                                    <!--<template is="dom-if" if="{{!category.isCategory}}">-->
+                                                        <!--<div class="form-check" style="margin-top: 10px;">-->
+                                                            <!--<label class="form-check-label notbold">-->
+                                                                <!--<input type="checkbox" on-change="updateConsequenceTypeFilter"-->
+                                                                       <!--data-id="{{category.name}}"-->
+                                                                       <!--class$="soTermCheckBox {{prefix}}FilterCheckBox">-->
+                                                                <!--<span title="{{item.description}}">-->
+                                                        <!--{{category.name}} (<a-->
+                                                                        <!--href="http://www.sequenceontology.org/browser/current_svn/term/{{category.id}}"-->
+                                                                        <!--target="_blank">{{category.id}}</a>)</span>-->
+                                                            <!--</label>-->
+                                                        <!--</div>-->
+                                                    <!--</template>-->
+                                                <!--</template>-->
+                                                <!--<ul>-->
+                                                    <!--<template is="dom-repeat" items="{{category.terms}}">-->
+                                                        <!--<li class="form-check">-->
+                                                            <!--<label class="form-check-label notbold">-->
+                                                                <!--<input type="checkbox" data-id="{{item.name}}" on-change="updateConsequenceTypeFilter"-->
+                                                                       <!--class$="soTermCheckBox {{prefix}}FilterCheckBox">-->
+                                                                <!--<span title="{{item.description}}">-->
+                                                                <!--{{item.name}} (<a-->
+                                                                        <!--href="http://www.sequenceontology.org/browser/current_svn/term/{{item.id}}"-->
+                                                                        <!--target="_blank">{{item.id}}</a>)-->
+                                                                <!--</span>-->
+                                                            <!--</label>-->
+                                                        <!--</li>-->
+                                                    <!--</template>-->
+                                                <!--</ul>-->
+                                            <!--</li>-->
+                                        <!--</template>-->
+                                    <!--</ul>-->
+                                <!--</div>-->
+                            <!--</div>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                <!--</div>-->
 
                 <!-- Phenotype-Disease filter -->
                 <div class="panel panel-default">
@@ -925,7 +991,7 @@
                         <h4 class="panel-title">
                             <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
                                href="#{{prefix}}Traits" aria-expanded="false" aria-controls="{{prefix}}HumanPhenotypeOntology">
-                                Phenotype-Disease (<span style="color: red">New!</span>)
+                               Clinical
                             </a>
                         </h4>
                     </div>
@@ -938,6 +1004,15 @@
                                           rows="3" name="hpo" placeholder="HP:0000001, HP:3000079" on-keyup="updateQueryFilters"></textarea>
                                 <span class="input-group-addon btn btn-primary searchingSpan" on-click="openModalHpo">
                                     <strong style="color: white;" >Add HPO Term</strong>
+                                    <i class="fa fa-search searchingButton" aria-hidden="true"></i>
+                                </span>
+                            </div>
+
+                            <div class="form-group">
+                                <textarea id="{{prefix}}GeneOntologyTextarea" readonly class$="form-control clearable {{prefix}}FilterTextInput"
+                                          rows="3" name="geneOntology" placeholder="GO:0000145" on-keyup="updateQueryFilters"></textarea>
+                                <span class="input-group-addon btn btn-primary searchingSpan" on-click="openModalGo">
+                                    <strong style="color: white;" >Add Go Term</strong>
                                     <i class="fa fa-search searchingButton" aria-hidden="true"></i>
                                 </span>
                             </div>
@@ -1939,12 +2014,15 @@
 
                 let boxsFilters =  ["study", "genomic", "populationFrequency","deleteriousness","conservation"];
                 for (let filterBox in boxsFilters){
-                    let subBoxes = Object.keys(this.config.filter[boxsFilters[filterBox]]);
-                    for (let o in subBoxes) {
-                        if (UtilsNew.isNotEmpty(this.config.filter[boxsFilters[filterBox]][subBoxes[o]].tooltip)) {
-                            this._addTooltip($("#" + subBoxes[o] + "Tooltip"), this.config.filter[boxsFilters[filterBox]][subBoxes[o]].tooltip,
+                    let filter = this.config.filter[boxsFilters[filterBox]];
+                    if (UtilsNew.isNotUndefinedOrNull(filter)){
+                        let subBoxes = Object.keys(filter);
+                        for (let o in subBoxes) {
+                            if (UtilsNew.isNotEmpty(this.config.filter[boxsFilters[filterBox]][subBoxes[o]].tooltip)) {
+                                this._addTooltip($("#" + subBoxes[o] + "Tooltip"), this.config.filter[boxsFilters[filterBox]][subBoxes[o]].tooltip,
 //                                    $("#" +subBoxes[o]+"Id").getAttribute("name"));
-                            document.getElementById(subBoxes[o]+"Id").getAttribute("name"));
+                                    document.getElementById(subBoxes[o]+"Id").getAttribute("name"));
+                            }
                         }
                     }
                 }
