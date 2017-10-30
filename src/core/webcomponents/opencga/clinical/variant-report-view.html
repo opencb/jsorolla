@@ -66,7 +66,7 @@
         <br>
         <div id="{{prefix}}reportDiv" class="panel panel-default" >
             <div class="panel-body">
-                <h2 style="margin: 10px 5px 15px 25px">{{title}}</h2>
+                <h2 id="{{prefix}}titleReport" style="margin: 10px 5px 15px 25px">{{title}}</h2>
                 <div style="float: right; padding: 0px 0px 10px 5px">
                     <span>{{requestDate}}</span>
                 </div>
@@ -438,7 +438,7 @@
                         PolymerUtils.setPropertyById(this.prefix + "Ethnicity", "innerText", this.interpretation.clinicalAnalysis.subjects[0].ethnicity);
                         PolymerUtils.setPropertyById(this.prefix + "ChromosomalGender", "innerText",  this.interpretation.clinicalAnalysis.subjects[0].karyotypicSex);
                         PolymerUtils.setPropertyById(this.prefix + "lifeStatus", "innerText",  this.interpretation.clinicalAnalysis.subjects[0].lifeStatus);
-                        PolymerUtils.setPropertyById(this.prefix + "ParentalConsanguinity", "innerText",  this.interpretation.clinicalAnalysis.subjects[0].parentalConsanguinity);
+                        PolymerUtils.setPropertyById(this.prefix + "ParentalConsanguinity", "innerText",  this.interpretation.clinicalAnalysis.subjects[0].parentalConsanguinity ? "Yes" : "No");
                         PolymerUtils.setPropertyById(this.prefix + "birthPlace", "innerText", this.interpretation.clinicalAnalysis.subjects[0].population.name);
                         PolymerUtils.setPropertyById(this.prefix + "SampleID", "innerText",  this.interpretation.clinicalAnalysis.subjects[0].samples[0].name);
     //
@@ -452,7 +452,7 @@
                         }).map((icd) => icd.name).join(",");
                         PolymerUtils.innerHTML(this.prefix + "Diagnosis",  ICD10Diseases);
     //
-                        PolymerUtils.setPropertyById(this.prefix + "cellLine", "innerText", this.interpretation.clinicalAnalysis.subjects[0].samples[0].somatic);
+                        PolymerUtils.setPropertyById(this.prefix + "cellLine", "innerText", this.interpretation.clinicalAnalysis.subjects[0].samples[0].somatic ? "Yes" : "No");
                         PolymerUtils.setPropertyById(this.prefix + "sampleType", "innerText", this.interpretation.clinicalAnalysis.subjects[0].samples[0].type);
 
 
@@ -509,7 +509,9 @@
                 let table = document.getElementById("variantTablebody");
                 let rows = "";
                 for( let j = 0; j < data.length; j++){
-                    rows += '<tr><td>'+ this._variantParamValue(data[j].id) + '</td><td>'+ this._variantParamValue(data[j].names)
+                    let variantId  = data[j].chromosome + ":" + data[j].start + ":" + data[j].reference + ":" + data[j].alternate;
+
+                    rows += '<tr><td>'+ variantId + '</td><td>'+ this._variantParamValue(data[j].id)
                             + '</td><td>' + this.genesRow(data[j]) + '</td><td>' + this._variantParamValue(data[j].type)
                             + '</td><td>' + this._variantParamValue(data[j].annotation.displayConsequenceType) + '</td></tr>';
 
