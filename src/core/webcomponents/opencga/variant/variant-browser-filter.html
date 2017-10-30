@@ -122,11 +122,11 @@
                                 <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
                                    href="#{{prefix}}Studies" aria-expanded="true" aria-controls="{{prefix}}Studies">
                                     {{config.filter.study.title}}
-                                    <div style="float: right" class="tooltip-div">
-                                        <a data-toggle="tooltip"
-                                           title="Use this filter to find variants which are: 1) also present in all of the selected studies below, 2) not present in any of the studies selected below or 3) present in at least one of the studies selected below">
-                                            <i class="fa fa-info-circle" aria-hidden="true"></i></a>
-                                    </div>
+                                    <!--<div style="float: right" class="tooltip-div">-->
+                                        <!--<a data-toggle="tooltip"-->
+                                           <!--title="Use this filter to find variants which are: 1) also present in all of the selected studies below, 2) not present in any of the studies selected below or 3) present in at least one of the studies selected below">-->
+                                            <!--<i class="fa fa-info-circle" aria-hidden="true"></i></a>-->
+                                    <!--</div>-->
                                 </a>
                             </h4>
                         </div>
@@ -353,13 +353,13 @@
                         <div class="panel-body">
 
                             <div class="form-group">
-                                <div class="browser-subsection">Chromosomal Location
-                                    <div id ="ChromosomalLocationqtip"></div>
-                                    <!--<div style="float: right" class="tooltip-div">-->
+                                <div class="browser-subsection" id="chromosomalLocationId" name="Chromosomal Location">Chromosomal Location
+                                    <!--<div id ="ChromosomalLocationqtip"></div>-->
+                                    <div style="float: right" class="tooltip-div">
                                     <!--<a data-toggle="tooltip" title="Filter out variants falling outside the genomic interval(s) defined">-->
-                                    <!--<i class="fa fa-info-circle" aria-hidden="true"></i>-->
+                                    <a><i class="fa fa-info-circle" aria-hidden="true" id = "chromosomalLocationTooltip"></i></a>
                                     <!--</a>-->
-                                    <!--</div>-->
+                                    </div>
                                 </div>
                                 <div class="subsection-content">
                                     <textarea id="{{prefix}}LocationTextarea" name="location" class$="form-control clearable {{prefix}}FilterTextInput"
@@ -368,16 +368,16 @@
                             </div>
 
                             <div class="form-group">
-                                <div class="browser-subsection">Feature IDs (gene, SNP, ...)
+                                <div class="browser-subsection" id="featureIdsId" name="Feature Ids">Feature IDs (gene, SNP, ...)
                                     <div style="float: right" class="tooltip-div">
-                                        <a data-toggle="tooltip" title="Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined">
-                                            <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                        </a>
+                                        <!--<a data-toggle="tooltip" title="Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined">-->
+                                            <a><i class="fa fa-info-circle" aria-hidden="true" id = "featureIdsTooltip"></i></a>
+                                        <!--</a>-->
                                     </div>
                                 </div>
                                 <div class="subsection-content">
-                                    <div class="form-inline">
-                                        <div class="form-group">
+                                    <div class="row">
+                                        <div class="col-md-9">
                                             <input id="{{prefix}}FeatureIdText" type="text" class="form-control" list="datalist"
                                                    placeholder="Search for Gene Symbols" value="" on-keyup="callAutocomplete">
                                             <datalist id="datalist">
@@ -385,6 +385,8 @@
                                                     <option value="{{item.name}}">
                                                 </template>
                                             </datalist>
+                                        </div>
+                                        <div class="col-md-3">
                                             <button type="button" class="btn btn-default btn-sm form-control" on-click="addFeatureId">
                                                 <i class="fa fa-plus"></i>
                                             </button>
@@ -399,11 +401,11 @@
                             </div>
 
                             <div class="form-group">
-                                <div class="browser-subsection">Gene Disease Panels
+                                <div class="browser-subsection" id="geneDiseasePanelsId" name="Gene Disease Panels">Gene Disease Panels
                                     <div style="float: right" class="tooltip-div">
-                                        <a data-toggle="tooltip" title="Filter out variants falling outside the genomic intervals (typically genes) defined by the panel(s) chosen">
-                                            <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                        </a>
+                                        <!--<a data-toggle="tooltip" title="Filter out variants falling outside the genomic intervals (typically genes) defined by the panel(s) chosen">-->
+                                            <a><i class="fa fa-info-circle" aria-hidden="true" id = "geneDiseasePanelsTooltip"></i></a>
+                                        <!--</a>-->
                                     </div>
                                 </div>
                                 <div class="subsection-content">
@@ -422,11 +424,11 @@
                             </div>
 
                             <div class="form-group">
-                                <div class="browser-subsection">Gene Biotype
+                                <div class="browser-subsection" id="geneBiotypeId" name="Gene Biotype">Gene Biotype
                                     <div style="float: right" class="tooltip-div">
-                                        <a data-toggle="tooltip" title="Only considers variants falling within the specified gene biotypes">
-                                            <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                        </a>
+                                        <!--<a data-toggle="tooltip" title="Only considers variants falling within the specified gene biotypes">-->
+                                            <a><i class="fa fa-info-circle" aria-hidden="true" id = "geneBiotypeTooltip"></i></a>
+                                        <!--</a>-->
                                     </div>
                                 </div>
                                 <div class="subsection-content">
@@ -440,11 +442,11 @@
                             </div>
 
                             <div class="form-group" style="margin-bottom: 5px">
-                                <div class="browser-subsection">Variant Type
+                                <div class="browser-subsection" id="variantTypeId" name="Variant Type">Variant Type
                                     <div style="float: right" class="tooltip-div">
-                                        <a data-toggle="tooltip" title="Only considers variants of the selected type">
-                                            <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                        </a>
+                                        <!--<a data-toggle="tooltip" title="Only considers variants of the selected type">-->
+                                            <a><i class="fa fa-info-circle" aria-hidden="true" id = "variantTypeTooltip"></i></a>
+                                        <!--</a>-->
                                     </div>
                                 </div>
                                 <div class="subsection-content">
@@ -473,11 +475,11 @@
                             <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
                                href="#{{prefix}}PopulationFrequency" aria-expanded="false" aria-controls="{{prefix}}PopulationFrequency">
                                 Population Frequency
-                                <div style="float: right" class="tooltip-div">
-                                    <a data-toggle="tooltip" title="Set filters related with known allelic frequencies in different populations, taken from different databases.">
-                                        <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                    </a>
-                                </div>
+                                <!--<div style="float: right" class="tooltip-div">-->
+                                    <!--<a data-toggle="tooltip" title="Set filters related with known allelic frequencies in different populations, taken from different databases.">-->
+                                        <!--<i class="fa fa-info-circle" aria-hidden="true"></i>-->
+                                    <!--</a>-->
+                                <!--</div>-->
                             </a>
                         </h4>
                     </div>
@@ -540,22 +542,21 @@
                                href="#{{prefix}}ProteinSubstitutionScore"
                                aria-expanded="false" aria-controls="{{prefix}}ProteinSubstitutionScore">
                                 Deleteriousness
-                                <div style="float: right" class="tooltip-div">
-                                    <a data-toggle="tooltip" title="Set filters related with predicted deleterious effect of the variant according to different impact predictors. ">
-                                        <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                    </a>
-                                </div>
+                                <!--<div style="float: right" class="tooltip-div">-->
+                                    <!--<a data-toggle="tooltip" title="Set filters related with predicted deleterious effect of the variant according to different impact predictors. ">-->
+                                        <!--<a><i class="fa fa-info-circle" aria-hidden="true" id = "scoresTooltip"></i></a>-->
+                                    <!--</a>-->
+                                <!--</div>-->
                             </a>
                         </h4>
                     </div>
                     <div id="{{prefix}}ProteinSubstitutionScore" class="panel-collapse collapse" role="tabpanel"
                          aria-labelledby="{{prefix}}ProteinSubstitutionScoreHeading">
                         <div class="panel-body">
-                            <div class="browser-subsection">Protein Substitution Score
+                            <div class="browser-subsection" id = "proteinSubstitutionScoreId" name="Protein Substitution Score">Protein Substitution Score
                                 <!-- New Tooltip in the sub-section title -->
                                 <div style="float: right" class="tooltip-div">
-                                    <a data-toggle="tooltip"
-                                       title="SIFT score. Choose either a Tolerated/Deleterious qualitative score or provide below a quantitative impact value. SIFT scores <0.05 are considered deleterious"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                    <a data-toggle="tooltip"><i class="fa fa-info-circle" aria-hidden="true" id="proteinSubstitutionScoreTooltip"></i></a>
                                 </div>
                             </div>
 
@@ -631,7 +632,13 @@
                             </div>
 
 
-                            <div class="browser-subsection">CADD</div>
+                            <div class="browser-subsection" id = "cADDId" name="CADD">CADD
+                                <div style="float: right" class="tooltip-div">
+                                <a data-toggle="tooltip">
+                                <!--&lt;!&ndash;title="Raw values have relative meaning, with higher values indicating that a variant is more likely to be simulated (or not observed) and therefore more likely to have deleterious effects. If discovering causal variants within an individual, or small groups, of exomes or genomes te use of the scaled CADD score is recommended.">-->
+                                <i class="fa fa-info-circle" aria-hidden="true" id ="cADDTooltip"></i></a>
+                                </div>
+                            </div>
                             <div style="padding-top: 10px">
 
                                 <div class="row">
@@ -651,11 +658,7 @@
                                         <input type="text" value="" class$="{{prefix}}FilterTextInput form-control input-sm"
                                                id="{{prefix}}CaddRawInput" name="caddRaw" on-keyup="updateQueryFilters">
                                     </div>
-                                    <!--<div style="float: right" class="tooltip-div">-->
-                                    <!--<a data-toggle="tooltip"-->
-                                    <!--title="Raw values have relative meaning, with higher values indicating that a variant is more likely to be simulated (or not observed) and therefore more likely to have deleterious effects. If discovering causal variants within an individual, or small groups, of exomes or genomes te use of the scaled CADD score is recommended."><i-->
-                                    <!--class="fa fa-info-circle" aria-hidden="true"></i></a>-->
-                                    <!--</div>-->
+
                                 </div>
                             </div>
 
@@ -1099,6 +1102,7 @@
                 super.connectedCallback();
 
                 this.clinicalAnalysisExistObserver();
+                this._addAllTooltips();
             }
 
             static get observers() {
@@ -1929,6 +1933,31 @@
             _isNotEmptyArray(str) {
                 let arr = this[str];
                 return UtilsNew.isNotEmptyArray(arr);
+            }
+
+            _addAllTooltips(){
+
+                let boxsFilters =  ["study", "genomic", "populationFrequency","deleteriousness","conservation"];
+                for (let filterBox in boxsFilters){
+                    let subBoxes = Object.keys(this.config.filter[boxsFilters[filterBox]]);
+                    for (let o in subBoxes) {
+                        if (UtilsNew.isNotEmpty(this.config.filter[boxsFilters[filterBox]][subBoxes[o]].tooltip)) {
+                            this._addTooltip($("#" + subBoxes[o] + "Tooltip"), this.config.filter[boxsFilters[filterBox]][subBoxes[o]].tooltip,
+//                                    $("#" +subBoxes[o]+"Id").getAttribute("name"));
+                            document.getElementById(subBoxes[o]+"Id").getAttribute("name"));
+                        }
+                    }
+                }
+            }
+
+            _addTooltip(div, content, title){
+                div.qtip({
+                    content: {text: content, title: title},
+                    position: {target: "mouse", adjust: {x: 15, y: 15}},
+                    style: {width: true, classes:  "ocb-tooltip-font" + "  ui-tooltip ui-tooltip-shadow"},
+                    show: {delay: 300},
+                    hide: {delay: 300}
+                });
             }
         }
 
