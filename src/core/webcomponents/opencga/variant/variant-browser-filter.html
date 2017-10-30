@@ -655,7 +655,12 @@
 
                             <div style="padding-top: 10px">
                                 <span style="padding-left: 0px;">SIFT</span>
-
+                                <div style="float: right" class="tooltip-div">
+                                    <a data-toggle="tooltip"
+                                       title=" SIFT score. Choose either a Tolerated/Deleterious qualitative score or provide below a quantitative impact value. SIFT scores <0.05 are considered deleterious."><i
+                                            class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                </div>
+                                <br>
                                 <div class="row">
                                     <div class="col-md-5" style="padding-right: 5px">
                                         <select class="options" name="Sift" id="{{prefix}}SiftValues"  on-change="checkScore" class$="{{prefix}}FilterSelect form-control input-sm">
@@ -681,12 +686,12 @@
 
                             <div style="padding-top: 15px">
                                 <span style="padding-top: 10px;padding-left: 0px;">Polyphen</span>
-                                <!--<div style="float: right" class="tooltip-div">-->
-                                <!--<a data-toggle="tooltip"-->
-                                <!--title=" Choose, either a Benign/probably damaging qualitative score or provide below a quantitative impact value. Polyphen scores are considered Benign (<0.15), Possibly damaging (0.15-0.85) or Damaging (>0.85)"><i-->
-                                <!--class="fa fa-info-circle" aria-hidden="true"></i></a>-->
-                                <!--</div>-->
-                                <!--<br>-->
+                                <div style="float: right" class="tooltip-div">
+                                <a data-toggle="tooltip"
+                                title=" Choose, either a Benign/probably damaging qualitative score or provide below a quantitative impact value. Polyphen scores are considered Benign (<0.15), Possibly damaging (0.15-0.85) or Damaging (>0.85)"><i
+                                class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                </div>
+                                <br>
                                 <div class="row">
                                     <div class="col-sm-5" style="padding-right: 5px">
                                         <select class="options" name="Polyphen" id="{{prefix}}PolyphenValues" on-change="checkScore" class$="{{prefix}}FilterSelect form-control input-sm">
