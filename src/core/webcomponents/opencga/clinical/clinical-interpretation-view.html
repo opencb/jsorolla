@@ -735,8 +735,8 @@
             _onSelectVariant(row) {
                 if (typeof row !== "undefined") {
 
-                    let _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
-//                    this.variant = row.id;
+//                    let variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
+                    this.variant =  row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
 //                    this.variant  = row.annotation.chromosome + ":" + row.annotation.start + ":" + row.annotation.reference + ":" + row.annotation.alternate;
                     this.variantObj = row;
 
