@@ -452,7 +452,7 @@
                         }).map((icd) => icd.name).join(",");
                         PolymerUtils.innerHTML(this.prefix + "Diagnosis",  ICD10Diseases);
     //
-                        PolymerUtils.setPropertyById(this.prefix + "cellLine", "innerText", this.interpretation.clinicalAnalysis.subjects[0].samples[0].somatic ? "Yes" : "No");
+                        PolymerUtils.setPropertyById(this.prefix + "cellLine", "innerText", this.interpretation.clinicalAnalysis.subjects[0].samples[0].somatic ? "Somatic" : "Germline");
                         PolymerUtils.setPropertyById(this.prefix + "sampleType", "innerText", this.interpretation.clinicalAnalysis.subjects[0].samples[0].type);
 
 
