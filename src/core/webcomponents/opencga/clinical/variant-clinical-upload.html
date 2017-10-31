@@ -586,6 +586,9 @@
                         type: Number,
                         observer: 'updateVariableSets'
                     },
+                    project: {
+                        type: Object
+                    },
                     config: {
                         type: Object
                     },
@@ -937,7 +940,7 @@
                 // Index and annotate a VCF file in openCGA
                 let params = {
                     file: fileId,
-                    study: this.study.alias,
+                    study: this.project.alias + ":" + this.study.alias,
                     outDir: fileId + "_index_annot",
                     calculateStats: true,
                     annotate: true
@@ -968,7 +971,7 @@
                 // Upload VCF file to openCGA
                 if (this.opencgaClient instanceof OpenCGAClient) {
                     let params = {
-                        study: this.study.alias,
+                        study: this.project.alias + ":" + this.study.alias,
                         type: "FILE",
                         file: PolymerUtils.getPropertyById(this.prefix + "FileToUpload", "files")[0],
                         fileFormat: "VCF",
@@ -1016,7 +1019,7 @@
                     if (icdTermField !== "") {
                         this.listCurrentSelectedICD.forEach((icdTerm) => {
                             let groupsIcd = icdTerm.split("(");
-                            if(UtilsNew.isNotUndefinedOrNull(groupsIcd) && groupsIcd.length > 0){
+                            if (UtilsNew.isNotUndefinedOrNull(groupsIcd) && groupsIcd.length > 0) {
                                 listOntologyTerms.push({id: groupsIcd[1].split(")")[0], name: groupsIcd[0], source: "ICD10"});
                             }
                         });
@@ -1041,7 +1044,7 @@
                     });
 
                     let params = {
-                        study: this.study.alias
+                        study: this.project.alias + ":" +  this.study.alias
                     };
 
                     let sexIndividual = this.matchingKaryotypicSex.get(formFields.chromosomalGender);
