@@ -349,11 +349,11 @@
                                             Beacon Network
                                         </a>
                                     </li>
-                                    <!--<li role="presentation">-->
-                                        <!--<a href="#{{prefix}}GenomeBrowser" role="tab" data-toggle="tab" class="clinical-bottom-tab-title">-->
-                                            <!--Genome Browser-->
-                                        <!--</a>-->
-                                    <!--</li>-->
+                                    <li role="presentation" on-click="activeGenomeBrowser">
+                                        <a href="#{{prefix}}GenomeBrowser" role="tab" data-toggle="tab" class="clinical-bottom-tab-title">
+                                            Genome Browser
+                                        </a>
+                                    </li>
                                 </ul>
 
                                 <div class="tab-content" style="height: 680px">
@@ -413,17 +413,17 @@
                                     </div>
 
                                     <!-- Genome Browser -->
-                                    <!--<div role="tabpanel" class="tab-pane" id="{{prefix}}GenomeBrowser">-->
-                                        <!--<div class="" style="padding: 0px 5px">-->
-                                            <!--&lt;!&ndash;<variant-genome-browser project="{{project}}" study="{{study}}" samples="{{samples}}" active="{{_genomeBrowserActive}}"&ndash;&gt;-->
-                                            <!--&lt;!&ndash;opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" region="{{regionGenomeBrowser}}">&ndash;&gt;-->
-                                            <!--&lt;!&ndash;</variant-genome-browser>&ndash;&gt;-->
-                                            <!--<genome-browser cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}"-->
-                                                            <!--region="{{regionGenomeBrowser}}"-->
-                                                            <!--study="{{study}}" project="{{project}}" active="{{_genomeBrowserActive}}">-->
-                                            <!--</genome-browser>-->
-                                        <!--</div>-->
-                                    <!--</div>-->
+                                    <div role="tabpanel" class="tab-pane" id="{{prefix}}GenomeBrowser">
+                                        <div class="" style="padding: 0px 5px">
+                                            <!--<variant-genome-browser project="{{project}}" study="{{study}}" samples="{{samples}}" active="{{_genomeBrowserActive}}"-->
+                                            <!--opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" region="{{regionGenomeBrowser}}">-->
+                                            <!--</variant-genome-browser>-->
+                                            <genome-browser cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}"
+                                                            region="{{regionGenomeBrowser}}"
+                                                            study="{{study}}" project="{{project}}" active="{{_genomeBrowserActive}}" settings="{{settings}}">
+                                            </genome-browser>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -444,7 +444,6 @@
                     sequence: {type: "sequence"},
                     gene: {type: "gene"}
                 }
-//                this.regionGenomeBrowser= {chromosome: "21", start: 22859462, end: 22859610};
             }
             static get is() {
                 return "clinical-interpretation-view";
@@ -704,6 +703,10 @@
 
                 this.cols = this._refreshTableColumns();
                 this._genomeBrowserActive = false;
+                if (UtilsNew.isNotUndefinedOrNull(this.interpretation.reportedVariants[0])){
+                    this.regionGenomeBrowser = new Region({chromosome:this.interpretation.reportedVariants[0].chromosome,
+                        start: this.interpretation.reportedVariants[0].start, end:this.interpretation.reportedVariants[0].end});
+                }
                 this._collapse = false;
                 let _this = this;
                 let _table = $('#' + this.prefix + 'mainTable');
@@ -719,7 +722,6 @@
                         $('.success').removeClass('success');
                         $($element).addClass('success');
                         _this._onSelectVariant(row);
-                        _this._genomeBrowserActive = true;
                         _this.regionGenomeBrowser = new Region({chromosome: row.chromosome, start: row.start, end: row.end});
                     },
                     onPostBody: function (data) {
@@ -733,9 +735,9 @@
             _onSelectVariant(row) {
                 if (typeof row !== "undefined") {
 
-//                    let _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
+                    let _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
 //                    this.variant = row.id;
-                    this.variant  = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
+//                    this.variant  = row.annotation.chromosome + ":" + row.annotation.start + ":" + row.annotation.reference + ":" + row.annotation.alternate;
                     this.variantObj = row;
 
                     this.dispatchEvent(new CustomEvent('selectvariant', {detail: {id: this.variant, variant: row}, bubbles: true, composed: true}));
@@ -1042,6 +1044,12 @@
                     });
                     querySelector.appendChild(this.svg);
                 }
+            }
+            activeGenomeBrowser(){
+                let width = $(".tab-content").width();
+                this.settings = {width:width};
+                this._genomeBrowserActive = true;
+
             }
 
 
