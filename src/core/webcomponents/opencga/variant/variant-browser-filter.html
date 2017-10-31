@@ -376,22 +376,22 @@
                                     </div>
                                 </div>
                                 <div class="subsection-content">
-                                    <!--<div class="row">-->
-                                        <!--<div class="col-md-9">-->
-                                            <!--<input id="{{prefix}}FeatureIdText" type="text" class="form-control" list="datalist"-->
-                                                   <!--placeholder="Search for Gene Symbols" value="" on-keyup="callAutocomplete">-->
-                                            <!--<datalist id="datalist">-->
-                                                <!--<template is="dom-repeat" items="{{autocompleteData}}">-->
-                                                    <!--<option value="{{item.name}}">-->
-                                                <!--</template>-->
-                                            <!--</datalist>-->
-                                        <!--</div>-->
-                                        <!--<div class="col-md-3">-->
-                                            <!--<button type="button" class="btn btn-default btn-sm form-control" on-click="addFeatureId">-->
-                                                <!--<i class="fa fa-plus"></i>-->
-                                            <!--</button>-->
-                                        <!--</div>-->
-                                    <!--</div>-->
+                                    <div class="row">
+                                        <div class="col-md-9">
+                                            <input id="{{prefix}}FeatureIdText" type="text" class="form-control" list="datalist"
+                                                   placeholder="Search for Gene Symbols" value="" on-keyup="callAutocomplete">
+                                            <datalist id="datalist">
+                                                <template is="dom-repeat" items="{{autocompleteData}}">
+                                                    <option value="{{item.name}}">
+                                                </template>
+                                            </datalist>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <button type="button" class="btn btn-default btn-sm form-control" on-click="addFeatureId">
+                                                <i class="fa fa-plus"></i>
+                                            </button>
+                                        </div>
+                                    </div>
                                     <div class="form-group">
                                         <textarea id="{{prefix}}FeatureTextarea" name="geneSnp" class$="form-control clearable {{prefix}}FilterTextInput"
                                                   rows="3" placeholder="BRCA2,ENSG00000139618,ENST00000544455,rs28897700"

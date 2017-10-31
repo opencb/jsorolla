@@ -96,6 +96,14 @@
                                     </button>
                                 </div>
 
+                                <template is="dom-if" if="{{clinicalAnalysis}}">
+                                    <div class="btn-group" role="group" aria-label="...">
+                                        <button id="{{prefix}}BackToAnalysisSelector" type="button" class="btn btn-primary variant-prioritization-view-buttons"
+                                                data-view="OpenClinicalAnalysis" on-click="_backToSelectAnalysis">
+                                            <i class="fa fa-arrow-left icon-padding" aria-hidden="true" data-view="OpenClinicalAnalysis" on-click="_backToSelectAnalysis"></i>Back to Clinical Analysis Selector
+                                        </button>
+                                    </div>
+                                </template>
                                 <div class="btn-group" role="group" aria-label="...">
                                     <button id="{{prefix}}OpenClinicalButton" type="button" class="hidden btn btn-primary variant-prioritization-view-buttons"
                                             data-view="OpenClinicalAnalysis" on-click="_changeView">
@@ -106,14 +114,6 @@
                                         <i class="fa fa-floppy-o icon-padding" aria-hidden="true" data-view="SaveInterpretation" on-click="_changeView"></i>Save Interpretation...
                                     </button>
                                 </div>
-                                <template is="dom-if" if="{{clinicalAnalysis}}">
-                                    <div class="btn-group" role="group" aria-label="...">
-                                        <button id="{{prefix}}BackToAnalysisSelector" type="button" class="btn btn-primary variant-prioritization-view-buttons"
-                                                data-view="OpenClinicalAnalysis" on-click="_backToSelectAnalysis">
-                                            <i class="fa fa-arrow-left icon-padding" aria-hidden="true" data-view="OpenClinicalAnalysis" on-click="_backToSelectAnalysis"></i>Back to Clinical Analysis Selector
-                                        </button>
-                                    </div>
-                                </template>
                             </div>
                             <!--</template>-->
                         </div>
