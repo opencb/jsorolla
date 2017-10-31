@@ -56,10 +56,10 @@
                                 <label class="col-md-4">Date:</label>
                                 <span class="col-md-8">{{clinicalAnalysis.creationDate}}</span>
                             </div>
-                            <div class="form-group" style="margin: 0px 2px">
-                                <label class="col-md-4">Description:</label>
-                                <span class="col-md-8">{{clinicalAnalysis.description}}</span>
-                            </div>
+                            <!--<div class="form-group" style="margin: 0px 2px">-->
+                                <!--<label class="col-md-4">Description:</label>-->
+                                <!--<span class="col-md-8">{{clinicalAnalysis.description}}</span>-->
+                            <!--</div>-->
                         </form>
                     </div>
                     <div class="col-md-4">
@@ -72,14 +72,14 @@
                                 {{clinicalAnalysis.subjects.0.samples.0.name}}
                             </span>
                             </div>
-                            <div class="form-group" style="margin: 0px 2px">
-                                <label class="col-md-4">File:</label>
-                                <span class="col-md-8">{{clinicalAnalysis.germline.name}}</span>
-                            </div>
-                            <div class="form-group" style="margin: 0px 2px">
-                                <label class="col-md-4">Genome Assembly:</label>
-                                <span class="col-md-8">{{clinicalAnalysis.germline.assembly}}</span>
-                            </div>
+                            <!--<div class="form-group" style="margin: 0px 2px">-->
+                                <!--<label class="col-md-4">File:</label>-->
+                                <!--<span class="col-md-8">{{clinicalAnalysis.germline.name}}</span>-->
+                            <!--</div>-->
+                            <!--<div class="form-group" style="margin: 0px 2px">-->
+                                <!--<label class="col-md-4">Genome Assembly:</label>-->
+                                <!--<span class="col-md-8">{{clinicalAnalysis.germline.assembly}}</span>-->
+                            <!--</div>-->
                             <div class="form-group" style="margin: 0px 2px">
                                 <label class="col-md-4">Somatic:</label>
                                 <span class="col-md-8">{{clinicalAnalysis.subjects.0.samples.0.somatic}}</span>
@@ -93,10 +93,10 @@
                                 </template>
                             </span>
                             </div>
-                            <div class="form-group" style="margin: 0px 2px">
-                                <label class="col-md-4">Description:</label>
-                                <span class="col-md-8">{{clinicalAnalysis.subjects.0.samples.0.description}}</span>
-                            </div>
+                            <!--<div class="form-group" style="margin: 0px 2px">-->
+                                <!--<label class="col-md-4">Description:</label>-->
+                                <!--<span class="col-md-8">{{clinicalAnalysis.subjects.0.samples.0.description}}</span>-->
+                            <!--</div>-->
                         </form>
                     </div>
                     <div class="col-md-4">
@@ -132,10 +132,10 @@
                                 </template>
                             </span>
                             </div>
-                            <div class="form-group" style="margin: 0px 2px">
-                                <label class="col-md-4">Description:</label>
-                                <span class="col-md-8">{{clinicalAnalysis.subjects.0.description}}</span>
-                            </div>
+                            <!--<div class="form-group" style="margin: 0px 2px">-->
+                                <!--<label class="col-md-4">Description:</label>-->
+                                <!--<span class="col-md-8">{{clinicalAnalysis.subjects.0.description}}</span>-->
+                            <!--</div>-->
                         </form>
                     </div>
                 </div>
@@ -271,6 +271,7 @@
                             _this.showSummary = false;
                             if (response.response[0].numResults === 1) {
                                 _this.clinicalAnalysis = response.response[0].result[0];
+                                _this.clinicalAnalysis.creationDate = moment(_this.clinicalAnalysis.creationDate, "YYYYMMDDHHmmss").format('D MMM YY');
                                 _this.showSummary = true;
                                 _this.title = _this.clinicalAnalysis.name + " Clinical Analysis Summary";
                                 _this.pedigreeRender();

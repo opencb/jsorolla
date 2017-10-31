@@ -620,6 +620,8 @@
                     interpretation.comments = PolymerUtils.getValue(this.prefix + "CommentInterpretation");
                     interpretation.reportedVariants = this.checkedVariants;
                     interpretation.attributes = {};
+                    interpretation.creationDate = moment(new Date(), "YYYYMMDDHHmmss").format('D MMM YY');
+
 
                     let params = {
                         study: this.project.alias + ":" + this.study.alias
