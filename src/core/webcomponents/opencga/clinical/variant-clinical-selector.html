@@ -94,7 +94,8 @@
                 this.resetVariables();
                 if (this.opencgaClient instanceof OpenCGAClient) {
                     let params = {
-                        study: this.study.alias
+                        study: this.project.alias + ":" + this.study.alias,
+
                     };
                     let _this = this;
                     let _analysisObj = [];
