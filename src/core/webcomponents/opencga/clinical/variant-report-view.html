@@ -317,7 +317,7 @@
                                 <br>
                                 <ul type="disc">
                                     <template is="dom-repeat" items="{{filterPrioritization}}">
-                                        <li>{{item.id}}: <i>{{item.value}}</i></li>
+                                        <li>{{item.id}}: <i>{{_split(item.value)}}</i></li>
                                     </template>
                                 </ul>
                             </div>
@@ -767,6 +767,10 @@
                     ]
                 ];
                 return this._columns;
+            }
+            _split(value){
+                let spacers= [',',';'];
+                (value).split(new RegExp(spacers.join('|'),'g')).join(", ")
             }
 
 
