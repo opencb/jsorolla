@@ -54,7 +54,7 @@
                             </div>
                             <div class="form-group" style="margin: 0px 2px">
                                 <label class="col-md-4">Date:</label>
-                                <span class="col-md-8">{{clinicalAnalysis.creationDate}}</span>
+                                <span class="col-md-8">{{clinicalAnalysisCreationDateFormat}}</span>
                             </div>
                             <!--<div class="form-group" style="margin: 0px 2px">-->
                                 <!--<label class="col-md-4">Description:</label>-->
@@ -271,7 +271,7 @@
                             _this.showSummary = false;
                             if (response.response[0].numResults === 1) {
                                 _this.clinicalAnalysis = response.response[0].result[0];
-                                _this.clinicalAnalysis.creationDate = moment(_this.clinicalAnalysis.creationDate, "YYYYMMDDHHmmss").format('D MMM YY');
+                                _this.clinicalAnalysisCreationDateFormat = moment(_this.clinicalAnalysis.creationDate, "YYYYMMDDHHmmss").format('D MMM YY');
                                 _this.showSummary = true;
                                 _this.title = _this.clinicalAnalysis.name + " Clinical Analysis Summary";
                                 _this.pedigreeRender();
