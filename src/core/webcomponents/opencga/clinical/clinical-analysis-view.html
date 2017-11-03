@@ -288,7 +288,7 @@
                     }
                     let body = Object.assign({},this.clinicalAnalysis.family);
                     let membersNew =[];
-                    if(UtilsNew.isNotUndefinedOrNull(body) && UtilsNew.isNotEmpty(body.members)) {
+                    if (UtilsNew.isNotUndefinedOrNull(body) && UtilsNew.isNotEmpty(body.members)) {
                         body.members.forEach((member) => {
                             let newMember = Object.assign({}, member);
                             if (UtilsNew.isNotUndefinedOrNull(newMember.father) && UtilsNew.isNotUndefinedOrNull(newMember.father.id)) {
