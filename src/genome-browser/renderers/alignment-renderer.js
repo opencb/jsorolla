@@ -11,8 +11,8 @@ class AlignmentRenderer extends Renderer {
 
         if (_.isObject(args)) {
             Object.assign(this, args);
-            Object.assign(this, this._getDefaultConfig(), this.config);
         }
+        Object.assign(this, this.getDefaultConfig(), this.config);
 
         this.on(this.handlers);
     }
@@ -155,45 +155,45 @@ class AlignmentRenderer extends Renderer {
             for (const i in feature.alignment.cigar) {
                 cigar += feature.alignment.cigar[i].operationLength;
                 switch (feature.alignment.cigar[i].operation) {
-                case "CLIP_SOFT":
-                    cigar += "S";
-                    break;
-                case "ALIGNMENT_MATCH":
-                    cigar += "M";
-                    relativePosition += parseInt(feature.alignment.cigar[i].operationLength);
-                    break;
-                case "INSERT":
-                    cigar += "I";
-                    myLength = parseInt(feature.alignment.cigar[i].operationLength);
+                    case "CLIP_SOFT":
+                        cigar += "S";
+                        break;
+                    case "ALIGNMENT_MATCH":
+                        cigar += "M";
+                        relativePosition += parseInt(feature.alignment.cigar[i].operationLength);
+                        break;
+                    case "INSERT":
+                        cigar += "I";
+                        myLength = parseInt(feature.alignment.cigar[i].operationLength);
 
-                    // We put this here because it will be read to calculate the position of the mismatches
-                    insertions.push({
-                        pos: relativePosition,
-                        length: myLength,
-                    });
+                        // We put this here because it will be read to calculate the position of the mismatches
+                        insertions.push({
+                            pos: relativePosition,
+                            length: myLength,
+                        });
 
-                    differences.push({
-                        pos: relativePosition,
-                        seq: feature.alignedSequence.slice(relativePosition, relativePosition + myLength),
-                        op: "I",
-                        length: myLength,
-                    });
-                    break;
-                case "DELETE":
-                    cigar += "D";
-                    myLength = parseInt(feature.alignment.cigar[i].operationLength);
-                    differences.push({
-                        pos: relativePosition,
-                        op: "D",
-                        length: myLength,
-                    });
-                    relativePosition += myLength;
-                    break;
-                case "SKIP":
-                    cigar += "N";
-                    relativePosition += parseInt(feature.alignment.cigar[i].operationLength);
-                    break;
-                default:
+                        differences.push({
+                            pos: relativePosition,
+                            seq: feature.alignedSequence.slice(relativePosition, relativePosition + myLength),
+                            op: "I",
+                            length: myLength,
+                        });
+                        break;
+                    case "DELETE":
+                        cigar += "D";
+                        myLength = parseInt(feature.alignment.cigar[i].operationLength);
+                        differences.push({
+                            pos: relativePosition,
+                            op: "D",
+                            length: myLength,
+                        });
+                        relativePosition += myLength;
+                        break;
+                    case "SKIP":
+                        cigar += "N";
+                        relativePosition += parseInt(feature.alignment.cigar[i].operationLength);
+                        break;
+                    default:
                 }
             }
             feature.cigar = cigar;
@@ -366,48 +366,48 @@ class AlignmentRenderer extends Renderer {
             for (const i in feature.alignment.cigar) {
                 cigar += feature.alignment.cigar[i].operationLength;
                 switch (feature.alignment.cigar[i].operation) {
-                case "CLIP_SOFT":
-                    cigar += "S";
-                    break;
-                case "ALIGNMENT_MATCH":
-                    cigar += "M";
-                    // length += parseInt(feature.alignment.cigar[i].operationLength);
-                    relativePosition += parseInt(feature.alignment.cigar[i].operationLength);
-                    break;
-                case "INSERT":
-                    cigar += "I";
-                    myLength = parseInt(feature.alignment.cigar[i].operationLength);
+                    case "CLIP_SOFT":
+                        cigar += "S";
+                        break;
+                    case "ALIGNMENT_MATCH":
+                        cigar += "M";
+                        // length += parseInt(feature.alignment.cigar[i].operationLength);
+                        relativePosition += parseInt(feature.alignment.cigar[i].operationLength);
+                        break;
+                    case "INSERT":
+                        cigar += "I";
+                        myLength = parseInt(feature.alignment.cigar[i].operationLength);
 
-                    // We put this here because it will be read to calculate the position of the mismatches
-                    insertions.push({
-                        pos: relativePosition,
-                        length: myLength,
-                    });
+                        // We put this here because it will be read to calculate the position of the mismatches
+                        insertions.push({
+                            pos: relativePosition,
+                            length: myLength,
+                        });
 
-                    differences.push({
-                        pos: relativePosition,
-                        seq: feature.alignedSequence.slice(relativePosition, myLength),
-                        op: "I",
-                        length: myLength,
-                    });
-                    break;
-                case "DELETE":
-                    cigar += "D";
-                    myLength = parseInt(feature.alignment.cigar[i].operationLength);
-                    differences.push({
-                        pos: relativePosition,
-                        seq: feature.alignedSequence.slice(relativePosition, myLength),
-                        op: "D",
-                        length: myLength,
-                    });
-                    relativePosition += myLength;
+                        differences.push({
+                            pos: relativePosition,
+                            seq: feature.alignedSequence.slice(relativePosition, myLength),
+                            op: "I",
+                            length: myLength,
+                        });
+                        break;
+                    case "DELETE":
+                        cigar += "D";
+                        myLength = parseInt(feature.alignment.cigar[i].operationLength);
+                        differences.push({
+                            pos: relativePosition,
+                            seq: feature.alignedSequence.slice(relativePosition, myLength),
+                            op: "D",
+                            length: myLength,
+                        });
+                        relativePosition += myLength;
 
-                    break;
-                case "SKIP":
-                    cigar += "N";
-                    relativePosition += parseInt(feature.alignment.cigar[i].operationLength);
-                    break;
-                default:
+                        break;
+                    case "SKIP":
+                        cigar += "N";
+                        relativePosition += parseInt(feature.alignment.cigar[i].operationLength);
+                        break;
+                    default:
                 }
             }
             feature.cigar = cigar;
@@ -584,205 +584,205 @@ class AlignmentRenderer extends Renderer {
             }
         };
 
-        const drawPairedReads = function (read, mate) {
-            const middle = args.width / 2;
-            // var readStart = read.unclippedStart;
-            // var readEnd = read.unclippedEnd;
-            // var mateStart = mate.unclippedStart;
-            // var mateEnd = mate.unclippedEnd;
-            // TODO: Change taking into account clipped sequences
-            const readStart = read.alignment.position.position;
-            const readEnd = readStart + read.alignedQuality.length;
-            const mateStart = mate.alignment.position.position;
-            const mateEnd = mateStart + mate.alignedQuality.length;
-            const readDiff = read.diff;
-            const mateDiff = mate.diff;
-            /* get type settings object */
-            const readSettings = FEATURE_TYPES.alignment;
-            const mateSettings = FEATURE_TYPES.alignment;
-            let readColor = readSettings.color(read, read.alignment.position.referenceName);
-            let mateColor = mateSettings.color(mate, mate.alignment.position.referenceName);
-            const readStrand = read.alignment.position.strand === "POS_STRAND" ? "Forward" : "Reverse";
-            const mateStrand = mate.alignment.position.strand === "POS_STRAND" ? "Forward" : "Reverse";
-            // var readStrand = readSettings.getStrand(read);
-            // var matestrand = mateSettings.getStrand(mate);
+        // const drawPairedReads = function (read, mate) {
+        //     const middle = args.width / 2;
+        //     // var readStart = read.unclippedStart;
+        //     // var readEnd = read.unclippedEnd;
+        //     // var mateStart = mate.unclippedStart;
+        //     // var mateEnd = mate.unclippedEnd;
+        //     // TODO: Change taking into account clipped sequences
+        //     const readStart = read.alignment.position.position;
+        //     const readEnd = readStart + read.alignedQuality.length;
+        //     const mateStart = mate.alignment.position.position;
+        //     const mateEnd = mateStart + mate.alignedQuality.length;
+        //     const readDiff = read.diff;
+        //     const mateDiff = mate.diff;
+        //     /* get type settings object */
+        //     const readSettings = FEATURE_TYPES.alignment;
+        //     const mateSettings = FEATURE_TYPES.alignment;
+        //     let readColor = readSettings.color(read, read.alignment.position.referenceName);
+        //     let mateColor = mateSettings.color(mate, mate.alignment.position.referenceName);
+        //     const readStrand = read.alignment.position.strand === "POS_STRAND" ? "Forward" : "Reverse";
+        //     const mateStrand = mate.alignment.position.strand === "POS_STRAND" ? "Forward" : "Reverse";
+        //     // var readStrand = readSettings.getStrand(read);
+        //     // var matestrand = mateSettings.getStrand(mate);
+        //
+        //     if (insertSizeMin != 0 && insertSizeMax != 0) {
+        //         if (Math.abs(read.fragmentLength) > insertSizeMax) {
+        //             readColor = "maroon";
+        //             mateColor = "maroon";
+        //         }
+        //         if (Math.abs(read.fragmentLength) < insertSizeMin) {
+        //             readColor = "navy";
+        //             mateColor = "navy";
+        //         }
+        //     }
+        //
+        //     let pairStart = readStart;
+        //     let pairEnd = mateEnd;
+        //     if (mateStart <= readStart) {
+        //         pairStart = mateStart;
+        //     }
+        //     if (readEnd >= mateEnd) {
+        //         pairEnd = readEnd;
+        //     }
+        //
+        //     /* transform to pixel position */
+        //     const pairWidth = ((pairEnd - pairStart) + 1) * args.pixelBase;
+        //     const pairX = args.pixelPosition + middle - ((args.position - pairStart) * args.pixelBase);
+        //
+        //     const readWidth = ((readEnd - readStart) + 1) * args.pixelBase;
+        //     const readX = args.pixelPosition + middle - ((args.position - readStart) * args.pixelBase);
+        //
+        //     const mateWidth = ((mateEnd - mateStart) + 1) * args.pixelBase;
+        //     const mateX = args.pixelPosition + middle - ((args.position - mateStart) * args.pixelBase);
+        //
+        //     const rowHeight = 12;
+        //     let rowY = 70;
+        //     // var textY = 12+settings.height;
+        //
+        //     while (true) {
+        //         if (args.renderedArea[rowY] === null) {
+        //             args.renderedArea[rowY] = new FeatureBinarySearchTree();
+        //         }
+        //         const enc = args.renderedArea[rowY].add({ start: pairX, end: pairX + pairWidth - 1 });
+        //         if (enc) {
+        //             const readEls = [];
+        //             const mateEls = [];
+        //             const readPoints = {
+        //                 Reverse: `${readX},${rowY + (readSettings.height / 2)} ${readX + 5},${rowY} ${readX + readWidth - 5},${rowY} ${readX + readWidth - 5},${rowY + readSettings.height} ${readX + 5},${rowY + readSettings.height}`,
+        //                 Forward: `${readX},${rowY} ${readX + readWidth - 5},${rowY} ${readX + readWidth},${rowY + (readSettings.height / 2)} ${readX + readWidth - 5},${rowY + readSettings.height} ${readX},${rowY + readSettings.height}`,
+        //             };
+        //             const readPoly = SVG.addChild(bamReadGroup, "polygon", {
+        //                 points: readPoints[readStrand],
+        //                 stroke: readSettings.strokeColor(read),
+        //                 "stroke-width": 1,
+        //                 fill: readColor,
+        //                 cursor: "pointer",
+        //             });
+        //             readEls.push(readPoly);
+        //             const matePoints = {
+        //                 Reverse: `${mateX},${rowY + (mateSettings.height / 2)} ${mateX + 5},${rowY} ${mateX + mateWidth - 5},${rowY} ${mateX + mateWidth - 5},${rowY + mateSettings.height} ${mateX + 5},${rowY + mateSettings.height}`,
+        //                 Forward: `${mateX},${rowY} ${mateX + mateWidth - 5},${rowY} ${mateX + mateWidth},${rowY + (mateSettings.height / 2)} ${mateX + mateWidth - 5},${rowY + mateSettings.height} ${mateX},${rowY + mateSettings.height}`,
+        //             };
+        //             const matePoly = SVG.addChild(bamReadGroup, "polygon", {
+        //                 points: matePoints[mateStrand],
+        //                 stroke: mateSettings.strokeColor(mate),
+        //                 "stroke-width": 1,
+        //                 fill: mateColor,
+        //                 cursor: "pointer",
+        //             });
+        //             mateEls.push(matePoly);
+        //
+        //             const line = SVG.addChild(bamReadGroup, "line", {
+        //                 x1: (readX + readWidth),
+        //                 y1: (rowY + (readSettings.height / 2)),
+        //                 x2: mateX,
+        //                 y2: (rowY + (readSettings.height / 2)),
+        //                 "stroke-width": "1",
+        //                 stroke: "gray",
+        //                 // "stroke-color": "black",
+        //                 cursor: "pointer",
+        //             });
+        //
+        //             if (args.regionSize < 400) {
+        //                 if (readDiff !== null) {
+        //                     const readPath = SVG.addChild(bamReadGroup, "path", {
+        //                         d: Utils.genBamVariants(readDiff, args.pixelBase, readX, rowY),
+        //                         fill: variantColor,
+        //                     });
+        //                     readEls.push(readPath);
+        //                 }
+        //                 if (mateDiff !== null) {
+        //                     const matePath = SVG.addChild(bamReadGroup, "path", {
+        //                         d: Utils.genBamVariants(mateDiff, args.pixelBase, mateX, rowY),
+        //                         fill: variantColor,
+        //                     });
+        //                     mateEls.push(matePath);
+        //                 }
+        //             }
+        //
+        //             $(readEls).qtip({
+        //                 content: { text: readSettings.tooltipText(read), title: readSettings.tooltipTitle(read) },
+        //                 position: { target: "mouse", adjust: { x: 15, y: 0 }, viewport: $(window), effect: false },
+        //                 style: { width: 280, classes: `${_this.toolTipfontClass} ui-tooltip ui-tooltip-shadow` },
+        //                 show: "click",
+        //                 hide: "click mouseleave",
+        //             });
+        //             $(readEls).click((event) => {
+        //                 console.log(read);
+        //                 _this.showInfoWidget({
+        //                     query: read[readSettings.infoWidgetId],
+        //                     feature: read,
+        //                     featureType: read.featureType,
+        //                     adapter: _this.trackData.adapter,
+        //                 });
+        //             });
+        //             $(mateEls).qtip({
+        //                 content: { text: mateSettings.tooltipText(mate), title: mateSettings.tooltipTitle(mate) },
+        //                 position: { target: "mouse", adjust: { x: 15, y: 0 }, viewport: $(window), effect: false },
+        //                 style: { width: 280, classes: `${_this.toolTipfontClass} ui-tooltip ui-tooltip-shadow` },
+        //                 show: "click",
+        //                 hide: "click mouseleave",
+        //             });
+        //             $(mateEls).click((event) => {
+        //                 console.log(mate);
+        //                 _this.showInfoWidget({
+        //                     query: mate[mateSettings.infoWidgetId],
+        //                     feature: mate,
+        //                     featureType: mate.featureType,
+        //                     adapter: _this.trackData.adapter,
+        //                 });
+        //             });
+        //             break;
+        //         }
+        //         rowY += rowHeight;
+        //         // textY += rowHeight;
+        //     }
+        // };
 
-            if (insertSizeMin != 0 && insertSizeMax != 0) {
-                if (Math.abs(read.fragmentLength) > insertSizeMax) {
-                    readColor = "maroon";
-                    mateColor = "maroon";
-                }
-                if (Math.abs(read.fragmentLength) < insertSizeMin) {
-                    readColor = "navy";
-                    mateColor = "navy";
-                }
-            }
+        // /**
+        //  * Taking an array of alignments as an input that can have any possible order, it will return an object of the form
+        //  * {
+        //  *  alignmentId: [read, mate] (or just [read] where no mate was found)
+        //  * }
+        //  * @param alignments
+        //  */
+        // const pairReads = function (alignments) {
+        //     const alignmentHash = {};
+        //     // We build a temporal structure for faster retrieval of alignments
+        //     for (let i = 0; i < alignments.length; i++) {
+        //         const id = alignments[i].id;
+        //         if (typeof alignmentHash[id] === "undefined") {
+        //             alignmentHash[id] = [];
+        //         }
+        //         alignmentHash[id].push(alignments[i]);
+        //     }
+        //
+        //     return alignmentHash;
+        // };
 
-            let pairStart = readStart;
-            let pairEnd = mateEnd;
-            if (mateStart <= readStart) {
-                pairStart = mateStart;
-            }
-            if (readEnd >= mateEnd) {
-                pairEnd = readEnd;
-            }
-
-            /* transform to pixel position */
-            const pairWidth = ((pairEnd - pairStart) + 1) * args.pixelBase;
-            const pairX = args.pixelPosition + middle - ((args.position - pairStart) * args.pixelBase);
-
-            const readWidth = ((readEnd - readStart) + 1) * args.pixelBase;
-            const readX = args.pixelPosition + middle - ((args.position - readStart) * args.pixelBase);
-
-            const mateWidth = ((mateEnd - mateStart) + 1) * args.pixelBase;
-            const mateX = args.pixelPosition + middle - ((args.position - mateStart) * args.pixelBase);
-
-            const rowHeight = 12;
-            let rowY = 70;
-            // var textY = 12+settings.height;
-
-            while (true) {
-                if (args.renderedArea[rowY] === null) {
-                    args.renderedArea[rowY] = new FeatureBinarySearchTree();
-                }
-                const enc = args.renderedArea[rowY].add({ start: pairX, end: pairX + pairWidth - 1 });
-                if (enc) {
-                    const readEls = [];
-                    const mateEls = [];
-                    const readPoints = {
-                        Reverse: `${readX},${rowY + (readSettings.height / 2)} ${readX + 5},${rowY} ${readX + readWidth - 5},${rowY} ${readX + readWidth - 5},${rowY + readSettings.height} ${readX + 5},${rowY + readSettings.height}`,
-                        Forward: `${readX},${rowY} ${readX + readWidth - 5},${rowY} ${readX + readWidth},${rowY + (readSettings.height / 2)} ${readX + readWidth - 5},${rowY + readSettings.height} ${readX},${rowY + readSettings.height}`,
-                    };
-                    const readPoly = SVG.addChild(bamReadGroup, "polygon", {
-                        points: readPoints[readStrand],
-                        stroke: readSettings.strokeColor(read),
-                        "stroke-width": 1,
-                        fill: readColor,
-                        cursor: "pointer",
-                    });
-                    readEls.push(readPoly);
-                    const matePoints = {
-                        Reverse: `${mateX},${rowY + (mateSettings.height / 2)} ${mateX + 5},${rowY} ${mateX + mateWidth - 5},${rowY} ${mateX + mateWidth - 5},${rowY + mateSettings.height} ${mateX + 5},${rowY + mateSettings.height}`,
-                        Forward: `${mateX},${rowY} ${mateX + mateWidth - 5},${rowY} ${mateX + mateWidth},${rowY + (mateSettings.height / 2)} ${mateX + mateWidth - 5},${rowY + mateSettings.height} ${mateX},${rowY + mateSettings.height}`,
-                    };
-                    const matePoly = SVG.addChild(bamReadGroup, "polygon", {
-                        points: matePoints[mateStrand],
-                        stroke: mateSettings.strokeColor(mate),
-                        "stroke-width": 1,
-                        fill: mateColor,
-                        cursor: "pointer",
-                    });
-                    mateEls.push(matePoly);
-
-                    const line = SVG.addChild(bamReadGroup, "line", {
-                        x1: (readX + readWidth),
-                        y1: (rowY + (readSettings.height / 2)),
-                        x2: mateX,
-                        y2: (rowY + (readSettings.height / 2)),
-                        "stroke-width": "1",
-                        stroke: "gray",
-                        // "stroke-color": "black",
-                        cursor: "pointer",
-                    });
-
-                    if (args.regionSize < 400) {
-                        if (readDiff !== null) {
-                            const readPath = SVG.addChild(bamReadGroup, "path", {
-                                d: Utils.genBamVariants(readDiff, args.pixelBase, readX, rowY),
-                                fill: variantColor,
-                            });
-                            readEls.push(readPath);
-                        }
-                        if (mateDiff !== null) {
-                            const matePath = SVG.addChild(bamReadGroup, "path", {
-                                d: Utils.genBamVariants(mateDiff, args.pixelBase, mateX, rowY),
-                                fill: variantColor,
-                            });
-                            mateEls.push(matePath);
-                        }
-                    }
-
-                    $(readEls).qtip({
-                        content: { text: readSettings.tooltipText(read), title: readSettings.tooltipTitle(read) },
-                        position: { target: "mouse", adjust: { x: 15, y: 0 }, viewport: $(window), effect: false },
-                        style: { width: 280, classes: `${_this.toolTipfontClass} ui-tooltip ui-tooltip-shadow` },
-                        show: "click",
-                        hide: "click mouseleave",
-                    });
-                    $(readEls).click((event) => {
-                        console.log(read);
-                        _this.showInfoWidget({
-                            query: read[readSettings.infoWidgetId],
-                            feature: read,
-                            featureType: read.featureType,
-                            adapter: _this.trackData.adapter,
-                        });
-                    });
-                    $(mateEls).qtip({
-                        content: { text: mateSettings.tooltipText(mate), title: mateSettings.tooltipTitle(mate) },
-                        position: { target: "mouse", adjust: { x: 15, y: 0 }, viewport: $(window), effect: false },
-                        style: { width: 280, classes: `${_this.toolTipfontClass} ui-tooltip ui-tooltip-shadow` },
-                        show: "click",
-                        hide: "click mouseleave",
-                    });
-                    $(mateEls).click((event) => {
-                        console.log(mate);
-                        _this.showInfoWidget({
-                            query: mate[mateSettings.infoWidgetId],
-                            feature: mate,
-                            featureType: mate.featureType,
-                            adapter: _this.trackData.adapter,
-                        });
-                    });
-                    break;
-                }
-                rowY += rowHeight;
-                // textY += rowHeight;
-            }
-        };
-
-        /**
-         * Taking an array of alignments as an input that can have any possible order, it will return an object of the form
-         * {
-         *  alignmentId: [read, mate] (or just [read] where no mate was found)
-         * }
-         * @param alignments
-         */
-        const pairReads = function (alignments) {
-            const alignmentHash = {};
-            // We build a temporal structure for faster retrieval of alignments
-            for (let i = 0; i < alignments.length; i++) {
-                const id = alignments[i].id;
-                if (typeof alignmentHash[id] === "undefined") {
-                    alignmentHash[id] = [];
-                }
-                alignmentHash[id].push(alignments[i]);
-            }
-
-            return alignmentHash;
-        };
-
-        const drawChunk = function (chunk) {
-            drawCoverage(chunk);
-
-            const alignments = chunk.alignments;
-            if (viewAsPairs) {
-                const alignmentHash = pairReads(alignments);
-                const ids = Object.keys(alignmentHash);
-                for (let i = 0; i < ids.length; i++) {
-                    const id = ids[i];
-                    if (alignmentHash[id].length === 2) {
-                        drawPairedReads(alignmentHash[id][0], alignmentHash[id][1]);
-                    } else {
-                        drawSingleRead(alignmentHash[id][0]);
-                    }
-                }
-            } else {
-                for (let i = 0; i < alignments.length; i++) {
-                    drawSingleRead(alignments[i]);
-                }
-            }
-        };
+        // const drawChunk = function (chunk) {
+        //     drawCoverage(chunk);
+        //
+        //     const alignments = chunk.alignments;
+        //     if (viewAsPairs) {
+        //         const alignmentHash = pairReads(alignments);
+        //         const ids = Object.keys(alignmentHash);
+        //         for (let i = 0; i < ids.length; i++) {
+        //             const id = ids[i];
+        //             if (alignmentHash[id].length === 2) {
+        //                 drawPairedReads(alignmentHash[id][0], alignmentHash[id][1]);
+        //             } else {
+        //                 drawSingleRead(alignmentHash[id][0]);
+        //             }
+        //         }
+        //     } else {
+        //         for (let i = 0; i < alignments.length; i++) {
+        //             drawSingleRead(alignments[i]);
+        //         }
+        //     }
+        // };
 
         const addChunks = function (chunk, polyDrawing) {
             drawCoverage(chunk);
@@ -901,246 +901,242 @@ class AlignmentRenderer extends Renderer {
         console.timeEnd(`BamRender ${response.params.resource}`);
     }
 
-    /**
-     * @Deprecated
-     * * */
+    // genBamVariants(differences, size, mainX, y) {
+    //     const s = size / 6;
+    //     let d = "";
+    //     for (let i = 0; i < differences.length; i++) {
+    //         const difference = differences[i];
+    //
+    //         switch (difference.op) {
+    //         case "S" :
+    //             let x = mainX + (size * difference.pos);
+    //             for (let j = 0; j < difference.length; j++) {
+    //                 const char = difference.seq[j];
+    //                 switch (char) {
+    //                 case "A" :
+    //                     d += `M${(2.5 * s) + x},${y
+    //                     }l-${2.5 * s},${6 * s
+    //                     }l${s},0` +
+    //                                 `l${0.875 * s},-${2 * s
+    //                                 }l${2.250 * s},0` +
+    //                                 `l${0.875 * s},${2 * s
+    //                                 }l${s},0` +
+    //                                 `l-${2.5 * s},-${6 * s
+    //                                 }l-${0.5 * s},0` +
+    //                                 `l0,${s
+    //                                 }l${0.75 * s},${2 * s
+    //                                 }l-${1.5 * s},0` +
+    //                                 `l${0.75 * s},-${2 * s
+    //                                 }l0,-${s
+    //                                 } `;
+    //                     break;
+    //                 case "T" :
+    //                     d += `M${(0.5 * s) + x},${y
+    //                     }l0,${s
+    //                     }l${2 * s},0` +
+    //                                 `l0,${5 * s
+    //                                 }l${s},0` +
+    //                                 `l0,-${5 * s
+    //                                 }l${2 * s},0` +
+    //                                 `l0,-${s
+    //                                 } `;
+    //                     break;
+    //                 case "C" :
+    //                     d += `M${(5 * s) + x},${(0 * s) + y
+    //                     }l-${2 * s},0` +
+    //                                 `l-${1.5 * s},${0.5 * s
+    //                                 }l-${0.5 * s},${1.5 * s
+    //                                 }l0,${2 * s
+    //                                 }l${0.5 * s},${1.5 * s
+    //                                 }l${1.5 * s},${0.5 * s
+    //                                 }l${2 * s},0` +
+    //                                 `l0,-${s
+    //                                 }l-${2 * s},0` +
+    //                                 `l-${0.75 * s},-${0.25 * s
+    //                                 }l-${0.25 * s},-${0.75 * s
+    //                                 }l0,-${2 * s
+    //                                 }l${0.25 * s},-${0.75 * s
+    //                                 }l${0.75 * s},-${0.25 * s
+    //                                 }l${2 * s},0` +
+    //                                 " ";
+    //                     break;
+    //                 case "G" :
+    //                     d += `M${(5 * s) + x},${(0 * s) + y
+    //                     }l-${2 * s},0` +
+    //                                 `l-${1.5 * s},${0.5 * s
+    //                                 }l-${0.5 * s},${1.5 * s
+    //                                 }l0,${2 * s
+    //                                 }l${0.5 * s},${1.5 * s
+    //                                 }l${1.5 * s},${0.5 * s
+    //                                 }l${2 * s},0` +
+    //                                 `l0,-${3 * s
+    //                                 }l-${s},0` +
+    //                                 `l0,${2 * s
+    //                                 }l-${s},0` +
+    //                                 `l-${0.75 * s},-${0.25 * s
+    //                                 }l-${0.25 * s},-${0.75 * s
+    //                                 }l0,-${2 * s
+    //                                 }l${0.25 * s},-${0.75 * s
+    //                                 }l${0.75 * s},-${0.25 * s
+    //                                 }l${2 * s},0` +
+    //                                 " ";
+    //                     //                d += "M" + ((5 * s) + x) + "," + ((0 * s) + y) +
+    //                     //                    "l-" + (2 * s) + ",0" +
+    //                     //                    "l-" + (2 * s) + "," + (2 * s) +
+    //                     //                    "l0," + (2 * s) +
+    //                     //                    "l" + (2 * s) + "," + (2 * s) +
+    //                     //                    "l" + (2 * s) + ",0" +
+    //                     //                    "l0,-" + (3 * s) +
+    //                     //                    "l-" + (1 * s) + ",0" +
+    //                     //                    "l0," + (2 * s) +
+    //                     //                    "l-" + (0.5 * s) + ",0" +
+    //                     //                    "l-" + (1.5 * s) + ",-" + (1.5 * s) +
+    //                     //                    "l0,-" + (1 * s) +
+    //                     //                    "l" + (1.5 * s) + ",-" + (1.5 * s) +
+    //                     //                    "l" + (1.5 * s) + ",0" +
+    //                     //                    " ";
+    //                     break;
+    //                 case "N" :
+    //                     d += `M${(0.5 * s) + x},${(0 * s) + y
+    //                     }l0,${6 * s
+    //                     }l${s},0` +
+    //                                 `l0,-${4.5 * s
+    //                                 }l${3 * s},${4.5 * s
+    //                                 }l${s},0` +
+    //                                 `l0,-${6 * s
+    //                                 }l-${s},0` +
+    //                                 `l0,${4.5 * s
+    //                                 }l-${3 * s},-${4.5 * s
+    //                                 } `;
+    //                     break;
+    //                 case "d" :
+    //                     d += `M${(0 * s) + x},${(2.5 * s) + y
+    //                     }l${6 * s},0` +
+    //                                 `l0,${s
+    //                                 }l-${6 * s},0` +
+    //                                 `l0,-${s
+    //                                 } `;
+    //                     break;
+    //                 default:
+    //                     d += "M0,0";
+    //                     break;
+    //                 }
+    //                 x += size;
+    //             }
+    //             break;
+    //         }
+    //     }
+    //
+    //     return d;
+    // }
 
-    genBamVariants(differences, size, mainX, y) {
-        const s = size / 6;
-        let d = "";
-        for (let i = 0; i < differences.length; i++) {
-            const difference = differences[i];
-
-            switch (difference.op) {
-            case "S" :
-                let x = mainX + (size * difference.pos);
-                for (let j = 0; j < difference.length; j++) {
-                    const char = difference.seq[j];
-                    switch (char) {
-                    case "A" :
-                        d += `M${(2.5 * s) + x},${y
-                        }l-${2.5 * s},${6 * s
-                        }l${s},0` +
-                                    `l${0.875 * s},-${2 * s
-                                    }l${2.250 * s},0` +
-                                    `l${0.875 * s},${2 * s
-                                    }l${s},0` +
-                                    `l-${2.5 * s},-${6 * s
-                                    }l-${0.5 * s},0` +
-                                    `l0,${s
-                                    }l${0.75 * s},${2 * s
-                                    }l-${1.5 * s},0` +
-                                    `l${0.75 * s},-${2 * s
-                                    }l0,-${s
-                                    } `;
-                        break;
-                    case "T" :
-                        d += `M${(0.5 * s) + x},${y
-                        }l0,${s
-                        }l${2 * s},0` +
-                                    `l0,${5 * s
-                                    }l${s},0` +
-                                    `l0,-${5 * s
-                                    }l${2 * s},0` +
-                                    `l0,-${s
-                                    } `;
-                        break;
-                    case "C" :
-                        d += `M${(5 * s) + x},${(0 * s) + y
-                        }l-${2 * s},0` +
-                                    `l-${1.5 * s},${0.5 * s
-                                    }l-${0.5 * s},${1.5 * s
-                                    }l0,${2 * s
-                                    }l${0.5 * s},${1.5 * s
-                                    }l${1.5 * s},${0.5 * s
-                                    }l${2 * s},0` +
-                                    `l0,-${s
-                                    }l-${2 * s},0` +
-                                    `l-${0.75 * s},-${0.25 * s
-                                    }l-${0.25 * s},-${0.75 * s
-                                    }l0,-${2 * s
-                                    }l${0.25 * s},-${0.75 * s
-                                    }l${0.75 * s},-${0.25 * s
-                                    }l${2 * s},0` +
-                                    " ";
-                        break;
-                    case "G" :
-                        d += `M${(5 * s) + x},${(0 * s) + y
-                        }l-${2 * s},0` +
-                                    `l-${1.5 * s},${0.5 * s
-                                    }l-${0.5 * s},${1.5 * s
-                                    }l0,${2 * s
-                                    }l${0.5 * s},${1.5 * s
-                                    }l${1.5 * s},${0.5 * s
-                                    }l${2 * s},0` +
-                                    `l0,-${3 * s
-                                    }l-${s},0` +
-                                    `l0,${2 * s
-                                    }l-${s},0` +
-                                    `l-${0.75 * s},-${0.25 * s
-                                    }l-${0.25 * s},-${0.75 * s
-                                    }l0,-${2 * s
-                                    }l${0.25 * s},-${0.75 * s
-                                    }l${0.75 * s},-${0.25 * s
-                                    }l${2 * s},0` +
-                                    " ";
-                        //                d += "M" + ((5 * s) + x) + "," + ((0 * s) + y) +
-                        //                    "l-" + (2 * s) + ",0" +
-                        //                    "l-" + (2 * s) + "," + (2 * s) +
-                        //                    "l0," + (2 * s) +
-                        //                    "l" + (2 * s) + "," + (2 * s) +
-                        //                    "l" + (2 * s) + ",0" +
-                        //                    "l0,-" + (3 * s) +
-                        //                    "l-" + (1 * s) + ",0" +
-                        //                    "l0," + (2 * s) +
-                        //                    "l-" + (0.5 * s) + ",0" +
-                        //                    "l-" + (1.5 * s) + ",-" + (1.5 * s) +
-                        //                    "l0,-" + (1 * s) +
-                        //                    "l" + (1.5 * s) + ",-" + (1.5 * s) +
-                        //                    "l" + (1.5 * s) + ",0" +
-                        //                    " ";
-                        break;
-                    case "N" :
-                        d += `M${(0.5 * s) + x},${(0 * s) + y
-                        }l0,${6 * s
-                        }l${s},0` +
-                                    `l0,-${4.5 * s
-                                    }l${3 * s},${4.5 * s
-                                    }l${s},0` +
-                                    `l0,-${6 * s
-                                    }l-${s},0` +
-                                    `l0,${4.5 * s
-                                    }l-${3 * s},-${4.5 * s
-                                    } `;
-                        break;
-                    case "d" :
-                        d += `M${(0 * s) + x},${(2.5 * s) + y
-                        }l${6 * s},0` +
-                                    `l0,${s
-                                    }l-${6 * s},0` +
-                                    `l0,-${s
-                                    } `;
-                        break;
-                    default:
-                        d += "M0,0";
-                        break;
-                    }
-                    x += size;
-                }
-                break;
-            }
-        }
-
-        return d;
-    }
-
-    drawBamDifferences(differences, size, mainX, y) {
-        const text = SVG.create("text", {
-            x: mainX,
-            y,
-            class: "ocb-font-ubuntumono ocb-font-size-15",
-        });
-        for (let i = 0; i < differences.length; i++) {
-            const difference = differences[i];
-
-            let x;
-            switch (difference.op) {
-            // M 0 alignment match (can be a sequence match or mismatch)
-            // I 1 insertion to the reference
-            // D 2 deletion from the reference
-            // N 3 skipped region from the reference
-            // S 4 soft clipping (clipped sequences present in SEQ)
-            // H 5 hard clipping (clipped sequences NOT present in SEQ)
-            // P 6 padding (silent deletion from padded reference)
-            //= 7 sequence match
-            // X 8 sequence mismatch
-
-            case "I" :
-                x = mainX + (size * difference.pos) - size / 2;
-                const t = SVG.addChild(text, "tspan", {
-                    x,
-                    "font-weight": "bold",
-                    textLength: size,
-                });
-                t.textContent = "·";
-                $(t).qtip({
-                    content: { text: difference.seq, title: "Insertion" },
-                    position: { target: "mouse", adjust: { x: 25, y: 15 } },
-                    style: { classes: `${this.toolTipfontClass} qtip-dark qtip-shadow` },
-                });
-                break;
-            case "D" :
-                x = mainX + (size * difference.pos);
-                for (let j = 0; j < difference.length; j++) {
-                    const t = SVG.addChild(text, "tspan", {
-                        x,
-                        "font-weight": "bold",
-                        textLength: size,
-                    });
-                    t.textContent = "—";
-                    x += size;
-                }
-                break;
-            case "N" :
-                x = mainX + (size * difference.pos);
-                for (let j = 0; j < difference.length; j++) {
-                    const t = SVG.addChild(text, "tspan", {
-                        x,
-                        fill: "#888",
-                        textLength: size,
-                    });
-                    t.textContent = "—";
-                    x += size;
-                }
-                break;
-            case "S" :
-                x = mainX + (size * difference.pos);
-                for (let j = 0; j < difference.length; j++) {
-                    const char = difference.seq[j];
-                    const t = SVG.addChild(text, "tspan", {
-                        x,
-                        fill: "#aaa",
-                        textLength: size,
-                    });
-                    t.textContent = char;
-                    x += size;
-                }
-                break;
-            case "H" :
-                x = mainX + (size * difference.pos);
-                for (let j = 0; j < difference.length; j++) {
-                    const t = SVG.addChild(text, "tspan", {
-                        x,
-                        fill: "#aaa",
-                        textLength: size,
-                    });
-                    t.textContent = "H";
-                    x += size;
-                }
-                break;
-            case "X" :
-            case "M" :
-                x = mainX + (size * difference.pos);
-                for (let j = 0; j < difference.length; j++) {
-                    const char = difference.seq[j];
-                    const refPos = difference.pos + j;
-                    // console.log("ref:"+ refString.charAt(refPos)+" - "+"seq:"+char);
-
-                    const t = SVG.addChild(text, "tspan", {
-                        x,
-                        fill: SEQUENCE_COLORS[char],
-                        textLength: size,
-                    });
-                    t.textContent = char;
-
-                    x += size;
-                }
-                break;
-            }
-        }
-
-        return text;
-    }
+    // drawBamDifferences(differences, size, mainX, y) {
+    //     const text = SVG.create("text", {
+    //         x: mainX,
+    //         y,
+    //         class: "ocb-font-ubuntumono ocb-font-size-15",
+    //     });
+    //     for (let i = 0; i < differences.length; i++) {
+    //         const difference = differences[i];
+    //
+    //         let x;
+    //         switch (difference.op) {
+    //         // M 0 alignment match (can be a sequence match or mismatch)
+    //         // I 1 insertion to the reference
+    //         // D 2 deletion from the reference
+    //         // N 3 skipped region from the reference
+    //         // S 4 soft clipping (clipped sequences present in SEQ)
+    //         // H 5 hard clipping (clipped sequences NOT present in SEQ)
+    //         // P 6 padding (silent deletion from padded reference)
+    //         // = 7 sequence match
+    //         // X 8 sequence mismatch
+    //
+    //         case "I" :
+    //             x = mainX + (size * difference.pos) - size / 2;
+    //             const t = SVG.addChild(text, "tspan", {
+    //                 x,
+    //                 "font-weight": "bold",
+    //                 textLength: size,
+    //             });
+    //             t.textContent = "·";
+    //             $(t).qtip({
+    //                 content: { text: difference.seq, title: "Insertion" },
+    //                 position: { target: "mouse", adjust: { x: 25, y: 15 } },
+    //                 style: { classes: `${this.toolTipfontClass} qtip-dark qtip-shadow` },
+    //             });
+    //             break;
+    //         case "D" :
+    //             x = mainX + (size * difference.pos);
+    //             for (let j = 0; j < difference.length; j++) {
+    //                 const t = SVG.addChild(text, "tspan", {
+    //                     x,
+    //                     "font-weight": "bold",
+    //                     textLength: size,
+    //                 });
+    //                 t.textContent = "—";
+    //                 x += size;
+    //             }
+    //             break;
+    //         case "N" :
+    //             x = mainX + (size * difference.pos);
+    //             for (let j = 0; j < difference.length; j++) {
+    //                 const t = SVG.addChild(text, "tspan", {
+    //                     x,
+    //                     fill: "#888",
+    //                     textLength: size,
+    //                 });
+    //                 t.textContent = "—";
+    //                 x += size;
+    //             }
+    //             break;
+    //         case "S" :
+    //             x = mainX + (size * difference.pos);
+    //             for (let j = 0; j < difference.length; j++) {
+    //                 const char = difference.seq[j];
+    //                 const t = SVG.addChild(text, "tspan", {
+    //                     x,
+    //                     fill: "#aaa",
+    //                     textLength: size,
+    //                 });
+    //                 t.textContent = char;
+    //                 x += size;
+    //             }
+    //             break;
+    //         case "H" :
+    //             x = mainX + (size * difference.pos);
+    //             for (let j = 0; j < difference.length; j++) {
+    //                 const t = SVG.addChild(text, "tspan", {
+    //                     x,
+    //                     fill: "#aaa",
+    //                     textLength: size,
+    //                 });
+    //                 t.textContent = "H";
+    //                 x += size;
+    //             }
+    //             break;
+    //         case "X" :
+    //         case "M" :
+    //             x = mainX + (size * difference.pos);
+    //             for (let j = 0; j < difference.length; j++) {
+    //                 const char = difference.seq[j];
+    //                 const refPos = difference.pos + j;
+    //                 // console.log("ref:"+ refString.charAt(refPos)+" - "+"seq:"+char);
+    //
+    //                 const t = SVG.addChild(text, "tspan", {
+    //                     x,
+    //                     fill: SEQUENCE_COLORS[char],
+    //                     textLength: size,
+    //                 });
+    //                 t.textContent = char;
+    //
+    //                 x += size;
+    //             }
+    //             break;
+    //         }
+    //     }
+    //
+    //     return text;
+    // }
 
     // AlignmentRenderer.drawBamDifferences = function (refString, differences, size, mainX, y) {
     //     let text = SVG.create("text", {
@@ -1250,34 +1246,37 @@ class AlignmentRenderer extends Renderer {
     //     return text;
     // };
 
-    _getReferenceString(chunks, region) {
-        const sequenceItems = [];
-        let chunk;
-        for (let i = 0; i < chunks.length; i++) {
-            chunk = chunks[i];
-            for (let j = 0; j < chunk.value.length; j++) {
-                sequenceItems.push(chunk.value[j]);
-            }
-        }
-        sequenceItems.sort((a, b) => a.start - b.start);
-        const aux = [];
-        const s = sequenceItems[0].start;
-        const e = sequenceItems[sequenceItems.length - 1].end;
-        for (let i = 0; i < sequenceItems.length; i++) {
-            aux.push(sequenceItems[i].sequence);
-        }
-        const str = aux.join("");
-        const i1 = region.start - s;
-        const i2 = i1 + region.length();
-        const substr = str.substring(i1, i2);
+    // _getReferenceString(chunks, region) {
+    //     const sequenceItems = [];
+    //     let chunk;
+    //     for (let i = 0; i < chunks.length; i++) {
+    //         chunk = chunks[i];
+    //         for (let j = 0; j < chunk.value.length; j++) {
+    //             sequenceItems.push(chunk.value[j]);
+    //         }
+    //     }
+    //     sequenceItems.sort((a, b) => a.start - b.start);
+    //     const aux = [];
+    //     const s = sequenceItems[0].start;
+    //     const e = sequenceItems[sequenceItems.length - 1].end;
+    //     for (let i = 0; i < sequenceItems.length; i++) {
+    //         aux.push(sequenceItems[i].sequence);
+    //     }
+    //     const str = aux.join("");
+    //     const i1 = region.start - s;
+    //     const i2 = i1 + region.length();
+    //     const substr = str.substring(i1, i2);
+    //
+    //     return substr;
+    // }
 
-        return substr;
-    }
-
-    _getDefaultConfig() {
+    getDefaultConfig() {
         return {
+            infoWidgetId: "id",
+            height: 10,
+            histogramColor: "grey",
             explainFlags(f) {
-                var summary = '<div style="background:#FFEF93;font-weight:bold;margin:0 15px 0 0;">flags </div>';
+                var summary = "<div style=\"background:#FFEF93;font-weight:bold;margin:0 15px 0 0;\">flags </div>";
                 if (f.numberReads > 1) {
                     summary += "read paired<br>";
                 }
@@ -1309,23 +1308,25 @@ class AlignmentRenderer extends Renderer {
                     + (f.alignment.position.position + f.alignedSequence.length - 1);
             },
             tooltipTitle(f) {
-                return 'Alignment' + ' - <span class="ok">' + f.id + '</span>';
+                return "Alignment" + " - <span class=\"ok\">" + f.id + "</span>";
             },
             tooltipText(f) {
                 f.strand = this.strand(f);
 
                 var strand = (f.strand != null) ? f.strand : "NA";
-                const region = `start-end:&nbsp;<span style="font-weight: bold">${f.start}-${f.end} (${strand})</span><br>` +
+                const region = `start-end:&nbsp;<span style="font-weight: bold">${f.start}-${f.end} (${strand})</span><br>`
+                    +
                     // `strand:&nbsp;<span style="font-weight: bold">${strand}</span><br>` +
-                    `length:&nbsp;<span style="font-weight: bold; color:#005fdb">${(f.end - f.start + 1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")}</span><br>`;
+                    `length:&nbsp;<span style="font-weight: bold; color:#005fdb">${(f.end - f.start + 1).toString()
+                        .replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")}</span><br>`;
                 var one =
-                    'cigar:&nbsp;<span class="ssel">' + f.cigar + '</span><br>' +
-                    'insert size:&nbsp;<span class="ssel">' + f.fragmentLength + '</span><br>' +
-                    region + '<br>' +
+                    "cigar:&nbsp;<span class=\"ssel\">" + f.cigar + "</span><br>" +
+                    "insert size:&nbsp;<span class=\"ssel\">" + f.fragmentLength + "</span><br>" +
+                    region + "<br>" +
                     // this.explainFlags(f.flags);
                     this.explainFlags(f);
 
-                var three = '<div style="background:#FFEF93;font-weight:bold;">attributes</div>';
+                var three = "<div style=\"background:#FFEF93;font-weight:bold;\">attributes</div>";
                 let keys = Object.keys(f.info);
                 for (let i in keys) {
                     three += keys[i] + " : " + f.info[keys[i]][0] + " : " + f.info[keys[i]][1] + "<br>";
@@ -1335,8 +1336,8 @@ class AlignmentRenderer extends Renderer {
                 //     three += key + ":" + f.attributes[key] + "<br>";
                 // }
                 var style = "background:#FFEF93;font-weight:bold;";
-                return '<div style="float:left">' + one + '</div>' +
-                    '<div style="float:right">' + three + '</div>';
+                return "<div style=\"float:left\">" + one + "</div>" +
+                    "<div style=\"float:right\">" + three + "</div>";
             },
             color(f, chr) {
                 if (f.nextMatePosition.referenceName != chr) {
@@ -1362,10 +1363,8 @@ class AlignmentRenderer extends Renderer {
             },
             mateUnmappedFlag(f) {
                 return f.nextMatePosition === undefined;
-            },
-            infoWidgetId: "id",
-            height: 10,
-            histogramColor: "grey",
+            }
         };
     }
+
 }
