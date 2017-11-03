@@ -429,7 +429,7 @@
                         // Analysis ID and analysis resume
                         PolymerUtils.setPropertyById(this.prefix + "analysisID", "innerText", this.interpretation.clinicalAnalysis.id);
                         PolymerUtils.setPropertyById(this.prefix + "analysisType", "innerText", this.interpretation.clinicalAnalysis.type);
-                        PolymerUtils.setPropertyById(this.prefix + "date", "innerText", this.interpretation.clinicalAnalysis.creationDatemoment(this.interpretation.clinicalAnalysis.creationDate, "YYYYMMDDHHmmss").format('D MMM YY'));
+                        PolymerUtils.setPropertyById(this.prefix + "date", "innerText", moment(this.interpretation.clinicalAnalysis.creationDate, "YYYYMMDDHHmmss").format('D MMM YY'));
                         this.analysisID = this.interpretation.clinicalAnalysis.id;
     //                    // Sample Information
                         PolymerUtils.setPropertyById(this.prefix + "IndividualID", "innerText", this.interpretation.clinicalAnalysis.subjects[0].name);
