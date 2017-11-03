@@ -770,7 +770,7 @@
             }
             _split(value){
                 let spacers= [',',';'];
-                (value).split(new RegExp(spacers.join('|'),'g')).join(", ")
+                return (value).split(new RegExp(spacers.join('|'),'g')).join(", ")
             }
 
 
