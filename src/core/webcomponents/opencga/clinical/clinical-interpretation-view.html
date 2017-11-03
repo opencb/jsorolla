@@ -994,9 +994,10 @@
 
             _toArray(obj) {
                 return Object.keys(obj).map(function(key) {
+                    let spacers= [',',';'];
                     return {
                         name: key,
-                        value: obj[key]
+                        value: (obj[key]).split(new RegExp(spacers.join('|'),'g')).join(", ")
                     };
                 });
             }
