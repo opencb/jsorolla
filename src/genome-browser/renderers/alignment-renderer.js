@@ -295,6 +295,7 @@ class AlignmentRenderer extends Renderer {
                 if (UtilsNew.isUndefinedOrNull(polyDrawing[rowY])) {
                     polyDrawing[rowY] = {
                         reads: [],
+                        lowQualityReads: [],
                         differences: {
                             A: [],
                             T: [],
@@ -317,7 +318,11 @@ class AlignmentRenderer extends Renderer {
                         Forward: `M${x} ${rowY} H${x + width - 5} L${x + width} ${rowY + (height / 2)} L${x + width - 5} ${rowY + height} H${x} V${rowY} `,
                     };
 
-                    polyDrawing[rowY].reads.push(points[strand]);
+                    if (feature.alignment.mappingQuality > _this.minMapQ) {
+                        polyDrawing[rowY].reads.push(points[strand]);
+                    } else {
+                        polyDrawing[rowY].lowQualityReads.push(points[strand]);
+                    }
 
                     // PROCESS differences
                     if (differences.length > 0 && args.regionSize < 1000) {
@@ -840,34 +845,8 @@ class AlignmentRenderer extends Renderer {
         for (let i = 0; i < keys.length; i++) {
             const features = args.renderedArea[keys[i]];
 
-            const svgChild = SVG.addChild(bamReadGroup, "path", {
-                d: polyDrawing[keys[i]].reads.join(" "),
-                stroke: "black",
-                "stroke-width": 0.5,
-                fill: "lightgrey",
-                cursor: "pointer",
-            });
-
-            $(svgChild).qtip({
-                content: {
-                    title: "",
-                    text: "",
-                },
-                position: { target: "mouse", adjust: { x: 25, y: 15 } },
-                style: { width: 300, classes: `${_this.toolTipfontClass} ui-tooltip ui-tooltip-shadow` },
-                hide: {
-                    event: "mousedown mouseup mouseleave",
-                    delay: 30,
-                    fixed: true,
-                },
-            });
-
-            svgChild.onmouseover = function () {
-                const position = _this.getFeatureX(args.trackListPanel.mousePosition, args);
-                const read = features.get({ start: position, end: position }).value.feature;
-                $(svgChild).qtip("option", "content.text", _this.tooltipText(read));
-                $(svgChild).qtip("option", "content.title", _this.tooltipTitle(read));
-            };
+            this._renderReadsAndToolTips(bamReadGroup, polyDrawing[keys[i]].reads, 1, features, args);
+            this._renderReadsAndToolTips(bamReadGroup, polyDrawing[keys[i]].lowQualityReads, this.lowQualityOpacity, features, args);
 
             // Render differences
             addDifferencesSVG(bamReadGroup, polyDrawing[keys[i]].differences.A, "#009900");
@@ -1270,8 +1249,50 @@ class AlignmentRenderer extends Renderer {
     //     return substr;
     // }
 
+    _renderReadsAndToolTips(svgGroup, reads, opacity, features, args) {
+        if (reads.length === 0) {
+            return;
+        }
+
+        const svgChild = SVG.addChild(svgGroup, "path", {
+            d: reads.join(" "),
+            stroke: "black",
+            "stroke-width": 0.5,
+            fill: this.readColor,
+            "fill-opacity": opacity,
+            cursor: "pointer",
+        });
+
+        $(svgChild).qtip({
+            content: {
+                title: "",
+                text: "",
+            },
+            position: { target: "mouse", adjust: { x: 25, y: 15 } },
+            style: { width: 300, classes: `${this.toolTipfontClass} ui-tooltip ui-tooltip-shadow` },
+            hide: {
+                event: "mousedown mouseup mouseleave",
+                delay: 30,
+                fixed: true,
+            },
+        });
+
+        let _this = this;
+        svgChild.onmouseover = function () {
+            const position = _this.getFeatureX(args.trackListPanel.mousePosition, args);
+            const read = features.get({ start: position, end: position }).value.feature;
+            $(svgChild).qtip("option", "content.text", _this.tooltipText(read));
+            $(svgChild).qtip("option", "content.title", _this.tooltipTitle(read));
+        };
+
+    }
+
     getDefaultConfig() {
         return {
+            asPairs: true,
+            minMapQ: 20, // Reads with a mapping quality under 20 will have a transparency
+            lowQualityOpacity: 0.5,
+            readColor: "darkgrey",
             infoWidgetId: "id",
             height: 10,
             histogramColor: "grey",

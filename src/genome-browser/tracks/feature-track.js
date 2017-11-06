@@ -16,6 +16,7 @@ class FeatureTrack {
         this.visible = true;
         this.contentVisible = true;
         this.closable = false;
+        this.showSettings = false;
         this.fontClass = "ocb-font-roboto ocb-font-size-14";
         this.externalLink = "";
         this.autoRender = false;
@@ -129,6 +130,10 @@ class FeatureTrack {
         } else {
             this.showContent();
         }
+    }
+
+    settingsContent() {
+        this.trigger("track:settings", { sender: this });
     }
 
     close() {
@@ -312,6 +317,10 @@ class FeatureTrack {
                     <span class="ocb-gv-track-title-up"><i class="fa fa-chevron-up"></i></span>
         `;
 
+        if (this.showSettings === true) {
+            titleBarHtml += '           <span class="ocb-gv-track-title-settings"><i class="fa fa-cog"></i></span>';
+        }
+
         if (this.closable === true) {
             titleBarHtml += '           <span class="ocb-gv-track-title-close"><i class="fa fa-times"></i></span>';
         }
@@ -339,6 +348,7 @@ class FeatureTrack {
         this.toggleEl = titleBardiv.querySelector(".ocb-gv-track-title-toggle");
         this.iToggleEl = this.toggleEl.querySelector("i");
         this.loadingEl = titleBardiv.querySelector(".ocb-gv-track-title-loading");
+        this.settingsEl = titleBardiv.querySelector(".ocb-gv-track-title-settings");
         this.closeEl = titleBardiv.querySelector(".ocb-gv-track-title-close");
         this.upEl = titleBardiv.querySelector(".ocb-gv-track-title-up");
         this.downEl = titleBardiv.querySelector(".ocb-gv-track-title-down");
@@ -372,6 +382,9 @@ class FeatureTrack {
 
         $(this.toggleEl).click(function(e) {
             _this.toggleContent();
+        });
+        $(this.settingsEl).click(function(e) {
+            _this.settingsContent();
         });
         $(this.closeEl).click(function(e) {
             _this.close();
