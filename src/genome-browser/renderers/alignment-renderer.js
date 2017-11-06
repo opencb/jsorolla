@@ -61,10 +61,9 @@ class AlignmentRenderer extends Renderer {
             for (let i = 0, li = chunkList.length; i < li; i++) {
                 this._drawCoverage(bamCoverGroup, chunkList[i], args);
                 this._addChunks(chunkList[i], polyDrawing, args);
-                // drawChunk(chunkList[i]);
             }
         }
-        
+
         // Remove old SVGs
         if (args.svgCanvasFeatures.childElementCount > 2) {
             args.svgCanvasFeatures.removeChild(args.svgCanvasFeatures.firstChild);
@@ -481,7 +480,7 @@ class AlignmentRenderer extends Renderer {
 
     getDefaultConfig() {
         return {
-            asPairs: false,
+            asPairs: true,
             minMapQ: 20, // Reads with a mapping quality under 20 will have a transparency
             lowQualityOpacity: 0.5,
             readColor: "darkgrey",
@@ -590,9 +589,9 @@ class AlignmentRenderer extends Renderer {
             for (let i = 0; i < ids.length; i++) {
                 const id = ids[i];
                 if (alignmentHash[id].length === 2) {
-                    this.drawPairedReads(alignmentHash[id][0], alignmentHash[id][1]);
+                    this._addPairedReads(alignmentHash[id], polyDrawing, args);
                 } else {
-                    this._drawSingleRead(alignmentHash[id][0]);
+                    this._addSingleRead(alignmentHash[id][0], polyDrawing, args);
                 }
             }
         } else {
@@ -684,6 +683,254 @@ class AlignmentRenderer extends Renderer {
 
         });
     }
+
+    _addPairedReads(features, polyDrawing, args) {
+
+        // Initialise the differences object to contain the differences of each read
+        let differences = [];
+
+        let myLengths = [];
+        for (let i = 0; i < features.length; i++) {
+            let feature = features[i];
+
+            let myDifferences = [];
+            differences.push(myDifferences);
+
+            let start = feature.alignment.position.position;
+
+            let cigar = "";
+            let relativePosition = 0;
+            const insertions = [];
+
+            let myLength;
+            for (const i in feature.alignment.cigar) {
+                cigar += feature.alignment.cigar[i].operationLength;
+                switch (feature.alignment.cigar[i].operation) {
+                    case "CLIP_SOFT":
+                        cigar += "S";
+                        break;
+                    case "ALIGNMENT_MATCH":
+                        cigar += "M";
+                        relativePosition += parseInt(feature.alignment.cigar[i].operationLength);
+                        break;
+                    case "INSERT":
+                        cigar += "I";
+                        myLength = parseInt(feature.alignment.cigar[i].operationLength);
+
+                        // We put this here because it will be read to calculate the position of the mismatches
+                        insertions.push({
+                            pos: relativePosition,
+                            length: myLength,
+                        });
+
+                        myDifferences.push({
+                            pos: relativePosition,
+                            seq: feature.alignedSequence.slice(relativePosition, relativePosition + myLength),
+                            op: "I",
+                            length: myLength,
+                        });
+                        break;
+                    case "DELETE":
+                        cigar += "D";
+                        myLength = parseInt(feature.alignment.cigar[i].operationLength);
+                        myDifferences.push({
+                            pos: relativePosition,
+                            op: "D",
+                            length: myLength,
+                        });
+                        relativePosition += myLength;
+                        break;
+                    case "SKIP":
+                        cigar += "N";
+                        relativePosition += parseInt(feature.alignment.cigar[i].operationLength);
+                        break;
+                    default:
+                }
+            }
+            feature.cigar = cigar;
+
+            const end = start + relativePosition - 1;
+            myLengths.push(relativePosition);
+
+            feature.start = start;
+            feature.end = end;
+
+            if (feature.info.hasOwnProperty("MD")) {
+                const md = feature.info.MD[1];
+                const matches = md.match(/([0-9]+)|([^0-9]+)/g);
+                let position = 0;
+
+                if (feature.alignment.cigar[0].operation === "CLIP_SOFT") {
+                    position = parseInt(feature.alignment.cigar[0].operationLength);
+                }
+
+                // This variable will contain the offset between the insertion and the position where the mismatch is
+                // Imagine we have this sequence ACTGCT, and we have an insertion in position 3 and a mismatch in position 5
+                // The mismatch will be in position 5 of the sequence, but located in position 4 when showed relative to the
+                // reference genome.
+                let offset = position;
+                for (let i = 0; i < matches.length; i++) {
+                    if (i % 2 === 0) {
+                        // Number
+                        position += parseInt(matches[i]);
+                    } else {
+                        if (insertions.length > 0) {
+                            for (let j = 0; j < insertions.length; j++) {
+                                if (insertions[j].pos < position) {
+                                    position += insertions[j].length;
+                                    offset += insertions[j].length;
+                                    insertions[j].pos = Infinity;
+                                } else {
+                                    break;
+                                }
+                            }
+                        }
+
+                        // Not deletion
+                        if (matches[i][0] !== "^") {
+                            // Reference nucleotide
+                            if (matches[i] === feature.alignedSequence[position]) {
+
+                            }
+
+                            myDifferences.push({
+                                pos: position - offset,
+                                seq: feature.alignedSequence[position],
+                                op: "M",
+                                length: 1,
+                            });
+
+                            position += 1;
+                        } else {
+                            // -1 because we should not count the ^
+                            offset -= matches[i].length - 1;
+                        }
+                    }
+                }
+            }
+
+            // get feature render configuration
+            let color = _.isFunction(this.color) ? this.color(feature, args.region.chromosome) : this.color;
+            const mateUnmappedFlag = _.isFunction(this.mateUnmappedFlag) ? this.mateUnmappedFlag(feature) : this.mateUnmappedFlag;
+
+            if (this.insertSizeMin != 0 && this.insertSizeMax != 0 && !mateUnmappedFlag) {
+                if (Math.abs(feature.inferredInsertSize) > this.insertSizeMax) {
+                    color = "maroon";
+                }
+                if (Math.abs(feature.inferredInsertSize) < this.insertSizeMin) {
+                    color = "navy";
+                }
+            }
+        }
+
+
+        // transform to pixel position
+        let width = myLengths[0] * args.pixelBase;
+        let widthPair = myLengths[1] * args.pixelBase;
+        // calculate x to draw svg rect
+        let x = this.getFeatureX(features[0].alignment.position.position, args);
+        let xPair = this.getFeatureX(features[1].alignment.position.position, args);
+
+        // We write additionally the coordinates used by each read to be able to easily select the tooltip to be shown in each case
+        features[0]._coordinates = [x, x + width];
+        features[1]._coordinates = [xPair, xPair + widthPair];
+
+        let height = _.isFunction(this.height) ? this.height(features[0]) : this.height;
+
+        let rowHeight = 15;
+        let rowY = 70;
+        // var textY = 12+settings.height;
+        while (true) {
+            if (UtilsNew.isUndefinedOrNull(args.renderedArea[rowY])) {
+                args.renderedArea[rowY] = new FeatureBinarySearchTree();
+            }
+            if (UtilsNew.isUndefinedOrNull(polyDrawing[rowY])) {
+                polyDrawing[rowY] = {
+                    reads: [],
+                    lowQualityReads: [],
+                    differences: {
+                        A: [],
+                        T: [],
+                        C: [],
+                        G: [],
+                        N: [],
+                        I: [],
+                        D: [],
+                    },
+                    config: {
+                        height,
+                    },
+                };
+            }
+
+            let enc = args.renderedArea[rowY].add({ start: x, end: xPair + widthPair - 1, features });
+            if (enc) {
+                const points = {
+                    Reverse: `M${x} ${rowY + (height / 2)} L${x + 5} ${rowY} H${x + width} V${rowY + height} H${x + 5} L${x} ${rowY + (height / 2)} `,
+                    Forward: `M${x} ${rowY} H${x + width - 5} L${x + width} ${rowY + (height / 2)} L${x + width - 5} ${rowY + height} H${x} V${rowY} `,
+                };
+
+                const paired_points = {
+                    Reverse: `M${xPair} ${rowY + (height / 2)} L${xPair + 5} ${rowY} H${xPair + widthPair} V${rowY + height} H${xPair + 5} L${xPair} ${rowY + (height / 2)} `,
+                    Forward: `M${xPair} ${rowY} H${xPair + widthPair - 5} L${xPair + widthPair} ${rowY + (height / 2)} L${xPair + widthPair - 5} ${rowY + height} H${xPair} V${rowY} `,
+                };
+
+                let strand = _.isFunction(this.strand) ? this.strand(features[0]) : this.strand;
+                if (features[0].alignment.mappingQuality > this.minMapQ) {
+                    polyDrawing[rowY].reads.push(points[strand]);
+                } else {
+                    polyDrawing[rowY].lowQualityReads.push(points[strand]);
+                }
+
+                // TODO: Draw the line connecting the reads
+                polyDrawing[rowY].reads.push(`M${x + width} ${rowY + (height / 2)} H${xPair} H${x + width}`);
+
+                strand = _.isFunction(this.strand) ? this.strand(features[1]) : this.strand;
+                if (features[1].alignment.mappingQuality > this.minMapQ) {
+                    polyDrawing[rowY].reads.push(paired_points[strand]);
+                } else {
+                    polyDrawing[rowY].lowQualityReads.push(paired_points[strand]);
+                }
+
+                // PROCESS differences
+                if (args.regionSize < 1000) {
+                    for (let w = 0; w < differences.length; w++) {
+                        let start = features[w].alignment.position.position;
+                        if (differences[w].length > 0) {
+                            for (let i = 0; i < differences[w].length; i++) {
+                                const diff = differences[w][i];
+                                const tmpStart = this.getFeatureX(diff.pos + start, args);
+                                let tmpEnd = tmpStart + args.pixelBase;
+
+                                if (diff.op === "M") {
+                                    const rectangle = `M${tmpStart} ${rowY} V${rowY + height} H${tmpEnd} V${rowY} H${tmpStart}`;
+                                    polyDrawing[rowY].differences[diff.seq].push(rectangle);
+                                } else if (diff.op === "I") {
+                                    diff.pos = tmpStart;
+                                    diff.size = args.pixelBase;
+                                    polyDrawing[rowY].differences[diff.op].push(diff);
+                                } else if (diff.op === "D") {
+                                    tmpEnd = tmpStart + args.pixelBase * diff.length;
+                                    // Deletion as a line or as a cross
+                                    // Line
+                                    const line = `M${tmpStart} ${rowY + (height / 2)} H${tmpEnd} H${tmpStart}`;
+                                    // Cross
+                                    // let line = `M${tmpStart} ${rowY + height} L${tmpEnd} ${rowY} L${tmpStart} ${rowY + height}
+                                    //             M${tmpStart} ${rowY} L${tmpEnd} ${rowY + height} L${tmpStart} ${rowY}`;
+                                    polyDrawing[rowY].differences[diff.op].push(line);
+                                } else {
+                                    console.log(`Unexpected difference found: ${diff.op}`);
+                                }
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+            rowY += rowHeight;
+        }
+    }
+
 
     _addSingleRead(feature, polyDrawing, args) {
 
@@ -854,7 +1101,8 @@ class AlignmentRenderer extends Renderer {
                 };
             }
 
-            const enc = args.renderedArea[rowY].add({ start: x, end: x + maxWidth - 1, feature });
+            let features = [feature];
+            const enc = args.renderedArea[rowY].add({ start: x, end: x + maxWidth - 1, features });
             if (enc) {
                 const points = {
                     Reverse: `M${x} ${rowY + (height / 2)} L${x + 5} ${rowY} H${x + width} V${rowY + height} H${x + 5} L${x} ${rowY + (height / 2)} `,
@@ -1140,15 +1388,27 @@ class AlignmentRenderer extends Renderer {
      * @param alignments
      */
     _pairReads(alignments) {
-        
         const alignmentHash = {};
         // We build a temporal structure for faster retrieval of alignments
         for (let i = 0; i < alignments.length; i++) {
             const id = alignments[i].id;
             if (typeof alignmentHash[id] === "undefined") {
-                alignmentHash[id] = [];
+                alignmentHash[id] = [alignments[i]];
+            } else {
+                let pos_new_alignment = alignments[i].alignment.position.position;
+                let pos_stored_alignment = alignmentHash[id][0].alignment.position.position;
+
+                if (pos_stored_alignment === pos_new_alignment) {
+                    // FIXME: For some reason, the webservice is some times returning the exactly same read more than once.
+                    continue;
+                }
+                // Order the alignments to be rendered properly
+                if (pos_new_alignment > pos_stored_alignment) {
+                    alignmentHash[id].push(alignments[i]);
+                } else {
+                    alignmentHash[id].unshift(alignments[i]);
+                }
             }
-            alignmentHash[id].push(alignments[i]);
         }
 
         return alignmentHash;
@@ -1197,10 +1457,20 @@ class AlignmentRenderer extends Renderer {
 
         let _this = this;
         svgChild.onmouseover = function () {
-            const position = _this.getFeatureX(args.trackListPanel.mousePosition, args);
-            const read = features.get({ start: position, end: position }).value.feature;
-            $(svgChild).qtip("option", "content.text", _this.tooltipText(read));
-            $(svgChild).qtip("option", "content.title", _this.tooltipTitle(read));
+            let position = _this.getFeatureX(args.trackListPanel.mousePosition, args);
+            let reads = features.get({ start: position, end: position }).value.features;
+            if (reads.length === 1) {
+                $(svgChild).qtip("option", "content.text", _this.tooltipText(reads[0]));
+                $(svgChild).qtip("option", "content.title", _this.tooltipTitle(reads[0]));
+            } else {
+                if (position < reads[0]._coordinates[1]) {
+                    $(svgChild).qtip("option", "content.text", _this.tooltipText(reads[0]));
+                    $(svgChild).qtip("option", "content.title", _this.tooltipTitle(reads[0]));
+                } else if (position > reads[1]._coordinates[0]) {
+                    $(svgChild).qtip("option", "content.text", _this.tooltipText(reads[1]));
+                    $(svgChild).qtip("option", "content.title", _this.tooltipTitle(reads[1]));
+                }
+            }
         };
 
     }
