@@ -316,145 +316,177 @@ class AlignmentRenderer extends Renderer {
         });
     }
 
-    _addPairedReads(features, polyDrawing, args) {
-
-        // Initialise the differences object to contain the differences of each read
+    _analyseRead(feature, args) {
         let differences = [];
 
-        let myLengths = [];
-        for (let i = 0; i < features.length; i++) {
-            let feature = features[i];
+        let start = feature.alignment.position.position;
 
-            let myDifferences = [];
-            differences.push(myDifferences);
+        let cigar = "";
+        let relativePosition = 0;
+        const insertions = [];
 
-            let start = feature.alignment.position.position;
+        let myLength;
+        for (const i in feature.alignment.cigar) {
+            cigar += feature.alignment.cigar[i].operationLength;
+            switch (feature.alignment.cigar[i].operation) {
+            case "CLIP_SOFT":
+                cigar += "S";
+                break;
+            case "ALIGNMENT_MATCH":
+                cigar += "M";
+                relativePosition += parseInt(feature.alignment.cigar[i].operationLength);
+                break;
+            case "INSERT":
+                cigar += "I";
+                myLength = parseInt(feature.alignment.cigar[i].operationLength);
 
-            let cigar = "";
-            let relativePosition = 0;
-            const insertions = [];
+                // We put this here because it will be read to calculate the position of the mismatches
+                insertions.push({
+                    pos: relativePosition,
+                    length: myLength,
+                });
 
-            let myLength;
-            for (const i in feature.alignment.cigar) {
-                cigar += feature.alignment.cigar[i].operationLength;
-                switch (feature.alignment.cigar[i].operation) {
-                case "CLIP_SOFT":
-                    cigar += "S";
-                    break;
-                case "ALIGNMENT_MATCH":
-                    cigar += "M";
-                    relativePosition += parseInt(feature.alignment.cigar[i].operationLength);
-                    break;
-                case "INSERT":
-                    cigar += "I";
-                    myLength = parseInt(feature.alignment.cigar[i].operationLength);
-
-                    // We put this here because it will be read to calculate the position of the mismatches
-                    insertions.push({
-                        pos: relativePosition,
-                        length: myLength,
-                    });
-
-                    myDifferences.push({
-                        pos: relativePosition,
-                        seq: feature.alignedSequence.slice(relativePosition, relativePosition + myLength),
-                        op: "I",
-                        length: myLength,
-                    });
-                    break;
-                case "DELETE":
-                    cigar += "D";
-                    myLength = parseInt(feature.alignment.cigar[i].operationLength);
-                    myDifferences.push({
-                        pos: relativePosition,
-                        op: "D",
-                        length: myLength,
-                    });
-                    relativePosition += myLength;
-                    break;
-                case "SKIP":
-                    cigar += "N";
-                    relativePosition += parseInt(feature.alignment.cigar[i].operationLength);
-                    break;
-                default:
-                }
+                differences.push({
+                    pos: relativePosition,
+                    seq: feature.alignedSequence.slice(relativePosition, relativePosition + myLength),
+                    op: "I",
+                    length: myLength,
+                });
+                break;
+            case "DELETE":
+                cigar += "D";
+                myLength = parseInt(feature.alignment.cigar[i].operationLength);
+                differences.push({
+                    pos: relativePosition,
+                    op: "D",
+                    length: myLength,
+                });
+                relativePosition += myLength;
+                break;
+            case "SKIP":
+                cigar += "N";
+                relativePosition += parseInt(feature.alignment.cigar[i].operationLength);
+                break;
+            default:
             }
-            feature.cigar = cigar;
+        }
+        feature.cigar = cigar;
 
-            const end = start + relativePosition - 1;
-            myLengths.push(relativePosition);
+        const end = start + relativePosition - 1;
 
-            feature.start = start;
-            feature.end = end;
+        feature.start = start;
+        feature.end = end;
 
-            if (feature.info.hasOwnProperty("MD")) {
-                const md = feature.info.MD[1];
-                const matches = md.match(/([0-9]+)|([^0-9]+)/g);
-                let position = 0;
+        if (feature.info.hasOwnProperty("MD")) {
+            const md = feature.info.MD[1];
+            const matches = md.match(/([0-9]+)|([^0-9]+)/g);
+            let position = 0;
 
-                if (feature.alignment.cigar[0].operation === "CLIP_SOFT") {
-                    position = parseInt(feature.alignment.cigar[0].operationLength);
-                }
+            if (feature.alignment.cigar[0].operation === "CLIP_SOFT") {
+                position = parseInt(feature.alignment.cigar[0].operationLength);
+            }
 
-                // This variable will contain the offset between the insertion and the position where the mismatch is
-                // Imagine we have this sequence ACTGCT, and we have an insertion in position 3 and a mismatch in position 5
-                // The mismatch will be in position 5 of the sequence, but located in position 4 when showed relative to the
-                // reference genome.
-                let offset = position;
-                for (let i = 0; i < matches.length; i++) {
-                    if (i % 2 === 0) {
-                        // Number
-                        position += parseInt(matches[i]);
-                    } else {
-                        if (insertions.length > 0) {
-                            for (let j = 0; j < insertions.length; j++) {
-                                if (insertions[j].pos < position) {
-                                    position += insertions[j].length;
-                                    offset += insertions[j].length;
-                                    insertions[j].pos = Infinity;
-                                } else {
-                                    break;
-                                }
+            // This variable will contain the offset between the insertion and the position where the mismatch is
+            // Imagine we have this sequence ACTGCT, and we have an insertion in position 3 and a mismatch in position 5
+            // The mismatch will be in position 5 of the sequence, but located in position 4 when showed relative to the
+            // reference genome.
+            let offset = position;
+            for (let i = 0; i < matches.length; i++) {
+                if (i % 2 === 0) {
+                    // Number
+                    position += parseInt(matches[i]);
+                } else {
+                    if (insertions.length > 0) {
+                        for (let j = 0; j < insertions.length; j++) {
+                            if (insertions[j].pos < position) {
+                                position += insertions[j].length;
+                                offset += insertions[j].length;
+                                insertions[j].pos = Infinity;
+                            } else {
+                                break;
                             }
-                        }
-
-                        // Not deletion
-                        if (matches[i][0] !== "^") {
-                            // Reference nucleotide
-                            if (matches[i] === feature.alignedSequence[position]) {
-                                console.log("Something strange happened. The mismatch matches the nucleotide of the reference genome?")
-                            }
-
-                            myDifferences.push({
-                                pos: position - offset,
-                                seq: feature.alignedSequence[position],
-                                op: "M",
-                                length: 1,
-                            });
-
-                            position += 1;
-                        } else {
-                            // -1 because we should not count the ^
-                            offset -= matches[i].length - 1;
                         }
                     }
-                }
-            }
 
-            // get feature render configuration
-            let color = _.isFunction(this.color) ? this.color(feature, args.region.chromosome) : this.color;
-            const mateUnmappedFlag = _.isFunction(this.mateUnmappedFlag) ? this.mateUnmappedFlag(feature) : this.mateUnmappedFlag;
+                    // Not deletion
+                    if (matches[i][0] !== "^") {
+                        // Reference nucleotide
+                        if (matches[i] === feature.alignedSequence[position]) {
+                            console.log("Something strange happened. The mismatch matches the nucleotide of the reference genome?")
+                        }
 
-            if (this.insertSizeMin != 0 && this.insertSizeMax != 0 && !mateUnmappedFlag) {
-                if (Math.abs(feature.inferredInsertSize) > this.insertSizeMax) {
-                    color = "maroon";
-                }
-                if (Math.abs(feature.inferredInsertSize) < this.insertSizeMin) {
-                    color = "navy";
+                        differences.push({
+                            pos: position - offset,
+                            seq: feature.alignedSequence[position],
+                            op: "M",
+                            length: 1,
+                        });
+
+                        position += 1;
+                    } else {
+                        // -1 because we should not count the ^
+                        offset -= matches[i].length - 1;
+                    }
                 }
             }
         }
 
+        // get feature render configuration
+        let color = _.isFunction(this.color) ? this.color(feature, args.region.chromosome) : this.color;
+        const mateUnmappedFlag = _.isFunction(this.mateUnmappedFlag) ? this.mateUnmappedFlag(feature) : this.mateUnmappedFlag;
+
+        if (this.insertSizeMin != 0 && this.insertSizeMax != 0 && !mateUnmappedFlag) {
+            if (Math.abs(feature.inferredInsertSize) > this.insertSizeMax) {
+                color = "maroon";
+            }
+            if (Math.abs(feature.inferredInsertSize) < this.insertSizeMin) {
+                color = "navy";
+            }
+        }
+
+        return [differences, relativePosition];
+    }
+
+    _processDifferencesInRead(differences, polyDrawing, start, height, rowY, args) {
+        if (typeof differences === "undefined" || differences.length === 0) {
+            return;
+        }
+
+        for (let i = 0; i < differences.length; i++) {
+            let diff = differences[i];
+            let tmpStart = this.getFeatureX(diff.pos + start, args);
+            let tmpEnd = tmpStart + args.pixelBase;
+
+            if (diff.op === "M") {
+                const rectangle = `M${tmpStart} ${rowY} V${rowY + height} H${tmpEnd} V${rowY} H${tmpStart}`;
+                polyDrawing[rowY].differences[diff.seq].push(rectangle);
+            } else if (diff.op === "I") {
+                diff.pos = tmpStart;
+                diff.size = args.pixelBase;
+                polyDrawing[rowY].differences[diff.op].push(diff);
+            } else if (diff.op === "D") {
+                tmpEnd = tmpStart + args.pixelBase * diff.length;
+                // Deletion as a line or as a cross
+                // Line
+                const line = `M${tmpStart} ${rowY + (height / 2)} H${tmpEnd} H${tmpStart}`;
+                // Cross
+                polyDrawing[rowY].differences[diff.op].push(line);
+            } else {
+                console.log(`Unexpected difference found: ${diff.op}`);
+            }
+        }
+    }
+
+    _addPairedReads(features, polyDrawing, args) {
+        // Initialise the differences object to contain the differences of each read
+        let differences = [];
+        let myLengths = [];
+
+        for (let i = 0; i < features.length; i++) {
+            let [myDifferences, length] = this._analyseRead(features[i], args);
+            differences.push(myDifferences);
+            myLengths.push(length);
+        }
 
         // transform to pixel position
         let width = myLengths[0] * args.pixelBase;
@@ -531,36 +563,10 @@ class AlignmentRenderer extends Renderer {
 
                 // PROCESS differences
                 if (args.regionSize < 1000) {
-                    for (let w = 0; w < differences.length; w++) {
-                        let start = features[w].alignment.position.position;
-                        if (differences[w].length > 0) {
-                            for (let i = 0; i < differences[w].length; i++) {
-                                const diff = differences[w][i];
-                                const tmpStart = this.getFeatureX(diff.pos + start, args);
-                                let tmpEnd = tmpStart + args.pixelBase;
-
-                                if (diff.op === "M") {
-                                    const rectangle = `M${tmpStart} ${rowY} V${rowY + height} H${tmpEnd} V${rowY} H${tmpStart}`;
-                                    polyDrawing[rowY].differences[diff.seq].push(rectangle);
-                                } else if (diff.op === "I") {
-                                    diff.pos = tmpStart;
-                                    diff.size = args.pixelBase;
-                                    polyDrawing[rowY].differences[diff.op].push(diff);
-                                } else if (diff.op === "D") {
-                                    tmpEnd = tmpStart + args.pixelBase * diff.length;
-                                    // Deletion as a line or as a cross
-                                    // Line
-                                    const line = `M${tmpStart} ${rowY + (height / 2)} H${tmpEnd} H${tmpStart}`;
-                                    // Cross
-                                    // let line = `M${tmpStart} ${rowY + height} L${tmpEnd} ${rowY} L${tmpStart} ${rowY + height}
-                                    //             M${tmpStart} ${rowY} L${tmpEnd} ${rowY + height} L${tmpStart} ${rowY}`;
-                                    polyDrawing[rowY].differences[diff.op].push(line);
-                                } else {
-                                    console.log(`Unexpected difference found: ${diff.op}`);
-                                }
-                            }
-                        }
-                    }
+                    this._processDifferencesInRead(differences[0], polyDrawing, features[0].alignment.position.position, height, rowY,
+                        args);
+                    this._processDifferencesInRead(differences[1], polyDrawing, features[1].alignment.position.position, height, rowY,
+                        args);
                 }
                 readFitted = true;
             }
@@ -571,139 +577,10 @@ class AlignmentRenderer extends Renderer {
 
     _addSingleRead(feature, polyDrawing, args) {
 
-        const differences = [];
-        const start = feature.alignment.position.position;
-
-        let cigar = "";
-        let relativePosition = 0;
-        const insertions = [];
-
-        let myLength;
-        for (const i in feature.alignment.cigar) {
-            cigar += feature.alignment.cigar[i].operationLength;
-            switch (feature.alignment.cigar[i].operation) {
-            case "CLIP_SOFT":
-                cigar += "S";
-                break;
-            case "ALIGNMENT_MATCH":
-                cigar += "M";
-                relativePosition += parseInt(feature.alignment.cigar[i].operationLength);
-                break;
-            case "INSERT":
-                cigar += "I";
-                myLength = parseInt(feature.alignment.cigar[i].operationLength);
-
-                // We put this here because it will be read to calculate the position of the mismatches
-                insertions.push({
-                    pos: relativePosition,
-                    length: myLength,
-                });
-
-                differences.push({
-                    pos: relativePosition,
-                    seq: feature.alignedSequence.slice(relativePosition, relativePosition + myLength),
-                    op: "I",
-                    length: myLength,
-                });
-                break;
-            case "DELETE":
-                cigar += "D";
-                myLength = parseInt(feature.alignment.cigar[i].operationLength);
-                differences.push({
-                    pos: relativePosition,
-                    op: "D",
-                    length: myLength,
-                });
-                relativePosition += myLength;
-                break;
-            case "SKIP":
-                cigar += "N";
-                relativePosition += parseInt(feature.alignment.cigar[i].operationLength);
-                break;
-            default:
-            }
-        }
-        feature.cigar = cigar;
-
-        const end = start + relativePosition - 1;
-        const length = relativePosition;
-
-        feature.start = start;
-        feature.end = end;
-
-        if (feature.info.hasOwnProperty("MD")) {
-            const md = feature.info.MD[1];
-            const matches = md.match(/([0-9]+)|([^0-9]+)/g);
-            let position = 0;
-
-            if (feature.alignment.cigar[0].operation === "CLIP_SOFT") {
-                position = parseInt(feature.alignment.cigar[0].operationLength);
-            }
-
-            // This variable will contain the offset between the insertion and the position where the mismatch is
-            // Imagine we have this sequence ACTGCT, and we have an insertion in position 3 and a mismatch in position 5
-            // The mismatch will be in position 5 of the sequence, but located in position 4 when showed relative to the
-            // reference genome.
-            let offset = position;
-            for (let i = 0; i < matches.length; i++) {
-                if (i % 2 === 0) {
-                    // Number
-                    position += parseInt(matches[i]);
-                } else {
-                    if (insertions.length > 0) {
-                        for (let j = 0; j < insertions.length; j++) {
-                            if (insertions[j].pos < position) {
-                                position += insertions[j].length;
-                                offset += insertions[j].length;
-                                insertions[j].pos = Infinity;
-                            } else {
-                                break;
-                            }
-                        }
-                    }
-
-                    // Not deletion
-                    if (matches[i][0] !== "^") {
-                        // Reference nucleotide
-                        if (matches[i] === feature.alignedSequence[position]) {
-                            console.log("Something strange happened. The mismatch matches the nucleotide of the reference genome?")
-                        }
-
-                        differences.push({
-                            pos: position - offset,
-                            seq: feature.alignedSequence[position],
-                            op: "M",
-                            length: 1,
-                        });
-
-                        position += 1;
-                    } else {
-                        // -1 because we should not count the ^
-                        offset -= matches[i].length - 1;
-                    }
-                }
-            }
-        }
-
-        // get feature render configuration
-        let color = _.isFunction(this.color) ? this.color(feature, args.region.chromosome) : this.color;
-        const strokeColor = _.isFunction(this.strokeColor) ? this.strokeColor(feature, args.region.chromosome) : this.strokeColor;
-        const label = _.isFunction(this.label) ? this.label(feature) : this.label;
-        const height = _.isFunction(this.height) ? this.height(feature) : this.height;
-        const tooltipTitle = _.isFunction(this.tooltipTitle) ? this.tooltipTitle(feature) : this.tooltipTitle;
-        const tooltipText = _.isFunction(this.tooltipText) ? this.tooltipText(feature) : this.tooltipText;
-        const strand = _.isFunction(this.strand) ? this.strand(feature) : this.strand;
-        const mateUnmappedFlag = _.isFunction(this.mateUnmappedFlag) ? this.mateUnmappedFlag(feature) : this.mateUnmappedFlag;
-        const infoWidgetId = _.isFunction(this.infoWidgetId) ? this.infoWidgetId(feature) : this.infoWidgetId;
-
-        if (this.insertSizeMin != 0 && this.insertSizeMax != 0 && !mateUnmappedFlag) {
-            if (Math.abs(feature.inferredInsertSize) > this.insertSizeMax) {
-                color = "maroon";
-            }
-            if (Math.abs(feature.inferredInsertSize) < this.insertSizeMin) {
-                color = "navy";
-            }
-        }
+        let [differences, length] = this._analyseRead(feature, args);
+        let start = feature.alignment.position.position;
+        let height = _.isFunction(this.height) ? this.height(feature) : this.height;
+        let strand = _.isFunction(this.strand) ? this.strand(feature) : this.strand;
 
         // transform to pixel position
         const width = length * args.pixelBase;
@@ -756,32 +633,8 @@ class AlignmentRenderer extends Renderer {
                 }
 
                 // PROCESS differences
-                if (differences.length > 0 && args.regionSize < 1000) {
-                    for (let i = 0; i < differences.length; i++) {
-                        const diff = differences[i];
-                        const tmpStart = this.getFeatureX(diff.pos + start, args);
-                        let tmpEnd = tmpStart + args.pixelBase;
-
-                        if (diff.op === "M") {
-                            const rectangle = `M${tmpStart} ${rowY} V${rowY + height} H${tmpEnd} V${rowY} H${tmpStart}`;
-                            polyDrawing[rowY].differences[diff.seq].push(rectangle);
-                        } else if (diff.op === "I") {
-                            diff.pos = tmpStart;
-                            diff.size = args.pixelBase;
-                            polyDrawing[rowY].differences[diff.op].push(diff);
-                        } else if (diff.op === "D") {
-                            tmpEnd = tmpStart + args.pixelBase * diff.length;
-                            // Deletion as a line or as a cross
-                            // Line
-                            const line = `M${tmpStart} ${rowY + (height / 2)} H${tmpEnd} H${tmpStart}`;
-                            // Cross
-                            // let line = `M${tmpStart} ${rowY + height} L${tmpEnd} ${rowY} L${tmpStart} ${rowY + height}
-                            //             M${tmpStart} ${rowY} L${tmpEnd} ${rowY + height} L${tmpStart} ${rowY}`;
-                            polyDrawing[rowY].differences[diff.op].push(line);
-                        } else {
-                            console.log(`Unexpected difference found: ${diff.op}`);
-                        }
-                    }
+                if (args.regionSize < 1000) {
+                    this._processDifferencesInRead(differences, polyDrawing, start, height, rowY, args);
                 }
                 readFitted = true;
             }
