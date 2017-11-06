@@ -109,374 +109,6 @@ class AlignmentRenderer extends Renderer {
         console.timeEnd(`BamRender ${response.params.resource}`);
     }
 
-    // genBamVariants(differences, size, mainX, y) {
-    //     const s = size / 6;
-    //     let d = "";
-    //     for (let i = 0; i < differences.length; i++) {
-    //         const difference = differences[i];
-    //
-    //         switch (difference.op) {
-    //         case "S" :
-    //             let x = mainX + (size * difference.pos);
-    //             for (let j = 0; j < difference.length; j++) {
-    //                 const char = difference.seq[j];
-    //                 switch (char) {
-    //                 case "A" :
-    //                     d += `M${(2.5 * s) + x},${y
-    //                     }l-${2.5 * s},${6 * s
-    //                     }l${s},0` +
-    //                                 `l${0.875 * s},-${2 * s
-    //                                 }l${2.250 * s},0` +
-    //                                 `l${0.875 * s},${2 * s
-    //                                 }l${s},0` +
-    //                                 `l-${2.5 * s},-${6 * s
-    //                                 }l-${0.5 * s},0` +
-    //                                 `l0,${s
-    //                                 }l${0.75 * s},${2 * s
-    //                                 }l-${1.5 * s},0` +
-    //                                 `l${0.75 * s},-${2 * s
-    //                                 }l0,-${s
-    //                                 } `;
-    //                     break;
-    //                 case "T" :
-    //                     d += `M${(0.5 * s) + x},${y
-    //                     }l0,${s
-    //                     }l${2 * s},0` +
-    //                                 `l0,${5 * s
-    //                                 }l${s},0` +
-    //                                 `l0,-${5 * s
-    //                                 }l${2 * s},0` +
-    //                                 `l0,-${s
-    //                                 } `;
-    //                     break;
-    //                 case "C" :
-    //                     d += `M${(5 * s) + x},${(0 * s) + y
-    //                     }l-${2 * s},0` +
-    //                                 `l-${1.5 * s},${0.5 * s
-    //                                 }l-${0.5 * s},${1.5 * s
-    //                                 }l0,${2 * s
-    //                                 }l${0.5 * s},${1.5 * s
-    //                                 }l${1.5 * s},${0.5 * s
-    //                                 }l${2 * s},0` +
-    //                                 `l0,-${s
-    //                                 }l-${2 * s},0` +
-    //                                 `l-${0.75 * s},-${0.25 * s
-    //                                 }l-${0.25 * s},-${0.75 * s
-    //                                 }l0,-${2 * s
-    //                                 }l${0.25 * s},-${0.75 * s
-    //                                 }l${0.75 * s},-${0.25 * s
-    //                                 }l${2 * s},0` +
-    //                                 " ";
-    //                     break;
-    //                 case "G" :
-    //                     d += `M${(5 * s) + x},${(0 * s) + y
-    //                     }l-${2 * s},0` +
-    //                                 `l-${1.5 * s},${0.5 * s
-    //                                 }l-${0.5 * s},${1.5 * s
-    //                                 }l0,${2 * s
-    //                                 }l${0.5 * s},${1.5 * s
-    //                                 }l${1.5 * s},${0.5 * s
-    //                                 }l${2 * s},0` +
-    //                                 `l0,-${3 * s
-    //                                 }l-${s},0` +
-    //                                 `l0,${2 * s
-    //                                 }l-${s},0` +
-    //                                 `l-${0.75 * s},-${0.25 * s
-    //                                 }l-${0.25 * s},-${0.75 * s
-    //                                 }l0,-${2 * s
-    //                                 }l${0.25 * s},-${0.75 * s
-    //                                 }l${0.75 * s},-${0.25 * s
-    //                                 }l${2 * s},0` +
-    //                                 " ";
-    //                     //                d += "M" + ((5 * s) + x) + "," + ((0 * s) + y) +
-    //                     //                    "l-" + (2 * s) + ",0" +
-    //                     //                    "l-" + (2 * s) + "," + (2 * s) +
-    //                     //                    "l0," + (2 * s) +
-    //                     //                    "l" + (2 * s) + "," + (2 * s) +
-    //                     //                    "l" + (2 * s) + ",0" +
-    //                     //                    "l0,-" + (3 * s) +
-    //                     //                    "l-" + (1 * s) + ",0" +
-    //                     //                    "l0," + (2 * s) +
-    //                     //                    "l-" + (0.5 * s) + ",0" +
-    //                     //                    "l-" + (1.5 * s) + ",-" + (1.5 * s) +
-    //                     //                    "l0,-" + (1 * s) +
-    //                     //                    "l" + (1.5 * s) + ",-" + (1.5 * s) +
-    //                     //                    "l" + (1.5 * s) + ",0" +
-    //                     //                    " ";
-    //                     break;
-    //                 case "N" :
-    //                     d += `M${(0.5 * s) + x},${(0 * s) + y
-    //                     }l0,${6 * s
-    //                     }l${s},0` +
-    //                                 `l0,-${4.5 * s
-    //                                 }l${3 * s},${4.5 * s
-    //                                 }l${s},0` +
-    //                                 `l0,-${6 * s
-    //                                 }l-${s},0` +
-    //                                 `l0,${4.5 * s
-    //                                 }l-${3 * s},-${4.5 * s
-    //                                 } `;
-    //                     break;
-    //                 case "d" :
-    //                     d += `M${(0 * s) + x},${(2.5 * s) + y
-    //                     }l${6 * s},0` +
-    //                                 `l0,${s
-    //                                 }l-${6 * s},0` +
-    //                                 `l0,-${s
-    //                                 } `;
-    //                     break;
-    //                 default:
-    //                     d += "M0,0";
-    //                     break;
-    //                 }
-    //                 x += size;
-    //             }
-    //             break;
-    //         }
-    //     }
-    //
-    //     return d;
-    // }
-
-    // drawBamDifferences(differences, size, mainX, y) {
-    //     const text = SVG.create("text", {
-    //         x: mainX,
-    //         y,
-    //         class: "ocb-font-ubuntumono ocb-font-size-15",
-    //     });
-    //     for (let i = 0; i < differences.length; i++) {
-    //         const difference = differences[i];
-    //
-    //         let x;
-    //         switch (difference.op) {
-    //         // M 0 alignment match (can be a sequence match or mismatch)
-    //         // I 1 insertion to the reference
-    //         // D 2 deletion from the reference
-    //         // N 3 skipped region from the reference
-    //         // S 4 soft clipping (clipped sequences present in SEQ)
-    //         // H 5 hard clipping (clipped sequences NOT present in SEQ)
-    //         // P 6 padding (silent deletion from padded reference)
-    //         // = 7 sequence match
-    //         // X 8 sequence mismatch
-    //
-    //         case "I" :
-    //             x = mainX + (size * difference.pos) - size / 2;
-    //             const t = SVG.addChild(text, "tspan", {
-    //                 x,
-    //                 "font-weight": "bold",
-    //                 textLength: size,
-    //             });
-    //             t.textContent = "·";
-    //             $(t).qtip({
-    //                 content: { text: difference.seq, title: "Insertion" },
-    //                 position: { target: "mouse", adjust: { x: 25, y: 15 } },
-    //                 style: { classes: `${this.toolTipfontClass} qtip-dark qtip-shadow` },
-    //             });
-    //             break;
-    //         case "D" :
-    //             x = mainX + (size * difference.pos);
-    //             for (let j = 0; j < difference.length; j++) {
-    //                 const t = SVG.addChild(text, "tspan", {
-    //                     x,
-    //                     "font-weight": "bold",
-    //                     textLength: size,
-    //                 });
-    //                 t.textContent = "—";
-    //                 x += size;
-    //             }
-    //             break;
-    //         case "N" :
-    //             x = mainX + (size * difference.pos);
-    //             for (let j = 0; j < difference.length; j++) {
-    //                 const t = SVG.addChild(text, "tspan", {
-    //                     x,
-    //                     fill: "#888",
-    //                     textLength: size,
-    //                 });
-    //                 t.textContent = "—";
-    //                 x += size;
-    //             }
-    //             break;
-    //         case "S" :
-    //             x = mainX + (size * difference.pos);
-    //             for (let j = 0; j < difference.length; j++) {
-    //                 const char = difference.seq[j];
-    //                 const t = SVG.addChild(text, "tspan", {
-    //                     x,
-    //                     fill: "#aaa",
-    //                     textLength: size,
-    //                 });
-    //                 t.textContent = char;
-    //                 x += size;
-    //             }
-    //             break;
-    //         case "H" :
-    //             x = mainX + (size * difference.pos);
-    //             for (let j = 0; j < difference.length; j++) {
-    //                 const t = SVG.addChild(text, "tspan", {
-    //                     x,
-    //                     fill: "#aaa",
-    //                     textLength: size,
-    //                 });
-    //                 t.textContent = "H";
-    //                 x += size;
-    //             }
-    //             break;
-    //         case "X" :
-    //         case "M" :
-    //             x = mainX + (size * difference.pos);
-    //             for (let j = 0; j < difference.length; j++) {
-    //                 const char = difference.seq[j];
-    //                 const refPos = difference.pos + j;
-    //                 // console.log("ref:"+ refString.charAt(refPos)+" - "+"seq:"+char);
-    //
-    //                 const t = SVG.addChild(text, "tspan", {
-    //                     x,
-    //                     fill: SEQUENCE_COLORS[char],
-    //                     textLength: size,
-    //                 });
-    //                 t.textContent = char;
-    //
-    //                 x += size;
-    //             }
-    //             break;
-    //         }
-    //     }
-    //
-    //     return text;
-    // }
-
-    // AlignmentRenderer.drawBamDifferences = function (refString, differences, size, mainX, y) {
-    //     let text = SVG.create("text", {
-    //         "x": mainX,
-    //         "y": y - 2,
-    //         "class": 'ocb-font-ubuntumono ocb-font-size-15'
-    //     });
-    //     for (var i = 0; i < differences.length; i++) {
-    //         var difference = differences[i];
-    //
-    //         switch (difference.op) {
-    //             // M 0 alignment match (can be a sequence match or mismatch)
-    //             // I 1 insertion to the reference
-    //             // D 2 deletion from the reference
-    //             // N 3 skipped region from the reference
-    //             // S 4 soft clipping (clipped sequences present in SEQ)
-    //             // H 5 hard clipping (clipped sequences NOT present in SEQ)
-    //             //P 6 padding (silent deletion from padded reference)
-    //             //= 7 sequence match
-    //             // X 8 sequence mismatch
-    //
-    //             case "I" :
-    //                 var x = mainX + (size * difference.pos) - size / 2;
-    //                 var t = SVG.addChild(text, "tspan", {
-    //                     "x": x,
-    //                     "font-weight": 'bold',
-    //                     "textLength": size
-    //                 });
-    //                 t.textContent = '·';
-    //                 $(t).qtip({
-    //                     content: {text: difference.seq, title: 'Insertion'},
-    //                     position: {target: "mouse", adjust: {x: 25, y: 15}},
-    //                     style: {classes: this.toolTipfontClass + ' qtip-dark qtip-shadow'}
-    //                 });
-    //                 break;
-    //             case "D" :
-    //                 var x = mainX + (size * difference.pos);
-    //                 for (var j = 0; j < difference.length; j++) {
-    //                     var t = SVG.addChild(text, "tspan", {
-    //                         "x": x,
-    //                         "font-weight": 'bold',
-    //                         "textLength": size
-    //                     });
-    //                     t.textContent = '—';
-    //                     x += size;
-    //                 }
-    //                 break;
-    //             case "N" :
-    //                 var x = mainX + (size * difference.pos);
-    //                 for (var j = 0; j < difference.length; j++) {
-    //                     var t = SVG.addChild(text, "tspan", {
-    //                         "x": x,
-    //                         "fill": "#888",
-    //                         "textLength": size
-    //                     });
-    //                     t.textContent = '—';
-    //                     x += size;
-    //                 }
-    //                 break;
-    //             case "S" :
-    //                 var x = mainX + (size * difference.pos);
-    //                 for (var j = 0; j < difference.length; j++) {
-    //                     var char = difference.seq[j];
-    //                     var t = SVG.addChild(text, "tspan", {
-    //                         "x": x,
-    //                         "fill": "#aaa",
-    //                         "textLength": size
-    //                     });
-    //                     t.textContent = char;
-    //                     x += size;
-    //                 }
-    //                 break;
-    //             case "H" :
-    //                 var x = mainX + (size * difference.pos);
-    //                 for (var j = 0; j < difference.length; j++) {
-    //                     var t = SVG.addChild(text, "tspan", {
-    //                         "x": x,
-    //                         "fill": "#aaa",
-    //                         "textLength": size
-    //                     });
-    //                     t.textContent = 'H';
-    //                     x += size;
-    //                 }
-    //                 break;
-    //             case "X" :
-    //             case "M" :
-    //                 var x = mainX + (size * difference.pos);
-    //                 for (var j = 0; j < difference.length; j++) {
-    //                     var char = difference.seq[j];
-    //                     var refPos = difference.pos + j;
-    //                     // console.log("ref:"+ refString.charAt(refPos)+" - "+"seq:"+char);
-    //                     if (char != refString.charAt(refPos)) {
-    //                         var t = SVG.addChild(text, "tspan", {
-    //                             "x": x,
-    //                             "fill": SEQUENCE_COLORS[char],
-    //                             "textLength": size
-    //                         });
-    //                         t.textContent = char;
-    //                     }
-    //                     x += size;
-    //                 }
-    //                 break;
-    //         }
-    //
-    //     }
-    //
-    //     return text;
-    // };
-
-    // _getReferenceString(chunks, region) {
-    //     const sequenceItems = [];
-    //     let chunk;
-    //     for (let i = 0; i < chunks.length; i++) {
-    //         chunk = chunks[i];
-    //         for (let j = 0; j < chunk.value.length; j++) {
-    //             sequenceItems.push(chunk.value[j]);
-    //         }
-    //     }
-    //     sequenceItems.sort((a, b) => a.start - b.start);
-    //     const aux = [];
-    //     const s = sequenceItems[0].start;
-    //     const e = sequenceItems[sequenceItems.length - 1].end;
-    //     for (let i = 0; i < sequenceItems.length; i++) {
-    //         aux.push(sequenceItems[i].sequence);
-    //     }
-    //     const str = aux.join("");
-    //     const i1 = region.start - s;
-    //     const i2 = i1 + region.length();
-    //     const substr = str.substring(i1, i2);
-    //
-    //     return substr;
-    // }
 
     getDefaultConfig() {
         return {
@@ -706,45 +338,45 @@ class AlignmentRenderer extends Renderer {
             for (const i in feature.alignment.cigar) {
                 cigar += feature.alignment.cigar[i].operationLength;
                 switch (feature.alignment.cigar[i].operation) {
-                    case "CLIP_SOFT":
-                        cigar += "S";
-                        break;
-                    case "ALIGNMENT_MATCH":
-                        cigar += "M";
-                        relativePosition += parseInt(feature.alignment.cigar[i].operationLength);
-                        break;
-                    case "INSERT":
-                        cigar += "I";
-                        myLength = parseInt(feature.alignment.cigar[i].operationLength);
+                case "CLIP_SOFT":
+                    cigar += "S";
+                    break;
+                case "ALIGNMENT_MATCH":
+                    cigar += "M";
+                    relativePosition += parseInt(feature.alignment.cigar[i].operationLength);
+                    break;
+                case "INSERT":
+                    cigar += "I";
+                    myLength = parseInt(feature.alignment.cigar[i].operationLength);
 
-                        // We put this here because it will be read to calculate the position of the mismatches
-                        insertions.push({
-                            pos: relativePosition,
-                            length: myLength,
-                        });
+                    // We put this here because it will be read to calculate the position of the mismatches
+                    insertions.push({
+                        pos: relativePosition,
+                        length: myLength,
+                    });
 
-                        myDifferences.push({
-                            pos: relativePosition,
-                            seq: feature.alignedSequence.slice(relativePosition, relativePosition + myLength),
-                            op: "I",
-                            length: myLength,
-                        });
-                        break;
-                    case "DELETE":
-                        cigar += "D";
-                        myLength = parseInt(feature.alignment.cigar[i].operationLength);
-                        myDifferences.push({
-                            pos: relativePosition,
-                            op: "D",
-                            length: myLength,
-                        });
-                        relativePosition += myLength;
-                        break;
-                    case "SKIP":
-                        cigar += "N";
-                        relativePosition += parseInt(feature.alignment.cigar[i].operationLength);
-                        break;
-                    default:
+                    myDifferences.push({
+                        pos: relativePosition,
+                        seq: feature.alignedSequence.slice(relativePosition, relativePosition + myLength),
+                        op: "I",
+                        length: myLength,
+                    });
+                    break;
+                case "DELETE":
+                    cigar += "D";
+                    myLength = parseInt(feature.alignment.cigar[i].operationLength);
+                    myDifferences.push({
+                        pos: relativePosition,
+                        op: "D",
+                        length: myLength,
+                    });
+                    relativePosition += myLength;
+                    break;
+                case "SKIP":
+                    cigar += "N";
+                    relativePosition += parseInt(feature.alignment.cigar[i].operationLength);
+                    break;
+                default:
                 }
             }
             feature.cigar = cigar;
@@ -790,7 +422,7 @@ class AlignmentRenderer extends Renderer {
                         if (matches[i][0] !== "^") {
                             // Reference nucleotide
                             if (matches[i] === feature.alignedSequence[position]) {
-
+                                console.log("Something strange happened. The mismatch matches the nucleotide of the reference genome?")
                             }
 
                             myDifferences.push({
@@ -840,7 +472,8 @@ class AlignmentRenderer extends Renderer {
         let rowHeight = 15;
         let rowY = 70;
         // var textY = 12+settings.height;
-        while (true) {
+        let readFitted = false;
+        do {
             if (UtilsNew.isUndefinedOrNull(args.renderedArea[rowY])) {
                 args.renderedArea[rowY] = new FeatureBinarySearchTree();
             }
@@ -866,13 +499,17 @@ class AlignmentRenderer extends Renderer {
             let enc = args.renderedArea[rowY].add({ start: x, end: xPair + widthPair - 1, features });
             if (enc) {
                 const points = {
-                    Reverse: `M${x} ${rowY + (height / 2)} L${x + 5} ${rowY} H${x + width} V${rowY + height} H${x + 5} L${x} ${rowY + (height / 2)} `,
-                    Forward: `M${x} ${rowY} H${x + width - 5} L${x + width} ${rowY + (height / 2)} L${x + width - 5} ${rowY + height} H${x} V${rowY} `,
+                    Reverse: `M${x} ${rowY + (height / 2)} L${x + 5} ${rowY} H${x + width} V${rowY + height} H${x + 5} 
+                            L${x} ${rowY + (height / 2)} `,
+                    Forward: `M${x} ${rowY} H${x + width - 5} L${x + width} ${rowY + (height / 2)} L${x + width - 5} ${rowY + height} 
+                            H${x} V${rowY} `,
                 };
 
                 const paired_points = {
-                    Reverse: `M${xPair} ${rowY + (height / 2)} L${xPair + 5} ${rowY} H${xPair + widthPair} V${rowY + height} H${xPair + 5} L${xPair} ${rowY + (height / 2)} `,
-                    Forward: `M${xPair} ${rowY} H${xPair + widthPair - 5} L${xPair + widthPair} ${rowY + (height / 2)} L${xPair + widthPair - 5} ${rowY + height} H${xPair} V${rowY} `,
+                    Reverse: `M${xPair} ${rowY + (height / 2)} L${xPair + 5} ${rowY} H${xPair + widthPair} V${rowY + height} H${xPair + 5} 
+                            L${xPair} ${rowY + (height / 2)} `,
+                    Forward: `M${xPair} ${rowY} H${xPair + widthPair - 5} L${xPair + widthPair} ${rowY + (height / 2)} 
+                            L${xPair + widthPair - 5} ${rowY + height} H${xPair} V${rowY} `,
                 };
 
                 let strand = _.isFunction(this.strand) ? this.strand(features[0]) : this.strand;
@@ -925,10 +562,10 @@ class AlignmentRenderer extends Renderer {
                         }
                     }
                 }
-                break;
+                readFitted = true;
             }
             rowY += rowHeight;
-        }
+        } while (!readFitted)
     }
 
 
@@ -1029,7 +666,7 @@ class AlignmentRenderer extends Renderer {
                     if (matches[i][0] !== "^") {
                         // Reference nucleotide
                         if (matches[i] === feature.alignedSequence[position]) {
-
+                            console.log("Something strange happened. The mismatch matches the nucleotide of the reference genome?")
                         }
 
                         differences.push({
@@ -1078,7 +715,8 @@ class AlignmentRenderer extends Renderer {
         const rowHeight = 15;
         let rowY = 70;
         // var textY = 12+settings.height;
-        while (true) {
+        let readFitted = false;
+        do {
             if (UtilsNew.isUndefinedOrNull(args.renderedArea[rowY])) {
                 args.renderedArea[rowY] = new FeatureBinarySearchTree();
             }
@@ -1105,8 +743,10 @@ class AlignmentRenderer extends Renderer {
             const enc = args.renderedArea[rowY].add({ start: x, end: x + maxWidth - 1, features });
             if (enc) {
                 const points = {
-                    Reverse: `M${x} ${rowY + (height / 2)} L${x + 5} ${rowY} H${x + width} V${rowY + height} H${x + 5} L${x} ${rowY + (height / 2)} `,
-                    Forward: `M${x} ${rowY} H${x + width - 5} L${x + width} ${rowY + (height / 2)} L${x + width - 5} ${rowY + height} H${x} V${rowY} `,
+                    Reverse: `M${x} ${rowY + (height / 2)} L${x + 5} ${rowY} H${x + width} V${rowY + height} H${x + 5} 
+                            L${x} ${rowY + (height / 2)} `,
+                    Forward: `M${x} ${rowY} H${x + width - 5} L${x + width} ${rowY + (height / 2)} L${x + width - 5} ${rowY + height} 
+                            H${x} V${rowY} `,
                 };
 
                 if (feature.alignment.mappingQuality > this.minMapQ) {
@@ -1143,241 +783,10 @@ class AlignmentRenderer extends Renderer {
                         }
                     }
                 }
-                break;
+                readFitted = true;
             }
             rowY += rowHeight;
-        }
-    }
-
-    _drawSingleRead(feature) {
-
-        const differences = [];
-        const start = feature.alignment.position.position;
-
-        let cigar = "";
-        let relativePosition = 0;
-        const insertions = [];
-
-        let myLength;
-        for (const i in feature.alignment.cigar) {
-            cigar += feature.alignment.cigar[i].operationLength;
-            switch (feature.alignment.cigar[i].operation) {
-            case "CLIP_SOFT":
-                cigar += "S";
-                break;
-            case "ALIGNMENT_MATCH":
-                cigar += "M";
-                // length += parseInt(feature.alignment.cigar[i].operationLength);
-                relativePosition += parseInt(feature.alignment.cigar[i].operationLength);
-                break;
-            case "INSERT":
-                cigar += "I";
-                myLength = parseInt(feature.alignment.cigar[i].operationLength);
-
-                // We put this here because it will be read to calculate the position of the mismatches
-                insertions.push({
-                    pos: relativePosition,
-                    length: myLength,
-                });
-
-                differences.push({
-                    pos: relativePosition,
-                    seq: feature.alignedSequence.slice(relativePosition, myLength),
-                    op: "I",
-                    length: myLength,
-                });
-                break;
-            case "DELETE":
-                cigar += "D";
-                myLength = parseInt(feature.alignment.cigar[i].operationLength);
-                differences.push({
-                    pos: relativePosition,
-                    seq: feature.alignedSequence.slice(relativePosition, myLength),
-                    op: "D",
-                    length: myLength,
-                });
-                relativePosition += myLength;
-
-                break;
-            case "SKIP":
-                cigar += "N";
-                relativePosition += parseInt(feature.alignment.cigar[i].operationLength);
-                break;
-            default:
-            }
-        }
-        feature.cigar = cigar;
-
-        const end = start + relativePosition - 1;
-        const length = relativePosition;
-
-        feature.start = start;
-        feature.end = end;
-
-        if (feature.info.hasOwnProperty("MD")) {
-            const md = feature.info.MD[1];
-            const matches = md.match(/([0-9]+)|([^0-9]+)/g);
-            let position = 0;
-
-            if (feature.alignment.cigar[0].operation === "CLIP_SOFT") {
-                position = parseInt(feature.alignment.cigar[0].operationLength);
-            }
-
-            // This variable will contain the offset between the insertion and the position where the mismatch is
-            // Imagine we have this sequence ACTGCT, and we have an insertion in position 3 and a mismatch in position 5
-            // The mismatch will be in position 5 of the sequence, but located in position 4 when showed relative to the
-            // reference genome.
-            let offset = position;
-            for (let i = 0; i < matches.length; i++) {
-                if (i % 2 === 0) {
-                    // Number
-                    position += parseInt(matches[i]);
-                } else {
-                    if (insertions.length > 0) {
-                        for (let j = 0; j < insertions.length; j++) {
-                            if (insertions[j].pos < position) {
-                                position += insertions[j].length;
-                                offset += insertions[j].length;
-                                insertions[j].pos = Infinity;
-                            } else {
-                                break;
-                            }
-                        }
-                    }
-
-                    // Not deletion
-                    if (matches[i][0] !== "^") {
-                        // Reference nucleotide
-                        if (matches[i] === feature.alignedSequence[position]) {
-
-                        }
-
-                        differences.push({
-                            pos: position - offset,
-                            seq: feature.alignedSequence[position],
-                            op: "M",
-                            length: 1,
-                        });
-
-                        position += 1;
-                    } else {
-                        // -1 because we should not count the ^
-                        offset -= matches[i].length - 1;
-                    }
-                }
-            }
-        }
-
-        // get feature render configuration
-        let color = _.isFunction(_this.color) ? _this.color(feature, args.region.chromosome) : _this.color;
-        const strokeColor = _.isFunction(_this.strokeColor) ? _this.strokeColor(feature, args.region.chromosome) : _this.strokeColor;
-        const label = _.isFunction(_this.label) ? _this.label(feature) : _this.label;
-        const height = _.isFunction(_this.height) ? _this.height(feature) : _this.height;
-        const tooltipTitle = _.isFunction(_this.tooltipTitle) ? _this.tooltipTitle(feature) : _this.tooltipTitle;
-        const tooltipText = _.isFunction(_this.tooltipText) ? _this.tooltipText(feature) : _this.tooltipText;
-        const strand = _.isFunction(_this.strand) ? _this.strand(feature) : _this.strand;
-        const mateUnmappedFlag = _.isFunction(_this.mateUnmappedFlag) ? _this.mateUnmappedFlag(feature) : _this.mateUnmappedFlag;
-        const infoWidgetId = _.isFunction(_this.infoWidgetId) ? _this.infoWidgetId(feature) : _this.infoWidgetId;
-
-        if (insertSizeMin != 0 && insertSizeMax != 0 && !mateUnmappedFlag) {
-            if (Math.abs(feature.inferredInsertSize) > insertSizeMax) {
-                color = "maroon";
-            }
-            if (Math.abs(feature.inferredInsertSize) < insertSizeMin) {
-                color = "navy";
-            }
-        }
-
-        // transform to pixel position
-        const width = length * args.pixelBase;
-        // calculate x to draw svg rect
-        const x = _this.getFeatureX(start, args);
-
-        const maxWidth = width;
-
-        const rowHeight = 16;
-        let rowY = 70;
-        //		var textY = 12+settings.height;
-        while (true) {
-            if (args.renderedArea[rowY] === null) {
-                args.renderedArea[rowY] = new FeatureBinarySearchTree();
-            }
-            const enc = args.renderedArea[rowY].add({ start: x, end: x + maxWidth - 1 });
-            if (enc) {
-                const featureGroup = SVG.addChild(bamReadGroup, "g", { feature_id: feature.name });
-                const points = {
-                    Reverse: `${x},${rowY + (height / 2)} ${x + 5},${rowY} ${x + width},${rowY} ${x + width},${rowY + height} ${x + 5},${rowY + height}`,
-                    Forward: `${x - 1},${rowY} ${x + width - 5},${rowY} ${x + width},${rowY + (height / 2)} ${x + width - 5},${rowY + height} ${x - 1},${rowY + height}`,
-                };
-                const poly = SVG.addChild(featureGroup, "polygon", {
-                    points: points[strand],
-                    stroke: color,
-                    "stroke-width": 1,
-                    fill: color,
-                    cursor: "pointer",
-                });
-
-                $(featureGroup).qtip({
-                    content: { text: tooltipText, title: tooltipTitle },
-                    // position: {target: "mouse", adjust: {x: 25, y: 15}},
-                    style: { width: 300, classes: `${_this.toolTipfontClass} ui-tooltip ui-tooltip-shadow` },
-                    show: {
-                        event: "click",
-                        solo: true,
-                    },
-                    // hide: {
-                    //     event: 'mousedown mouseup mouseleave',
-                    //     delay: 300,
-                    //     fixed: true
-                    // }
-                    hide: "unfocus",
-                });
-
-                featureGroup.addEventListener("click", (event) => {
-                    console.log(feature);
-                    _this.trigger("feature:click", {
-                        query: feature[infoWidgetId],
-                        feature,
-                        featureType: feature.featureType,
-                        clickEvent: event,
-                    });
-                });
-
-                // var rect = SVG.addChild(featureGroup,"rect",{
-                // "x":x+offset[strand],
-                // "y":rowY,
-                // "width":width-4,
-                // "height":settings.height,
-                // "stroke": "white",
-                // "stroke-width":1,
-                // "fill": color,
-                // "clip-path":"url(#"+_this.id+"cp)",
-                // "fill": 'url(#'+_this.id+'bamStrand'+strand+')',
-                // });
-                // readEls.push(rect);
-
-                // PROCESS differences
-                // if (differences !== null && args.regionSize < 400) {
-                if (args.regionSize < 400) {
-                    featureGroup.appendChild(AlignmentRenderer.drawBamDifferences(differences,
-                        args.pixelBase, x, rowY + height));
-                    // var region = new Region({chromosome: args.region.chromosome, start: start, end: end});
-                    // sequenceDataAdapter.getData({
-                    //     region: region,
-                    //     done: function (event) {
-                    //         debugger;
-                    //         var referenceString = AlignmentRenderer._getReferenceString(event.items, region);
-                    //         featureGroup.appendChild(AlignmentRenderer.
-                    // drawBamDifferences(referenceString, differences, args.pixelBase, x, rowY + height));
-                    //     }
-                    // });
-                }
-
-                break;
-            }
-            rowY += rowHeight;
-            // textY += rowHeight;
-        }
+        } while (!readFitted)
     }
 
     /**
@@ -1474,207 +883,5 @@ class AlignmentRenderer extends Renderer {
         };
 
     }
-
-    // const drawPairedReads = function (read, mate) {
-    //     const middle = args.width / 2;
-    //     // var readStart = read.unclippedStart;
-    //     // var readEnd = read.unclippedEnd;
-    //     // var mateStart = mate.unclippedStart;
-    //     // var mateEnd = mate.unclippedEnd;
-    //     // TODO: Change taking into account clipped sequences
-    //     const readStart = read.alignment.position.position;
-    //     const readEnd = readStart + read.alignedQuality.length;
-    //     const mateStart = mate.alignment.position.position;
-    //     const mateEnd = mateStart + mate.alignedQuality.length;
-    //     const readDiff = read.diff;
-    //     const mateDiff = mate.diff;
-    //     /* get type settings object */
-    //     const readSettings = FEATURE_TYPES.alignment;
-    //     const mateSettings = FEATURE_TYPES.alignment;
-    //     let readColor = readSettings.color(read, read.alignment.position.referenceName);
-    //     let mateColor = mateSettings.color(mate, mate.alignment.position.referenceName);
-    //     const readStrand = read.alignment.position.strand === "POS_STRAND" ? "Forward" : "Reverse";
-    //     const mateStrand = mate.alignment.position.strand === "POS_STRAND" ? "Forward" : "Reverse";
-    //     // var readStrand = readSettings.getStrand(read);
-    //     // var matestrand = mateSettings.getStrand(mate);
-    //
-    //     if (insertSizeMin != 0 && insertSizeMax != 0) {
-    //         if (Math.abs(read.fragmentLength) > insertSizeMax) {
-    //             readColor = "maroon";
-    //             mateColor = "maroon";
-    //         }
-    //         if (Math.abs(read.fragmentLength) < insertSizeMin) {
-    //             readColor = "navy";
-    //             mateColor = "navy";
-    //         }
-    //     }
-    //
-    //     let pairStart = readStart;
-    //     let pairEnd = mateEnd;
-    //     if (mateStart <= readStart) {
-    //         pairStart = mateStart;
-    //     }
-    //     if (readEnd >= mateEnd) {
-    //         pairEnd = readEnd;
-    //     }
-    //
-    //     /* transform to pixel position */
-    //     const pairWidth = ((pairEnd - pairStart) + 1) * args.pixelBase;
-    //     const pairX = args.pixelPosition + middle - ((args.position - pairStart) * args.pixelBase);
-    //
-    //     const readWidth = ((readEnd - readStart) + 1) * args.pixelBase;
-    //     const readX = args.pixelPosition + middle - ((args.position - readStart) * args.pixelBase);
-    //
-    //     const mateWidth = ((mateEnd - mateStart) + 1) * args.pixelBase;
-    //     const mateX = args.pixelPosition + middle - ((args.position - mateStart) * args.pixelBase);
-    //
-    //     const rowHeight = 12;
-    //     let rowY = 70;
-    //     // var textY = 12+settings.height;
-    //
-    //     while (true) {
-    //         if (args.renderedArea[rowY] === null) {
-    //             args.renderedArea[rowY] = new FeatureBinarySearchTree();
-    //         }
-    //         const enc = args.renderedArea[rowY].add({ start: pairX, end: pairX + pairWidth - 1 });
-    //         if (enc) {
-    //             const readEls = [];
-    //             const mateEls = [];
-    //             const readPoints = {
-    //                 Reverse: `${readX},${rowY + (readSettings.height / 2)} ${readX + 5},${rowY} ${readX + readWidth - 5},${rowY} ${readX + readWidth - 5},${rowY + readSettings.height} ${readX + 5},${rowY + readSettings.height}`,
-    //                 Forward: `${readX},${rowY} ${readX + readWidth - 5},${rowY} ${readX + readWidth},${rowY + (readSettings.height / 2)} ${readX + readWidth - 5},${rowY + readSettings.height} ${readX},${rowY + readSettings.height}`,
-    //             };
-    //             const readPoly = SVG.addChild(bamReadGroup, "polygon", {
-    //                 points: readPoints[readStrand],
-    //                 stroke: readSettings.strokeColor(read),
-    //                 "stroke-width": 1,
-    //                 fill: readColor,
-    //                 cursor: "pointer",
-    //             });
-    //             readEls.push(readPoly);
-    //             const matePoints = {
-    //                 Reverse: `${mateX},${rowY + (mateSettings.height / 2)} ${mateX + 5},${rowY} ${mateX + mateWidth - 5},${rowY} ${mateX + mateWidth - 5},${rowY + mateSettings.height} ${mateX + 5},${rowY + mateSettings.height}`,
-    //                 Forward: `${mateX},${rowY} ${mateX + mateWidth - 5},${rowY} ${mateX + mateWidth},${rowY + (mateSettings.height / 2)} ${mateX + mateWidth - 5},${rowY + mateSettings.height} ${mateX},${rowY + mateSettings.height}`,
-    //             };
-    //             const matePoly = SVG.addChild(bamReadGroup, "polygon", {
-    //                 points: matePoints[mateStrand],
-    //                 stroke: mateSettings.strokeColor(mate),
-    //                 "stroke-width": 1,
-    //                 fill: mateColor,
-    //                 cursor: "pointer",
-    //             });
-    //             mateEls.push(matePoly);
-    //
-    //             const line = SVG.addChild(bamReadGroup, "line", {
-    //                 x1: (readX + readWidth),
-    //                 y1: (rowY + (readSettings.height / 2)),
-    //                 x2: mateX,
-    //                 y2: (rowY + (readSettings.height / 2)),
-    //                 "stroke-width": "1",
-    //                 stroke: "gray",
-    //                 // "stroke-color": "black",
-    //                 cursor: "pointer",
-    //             });
-    //
-    //             if (args.regionSize < 400) {
-    //                 if (readDiff !== null) {
-    //                     const readPath = SVG.addChild(bamReadGroup, "path", {
-    //                         d: Utils.genBamVariants(readDiff, args.pixelBase, readX, rowY),
-    //                         fill: variantColor,
-    //                     });
-    //                     readEls.push(readPath);
-    //                 }
-    //                 if (mateDiff !== null) {
-    //                     const matePath = SVG.addChild(bamReadGroup, "path", {
-    //                         d: Utils.genBamVariants(mateDiff, args.pixelBase, mateX, rowY),
-    //                         fill: variantColor,
-    //                     });
-    //                     mateEls.push(matePath);
-    //                 }
-    //             }
-    //
-    //             $(readEls).qtip({
-    //                 content: { text: readSettings.tooltipText(read), title: readSettings.tooltipTitle(read) },
-    //                 position: { target: "mouse", adjust: { x: 15, y: 0 }, viewport: $(window), effect: false },
-    //                 style: { width: 280, classes: `${_this.toolTipfontClass} ui-tooltip ui-tooltip-shadow` },
-    //                 show: "click",
-    //                 hide: "click mouseleave",
-    //             });
-    //             $(readEls).click((event) => {
-    //                 console.log(read);
-    //                 _this.showInfoWidget({
-    //                     query: read[readSettings.infoWidgetId],
-    //                     feature: read,
-    //                     featureType: read.featureType,
-    //                     adapter: _this.trackData.adapter,
-    //                 });
-    //             });
-    //             $(mateEls).qtip({
-    //                 content: { text: mateSettings.tooltipText(mate), title: mateSettings.tooltipTitle(mate) },
-    //                 position: { target: "mouse", adjust: { x: 15, y: 0 }, viewport: $(window), effect: false },
-    //                 style: { width: 280, classes: `${_this.toolTipfontClass} ui-tooltip ui-tooltip-shadow` },
-    //                 show: "click",
-    //                 hide: "click mouseleave",
-    //             });
-    //             $(mateEls).click((event) => {
-    //                 console.log(mate);
-    //                 _this.showInfoWidget({
-    //                     query: mate[mateSettings.infoWidgetId],
-    //                     feature: mate,
-    //                     featureType: mate.featureType,
-    //                     adapter: _this.trackData.adapter,
-    //                 });
-    //             });
-    //             break;
-    //         }
-    //         rowY += rowHeight;
-    //         // textY += rowHeight;
-    //     }
-    // };
-
-    // const drawChunk = function (chunk) {
-    //     _drawCoverage(chunk);
-    //
-    //     const alignments = chunk.alignments;
-    //     if (viewAsPairs) {
-    //         const alignmentHash = _pairReads(alignments);
-    //         const ids = Object.keys(alignmentHash);
-    //         for (let i = 0; i < ids.length; i++) {
-    //             const id = ids[i];
-    //             if (alignmentHash[id].length === 2) {
-    //                 drawPairedReads(alignmentHash[id][0], alignmentHash[id][1]);
-    //             } else {
-    //                 _drawSingleRead(alignmentHash[id][0]);
-    //             }
-    //         }
-    //     } else {
-    //         for (let i = 0; i < alignments.length; i++) {
-    //             _drawSingleRead(alignments[i]);
-    //         }
-    //     }
-    // };
-
-    // const addChunks = function (chunk, polyDrawing) {
-    //     _drawCoverage(chunk);
-    //
-    //     const alignments = chunk.alignments;
-    //     if (viewAsPairs) {
-    //         const alignmentHash = _pairReads(alignments);
-    //         const ids = Object.keys(alignmentHash);
-    //         for (let i = 0; i < ids.length; i++) {
-    //             const id = ids[i];
-    //             if (alignmentHash[id].length === 2) {
-    //                 drawPairedReads(alignmentHash[id][0], alignmentHash[id][1]);
-    //             } else {
-    //                 _drawSingleRead(alignmentHash[id][0]);
-    //             }
-    //         }
-    //     } else {
-    //         for (let i = 0; i < alignments.length; i++) {
-    //             _addSingleRead(alignments[i], polyDrawing);
-    //         }
-    //     }
-    // };
-
 
 }
