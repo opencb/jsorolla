@@ -375,7 +375,7 @@
                     expReport: {
                         type: Boolean,
                         observer: 'handleExportPDF',
-                        //notify: true
+                        notify: true
                     },
                     variables: {
                         type: Array,
@@ -631,6 +631,7 @@
                 mywindow.focus(); // necessary for IE >= 10
                 mywindow.print();
                 mywindow.close();
+                return true;
 
             }
 
@@ -646,8 +647,9 @@
             }
 
             handleExportPDF(e) {
-                let report = document.getElementById(this.prefix + "reportDiv");
-                this.print(report.innerHTML);
+                if(this.expReport) {
+                    let report = document.getElementById(this.prefix + "reportDiv");
+                    this.print(report.innerHTML);
 //                var pdf = new jsPDF('p', 'pt', 'letter');
 //                var canvas = pdf.canvas;
 //                canvas.height = 72 * 11;
@@ -656,7 +658,9 @@
 //                html2pdf(html, pdf, function (pdf) {
 //                    pdf.output('dataurlnewwindow');
 //                });
-                this.expReport = false; // Reset export report button again
+                    this.expReport = false; // Reset export report button again
+                }
+                return;
 
             }
 
