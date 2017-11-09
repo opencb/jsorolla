@@ -56,8 +56,6 @@ class GenomeBrowser {
         //set instantiation args, must be last
         Object.assign(this, args);
 
-        this.getChromosomes();
-
         this.defaultRegion = new Region(this.region);
 
         this.sidePanelWidth = (this.sidePanel) ? 25 : 0;
@@ -127,15 +125,19 @@ class GenomeBrowser {
         this.tracksDiv.setAttribute("class", "ocb-gv-detailed");
         this.trackListPanelsDiv.appendChild(this.tracksDiv);
 
-        this._init();
-
-        this.rendered = true;
+        if (this.drawOverviewTrackListPanel) {
+            this.overviewTrackListPanel = this._createOverviewTrackListPanel(this.regionDiv);
+        }
+        this.trackListPanel = this._createTrackListPanel(this.tracksDiv);
+        this.getChromosomes();
     }
 
     _init() {
         let _this = this;
         this._checkAndSetMinimumRegion(this.region, this.getSVGCanvasWidth());
         this.zoom = this._calculateZoomByRegion(this.region);
+
+        this._updateSpecies(this.species);
 
         /* Navigation Bar */
         if (this.drawNavigationBar) {
@@ -153,11 +155,11 @@ class GenomeBrowser {
         }
 
         /* Region Panel, is a TrackListPanel Class */
-        if (this.drawOverviewTrackListPanel) {
-            this.overviewTrackListPanel = this._createOverviewTrackListPanel(this.regionDiv);
-        }
+        // if (this.drawOverviewTrackListPanel) {
+        //     this.overviewTrackListPanel = this._createOverviewTrackListPanel(this.regionDiv);
+        // }
         /*TrackList Panel*/
-        this.trackListPanel = this._createTrackListPanel(this.tracksDiv);
+        // this.trackListPanel = this._createTrackListPanel(this.tracksDiv);
 
         /*Status Bar*/
         if (this.drawStatusBar) {
@@ -237,11 +239,8 @@ class GenomeBrowser {
                     let chromosomesOld = _this.chromosomes;
                     _this.chromosomes = saveChromosomes(response.response[0].result[0].chromosomes);
                     if (chromosomesOld !== undefined && chromosomesOld.length === 0) {
-                        // If it's the first time we get the chromosomes...
-                        _this._checkAndSetMinimumRegion(_this.region, _this.getSVGCanvasWidth());
-                        _this.zoom = _this._calculateZoomByRegion(_this.region);
-                        _this._updateSpecies(_this.species);
-                        console.log("Recalculating sizes...");
+                        _this._init();
+                        _this.rendered = true;
                     }
                 });
         }

@@ -16,12 +16,12 @@
 
 <link rel="import" href="variant-clinical-upload.html">
 <link rel="import" href="variant-clinical-samples.html">
-<link rel="import" href="../variant/obsolete/variant-prioritization-view.html">
-<link rel="import" href="clinical-analysis-view.html">
+<link rel="import" href="../variant/variant-prioritization.html">
 <link rel="import" href="variant-clinical-report.html">
-<link rel="import" href="variant-clinical-filter.html">
-<link rel="import" href="../opencga-message-dialog.html">
 <link rel="import" href="variant-clinical-selector.html">
+<link rel="import" href="clinical-analysis-view.html">
+<link rel="import" href="clinical-interpretation-view.html">
+<link rel="import" href="../opencga-message-dialog.html">
 
 <dom-module id="variant-clinical">
     <template>
@@ -122,42 +122,43 @@
 
             <div class="col-md-12">
                 <div class="col-md-6" style="float: none;margin: auto">
-                    <button id="{{prefix}}UploadButton" type="button"
+                    <button id="{{prefix}}UploadButton" type="button" data-id="UploadButton"
                             class$="analysis-button btn {{computedClassTabs(activesTab.uploadTab)}} btn-arrow-right"
                             on-click="changeTool" data-toggle="tooltip" data-placement="top" title="Upload sample">
-                        <i class="fa fa-upload" aria-hidden="true"></i> Upload
+                        <i class="fa fa-upload"  data-id="UploadButton" aria-hidden="true"></i> Upload
                     </button>
-                    <button id="{{prefix}}SamplesButton" type="button"
+                    <button id="{{prefix}}SamplesButton" type="button" data-id="SamplesButton"
                             class$="analysis-button btn {{computedClassTabs(activesTab.analysisTab)}} btn-arrow-right"
                             on-click="changeTool" data-toggle="tooltip" data-placement="top"
                             title="Connect, link & choose analysis of samples" >
-                        <i class="fa fa-sitemap" aria-hidden="true"></i> Analysis
+                        <i class="fa fa-sitemap" data-id="SamplesButton" aria-hidden="true"></i> Analysis
                     </button>
-                    <button id="{{prefix}}PrioritizationButton" type="button"
+                    <button id="{{prefix}}PrioritizationButton" type="button"  data-id="PrioritizationButton"
                             class$="analysis-button btn {{computedClassTabs(activesTab.prioritizationTab)}} btn-arrow-right"
                             on-click="changeTool"
                             data-toggle="tooltip" data-placement="top" title="Filter & Prioritization">
-                        <i class="fa fa-filter" aria-hidden="true"></i> Prioritization
+                        <i class="fa fa-filter" data-id="PrioritizationButton" aria-hidden="true"></i> Prioritization
                     </button>
-                    <button id="{{prefix}}ReportButton" type="button"
+                    <button id="{{prefix}}ReportButton" type="button" data-id="ReportButton"
                             class$="analysis-button btn {{computedClassTabs(activesTab.reportTab)}} btn-arrow-right"
                             on-click="changeTool"
                             data-toggle="tooltip" data-placement="top" title="Generate report">
-                        <i class="fa fa-file-text" aria-hidden="true"></i> Report
+                        <i class="fa fa-file-text"  data-id="ReportButton" aria-hidden="true"></i> Report
                     </button>
                 </div>
             </div>
 
+            <!-- UPLOAD TAB -->
             <div class="col-md-12">
                 <template is="dom-if" if="{{activesTab.uploadTab}}">
                     <div class$="analysis-content" id="{{prefix}}UploadButtonDiv">
                         <variant-clinical-upload opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}"
-                                                 clear-dom="{{clearDomUpload}}" ebi-config="{{ebiConfig}}">
+                                                 ebi-config="{{ebiConfig}}">
                         </variant-clinical-upload>
                     </div>
                 </template>
 
-
+                <!-- ANALYSIS TAB -->
                 <template is="dom-if" if="{{activesTab.analysisTab}}">
                     <div class$="analysis-content" id="{{prefix}}SamplesButtonDiv">
                         <variant-clinical-samples opencga-client="{{opencgaClient}}" project="{{project}}" study="{{study}}"
@@ -166,10 +167,9 @@
                     </div>
                 </template>
 
-
+                <!-- PRIORITIZATION TAB -->
                 <template is="dom-if" if="{{activesTab.prioritizationTab}}">
                     <template is="dom-if" if="{{!activePrioritization}}">
-                        <!--<div style="width: 60%; margin: auto">-->
                         <div class="col-md-offset-1 col-md-10 ">
                             <h3>Clinical Analysis {{clinicalAnalysis.name}}</h3>
                             <div class="col-md-12" style="padding: 10px 15px">
@@ -183,7 +183,8 @@
                                         <template is="dom-if" if="{{checkExistsRecentAnalysis}}">
                                             <template is="dom-repeat" items="{{recentAnalysis}}" as="analysis" index-as="j">
 
-                                                <input id="{{prefix}}sampleRadio{{analysis.id}}" type="radio" name="analysisRecentRadioButtons" checked$="{{isCheckedDefaultAnalysis(j, analysis.id)}}" value="{{analysis.id}}"
+                                                <input id="{{prefix}}sampleRadio{{analysis.id}}" type="radio" name="analysisRecentRadioButtons"
+                                                       checked$="{{isCheckedDefaultAnalysis(j, analysis.id)}}" value="{{analysis.id}}"
                                                        class$="{{prefix}}FilterRadio" on-change="selectAnalysisRecent"
                                                        style="padding-left: 20px"> {{analysis.name}}<br>
                                             </template>
@@ -204,7 +205,8 @@
                             <!-- Clinical Analysis View -->
                             <div class="col-md-12" style="padding: 10px 15px">
                                 <clinical-analysis-view project="{{project}}" study="{{study}}" config="{{config}}" opencga-client="{{opencgaClient}}"
-                                                       clinical-analysis="{{clinicalAnalysis}}" clinical-analysis-id="{{clinicalAnalysisId}}" show-summary="{{showSummary}}" active-prioritization="{{activePrioritization}}">
+                                                       clinical-analysis="{{clinicalAnalysis}}" clinical-analysis-id="{{clinicalAnalysisId}}" show-summary="{{showSummary}}"
+                                                        active-prioritization="{{activePrioritization}}">
                                 </clinical-analysis-view>
                             </div>
 
@@ -244,14 +246,15 @@
                                                     consequence-types="{{consequenceTypes}}"
                                                     opencga-client="{{opencgaClient}}"
                                                     cellbase-client="{{cellbaseClient}}"
-                                                    ebi-config="{{config.ebiWS}}"
+                                                    ebi-config="{{ebiConfig}}"
                                                     beacon-hosts="{{config.tools.beacon.hosts}}" on-gene="geneSelected"
-                                                    clinical-analysis="{{clinicalAnalysis}}" >
+                                                    clinical-analysis="{{clinicalAnalysis}}" on-backtoselectanalysis="changeTool" >
                             </variant-prioritization>
                         </div>
                     </template>
                 </template>
 
+                <!-- REPORT TAB -->
                 <template is="dom-if" if="{{activesTab.reportTab}}">
                     <template is="dom-if" if="{{!activeReport}}">
                         <div class="col-md-offset-1 col-md-10 ">
@@ -282,8 +285,8 @@
                                                 <template is="dom-if" if="{{checkExistsRecentInterpretations}}" >
                                                     <template is="dom-repeat" items="{{recentInterpretations}}" as="interpretation" index-as="i">
                                                         <input id="{{prefix}}sampleRadio{{interpretation.id}}" type="radio" name="interpretationRecentRadioButtons" value="{{interpretation.file.id}}"
-                                                               class$="{{prefix}}FilterRadio" on-change="selectInterpretationRecent" checked$="{{isCheckedDefaultInterpretation(i, interpretation.file.id)}}"
-                                                               style="padding-left: 20px"> {{interpretation.name}}<br>
+                                                               class$="{{prefix}}FilterRadio" on-change="selectInterpretationRecent"
+                                                               checked$="{{isCheckedDefaultInterpretation(i, interpretation.file.id)}}" style="padding-left: 20px"> {{interpretation.name}}<br>
                                                     </template>
                                                 </template>
                                             </div>
@@ -291,11 +294,13 @@
 
                                     </div>
                                     <div class="col-md-12" style="padding: 10px 15px">
-                                        <clinical-interpretation-view id="id"  title="Interpretation View" interpretation-id={{interpretationId}} project="{{project}}"
-                                                                      study="{{study}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
-                                                                      consequence-types="{{consequenceTypes}}" protein-substitution-scores="{{proteinSubstitutionScores}}" on-createreport="onCreateReport"
-                                                                      style="font-size: 12px">
-                                        </clinical-interpretation-view>
+                                        <template is="dom-if" if="{{interpretationId}}">
+                                            <clinical-interpretation-view id="id"  title="Interpretation View" interpretation-id={{interpretationId}} project="{{project}}"
+                                                                          study="{{study}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+                                                                          consequence-types="{{consequenceTypes}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                                          on-createreport="onCreateReport" style="font-size: 12px">
+                                            </clinical-interpretation-view>
+                                        </template>
                                     </div>
                                 </div>
                             </div>
@@ -303,11 +308,9 @@
                         </template>
                         <template is="dom-if" if="{{activeReport}}">
                             <variant-clinical-report opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}"
-                                                     title="Generate Report" interpretation="{{interpretationReport}}"
-                                                     analysis="{{clinicalAnalysis}}" expReport="true">
+                                                     title="Generate Report" interpretation="{{interpretationReport}}" analysis="{{clinicalAnalysis}}" expReport="true">
                             </variant-clinical-report>
                         </template>
-                    </div>
                 </template>
             </div>
 
@@ -321,7 +324,8 @@
                             <h4 class="modal-title" id="{{prefix}}AnalysisBrowserLabel">Analysis Selector</h4>
                         </div>
                         <div class="modal-body" style="height: 780px">
-                            <variant-clinical-selector opencga-client="{{opencgaClient}}" analysis-selected="{{analysisSelected}}" analysis-modal="{{analysisModal}}" study="{{study}}" show-pedigree="true"></variant-clinical-selector>
+                            <variant-clinical-selector opencga-client="{{opencgaClient}}" analysis-selected="{{analysisSelected}}"
+                                                       analysis-modal="{{analysisModal}}" study="{{study}}" show-pedigree="true"></variant-clinical-selector>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="onAnalysisSelected">
@@ -348,17 +352,6 @@
 
             static get properties() {
                 return {
-                    activesTab: {
-                        type: Object,
-                        value: function () {
-                            return {
-                                uploadTab: true,
-                                analysisTab: false,
-                                prioritizationTab: false,
-                                reportTab: false
-                            };
-                        }
-                    },
                     host: {
                         type: String
                     },
@@ -391,6 +384,15 @@
                     config: {
                         type: Object
                     },
+                    configOpencga: {
+                        type: Object
+                    },
+                    biotypes:{
+                        type: Array
+                    },
+                    ebiConfig: {
+                        type: Object
+                    },
                     proteinSubstitutionScores: {
                         type: Object
                     },
@@ -399,10 +401,6 @@
                     },
                     search: {
                         type: Object
-                    },
-                    clearDomUpload: {
-                        type: Object,
-                        notify: true
                     },
                     clinicalAnalysis: {
                         type: Object,
@@ -434,6 +432,13 @@
                 this.activeReport = false;
                 this.checkExistsRecentInterpretations = false;
                 this.checkExistsRecentAnalysis = false;
+                this.activesTab = {
+                            uploadTab: true,
+                            analysisTab: false,
+                            prioritizationTab: false,
+                            reportTab: false
+                        };
+
             }
 
             changeTool(e) {
@@ -442,26 +447,39 @@
                     this.set("activesTab." + property, false);
                 }
 
-                if (e.currentTarget.id === this.prefix + "SamplesButton") {
+                let id = this.prefix;
+                if (UtilsNew.isNotUndefinedOrNull(e.detail.idTab) && UtilsNew.isNotUndefinedOrNull(e.detail.idTab)){
+                    id += e.detail.idTab;
+                } else {
+                    id += e.target.getAttribute("data-id");
+                }
+
+                this.changeToolById(id);
+            }
+
+            changeToolById(id){
+
+                if (id === this.prefix + "SamplesButton") {
                     this.set("activesTab.analysisTab", true);
                 }
 
-                if (e.currentTarget.id === this.prefix + "UploadButton") {
+                if (id === this.prefix + "UploadButton") {
                     this.set("activesTab.uploadTab", true);
                 }
 
-                if (e.currentTarget.id === this.prefix + "PrioritizationButton") {
+                if (id === this.prefix + "PrioritizationButton") {
                     this.set("activesTab.prioritizationTab", true);
                     this.activePrioritization = false;
                     this.getRecentAnalysis();
                 }
 
-                if (e.currentTarget.id === this.prefix + "ReportButton") {
+                if (id === this.prefix + "ReportButton") {
                     this.set("activesTab.reportTab", true);
                     this.activeReport = false;
                     this.getRecentAnalysis();
                 }
             }
+
 
             computedClassTabs(isActive) {
                 return !isActive ? "btn-success" : "btn-primary";
@@ -474,12 +492,7 @@
 
             showClinicalSelector(e) {
                 e.preventDefault();
-                if (UtilsNew.isUndefined(this.analysisModal)){
-                    this.analysisModal = true;
-                } else {
-                    this.analysisModal = !this.analysisModal;
-                }
-
+                this.analysisModal = UtilsNew.isUndefined(this.analysisModal) ? true : !this.analysisModal;
                 $("#" + this.prefix + "AnalysisBrowser").modal('show');
             }
 
@@ -489,7 +502,7 @@
                 this.clinicalAnalysisId = this.clinicalAnalysis.id;
             }
 
-            getRecentAnalysis(){
+            getRecentAnalysis() {
                 let params = {
                     study: this.project.alias + ":" + this.study.alias,
                     include: "id,name",
@@ -497,18 +510,15 @@
                 };
                 let _this = this;
                 this.opencgaClient.clinical().search(params, {})
-                    .then(function(response){
+                    .then(function(response) {
                             if (response.response[0].numResults >= 1) {
                                 _this.recentAnalysis = response.response[0].result;
-                                _this.checkExistsRecentAnalysis = true;
-                                if (UtilsNew.isEmptyArray(_this.recentAnalysis)) {
-                                    _this.checkExistsRecentAnalysis = false;
-                                }
+                                _this.checkExistsRecentAnalysis = !UtilsNew.isEmptyArray(_this.recentAnalysis);
                             }
                         });
             }
 
-            selectAnalysisRecent(e){
+            selectAnalysisRecent(e) {
                 let analysisId = e.target.value;
                 if (UtilsNew.isNotUndefinedOrNull(analysisId)) {
                     this.clinicalAnalysisId = analysisId;
@@ -519,48 +529,43 @@
                 this.activePrioritization = true;
             }
 
-            getRecentInterpretations(){
+            getRecentInterpretations() {
                 if(UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
                     this.recentInterpretations = this.clinicalAnalysis.interpretations;
-                    this.checkExistsRecentInterpretations = true;
-                    if (UtilsNew.isEmptyArray(this.recentInterpretations)) {
-                        this.checkExistsRecentInterpretations = false;
-                    }
+                    this.interpretationId = null;
+                    this.checkExistsRecentInterpretations = !UtilsNew.isEmptyArray(this.recentInterpretations);
                 }
             }
 
             selectInterpretationRecent(e) {
-                if (UtilsNew.isNotUndefinedOrNull(this.recentAnalysis)) {
-                    let interpretationId = e.target.value;
-                    if (UtilsNew.isNotUndefinedOrNull(interpretationId)) {
-                        this.interpretationId = interpretationId;
-                    }
+                if (UtilsNew.isNotUndefinedOrNull(this.recentAnalysis) && UtilsNew.isNotUndefinedOrNull(e.target.value)) {
+                    this.interpretationId = e.target.value;
                 }
             }
 
-            isCheckedDefaultAnalysis(currentIndex, clinicalAnalysisId){
+            isCheckedDefaultAnalysis(currentIndex, clinicalAnalysisId) {
                 if (UtilsNew.isUndefinedOrNull(this.clinicalAnalysisId) && currentIndex === 0) {
                     this.clinicalAnalysisId = clinicalAnalysisId;
                     return true;
-                } else if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysisId) && this.clinicalAnalysisId === clinicalAnalysisId){
+                } else if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysisId) && this.clinicalAnalysisId === clinicalAnalysisId) {
                     return true;
                 }
 
                 return false
             }
 
-            isCheckedDefaultInterpretation(currentIndex, interpretationId){
-                if(UtilsNew.isUndefinedOrNull(this.interpretationId) && currentIndex === 0){
+            isCheckedDefaultInterpretation(currentIndex, interpretationId) {
+                if (UtilsNew.isUndefinedOrNull(this.interpretationId) && currentIndex === 0) {
                     this.interpretationId = interpretationId;
                     return true;
-                } else if (UtilsNew.isNotUndefinedOrNull(this.interpretationId) && this.interpretationId === interpretationId){
+                } else if (UtilsNew.isNotUndefinedOrNull(this.interpretationId) && this.interpretationId === interpretationId) {
                     return true;
                 }
 
                 return false
             }
 
-            onCreateReport(e, data){
+            onCreateReport(e, data) {
                 this.interpretationReport = data.interpretation;
                 this.activeReport = true;
             }

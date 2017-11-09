@@ -67,10 +67,14 @@
                 <div style="padding: 10px 0px">
                     <h3>Clinical Analysis</h3>
                     <template is="dom-if" if="{{messageSuccess}}">
-                        <div class="alert alert-success" role="alert" id="{{prefix}}messageSuccess" style="margin:0 auto;">{{messageSuccessText}}</div>
+                        <template is="dom-repeat" items="{{messageSuccessText}}">
+                                <div class="alert alert-success" role="alert" id="{{prefix}}messageSuccess" style="margin:0 auto;">{{item}}</div>
+                        </template>
                     </template>
                     <template is="dom-if" if="{{messageError}}">
-                        <div class="alert alert-danger" role="alert" id="{{prefix}}messageError" style="margin:0 auto;">{{messageErrorText}}</div>
+                        <template is="dom-repeat" items="{{messageErrorText}}">
+                                <div class="alert alert-danger" role="alert" id="{{prefix}}messageError" style="margin:0 auto;">{{item}}</div>
+                        </template>
                     </template>
                     <template is="dom-if" if="{{unsavedAnalysis}}">
                         <div class="alert alert-warning" role="alert" style="margin:0 auto;">There are unsaved analyses!</div>
@@ -512,8 +516,8 @@
                         let params = {
                             study: this.project.alias + ":" + this.study.alias
                         };
-                        this.messageErrorText = "";
-                        this.messageSuccessText = "";
+                        this.messageErrorText =  [];
+                        this.messageSuccessText = [];
                         this.messageError = false;
                         this.messageSuccess = false;
                         switch (rowInfo.analysisType) {
@@ -667,8 +671,8 @@
 
                                                         } else {
                                                             _this.messageError = true;
-                                                            _this.messageErrorText = analysisInfo.analysisID + " " + individualToUpdate.name + " individual already has parents.";
-                                                            PolymerUtils.innerHTML(_this.prefix + "messageError", _this.messageErrorText);
+                                                            _this.messageErrorText.push(analysisInfo.analysisID + " " + individualToUpdate.name + " individual already has parents.");
+//                                                            PolymerUtils.innerHTML(_this.prefix + "messageError", _this.messageErrorText);
                                                         }
                                                     }
                                                 });
@@ -682,14 +686,14 @@
                                                     _this.createFamily(params, bodyFamily, rowInfo, subjectName, samplesName, analysisInfo);
                                                 } else {
                                                     _this.messageError = true;
-                                                    _this.messageErrorText = analysisInfo.analysisID + " We cannot create a family. Individuals are not correct.";
-                                                    PolymerUtils.innerHTML(_this.prefix + "messageError", _this.messageErrorText);
+                                                    _this.messageErrorText.push(analysisInfo.analysisID + " We cannot create a family. Individuals are not correct.");
+//                                                    PolymerUtils.innerHTML(_this.prefix + "messageError", _this.messageErrorText);
                                                 }
                                             })
                                             .catch(function (response) {
                                                 _this.messageError = true;
-                                                _this.messageErrorText = analysisInfo.analysisID + " " + response.error;
-                                                PolymerUtils.innerHTML(_this.prefix + "messageError", _this.messageErrorText);
+                                                _this.messageErrorText.push(analysisInfo.analysisID + " " + response.error);
+//                                                PolymerUtils.innerHTML(_this.prefix + "messageError", _this.messageErrorText);
                                             });
                                     } else {
                                         // We are here when we are Correct Single Analysis. If we are here with DUO, TRIO or FAMILY will be an error.
@@ -697,21 +701,21 @@
                                             _this.createAnalysis(analysisInfo);
                                         } else {
                                             _this.messageError = true;
-                                            _this.messageErrorText = analysisInfo.analysisID + " We cannot create a family. Analysis type is not correct.";
-                                            PolymerUtils.innerHTML(_this.prefix + "messageError", _this.messageErrorText);
+                                            _this.messageErrorText.push(analysisInfo.analysisID + " We cannot create a family. Analysis type is not correct.");
+//                                            PolymerUtils.innerHTML(_this.prefix + "messageError", _this.messageErrorText);
                                         }
                                     }
                                 } else {
                                     _this.messageError = true;
-                                    _this.messageErrorText = analysisInfo.analysisID + " Family name or Analysis name is not correct.";
+                                    _this.messageErrorText.push(analysisInfo.analysisID + " Family name or Analysis name is not correct.");
                                     PolymerUtils.innerHTML(_this.prefix + "messageError", _this.messageErrorText);
                                 }
                             });
                     }
                 } catch(err) {
                         _this.messageError = true;
-                        _this.messageErrorText = err;
-                        PolymerUtils.innerHTML(_this.prefix + "messageError", _this.messageErrorText);
+                    _this.messageErrorText.push(err);
+//                        PolymerUtils.innerHTML(_this.prefix + "messageError", _this.messageErrorText);
                 }
             }
 
@@ -725,8 +729,8 @@
                     })
                     .catch(function (response) {
                         _this.messageError = true;
-                        _this.messageErrorText = analysisInfo.analysisID + " " + response.error;
-                        PolymerUtils.innerHTML(_this.prefix + "messageError", _this.messageErrorText);
+                        _this.messageErrorText.push(analysisInfo.analysisID + " " + response.error);
+//                        PolymerUtils.innerHTML(_this.prefix + "messageError", _this.messageErrorText);
                     });
             }
 
@@ -749,8 +753,8 @@
                     .then(function (response) {
                         _this.unsavedAnalysis--;
                         _this.messageSuccess = true;
-                        _this.messageSuccessText = body.name + " analysis has been created correctly.";
-                        PolymerUtils.innerHTML(_this.prefix + "messageSuccess", _this.messageSuccessText);
+                        _this.messageSuccessText.push(body.name + " analysis has been created correctly.");
+//                        PolymerUtils.innerHTML(_this.prefix + "messageSuccess", _this.messageSuccessText);
                         // Remove the current analysis from the table
                         $(PolymerUtils.getElementById(_this.prefix + 'tableAnalysis')).bootstrapTable('remove', {
                             field: 'analysisID',
@@ -759,8 +763,8 @@
                     })
                     .catch(function (response) {
                         _this.messageError = true;
-                        _this.messageErrorText = analysisInfo.analysisID + " " + response.error;
-                        PolymerUtils.innerHTML(_this.prefix + "messageError", _this.messageErrorText);
+                        _this.messageErrorText.push(analysisInfo.analysisID + " " + response.error);
+//                        PolymerUtils.innerHTML(_this.prefix + "messageError", _this.messageErrorText);
                     });
             }
 

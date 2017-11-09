@@ -89,16 +89,16 @@
                             <!--<template is="dom-if" if="{{clinicalAnalysis}}">-->
                             <div style="float: right">
                                 <div class="btn-group" role="group" aria-label="..." style="padding: 0px 5px">
-                                    <button type="button" class="btn btn-success variant-prioritization-view-buttons" data-view="Panels" on-click="_changeView">
+                                    <button type="button" class="hidden btn btn-success variant-prioritization-view-buttons" data-view="Panels" on-click="_changeView">
                                         <i class="fa fa-columns icon-padding" aria-hidden="true" data-view="Panels" on-click="_changeView"></i>Panels
                                     </button>
-                                    <button type="button" class="btn btn-success variant-prioritization-view-buttons" data-view="ClinicalData" on-click="_changeView">
+                                    <button type="button" class="hidden btn btn-success variant-prioritization-view-buttons" data-view="ClinicalData" on-click="_changeView">
                                         <i class="fa fa-user-md icon-padding" aria-hidden="true" data-view="ClinicalData" on-click="_changeView"></i>Analysis and Clinical Data
                                     </button>
                                 </div>
 
                                 <div class="btn-group" role="group" aria-label="...">
-                                    <button id="{{prefix}}OpenClinicalButton" type="button" class="btn btn-primary variant-prioritization-view-buttons"
+                                    <button id="{{prefix}}OpenClinicalButton" type="button" class="hidden btn btn-primary variant-prioritization-view-buttons"
                                             data-view="OpenClinicalAnalysis" on-click="_changeView">
                                         <i class="fa fa-search icon-padding" aria-hidden="true" data-view="OpenClinicalAnalysis" on-click="_changeView"></i>Clinical Analysis
                                     </button>
@@ -107,6 +107,14 @@
                                         <i class="fa fa-floppy-o icon-padding" aria-hidden="true" data-view="SaveInterpretation" on-click="_changeView"></i>Save Interpretation...
                                     </button>
                                 </div>
+                                <template is="dom-if" if="{{clinicalAnalysis}}">
+                                    <div class="btn-group" role="group" aria-label="...">
+                                        <button id="{{prefix}}BackToAnalysisSelector" type="button" class="btn btn-primary variant-prioritization-view-buttons"
+                                                data-view="OpenClinicalAnalysis" on-click="_backToSelectAnalysis">
+                                            <i class="fa fa-arrow-left icon-padding" aria-hidden="true" data-view="OpenClinicalAnalysis" on-click="_backToSelectAnalysis"></i>Back to Clinical Analysis Selector
+                                        </button>
+                                    </div>
+                                </template>
                             </div>
                             <!--</template>-->
                         </div>
@@ -226,7 +234,7 @@
                                     <!-- GENERAL INFORMATION -->
                                     <!-- ID -->
                                     <div class="form-group has-feedback">
-                                        <label for="{{prefix}}IDInterpretation" class="col-md-2 col-form-label">ID*</label>
+                                        <label for="{{prefix}}IDInterpretation" class="col-md-2 col-form-label">ID</label>
                                         <div class="col-md-8">
                                             <div class="input-group">
                                                 <input type="text" class$="form-control {{prefix}}TextInput codeDis"
@@ -243,7 +251,7 @@
 
                                     <!-- NAME -->
                                     <div class="form-group has-feedback">
-                                        <label for="{{prefix}}NameInterpretation" class="col-md-2 col-form-label">Name*</label>
+                                        <label for="{{prefix}}NameInterpretation" class="col-md-2 col-form-label">Name</label>
                                         <div class="col-md-8">
                                             <div class="input-group">
                                                 <input type="text" class$="form-control {{prefix}}TextInput codeDis"
@@ -260,7 +268,7 @@
 
                                     <!-- DESCRIPTION -->
                                     <div class="form-group has-feedback">
-                                        <label for="{{prefix}}DescriptionInterpretation" class="col-md-2 col-form-label">Description*</label>
+                                        <label for="{{prefix}}DescriptionInterpretation" class="col-md-2 col-form-label">Description</label>
                                         <div class="col-md-8">
                                             <div class="input-group">
                                                 <input type="text" class$="form-control {{prefix}}TextInput codeDis"
@@ -274,7 +282,7 @@
 
                                     <!-- COMMENT -->
                                     <div class="form-group has-feedback">
-                                        <label for="{{prefix}}CommentInterpretation" class="col-md-2 col-form-label">Comment*</label>
+                                        <label for="{{prefix}}CommentInterpretation" class="col-md-2 col-form-label">Comment</label>
                                         <div class="col-md-8">
                                             <div class="input-group">
                                                 <input type="text" class$="form-control {{prefix}}TextInput codeDis"
@@ -541,6 +549,10 @@
                 this._genomeBrowserActive = (e.target.dataset.view === "GenomeBrowser");
             }
 
+            _backToSelectAnalysis(e) {
+                this.dispatchEvent(new CustomEvent('backtoselectanalysis', {detail: {idTab: "PrioritizationButton"}}));
+            }
+
             _goToReport(e) {
                 this.dispatchEvent(new CustomEvent('gotoreport', {detail: {interpretation: this.interpretation}}));
             }
@@ -554,8 +566,23 @@
             }
 
             onSaveInterpretation(e, obj) {
-                this.interpretation = this._createInterpretation();
-                PolymerUtils.removeAttribute(this.prefix + 'GoToReportButton', 'disabled');
+                let id = PolymerUtils.getValue(this.prefix + "IDInterpretation");
+                let name = PolymerUtils.getValue(this.prefix + "NameInterpretation");
+                let description = PolymerUtils.getValue(this.prefix + "DescriptionInterpretation");
+                let comment = PolymerUtils.getValue(this.prefix + "CommentInterpretation");
+
+                if (UtilsNew.isNotEmpty(id) && UtilsNew.isNotEmpty(name)) {
+                    if ((/\s/.test(name)) ||  (/\s/.test(id))) {
+                            this.messageError = true;
+                            this.messageErrorText = "ID or Name must not contains blanks.";
+                    } else {
+                        this.interpretation = this._createInterpretation();
+                    }
+                } else {
+                    this.messageError = true;
+                    this.messageErrorText = "ID or Name must not be empty.";
+                }
+//                PolymerUtils.removeAttribute(this.prefix + 'GoToReportButton', 'disabled');
             }
 
             _createInterpretation() {
@@ -632,6 +659,7 @@
                                 .then((response) => {
                                     _this.messageSuccess = true;
                                     _this.messageSuccessText = interpretation.id + " interpretation has been created correctly.";
+                                    _this.cleanSaveInterpretation();
                                     console.log(response);
                                     // Update analysis with new interpretations
                                     _this.getAnalysisInterpretations();
@@ -646,6 +674,13 @@
                     this.messageError = true;
                     this.messageErrorText = err;
                 }
+            }
+
+            cleanSaveInterpretation() {
+                PolymerUtils.setValue(this.prefix + "IDInterpretation", "");
+                PolymerUtils.setValue(this.prefix + "NameInterpretation", "");
+                PolymerUtils.setValue(this.prefix + "DescriptionInterpretation", "");
+                PolymerUtils.setValue(this.prefix + "CommentInterpretation", "");
             }
 
             getAnalysisInterpretations() {

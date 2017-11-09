@@ -511,10 +511,9 @@
                 super.connectedCallback();
                 PolymerUtils.hide(this.prefix + "container-interpretation-view");
                 this._render();
-
             }
 
-            _render(){
+            _render() {
                 if(UtilsNew.isNotUndefinedOrNull(this.interpretation)){
                     PolymerUtils.show(this.prefix + "container-interpretation-view");
                     this.render();
@@ -564,6 +563,8 @@
 
                 // Fire an event with the new interpretation data model
                 this.dispatchEvent(new CustomEvent('createreport', {detail: {interpretation: copy}}));
+                this.reportVariants = [];
+                this._render();
             }
 
             onAddVariantToReport(variantId) {
@@ -624,7 +625,7 @@
                     study: this.project.alias + ":" + this.study.alias
                  };
                  let _this = this;
-                if(UtilsNew.isNotUndefinedOrNull(this.interpretationId)){
+                if (UtilsNew.isNotUndefinedOrNull(this.interpretationId)) {
                     this.opencgaClient.files().content(this.interpretationId, params)
                         .then((response) => {
                             _this.interpretation = JSON.parse(response);
@@ -862,7 +863,6 @@
 
                     let comments = UtilsNew.isNotEmptyArray(row.comments) ? row.comments.length : 0;
                     return res + "<br><br><span>Comments (" + comments  + ")</span>";
-
             }
 
             _refreshTableColumns() {

@@ -7,31 +7,46 @@ class AlignmentTrack extends FeatureTrack {
         this.retrievedAlignments = null;
         this.retrievedChunkIds = new Set();
 
-        this.DEFAULT_EXCLUDE = "studies,annotation";
+        this.config = {
+            display: {
+                asPairs: true,
+                minMapQ: 50, // Reads with a mapping quality under 20 will have a transparency
+            },
+            filters: {
+                properlyPaired: false,
+                skipUnmapped: false,
+                skipDuplicated: false,
+                contained: false,
+                minMapQ: -1,
+                maxNM: -1,
+                maxNH: -1
+            }
+        };
 
         // set user args
         Object.assign(this, args);
 
+        this.showSettings = true;
+
         this._init();
 
+        this.on("track:settings", function(event) {
+            this.showModalSettings(event.sender);
+        });
     }
 
     _init() {
-        // Set OpenCGA adapter as default. OpenCGA Client constructor(client, category, subcategory, resource, params = {}, options = {}, handlers = {}) {
-        if (typeof this.dataAdapter === "undefined" || this.dataAdapter === null) {
-            if (typeof this.opencga !== "undefined" && this.opencga !== null) {
-                if (this.opencga.client !== undefined && this.opencga.client !== null) {
+        // Set OpenCGA adapter as default.
+        // OpenCGA Client constructor(client, category, subcategory, resource, params = {}, options = {}, handlers = {}) {
+        if (UtilsNew.isUndefinedOrNull(this.dataAdapter)) {
+            if (UtilsNew.isNotUndefinedOrNull(this.opencga)) {
+                if (UtilsNew.isNotUndefinedOrNull(this.opencga.client)) {
                     this.dataAdapter = new OpencgaAdapter(this.opencga.client, "analysis/alignment", "", "query", {
-                        studies: this.opencga.studies,
-                        exclude: this.DEFAULT_EXCLUDE,
+                        study: this.opencga.study,
+                        fileId: this.opencga.file
                     }, {
                         chunkSize: 5000,
                     });
-                }
-
-                if (typeof this.opencga.samples !== "undefined" && this.opencga.samples !== null && this.opencga.samples.length !== 0) {
-                    this.dataAdapter.params.exclude = "studies.files,studies.stats,annotation";
-                    this.dataAdapter.params.returnedSamples = this.opencga.samples;
                 }
             } else {
                 console.error("No 'dataAdapter' or 'opencga' object provided");
@@ -49,19 +64,33 @@ class AlignmentTrack extends FeatureTrack {
             );
         }
         this.renderer.track = this;
+
+    }
+
+    initializeDom(targetId) {
+        this._initializeDom(targetId);
+        this._createModalDiv(targetId);
+
+        this.main = SVG.addChild(this.contentDiv, "svg", {
+            "class": "trackSvg",
+            "x": 0,
+            "y": 0,
+            "width": this.width
+        });
+        this.svgCanvasFeatures = SVG.addChild(this.main, "svg", {
+            "class": "features",
+            "x": -this.pixelPosition,
+            "width": this.svgCanvasWidth
+        });
+        this.updateHeight();
+        this.renderer.init();
     }
 
     getDataHandler(event) {
         let features = event;
-        // if (event.dataType == "histogram") {
-        //     this.renderer = this.histogramRenderer;
-        //     features = event.items;
-        // } else {
-        //     this.renderer = this.defaultRenderer;
-        //     features = event;
-        // }
-        this.renderedArea = {}; //<- this is only in Aligments
+        this.renderedArea = {}; //<- this is only in Alignments
         this.renderer.render(features, {
+            config: this.config.display,
             cacheItems: event.items,
             svgCanvasFeatures: this.svgCanvasFeatures,
             featureTypes: this.featureTypes,
@@ -110,7 +139,7 @@ class AlignmentTrack extends FeatureTrack {
                 }
             })
                 .then(function(response) {
-                    _this.storeRetrievedAlignments(response);
+                    _this._storeRetrievedAlignments(response);
                     _this.getDataHandler(response);
                     _this.setLoading(false);
                 })
@@ -161,12 +190,12 @@ class AlignmentTrack extends FeatureTrack {
                     }
                 })
                     .then(function(response){
-                        _this.addNewAlignments(response, "left");
-                        if(response.dataType === "histogram"){
-                            _this.getDataHandler(response);
-                        }else {
-                            _this.getDataHandler(_this.retrievedAlignments);
-                        }
+                        _this._addNewAlignments(response, "left");
+                        // if(response.dataType === "histogram"){
+                        //     _this.getDataHandler(response);
+                        // }else {
+                        _this.getDataHandler(_this.retrievedAlignments);
+                        // }
                         _this.setLoading(false);
                     })
                     .catch(function(reason){
@@ -193,7 +222,7 @@ class AlignmentTrack extends FeatureTrack {
                     }
                 })
                     .then(function(response){
-                        _this.addNewAlignments(response, "right");
+                        _this._addNewAlignments(response, "right");
                         _this.getDataHandler(_this.retrievedAlignments);
                         _this.setLoading(false);
 
@@ -207,56 +236,7 @@ class AlignmentTrack extends FeatureTrack {
         }
     }
 
-    _removeDisplayedChunks(response) {
-        //Returns an array avoiding already drawn features in this.chunksDisplayed
-
-        let getChunkId = function (position) {
-            return Math.floor(position / response.chunkSize);
-        };
-        let getChunkKey = function (chromosome, chunkId) {
-            return `${chromosome}:${chunkId}_${response.dataType}_${response.chunkSize}`;
-        };
-
-        let chunks = response.items;
-        let newChunks = [];
-
-        let feature, displayed, featureFirstChunk, featureLastChunk, features = [];
-        for (let i = 0, leni = chunks.length; i < leni; i++) { //loop over chunks
-            if (this.chunksDisplayed[chunks[i].chunkKey] != true) { //check if any chunk is already displayed and skip it
-
-                features = []; //initialize array, will contain features not drawn by other drawn chunks
-                let alignments = chunks[i].value.alignments;
-                if (alignments == null) {
-                    alignments = chunks[i].value;
-                }
-                for (let j = 0, lenj = alignments.length; j < lenj; j++) {
-                    feature = alignments[j];
-
-                    //check if any feature has been already displayed by another chunk
-                    displayed = false;
-                    featureFirstChunk = getChunkId(feature.start);
-                    featureLastChunk = getChunkId(feature.end);
-                    for (let chunkId = featureFirstChunk; chunkId <= featureLastChunk; chunkId++) { //loop over chunks touched by this feature
-                        let chunkKey = getChunkKey(feature.chromosome, chunkId);
-                        if (this.chunksDisplayed[chunkKey] == true) {
-                            displayed = true;
-                            break;
-                        }
-                    }
-                    if (!displayed) {
-                        features.push(feature);
-                    }
-                }
-                this.chunksDisplayed[chunks[i].chunkKey] = true;
-                chunks[i].value.alignments = features; //update features array
-                newChunks.push(chunks[i]);
-            }
-        }
-        response.items = newChunks;
-        return response;
-    }
-
-    storeRetrievedAlignments(event) {
+    _storeRetrievedAlignments(event) {
         if (event.dataType === "histogram") {
             return;
         }
@@ -273,7 +253,7 @@ class AlignmentTrack extends FeatureTrack {
         }
     }
 
-    addNewAlignments(event, position) {
+    _addNewAlignments(event, position) {
         if (event.dataType === "histogram") {
             return;
         }
@@ -321,5 +301,55 @@ class AlignmentTrack extends FeatureTrack {
         // Update canvas limits
         this.svgCanvasLeftLimit = this.retrievedAlignments.items[0].region.start;
         this.svgCanvasRightLimit = this.retrievedAlignments.items[this.retrievedAlignments.items.length - 1].region.end;
+    }
+
+    _createModalDiv() {
+
+        /*
+        * <div class="modal fade">
+           <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Modal title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <p>Modal body text goes here.</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-primary">Save changes</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        * */
+        let div = document.createElement("div");
+        div.setAttribute("class", "modal fade");
+        div.setAttribute("role", "dialog");
+
+        let modalDialog = document.createElement("div");
+        modalDialog.setAttribute("class", "modal-dialog");
+        modalDialog.setAttribute("role", "document");
+        div.appendChild(modalDialog);
+
+        let modalContent = document.createElement("div");
+        modalContent.setAttribute("class", "modal-content");
+        modalDialog.appendChild(modalContent);
+
+        let modalBody = document.createElement("div");
+        modalBody.setAttribute("class", "modal-body");
+        modalBody.appendChild(modalContent);
+
+        this.div.append(div);
+        
+        this.modalSettings = div;
+    }
+
+    showModalSettings(event) {
+        debugger
+        this.modalSettings.modal('show');
     }
 }
