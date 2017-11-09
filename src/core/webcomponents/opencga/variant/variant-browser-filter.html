@@ -635,11 +635,11 @@
                             </div>
 
 
-                            <div class="browser-subsection" id = "cADDId" name="CADD">CADD
+                            <div class="browser-subsection" id = "CADDId" name="CADD">CADD
                                 <div style="float: right" class="tooltip-div">
                                 <a data-toggle="tooltip">
                                 <!--&lt;!&ndash;title="Raw values have relative meaning, with higher values indicating that a variant is more likely to be simulated (or not observed) and therefore more likely to have deleterious effects. If discovering causal variants within an individual, or small groups, of exomes or genomes te use of the scaled CADD score is recommended.">-->
-                                <i class="fa fa-info-circle" aria-hidden="true" id ="cADDTooltip"></i></a>
+                                <i class="fa fa-info-circle" aria-hidden="true" id ="CADDTooltip"></i></a>
                                 </div>
                             </div>
                             <div style="padding-top: 10px">
@@ -2086,16 +2086,14 @@
                 return UtilsNew.isNotEmptyArray(arr);
             }
 
-            _addAllTooltips(){
-
-                let boxsFilters =  ["study", "genomic", "populationFrequency","deleteriousness","conservation"];
-                for (let filterBox in boxsFilters){
-                    let subBoxes = Object.keys(this.config.filter[boxsFilters[filterBox]]);
-                    for (let o in subBoxes) {
-                        if (UtilsNew.isNotEmpty(this.config.filter[boxsFilters[filterBox]][subBoxes[o]].tooltip)) {
-                            this._addTooltip($("#" + subBoxes[o] + "Tooltip"), this.config.filter[boxsFilters[filterBox]][subBoxes[o]].tooltip,
-//                                    $("#" +subBoxes[o]+"Id").getAttribute("name"));
-                            document.getElementById(subBoxes[o]+"Id").getAttribute("name"));
+            _addAllTooltips() {
+                let categories =  ["study", "genomic", "populationFrequency", "deleteriousness", "conservation"];
+                for (let filterBox of categories) {
+                    let subSections = Object.keys(this.config.filter[filterBox]);
+                    for (let subSection of subSections) {
+                        if (UtilsNew.isNotEmpty(this.config.filter[filterBox][subSection].tooltip)) {
+                            this._addTooltip($("#" + subSection + "Tooltip"), this.config.filter[filterBox][subSection].tooltip,
+                                document.getElementById(subSection + "Id").getAttribute("name"));
                         }
                     }
                 }
