@@ -39,8 +39,8 @@
         </style>
 
         <!--<div>-->
-        <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" filters="{{config.filters}}"
-                                filter-bioformat="VARIANT" default-study="{{study.alias}}" alias="{{activeFilterAlias}}" refresh="{{search}}">
+        <opencga-active-filters opencga-client="{{opencgaClient}}" query="[[query]]" filters="{{config.filters}}"
+                                filter-bioformat="VARIANT" default-study="{{study.alias}}" alias="{{activeFilterAlias}}" refresh="[[search]]">
         </opencga-active-filters>
 
         <div class="col-md-12" style="padding: 5px 0px 5px 0px">
@@ -69,7 +69,7 @@
                                       opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
                                       population-frequencies="{{populationFrequencies}}" active="{{active}}"
                                       protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                      consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}"
+                                      consequence-types="{{consequenceTypes}}" query="[[query]]" search="{{search}}"
                                       variant="{{variant}}" on-selected="selectedGene"
                                       on-selectvariant="onSelectVariant" style="font-size: 12px" config="{{config}}"
                                       summary="{{summary}}" samples="{{samples}}">
@@ -267,6 +267,9 @@
                     study: {
                         type: Object
                     },
+                    samples: {
+                        type: Array
+                    },
                     cohorts: {
                         type: Object
                     },
@@ -308,9 +311,6 @@
                         type: Array,
                         value: [],
                         observer: "variantStudiesChanged"
-                    },
-                    prefix: {
-                        type: String
                     },
                     summary: {
                         type: Boolean

@@ -150,8 +150,7 @@
                     },
                     query: {
                         type: Object,
-//                        notify: true,
-                        observer: 'onQueryUpdate'
+                        observer: 'queryObserver'
                     },
                     filters: {
                         type: Array
@@ -283,7 +282,7 @@
             }
 
             onQueryFilterDelete(e) {
-                let _queryList = this.query;
+                let _queryList = Object.assign({}, this.query);
                 // Reset selected filters to none
                 PolymerUtils.addStyleByClass('filtersLink', 'color', 'black');
 
@@ -293,13 +292,26 @@
                 if (UtilsNew.isEmpty(value)) {
                     delete _queryList[name];
                 } else {
-                    let filterFields = _queryList[name].split(new RegExp("[,;]"));
+//                    let filterFields = _queryList[name].split(new RegExp("[,;]"));
+                    let filterFields;
+                    if (value.indexOf("/") !== -1) {
+                        filterFields = _queryList[name].split(new RegExp(";"));
+                    } else {
+                        filterFields = _queryList[name].split(new RegExp("[,;]"));
+                    }
+
+//                    debugger
                     let indexOfValue = filterFields.indexOf(value);
                     filterFields.splice(indexOfValue, 1);
-                    if (_queryList[name].indexOf(',') !== -1) {
-                        _queryList[name] = filterFields.join(",");
-                    } else {
+
+                    if (_queryList[name].indexOf("/") !== -1) {
                         _queryList[name] = filterFields.join(";");
+                    } else {
+                        if (_queryList[name].indexOf(',') !== -1) {
+                            _queryList[name] = filterFields.join(",");
+                        } else {
+                            _queryList[name] = filterFields.join(";");
+                        }
                     }
                 }
 
@@ -308,14 +320,15 @@
                     //TODO Refactor
                     $("#filtersList option[value='none']").prop('selected', true);
                 }
-
-                _queryList = Object.assign({}, _queryList);
+//                debugger
+//                this.query = Object.assign({}, _queryList);
                 this.dispatchEvent(new CustomEvent("filterchange", {detail: _queryList, bubbles: true, composed: true}));
             }
 
-            onQueryUpdate() {
+            queryObserver() {
                 let _queryList = [];
                 let keys = Object.keys(this.query);
+//                debugger
                 for (let keyIdx in keys) {
                     let key = keys[keyIdx];
                     if (UtilsNew.isNotEmpty(this.query[key])) {
@@ -333,7 +346,14 @@
 
                         // We convert the Query entry object into an array of small objects (queryList)
                         let value = this.query[key];
-                        let filterFields = value.split(new RegExp("[,;]"));
+
+                        // Only genotypes contain the character '/', this must be split by semi-colon
+                        let filterFields = [];
+                        if (value.indexOf("/") !== -1) {
+                            filterFields = value.split(new RegExp(";"));
+                        } else {
+                            filterFields = value.split(new RegExp("[,;]"));
+                        }
 
                         // We fist have need to remove defaultStudy from 'filterFields' and 'value'
                         if (key === "studies") {
