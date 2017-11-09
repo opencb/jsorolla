@@ -196,19 +196,16 @@
             }
 
             onClear() {
-                debugger
                 this.query = {studies: this.project.alias + ":" + this.study.alias};
                 this.search = {};
             }
 
             onFilterChange(e) {
-                debugger
                 this.query = e.detail;
                 this.search = e.detail;
             }
 
             onSampleChange(e) {
-                debugger
                 this.set('samples', e.detail.samples);
                 this.dispatchEvent(new CustomEvent("samplechange", {detail: {samples: this.samples}, bubbles: true, composed: true}));
             }
