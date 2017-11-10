@@ -50,7 +50,8 @@
                 </div>
 
                 <div id="{{prefix}}MainWindow" class="col-md-10">
-                    <variant-browser-view title="{{title}}" project="{{project}}" study="{{study}}" samples={{samples}} cohorts="{{cohorts}}"
+
+                    <variant-browser-view  project="{{project}}" study="{{study}}" samples={{samples}} cohorts="{{cohorts}}"
                                           opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
                                           population-frequencies="{{populationFrequencies}}"
                                           protein-substitution-scores="{{proteinSubstitutionScores}}"
@@ -188,7 +189,6 @@
                     this.cohorts = this.config.cohorts;
                 }
             }
-
 
             propagateGeneEvent(e) {
                 //TODO cambiar por dispatchEvent

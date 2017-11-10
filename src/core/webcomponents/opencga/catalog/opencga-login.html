@@ -1,43 +1,60 @@
 <dom-module id="opencga-login">
     <template>
         <style include="jso-styles">
-            .login-basic-margin {
-                width: 300px;
-                margin-left: 20px;
-                margin-right: auto;
+            .v-offset {
+                margin-top: 90px;
             }
-            .login-fields {
-                margin-top: 10px;
+
+            input {
+                min-width: 200px;
+            }
+
+            .buttonL {
+                min-width: 239px;
+            }
+
+            label {
+                color: rgb(142, 128, 125);
             }
         </style>
 
-        <div class="login-basic-margin">
-            <h3>{{loginTitle}}</h3>
-            <div class="input-group login-fields">
-                <span class="input-group-addon" id="username">
-                    <i class="fa fa-user fa-lg"></i>
-                </span>
-                <input type="text" id="opencgaUser" value="{{userName}}" class="form-control" placeholder="User name" aria-describedby="username"
-                       on-keyup="checkEnterKey">
-            </div>
+        <div class="container-fluid">
+            <div class="row v-offset">
+                <div class="col-md-12">
+                    <form id="formLogin" data-toggle="validator" class="form-horizontal" role="form">
+                        <div class="form-group has-feedback">
+                            <label for="opencgaUser" class="control-label">Name</label>
+                            <div class="input-group">
+                                <span class="input-group-addon" id="username">
+                                    <i class="fa fa-user fa-lg"></i>
+                                </span>
+                                <input type="text" pattern="^[_A-z0-9]{1,}$" maxlength="15" id="opencgaUser" value="{{userName}}" class="form-control"
+                                       placeholder="Username" aria-label="Recipient's username" aria-describedby="username" on-keyup="checkEnterKey" required data-required-error="This field is required">
+                            </div>
+                            <div class="help-block with-errors"></div>
+                        </div>
 
-            <div class="input-group login-fields">
-                <span class="input-group-addon" id="password">
-                    <i class="fa fa-key"></i>
-                </span>
-                <input id="opencgaPassword" value="{{password}}" type="password" class="form-control" placeholder="Password"
-                       aria-describedby="password" on-keyup="checkEnterKey">
-            </div>
+                        <div class="form-group has-feedback">
+                            <label for="opencgaPassword" class="control-label">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-addon" id="password">
+                                    <i class="fa fa-key"></i>
+                                </span>
+                                <input id="opencgaPassword" value="{{password}}" type="password" class="form-control" placeholder="Password" aria-describedby="password" on-keyup="checkEnterKey" required data-required-error="This field is required">
+                            </div>
+                            <div class="help-block with-errors"></div>
 
+                        </div>
 
-            <div id="incorrect" hidden="true" style="color: #AF1616;">
-                {{errorMessage}}
-            </div>
+                        <div class="form-group">
+                            <button type="submit" on-click="login" class="btn btn-lg btn-default btn-block buttonL">{{buttonText}}</button>
+                        </div>
 
-            <div class="login-fields">
-                <button type="button" on-click="login" class="btn btn-primary" style="text-align: center;">{{buttonText}}</button>
+                    </form>
+                </div>
             </div>
         </div>
+
     </template>
 
     <script>
@@ -56,13 +73,9 @@
                     opencgaClient: {
                         type: Object
                     },
-                    loginTitle: {
-                        type: String,
-                        value: "Login"
-                    },
                     buttonText: {
                         type: String,
-                        value: "OK"
+                        value: "Sign In"
                     },
                     userName: {
                         type: String,
@@ -83,6 +96,11 @@
                 super.ready();
             }
 
+            connectedCallback(){
+                super.connectedCallback();
+                $("#formLogin").validator('update');
+            }
+
             login() {
                 let user = this.$.opencgaUser.value;
                 let pass = this.$.opencgaPassword.value;
@@ -92,17 +110,35 @@
                     .then(function(response) {
                         _this.$.opencgaUser.value = "";
                         _this.$.opencgaPassword.value = "";
-                        _this.$.incorrect.hidden = true;
                         _this.dispatchEvent(new CustomEvent('login', {
                             detail: {
                                 userId: user,
                                 sessionId: response.response[0].result[0].id
-                            }, bubbles: true, composed: true
+                            },
+                            bubbles: true,
+                            composed: true
                         }));
+
+                        let options = {
+                            icon: 'glyphicon glyphicon-user',
+                            message: user + ' has logged in.'
+                        };
+                        let settings = {
+                            type: 'success'
+                        };
+                        UtilsNew.showNotify(options, settings)
+
+
                     })
                     .catch(function(response) {
-                        this.errorMessage = response.error;
-                        this.$.incorrect.hidden = false;
+                        let options = {
+                            icon: 'glyphicon glyphicon-warning-sign',
+                            message: this.errorMessage = response.error
+                        };
+                        let settings = {
+                            type: 'danger'
+                        };
+                        UtilsNew.showNotify(options, settings)
                     }.bind(this));
             }
 
