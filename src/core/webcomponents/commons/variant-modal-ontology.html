@@ -108,7 +108,7 @@
             }
 
             selectTerm(e) {
-                if(UtilsNew.isNotUndefinedOrNull(this.fullTerms)){
+                if (UtilsNew.isNotUndefinedOrNull(this.fullTerms)) {
                     this.selectedTerm = this.fullTerms.find((elem) => {
                         return elem.label == e.target.value
                     });
@@ -117,7 +117,7 @@
 
             addSelectedTermToList(e){
                 let selectedTerm = JSON.parse(e.target.getAttribute("data-selected-term"));
-                if(UtilsNew.isUndefinedOrNull(this.listCurrentSelected)){
+                if (UtilsNew.isUndefinedOrNull(this.listCurrentSelected)) {
                     this.listCurrentSelected = [];
                 }
 
@@ -125,7 +125,7 @@
                         return element.label === selectedTerm.label;
                 });
 
-                if(UtilsNew.isUndefinedOrNull(containsSelectedElement)) {
+                if (UtilsNew.isUndefinedOrNull(containsSelectedElement)) {
                     this.push("listCurrentSelected", selectedTerm);
                 }
             }
@@ -180,7 +180,7 @@
 
                             if (json.response.numFound > rowsPerPage) {
                                 PolymerUtils.innerHTML("resultsSearch", "Exists more results for search: " + e.target.value + ". Showing 15 of " + json.response.numFound);
-                            }else{
+                            }  else {
                                 PolymerUtils.innerHTML("resultsSearch", "Showing "+json.response.numFound +" results.");
 
                             }
