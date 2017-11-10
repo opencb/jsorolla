@@ -455,7 +455,7 @@
 
                if (this.analysisError(analysisType, this.samples.length, _properMembers, this.samples)) {
                     let fullDate = new Date();
-                    let twoDigitMonth = ((fullDate.getMonth().length + 1) === 1) ? (fullDate.getMonth() + 1) : '0' + (fullDate.getMonth() + 1);
+                    let twoDigitMonth = ((fullDate.getMonth() + 1) >= 10) ? (fullDate.getMonth() + 1) : '0' + (fullDate.getMonth() + 1);
                     let currentDate = fullDate.getDate() + "/" + twoDigitMonth + "/" + fullDate.getFullYear();
 
                     let samplesToShow = "";

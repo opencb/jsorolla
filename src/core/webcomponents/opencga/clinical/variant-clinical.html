@@ -153,7 +153,7 @@
                 <template is="dom-if" if="{{activesTab.uploadTab}}">
                     <div class$="analysis-content" id="{{prefix}}UploadButtonDiv">
                         <variant-clinical-upload opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}"
-                                                 ebi-config="{{ebiConfig}}">
+                                                 ebi-config="{{ebiConfig}}" project="{{project}}" >
                         </variant-clinical-upload>
                     </div>
                 </template>
@@ -308,7 +308,7 @@
                         </template>
                         <template is="dom-if" if="{{activeReport}}">
                             <variant-clinical-report opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}"
-                                                     title="Generate Report" interpretation="{{interpretationReport}}" analysis="{{clinicalAnalysis}}" expReport="true">
+                                                     title="Report of {{clinicalAnalysis.name}}" interpretation="{{interpretationReport}}" analysis="{{clinicalAnalysis}}" expReport="true">
                             </variant-clinical-report>
                         </template>
                 </template>
@@ -325,7 +325,7 @@
                         </div>
                         <div class="modal-body" style="height: 780px">
                             <variant-clinical-selector opencga-client="{{opencgaClient}}" analysis-selected="{{analysisSelected}}"
-                                                       analysis-modal="{{analysisModal}}" study="{{study}}" show-pedigree="true"></variant-clinical-selector>
+                                                       analysis-modal="{{analysisModal}}" project="{{project}}" study="{{study}}" show-pedigree="true"></variant-clinical-selector>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="onAnalysisSelected">

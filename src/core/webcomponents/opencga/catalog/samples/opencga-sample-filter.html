@@ -17,7 +17,7 @@
 <dom-module id="opencga-sample-filter">
     <template>
         <style include="jso-styles">
-            label {
+            .label-opencga-sample-filter {
                 padding-top: 10px;
             }
         </style>
@@ -51,14 +51,14 @@
                      aria-labelledby="{{prefix}}SampleSelectionHeading">
                     <div class="panel-body">
                         <div class="form-group">
-                            <label>Sample name</label>
+                            <label class="label-opencga-sample-filter">Sample name</label>
                             <input type="text" id="{{prefix}}SampleName" class$="form-control {{prefix}}FilterTextInput"
                                    placeholder="HG01879, HG01880, HG01881..." on-keyup="calculateFilters">
                         </div>
 
                         <div class="form-group">
                             <form id="{{prefix}}DateRadioButton">
-                                <label>By Date</label>
+                                <label class="label-opencga-sample-filter">By Date</label>
                                 <br>
                                 <input type="radio" name="selectionButtons" id="allRadio" value="all"
                                        class$="{{prefix}}FilterRadio" checked on-change="calculateFilters"
@@ -102,7 +102,7 @@
                                 </form>
                             </div>
 
-                            <label>Patient Filters</label>
+                            <label class="label-opencga-sample-filter">Patient Filters</label>
                             <br>
                             <!--<input type="checkbox" name="selectionButtons" id="controls" value="controls"-->
                                    <!--class$="{{prefix}}FilterRadio" on-change="calculateFilters"-->
@@ -124,174 +124,174 @@
             </div>
 
             <!-- Sample characteristics -->
-            <template is="dom-if" if="{{variableSets}}">
-                <div class="panel panel-default">
-                    <div class="panel-heading" role="tab" id="{{prefix}}SampleGeneralFilterHeading">
-                        <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                               href="#{{prefix}}SampleGeneralFilter" aria-expanded="true"
-                               aria-controls="{{prefix}}SampleGeneralFilter">
-                                Sample Characteristics
-                                <div style="float: right" class="tooltip-div">
-                                    <a data-toggle="tooltip" title="Generic sample filters">
-                                        <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                    </a>
-                                </div>
-                            </a>
-                        </h4>
-                    </div>
-                    <div id="{{prefix}}SampleGeneralFilter" class="panel-collapse collapse in" role="tabpanel"
-                         aria-labelledby="{{prefix}}SampleGeneralFilterHeading">
+            <!--<template is="dom-if" if="{{variableSets}}">-->
+                <!--<div class="panel panel-default">-->
+                    <!--<div class="panel-heading" role="tab" id="{{prefix}}SampleGeneralFilterHeading">-->
+                        <!--<h4 class="panel-title">-->
+                            <!--<a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"-->
+                               <!--href="#{{prefix}}SampleGeneralFilter" aria-expanded="true"-->
+                               <!--aria-controls="{{prefix}}SampleGeneralFilter">-->
+                                <!--Sample Characteristics-->
+                                <!--<div style="float: right" class="tooltip-div">-->
+                                    <!--<a data-toggle="tooltip" title="Generic sample filters">-->
+                                        <!--<i class="fa fa-info-circle" aria-hidden="true"></i>-->
+                                    <!--</a>-->
+                                <!--</div>-->
+                            <!--</a>-->
+                        <!--</h4>-->
+                    <!--</div>-->
+                    <!--<div id="{{prefix}}SampleGeneralFilter" class="panel-collapse collapse in" role="tabpanel"-->
+                         <!--aria-labelledby="{{prefix}}SampleGeneralFilterHeading">-->
 
-                        <div class="panel-body">
-                            <template is="dom-if" if="{{_displayCompactCheckBox}}">
-                                <div>
-                                    <input type="checkbox" id="{{prefix}}CompactCheckbox" value="compact" checked
-                                           on-change="_changeMode">&nbsp;Compact<br>
-                                </div>
-                            </template>
+                        <!--<div class="panel-body">-->
+                            <!--<template is="dom-if" if="{{_displayCompactCheckBox}}">-->
+                                <!--<div>-->
+                                    <!--<input type="checkbox" id="{{prefix}}CompactCheckbox" value="compact" checked-->
+                                           <!--on-change="_changeMode">&nbsp;Compact<br>-->
+                                <!--</div>-->
+                            <!--</template>-->
 
-                            <template is="dom-if" if="{{compact}}">
-                                <div class="form-group">
-                                    <label for="variableSetSelect">Variable Set</label>
-                                    <select class="form-control" id="variableSetSelect" style="width: 100%"
-                                            on-change="selectedVariableSet">
-                                        <template is="dom-repeat" items="{{variableSets}}">
-                                            <option data-variable="{{item}}">{{item.name}}</option>
-                                        </template>
-                                    </select>
-                                </div>
+                            <!--<template is="dom-if" if="{{compact}}">-->
+                                <!--<div class="form-group">-->
+                                    <!--<label for="variableSetSelect">Variable Set</label>-->
+                                    <!--<select class="form-control" id="variableSetSelect" style="width: 100%"-->
+                                            <!--on-change="selectedVariableSet">-->
+                                        <!--<template is="dom-repeat" items="{{variableSets}}">-->
+                                            <!--<option data-variable="{{item}}">{{item.name}}</option>-->
+                                        <!--</template>-->
+                                    <!--</select>-->
+                                <!--</div>-->
 
-                                <label for="variableSetSelect">Select a Variable</label>
-                                <div class="form-group has-feedback">
-                                    <input type="text" id="{{prefix}}VariableNameText" class="form-control"
-                                           placeholder="Search variable"
-                                           on-keyup="renderVariableTemplate" value="{{searchVariable::input}}">
-                                    <i class="fa fa-search form-control-feedback" aria-hidden="true"></i>
-                                </div>
-                                <ul class="list-unstyled" style="max-height: 150px; overflow-y: auto; padding: 5px;">
-                                    <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}"
-                                              as="variable" filter="_filterVariable" sort="_sortVariables">
-                                        <template is="dom-if" if="{{isVisible(variable,config)}}">
-                                            <li style="cursor: pointer;" data-toggle="modal"
-                                                data-target="#{{prefix}}ModalFilters" on-click="variableSelected"
-                                                data-variable="{{variable}}">
-                                                {{variable.title}}
-                                            </li>
-                                        </template>
-                                    </template>
-                                </ul>
-                            </template>
+                                <!--<label for="variableSetSelect">Select a Variable</label>-->
+                                <!--<div class="form-group has-feedback">-->
+                                    <!--<input type="text" id="{{prefix}}VariableNameText" class="form-control"-->
+                                           <!--placeholder="Search variable"-->
+                                           <!--on-keyup="renderVariableTemplate" value="{{searchVariable::input}}">-->
+                                    <!--<i class="fa fa-search form-control-feedback" aria-hidden="true"></i>-->
+                                <!--</div>-->
+                                <!--<ul class="list-unstyled" style="max-height: 150px; overflow-y: auto; padding: 5px;">-->
+                                    <!--<template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}"-->
+                                              <!--as="variable" filter="_filterVariable" sort="_sortVariables">-->
+                                        <!--<template is="dom-if" if="{{isVisible(variable,config)}}">-->
+                                            <!--<li style="cursor: pointer;" data-toggle="modal"-->
+                                                <!--data-target="#{{prefix}}ModalFilters" on-click="variableSelected"-->
+                                                <!--data-variable="{{variable}}">-->
+                                                <!--{{variable.title}}-->
+                                            <!--</li>-->
+                                        <!--</template>-->
+                                    <!--</template>-->
+                                <!--</ul>-->
+                            <!--</template>-->
 
-                            <template is="dom-if" if="{{!compact}}">
-                                <div class="form-group has-feedback">
-                                    <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}"
-                                              as="variable" sort="_sortVariables">
-                                        <template is="dom-if" if="{{isVisible(variable, config)}}">
-                                            <!--<label for="{{prefix}}{{variable.name}}">{{variable.title}}:</label>-->
-                                            <!-- We first try to display 'title', if not present then we use 'name' -->
-                                            <template is="dom-if" if="{{variable.title}}">
-                                                <label for="{{prefix}}{{variable.name}}">{{variable.title}}</label>
-                                            </template>
+                            <!--<template is="dom-if" if="{{!compact}}">-->
+                                <!--<div class="form-group has-feedback">-->
+                                    <!--<template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}"-->
+                                              <!--as="variable" sort="_sortVariables">-->
+                                        <!--<template is="dom-if" if="{{isVisible(variable, config)}}">-->
+                                            <!--&lt;!&ndash;<label for="{{prefix}}{{variable.name}}">{{variable.title}}:</label>&ndash;&gt;-->
+                                            <!--&lt;!&ndash; We first try to display 'title', if not present then we use 'name' &ndash;&gt;-->
+                                            <!--<template is="dom-if" if="{{variable.title}}">-->
+                                                <!--<label for="{{prefix}}{{variable.name}}">{{variable.title}}</label>-->
+                                            <!--</template>-->
 
-                                            <template is="dom-if" if="{{!variable.title}}">
-                                                <label for="{{prefix}}{{variable.name}}">{{variable.name}}</label>
-                                            </template>
+                                            <!--<template is="dom-if" if="{{!variable.title}}">-->
+                                                <!--<label for="{{prefix}}{{variable.name}}">{{variable.name}}</label>-->
+                                            <!--</template>-->
 
-                                            <template is="dom-if" if="{{checkVarType(variable, 'TEXT')}}">
-                                                <!-- TEXT type: include an input text and add suitable regular expression for text-->
-                                                <!-- http://stackoverflow.com/questions/14237686/disabling-controls-in-bootstrap-->
-                                                <input type="text" class="form-control" id="{{prefix}}{{variable.name}}"
-                                                       placeholder="{{variable.name}} name"
-                                                       pattern="{{variable.attributes.pattern}}"
-                                                       aria-describedby="basic-addon1">
-                                            </template>
+                                            <!--<template is="dom-if" if="{{checkVarType(variable, 'TEXT')}}">-->
+                                                <!--&lt;!&ndash; TEXT type: include an input text and add suitable regular expression for text&ndash;&gt;-->
+                                                <!--&lt;!&ndash; http://stackoverflow.com/questions/14237686/disabling-controls-in-bootstrap&ndash;&gt;-->
+                                                <!--<input type="text" class="form-control" id="{{prefix}}{{variable.name}}"-->
+                                                       <!--placeholder="{{variable.name}} name"-->
+                                                       <!--pattern="{{variable.attributes.pattern}}"-->
+                                                       <!--aria-describedby="basic-addon1">-->
+                                            <!--</template>-->
 
-                                            <template is="dom-if" if="{{checkVarType(variable, 'NUMERIC')}}">
-                                                <!-- NUMERIC type: include an input text and add suitable regular expression for numbers -->
-                                                <input type="text" class="form-control" id="{{prefix}}{{variable.name}}"
-                                                       placeholder="{{variable.name}} number" pattern="^[0-9]+$">
-                                            </template>
+                                            <!--<template is="dom-if" if="{{checkVarType(variable, 'NUMERIC')}}">-->
+                                                <!--&lt;!&ndash; NUMERIC type: include an input text and add suitable regular expression for numbers &ndash;&gt;-->
+                                                <!--<input type="text" class="form-control" id="{{prefix}}{{variable.name}}"-->
+                                                       <!--placeholder="{{variable.name}} number" pattern="^[0-9]+$">-->
+                                            <!--</template>-->
 
-                                            <template is="dom-if" if="{{checkVarType(variable, 'INTEGER')}}">
-                                                <!-- NUMERIC type: include an input text and add suitable regular expression for numbers -->
-                                                <input type="text" class="form-control" id="{{prefix}}{{variable.name}}"
-                                                       placeholder="{{variable.name}} number" pattern="^[0-9]+$">
-                                            </template>
+                                            <!--<template is="dom-if" if="{{checkVarType(variable, 'INTEGER')}}">-->
+                                                <!--&lt;!&ndash; NUMERIC type: include an input text and add suitable regular expression for numbers &ndash;&gt;-->
+                                                <!--<input type="text" class="form-control" id="{{prefix}}{{variable.name}}"-->
+                                                       <!--placeholder="{{variable.name}} number" pattern="^[0-9]+$">-->
+                                            <!--</template>-->
 
-                                            <template is="dom-if" if="{{checkVarType(variable, 'DOUBLE')}}">
-                                                <!-- NUMERIC type: include an input text and add suitable regular expression for numbers -->
-                                                <input type="text" class="form-control" id="{{prefix}}{{variable.name}}"
-                                                       placeholder="{{variable.name}} number" pattern="^[0-9]+$">
-                                            </template>
+                                            <!--<template is="dom-if" if="{{checkVarType(variable, 'DOUBLE')}}">-->
+                                                <!--&lt;!&ndash; NUMERIC type: include an input text and add suitable regular expression for numbers &ndash;&gt;-->
+                                                <!--<input type="text" class="form-control" id="{{prefix}}{{variable.name}}"-->
+                                                       <!--placeholder="{{variable.name}} number" pattern="^[0-9]+$">-->
+                                            <!--</template>-->
 
-                                            <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 0, 1)}}">
-                                                <!-- CATEGORICAL type, no value: values to be filled in this code -->
-                                                <!-- Dropdown related to years : fill in with values contained in {{years}} -->
-                                                <template is="dom-if" if="{{checkType(variable.name,'Year')}}">
-                                                    <select class="form-control" id="{{prefix}}{{variable.name}}"
-                                                            on-change="checkYears">
-                                                        <!--<option></option>-->
-                                                        <template is="dom-repeat" items="{{years}}">
-                                                            <option value="{{item}}">{{item}}</option>
-                                                        </template>
-                                                    </select>
-                                                    <div class="help-block with-errors"
-                                                         id="{{prefix}}_errorDiv_{{variable.name}}"></div>
-                                                </template>
-                                            </template>
+                                            <!--<template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 0, 1)}}">-->
+                                                <!--&lt;!&ndash; CATEGORICAL type, no value: values to be filled in this code &ndash;&gt;-->
+                                                <!--&lt;!&ndash; Dropdown related to years : fill in with values contained in {{years}} &ndash;&gt;-->
+                                                <!--<template is="dom-if" if="{{checkType(variable.name,'Year')}}">-->
+                                                    <!--<select class="form-control" id="{{prefix}}{{variable.name}}"-->
+                                                            <!--on-change="checkYears">-->
+                                                        <!--&lt;!&ndash;<option></option>&ndash;&gt;-->
+                                                        <!--<template is="dom-repeat" items="{{years}}">-->
+                                                            <!--<option value="{{item}}">{{item}}</option>-->
+                                                        <!--</template>-->
+                                                    <!--</select>-->
+                                                    <!--<div class="help-block with-errors"-->
+                                                         <!--id="{{prefix}}_errorDiv_{{variable.name}}"></div>-->
+                                                <!--</template>-->
+                                            <!--</template>-->
 
-                                            <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 1, 2)}}">
-                                                <!-- CATEGORICAL type, single value: check box -->
-                                                <br>
-                                                <div class="col-sm-9">
-                                                    <input type="checkbox" id="{{prefix}}{{variable.name}}"
-                                                           style="padding-left: 20px">
-                                                </div>
-                                            </template>
+                                            <!--<template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 1, 2)}}">-->
+                                                <!--&lt;!&ndash; CATEGORICAL type, single value: check box &ndash;&gt;-->
+                                                <!--<br>-->
+                                                <!--<div class="col-sm-9">-->
+                                                    <!--<input type="checkbox" id="{{prefix}}{{variable.name}}"-->
+                                                           <!--style="padding-left: 20px">-->
+                                                <!--</div>-->
+                                            <!--</template>-->
 
-                                            <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 2, 3)}}">
-                                                <!-- CATEGORICAL type, 2 values: radio buttons for selection -->
-                                                <template is="dom-repeat" items="{{variable.allowedValues}}" as="value">
-                                                    <div class="form-check form-check-inline">
-                                                        <input id="{{prefix}}{{variable.name}}{{value}}"
-                                                               class="form-check-input" type="radio"
-                                                               name="{{variable.name}}Options"> {{value}}
-                                                    </div>
-                                                </template>
-                                            </template>
+                                            <!--<template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 2, 3)}}">-->
+                                                <!--&lt;!&ndash; CATEGORICAL type, 2 values: radio buttons for selection &ndash;&gt;-->
+                                                <!--<template is="dom-repeat" items="{{variable.allowedValues}}" as="value">-->
+                                                    <!--<div class="form-check form-check-inline">-->
+                                                        <!--<input id="{{prefix}}{{variable.name}}{{value}}"-->
+                                                               <!--class="form-check-input" type="radio"-->
+                                                               <!--name="{{variable.name}}Options"> {{value}}-->
+                                                    <!--</div>-->
+                                                <!--</template>-->
+                                            <!--</template>-->
 
-                                            <template is="dom-if"
-                                                      if="{{checkCatType(variable, 'CATEGORICAL', 3, 500)}}">
-                                                <!-- CATEGORICAL type: dropdown: at least three elements in variable.allowedValues -->
-                                                <select class="form-control" id="{{prefix}}{{variable.name}}">
-                                                    <!--<option></option>-->
-                                                    <template is="dom-repeat" items="{{variable.allowedValues}}">
-                                                        <option value="{{item}}">{{item}}</option>
-                                                    </template>
-                                                </select>
-                                            </template>
+                                            <!--<template is="dom-if"-->
+                                                      <!--if="{{checkCatType(variable, 'CATEGORICAL', 3, 500)}}">-->
+                                                <!--&lt;!&ndash; CATEGORICAL type: dropdown: at least three elements in variable.allowedValues &ndash;&gt;-->
+                                                <!--<select class="form-control" id="{{prefix}}{{variable.name}}">-->
+                                                    <!--&lt;!&ndash;<option></option>&ndash;&gt;-->
+                                                    <!--<template is="dom-repeat" items="{{variable.allowedValues}}">-->
+                                                        <!--<option value="{{item}}">{{item}}</option>-->
+                                                    <!--</template>-->
+                                                <!--</select>-->
+                                            <!--</template>-->
 
-                                            <template is="dom-if" if="{{checkVarType(variable, 'BOOLEAN')}}">
-                                                <!-- BOOLEAN type, 2 values: radio buttons for selection: yes or no -->
-                                                <div class="form-check form-check-inline">
-                                                    <input id="{{prefix}}{{variable.name}}yes" class="form-check-input"
-                                                           type="radio" name="{{variable.name}}Options"> yes
-                                                    <input id="{{prefix}}{{variable.name}}no" class="form-check-input"
-                                                           type="radio" name="{{variable.name}}Options"> no
-                                                </div>
-                                            </template>
-                                            <!-- Close dom-if for visibility -->
-                                        </template>
-                                        <!-- Close dom-repeat for variables -->
-                                    </template>
-                                </div>
-                                <!-- Close dom-if for extended -->
-                            </template>
-                        </div>
-                    </div>
-                </div>
-            </template>
+                                            <!--<template is="dom-if" if="{{checkVarType(variable, 'BOOLEAN')}}">-->
+                                                <!--&lt;!&ndash; BOOLEAN type, 2 values: radio buttons for selection: yes or no &ndash;&gt;-->
+                                                <!--<div class="form-check form-check-inline">-->
+                                                    <!--<input id="{{prefix}}{{variable.name}}yes" class="form-check-input"-->
+                                                           <!--type="radio" name="{{variable.name}}Options"> yes-->
+                                                    <!--<input id="{{prefix}}{{variable.name}}no" class="form-check-input"-->
+                                                           <!--type="radio" name="{{variable.name}}Options"> no-->
+                                                <!--</div>-->
+                                            <!--</template>-->
+                                            <!--&lt;!&ndash; Close dom-if for visibility &ndash;&gt;-->
+                                        <!--</template>-->
+                                        <!--&lt;!&ndash; Close dom-repeat for variables &ndash;&gt;-->
+                                    <!--</template>-->
+                                <!--</div>-->
+                                <!--&lt;!&ndash; Close dom-if for extended &ndash;&gt;-->
+                            <!--</template>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</template>-->
         </div>
 
         <div class="modal fade" tabindex="-1" role="dialog" id="{{prefix}}ModalFilters">
@@ -548,6 +548,9 @@
                         PolymerUtils.removeAttributebyclass('codeDis','disabled');
                         break;
                     case "all":
+//                        PolymerUtils.getElementById(this.prefix + "YearSelect").value = this.yearsToSearch[0];
+//                        PolymerUtils.getElementById(this.prefix + "MonthSelect").value = "any";
+//                        PolymerUtils.getElementById(this.prefix + "DaySelect").value = "any";
                     default:
                         delete _query.creationDate;
                         PolymerUtils.setAttributeByClassName('codeDis','disabled', 'true');
