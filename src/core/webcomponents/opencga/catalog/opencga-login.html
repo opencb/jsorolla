@@ -119,21 +119,26 @@
                             composed: true
                         }));
 
-                        $.notify({
+                        let options = {
                             icon: 'glyphicon glyphicon-user',
                             message: user + ' has logged in.'
-                        }, {
+                        };
+                        let settings = {
                             type: 'success'
-                        });
+                        };
+                        UtilsNew.showNotify(options, settings)
+
 
                     })
                     .catch(function(response) {
-                        $.notify({
+                        let options = {
                             icon: 'glyphicon glyphicon-warning-sign',
                             message: this.errorMessage = response.error
-                        }, {
+                        };
+                        let settings = {
                             type: 'danger'
-                        });
+                        };
+                        UtilsNew.showNotify(options, settings)
                     }.bind(this));
             }
 
