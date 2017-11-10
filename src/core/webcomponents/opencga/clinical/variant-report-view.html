@@ -631,7 +631,6 @@
                 mywindow.print();
                 mywindow.close();
                 return true;
-
             }
 
             _getTextInfo() {
@@ -649,14 +648,6 @@
                 if(this.expReport) {
                     let report = document.getElementById(this.prefix + "reportDiv");
                     this.print(report.innerHTML);
-//                var pdf = new jsPDF('p', 'pt', 'letter');
-//                var canvas = pdf.canvas;
-//                canvas.height = 72 * 11;
-//                canvas.width = 72 * 8.5;
-//                var html = PolymerUtils.getElementById(this.prefix + "reportDiv").textContent;
-//                html2pdf(html, pdf, function (pdf) {
-//                    pdf.output('dataurlnewwindow');
-//                });
                     this.expReport = false; // Reset export report button again
                 }
                 return;
