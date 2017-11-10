@@ -112,8 +112,8 @@
 
             <div role="tabpanel" class="tab-pane" id="{{prefix}}Protein">
                 <variant-protein-view opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
-                                      project="{{project}}" study="{{study}}"
-                                      ids="{{transcriptObj.id}}" config="{{config.protein}}"></variant-protein-view>
+                                      project="{{project}}" study="{{study}}" ids="{{transcriptObj.id}}" config="{{config.protein}}">
+                </variant-protein-view>
             </div>
 
         </div>
@@ -123,6 +123,8 @@
 
             constructor() {
                 super();
+
+                this.prefix = "transcript" + Utils.randomString(6);
             }
 
             static get is() {
@@ -179,9 +181,9 @@
 
             ready() {
                 super.ready();
-                if (UtilsNew.isEmpty(this.prefix)) {
-                    this.prefix = "transcript" + Utils.randomString(6);
-                }
+//                if (UtilsNew.isEmpty(this.prefix)) {
+//                    this.prefix = "transcript" + Utils.randomString(6);
+//                }
             }
 
             projectStudyObtained(project, study) {
