@@ -58,11 +58,12 @@
             <div>
 
                 <div id="{{prefix}}FilterMenu" class="col-md-2" >
-                    <variant-browser-filter project="{{project}}" study="{{study}}" studies="{{studies}}" samples="{{samples}}"
+                    <variant-browser-filter project="{{project}}" study="{{study}}" studies="{{studies}}" samples="[[samples]]"
                                             opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"
-                                             population-frequencies="{{populationFrequencies}}" biotypes="{{biotypes}}"
+                                            population-frequencies="{{populationFrequencies}}" biotypes="{{biotypes}}"
                                             consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}"
-                                            on-closemodalsample="onCloseModalSample" ebi-config="{{ebiConfig}}" clinical-analysis="{{clinicalAnalysis}}">
+                                            on-closemodalsample="onCloseModalSample" ebi-config="{{ebiConfig}}" clinical-analysis="{{clinicalAnalysis}}"
+                                            on-samplechange="onSampleChange">
                     </variant-browser-filter>
                 </div>
 
@@ -461,10 +462,15 @@
                 this._samples = this.samples;
             }
 
+//            onSampleChange(e) {
+//                this.samples = [];
+//                this.samples = e.detail.samples;
+////                this.set('samples', e.detail.samples);
+//            }
+
             onSampleChange(e) {
-                this.samples = [];
-                this.samples = e.detail.samples;
-//                this.set('samples', e.detail.samples);
+                this.set('samples', e.detail.samples);
+                this.dispatchEvent(new CustomEvent("samplechange", {detail: {samples: this.samples}, bubbles: true, composed: true}));
             }
 
             _checkPermissions(project) {
@@ -495,6 +501,11 @@
 
             selectedGene(e) {
                 this.fire('propagate', {gene: e.detail.gene});
+            }
+
+            onSampleChange(e) {
+                this.set('samples', e.detail.samples);
+                this.dispatchEvent(new CustomEvent("samplechange", {detail: {samples: this.samples}, bubbles: true, composed: true}));
             }
 
             _clinicalAnalysisChanged() {

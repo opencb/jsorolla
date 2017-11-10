@@ -456,12 +456,17 @@
             maxLabelRegionSize: 3000,
             visibleRegionSize: 100000000,
             height: 300,
-            renderer: new AlignmentRenderer(FEATURE_TYPES.alignment),
-            dataAdapter: new OpencgaAdapter(opencgaClient, "analysis/alignment", undefined, "query",
-                    {
-                        fileId: "NA12877_S1.bam",
-                        study: "platinum:illumina_platinum"
-                    })
+            opencga: {
+                client: opencgaClient,
+                study: "platinum:illumina_platinum",
+                file: "NA12877_S1.bam"
+            }
+//            renderer: new AlignmentRenderer(FEATURE_TYPES.alignment),
+//            dataAdapter: new OpencgaAdapter(opencgaClient, "analysis/alignment", undefined, "query",
+//                    {
+//                        fileId: "NA12877_S1.bam",
+//                        study: "platinum:illumina_platinum"
+//                    })
         });
         tracks.push(alignment);
 

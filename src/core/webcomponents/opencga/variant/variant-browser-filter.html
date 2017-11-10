@@ -174,7 +174,7 @@
                                                 <span style="color: darkred;padding: 5px 0px 0px 10px">No samples selected</span>
                                             </template>
 
-                                            <template is="dom-if" if="{{showSampleGenotypes}}">
+                                            <template is="dom-if" if="{{!showSampleGenotypes}}">
                                                 <template is="dom-if" if="{{showFamilySegregationSelector}}">
                                                     <div class="form-inline">
                                                         <div class="form-group" style="margin: 5px 0px">
@@ -204,34 +204,37 @@
                                                         </div>
                                                     </div>
                                                 </template>
-
-                                                <table class="table table-hover" style="margin-bottom: 5px">
-                                                    <thead>
-                                                    <tr>
-                                                        <th>Sample</th>
-                                                        <th>0/0</th>
-                                                        <th>0/1</th>
-                                                        <th>1/1</th>
-                                                        <th>./.</th>
-                                                    </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                    <template is="dom-repeat" items="{{samples}}" as="sample">
-                                                        <tr id="{{sample.name}}">
-                                                            <td id="{{prefix}}{{sample.name}}RowName" class$="{{sample.className}}">{{sample.name}}</td>
-                                                            <td><input type="checkbox" value="0/0" data-id$="{{sample.name}}"
-                                                                       on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
-                                                            <td><input type="checkbox" value="0/1" data-id$="{{sample.name}}"
-                                                                       on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
-                                                            <td><input type="checkbox" value="1/1" data-id$="{{sample.name}}"
-                                                                       on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
-                                                            <td><input type="checkbox" value="./." data-id$="{{sample.name}}"
-                                                                       on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>
-                                                        </tr>
-                                                    </template>
-                                                    </tbody>
-                                                </table>
                                             </template>
+
+
+                                            <table id="{{prefix}}SampleGenotypeTable" class="table table-hover" style="margin-bottom: 5px;display: none">
+                                                <thead>
+                                                <tr>
+                                                    <th>Sample</th>
+                                                    <th>0/0</th>
+                                                    <th>0/1</th>
+                                                    <th>1/1</th>
+                                                    <th>./.</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                <!--<template is="dom-repeat" items="{{samples}}" as="sample">-->
+                                                <!--<tr id="{{sample.name}}">-->
+                                                <!--<td id="{{prefix}}{{sample.name}}RowName" class$="{{sample.className}}">{{sample.name}}</td>-->
+                                                <!--<td><input id="{{prefix}}{{sample.name}}00Checkbox" type="checkbox" value="0/0" data-id$="{{sample.name}}"-->
+                                                <!--on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"checked></td>-->
+                                                <!--<td><input id="{{prefix}}{{sample.name}}01Checkbox" type="checkbox" value="0/1" data-id$="{{sample.name}}"-->
+                                                <!--on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>-->
+                                                <!--<td><input id="{{prefix}}{{sample.name}}11Checkbox" type="checkbox" value="1/1" data-id$="{{sample.name}}"-->
+                                                <!--on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>-->
+                                                <!--<td><input id="{{prefix}}{{sample.name}}MissingCheckbox" type="checkbox" value="./." data-id$="{{sample.name}}"-->
+                                                <!--on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>-->
+                                                <!--</tr>-->
+                                                <!--</template>-->
+                                                </tbody>
+                                            </table>
+
+
                                         </div>
                                     </div>
                                 </template>
@@ -729,11 +732,11 @@
                             </div>
 
 
-                            <div class="browser-subsection" id = "cADDId" name="CADD">CADD
+                            <div class="browser-subsection" id = "CADDId" name="CADD">CADD
                                 <div style="float: right" class="tooltip-div">
                                 <a data-toggle="tooltip">
                                 <!--&lt;!&ndash;title="Raw values have relative meaning, with higher values indicating that a variant is more likely to be simulated (or not observed) and therefore more likely to have deleterious effects. If discovering causal variants within an individual, or small groups, of exomes or genomes te use of the scaled CADD score is recommended.">-->
-                                <i class="fa fa-info-circle" aria-hidden="true" id ="cADDTooltip"></i></a>
+                                <i class="fa fa-info-circle" aria-hidden="true" id ="CADDTooltip"></i></a>
                                 </div>
                             </div>
                             <!--<div style="padding-top: 10px">-->
@@ -816,12 +819,12 @@
                                                id="{{prefix}}PhylopInput" name="phylop" on-keyup="updateQueryFilters">
                                     </div>
                                 </div>
-                                </div>
-                                <!--<div style="float: right" class="tooltip-div">-->
-                                <!--<a data-toggle="tooltip"-->
-                                <!--title="PhyloP scores measure evolutionary conservation at individual alignment sites. The scores are interpreted as follows compared to the evolution expected under neutral drift: positive scores (max 3.0) mean conserved positions and negative scores (min -14.0) indicate positive selection.  PhyloP scores are useful to evaluate signatures of selection at particular nucleotides or classes of nucleotides (e.g., third codon positions, or first positions of miRNA target sites)"><i-->
-                                <!--class="fa fa-info-circle" aria-hidden="true"></i></a>-->
-                                <!--</div>-->
+                            </div>
+                            <!--<div style="float: right" class="tooltip-div">-->
+                            <!--<a data-toggle="tooltip"-->
+                            <!--title="PhyloP scores measure evolutionary conservation at individual alignment sites. The scores are interpreted as follows compared to the evolution expected under neutral drift: positive scores (max 3.0) mean conserved positions and negative scores (min -14.0) indicate positive selection.  PhyloP scores are useful to evaluate signatures of selection at particular nucleotides or classes of nucleotides (e.g., third codon positions, or first positions of miRNA target sites)"><i-->
+                            <!--class="fa fa-info-circle" aria-hidden="true"></i></a>-->
+                            <!--</div>-->
                             <!--</div>-->
                             <!--<div class="block container-fluid">-->
                             <div style="padding-top: 10px">
@@ -1141,7 +1144,7 @@
                     query: {
                         type: Object,
                         notify: true,
-                        observer: 'onQueryUpdate'
+                        observer: 'queryObserver'
                     },
                     search: {
                         type: Object,
@@ -1149,11 +1152,14 @@
                     },
                     samples: {
                         type: Array
-//                        observer: "onSampleChange"
                     },
+//                    sampleGenotypes: {
+//                        type: Object,
+//                        value: {}
+//                    },
                     family: {
                         type: Object,
-                        observer: "onFamilyChange"
+                        observer: "familyObserver"
                     },
                     biotypes: {
                         type: Array
@@ -1187,6 +1193,7 @@
 
             static get observers() {
                 return [
+                    "samplesObserver(samples.*)"
                 ]
             }
 
@@ -1239,6 +1246,8 @@
                 if (!this.config.filter.study.collapsed) {
                     this.collapsed = "in";
                 }
+
+                this._genotypes = ["0/0", "0/1", "1/1", "./."];
             }
 
             _autocompleteSampleSearch(e) {
@@ -1246,11 +1255,12 @@
                 let sampleNamePrefix = PolymerUtils.getElementById(this.prefix  + "AutocompleteSampleSearchInput").value;
                 if (UtilsNew.isNotUndefinedOrNull(sampleNamePrefix) && sampleNamePrefix.length >= 4) {
                     let _this = this;
-                    this.opencgaClient.samples().search({
-                        study: _this.project.alias + ":" + _this.study.alias,
-                        name: "~^" + sampleNamePrefix,
-                        include: "id,name",
-                        limit: 20}, {})
+                    this.opencgaClient.samples()
+                        .search({
+                            study: _this.project.alias + ":" + _this.study.alias,
+                            name: "~^" + sampleNamePrefix,
+                            include: "id,name",
+                            limit: 20}, {})
                         .then(function (response) {
                             _this.autocompleteSampleData = response.response[0].result;
                         });
@@ -1258,36 +1268,164 @@
             }
 
             onSampleChange(e) {
-                let sampleSearchInput = PolymerUtils.getElementById(this.prefix  + "AutocompleteSampleSearchInput");
-                let sampleObj = PolymerUtils.getElementById(this.prefix  + "Sample" + sampleSearchInput.value).dataSample;
+                if (UtilsNew.isNotUndefinedOrNull(this.samples)) {
+                    let sampleSearchInput = PolymerUtils.getElementById(this.prefix  + "AutocompleteSampleSearchInput");
+                    let sample = PolymerUtils.getElementById(this.prefix  + "Sample" + sampleSearchInput.value).dataSample;
 
-                this._addSample(sampleObj);
+                    if (UtilsNew.isNotUndefinedOrNull(sample)) {
+//                        this._addSample(sampleObj);
+                        // If 'sample' is an object we just add default genotypes and push it
+//                        if (UtilsNew.isUndefinedOrNull(this.sampleGenotypes[sample.name])) {
+//                            this.sampleGenotypes[sample.name] = ["0/1", "1/1"];
+//                        }
+                        if (UtilsNew.isUndefinedOrNull(this.query.genotype)) {
+                            this.query.genotype = sample.name + ":0/1,1/1";
+                        } else {
+                            this.query.genotype += ";" + sample.name + ":0/1,1/1";
+                        }
 
-                // Empty previous Sample selection
-                this.autocompleteSampleData = [];
-                sampleSearchInput.value = "";
-            }
-
-            // This method manipulates this.samples object including dispatching the event and refreshing web
-            _addSample(sample) {
-                if (UtilsNew.isNotUndefinedOrNull(sample) && UtilsNew.isNotUndefinedOrNull(this.samples)) {
-                    // If 'sample' is an array we need to set instead of push to avoid multiple refresh events
-                    if (Array.isArray(sample)) {
-                        this.set("samples", sample);
-                    } else {
-                        // If 'sample' is an object we just push it
                         this.push("samples", sample);
-                    }
 
-                    // Launch and refresh the web
-                    this.dispatchEvent(new CustomEvent("samplechange", {detail: {samples: this.samples}, bubbles: true, composed: true}));
-                    this.showSampleGenotypes = this.samples.length > 0;
+                        // Empty previous Sample selection
+                        this.autocompleteSampleData = [];
+                        sampleSearchInput.value = "";
+//debugger
+                        // Launch and refresh the web
+                        this.dispatchEvent(new CustomEvent("samplechange", {
+                            detail: {samples: this.samples}, bubbles: true, composed: true
+                        }));
+
+                        this.renderSampleGenotypesTable();
+
+                        this.updateQueryFilters();
+                    }
                 }
             }
 
-            onFamilyChange(e) {
-                this._addSample(this.family.members);
+            familyObserver() {
+                if (UtilsNew.isNotUndefinedOrNull(this.samples) && UtilsNew.isNotUndefinedOrNull(this.family)) {
+                    if (UtilsNew.isNotUndefinedOrNull(this.family.members) && Array.isArray(this.family.members)) {
+                        this.family.members.foreach(item => this.sampleGenotypes[item] = []);
+                        this.set("samples", this.family.members);
+                    } else {
+//                        this.sampleGenotypes = {};
+                        this.set("samples", []);
+                    }
+
+                    // Launch and refresh the web
+                    this.dispatchEvent(new CustomEvent("samplechange", {
+                        detail: {samples: this.samples, family: this.family}, bubbles: true, composed: true
+                    }));
+
+                    this.renderSampleGenotypesTable();
+                }
             }
+
+            samplesObserver(a, b) {
+//                debugger
+
+            }
+
+            renderSampleGenotypesTable(sampleGenotypes) {
+                if (UtilsNew.isUndefinedOrNull(sampleGenotypes)) {
+                    sampleGenotypes = {};
+                    if (UtilsNew.isNotEmpty(this.query.genotype)) {
+                        sampleGenotypes = {};
+                        let samplesWithGT = this.query.genotype.split(';');
+                        for (let i = 0; i < samplesWithGT.length; i++) {
+                            let [sample, genotypes] = samplesWithGT[i].split(':');
+                            sampleGenotypes[sample] = genotypes.split(',');
+                        }
+                    }
+                }
+
+                let table = PolymerUtils.getElementById(this.prefix + "SampleGenotypeTable");
+                if (UtilsNew.isUndefinedOrNull(table) || UtilsNew.isUndefinedOrNull(this.samples)) {
+                    console.log("Sample Array or Genotypes table are still undefined")
+                    return;
+                }
+
+                // Delete all existing rows
+                let tableBody = table.getElementsByTagName('tbody')[0];
+                while(tableBody.rows.length) {
+                    tableBody.deleteRow(0);
+                }
+
+                for (let sample of this.samples) {
+                    let tr = tableBody.insertRow(-1);
+                    tr.setAttribute("id", sample.name);
+
+                    let td = tr.insertCell(0);
+                    let nameText = document.createTextNode(sample.name);
+                    td.appendChild(nameText);
+
+                    for (let genotype of this._genotypes) {
+                        let td = tr.insertCell(-1);
+
+                        let cell = document.createElement("INPUT");
+                        cell.setAttribute("id", this.prefix + "SampleGenotypeCheckbox" + genotype);
+                        cell.setAttribute("type", "checkbox");
+                        cell.setAttribute("class", "genotypes " + this.prefix + "FilterCheckBox");
+                        cell.setAttribute("value", genotype);
+                        cell.setAttribute("data-id", sample.name);
+                        cell.addEventListener("change", this.updateSampleGenotypeFilter.bind(this));
+                        if (UtilsNew.isNotUndefinedOrNull(sampleGenotypes[sample.name]) && sampleGenotypes[sample.name].includes(genotype)) {
+                            cell.setAttribute("checked", true);
+                        }
+
+                        td.appendChild(cell);
+                    }
+                }
+
+                // Change visibility
+                if (this.samples.length > 0) {
+                    this.showSampleGenotypes = true;
+                    PolymerUtils.setAttribute(this.prefix + "SampleGenotypeTable", "style", "display: inline");
+                } else {
+                    this.showSampleGenotypes = false;
+                    PolymerUtils.setAttribute(this.prefix + "SampleGenotypeTable", "style", "display: none");
+                }
+            }
+
+
+            updateSampleGenotypeFilter(e) {
+//                if (UtilsNew.isUndefinedOrNull(this.sampleGenotypes[e.target.dataset.id])) {
+//                    this.sampleGenotypes[e.target.dataset.id] = [];
+//                }
+//
+//                if (e.target.checked) {
+//                    this.sampleGenotypes[e.target.dataset.id].push(e.target.defaultValue);
+//                } else {
+//                    let index = this.sampleGenotypes[e.target.dataset.id].indexOf(e.target.defaultValue);
+//                    this.sampleGenotypes[e.target.dataset.id].splice(index, 1);
+//                }
+//
+//                // Update the sample genotypes, the observer will call to 'renderSampleGenotypesTable'
+//                this.sampleGenotypes = Object.assign({}, this.sampleGenotypes);
+
+                this.updateQueryFilters();
+            }
+
+            // This method manipulates this.samples object including dispatching the event and refreshing web
+//            _addSample(sample) {
+//                if (UtilsNew.isNotUndefinedOrNull(sample) && UtilsNew.isNotUndefinedOrNull(this.samples)) {
+//                    // If 'sample' is an array we need to set instead of push to avoid multiple refresh events
+//                    if (Array.isArray(sample)) {
+//                        this.set("samples", sample);
+//                    } else {
+//                        // If 'sample' is an object we just add default genotypes and push it
+//                        if (UtilsNew.isUndefinedOrNull(this.sampleGenotypes[sample.name])) {
+//                            this.sampleGenotypes[sample.name] = ["0/1", "1/1"];
+//                        }
+//                        this.push("samples", sample);
+//                    }
+//
+//                    // Launch and refresh the web
+//                    this.dispatchEvent(new CustomEvent("samplechange", {detail: {samples: this.samples}, bubbles: true, composed: true}));
+//                    this.showSampleGenotypes = this.samples.length > 0;
+//                }
+//            }
+
 
             propagateOkHPO(e) {
                 if (this.openHPO) {
@@ -1324,9 +1462,9 @@
                 this.search = this.query;
             }
 
-            onQueryUpdate() {
+            queryObserver() {
                 if (this._reset) {
-                    console.log("onQueryUpdate: calling to 'setQueryFilters()'")
+                    console.log("queryObserver: calling to 'setQueryFilters()'")
                     this.setQueryFilters();
                 } else {
                     this._reset = true;
@@ -1372,6 +1510,7 @@
                     this.query = {studies: this.project.alias + ":" + this.study.alias};
                 }
             }
+
 
             updateConsequenceTypeFilter(e) {
                 // Select LoF term checkboxes
@@ -1437,22 +1576,21 @@
                 // Empty everything before rendering
                 this._clearHtmlDom();
 
+//                this.query.genotype = "HG00956:0/1";
                 // Sample Genotypes
-                if (typeof this.query.genotype !== "undefined") {
-                    let samplesWithGT = this.query.genotype.split(';');
-                    for (let i = 0; i < samplesWithGT.length; i++) {
-                        let [sample, gt] = samplesWithGT[i].split(':');
-                        let checkboxes = $('#' + sample + ' input:checkbox');
-                        let genotypes = gt.split(',');
-                        for (let j = 0; j < genotypes.length; j++) {
-                            for (let z = 0; z < checkboxes.length; z++) {
-                                if (genotypes[j] === checkboxes[z].defaultValue) {
-                                    checkboxes[z].checked = true;
-                                }
-                            }
-                        }
-                    }
-                }
+//                if (UtilsNew.isNotEmpty(this.query.genotype)) {
+//                    let _sampleGenotypes = {};
+//                    let samplesWithGT = this.query.genotype.split(';');
+//                    for (let i = 0; i < samplesWithGT.length; i++) {
+//                        let [sample, genotypes] = samplesWithGT[i].split(':');
+//                        _sampleGenotypes[sample] = genotypes.split(',');
+//                    }
+//                    // This assignment is observed by renderSampleGenotypesTable
+////                    this.sampleGenotypes = _sampleGenotypes;
+//                    debugger
+//                    this.renderSampleGenotypesTable(_sampleGenotypes);
+//                }
+                this.renderSampleGenotypesTable();
 
                 // Cohorts
                 let cohortArray = [];
@@ -1684,6 +1822,13 @@
                 let _filters = {};
 
                 // Adding sample genotypes filter
+//                let _genotypes = [];
+//                if (UtilsNew.isNotUndefinedOrNull(this.sampleGenotypes)) {
+//                    Object.keys(this.sampleGenotypes)
+//                        .forEach(sample => _genotypes.push(sample + ":" + this.sampleGenotypes[sample].join(",")));
+//                }
+//                _filters.genotype = _genotypes.join(';');
+
                 let selectedGenotypes = $(".genotypes:checkbox:checked");
                 if (selectedGenotypes.length > 0) {
                     let sampleGenotypesObj = {};
@@ -1974,6 +2119,10 @@
             }
 
             _clearHtmlDom() {
+                // Empty samples and genotypes
+//                this.set('samples', []);
+//                this.sampleGenotypes = {};
+
                 // Empty everything before rendering
                 $("." + this.prefix + "FilterSelect").prop('selectedIndex', 0);
                 $("." + this.prefix + "FilterSelect").prop("disabled", false);
@@ -1984,13 +2133,15 @@
                 $("." + this.prefix + "FilterRadio").filter('[value="or"]').prop('checked', true);
                 $("." + this.prefix + "FilterRadio").prop("disabled", true);
 
+
+
                 // Deselect bootstrap-select dropdowns
                 $("#" + this.prefix + "GeneBiotypes").selectpicker('val', []);
             }
 
             showSegregation(e) {
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-                this.samples = this.analysisSelected.sampleList;
+//                this.samples = this.analysisSelected.sampleList;
 //                this.
                 $("#analysisSelectedDiv").show();
 //                $("#segregationDropdownDiv").show();
@@ -2023,20 +2174,15 @@
                 let arr = this[str];
                 return UtilsNew.isNotEmptyArray(arr);
             }
-
-            _addAllTooltips(){
-
-                let boxsFilters =  ["study", "genomic", "populationFrequency","deleteriousness","conservation"];
-                for (let filterBox in boxsFilters){
-                    let filter = this.config.filter[boxsFilters[filterBox]];
-                    if (UtilsNew.isNotUndefinedOrNull(filter)){
-                        let subBoxes = Object.keys(filter);
-                        for (let o in subBoxes) {
-                            if (UtilsNew.isNotEmpty(this.config.filter[boxsFilters[filterBox]][subBoxes[o]].tooltip)) {
-                                this._addTooltip($("#" + subBoxes[o] + "Tooltip"), this.config.filter[boxsFilters[filterBox]][subBoxes[o]].tooltip,
-//                                    $("#" +subBoxes[o]+"Id").getAttribute("name"));
-                                    document.getElementById(subBoxes[o]+"Id").getAttribute("name"));
-                            }
+            
+            _addAllTooltips() {
+                let categories =  ["study", "genomic", "populationFrequency", "deleteriousness", "conservation"];
+                for (let filterBox of categories) {
+                    let subSections = Object.keys(this.config.filter[filterBox]);
+                    for (let subSection of subSections) {
+                        if (UtilsNew.isNotEmpty(this.config.filter[filterBox][subSection].tooltip)) {
+                            this._addTooltip($("#" + subSection + "Tooltip"), this.config.filter[filterBox][subSection].tooltip,
+                                document.getElementById(subSection + "Id").getAttribute("name"));
                         }
                     }
                 }
