@@ -17,7 +17,7 @@
 <dom-module id="opencga-sample-filter">
     <template>
         <style include="jso-styles">
-            label {
+            .label-opencga-sample-filter {
                 padding-top: 10px;
             }
         </style>
@@ -51,14 +51,14 @@
                      aria-labelledby="{{prefix}}SampleSelectionHeading">
                     <div class="panel-body">
                         <div class="form-group">
-                            <label>Sample name</label>
+                            <label class="label-opencga-sample-filter">Sample name</label>
                             <input type="text" id="{{prefix}}SampleName" class$="form-control {{prefix}}FilterTextInput"
                                    placeholder="HG01879, HG01880, HG01881..." on-keyup="calculateFilters">
                         </div>
 
                         <div class="form-group">
                             <form id="{{prefix}}DateRadioButton">
-                                <label>By Date</label>
+                                <label class="label-opencga-sample-filter">By Date</label>
                                 <br>
                                 <input type="radio" name="selectionButtons" id="allRadio" value="all"
                                        class$="{{prefix}}FilterRadio" checked on-change="calculateFilters"
@@ -102,7 +102,7 @@
                                 </form>
                             </div>
 
-                            <label>Patient Filters</label>
+                            <label class="label-opencga-sample-filter">Patient Filters</label>
                             <br>
                             <!--<input type="checkbox" name="selectionButtons" id="controls" value="controls"-->
                                    <!--class$="{{prefix}}FilterRadio" on-change="calculateFilters"-->

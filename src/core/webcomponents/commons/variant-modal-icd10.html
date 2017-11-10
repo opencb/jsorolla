@@ -1,0 +1,166 @@
+<dom-module id="variant-modal-icd10">
+    <template>
+        <style include="jso-styles">
+        </style>
+
+        <div class="modal fade" id="{{prefix}}icd" tabindex="-1" role="dialog"
+             aria-labelledby="icdLabel" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-sm" role="document" style="width: 1300px;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="{{prefix}}Icd10EditorLabel">Diagnosis selector (ICD-10 Terms)</h4>
+                    </div>
+                    <div class="modal-body" style="height: 500px">
+                        <div class="col-sm-12">
+                            <label>Introduce an ICD-10 term or select it from tree</label>
+                        </div>
+                        <div class="col-sm-6" style="overflow-y: auto; height:400px;">
+                            <input id="{{prefix}}autoInput" list="icd_browser" class$="form-control {{prefix}}TextInput"
+                                   placeholder="ICD-10 term" on-change="selectTermICDDatalist" on-input="selectTermICDDatalist" value="{{selectedTermICD}}">
+                            <datalist id="icd_browser" style="height:auto; max-height:100px; overflow-x:hidden;">
+                                <template is="dom-repeat" items="{{icdTerms}}">
+                                    <option value="{{item}}">
+                                </template>
+                            </datalist>
+                            <template is="dom-if" if="{{selectedTermICD}}">
+                                <ul class="list-group infoHpo">
+                                    <li class="list-group-item"><strong>Term: </strong>{{selectedTermICD}}</li>
+                                    <li class="list-group-item">  <button type="button" class="btn btn-info" on-click="addSelectedTermToListICD" data-selected-term$="{{selectedTermICD}}">Add Term</button>
+                                    </li>
+                                </ul>
+                            </template>
+                            <ul class="list-group">
+                                <template is="dom-repeat" items="{{listCurrentSelectedICD}}">
+                                    <li class="list-group-item">{{item}}) <button type="button" class="btn danger" on-click="deletedTermFromListICD" data-selected-term$="{{item}}">X</button></li>
+                                </template>
+                            </ul>
+                        </div>
+                        <div class="col-sm-6" style="overflow-y: auto; height:400px;">
+                            <div id="{{prefix}}ICDtree"></div>
+                        </div>
+                        <div>
+                            <div class="col-sm-3"></div>
+                            <div class="col-sm-6" id="{{prefix}}errorTermDiv"><label></label></div>
+                            <div class="col-sm-3"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" on-click="clickOkModal">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        class VariantModalICD10 extends Polymer.Element {
+
+            constructor() {
+                super();
+            }
+
+            static get is() {
+                return "variant-modal-icd10";
+            }
+
+            static get properties() {
+                return {
+                    prefix: {
+                        type: String
+                    },
+                    icd10: {
+                        type: Array
+                    }
+                };
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            ready() {
+                super.ready();
+            }
+
+            connectedCallback(){
+                super.connectedCallback();
+                this.init();
+            }
+
+            init(){
+                this._loadICDEditor();
+            }
+
+            _loadICDEditor() {
+                this.icdTerms = this._getICDTermsRecursive(this.icd10);
+
+                let _this = this;
+                $(PolymerUtils.getElementById(this.prefix + "ICDtree")).treeview({
+                    data: this.icd10,
+                    onNodeSelected: (event, node) => {
+                        _this.selectedTermICD = node.text;
+                    },
+                    onNodeUnselected: (event, node) => {
+                        _this.selectedTermICD = "";
+                    },
+                });
+
+                $(PolymerUtils.getElementById(this.prefix + "ICDtree")).treeview('collapseAll', {silent: true});
+            }
+
+            _getICDTermsRecursive(array, res = []){
+                array.forEach((element) => {
+                    res.push(element.text);
+                    if (UtilsNew.isNotUndefinedOrNull(element.nodes)){
+                        res = this._getICDTermsRecursive(element.nodes, res.slice())
+                    }
+                });
+
+                return res;
+            }
+
+            addSelectedTermToListICD(e){
+                let selectedTerm = e.target.getAttribute("data-selected-term");
+                if (UtilsNew.isUndefinedOrNull(this.listCurrentSelectedICD)) {
+                    this.listCurrentSelectedICD = [];
+                }
+
+                let containsSelectedElement = this.listCurrentSelectedICD.find((element) => {
+                    return element === selectedTerm;
+                });
+
+                if (UtilsNew.isUndefinedOrNull(containsSelectedElement)) {
+                    selectedTerm.split("(");
+                    this.push("listCurrentSelectedICD", selectedTerm);
+                }
+            }
+
+            deletedTermFromListICD(e){
+                let deletedTerm = e.target.getAttribute("data-selected-term");
+
+                let listWithoutDeletedTerm = this.listCurrentSelectedICD.filter((element) => {
+                    return element !== deletedTerm;
+                });
+
+                this.listCurrentSelectedICD = listWithoutDeletedTerm;
+            }
+
+            selectTermICDDatalist(e){
+                this.selectedTermICD = e.target.value;
+            }
+
+            clickOkModal(e) {
+                this.dispatchEvent(new CustomEvent("propagateokicd10", {
+                    detail: {result: this.listCurrentSelectedICD},
+                    bubbles: true,
+                    composed: true
+                }));
+            }
+        }
+
+        customElements.define(VariantModalICD10.is, VariantModalICD10);
+    </script>
+
+</dom-module>
