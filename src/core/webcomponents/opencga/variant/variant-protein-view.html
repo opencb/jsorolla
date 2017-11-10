@@ -64,6 +64,8 @@
 
             constructor() {
                 super();
+
+                this.prefix = "proteinView" + Utils.randomString(6);
             }
 
             static get is() {
@@ -98,9 +100,6 @@
                     ids: {
                         type: String,
                         observer: "_fetchProteins"
-                    },
-                    prefix: {
-                        type: String
                     }
                 }
             }
@@ -111,10 +110,6 @@
 
             ready() {
                 super.ready();
-
-                if (typeof this.prefix === "undefined" || this.prefix === "") {
-                    this.prefix = "protein" + Utils.randomString(6);
-                }
             }
 
             checkProteinsAvailable(proteins) {
@@ -172,7 +167,7 @@
                                                 color: _this.config.color
                                             };
                                             let svg = lollipop.createSvg(proteinObjects[i], variants.response[0].result, svgSettings);
-                                            let querySelector = Polymer.dom(_this.root).querySelector("#" + _this.prefix + proteinObjects[i].accession[0]);
+                                            let querySelector = PolymerUtils.getElementById(_this.prefix + proteinObjects[i].accession[0]);
                                             querySelector.appendChild(svg);
                                         }
                                     }).catch(function (e) {

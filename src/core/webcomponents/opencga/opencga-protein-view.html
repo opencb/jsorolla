@@ -168,6 +168,8 @@
 
             constructor() {
                 super();
+
+                this.prefix = "protein" + Utils.randomString(6);
             }
 
             static get is() {
@@ -226,10 +228,6 @@
 
             ready() {
                 super.ready();
-
-                if (UtilsNew.isEmpty(this.prefix)) {
-                    this.prefix = "protein" + Utils.randomString(6);
-                }
             }
 
             projectStudyObtained(project, study) {
@@ -243,7 +241,7 @@
             }
 
             checkPrimary(item) {
-                if (item.type == "primary") {
+                if (item.type === "primary") {
                     return true;
                 }
             }
@@ -259,7 +257,9 @@
                 let svg = PolymerUtils.querySelector("svg");
                 if (svg !== null) {
                     let proteinSvgDiv = PolymerUtils.getElementById(this.prefix + "ProteinSvgDiv");
-                    proteinSvgDiv.removeChild(svg);
+                    if (proteinSvgDiv !== undefined && proteinSvgDiv !== null) {
+//                        proteinSvgDiv.removeChild(svg);
+                    }
                 }
 
                 let query = {};
@@ -269,18 +269,18 @@
 //                    query["annot-xref"] = this.protein; // Query object that is passed to Variant browser grid
 
                     // FIXME Below is a patch that needs to be removed
-                    _this.cellbaseClient.get("feature", "id", this.protein, "xref", {
-                        dbname: "ensembl_transcript",
-                        "Output format": "json"
-                    }).then(function (response) {
-                        let transcripts = [];
-                        let results = response.response[0].result;
-                        for (let result of results) {
-                            transcripts.push(result.id);
-                        }
-                        query["annot-xref"] = transcripts.join(",");
-                        _this.query = query;
-                    });
+//                    _this.cellbaseClient.get("feature", "id", this.protein, "xref", {
+//                        dbname: "ensembl_transcript"
+////                        "Output format": "json"
+//                    }).then(function (response) {
+//                        let transcripts = [];
+//                        let results = response.response[0].result;
+//                        for (let result of results) {
+//                            transcripts.push(result.id);
+//                        }
+//                        query["annot-xref"] = transcripts.join(",");
+//                        _this.query = query;
+//                    });
 
                     _this.cellbaseClient.getProteinClient(this.protein, 'info', {}, {})
                         .then(function (response) {
@@ -298,6 +298,7 @@
                                     summary: _this.summary,
                                     exclude: "studies.samplesData,studies.files"
                                 };
+
                                 _this.opencgaClient.variants().query(params)
                                     .then(function (variants) {
                                         let lollipop = new Lollipop();
@@ -308,14 +309,14 @@
                                             color: _this.config.color
                                         };
                                         let svg = lollipop.createSvg(_this.proteinObj, variants.response[0].result, svgSettings);
-                                        let querySelector = Polymer.dom(_this.root).querySelector("#" + _this.prefix + "ProteinSvgDiv");
+                                        let querySelector = PolymerUtils.getElementById(_this.prefix + "ProteinSvgDiv");
                                         querySelector.appendChild(svg);
                                     }).catch(function (e) {
                                     console.log(e);
                                 });
                             }
                         });
-//                    _this.query = query;
+                    _this.query = query;
                 }
             }
 
