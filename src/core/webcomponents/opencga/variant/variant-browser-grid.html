@@ -88,8 +88,8 @@
                     },
                     samples: {
                         type: Array,
-                        value: [],
-                        observer: '_refreshTableColumns'
+                        value: []
+//                        observer: '_refreshTableColumns'
                     },
                     cohorts: {
                         type: Object,
@@ -134,6 +134,11 @@
                 }
             }
 
+            static get observers() {
+                return [
+                    '_refreshTableColumns(samples.*)'
+                ];
+            }
             _attachDom(dom) {
                 this.appendChild(dom);
             }
@@ -142,7 +147,7 @@
                 super.ready();
 
                 this.analysisMode = "family";
-                this._summary = false;
+                this._summary = true;
             }
 
             connectedCallback() {
@@ -710,7 +715,7 @@
             }
             _refreshTableColumns() {
                 this.cols = this._createDefaultColumns();
-
+//                debugger
                 if (typeof this.cols !== "undefined" && typeof this.cohorts !== "undefined" && Object.keys(this.cohorts).length > 0) {
                     let cohortIdx = 6;
                     let cohortStudies = Object.keys(this.cohorts);

@@ -40,22 +40,23 @@
             <!--<div class="row">-->
                 <div id="{{prefix}}FilterMenu" class="col-md-2">
                     <variant-browser-filter study="{{study}}" project="{{project}}" studies="{{studies}}"
-                                            cohorts="{{cohorts}}" biotypes={{biotypes}} config="{{config}}"
-                                            samples="{{samples}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
+                                            cohorts="[[cohorts]]" biotypes={{biotypes}} config="{{config}}"
+                                            samples="[[samples]]" opencga-client="{{opencgaClient}}"
                                             cellbase-client="{{cellbaseClient}}"
                                             population-frequencies="{{populationFrequencies}}" ebi-config="{{ebiConfig}}"
-                                            consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}">
+                                            consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}"
+                                            on-samplechange="onSampleChange">
                     </variant-browser-filter>
                 </div>
 
                 <div id="{{prefix}}MainWindow" class="col-md-10">
-                    <variant-browser-view project="{{project}}" study="{{study}}" cohorts="{{cohorts}}"
-                                          prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
-                                          cellbase-client="{{cellbaseClient}}"
+
+                    <variant-browser-view  project="{{project}}" study="{{study}}" samples={{samples}} cohorts="{{cohorts}}"
+                                          opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
                                           population-frequencies="{{populationFrequencies}}"
                                           protein-substitution-scores="{{proteinSubstitutionScores}}"
                                           consequence-types="{{consequenceTypes}}" beacon-hosts="{{beaconHosts}}"
-                                          query="{{query}}" search="[[search]]"
+                                          query="[[query]]" search="[[search]]"
                                           on-propagate="propagateGeneEvent" config="{{config}}" on-clear="onClear"
                                           on-filterchange="onFilterChange" full-screen="{{_collapsed}}">
                     </variant-browser-view>
@@ -172,7 +173,7 @@
                 if (typeof this.query !== "undefined" && Object.keys(this.query).length > 0) {
                     let qArray = [];
                     for (let key in this.query) {
-                        if (key != "studies") {
+                        if (key !== "studies") {
                             qArray.push(key + "=" + this.query[key]);
                         }
                     }
@@ -202,6 +203,11 @@
             onFilterChange(e) {
                 this.query = e.detail;
                 this.search = e.detail;
+            }
+
+            onSampleChange(e) {
+                this.set('samples', e.detail.samples);
+                this.dispatchEvent(new CustomEvent("samplechange", {detail: {samples: this.samples}, bubbles: true, composed: true}));
             }
 
             _checkPermissions(project) {

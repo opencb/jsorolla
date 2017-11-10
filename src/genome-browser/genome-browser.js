@@ -125,6 +125,9 @@ class GenomeBrowser {
         this.tracksDiv.setAttribute("class", "ocb-gv-detailed");
         this.trackListPanelsDiv.appendChild(this.tracksDiv);
 
+        if (this.drawOverviewTrackListPanel) {
+            this.overviewTrackListPanel = this._createOverviewTrackListPanel(this.regionDiv);
+        }
         this.trackListPanel = this._createTrackListPanel(this.tracksDiv);
         this.getChromosomes();
     }
@@ -152,9 +155,9 @@ class GenomeBrowser {
         }
 
         /* Region Panel, is a TrackListPanel Class */
-        if (this.drawOverviewTrackListPanel) {
-            this.overviewTrackListPanel = this._createOverviewTrackListPanel(this.regionDiv);
-        }
+        // if (this.drawOverviewTrackListPanel) {
+        //     this.overviewTrackListPanel = this._createOverviewTrackListPanel(this.regionDiv);
+        // }
         /*TrackList Panel*/
         // this.trackListPanel = this._createTrackListPanel(this.tracksDiv);
 
