@@ -65,5 +65,16 @@ class UtilsNew {
         return Object.keys(project).length === 0;
     }
 
+    static showNotify(options, settings) {
+        let settingsDefault = {
+            placement: {
+                from: "top",
+                align: "center"
+            }
+        };
+
+        settings = Object.assign({},settingsDefault, settings);
+        $.notify(options, settings);
+    }
 
 }
