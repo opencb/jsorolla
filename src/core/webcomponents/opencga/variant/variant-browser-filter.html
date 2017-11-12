@@ -2088,24 +2088,42 @@
 
             _addAllTooltips() {
                 let categories =  ["study", "genomic", "populationFrequency", "deleteriousness", "conservation"];
-                for (let filterBox of categories) {
-                    let subSections = Object.keys(this.config.filter[filterBox]);
+                for (let category of categories) {
+                    let subSections = Object.keys(this.config.filter[category]);
                     for (let subSection of subSections) {
-                        if (UtilsNew.isNotEmpty(this.config.filter[filterBox][subSection].tooltip)) {
-                            this._addTooltip($("#" + subSection + "Tooltip"), this.config.filter[filterBox][subSection].tooltip,
+                        if (UtilsNew.isNotEmpty(this.config.filter[category][subSection].tooltip)) {
+                            this._addTooltip($("#" + subSection + "Tooltip"), this.config.filter[category][subSection].tooltip,
                                 document.getElementById(subSection + "Id").getAttribute("name"));
                         }
                     }
                 }
             }
 
-            _addTooltip(div, content, title){
+            _addTooltip(div, content, title) {
                 div.qtip({
-                    content: {text: content, title: title},
-                    position: {target: "mouse", adjust: {x: 15, y: 15}},
-                    style: {width: true, classes:  "ocb-tooltip-font" + "  ui-tooltip ui-tooltip-shadow"},
-                    show: {delay: 300},
-                    hide: {delay: 300}
+                    content: {
+                        title: title,
+                        text: content
+                    },
+                    position: {
+                        target: "mouse",
+                        adjust: {
+                            x: 2, y: 2,
+                            mouse: false
+                        }
+                    },
+                    style: {
+                        width: true,
+//                        classes:  "ocb-tooltip-font" + "  ui-tooltip ui-tooltip-shadow"},
+                        classes: this.config.filter.tooltip.classes
+                    },
+                    show: {
+                        delay: 200
+                    },
+                    hide: {
+                        fixed: true,
+                        delay: 300
+                    }
                 });
             }
         }
