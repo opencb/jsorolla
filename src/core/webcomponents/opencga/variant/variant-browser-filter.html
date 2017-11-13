@@ -151,7 +151,7 @@
                                                                list$="{{prefix}}AutocompleteSampleSearchDataList" on-keyup="_autocompleteSampleSearch">
                                                         <datalist id="{{prefix}}AutocompleteSampleSearchDataList">
                                                             <template is="dom-repeat" items="{{autocompleteSampleData}}">
-                                                                <option id="{{prefix}}Sample{{item.name}}" value="{{item.name}}" data-sample="{{item}}">
+                                                                <option id="{{prefix}}Sample{{item.name}}" value="{{item.name}}" data-sample$="{{item}}">
                                                             </template>
                                                         </datalist>
                                                     </div>
@@ -1152,6 +1152,7 @@
                     },
                     samples: {
                         type: Array
+//                        value: [{id: "", name: "aaa"}, {id: "", name: "bbb"}]
                     },
 //                    sampleGenotypes: {
 //                        type: Object,
@@ -1269,67 +1270,61 @@
 
             onSampleChange(e) {
                 if (UtilsNew.isNotUndefinedOrNull(this.samples)) {
-                    let sampleSearchInput = PolymerUtils.getElementById(this.prefix  + "AutocompleteSampleSearchInput");
-                    let sample = PolymerUtils.getElementById(this.prefix  + "Sample" + sampleSearchInput.value).dataSample;
+                    let sampleSearchInput = PolymerUtils.getElementById(this.prefix + "AutocompleteSampleSearchInput");
+                    let sampleString = PolymerUtils.getElementById(this.prefix + "Sample" + sampleSearchInput.value).dataset.sample;
+                    let sample = JSON.parse(sampleString);
 
                     if (UtilsNew.isNotUndefinedOrNull(sample)) {
-//                        this._addSample(sampleObj);
-                        // If 'sample' is an object we just add default genotypes and push it
-//                        if (UtilsNew.isUndefinedOrNull(this.sampleGenotypes[sample.name])) {
-//                            this.sampleGenotypes[sample.name] = ["0/1", "1/1"];
-//                        }
+                        // Default genotype when adding samples is 0/1, 1/1
                         if (UtilsNew.isUndefinedOrNull(this.query.genotype)) {
                             this.query.genotype = sample.name + ":0/1,1/1";
                         } else {
                             this.query.genotype += ";" + sample.name + ":0/1,1/1";
                         }
 
+                        // This triggers the call to samplesObserver()
                         this.push("samples", sample);
 
                         // Empty previous Sample selection
                         this.autocompleteSampleData = [];
                         sampleSearchInput.value = "";
-//debugger
-                        // Launch and refresh the web
+
+                        // Notify the sample change
                         this.dispatchEvent(new CustomEvent("samplechange", {
                             detail: {samples: this.samples}, bubbles: true, composed: true
                         }));
-
-                        this.renderSampleGenotypesTable();
-
-                        this.updateQueryFilters();
                     }
                 }
+            }
+
+            samplesObserver(e) {
+                this.renderSampleGenotypesTable();
+
+                this.updateQueryFilters();
             }
 
             familyObserver() {
                 if (UtilsNew.isNotUndefinedOrNull(this.samples) && UtilsNew.isNotUndefinedOrNull(this.family)) {
+                    // Updating samples triggers the call to samplesObserver()
                     if (UtilsNew.isNotUndefinedOrNull(this.family.members) && Array.isArray(this.family.members)) {
                         this.family.members.foreach(item => this.sampleGenotypes[item] = []);
                         this.set("samples", this.family.members);
                     } else {
-//                        this.sampleGenotypes = {};
                         this.set("samples", []);
                     }
 
-                    // Launch and refresh the web
+                    // Notify the sample change
                     this.dispatchEvent(new CustomEvent("samplechange", {
                         detail: {samples: this.samples, family: this.family}, bubbles: true, composed: true
                     }));
-
-                    this.renderSampleGenotypesTable();
                 }
             }
 
-            samplesObserver(a, b) {
-//                debugger
-
-            }
 
             renderSampleGenotypesTable(sampleGenotypes) {
                 if (UtilsNew.isUndefinedOrNull(sampleGenotypes)) {
                     sampleGenotypes = {};
-                    if (UtilsNew.isNotEmpty(this.query.genotype)) {
+                    if (UtilsNew.isNotUndefinedOrNull(this.query) && UtilsNew.isNotEmpty(this.query.genotype)) {
                         sampleGenotypes = {};
                         let samplesWithGT = this.query.genotype.split(';');
                         for (let i = 0; i < samplesWithGT.length; i++) {
@@ -2012,13 +2007,15 @@
 
                 // Cadd scores
                 let cadd = [];
-                let caddInput = PolymerUtils.getElementById(this.prefix + "CaddRawInput");
-                if (UtilsNew.isNotUndefinedOrNull(caddInput) && UtilsNew.isNotEmpty(caddInput.value)) {
-                    cadd.push("cadd_raw" + PolymerUtils.getElementById(this.prefix + "CaddRawOperator").value + caddInput.value);
-                }
-                caddInput = PolymerUtils.getElementById(this.prefix + "CaddScaledInput");
-                if (UtilsNew.isNotUndefinedOrNull(caddInput) && UtilsNew.isNotEmpty(caddInput.value)) {
-                    cadd.push("cadd_scaled" + PolymerUtils.getElementById(this.prefix + "CaddScaledOperator").value + caddInput.value);
+                let caddRawInput = PolymerUtils.getElementById(this.prefix + "CaddRawInput");
+                let caddScaledInput = PolymerUtils.getElementById(this.prefix + "CaddScaledInput");
+                if (UtilsNew.isNotUndefinedOrNull(caddRawInput) && UtilsNew.isNotUndefinedOrNull(caddScaledInput)) {
+                    if (UtilsNew.isNotEmpty(caddRawInput.value)) {
+                        cadd.push("cadd_raw" + PolymerUtils.getElementById(this.prefix + "CaddRawOperator").value + caddRawInput.value);
+                    }
+                    if (UtilsNew.isNotEmpty(caddScaledInput.value)) {
+                        cadd.push("cadd_scaled" + PolymerUtils.getElementById(this.prefix + "CaddScaledOperator").value + caddScaledInput.value);
+                    }
                 }
                 if (cadd.length > 0) {
                     _filters["annot-functional-score"] = cadd.join(',');
@@ -2029,7 +2026,7 @@
                 let conserArr = [];
                 for (let key of Object.keys(arr)) {
                     let inputTextArea = PolymerUtils.getElementById(this.prefix + key + "Input");
-                    if (UtilsNew.isNotEmpty(inputTextArea.value)) {
+                    if (UtilsNew.isNotUndefinedOrNull(inputTextArea) && UtilsNew.isNotEmpty(inputTextArea.value)) {
                         let operator = PolymerUtils.getElementById(this.prefix + key + "Operator");
                         conserArr.push(arr[key] + operator.value + inputTextArea.value);
                     }
@@ -2056,12 +2053,12 @@
 
                 // Gene Ontology and Human Phenotype Ontology
                 let inputTextArea = PolymerUtils.getElementById(this.prefix + "GeneOntologyTextarea");
-                if (UtilsNew.isNotEmpty(inputTextArea.value)) {
+                if (UtilsNew.isNotUndefinedOrNull(inputTextArea) && UtilsNew.isNotEmpty(inputTextArea.value)) {
                     _filters["annot-go"] = inputTextArea.value;
                 }
 
                 inputTextArea = PolymerUtils.getElementById(this.prefix + "HumanPhenotypeOntologyTextarea");
-                if (UtilsNew.isNotEmpty(inputTextArea.value)) {
+                if (UtilsNew.isNotUndefinedOrNull(inputTextArea) && UtilsNew.isNotEmpty(inputTextArea.value)) {
                     _filters["annot-hpo"] = inputTextArea.value;
                 }
 
