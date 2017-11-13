@@ -15,6 +15,7 @@
   -->
 
 <link rel="import" href="variant-clinical-upload.html">
+<link rel="import" href="variant-clinical-upload-new.html">
 <link rel="import" href="variant-clinical-samples.html">
 <link rel="import" href="../variant/variant-prioritization.html">
 <link rel="import" href="variant-clinical-report.html">
@@ -152,9 +153,9 @@
             <div class="col-md-12">
                 <template is="dom-if" if="{{activesTab.uploadTab}}">
                     <div class$="analysis-content" id="{{prefix}}UploadButtonDiv">
-                        <variant-clinical-upload opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}"
-                                                 ebi-config="{{ebiConfig}}" project="{{project}}" >
-                        </variant-clinical-upload>
+                        <variant-clinical-upload-new opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}"
+                                                 ebi-config="{{ebiConfig}}" project="{{project}}" icd10="{{icd10}}">
+                        </variant-clinical-upload-new>
                     </div>
                 </template>
 
@@ -417,6 +418,9 @@
                     checkPermissions: {
                         type: Boolean,
                         computed: '_checkPermissions(project)'
+                    },
+                    icd10: {
+                        type: Array
                     }
                 }
             }

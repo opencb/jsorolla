@@ -7,16 +7,13 @@
             .clinical-title {
                 margin: 30px 5px 25px -40px;
             }
-
             .infoHpo {
                 margin-top: 15px;
             }
-
         </style>
 
         <div class="row">
             <!--<div style="width: 60%; margin: 0px 0px 0px 90px">-->
-
             <div class="col-md-4 col-md-offset-4">
                 <h3 class="clinical-title">Patient Information</h3>
 
@@ -388,23 +385,19 @@
                         <span class='label label-info' id="upload-file-info"></span>
                     </div>
 
-                    <!--<div class="form-group row" style="float: right; width: 55%;">-->
                     <!-- BUTTON SUBMIT -->
                     <div class="form-group">
                         <button type="button" class="btn btn-primary" on-click="_clearHtmlDom">Clear form</button>
                         <button type="submit" class="btn btn-primary">Upload and check sample
                         </button>
                     </div>
-
-
                 </form>
                 <!--</div>-->
 
                 <!-- MODAL HPO TERM (ONTOLOGY) -->
                 <variant-modal-ontology prefix="{{prefix}}" ebi-config="{{ebiConfig}}" on-propagateok="_propagateOkHPO"
                                         ontology-filter="{{ontologyFilter}}" term="{{ontologyTerm}}" selected-terms="{{selectedTermsOntology}}"></variant-modal-ontology>
-
-
+                
                 <!-- Modal dialog for ICD-10 diagnosis selector-->
                 <variant-modal-icd10 prefix="{{prefix}}" icd10="{{icd10}}"  on-propagateokicd10="_propagateOkICD10"></variant-modal-icd10>
             </div>
@@ -478,7 +471,7 @@
                 this.matchingKaryotypicSex.set("XO", "FEMALE");
                 this.matchingKaryotypicSex.set("UNKNOWN", "UNKNOWN");
                 this.matchingKaryotypicSex.set("UNDETERMINED", "UNDETERMINED");
-                $("#" + this.prefix + "uploadForm").validator().on('submit',(e) => { this.submitForm(e)});
+                $("#" + this.prefix + "uploadForm").validator().on('submit',(e) => { this.submitForm(e) });
             }
 
             _updateValidateFormFields(){
@@ -519,9 +512,7 @@
                     $(PolymerUtils.getElementById(this.prefix + "uploadForm"))[0].reset();
                     $(PolymerUtils.getElementById(this.prefix + "uploadForm")).validator('destroy').validator();
                 }
-
             }
-
 
             _sortVariables(a, b) {
                 return a.rank < b.rank ? -1 : 1;
@@ -564,24 +555,6 @@
                 $("#" + this.prefix + "icd").modal('hide');
             }
 
-            _checkStatus (status){
-                if (UtilsNew.isNotUndefinedOrNull(status)) {
-                    if (status === "Control" || status === "Unaffected") {
-                        //@TODO Message
-                   /*     this.settingsMessageModal = {
-                            messageHeader: "Attention",
-                            messageBody: ["For " + statusValue + " patient a diagnostic cannot be chosen"],
-                            type: "info",
-                            height: "100px",
-                            width: "500px"
-                        };
-                        this.set('settingsMessageModal', this.settingsMessageModal);
-                        this.showMessageModal = true;*/
-                        alert("Error");
-                    }
-                }
-            }
-
             _calculateYears() {
                 let fullDate = new Date();
                 let limitYear = fullDate.getFullYear();
@@ -589,7 +562,6 @@
             }
 
             calculateYearOfTest(e, testYear) {
-
                 let yearOfTest = 0;
                 let ageOfTestObject = this.variables.find((elem) => {
                     return "testAge" === elem.name;
@@ -651,7 +623,6 @@
 //                    this.notifyPath('dataConditionalsForm.otherCountry');
                     this.dataConditionalsForm = Object.assign({}, this.dataConditionalsForm);
                 }
-
             }
 
             _updateStatus (e){
@@ -667,7 +638,6 @@
                         this.dataConditionalsForm.hpo = true
                         this.dataConditionalsForm.diagnosis = true
                     }
-
 //                    this is like do notifyPath to notify polymer subproperty change
 //                    this.notifyPath('dataConditionalsForm.hpo');
 //                    this.notifyPath('dataConditionalsForm.diagnosis');
@@ -682,7 +652,6 @@
                     this.fileNameVCF= valueName.replace('C:\\fakepath\\','');
                 }
             }
-
 
             submitForm(e, _this) {
                 if (e.isDefaultPrevented()) {
@@ -725,16 +694,11 @@
                                 if (content[i].startsWith('#CHROM')) {
                                     let headerColumns = content[i].split('\t');
                                     if (headerColumns.length != 10) {
-    //                                            this.settingsMessageModal = {
-    //                                                messageHeader: "Error",
-    //                                                messageBody: ["VCF file does not have proper number of data columns which are CHROM POS ID REF ALT QUAL FILTER INFO FORMAT <sample>. Besides, notice that for this version VCF multisample is not allowed"],
-    //                                                type: "danger",
-    //                                                height: "100px",
-    //                                                width: "500px"
-    //                                            };
-    //                                            this.set('settingsMessageModal', this.settingsMessageModal);
-    //                                            this.showMessageModal = true;
-                                        // @TODO Set error with notify bootstrap
+                                        let options = {
+                                            message: "VCF file does not have proper number of data columns which are CHROM POS ID REF ALT QUAL FILTER INFO FORMAT <sample>. Besides, notice that for this version VCF multisample is not allowed"
+                                        };
+                                        UtilsNew.showNotify(options, settings);
+
                                     } else {
                                         sampleName = headerColumns[headerColumns.length - 1];
                                         break;
@@ -746,47 +710,28 @@
                             _this.openCGAsteps(formFields, sampleName, vcfFile);
                         });
                         reader.onerror = (function () {
-    //                                _this.settingsMessageModal = {
-    //                                    messageHeader: "Error",
-    //                                    messageBody: ["The VCF file couldn't be read"],
-    //                                    type: "danger",
-    //                                    height: "100px",
-    //                                    width: "500px"
-    //                                };
-    //                                _this.set('settingsMessageModal', _this.settingsMessageModal);
-    //                                _this.showMessageModal = true;
-                            // @TODO Set error with notify bootstrap
-
+                            let options = {
+                                message: "The VCF file couldn't be read"
+                            };
+                            UtilsNew.showNotify(options);
                         });
 
                         reader.readAsText(vcfFile);
-                    } else { // Type of file: VCF or not
-    //                            this.settingsMessageModal = {
-    //                                messageHeader: "Error",
-    //                                messageBody: ["The file selected is not a VCF file"],
-    //                                type: "danger",
-    //                                height: "100px",
-    //                                width: "500px"
-    //                            };
-    //                            this.set('settingsMessageModal', this.settingsMessageModal);
-    //                            this.showMessageModal = true;
-                        // @TODO Set error with notify bootstrap
+                    } else {
+                        // Type of file: VCF or not
+                        let options = {
+                            message: "The file selected is not a VCF file"
+                        };
+                        UtilsNew.showNotify(options);
                     }
-                } else {// Whether browser supports FILE API
-    //                        this.settingsMessageModal = {
-    //                            messageHeader: "Error",
-    //                            messageBody: ["Your browser is not supported. The latest version of Google Chrome is recommended (https://www.google.es/chrome/browser/desktop/index.html)"],
-    //                            type: "danger",
-    //                            height: "100px",
-    //                            width: "500px"
-    //                        };
-    //                        this.set('settingsMessageModal', this.settingsMessageModal);
-    //                        this.showMessageModal = true;
-                    // @TODO Set error with notify bootstrap
-
+                } else {
+                    // Whether browser supports FILE API
+                    let options = {
+                        message: "Your browser is not supported. The latest version of Google Chrome is recommended (https://www.google.es/chrome/browser/desktop/index.html)"
+                    };
+                    UtilsNew.showNotify(options);
                 }
             }
-
 
             openCGAsteps(formFields, sampleName, vcfFile) {
                 // The following steps are run to register the form in openCGA:
@@ -860,17 +805,11 @@
                             // 2. Upload VCF
                             _this.uploadVCF(formFields, vcfFile);
                         })
-                        .catch(function (response) {
-//                            _this.settingsMessageModal = {
-//                                messageHeader: "Error",
-//                                messageBody: [response.error],
-//                                type: "danger",
-//                                height: "100px",
-//                                width: "500px"
-//                            };
-//
-//                            _this.showMessageModal = true;
-                            // @TODO Set message error with bootstrap notify
+                        .catch(function (responseError) {
+                            let options = {
+                                message: responseError.error
+                            };
+                            UtilsNew.showNotify(options);
                         });
                 }
             }
@@ -894,20 +833,13 @@
                             _this.indexVCF(_fileId);
                         })
                         .catch(function (responseError) {
-//                            _this.settingsMessageModal = {
-//                                messageHeader: "Error",
-//                                messageBody: [responseError.error],
-//                                type: "danger",
-//                                height: "100px",
-//                                width: "500px"
-//                            };
-//
-//                            _this.showMessageModal = true;
-//                            // @TODO Set message error with bootstrap notify
+                            let options = {
+                                message: response.error
+                            };
+                            UtilsNew.showNotify(options);
                         });
                 }
             }
-
 
             indexVCF(fileId) {
                 // Index and annotate a VCF file in openCGA
@@ -927,22 +859,75 @@
                         console.log(response);
                     })
                     .catch(function () {
-                        console.log("Could not index file " + _this.fileId);
+                        let options = {
+                            message: "Could not index file " + _this.fileId
+                        };
+                        UtilsNew.showNotify(options);
                     });
 
                 this._clearHtmlDom(true);
-                this.settingsMessageModal = {
-                    messageHeader: "",
-                    messageBody: ["The VCF file has successfully uploaded and annotated. You can now proceed to Analysis tab or upload another VCF file"],
-                    type: "success",
-                    height: "100px",
-                    width: "500px"
+
+                let options = {
+                    icon: "glyphicon glyphicon-user",
+                    message: "The VCF file has successfully uploaded and annotated. You can now proceed to Analysis tab or upload another VCF file"
                 };
-                this.set('settingsMessageModal', this.settingsMessageModal);
-                this.showMessageModal = true;
-//                this._clearHtmlDom();
+                let settings = {
+                    type: 'success'
+                };
+                UtilsNew.showNotify(options, settings);
             }
 
+//            searchIndividual() {
+//                if (this.opencgaClient instanceof OpenCGAClient) {
+//                    // 1. Create individual
+//                    let params = {
+//                        study: this.study.alias
+//                    };
+//
+//                    let _this = this;
+//                    let _individualId = PolymerUtils.getElementById(this.prefix + "patientID").value;
+//                    this.opencgaClient.individuals().info(_individualId, params, {"method": "GET"})
+//                        .then(function (response) {
+//                            if (response.response[0].numResults >= 1) {
+//                                let formFields = response.response[0].result[0];
+//
+//                                PolymerUtils.setAttribute(_this.prefix + 'patientID', 'disabled', true);
+//                                PolymerUtils.setPropertyById(_this.prefix + 'chromosomalGender', 'value', formFields.karyotypicSex);
+//                                PolymerUtils.setAttribute(_this.prefix + 'chromosomalGender', 'disabled', true);
+//                                PolymerUtils.setPropertyById(_this.prefix + 'status', 'value', formFields.affectationStatus);
+//                                PolymerUtils.setAttribute(_this.prefix + 'status', 'disabled', true);
+//                                PolymerUtils.setPropertyById(_this.prefix + 'lifeStatus', 'value', formFields.lifeStatus);
+//                                PolymerUtils.setAttribute(_this.prefix + 'lifeStatus', 'disabled', true);
+//                                PolymerUtils.setPropertyById(_this.prefix + 'birthYear', 'value', formFields.dateOfBirth);
+//                                PolymerUtils.setAttribute(_this.prefix + 'birthYear', 'disabled', true);
+//                                PolymerUtils.setPropertyById(_this.prefix + 'birthPlace', 'value', formFields.population.name);
+//                                PolymerUtils.setAttribute(_this.prefix + 'birthPlace', 'disabled', true);
+//                                PolymerUtils.setPropertyById(_this.prefix + 'birthPlaceRegion', 'value', formFields.population.subpopulation);
+//                                PolymerUtils.setAttribute(_this.prefix + 'birthPlaceRegion', 'disabled', true);
+//                                PolymerUtils.setPropertyById(_this.prefix + 'ethnicity', 'value', formFields.ethnicity);
+//                                PolymerUtils.setAttribute(_this.prefix + 'ethnicity', 'disabled', true);
+//                                PolymerUtils.setPropertyById(_this.prefix + 'HPO', 'value', formFields.ontologyTerms[0].name);
+//                                PolymerUtils.setAttribute(_this.prefix + 'HPO', 'disabled', true);
+//                                PolymerUtils.setPropertyById(_this.prefix + 'diagnosis', 'value', formFields.ontologyTerms[1].name);
+//                                if (formFields.parentalConsanguinity === true) {
+//                                    PolymerUtils.setPropertyById(_this.prefix + 'parentalConsanguinityyes', 'checked', true);
+//                                }
+//                                else {
+//                                    PolymerUtils.setPropertyById(_this.prefix + 'parentalConsanguinityno', 'checked', true);
+//                                }
+//                                //TODO Refactor
+//                                $(PolymerUtils.getElementById(_this.prefix + "uploadForm")).validator('update');
+//                                $(PolymerUtils.getElementById(_this.prefix + "uploadForm")).validator('validate');
+//                            }
+//                        })
+//                        .catch(function (response) {
+//                            let options = {
+//                                message: "The user " + _individualId + " does not exist"
+//                            };
+//                            UtilsNew.showNotify(options);
+//                        });
+//                }
+//            }
 
             // VARIABLE SETS
             _updateVariableSets() {
@@ -965,21 +950,14 @@
                             _this.variableSets = [{name: "none"}];
                         }
                     })
-                    .catch(function (response) {
+                    .catch(function (responseError) {
                         console.log("Could not obtain the variable sets of the study " + _this.study);
                         //@TODO message error
-//                        _this.settingsMessageModal = {
-//                            messageHeader: "Error",
-//                            messageBody: [response.error],
-//                            type: "danger",
-//                            height: "100px",
-//                            width: "500px"
-//                        };
-//                        _this.set('settingsMessageModal', _this.settingsMessageModal);
-//                        _this.showMessageModal = true;
-
+                        let options = {
+                            message: responseError.error
+                        };
+                        UtilsNew.showNotify(options);
                     });
-//                this._loadICDEditor();
             }
 
             checkVarType(myVar, type) {
@@ -1000,7 +978,6 @@
                     let value = e.target.value;
                     this[eventToExec](e, value);
                 }
-
             }
         }
         customElements.define(VariantClinicalUploadNew.is, VariantClinicalUploadNew);
