@@ -360,7 +360,8 @@
                         type: Object
                     },
                     study: {
-                        type: Object
+                        type: Object,
+                        observer: "getRecentAnalysis"
                     },
                     title: {
                         type: String,
@@ -468,8 +469,7 @@
                 this.changeToolById(id);
             }
 
-            changeToolById(id){
-
+            changeToolById(id) {
                 if (id === this.prefix + "SamplesButton") {
                     this.set("activesTab.analysisTab", true);
                 }
@@ -487,7 +487,7 @@
                 if (id === this.prefix + "ReportButton") {
                     this.set("activesTab.reportTab", true);
                     this.activeReport = false;
-                    this.getRecentAnalysis();
+                    this.getRecentInterpretations();
                 }
             }
 
@@ -520,10 +520,17 @@
                     limit: 5
                 };
                 let _this = this;
+                this.clinicalAnalysisId = null;
+                this.clinicalAnalysis = null;
+                this.recentInterpretations = [];
+                this.interpretationId = null;
+                this.checkExistsRecentInterpretations = false;
+                this.checkExistsRecentAnalysis = false;
                 this.opencgaClient.clinical().search(params, {})
                     .then(function(response) {
                             if (response.response[0].numResults >= 1) {
                                 _this.recentAnalysis = response.response[0].result;
+                                _this.clinicalAnalysisId = response.response[0].result[0].id;
                                 _this.checkExistsRecentAnalysis = !UtilsNew.isEmptyArray(_this.recentAnalysis);
                             }
                         });
@@ -541,7 +548,7 @@
             }
 
             getRecentInterpretations() {
-                if(UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
+                if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
                     this.recentInterpretations = this.clinicalAnalysis.interpretations;
                     this.interpretationId = null;
                     this.checkExistsRecentInterpretations = !UtilsNew.isEmptyArray(this.recentInterpretations);
@@ -555,18 +562,17 @@
             }
 
             isCheckedDefaultAnalysis(currentIndex, clinicalAnalysisId) {
-                if (UtilsNew.isUndefinedOrNull(this.clinicalAnalysisId) && currentIndex === 0) {
+                if (currentIndex === 0) {
                     this.clinicalAnalysisId = clinicalAnalysisId;
                     return true;
                 } else if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysisId) && this.clinicalAnalysisId === clinicalAnalysisId) {
                     return true;
                 }
-
                 return false
             }
 
             isCheckedDefaultInterpretation(currentIndex, interpretationId) {
-                if (UtilsNew.isUndefinedOrNull(this.interpretationId) && currentIndex === 0) {
+                if (currentIndex === 0) {
                     this.interpretationId = interpretationId;
                     return true;
                 } else if (UtilsNew.isNotUndefinedOrNull(this.interpretationId) && this.interpretationId === interpretationId) {
