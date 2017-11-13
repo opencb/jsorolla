@@ -14,7 +14,7 @@
   ~ limitations under the License.
   -->
 
-<link rel="import" href="variant-clinical-upload.html">
+<link rel="import" href="variant-clinical-upload-new.html">
 <link rel="import" href="variant-clinical-samples.html">
 <link rel="import" href="../variant/variant-prioritization.html">
 <link rel="import" href="variant-clinical-report.html">
@@ -152,9 +152,9 @@
             <div class="col-md-12">
                 <template is="dom-if" if="{{activesTab.uploadTab}}">
                     <div class$="analysis-content" id="{{prefix}}UploadButtonDiv">
-                        <variant-clinical-upload opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}"
-                                                 ebi-config="{{ebiConfig}}" project="{{project}}" >
-                        </variant-clinical-upload>
+                        <variant-clinical-upload-new opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}"
+                                                 ebi-config="{{ebiConfig}}" project="{{project}}" icd10="{{icd10}}">
+                        </variant-clinical-upload-new>
                     </div>
                 </template>
 
@@ -359,11 +359,12 @@
                         type: Object
                     },
                     study: {
-                        type: Object
+                        type: Object,
+                        observer: "getRecentAnalysis"
                     },
                     title: {
                         type: String,
-                        value: ""
+                        value: "Clinical Analysis"
                     },
                     samples: {
                         type: Array,
@@ -417,6 +418,9 @@
                     checkPermissions: {
                         type: Boolean,
                         computed: '_checkPermissions(project)'
+                    },
+                    icd10: {
+                        type: Array
                     }
                 }
             }
@@ -464,8 +468,7 @@
                 this.changeToolById(id);
             }
 
-            changeToolById(id){
-
+            changeToolById(id) {
                 if (id === this.prefix + "SamplesButton") {
                     this.set("activesTab.analysisTab", true);
                 }
@@ -483,7 +486,7 @@
                 if (id === this.prefix + "ReportButton") {
                     this.set("activesTab.reportTab", true);
                     this.activeReport = false;
-                    this.getRecentAnalysis();
+                    this.getRecentInterpretations();
                 }
             }
 
@@ -516,10 +519,17 @@
                     limit: 5
                 };
                 let _this = this;
+                this.clinicalAnalysisId = null;
+                this.clinicalAnalysis = null;
+                this.recentInterpretations = [];
+                this.interpretationId = null;
+                this.checkExistsRecentInterpretations = false;
+                this.checkExistsRecentAnalysis = false;
                 this.opencgaClient.clinical().search(params, {})
                     .then(function(response) {
                             if (response.response[0].numResults >= 1) {
                                 _this.recentAnalysis = response.response[0].result;
+                                _this.clinicalAnalysisId = response.response[0].result[0].id;
                                 _this.checkExistsRecentAnalysis = !UtilsNew.isEmptyArray(_this.recentAnalysis);
                             }
                         });
@@ -537,7 +547,7 @@
             }
 
             getRecentInterpretations() {
-                if(UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
+                if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
                     this.recentInterpretations = this.clinicalAnalysis.interpretations;
                     this.interpretationId = null;
                     this.checkExistsRecentInterpretations = !UtilsNew.isEmptyArray(this.recentInterpretations);
@@ -551,18 +561,17 @@
             }
 
             isCheckedDefaultAnalysis(currentIndex, clinicalAnalysisId) {
-                if (UtilsNew.isUndefinedOrNull(this.clinicalAnalysisId) && currentIndex === 0) {
+                if (currentIndex === 0) {
                     this.clinicalAnalysisId = clinicalAnalysisId;
                     return true;
                 } else if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysisId) && this.clinicalAnalysisId === clinicalAnalysisId) {
                     return true;
                 }
-
                 return false
             }
 
             isCheckedDefaultInterpretation(currentIndex, interpretationId) {
-                if (UtilsNew.isUndefinedOrNull(this.interpretationId) && currentIndex === 0) {
+                if (currentIndex === 0) {
                     this.interpretationId = interpretationId;
                     return true;
                 } else if (UtilsNew.isNotUndefinedOrNull(this.interpretationId) && this.interpretationId === interpretationId) {
