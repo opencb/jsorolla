@@ -65,15 +65,21 @@ class UtilsNew {
         return Object.keys(project).length === 0;
     }
 
-    static showNotify(options, settings) {
+    static showNotify(options = {}, settings = {}) {
+        let optionsDefault = {
+            icon: 'glyphicon glyphicon-warning-sign',
+        };
+
         let settingsDefault = {
             placement: {
                 from: "top",
                 align: "center"
-            }
+            },
+            type: 'danger'
         };
 
-        settings = Object.assign({},settingsDefault, settings);
+        settings = Object.assign({}, settingsDefault, settings);
+        options = Object.assign({}, optionsDefault, options);
         $.notify(options, settings);
     }
 
