@@ -130,13 +130,9 @@
                     })
                     .catch(function(response) {
                         let options = {
-                            icon: 'glyphicon glyphicon-warning-sign',
                             message: this.errorMessage = response.error
                         };
-                        let settings = {
-                            type: 'danger'
-                        };
-                        UtilsNew.showNotify(options, settings)
+                        UtilsNew.showNotify(options)
                     }.bind(this));
             }
 
