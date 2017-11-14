@@ -101,7 +101,8 @@
                 $("#formLogin").validator('update');
             }
 
-            login() {
+            login(e) {
+                e.preventDefault();
                 let user = this.$.opencgaUser.value;
                 let pass = this.$.opencgaPassword.value;
 
@@ -119,20 +120,17 @@
                             composed: true
                         }));
 
+                        let message = user + ' has logged in.'
+
                         let options = {
                             icon: 'glyphicon glyphicon-user',
-                            message: user + ' has logged in.'
                         };
-                        let settings = {
-                            type: 'success'
-                        };
-                        UtilsNew.showNotify(options, settings)
+
+                        UtilsNew.showNotifySuccess(message, options)
                     })
                     .catch(function(response) {
-                        let options = {
-                            message: this.errorMessage = response.error
-                        };
-                        UtilsNew.showNotify(options)
+                        let message = this.errorMessage = response.error
+                        UtilsNew.showNotifyError(message)
                     }.bind(this));
             }
 
