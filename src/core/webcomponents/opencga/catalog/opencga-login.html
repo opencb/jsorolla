@@ -101,7 +101,8 @@
                 $("#formLogin").validator('update');
             }
 
-            login() {
+            login(e) {
+                e.preventDefault();
                 let user = this.$.opencgaUser.value;
                 let pass = this.$.opencgaPassword.value;
 
