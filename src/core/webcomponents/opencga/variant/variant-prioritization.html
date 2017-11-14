@@ -69,7 +69,7 @@
 
                 <div id="{{prefix}}MainWindow" class="col-md-10">
 
-                    <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" filters="{{config.filters}}" on-filterchange="onFilterChange" on-clear="onClear"
+                    <opencga-active-filters opencga-client="{{opencgaClient}}" query="[[query]]" filters="{{config.filters}}" on-filterchange="onFilterChange" on-clear="onClear"
                                             filter-bioformat="VARIANT" default-study="{{study.alias}}" alias="{{activeFilterAlias}}" refresh="{{search}}">
                     </opencga-active-filters>
 
