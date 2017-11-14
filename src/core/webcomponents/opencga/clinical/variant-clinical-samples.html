@@ -777,9 +777,12 @@
             }
             subjectFormatter(analysisID, samples, selected) {
                 let res = "NOT AFFECTED";
-
-                let members = samples.map((sample) => {
-                    return sample.attributes.individual;
+                let members = [];
+                samples.forEach((sample) => {
+                    if (UtilsNew.isNotUndefinedOrNull(sample.attributes) && UtilsNew.isNotUndefinedOrNull(sample.attributes.individual)
+                        && UtilsNew.isNotUndefinedOrNull(sample.attributes.individual.id) && UtilsNew.isNotUndefinedOrNull(sample.attributes.individual.id > 0)) {
+                        members.push(sample.attributes.individual);
+                    }
                 });
 
                 if (UtilsNew.isNotEmptyArray(members)) {
@@ -860,21 +863,42 @@
             }
 
             analysisError(analysisType, introducedLength, properLength, samples) {
-                if ((analysisType === 'Trio' || analysisType === 'Duo' || analysisType === 'Single' || analysisType === 'Auto comparative') && introducedLength != properLength) {
-                    PolymerUtils.innerHTML(this.prefix + "warningMsgDiv", "Incorrect number of samples selected (" + introducedLength.toString() + ") for " + analysisType + " analysis (" + properLength.toString() + ")");
-                    $(PolymerUtils.getElementById(this.prefix + "warningModal")).modal('show');
-                    return false;
-                } else if ((analysisType === 'Family' || analysisType === 'Multisample') && introducedLength < properLength) {
-                    PolymerUtils.innerHTML(this.prefix + "warningMsgDiv", "Incorrect number of samples selected (" + introducedLength.toString() + ") for " + analysisType + " analysis (at least " + properLength.toString() + ")");
-                    $(PolymerUtils.getElementById(this.prefix + "warningModal")).modal('show');
-                    return false;
-                } else if(analysisType === "Single" && UtilsNew.isNotUndefinedOrNull(samples[0]) && UtilsNew.isEmptyArray(samples[0].phenotypes)) {
-                    PolymerUtils.innerHTML(this.prefix + "warningMsgDiv", "Incorrect single analysis without diseases");
-                    $(PolymerUtils.getElementById(this.prefix + "warningModal")).modal('show');
-                    return false;
+                let _existsAllIndividual= this._checkExistIndividualsInSamples(samples);
+                if (_existsAllIndividual) {
+                    if ((analysisType === 'Trio' || analysisType === 'Duo' || analysisType === 'Single' || analysisType === 'Auto comparative') && introducedLength != properLength) {
+                        UtilsNew.showNotifyError("Incorrect number of samples selected (" + introducedLength.toString() + ") for " + analysisType + " analysis (" + properLength.toString() + ")");
+                        //                    PolymerUtils.innerHTML(this.prefix + "warningMsgDiv", "Incorrect number of samples selected (" + introducedLength.toString() + ") for " + analysisType + " analysis (" + properLength.toString() + ")");
+                        //                    $(PolymerUtils.getElementById(this.prefix + "warningModal")).modal('show');
+                        return false;
+                    } else if ((analysisType === 'Family' || analysisType === 'Multisample') && introducedLength < properLength) {
+                        UtilsNew.showNotifyError("Incorrect number of samples selected (" + introducedLength.toString() + ") for " + analysisType + " analysis (at least " + properLength.toString() + ")");
+                        //                    PolymerUtils.innerHTML(this.prefix + "warningMsgDiv", "Incorrect number of samples selected (" + introducedLength.toString() + ") for " + analysisType + " analysis (at least " + properLength.toString() + ")");
+                        //                    $(PolymerUtils.getElementById(this.prefix + "warningModal")).modal('show');
+                        return false;
+                    } else if (analysisType === "Single" && UtilsNew.isNotUndefinedOrNull(samples[0]) &&
+                        (UtilsNew.isUndefinedOrNull(samples[0].phenotypes) || UtilsNew.isEmptyArray(samples[0].phenotypes))) {
+                        UtilsNew.showNotifyError("Incorrect single analysis without diseases");
+                        //                    PolymerUtils.innerHTML(this.prefix + "warningMsgDiv", "Incorrect single analysis without diseases");
+                        //                    $(PolymerUtils.getElementById(this.prefix + "warningModal")).modal('show');
+                        return false;
+                    } else {
+                        return true;
+                    }
                 } else {
-                    return true;
+                    UtilsNew.showNotifyError("All samples must have an associated individual.");
                 }
+            }
+
+            _checkExistIndividualsInSamples(samples) {
+                let samplesWithoutIndividuals = [];
+
+                if (UtilsNew.isNotUndefinedOrNull(samples) && UtilsNew.isNotEmptyArray(samples)) {
+                    samplesWithoutIndividuals = samples.filter( (sample) => {
+                        return UtilsNew.isUndefinedOrNull(sample.attributes) || UtilsNew.isUndefinedOrNull(sample.attributes.individual)
+                            || UtilsNew.isUndefinedOrNull(sample.attributes.individual.id) || sample.attributes.id < 0;
+                    });
+                }
+                return UtilsNew.isEmptyArray(samplesWithoutIndividuals);
             }
 
             selectSubject(e){
