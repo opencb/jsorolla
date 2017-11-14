@@ -65,9 +65,15 @@ class UtilsNew {
         return Object.keys(project).length === 0;
     }
 
+
     static showNotify(options = {}, settings = {}) {
+        $.notify(options, settings);
+    }
+    static showNotifyError(message, options = {}, settings = {}) {
         let optionsDefault = {
             icon: 'glyphicon glyphicon-warning-sign',
+            message: message
+
         };
 
         let settingsDefault = {
@@ -80,7 +86,26 @@ class UtilsNew {
 
         settings = Object.assign({}, settingsDefault, settings);
         options = Object.assign({}, optionsDefault, options);
-        $.notify(options, settings);
+        this.showNotify(options,settings);
+    }
+
+    static showNotifySuccess(message, options = {}, settings = {}) {
+        let optionsDefault = {
+            icon: 'glyphicon glyphicon-warning-sign',
+            message: message
+        };
+
+        let settingsDefault = {
+            placement: {
+                from: "top",
+                align: "center"
+            },
+            type: 'success'
+        };
+
+        settings = Object.assign({}, settingsDefault, settings);
+        options = Object.assign({}, optionsDefault, options);
+        this.showNotify(options,settings);
     }
 
 }
