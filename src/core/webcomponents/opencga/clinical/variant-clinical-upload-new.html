@@ -672,6 +672,7 @@
             }
 
             readFile (formFields) {
+
                 // Some checks before submitting VCF to Catalog
                 if (window.File && window.FileReader && window.FileList && window.Blob) {
                     let vcfFile = PolymerUtils.getPropertyById(this.prefix + 'FileToUpload', 'files')[0];
@@ -698,7 +699,6 @@
                                             message: "VCF file does not have proper number of data columns which are CHROM POS ID REF ALT QUAL FILTER INFO FORMAT <sample>. Besides, notice that for this version VCF multisample is not allowed"
                                         };
                                         UtilsNew.showNotify(options, settings);
-
                                     } else {
                                         sampleName = headerColumns[headerColumns.length - 1];
                                         break;
@@ -859,22 +859,13 @@
                         console.log(response);
                     })
                     .catch(function () {
-                        let options = {
-                            message: "Could not index file " + _this.fileId
-                        };
-                        UtilsNew.showNotify(options);
+                        let message = "Could not index file " + _this.fileId;
+                        UtilsNew.showNotifyError(message);
                     });
 
                 this._clearHtmlDom(true);
-
-                let options = {
-                    icon: "glyphicon glyphicon-user",
-                    message: "The VCF file has successfully uploaded and annotated. You can now proceed to Analysis tab or upload another VCF file"
-                };
-                let settings = {
-                    type: 'success'
-                };
-                UtilsNew.showNotify(options, settings);
+                let message = "The VCF file has successfully uploaded and annotated. You can now proceed to Analysis tab or upload another VCF file";
+                UtilsNew.showNotifySuccess(message);
             }
 
 //            searchIndividual() {
@@ -952,11 +943,7 @@
                     })
                     .catch(function (responseError) {
                         console.log("Could not obtain the variable sets of the study " + _this.study);
-                        //@TODO message error
-                        let options = {
-                            message: responseError.error
-                        };
-                        UtilsNew.showNotify(options);
+                        UtilsNew.showNotifyError(responseError.error);
                     });
             }
 
