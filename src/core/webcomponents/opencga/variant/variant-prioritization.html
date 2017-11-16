@@ -591,7 +591,7 @@
                     this.messageSuccessText = "";
                     this.messageError = false;
                     this.messageSuccess = false;
-                    let userID = Cookies.get(this.configOpencga.cookie.prefix + "_userId");
+                    let userID = this.opencgaClient._config.userId;
                     let interpretation = {};
                     interpretation.id = this.clinicalAnalysis.id + "_" + PolymerUtils.getValue(this.prefix + "IDInterpretation");
                     interpretation.name = PolymerUtils.getValue(this.prefix + "NameInterpretation");

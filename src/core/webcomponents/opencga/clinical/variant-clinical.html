@@ -240,7 +240,7 @@
                         <div style="margin: auto">
                             <variant-prioritization mode="prioritization" title="Prioritization"
                                                     project="{{project}}" study="{{study}}" samples="{{samples}}"
-                                                    config="{{config}}" config-opencga="{{configOpencga}}" biotypes="{{biotypes}}"
+                                                    config="{{config}}" biotypes="{{biotypes}}"
                                                     population-frequencies="{{populationFrequencies}}"
                                                     protein-substitution-scores="{{proteinSubstitutionScores}}"
                                                     consequence-types="{{consequenceTypes}}"
@@ -352,9 +352,6 @@
 
             static get properties() {
                 return {
-                    host: {
-                        type: String
-                    },
                     project: {
                         type: Object
                     },
@@ -383,9 +380,6 @@
                         type: Object
                     },
                     config: {
-                        type: Object
-                    },
-                    configOpencga: {
                         type: Object
                     },
                     biotypes:{
