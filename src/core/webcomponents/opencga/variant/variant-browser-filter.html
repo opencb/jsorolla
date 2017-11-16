@@ -1280,7 +1280,7 @@
                         let cell = document.createElement("INPUT");
                         cell.setAttribute("id", this.prefix + "SampleGenotypeCheckbox" + genotype);
                         cell.setAttribute("type", "checkbox");
-                        cell.setAttribute("class", "genotypes " + this.prefix + "FilterCheckBox");
+                        cell.setAttribute("class", this.prefix + "genotypes " + this.prefix + "FilterCheckBox");
                         cell.setAttribute("value", genotype);
                         cell.setAttribute("data-id", sample.name);
                         cell.addEventListener("change", this.updateSampleGenotypeFilter.bind(this));
@@ -1737,8 +1737,7 @@
 //                        .forEach(sample => _genotypes.push(sample + ":" + this.sampleGenotypes[sample].join(",")));
 //                }
 //                _filters.genotype = _genotypes.join(';');
-
-                let selectedGenotypes = $(".genotypes:checkbox:checked");
+                let selectedGenotypes = $("." + this.prefix + "genotypes:checkbox:checked");
                 if (selectedGenotypes.length > 0) {
                     let sampleGenotypesObj = {};
                     for (let i = 0; i < selectedGenotypes.length; i++) {
