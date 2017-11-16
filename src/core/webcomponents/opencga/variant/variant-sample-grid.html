@@ -23,7 +23,7 @@
                 <span style="font-size: 14px">Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> samples</span>
             </div>
 
-            <table id="{{prefix}}SampleSelector" data-show-columns="true" data-show-export="true" data-show-pagination-switch="true"
+            <table id="{{prefix}}SampleSelector" data-test-id="variant-sample-grid-sample-selector" data-show-columns="true" data-show-export="true" data-show-pagination-switch="true"
                    data-pagination="true" data-page-size="5" data-show-refresh="true" data-page-list="[5, 10]" style="cursor: pointer">
                 <thead style="background-color: #eee"></thead>
             </table>
@@ -405,10 +405,30 @@
 
             diagnosisFormatter(value, row) {
                 if (UtilsNew.isNotUndefined(row.attributes.individual) && UtilsNew.isNotEmptyArray(row.attributes.individual.phenotypes)) {
-                    return row.attributes.individual.phenotypes[0].name;
-                } else {
-                    return '-';
+                    let diagnosisPhenotypes = row.attributes.individual.phenotypes.filter((disease) => {
+                        return disease.source === "ICD10";
+                    }).map((icd10disease) => {
+                        return icd10disease.name;
+                    });
+                    if (UtilsNew.isNotEmptyArray(diagnosisPhenotypes)) {
+                        return diagnosisPhenotypes.join(",");
+                    }
                 }
+                return '-';
+            }
+
+            hpoFormatter(value, row) {
+                if (UtilsNew.isNotUndefined(row.attributes.individual) && UtilsNew.isNotEmptyArray(row.attributes.individual.phenotypes)) {
+                    let hpoPhenotypes = row.attributes.individual.phenotypes.filter((disease) => {
+                        return disease.source === "HPO";
+                    }).map((hpoDisease) => {
+                        return hpoDisease.name;
+                    });
+                    if (UtilsNew.isNotEmptyArray(hpoPhenotypes)) {
+                        return hpoPhenotypes.join(",");
+                    }
+                }
+                return '-';
             }
 
             fatherFormatter(value, row) {
@@ -464,6 +484,10 @@
                         {
                             title: 'Diagnosis',
                             formatter: this.diagnosisFormatter
+                        },
+                        {
+                            title: 'HPO',
+                            formatter: this.hpoFormatter
                         },
                         {
                             title: 'Father',
