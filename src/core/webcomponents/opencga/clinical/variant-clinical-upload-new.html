@@ -656,7 +656,6 @@
             submitForm(e, _this) {
                 if (e.isDefaultPrevented()) {
                     // handle the invalid form...
-                    this._clearHtmlDom(true);
                     return;
                 } else {
                     // everything looks good!
@@ -698,7 +697,7 @@
                                         let options = {
                                             message: "VCF file does not have proper number of data columns which are CHROM POS ID REF ALT QUAL FILTER INFO FORMAT <sample>. Besides, notice that for this version VCF multisample is not allowed"
                                         };
-                                        UtilsNew.showNotify(options, settings);
+                                        UtilsApp.showNotifyError(options, settings);
                                     } else {
                                         sampleName = headerColumns[headerColumns.length - 1];
                                         break;
@@ -713,7 +712,7 @@
                             let options = {
                                 message: "The VCF file couldn't be read"
                             };
-                            UtilsNew.showNotify(options);
+                            UtilsApp.showNotifyError(options);
                         });
 
                         reader.readAsText(vcfFile);
@@ -722,14 +721,14 @@
                         let options = {
                             message: "The file selected is not a VCF file"
                         };
-                        UtilsNew.showNotify(options);
+                        UtilsApp.showNotifyError(options);
                     }
                 } else {
                     // Whether browser supports FILE API
                     let options = {
                         message: "Your browser is not supported. The latest version of Google Chrome is recommended (https://www.google.es/chrome/browser/desktop/index.html)"
                     };
-                    UtilsNew.showNotify(options);
+                    UtilsApp.showNotifyError(options);
                 }
             }
 
@@ -809,7 +808,7 @@
                             let options = {
                                 message: responseError.error
                             };
-                            UtilsNew.showNotify(options);
+                            UtilsApp.showNotifyError(options);
                         });
                 }
             }
@@ -836,7 +835,7 @@
                             let options = {
                                 message: response.error
                             };
-                            UtilsNew.showNotify(options);
+                            UtilsApp.showNotifyError(options);
                         });
                 }
             }
@@ -860,12 +859,12 @@
                     })
                     .catch(function () {
                         let message = "Could not index file " + _this.fileId;
-                        UtilsNew.showNotifyError(message);
+                        UtilsApp.showNotifyError(message);
                     });
 
                 this._clearHtmlDom(true);
                 let message = "The VCF file has successfully uploaded and annotated. You can now proceed to Analysis tab or upload another VCF file";
-                UtilsNew.showNotifySuccess(message);
+                UtilsApp.showNotifySuccess(message);
             }
 
 //            searchIndividual() {
@@ -915,7 +914,7 @@
 //                            let options = {
 //                                message: "The user " + _individualId + " does not exist"
 //                            };
-//                            UtilsNew.showNotify(options);
+//                            UtilsApp.showNotifyError(options);
 //                        });
 //                }
 //            }
@@ -943,7 +942,7 @@
                     })
                     .catch(function (responseError) {
                         console.log("Could not obtain the variable sets of the study " + _this.study);
-                        UtilsNew.showNotifyError(responseError.error);
+                        UtilsApp.showNotifyError(responseError.error);
                     });
             }
 
