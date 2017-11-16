@@ -34,21 +34,19 @@
                             <div class="help-block with-errors"></div>
                         </div>
 
-                        <div class="form-group has-feedback">
+                        <div class="form-group">
                             <label for="opencgaPassword" class="control-label label-login">Password</label>
                             <div class="input-group">
                                 <span class="input-group-addon" id="password">
                                     <i class="fa fa-key"></i>
                                 </span>
                                 <input id="opencgaPassword" value="{{password}}" type="password" class="form-control input-login"
-                                       placeholder="Password" aria-describedby="password" on-keyup="checkEnterKey" required data-required-error="This field is required">
+                                       placeholder="Password" aria-describedby="password" on-keyup="checkEnterKey" required>
                             </div>
-                            <div class="help-block with-errors"></div>
-
                         </div>
 
                         <div class="form-group">
-                            <button type="submit" on-click="login" class="btn btn-lg btn-default btn-block buttonL">{{buttonText}}</button>
+                            <button type="submit" class="btn btn-lg btn-default btn-block buttonL">{{buttonText}}</button>
                         </div>
 
                     </form>
@@ -100,39 +98,49 @@
             connectedCallback(){
                 super.connectedCallback();
                 $("#formLogin").validator('update');
+                $("#formLogin").validator().on('submit',(e) => { this.submitLogin(e) });
+
             }
 
-            login(e) {
-                e.preventDefault();
-                let user = this.$.opencgaUser.value;
-                let pass = this.$.opencgaPassword.value;
+            submitLogin(e) {
+                if (e.isDefaultPrevented()) {
+                    // handle the invalid form...
+//                    this._clearHtmlDom(true);
+                    return;
+                } else {
+                    // everything looks good!
+                    e.preventDefault();
+                    let user = this.$.opencgaUser.value;
+                    let pass = this.$.opencgaPassword.value;
 
-                let _this = this;
-                this.opencgaClient.users().login(user, pass)
-                    .then(function(response) {
-                        _this.$.opencgaUser.value = "";
-                        _this.$.opencgaPassword.value = "";
-                        _this.dispatchEvent(new CustomEvent('login', {
-                            detail: {
-                                userId: user,
-                                sessionId: response.response[0].result[0].id
-                            },
-                            bubbles: true,
-                            composed: true
-                        }));
+                    let _this = this;
+                    this.opencgaClient.users().login(user, pass)
+                        .then(function(response) {
+                            _this.$.opencgaUser.value = "";
+                            _this.$.opencgaPassword.value = "";
+                            _this.dispatchEvent(new CustomEvent('login', {
+                                detail: {
+                                    userId: user,
+                                    sessionId: response.response[0].result[0].id
+                                },
+                                bubbles: true,
+                                composed: true
+                            }));
 
-                        let message = user + ' has logged in.'
+                            let message = user + ' has logged in.'
 
-                        let options = {
-                            icon: 'glyphicon glyphicon-user',
-                        };
+                            let options = {
+                                icon: 'glyphicon glyphicon-user',
+                            };
 
-                        UtilsNew.showNotifySuccess(message, options)
-                    })
-                    .catch(function(response) {
-                        let message = this.errorMessage = response.error
-                        UtilsNew.showNotifyError(message)
-                    }.bind(this));
+                            UtilsApp.showNotifySuccess(message, options)
+                        })
+                        .catch(function(response) {
+                            let message = this.errorMessage = response.error
+                            UtilsApp.showNotifyError(message)
+                        }.bind(this));
+                }
+
             }
 
             checkEnterKey(e) {
