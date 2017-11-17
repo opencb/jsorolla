@@ -934,46 +934,46 @@
                 <!--</div>-->
 
                 <!-- Phenotype-Disease filter -->
-                <div class="panel panel-default">
-                    <div class="panel-heading" role="tab" id="{{prefix}}TraitsHeading">
-                        <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                               href="#{{prefix}}Traits" aria-expanded="false" aria-controls="{{prefix}}HumanPhenotypeOntology">
-                                Phenotype-Disease (<span style="color: red">New!</span>)
-                            </a>
-                        </h4>
-                    </div>
-                    <div id="{{prefix}}Traits" class="panel-collapse collapse" role="tabpanel"
-                         aria-labelledby="{{prefix}}TraitsHeading">
-                        <div class="panel-body">
-                            <div class="form-group">
-                                <span class="browser-subsection">HPO Accessions</span>
-                                <textarea id="{{prefix}}HumanPhenotypeOntologyTextarea" readonly class$="form-control clearable {{prefix}}FilterTextInput"
-                                          rows="3" name="hpo" placeholder="HP:0000001, HP:3000079" on-keyup="updateQueryFilters"></textarea>
-                                <span class="input-group-addon btn btn-primary searchingSpan" on-click="openModalHpo">
-                                    <strong style="color: white;" >Add HPO Term</strong>
-                                    <i class="fa fa-search searchingButton" aria-hidden="true"></i>
-                                </span>
-                            </div>
+                <!--<div class="panel panel-default">-->
+                    <!--<div class="panel-heading" role="tab" id="{{prefix}}TraitsHeading">-->
+                        <!--<h4 class="panel-title">-->
+                            <!--<a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"-->
+                               <!--href="#{{prefix}}Traits" aria-expanded="false" aria-controls="{{prefix}}HumanPhenotypeOntology">-->
+                                <!--Phenotype-Disease (<span style="color: red">New!</span>)-->
+                            <!--</a>-->
+                        <!--</h4>-->
+                    <!--</div>-->
+                    <!--<div id="{{prefix}}Traits" class="panel-collapse collapse" role="tabpanel"-->
+                         <!--aria-labelledby="{{prefix}}TraitsHeading">-->
+                        <!--<div class="panel-body">-->
+                            <!--<div class="form-group">-->
+                                <!--<span class="browser-subsection">HPO Accessions</span>-->
+                                <!--<textarea id="{{prefix}}HumanPhenotypeOntologyTextarea" readonly class$="form-control clearable {{prefix}}FilterTextInput"-->
+                                          <!--rows="3" name="hpo" placeholder="HP:0000001, HP:3000079" on-keyup="updateQueryFilters"></textarea>-->
+                                <!--<span class="input-group-addon btn btn-primary searchingSpan" on-click="openModalHpo">-->
+                                    <!--<strong style="color: white;" >Add HPO Term</strong>-->
+                                    <!--<i class="fa fa-search searchingButton" aria-hidden="true"></i>-->
+                                <!--</span>-->
+                            <!--</div>-->
 
-                            <div class="form-group">
-                                <span class="browser-subsection">ClinVar Accessions</span>
-                                <textarea id="{{prefix}}ClinVarTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="3"
-                                          name="clinvar" placeholder="RCV000058226"
-                                          on-keyup="updateQueryFilters"></textarea>
-                            </div>
+                            <!--<div class="form-group">-->
+                                <!--<span class="browser-subsection">ClinVar Accessions</span>-->
+                                <!--<textarea id="{{prefix}}ClinVarTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="3"-->
+                                          <!--name="clinvar" placeholder="RCV000058226"-->
+                                          <!--on-keyup="updateQueryFilters"></textarea>-->
+                            <!--</div>-->
 
-                            <div class="form-group">
-                                <span class="browser-subsection">Full-text search on HPO, ClinVar, protein domains or keywords.
-                                    Some OMIM and Orphanet IDs are also supported (<span style="color: red">New!</span>)
-                                </span>
-                                <textarea id="{{prefix}}TraitsTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="5"
-                                          name="traits" placeholder="Full-text search, e.g. *melanoma*"
-                                          on-keyup="updateQueryFilters"></textarea>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                            <!--<div class="form-group">-->
+                                <!--<span class="browser-subsection">Full-text search on HPO, ClinVar, protein domains or keywords.-->
+                                    <!--Some OMIM and Orphanet IDs are also supported (<span style="color: red">New!</span>)-->
+                                <!--</span>-->
+                                <!--<textarea id="{{prefix}}TraitsTextarea" class$="form-control clearable {{prefix}}FilterTextInput" rows="5"-->
+                                          <!--name="traits" placeholder="Full-text search, e.g. *melanoma*"-->
+                                          <!--on-keyup="updateQueryFilters"></textarea>-->
+                            <!--</div>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                <!--</div>-->
             </div>
         </div>
 
@@ -2206,6 +2206,16 @@
                     case "goAccessions":
                         content = this._getGoAccessions(this.prefix);
                         break;
+                    case "hpoAccessions":
+                        content = this._getHpoAccessions(this.prefix);
+                        break;
+                    case "clinvarAccesions":
+                        content = this._getClinvarAccessions(this.prefix);
+                        break;
+                    case "fullTextSearch":
+                        content = this._getFullTextSearchAccessions(this.prefix);
+                        break;
+
                 }
 
                 // Add subsection footer
@@ -2521,10 +2531,41 @@
                 `;
             }
 
+            _getHpoAccessions(prefix) {
+                return `
+                    <div class="form-group">
+                        <textarea id="${prefix}HumanPhenotypeOntologyTextarea" readonly class="form-control clearable ${prefix}FilterTextInput"
+                              rows="3" name="hpo" placeholder="HP:0000001, HP:3000079"></textarea>
+                        <span class="input-group-addon btn btn-primary searchingSpan" id="${prefix}buttonOpenHpoAccesions">
+                            <strong style="color: white;" >Add HPO Term</strong>
+                            <i class="fa fa-search searchingButton" aria-hidden="true"></i>
+                        </span>
+                    </div>
+                `;
+            }
+
+            _getClinvarAccessions(prefix) {
+                return `
+                     <div class="form-group">
+                         <textarea id="${prefix}ClinVarTextarea" class="form-control clearable ${prefix}FilterTextInput" rows="3"
+                                  name="clinvar" placeholder="RCV000058226"></textarea>
+                    </div>
+                `;
+            }
+
+            _getFullTextSearchAccessions(prefix) {
+                return `
+                    <div class="form-group">
+                        <textarea id="${prefix}TraitsTextarea" class="form-control clearable ${prefix}FilterTextInput" rows="5"
+                              name="traits" placeholder="Full-text search, e.g. *melanoma*"></textarea>
+                    </div>
+                `;
+            }
+
 
             _addEventListeners() {
                 let keyupEvents = ["LocationTextarea", "FeatureTextarea", "PanelAppsTextarea", "FilterTextInput", "CaddScaledInput", "SiftInput",
-                    "PolyphenInput", "PhylopInput", "PhastconsInput", "GerpInput", "GeneOntologyTextarea"];
+                    "PolyphenInput", "PhylopInput", "PhastconsInput", "GerpInput", "GeneOntologyTextarea", "HumanPhenotypeOntologyTextarea", "ClinVarTextarea", "TraitsTextarea"];
                 for (let id of keyupEvents) {
                     let element = PolymerUtils.getElementById(this.prefix + id);
                     if (UtilsNew.isNotUndefinedOrNull(element)) {
@@ -2566,8 +2607,11 @@
                 PolymerUtils.getElementById(this.prefix + "SiftValues").addEventListener('change', this.checkScore.bind(this));
                 PolymerUtils.getElementById(this.prefix + "PolyphenValues").addEventListener('change', this.checkScore.bind(this));
 
-                // Add events gene ontology
+                // Add events gene Accesions
                 PolymerUtils.getElementById(this.prefix + "buttonOpenGoAccesions").addEventListener('click', this.openModalGo.bind(this));
+
+                // Add events hpo Accesions
+                PolymerUtils.getElementById(this.prefix + "buttonOpenHpoAccesions").addEventListener('click', this.openModalHpo.bind(this));
             }
 
             _addAllTooltips() {
