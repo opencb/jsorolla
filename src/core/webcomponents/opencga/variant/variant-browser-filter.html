@@ -567,138 +567,138 @@
                     <div id="{{prefix}}ProteinSubstitutionScore" class="panel-collapse collapse" role="tabpanel"
                          aria-labelledby="{{prefix}}ProteinSubstitutionScoreHeading">
                         <div class="panel-body">
-                            <div class="browser-subsection" id = "proteinSubstitutionScoreId" name="Protein Substitution Score">Protein Substitution Score
-                                <!-- New Tooltip in the sub-section title -->
-                                <div style="float: right" class="tooltip-div">
-                                    <a data-toggle="tooltip"><i class="fa fa-info-circle" aria-hidden="true" id="proteinSubstitutionScoreTooltip"></i></a>
-                                </div>
-                            </div>
-
-                            <div style="padding-top: 10px">
-                                <span style="padding-left: 0px;">SIFT</span>
-
-                                <div class="row">
-                                    <div class="col-md-5" style="padding-right: 5px">
-                                        <select class="options" name="Sift" id="{{prefix}}SiftValues"  on-change="checkScore" class$="{{prefix}}FilterSelect form-control input-sm">
-                                            <option value="score" selected>Score...</option>
-                                            <option value="tolerated">Tolerated</option>
-                                            <option value="deleterious">Deleterious</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-3" style="padding: 0px 5px">
-                                        <select name="siftOperator" id="{{prefix}}SiftOperator" on-change="updateQueryFilters" class$="{{prefix}}FilterSelect form-control input-sm" style="padding: 0px 5px">
-                                            <option value="<"><</option>
-                                            <option value="<="><=</option>
-                                            <option value=">"selected>></option>
-                                            <option value=">=">>=</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4" style="padding-left: 5px">
-                                        <input id="{{prefix}}SiftInput" name="Sift" type="text" value=""
-                                               class$="{{prefix}}FilterTextInput form-control input-sm" on-keyup="updateQueryFilters">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div style="padding-top: 15px">
-                                <span style="padding-top: 10px;padding-left: 0px;">Polyphen</span>
+                            <!--<div class="browser-subsection" id = "proteinSubstitutionScoreId" name="Protein Substitution Score">Protein Substitution Score-->
+                                <!--&lt;!&ndash; New Tooltip in the sub-section title &ndash;&gt;-->
                                 <!--<div style="float: right" class="tooltip-div">-->
-                                <!--<a data-toggle="tooltip"-->
-                                <!--title=" Choose, either a Benign/probably damaging qualitative score or provide below a quantitative impact value. Polyphen scores are considered Benign (<0.15), Possibly damaging (0.15-0.85) or Damaging (>0.85)"><i-->
-                                <!--class="fa fa-info-circle" aria-hidden="true"></i></a>-->
+                                    <!--<a data-toggle="tooltip"><i class="fa fa-info-circle" aria-hidden="true" id="proteinSubstitutionScoreTooltip"></i></a>-->
                                 <!--</div>-->
-                                <!--<br>-->
-                                <div class="row">
-                                    <div class="col-sm-5" style="padding-right: 5px">
-                                        <select class="options" name="Polyphen" id="{{prefix}}PolyphenValues" on-change="checkScore" class$="{{prefix}}FilterSelect form-control input-sm">
-                                            <option value="score" selected>Score...</option>
-                                            <option value="benign">Benign</option>
-                                            <option value="unknown">Unknown</option>
-                                            <option value="possibly damaging">Possibly damaging</option>
-                                            <option value="probably damaging">Probably damaging</option>
-                                            <option value="possibly damaging,probably damaging">Possibly & Probably damaging
-                                            </option>
-                                        </select>
-                                    </div>
-                                    <div class="col-sm-3" style="padding: 0px 5px">
-                                        <select name="polyphenOperator" id="{{prefix}}PolyphenOperator" on-change="updateQueryFilters" class$="{{prefix}}FilterSelect form-control input-sm" style="padding: 0px 5px">
-                                            <option value=">" selected>></option>
-                                            <option value=">=">>=</option>
-                                            <option value="<" ><</option>
-                                            <option value="<="><=</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-sm-4" style="padding-left: 5px">
-                                        <input type="text" value="" class$="{{prefix}}FilterTextInput form-control input-sm"
-                                               id="{{prefix}}PolyphenInput" name="Polyphen" on-keyup="updateQueryFilters">
-                                    </div>
-                                </div>
+                            <!--</div>-->
 
-                                <form style="padding-top: 15px">
-                                    <label style="font-weight: normal;">Logical Operator</label>
-                                    <input type="radio" name="pss" id="pssOrRadio" value="or" class$="{{prefix}}FilterRadio"
-                                           checked disabled on-change="updateQueryFilters" style="margin-left: 10px"> OR<br>
-                                    <input type="radio" name="pss" id="pssAndRadio" value="and"
-                                           class$="{{prefix}}FilterRadio" disabled on-change="updateQueryFilters"
-                                           style="margin-left: 102px"> AND<br>
-                                </form>
-                                <br>
-                            </div>
+                            <!--<div style="padding-top: 10px">-->
+                                <!--<span style="padding-left: 0px;">SIFT</span>-->
 
-
-                            <div class="browser-subsection" id = "CADDId" name="CADD">CADD
-                                <div style="float: right" class="tooltip-div">
-                                <a data-toggle="tooltip">
-                                <!--&lt;!&ndash;title="Raw values have relative meaning, with higher values indicating that a variant is more likely to be simulated (or not observed) and therefore more likely to have deleterious effects. If discovering causal variants within an individual, or small groups, of exomes or genomes te use of the scaled CADD score is recommended.">-->
-                                <i class="fa fa-info-circle" aria-hidden="true" id ="CADDTooltip"></i></a>
-                                </div>
-                            </div>
-                            <div style="padding-top: 10px">
-
-                                <div class="row">
-                                    <div class="col-md-5 form-group" style="padding-right: 5px">
-                                        <span class="control-label">Raw</span>
-                                    </div>
-                                    <div class="col-md-3" style="padding: 0px 5px">
-                                        <select name="caddRawOperator" id="{{prefix}}CaddRawOperator"
-                                                on-change="updateQueryFilters" class$="{{prefix}}FilterSelect form-control input-sm" style="padding: 0px 5px">
-                                            <option value="<"><</option>
-                                            <option value="<="><=</option>
-                                            <option value=">" selected>></option>
-                                            <option value=">=">>=</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4" style="padding-left: 5px">
-                                        <input type="text" value="" class$="{{prefix}}FilterTextInput form-control input-sm"
-                                               id="{{prefix}}CaddRawInput" name="caddRaw" on-keyup="updateQueryFilters">
-                                    </div>
-
-                                </div>
-                            </div>
-
-                            <div style="padding-top: 10px">
-                                <div class="row">
-                                    <span class="col-md-5 control-label" style="padding-right: 5px">Scaled</span>
-                                    <div class="col-md-3" style="padding: 0px 5px">
-                                        <select name="caddRScaledOperator" id="{{prefix}}CaddScaledOperator"
-                                                on-change="updateQueryFilters" class$="{{prefix}}FilterSelect form-control input-sm" style="padding: 0px 5px">
-                                            <option value="<" selected><</option>
-                                            <option value="<="><=</option>
-                                            <option value=">">></option>
-                                            <option value=">=">>=</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4" style="padding-left: 5px">
-                                        <input type="text" value="" class$="{{prefix}}FilterTextInput form-control input-sm"
-                                               id="{{prefix}}CaddScaledInput" name="caddScaled" on-keyup="updateQueryFilters">
-                                    </div>
-                                    <!--<div style="float: right" class="tooltip-div">-->
-                                    <!--<a data-toggle="tooltip"-->
-                                    <!--title="A scaled C-score of greater of equal 10 indicates that the substitution is predicted to be within the 10% most deleterious substitutions that you can do to the human genome, a score of greater or equal 20 indicates the 1% most deleterious and so on. If you would like to apply a cutoff on deleteriousness, it is suggested by the CADD authors to put a cutoff somewhere between 10 and 20. Maybe at 15, as this also happens to be the median value for all possible canonical splice site changes and non-synonymous variants"><i-->
-                                    <!--class="fa fa-info-circle" aria-hidden="true"></i></a>-->
+                                <!--<div class="row">-->
+                                    <!--<div class="col-md-5" style="padding-right: 5px">-->
+                                        <!--<select class="options" name="Sift" id="{{prefix}}SiftValues"  on-change="checkScore" class$="{{prefix}}FilterSelect form-control input-sm">-->
+                                            <!--<option value="score" selected>Score...</option>-->
+                                            <!--<option value="tolerated">Tolerated</option>-->
+                                            <!--<option value="deleterious">Deleterious</option>-->
+                                        <!--</select>-->
                                     <!--</div>-->
-                                </div>
-                            </div>
+                                    <!--<div class="col-md-3" style="padding: 0px 5px">-->
+                                        <!--<select name="siftOperator" id="{{prefix}}SiftOperator" on-change="updateQueryFilters" class$="{{prefix}}FilterSelect form-control input-sm" style="padding: 0px 5px">-->
+                                            <!--<option value="<"><</option>-->
+                                            <!--<option value="<="><=</option>-->
+                                            <!--<option value=">"selected>></option>-->
+                                            <!--<option value=">=">>=</option>-->
+                                        <!--</select>-->
+                                    <!--</div>-->
+                                    <!--<div class="col-md-4" style="padding-left: 5px">-->
+                                        <!--<input id="{{prefix}}SiftInput" name="Sift" type="text" value=""-->
+                                               <!--class$="{{prefix}}FilterTextInput form-control input-sm" on-keyup="updateQueryFilters">-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                            <!--</div>-->
+
+                            <!--<div style="padding-top: 15px">-->
+                                <!--<span style="padding-top: 10px;padding-left: 0px;">Polyphen</span>-->
+                                <!--&lt;!&ndash;<div style="float: right" class="tooltip-div">&ndash;&gt;-->
+                                <!--&lt;!&ndash;<a data-toggle="tooltip"&ndash;&gt;-->
+                                <!--&lt;!&ndash;title=" Choose, either a Benign/probably damaging qualitative score or provide below a quantitative impact value. Polyphen scores are considered Benign (<0.15), Possibly damaging (0.15-0.85) or Damaging (>0.85)"><i&ndash;&gt;-->
+                                <!--&lt;!&ndash;class="fa fa-info-circle" aria-hidden="true"></i></a>&ndash;&gt;-->
+                                <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                                <!--&lt;!&ndash;<br>&ndash;&gt;-->
+                                <!--<div class="row">-->
+                                    <!--<div class="col-sm-5" style="padding-right: 5px">-->
+                                        <!--<select class="options" name="Polyphen" id="{{prefix}}PolyphenValues" on-change="checkScore" class$="{{prefix}}FilterSelect form-control input-sm">-->
+                                            <!--<option value="score" selected>Score...</option>-->
+                                            <!--<option value="benign">Benign</option>-->
+                                            <!--<option value="unknown">Unknown</option>-->
+                                            <!--<option value="possibly damaging">Possibly damaging</option>-->
+                                            <!--<option value="probably damaging">Probably damaging</option>-->
+                                            <!--<option value="possibly damaging,probably damaging">Possibly & Probably damaging-->
+                                            <!--</option>-->
+                                        <!--</select>-->
+                                    <!--</div>-->
+                                    <!--<div class="col-sm-3" style="padding: 0px 5px">-->
+                                        <!--<select name="polyphenOperator" id="{{prefix}}PolyphenOperator" on-change="updateQueryFilters" class$="{{prefix}}FilterSelect form-control input-sm" style="padding: 0px 5px">-->
+                                            <!--<option value=">" selected>></option>-->
+                                            <!--<option value=">=">>=</option>-->
+                                            <!--<option value="<" ><</option>-->
+                                            <!--<option value="<="><=</option>-->
+                                        <!--</select>-->
+                                    <!--</div>-->
+                                    <!--<div class="col-sm-4" style="padding-left: 5px">-->
+                                        <!--<input type="text" value="" class$="{{prefix}}FilterTextInput form-control input-sm"-->
+                                               <!--id="{{prefix}}PolyphenInput" name="Polyphen" on-keyup="updateQueryFilters">-->
+                                    <!--</div>-->
+                                <!--</div>-->
+
+                                <!--<form style="padding-top: 15px">-->
+                                    <!--<label style="font-weight: normal;">Logical Operator</label>-->
+                                    <!--<input type="radio" name="pss" id="pssOrRadio" value="or" class$="{{prefix}}FilterRadio"-->
+                                           <!--checked disabled on-change="updateQueryFilters" style="margin-left: 10px"> OR<br>-->
+                                    <!--<input type="radio" name="pss" id="pssAndRadio" value="and"-->
+                                           <!--class$="{{prefix}}FilterRadio" disabled on-change="updateQueryFilters"-->
+                                           <!--style="margin-left: 102px"> AND<br>-->
+                                <!--</form>-->
+                                <!--<br>-->
+                            <!--</div>-->
+
+
+                            <!--<div class="browser-subsection" id = "CADDId" name="CADD">CADD-->
+                                <!--<div style="float: right" class="tooltip-div">-->
+                                <!--<a data-toggle="tooltip">-->
+                                <!--&lt;!&ndash;&lt;!&ndash;title="Raw values have relative meaning, with higher values indicating that a variant is more likely to be simulated (or not observed) and therefore more likely to have deleterious effects. If discovering causal variants within an individual, or small groups, of exomes or genomes te use of the scaled CADD score is recommended.">&ndash;&gt;-->
+                                <!--<i class="fa fa-info-circle" aria-hidden="true" id ="CADDTooltip"></i></a>-->
+                                <!--</div>-->
+                            <!--</div>-->
+                            <!--<div style="padding-top: 10px">-->
+
+                                <!--<div class="row">-->
+                                    <!--<div class="col-md-5 form-group" style="padding-right: 5px">-->
+                                        <!--<span class="control-label">Raw</span>-->
+                                    <!--</div>-->
+                                    <!--<div class="col-md-3" style="padding: 0px 5px">-->
+                                        <!--<select name="caddRawOperator" id="{{prefix}}CaddRawOperator"-->
+                                                <!--on-change="updateQueryFilters" class$="{{prefix}}FilterSelect form-control input-sm" style="padding: 0px 5px">-->
+                                            <!--<option value="<"><</option>-->
+                                            <!--<option value="<="><=</option>-->
+                                            <!--<option value=">" selected>></option>-->
+                                            <!--<option value=">=">>=</option>-->
+                                        <!--</select>-->
+                                    <!--</div>-->
+                                    <!--<div class="col-md-4" style="padding-left: 5px">-->
+                                        <!--<input type="text" value="" class$="{{prefix}}FilterTextInput form-control input-sm"-->
+                                               <!--id="{{prefix}}CaddRawInput" name="caddRaw" on-keyup="updateQueryFilters">-->
+                                    <!--</div>-->
+
+                                <!--</div>-->
+                            <!--</div>-->
+
+                            <!--<div style="padding-top: 10px">-->
+                                <!--<div class="row">-->
+                                    <!--<span class="col-md-5 control-label" style="padding-right: 5px">Scaled</span>-->
+                                    <!--<div class="col-md-3" style="padding: 0px 5px">-->
+                                        <!--<select name="caddRScaledOperator" id="{{prefix}}CaddScaledOperator"-->
+                                                <!--on-change="updateQueryFilters" class$="{{prefix}}FilterSelect form-control input-sm" style="padding: 0px 5px">-->
+                                            <!--<option value="<" selected><</option>-->
+                                            <!--<option value="<="><=</option>-->
+                                            <!--<option value=">">></option>-->
+                                            <!--<option value=">=">>=</option>-->
+                                        <!--</select>-->
+                                    <!--</div>-->
+                                    <!--<div class="col-md-4" style="padding-left: 5px">-->
+                                        <!--<input type="text" value="" class$="{{prefix}}FilterTextInput form-control input-sm"-->
+                                               <!--id="{{prefix}}CaddScaledInput" name="caddScaled" on-keyup="updateQueryFilters">-->
+                                    <!--</div>-->
+                                    <!--&lt;!&ndash;<div style="float: right" class="tooltip-div">&ndash;&gt;-->
+                                    <!--&lt;!&ndash;<a data-toggle="tooltip"&ndash;&gt;-->
+                                    <!--&lt;!&ndash;title="A scaled C-score of greater of equal 10 indicates that the substitution is predicted to be within the 10% most deleterious substitutions that you can do to the human genome, a score of greater or equal 20 indicates the 1% most deleterious and so on. If you would like to apply a cutoff on deleteriousness, it is suggested by the CADD authors to put a cutoff somewhere between 10 and 20. Maybe at 15, as this also happens to be the median value for all possible canonical splice site changes and non-synonymous variants"><i&ndash;&gt;-->
+                                    <!--&lt;!&ndash;class="fa fa-info-circle" aria-hidden="true"></i></a>&ndash;&gt;-->
+                                    <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                                <!--</div>-->
+                            <!--</div>-->
                         </div>
                     </div>
                 </div>
@@ -2168,7 +2168,7 @@
                     case "feature":
                         content = this._getFeatureHtml(this.prefix);
                         break;
-                    case "genediseasepanels":
+                    case "geneDiseasePanels":
                         content = this._getGeneDiseasePanelsHtml(this.prefix);
                         break;
                     case "biotype":
@@ -2193,6 +2193,12 @@
                             <div class="subsection-content">
                         `;
                         content = this._getPopulationFrequencyHtml(subsection.id, this.prefix);
+                        break;
+                    case "proteinSubstitutionScore":
+                        content = this._getProteinSubstitutionScore(this.prefix);
+                        break;
+                    case "cadd":
+                        content = this._getCadd(this.prefix);
                         break;
                 }
 
@@ -2316,9 +2322,121 @@
                 `;
             }
 
+            _getProteinSubstitutionScore(prefix) {
+                return `
+                       <div style="padding-top: 10px">
+                            <span style="padding-left: 0px;">SIFT</span>
+                            <div class="row">
+                                <div class="col-md-5" style="padding-right: 5px">
+                                    <select  name="Sift" id="${prefix}SiftValues" class="${prefix}FilterSelect form-control input-sm options">
+                                        <option value="score" selected>Score...</option>
+                                        <option value="tolerated">Tolerated</option>
+                                        <option value="deleterious">Deleterious</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3" style="padding: 0px 5px">
+                                    <select name="siftOperator" id="${prefix}SiftOperator" class="${prefix}FilterSelect form-control input-sm" style="padding: 0px 5px">
+                                        <option value="<"><</option>
+                                        <option value="<="><=</option>
+                                        <option value=">"selected>></option>
+                                        <option value=">=">>=</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4" style="padding-left: 5px">
+                                    <input id="${prefix}SiftInput" name="Sift" type="text" value=""
+                                           class="${prefix}FilterTextInput form-control input-sm">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="padding-top: 15px">
+                            <span style="padding-top: 10px;padding-left: 0px;">Polyphen</span>
+                            <div class="row">
+                                <div class="col-sm-5" style="padding-right: 5px">
+                                    <select name="Polyphen" id="${prefix}PolyphenValues" class="${prefix}FilterSelect form-control input-sm options">
+                                        <option value="score" selected>Score...</option>
+                                        <option value="benign">Benign</option>
+                                        <option value="unknown">Unknown</option>
+                                        <option value="possibly damaging">Possibly damaging</option>
+                                        <option value="probably damaging">Probably damaging</option>
+                                        <option value="possibly damaging,probably damaging">Possibly & Probably damaging</option>
+                                    </select>
+                                </div>
+                                <div class="col-sm-3" style="padding: 0px 5px">
+                                    <select name="polyphenOperator" id="${prefix}PolyphenOperator" class="${prefix}FilterSelect form-control input-sm" style="padding: 0px 5px">
+                                        <option value=">" selected>></option>
+                                        <option value=">=">>=</option>
+                                        <option value="<" ><</option>
+                                        <option value="<="><=</option>
+                                    </select>
+                                </div>
+                                <div class="col-sm-4" style="padding-left: 5px">
+                                    <input type="text" value="" class="${prefix}FilterTextInput form-control input-sm"
+                                        id="${prefix}PolyphenInput" name="Polyphen" >
+                                </div>
+                            </div>
+
+                            <form style="padding-top: 15px">
+                                <label style="font-weight: normal;">Logical Operator</label>
+                                <input type="radio" name="pss" id="${prefix}pssOrRadio" value="or" class="${prefix}FilterRadio"
+                                    checked disabled  style="margin-left: 10px"> OR<br>
+                                <input type="radio" name="pss" id="${prefix}pssAndRadio" value="and"
+                                    class="${prefix}FilterRadio" disabled style="margin-left: 102px"> AND  <br>
+                            </form>
+                            <br>
+                        </div>
+                `;
+            }
+
+
+            _getCadd(prefix) {
+                return `
+                    <div style="padding-top: 10px">
+                        <div class="row">
+                            <div class="col-md-5 form-group" style="padding-right: 5px">
+                                <span class="control-label">Raw</span>
+                            </div>
+                            <div class="col-md-3" style="padding: 0px 5px">
+                                <select name="caddRawOperator" id="${prefix}CaddRawOperator"
+                                 class="${prefix}FilterSelect form-control input-sm" style="padding: 0px 5px">
+                                    <option value="<"><</option>
+                                        <option value="<="><=</option>
+                                        <option value=">" selected>></option>
+                                        <option value=">=">>=</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4" style="padding-left: 5px">
+                                <input type="text" value="" class="${prefix}FilterTextInput form-control input-sm"
+                                   id="${prefix}CaddRawInput" name="caddRaw">
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div style="padding-top: 10px">
+                        <div class="row">
+                            <span class="col-md-5 control-label" style="padding-right: 5px">Scaled</span>
+                            <div class="col-md-3" style="padding: 0px 5px">
+                                <select name="caddRScaledOperator" id="${prefix}CaddScaledOperator"
+                                class="${prefix}FilterSelect form-control input-sm" style="padding: 0px 5px">
+                                    <option value="<" selected><</option>
+                                    <option value="<="><=</option>
+                                    <option value=">">></option>
+                                    <option value=">=">>=</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4" style="padding-left: 5px">
+                                <input type="text" value="" class="${prefix}FilterTextInput form-control input-sm"
+                                       id="${prefix}CaddScaledInput" name="caddScaled">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
 
             _addEventListeners() {
-                let keyupEvents = ["LocationTextarea", "FeatureTextarea", "PanelAppsTextarea"];
+                let keyupEvents = ["LocationTextarea", "FeatureTextarea", "PanelAppsTextarea", "FilterTextInput", "CaddScaledInput", "SiftInput", "PolyphenInput"];
                 for (let id of keyupEvents) {
                     let element = PolymerUtils.getElementById(this.prefix + id);
                     if (UtilsNew.isNotUndefinedOrNull(element)) {
@@ -2326,7 +2444,7 @@
                     }
                 }
 
-                let changeEvents = ["GeneBiotypes", "Type"];
+                let changeEvents = ["GeneBiotypes", "Type", "CaddRawOperator", "CaddScaledOperator", "SiftOperator", "PolyphenOperator", "pssOrRadio", "pssAndRadio"];
                 for (let id of changeEvents) {
                     let element = PolymerUtils.getElementById(this.prefix + id);
                     if (UtilsNew.isNotUndefinedOrNull(element)) {
@@ -2340,6 +2458,10 @@
 
                 // Add events for gene disease panels
                 PolymerUtils.getElementById(this.prefix + "PanelApps").addEventListener('change', this.onGeneDiseasePanelChange.bind(this));
+
+                // Add events Protein substitution score
+                PolymerUtils.getElementById(this.prefix + "SiftValues").addEventListener('change', this.checkScore.bind(this));
+                PolymerUtils.getElementById(this.prefix + "PolyphenValues").addEventListener('change', this.checkScore.bind(this));
 
                 // Add events for Population Frequency
                 for (let study of this.populationFrequencies.studies) {
