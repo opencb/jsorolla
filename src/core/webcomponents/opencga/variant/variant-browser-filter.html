@@ -908,30 +908,30 @@
                 </div>
 
                 <!-- Gene Ontology filter-->
-                <div class="panel panel-default">
-                    <div class="panel-heading" role="tab" id="{{prefix}}GeneOntologyHeading">
-                        <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                               href="#{{prefix}}GeneOntology" aria-expanded="false" aria-controls="{{prefix}}GeneOntology">
-                                Gene Ontology
-                            </a>
-                        </h4>
-                    </div>
-                    <div id="{{prefix}}GeneOntology" class="panel-collapse collapse" role="tabpanel"
-                         aria-labelledby="{{prefix}}GeneOntologyHeading">
-                        <div class="panel-body">
-                            <span class="browser-subsection">GO Accessions</span>
-                            <div class="form-group">
-                                <textarea id="{{prefix}}GeneOntologyTextarea" readonly class$="form-control clearable {{prefix}}FilterTextInput"
-                                          rows="3" name="geneOntology" placeholder="GO:0000145" on-keyup="updateQueryFilters"></textarea>
-                                <span class="input-group-addon btn btn-primary searchingSpan" on-click="openModalGo">
-                                    <strong style="color: white;" >Add Go Term</strong>
-                                    <i class="fa fa-search searchingButton" aria-hidden="true"></i>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <!--<div class="panel panel-default">-->
+                    <!--<div class="panel-heading" role="tab" id="{{prefix}}GeneOntologyHeading">-->
+                        <!--<h4 class="panel-title">-->
+                            <!--<a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"-->
+                               <!--href="#{{prefix}}GeneOntology" aria-expanded="false" aria-controls="{{prefix}}GeneOntology">-->
+                                <!--Gene Ontology-->
+                            <!--</a>-->
+                        <!--</h4>-->
+                    <!--</div>-->
+                    <!--<div id="{{prefix}}GeneOntology" class="panel-collapse collapse" role="tabpanel"-->
+                         <!--aria-labelledby="{{prefix}}GeneOntologyHeading">-->
+                        <!--<div class="panel-body">-->
+                            <!--<span class="browser-subsection">GO Accessions</span>-->
+                            <!--<div class="form-group">-->
+                                <!--<textarea id="{{prefix}}GeneOntologyTextarea" readonly class$="form-control clearable {{prefix}}FilterTextInput"-->
+                                          <!--rows="3" name="geneOntology" placeholder="GO:0000145" on-keyup="updateQueryFilters"></textarea>-->
+                                <!--<span class="input-group-addon btn btn-primary searchingSpan" on-click="openModalGo">-->
+                                    <!--<strong style="color: white;" >Add Go Term</strong>-->
+                                    <!--<i class="fa fa-search searchingButton" aria-hidden="true"></i>-->
+                                <!--</span>-->
+                            <!--</div>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                <!--</div>-->
 
                 <!-- Phenotype-Disease filter -->
                 <div class="panel panel-default">
@@ -2203,6 +2203,9 @@
                     case "conservation":
                         content = this._getConservation(this.prefix);
                         break;
+                    case "goAccessions":
+                        content = this._getGoAccessions(this.prefix);
+                        break;
                 }
 
                 // Add subsection footer
@@ -2505,10 +2508,23 @@
                 `;
             }
 
+            _getGoAccessions(prefix) {
+                return `
+                    <div class="form-group">
+                        <textarea id="${prefix}GeneOntologyTextarea" readonly class="form-control clearable ${prefix}FilterTextInput"
+                                  rows="3" name="geneOntology" placeholder="GO:0000145"></textarea>
+                        <span class="input-group-addon btn btn-primary searchingSpan" id="${prefix}buttonOpenGoAccesions">
+                            <strong style="color: white;" >Add Go Term</strong>
+                            <i class="fa fa-search searchingButton" aria-hidden="true"></i>
+                        </span>
+                    </div>
+                `;
+            }
+
 
             _addEventListeners() {
                 let keyupEvents = ["LocationTextarea", "FeatureTextarea", "PanelAppsTextarea", "FilterTextInput", "CaddScaledInput", "SiftInput",
-                    "PolyphenInput", "PhylopInput", "PhastconsInput", "GerpInput"];
+                    "PolyphenInput", "PhylopInput", "PhastconsInput", "GerpInput", "GeneOntologyTextarea"];
                 for (let id of keyupEvents) {
                     let element = PolymerUtils.getElementById(this.prefix + id);
                     if (UtilsNew.isNotUndefinedOrNull(element)) {
@@ -2532,9 +2548,6 @@
                 // Add events for gene disease panels
                 PolymerUtils.getElementById(this.prefix + "PanelApps").addEventListener('change', this.onGeneDiseasePanelChange.bind(this));
 
-                // Add events Protein substitution score
-                PolymerUtils.getElementById(this.prefix + "SiftValues").addEventListener('change', this.checkScore.bind(this));
-                PolymerUtils.getElementById(this.prefix + "PolyphenValues").addEventListener('change', this.checkScore.bind(this));
 
                 // Add events for Population Frequency
                 for (let study of this.populationFrequencies.studies) {
@@ -2548,6 +2561,13 @@
                         PolymerUtils.getElementById(this.prefix + study.id + pop.id + "Operator").addEventListener('change', this.updateQueryFilters.bind(this));
                     }
                 }
+
+                // Add events Protein substitution score
+                PolymerUtils.getElementById(this.prefix + "SiftValues").addEventListener('change', this.checkScore.bind(this));
+                PolymerUtils.getElementById(this.prefix + "PolyphenValues").addEventListener('change', this.checkScore.bind(this));
+
+                // Add events gene ontology
+                PolymerUtils.getElementById(this.prefix + "buttonOpenGoAccesions").addEventListener('click', this.openModalGo.bind(this));
             }
 
             _addAllTooltips() {
