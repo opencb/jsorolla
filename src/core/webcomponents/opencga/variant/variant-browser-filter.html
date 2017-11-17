@@ -349,22 +349,22 @@
 
                 <br>
                 <!-- Genomic filter -->
-                <div class="panel panel-default">
-                    <div class="panel-heading" role="tab" id="{{prefix}}PositionHeading">
-                        <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                               href="#{{prefix}}Position" aria-expanded="true" aria-controls="{{prefix}}Position">
-                                Genomic
-                                <!--<div style="float: right" class="tooltip-div">-->
-                                <!--<a data-toggle="tooltip" title="Set filters related with genomic position, which include genomic intervals, gene and other genomic features, panels, gene biotypes, etc.">-->
-                                <!--<i class="fa fa-info-circle" aria-hidden="true"></i>-->
-                                <!--</a>-->
-                                <!--</div>-->
-                            </a>
-                        </h4>
-                    </div>
-                    <div id="{{prefix}}Position" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}PositionHeading">
-                        <div class="panel-body">
+                <!--<div class="panel panel-default">-->
+                    <!--<div class="panel-heading" role="tab" id="{{prefix}}PositionHeading">-->
+                        <!--<h4 class="panel-title">-->
+                            <!--<a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"-->
+                               <!--href="#{{prefix}}Position" aria-expanded="true" aria-controls="{{prefix}}Position">-->
+                                <!--Genomic-->
+                                <!--&lt;!&ndash;<div style="float: right" class="tooltip-div">&ndash;&gt;-->
+                                <!--&lt;!&ndash;<a data-toggle="tooltip" title="Set filters related with genomic position, which include genomic intervals, gene and other genomic features, panels, gene biotypes, etc.">&ndash;&gt;-->
+                                <!--&lt;!&ndash;<i class="fa fa-info-circle" aria-hidden="true"></i>&ndash;&gt;-->
+                                <!--&lt;!&ndash;</a>&ndash;&gt;-->
+                                <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                            <!--</a>-->
+                        <!--</h4>-->
+                    <!--</div>-->
+                    <!--<div id="{{prefix}}Position" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}PositionHeading">-->
+                        <!--<div class="panel-body">-->
 
                             <!--<div class="form-group">-->
                                 <!--<div class="browser-subsection" id="chromosomalLocationId" name="Chromosomal Location">Chromosomal Location-->
@@ -414,28 +414,28 @@
                                 <!--</div>-->
                             <!--</div>-->
 
-                            <div class="form-group">
-                                <div class="browser-subsection" id="geneDiseasePanelsId" name="Gene Disease Panels">Gene Disease Panels
-                                    <div style="float: right" class="tooltip-div">
-                                        <!--<a data-toggle="tooltip" title="Filter out variants falling outside the genomic intervals (typically genes) defined by the panel(s) chosen">-->
-                                            <a><i class="fa fa-info-circle" aria-hidden="true" id = "geneDiseasePanelsTooltip"></i></a>
-                                        <!--</a>-->
-                                    </div>
-                                </div>
-                                <div class="subsection-content">
-                                    <select class$="form-control {{prefix}}FilterSelect" id="{{prefix}}PanelApps" on-change="onGeneDiseasePanelChange">
-                                        <option value="none">Select a panel...</option>
-                                        <template is="dom-repeat" items="{{panelList}}" sort="sortPanelApp">
-                                            <option value="{{item.name}}">{{item.title}} ({{item.genes.length}})</option>
-                                        </template>
-                                    </select>
-                                    <div style="padding-top: 5px">
-                                        <textarea id="{{prefix}}PanelAppsTextarea" name="panelAppsTextarea"
-                                                  class$="form-control clearable {{prefix}}FilterTextInput"
-                                                  rows="3" placeholder="No panel selected" on-keyup="updateQueryFilters"></textarea>
-                                    </div>
-                                </div>
-                            </div>
+                            <!--<div class="form-group">-->
+                                <!--<div class="browser-subsection" id="geneDiseasePanelsId" name="Gene Disease Panels">Gene Disease Panels-->
+                                    <!--<div style="float: right" class="tooltip-div">-->
+                                        <!--&lt;!&ndash;<a data-toggle="tooltip" title="Filter out variants falling outside the genomic intervals (typically genes) defined by the panel(s) chosen">&ndash;&gt;-->
+                                            <!--<a><i class="fa fa-info-circle" aria-hidden="true" id = "geneDiseasePanelsTooltip"></i></a>-->
+                                        <!--&lt;!&ndash;</a>&ndash;&gt;-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                                <!--<div class="subsection-content">-->
+                                    <!--<select class$="form-control {{prefix}}FilterSelect" id="{{prefix}}PanelApps" on-change="onGeneDiseasePanelChange">-->
+                                        <!--<option value="none">Select a panel...</option>-->
+                                        <!--<template is="dom-repeat" items="{{panelList}}" sort="sortPanelApp">-->
+                                            <!--<option value="{{item.name}}">{{item.title}} ({{item.genes.length}})</option>-->
+                                        <!--</template>-->
+                                    <!--</select>-->
+                                    <!--<div style="padding-top: 5px">-->
+                                        <!--<textarea id="{{prefix}}PanelAppsTextarea" name="panelAppsTextarea"-->
+                                                  <!--class$="form-control clearable {{prefix}}FilterTextInput"-->
+                                                  <!--rows="3" placeholder="No panel selected" on-keyup="updateQueryFilters"></textarea>-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                            <!--</div>-->
 
                             <!--<div class="form-group">-->
                                 <!--<div class="browser-subsection" id="geneBiotypeId" name="Gene Biotype">Gene Biotype-->
@@ -478,9 +478,9 @@
                                     <!--</div>-->
                                 <!--</div>-->
                             <!--</div>-->
-                        </div>
-                    </div>
-                </div>
+                        <!--</div>-->
+                    <!--</div>-->
+                <!--</div>-->
 
                 <!--Population Frequency filter-->
                 <!--<div class="panel panel-default">-->
@@ -2168,6 +2168,9 @@
                     case "feature":
                         content = this._getFeatureHtml(this.prefix);
                         break;
+                    case "genediseasepanels":
+                        content = this._getGeneDiseasePanelsHtml(this.prefix);
+                        break;
                     case "biotype":
                         content = this._getBiotypeHtml(this.prefix);
                         break;
@@ -2229,6 +2232,26 @@
                     </div>
                 `;
             }
+
+            _getGeneDiseasePanelsHtml(prefix) {
+                let options = "";
+                this.panelList.sort(this.sortPanelApp).forEach((item) => {
+                    options += `<option value="${item.name}">${item.title} (${item.genes.length})</option>`;
+                });
+
+                return `
+                    <select class="form-control ${prefix}FilterSelect" id="${prefix}PanelApps">
+                        <option value="none">Select a panel...</option>
+                        ${options}
+                    </select>
+                    <div style="padding-top: 5px">
+                        <textarea id="${prefix}PanelAppsTextarea" name="panelAppsTextarea"
+                                  class="form-control clearable ${prefix}FilterTextInput"
+                                  rows="3" placeholder="No panel selected"></textarea>
+                    </div>
+                `;
+            }
+
 
             _getBiotypeHtml(prefix) {
                 let options = "";
@@ -2295,7 +2318,7 @@
 
 
             _addEventListeners() {
-                let keyupEvents = ["LocationTextarea", "FeatureTextarea"];
+                let keyupEvents = ["LocationTextarea", "FeatureTextarea", "PanelAppsTextarea"];
                 for (let id of keyupEvents) {
                     let element = PolymerUtils.getElementById(this.prefix + id);
                     if (UtilsNew.isNotUndefinedOrNull(element)) {
@@ -2315,6 +2338,8 @@
                 PolymerUtils.getElementById(this.prefix + "FeatureIdText").addEventListener('keyup', this.callAutocomplete.bind(this));
                 PolymerUtils.getElementById(this.prefix + "FeatureAddButton").addEventListener('click', this.addFeatureId.bind(this));
 
+                // Add events for gene disease panels
+                PolymerUtils.getElementById(this.prefix + "PanelApps").addEventListener('change', this.onGeneDiseasePanelChange.bind(this));
 
                 // Add events for Population Frequency
                 for (let study of this.populationFrequencies.studies) {
