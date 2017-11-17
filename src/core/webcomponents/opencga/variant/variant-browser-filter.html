@@ -112,6 +112,17 @@
             </div>
 
             <br>
+
+
+
+            <!--<div id="{{prefix}}FilterMenu">-->
+            <div id="FilterMenu">
+
+            </div>
+
+
+
+
             <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true">
 
                 <!-- STUDY filters -->
@@ -355,53 +366,53 @@
                     <div id="{{prefix}}Position" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}PositionHeading">
                         <div class="panel-body">
 
-                            <div class="form-group">
-                                <div class="browser-subsection" id="chromosomalLocationId" name="Chromosomal Location">Chromosomal Location
-                                    <!--<div id ="ChromosomalLocationqtip"></div>-->
-                                    <div style="float: right" class="tooltip-div">
-                                    <!--<a data-toggle="tooltip" title="Filter out variants falling outside the genomic interval(s) defined">-->
-                                    <a><i class="fa fa-info-circle" aria-hidden="true" id = "chromosomalLocationTooltip"></i></a>
-                                    <!--</a>-->
-                                    </div>
-                                </div>
-                                <div class="subsection-content">
-                                    <textarea id="{{prefix}}LocationTextarea" name="location" class$="form-control clearable {{prefix}}FilterTextInput"
-                                              rows="3" placeholder="3:444-55555,1:1-100000" on-keyup="updateQueryFilters"></textarea>
-                                </div>
-                            </div>
+                            <!--<div class="form-group">-->
+                                <!--<div class="browser-subsection" id="chromosomalLocationId" name="Chromosomal Location">Chromosomal Location-->
+                                    <!--&lt;!&ndash;<div id ="ChromosomalLocationqtip"></div>&ndash;&gt;-->
+                                    <!--<div style="float: right" class="tooltip-div">-->
+                                    <!--&lt;!&ndash;<a data-toggle="tooltip" title="Filter out variants falling outside the genomic interval(s) defined">&ndash;&gt;-->
+                                    <!--<a><i class="fa fa-info-circle" aria-hidden="true" id = "chromosomalLocationTooltip"></i></a>-->
+                                    <!--&lt;!&ndash;</a>&ndash;&gt;-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                                <!--<div class="subsection-content">-->
+                                    <!--<textarea id="{{prefix}}LocationTextarea" name="location" class$="form-control clearable {{prefix}}FilterTextInput"-->
+                                              <!--rows="3" placeholder="3:444-55555,1:1-100000" on-keyup="updateQueryFilters"></textarea>-->
+                                <!--</div>-->
+                            <!--</div>-->
 
-                            <div class="form-group">
-                                <div class="browser-subsection" id="featureIdsId" name="Feature Ids">Feature IDs (gene, SNP, ...)
-                                    <div style="float: right" class="tooltip-div">
-                                        <!--<a data-toggle="tooltip" title="Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined">-->
-                                            <a><i class="fa fa-info-circle" aria-hidden="true" id = "featureIdsTooltip"></i></a>
-                                        <!--</a>-->
-                                    </div>
-                                </div>
-                                <div class="subsection-content">
-                                    <div class="row">
-                                        <div class="col-md-9">
-                                            <input id="{{prefix}}FeatureIdText" type="text" class="form-control" list="datalist"
-                                                   placeholder="Search for Gene Symbols" value="" on-keyup="callAutocomplete">
-                                            <datalist id="datalist">
-                                                <template is="dom-repeat" items="{{autocompleteData}}">
-                                                    <option value="{{item.name}}">
-                                                </template>
-                                            </datalist>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <button type="button" class="btn btn-default btn-sm form-control" on-click="addFeatureId">
-                                                <i class="fa fa-plus"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <textarea id="{{prefix}}FeatureTextarea" name="geneSnp" class$="form-control clearable {{prefix}}FilterTextInput"
-                                                  rows="3" placeholder="BRCA2,ENSG00000139618,ENST00000544455,rs28897700"
-                                                  on-keyup="updateQueryFilters" style="margin-top: 5px"></textarea>
-                                    </div>
-                                </div>
-                            </div>
+                            <!--<div class="form-group">-->
+                                <!--<div class="browser-subsection" id="featureIdsId" name="Feature Ids">Feature IDs (gene, SNP, ...)-->
+                                    <!--<div style="float: right" class="tooltip-div">-->
+                                        <!--&lt;!&ndash;<a data-toggle="tooltip" title="Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined">&ndash;&gt;-->
+                                            <!--<a><i class="fa fa-info-circle" aria-hidden="true" id = "featureIdsTooltip"></i></a>-->
+                                        <!--&lt;!&ndash;</a>&ndash;&gt;-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                                <!--<div class="subsection-content">-->
+                                    <!--<div class="row">-->
+                                        <!--<div class="col-md-9">-->
+                                            <!--<input id="{{prefix}}FeatureIdText" type="text" class="form-control" list="datalist"-->
+                                                   <!--placeholder="Search for Gene Symbols" value="" on-keyup="callAutocomplete">-->
+                                            <!--<datalist id="datalist">-->
+                                                <!--<template is="dom-repeat" items="{{autocompleteData}}">-->
+                                                    <!--<option value="{{item.name}}">-->
+                                                <!--</template>-->
+                                            <!--</datalist>-->
+                                        <!--</div>-->
+                                        <!--<div class="col-md-3">-->
+                                            <!--<button type="button" class="btn btn-default btn-sm form-control" on-click="addFeatureId">-->
+                                                <!--<i class="fa fa-plus"></i>-->
+                                            <!--</button>-->
+                                        <!--</div>-->
+                                    <!--</div>-->
+                                    <!--<div class="form-group">-->
+                                        <!--<textarea id="{{prefix}}FeatureTextarea" name="geneSnp" class$="form-control clearable {{prefix}}FilterTextInput"-->
+                                                  <!--rows="3" placeholder="BRCA2,ENSG00000139618,ENST00000544455,rs28897700"-->
+                                                  <!--on-keyup="updateQueryFilters" style="margin-top: 5px"></textarea>-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                            <!--</div>-->
 
                             <div class="form-group">
                                 <div class="browser-subsection" id="geneDiseasePanelsId" name="Gene Disease Panels">Gene Disease Panels
@@ -426,116 +437,116 @@
                                 </div>
                             </div>
 
-                            <div class="form-group">
-                                <div class="browser-subsection" id="geneBiotypeId" name="Gene Biotype">Gene Biotype
-                                    <div style="float: right" class="tooltip-div">
-                                        <!--<a data-toggle="tooltip" title="Only considers variants falling within the specified gene biotypes">-->
-                                            <a><i class="fa fa-info-circle" aria-hidden="true" id = "geneBiotypeTooltip"></i></a>
-                                        <!--</a>-->
-                                    </div>
-                                </div>
-                                <div class="subsection-content">
-                                    <select class="selectpicker form-control" id="{{prefix}}GeneBiotypes" on-change="updateQueryFilters"
-                                            data-size="10" data-live-search="true" data-selected-text-format="count" multiple>
-                                        <template is="dom-repeat" items="{{biotypes}}">
-                                            <option value="{{item}}">{{item}}</option>
-                                        </template>
-                                    </select>
-                                </div>
-                            </div>
+                            <!--<div class="form-group">-->
+                                <!--<div class="browser-subsection" id="geneBiotypeId" name="Gene Biotype">Gene Biotype-->
+                                    <!--<div style="float: right" class="tooltip-div">-->
+                                        <!--&lt;!&ndash;<a data-toggle="tooltip" title="Only considers variants falling within the specified gene biotypes">&ndash;&gt;-->
+                                            <!--<a><i class="fa fa-info-circle" aria-hidden="true" id = "geneBiotypeTooltip"></i></a>-->
+                                        <!--&lt;!&ndash;</a>&ndash;&gt;-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                                <!--<div class="subsection-content">-->
+                                    <!--<select class="selectpicker form-control" id="{{prefix}}GeneBiotypes" on-change="updateQueryFilters"-->
+                                            <!--data-size="10" data-live-search="true" data-selected-text-format="count" multiple>-->
+                                        <!--<template is="dom-repeat" items="{{biotypes}}">-->
+                                            <!--<option value="{{item}}">{{item}}</option>-->
+                                        <!--</template>-->
+                                    <!--</select>-->
+                                <!--</div>-->
+                            <!--</div>-->
 
-                            <div class="form-group" style="margin-bottom: 5px">
-                                <div class="browser-subsection" id="variantTypeId" name="Variant Type">Variant Type
-                                    <div style="float: right" class="tooltip-div">
-                                        <!--<a data-toggle="tooltip" title="Only considers variants of the selected type">-->
-                                            <a><i class="fa fa-info-circle" aria-hidden="true" id = "variantTypeTooltip"></i></a>
-                                        <!--</a>-->
-                                    </div>
-                                </div>
-                                <div class="subsection-content">
-                                    <div id="{{prefix}}Type">
-                                        <input type="checkbox" value="SNV,SNP" on-change="updateQueryFilters"
-                                               class$="{{prefix}}FilterCheckBox"> SNV<br>
-                                        <input type="checkbox" value="MNV" on-change="updateQueryFilters"
-                                               class$="{{prefix}}FilterCheckBox"> MNV<br>
-                                        <input type="checkbox" value="CNV" on-change="updateQueryFilters"
-                                               class$="{{prefix}}FilterCheckBox"> CNV<br>
-                                        <input type="checkbox" value="SV" on-change="updateQueryFilters"
-                                               class$="{{prefix}}FilterCheckBox"> SV<br>
-                                        <input type="checkbox" value="INDEL" on-change="updateQueryFilters"
-                                               class$="{{prefix}}FilterCheckBox"> INDEL
-                                    </div>
-                                </div>
-                            </div>
+                            <!--<div class="form-group" style="margin-bottom: 5px">-->
+                                <!--<div class="browser-subsection" id="variantTypeId" name="Variant Type">Variant Type-->
+                                    <!--<div style="float: right" class="tooltip-div">-->
+                                        <!--&lt;!&ndash;<a data-toggle="tooltip" title="Only considers variants of the selected type">&ndash;&gt;-->
+                                            <!--<a><i class="fa fa-info-circle" aria-hidden="true" id = "variantTypeTooltip"></i></a>-->
+                                        <!--&lt;!&ndash;</a>&ndash;&gt;-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                                <!--<div class="subsection-content">-->
+                                    <!--<div id="{{prefix}}Type">-->
+                                        <!--<input type="checkbox" value="SNV,SNP" on-change="updateQueryFilters"-->
+                                               <!--class$="{{prefix}}FilterCheckBox"> SNV<br>-->
+                                        <!--<input type="checkbox" value="MNV" on-change="updateQueryFilters"-->
+                                               <!--class$="{{prefix}}FilterCheckBox"> MNV<br>-->
+                                        <!--<input type="checkbox" value="CNV" on-change="updateQueryFilters"-->
+                                               <!--class$="{{prefix}}FilterCheckBox"> CNV<br>-->
+                                        <!--<input type="checkbox" value="SV" on-change="updateQueryFilters"-->
+                                               <!--class$="{{prefix}}FilterCheckBox"> SV<br>-->
+                                        <!--<input type="checkbox" value="INDEL" on-change="updateQueryFilters"-->
+                                               <!--class$="{{prefix}}FilterCheckBox"> INDEL-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                            <!--</div>-->
                         </div>
                     </div>
                 </div>
 
                 <!--Population Frequency filter-->
-                <div class="panel panel-default">
-                    <div class="panel-heading" role="tab" id="{{prefix}}PopulationFrequencyHeading">
-                        <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                               href="#{{prefix}}PopulationFrequency" aria-expanded="false" aria-controls="{{prefix}}PopulationFrequency">
-                                Population Frequency
-                                <!--<div style="float: right" class="tooltip-div">-->
-                                    <!--<a data-toggle="tooltip" title="Set filters related with known allelic frequencies in different populations, taken from different databases.">-->
-                                        <!--<i class="fa fa-info-circle" aria-hidden="true"></i>-->
-                                    <!--</a>-->
+                <!--<div class="panel panel-default">-->
+                    <!--<div class="panel-heading" role="tab" id="{{prefix}}PopulationFrequencyHeading">-->
+                        <!--<h4 class="panel-title">-->
+                            <!--<a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"-->
+                               <!--href="#{{prefix}}PopulationFrequency" aria-expanded="false" aria-controls="{{prefix}}PopulationFrequency">-->
+                                <!--Population Frequency-->
+                                <!--&lt;!&ndash;<div style="float: right" class="tooltip-div">&ndash;&gt;-->
+                                    <!--&lt;!&ndash;<a data-toggle="tooltip" title="Set filters related with known allelic frequencies in different populations, taken from different databases.">&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<i class="fa fa-info-circle" aria-hidden="true"></i>&ndash;&gt;-->
+                                    <!--&lt;!&ndash;</a>&ndash;&gt;-->
+                                <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                            <!--</a>-->
+                        <!--</h4>-->
+                    <!--</div>-->
+                    <!--<div id="{{prefix}}PopulationFrequency" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}PopulationFrequencyHeading">-->
+                        <!--<div class="panel-body">-->
+
+                            <!--&lt;!&ndash; This code create the population frequencies menu filter form populationFrequencies from config.js &ndash;&gt;-->
+                            <!--<template is="dom-repeat" items="{{populationFrequencies.studies}}" as="study">-->
+
+                                <!--<div class="subsection-content">-->
+                                    <!--<div class="form-group">-->
+                                        <!--<div class="browser-subsection">-->
+                                            <!--<i id="{{prefix}}{{study.id}}Icon" data-id="{{prefix}}{{study.id}}"-->
+                                               <!--on-click="handleCollapseAction" class="fa fa-plus" style="cursor: pointer;padding-right: 10px"></i>-->
+                                            <!--{{study.title}}-->
+                                            <!--<div style="float: right" class="tooltip-div">-->
+                                                <!--<a data-toggle="tooltip" title="{{study.tooltip}}">-->
+                                                    <!--<i class="fa fa-info-circle" aria-hidden="true"></i>-->
+                                                <!--</a>-->
+                                            <!--</div>-->
+                                        <!--</div>-->
+                                    <!--</div>-->
+
+                                    <!--&lt;!&ndash; If there is not submenu we just display a button &ndash;&gt;-->
+                                    <!--<template is="dom-if" if="{{study.populations}}">-->
+                                        <!--<div id="{{prefix}}{{study.id}}" class="form-horizontal" hidden>-->
+                                            <!--<template is="dom-repeat" items="{{study.populations}}" as="popFreq">-->
+                                                <!--<div class="row" style="margin: 5px 0px">-->
+                                                    <!--&lt;!&ndash;<label class="browser-popFreqName">{{popFreq.title}}</label>&ndash;&gt;-->
+                                                    <!--<span class="col-md-3 control-label" data-toggle="tooltip" data-placement="top" title$="{{popFreq.title}}">{{popFreq.id}}</span>-->
+                                                    <!--<div class="col-md-4" style="padding: 0px 10px">-->
+                                                        <!--<select id="{{prefix}}{{study.id}}{{popFreq.id}}Operator" name="{{popFreq.id}}Operator"-->
+                                                                <!--on-change="updateQueryFilters" class$="form-control input-sm {{prefix}}FilterSelect" style="padding: 0px 5px">-->
+                                                            <!--<option value="<" selected><</option>-->
+                                                            <!--<option value="<="><=</option>-->
+                                                            <!--<option value=">">></option>-->
+                                                            <!--<option value=">=">>=</option>-->
+                                                        <!--</select>-->
+                                                    <!--</div>-->
+                                                    <!--<div class="col-md-5" style="padding: 0px 10px">-->
+                                                        <!--<input type="text" value="" class$="form-control input-sm {{prefix}}FilterTextInput"-->
+                                                               <!--name="{{study.id}}_{{popFreq.id}}" id="{{prefix}}{{study.id}}{{popFreq.id}}"-->
+                                                               <!--on-keyup="updateQueryFilters">-->
+                                                    <!--</div>-->
+                                                <!--</div>-->
+                                            <!--</template>-->
+                                        <!--</div>-->
+                                    <!--</template>-->
                                 <!--</div>-->
-                            </a>
-                        </h4>
-                    </div>
-                    <div id="{{prefix}}PopulationFrequency" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}PopulationFrequencyHeading">
-                        <div class="panel-body">
-
-                            <!-- This code create the population frequencies menu filter form populationFrequencies from config.js -->
-                            <template is="dom-repeat" items="{{populationFrequencies.studies}}" as="study">
-
-                                <div class="subsection-content">
-                                    <div class="form-group">
-                                        <div class="browser-subsection">
-                                            <i id="{{prefix}}{{study.id}}Icon" data-id="{{prefix}}{{study.id}}"
-                                               on-click="handleCollapseAction" class="fa fa-plus" style="cursor: pointer;padding-right: 10px"></i>
-                                            {{study.title}}
-                                            <div style="float: right" class="tooltip-div">
-                                                <a data-toggle="tooltip" title="{{study.tooltip}}">
-                                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- If there is not submenu we just display a button -->
-                                    <template is="dom-if" if="{{study.populations}}">
-                                        <div id="{{prefix}}{{study.id}}" class="form-horizontal" hidden>
-                                            <template is="dom-repeat" items="{{study.populations}}" as="popFreq">
-                                                <div class="row" style="margin: 5px 0px">
-                                                    <!--<label class="browser-popFreqName">{{popFreq.title}}</label>-->
-                                                    <span class="col-md-3 control-label" data-toggle="tooltip" data-placement="top" title$="{{popFreq.title}}">{{popFreq.id}}</span>
-                                                    <div class="col-md-4" style="padding: 0px 10px">
-                                                        <select id="{{prefix}}{{study.id}}{{popFreq.id}}Operator" name="{{popFreq.id}}Operator"
-                                                                on-change="updateQueryFilters" class$="form-control input-sm {{prefix}}FilterSelect" style="padding: 0px 5px">
-                                                            <option value="<" selected><</option>
-                                                            <option value="<="><=</option>
-                                                            <option value=">">></option>
-                                                            <option value=">=">>=</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="col-md-5" style="padding: 0px 10px">
-                                                        <input type="text" value="" class$="form-control input-sm {{prefix}}FilterTextInput"
-                                                               name="{{study.id}}_{{popFreq.id}}" id="{{prefix}}{{study.id}}{{popFreq.id}}"
-                                                               on-keyup="updateQueryFilters">
-                                                    </div>
-                                                </div>
-                                            </template>
-                                        </div>
-                                    </template>
-                                </div>
-                            </template>
-                        </div>
-                    </div>
-                </div>
+                            <!--</template>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                <!--</div>-->
 
                 <!--Protein Substitution Scores filter-->
                 <div class="panel panel-default">
@@ -1109,6 +1120,9 @@
                 super.connectedCallback();
 
                 this.clinicalAnalysisExistObserver();
+
+
+                this._addEventListeners();
                 this._addAllTooltips();
             }
 
@@ -1123,6 +1137,8 @@
 
                 // We initialise all objects
                 this.init();
+
+                this._renderFilterMenu();
             }
 
             init() {
@@ -1387,7 +1403,7 @@
             }
 
             handleCollapseAction(e) {
-                let id = e.target.dataId;
+                let id = e.target.dataset.id;
                 let elem = $('#' + id)[0];
                 elem.hidden = !elem.hidden;
                 if (elem.hidden) {
@@ -1998,7 +2014,11 @@
                     let _this = this;
                     _this.cellbaseClient.get('feature', 'id', featureId.toUpperCase(), 'starts_with', {}, {})
                         .then(function (response) {
-                            _this.autocompleteData = response.response[0].result;
+                            let options = "";
+                            for (let id of response.response[0].result) {
+                                options += `<option value="${id.name}">`;
+                            }
+                            PolymerUtils.innerHTML(_this.prefix + "FeatureDatalist", options);
                         });
                 }
             }
@@ -2082,20 +2102,248 @@
                 return UtilsNew.isNotEmptyArray(arr);
             }
 
+
+
+
+
+            _renderFilterMenu() {
+                let html = "";
+                for (let section of this.config.filter.sections) {
+                    html += this._createSection(section, this.prefix);
+                }
+                this.$.FilterMenu.innerHTML = html;
+            }
+
+            _createSection(section, prefix) {
+                let id = section.title.replace(" ", "");
+                let collapsed = section.collapsed ? "" : "in";
+
+                let header= `
+                    <div class="panel panel-default">
+                        <div class="panel-heading" role="tab" id="${prefix}${id}Heading">
+                            <h4 class="panel-title">
+                                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${prefix}Accordion"
+                                    href="#${prefix}${id}" aria-expanded="true" aria-controls="${prefix}${id}">
+                                    ${section.title}
+                                </a>
+                            </h4>
+                        </div>
+
+                        <div id="${prefix}${id}" class="panel-collapse collapse ${collapsed}" role="tabpanel" aria-labelledby="${prefix}${id}Heading">
+                            <div class="panel-body">
+                `;
+
+                // We get the HTML content for each subsection
+                let content = "";
+                for (let subsection of section.subsections) {
+                    content += this._createSubSection(subsection);
+                }
+
+                let footer = `
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                return header + content + footer;
+            }
+
+            _createSubSection(subsection) {
+                // Add subsection header
+                let header = `
+                    <div class="form-group">
+                        <div class="browser-subsection" id="${subsection.id}" name="${subsection.title}">${subsection.title}
+                            <div style="float: right" class="tooltip-div">
+                                <a><i class="fa fa-info-circle" aria-hidden="true" id="${subsection.id}Tooltip"></i></a>
+                            </div>
+                        </div>
+                        <div class="subsection-content">
+                `;
+
+                let content = "";
+                switch (subsection.id) {
+                    case "location":
+                        content = this._getLocationHtml(this.prefix);
+                        break;
+                    case "feature":
+                        content = this._getFeatureHtml(this.prefix);
+                        break;
+                    case "biotype":
+                        content = this._getBiotypeHtml(this.prefix);
+                        break;
+                    case "type":
+                        content = this._getVariantTypeHtml(this.prefix);
+                        break;
+                    case "1kG_phase3":
+                    case "EXAC":
+                    case "ESP6500":
+                        header = `
+                            <div class="form-group">
+                                <div class="browser-subsection" id="${subsection.id}" name="${subsection.title}">
+                                    <i id="${this.prefix}${subsection.id}Icon" data-id="${this.prefix}${subsection.id}"
+                                            class="fa fa-plus" style="cursor: pointer;padding-right: 10px"></i>
+                                        ${subsection.title}
+                                    <div style="float: right" class="tooltip-div">
+                                        <a><i class="fa fa-info-circle" aria-hidden="true" id="${subsection.id}Tooltip"></i></a>
+                                    </div>
+                                </div>
+                            <div class="subsection-content">
+                        `;
+                        content = this._getPopulationFrequencyHtml(subsection.id, this.prefix);
+                        break;
+                }
+
+                // Add subsection footer
+                let footer = `
+                        </div>
+                    </div>
+                `;
+
+                return header + content + footer;
+            }
+
+            _getLocationHtml(prefix) {
+                return `
+                    <textarea id="${prefix}LocationTextarea" name="location" class="form-control clearable ${prefix}FilterTextInput"
+                        rows="3" placeholder="3:444-55555,1:1-100000"></textarea>
+                `;
+            }
+
+            _getFeatureHtml(prefix) {
+                return `
+                    <div class="row">
+                        <div class="col-md-9">
+                            <input id="${prefix}FeatureIdText" type="text" class="form-control" list="${prefix}FeatureDatalist"
+                                    placeholder="Search for Gene Symbols" value="">
+                                <datalist id="${prefix}FeatureDatalist"></datalist>
+                        </div>
+                        <div class="col-md-3">
+                            <button id="${prefix}FeatureAddButton" type="button" class="btn btn-default btn-sm form-control">
+                                <i class="fa fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                            <textarea id="${prefix}FeatureTextarea" name="geneSnp" class="form-control clearable ${prefix}FilterTextInput"
+                                rows="3" placeholder="BRCA2,ENSG00000139618,ENST00000544455,rs28897700" style="margin-top: 5px"></textarea>
+                    </div>
+                `;
+            }
+
+            _getBiotypeHtml(prefix) {
+                let options = "";
+                for (let biotype of this.biotypes) {
+                    options += `<option value="${biotype}">${biotype}</option>`;
+                }
+                return `
+                    <select class="selectpicker form-control" id="${prefix}GeneBiotypes" data-size="10" data-live-search="true"
+                            data-selected-text-format="count" multiple>
+                        ${options}
+                    </select>
+                `;
+            }
+
+            _getVariantTypeHtml(prefix) {
+                return `
+                    <div id="${prefix}Type">
+                        <input type="checkbox" value="SNV,SNP" class="${prefix}FilterCheckBox"> SNV<br>
+                        <input type="checkbox" value="MNV" class="${prefix}FilterCheckBox"> MNV<br>
+                        <input type="checkbox" value="CNV" class="${prefix}FilterCheckBox"> CNV<br>
+                        <input type="checkbox" value="SV" class="${prefix}FilterCheckBox"> SV<br>
+                        <input type="checkbox" value="INDEL" class="${prefix}FilterCheckBox"> INDEL
+                    </div>
+                `;
+            }
+
+            _getPopulationFrequencyHtml(studyId, prefix) {
+                let study;
+                for (let st of this.populationFrequencies.studies) {
+                    if (st.id === studyId) {
+                        study = st;
+                        break;
+                    }
+                }
+
+                let content = "";
+                for (let popFreq of study.populations) {
+                    content += `
+                        <div class="row" style="margin: 5px 0px">
+                            <span class="col-md-3 control-label" data-toggle="tooltip" data-placement="top" title="${popFreq.title}">${popFreq.id}</span>
+                            <div class="col-md-4" style="padding: 0px 10px">
+                                <select id="${prefix}${studyId}${popFreq.id}Operator" name="${popFreq.id}Operator"
+                                        class="form-control input-sm ${prefix}FilterSelect" style="padding: 0px 5px">
+                                    <option value="<" selected><</option>
+                                    <option value="<="><=</option>
+                                    <option value=">">></option>
+                                    <option value=">=">>=</option>
+                                </select>
+                            </div>
+                            <div class="col-md-5" style="padding: 0px 10px">
+                                <input id="${prefix}${studyId}${popFreq.id}" type="text" value="" class="form-control input-sm ${prefix}FilterTextInput"
+                                        name="${study.id}_${popFreq.id}">
+                            </div>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div id="${prefix}${studyId}" class="form-horizontal" hidden>
+                        ${content}
+                    </div>
+                `;
+            }
+
+
+            _addEventListeners() {
+                let keyupEvents = ["LocationTextarea", "FeatureTextarea"];
+                for (let id of keyupEvents) {
+                    let element = PolymerUtils.getElementById(this.prefix + id);
+                    if (UtilsNew.isNotUndefinedOrNull(element)) {
+                        element.addEventListener('keyup', this.updateQueryFilters.bind(this));
+                    }
+                }
+
+                let changeEvents = ["GeneBiotypes", "Type"];
+                for (let id of changeEvents) {
+                    let element = PolymerUtils.getElementById(this.prefix + id);
+                    if (UtilsNew.isNotUndefinedOrNull(element)) {
+                        element.addEventListener('change', this.updateQueryFilters.bind(this));
+                    }
+                }
+
+                // Add events for Feature IDs
+                PolymerUtils.getElementById(this.prefix + "FeatureIdText").addEventListener('keyup', this.callAutocomplete.bind(this));
+                PolymerUtils.getElementById(this.prefix + "FeatureAddButton").addEventListener('click', this.addFeatureId.bind(this));
+
+
+                // Add events for Population Frequency
+                for (let study of this.populationFrequencies.studies) {
+                    let element = PolymerUtils.getElementById(this.prefix + study.id + "Icon");
+                    if (UtilsNew.isNotUndefinedOrNull(element)) {
+                        element.addEventListener('click', this.handleCollapseAction.bind(this));
+                    }
+
+                    for (let pop of study.populations) {
+                        PolymerUtils.getElementById(this.prefix + study.id + pop.id).addEventListener('keyup', this.updateQueryFilters.bind(this));
+                        PolymerUtils.getElementById(this.prefix + study.id + pop.id + "Operator").addEventListener('change', this.updateQueryFilters.bind(this));
+                    }
+                }
+            }
+
             _addAllTooltips() {
-                let categories =  ["study", "genomic", "populationFrequency", "deleteriousness", "conservation"];
-                for (let category of categories) {
-                    let subSections = Object.keys(this.config.filter[category]);
-                    for (let subSection of subSections) {
-                        if (UtilsNew.isNotEmpty(this.config.filter[category][subSection].tooltip)) {
-                            this._addTooltip($("#" + subSection + "Tooltip"), this.config.filter[category][subSection].tooltip,
-                                document.getElementById(subSection + "Id").getAttribute("name"));
+                for (let section of this.config.filter.sections) {
+                    for (let subsection of section.subsections) {
+                        if (UtilsNew.isNotEmpty(subsection.tooltip)) {
+                            let tooltipIcon = $("#" + subsection.id + "Tooltip");
+                            if (UtilsNew.isNotUndefinedOrNull(tooltipIcon)) {
+                                this._addTooltip(tooltipIcon, subsection.title, subsection.tooltip);
+                            }
                         }
                     }
                 }
             }
 
-            _addTooltip(div, content, title) {
+            _addTooltip(div, title, content) {
                 div.qtip({
                     content: {
                         title: title,
