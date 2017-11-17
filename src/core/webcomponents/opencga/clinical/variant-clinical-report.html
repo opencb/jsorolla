@@ -28,7 +28,7 @@
         </div>
         <div class="col-md-10">
             <variant-report-view study="{{study}}" config="{{config.tools.clinical}}"
-                                 title="{{title}}" variables="{{variables}}" selection="{{selection}}"
+                                 tool-title="{{toolTitle}}" variables="{{variables}}" selection="{{selection}}"
                                  interpretation="{{interpretation}}" exp-report="{{expReport}}"></variant-report-view>
         </div>
     </template>
@@ -53,7 +53,7 @@
                     selection: {
                         type: Object
                     },
-                    title: {
+                    toolTitle: {
                         type: String,
                         value: ""
                     },

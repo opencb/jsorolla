@@ -116,7 +116,7 @@
             <div class="panel">
                 <h3 style="margin: 10px 10px 10px 15px">
                     <i class="fa fa-sitemap" aria-hidden="true"></i>
-                    &nbsp;{{title}}
+                    &nbsp;{{toolTitle}}
                 </h3>
             </div>
 
@@ -238,9 +238,9 @@
 
                     <template is="dom-if" if="{{activePrioritization}}">
                         <div style="margin: auto">
-                            <variant-prioritization mode="prioritization" title="Prioritization"
+                            <variant-prioritization mode="prioritization" tool-title="Prioritization"
                                                     project="{{project}}" study="{{study}}" samples="{{samples}}"
-                                                    config="{{config}}" config-opencga="{{configOpencga}}" biotypes="{{biotypes}}"
+                                                    config="{{config}}" biotypes="{{biotypes}}"
                                                     population-frequencies="{{populationFrequencies}}"
                                                     protein-substitution-scores="{{proteinSubstitutionScores}}"
                                                     consequence-types="{{consequenceTypes}}"
@@ -295,7 +295,7 @@
                                     </div>
                                     <div class="col-md-12" style="padding: 10px 15px">
                                         <template is="dom-if" if="{{interpretationId}}">
-                                            <clinical-interpretation-view id="id"  title="Interpretation View" interpretation-id={{interpretationId}} project="{{project}}"
+                                            <clinical-interpretation-view id="id" interpretation-id={{interpretationId}} project="{{project}}"
                                                                           study="{{study}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
                                                                           consequence-types="{{consequenceTypes}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
                                                                           on-createreport="onCreateReport" style="font-size: 12px">
@@ -308,7 +308,7 @@
                         </template>
                         <template is="dom-if" if="{{activeReport}}">
                             <variant-clinical-report opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}"
-                                                     title="Report of {{clinicalAnalysis.name}}" interpretation="{{interpretationReport}}" analysis="{{clinicalAnalysis}}" expReport="true">
+                                                     tool-title="Report of {{clinicalAnalysis.name}}" interpretation="{{interpretationReport}}" analysis="{{clinicalAnalysis}}" expReport="true">
                             </variant-clinical-report>
                         </template>
                 </template>
@@ -352,9 +352,6 @@
 
             static get properties() {
                 return {
-                    host: {
-                        type: String
-                    },
                     project: {
                         type: Object
                     },
@@ -362,7 +359,7 @@
                         type: Object,
                         observer: "getRecentAnalysis"
                     },
-                    title: {
+                    toolTitle: {
                         type: String,
                         value: "Clinical Analysis"
                     },
@@ -383,9 +380,6 @@
                         type: Object
                     },
                     config: {
-                        type: Object
-                    },
-                    configOpencga: {
                         type: Object
                     },
                     biotypes:{

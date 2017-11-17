@@ -50,7 +50,7 @@
                      <span on-click="onCollapse" style="cursor: pointer;margin: 0px 30px 0px 0px">
                         <i class="fa fa-bars" aria-hidden="true"></i>
                     </span>
-                    <i class="fa fa-filter" aria-hidden="true"></i>&nbsp;{{title}}
+                    <i class="fa fa-filter" aria-hidden="true"></i>&nbsp;{{toolTitle}}
                 </h3>
             </div>
 
@@ -304,7 +304,7 @@
 
                             <div class="col-md-12">
                                 <template is="dom-if" if="{{interpretationView}}">
-                                    <clinical-interpretation-view id="id" interpretation="{{interpretationView}}" title="Interpretation View" project="{{project}}"
+                                    <clinical-interpretation-view id="id" interpretation="{{interpretationView}}" project="{{project}}"
                                                                   study="{{study}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
                                                                   consequence-types="{{consequenceTypes}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
                                                                   style="font-size: 12px">
@@ -347,7 +347,7 @@
                     studies: {
                         type: Array
                     },
-                    title: {
+                    toolTitle: {
                         type: String,
                         value: "Prioritization"
                     },
@@ -591,7 +591,7 @@
                     this.messageSuccessText = "";
                     this.messageError = false;
                     this.messageSuccess = false;
-                    let userID = Cookies.get(this.configOpencga.cookie.prefix + "_userId");
+                    let userID = this.opencgaClient._config.userId;
                     let interpretation = {};
                     interpretation.id = this.clinicalAnalysis.id + "_" + PolymerUtils.getValue(this.prefix + "IDInterpretation");
                     interpretation.name = PolymerUtils.getValue(this.prefix + "NameInterpretation");

@@ -656,7 +656,6 @@
             submitForm(e, _this) {
                 if (e.isDefaultPrevented()) {
                     // handle the invalid form...
-                    this._clearHtmlDom(true);
                     return;
                 } else {
                     // everything looks good!
@@ -695,10 +694,15 @@
                                 if (content[i].startsWith('#CHROM')) {
                                     let headerColumns = content[i].split('\t');
                                     if (headerColumns.length != 10) {
-                                        let options = {
-                                            message: "VCF file does not have proper number of data columns which are CHROM POS ID REF ALT QUAL FILTER INFO FORMAT <sample>. Besides, notice that for this version VCF multisample is not allowed"
-                                        };
-                                        UtilsNew.showNotify(options, settings);
+                                        let _message = "VCF file does not have proper number of data columns which are CHROM POS ID REF ALT QUAL FILTER INFO FORMAT <sample>. Besides, notice that for this version VCF multisample is not allowed";
+                                        this.dispatchEvent(new CustomEvent("notifymessage", {
+                                            detail: {
+                                                message: _message,
+                                                type: UtilsNew.MESSAGE_ERROR
+                                            },
+                                            bubbles: true,
+                                            composed: true
+                                        }));
                                     } else {
                                         sampleName = headerColumns[headerColumns.length - 1];
                                         break;
@@ -710,26 +714,41 @@
                             _this.openCGAsteps(formFields, sampleName, vcfFile);
                         });
                         reader.onerror = (function () {
-                            let options = {
-                                message: "The VCF file couldn't be read"
-                            };
-                            UtilsNew.showNotify(options);
+                            let _message = "The VCF file couldn't be read";
+                            this.dispatchEvent(new CustomEvent("notifymessage", {
+                                detail: {
+                                    message: _message,
+                                    type: UtilsNew.MESSAGE_ERROR
+                                },
+                                bubbles: true,
+                                composed: true
+                            }));
                         });
 
                         reader.readAsText(vcfFile);
                     } else {
                         // Type of file: VCF or not
-                        let options = {
-                            message: "The file selected is not a VCF file"
-                        };
-                        UtilsNew.showNotify(options);
+                        let _message = "The file selected is not a VCF file";
+                        this.dispatchEvent(new CustomEvent("notifymessage", {
+                            detail: {
+                                message: _message,
+                                type: UtilsNew.MESSAGE_ERROR
+                            },
+                            bubbles: true,
+                            composed: true
+                        }));
                     }
                 } else {
                     // Whether browser supports FILE API
-                    let options = {
-                        message: "Your browser is not supported. The latest version of Google Chrome is recommended (https://www.google.es/chrome/browser/desktop/index.html)"
-                    };
-                    UtilsNew.showNotify(options);
+                    let _message = "Your browser is not supported. The latest version of Google Chrome is recommended (https://www.google.es/chrome/browser/desktop/index.html)";
+                    this.dispatchEvent(new CustomEvent("notifymessage", {
+                        detail: {
+                            message: _message,
+                            type: UtilsNew.MESSAGE_ERROR
+                        },
+                        bubbles: true,
+                        composed: true
+                    }));
                 }
             }
 
@@ -806,10 +825,15 @@
                             _this.uploadVCF(formFields, vcfFile);
                         })
                         .catch(function (responseError) {
-                            let options = {
-                                message: responseError.error
-                            };
-                            UtilsNew.showNotify(options);
+                            let _message = responseError.error;
+                            this.dispatchEvent(new CustomEvent("notifymessage", {
+                                detail: {
+                                    message: _message,
+                                    type: UtilsNew.MESSAGE_ERROR
+                                },
+                                bubbles: true,
+                                composed: true
+                            }));
                         });
                 }
             }
@@ -833,10 +857,15 @@
                             _this.indexVCF(_fileId);
                         })
                         .catch(function (responseError) {
-                            let options = {
-                                message: response.error
-                            };
-                            UtilsNew.showNotify(options);
+                            let _message = response.error;
+                            this.dispatchEvent(new CustomEvent("notifymessage", {
+                                detail: {
+                                    message: _message,
+                                    type: UtilsNew.MESSAGE_ERROR
+                                },
+                                bubbles: true,
+                                composed: true
+                            }));
                         });
                 }
             }
@@ -859,13 +888,27 @@
                         console.log(response);
                     })
                     .catch(function () {
-                        let message = "Could not index file " + _this.fileId;
-                        UtilsNew.showNotifyError(message);
+                        let _message = "Could not index file " + _this.fileId;
+                        this.dispatchEvent(new CustomEvent("notifymessage", {
+                            detail: {
+                                message: _message,
+                                type: UtilsNew.MESSAGE_ERROR
+                            },
+                            bubbles: true,
+                            composed: true
+                        }));
                     });
 
                 this._clearHtmlDom(true);
-                let message = "The VCF file has successfully uploaded and annotated. You can now proceed to Analysis tab or upload another VCF file";
-                UtilsNew.showNotifySuccess(message);
+                let _message = "The VCF file has successfully uploaded and annotated. You can now proceed to Analysis tab or upload another VCF file";
+                this.dispatchEvent(new CustomEvent("notifymessage", {
+                    detail: {
+                        message: _message,
+                        type: UtilsNew.MESSAGE_SUCCESS
+                    },
+                    bubbles: true,
+                    composed: true
+                }));
             }
 
 //            searchIndividual() {
@@ -912,10 +955,16 @@
 //                            }
 //                        })
 //                        .catch(function (response) {
-//                            let options = {
-//                                message: "The user " + _individualId + " does not exist"
-//                            };
-//                            UtilsNew.showNotify(options);
+//                            let _message = "The user " + _individualId + " does not exist";
+//            this.dispatchEvent(new CustomEvent("notifymessage", {
+//            detail: {
+//                message: _message,
+//                type: UtilsNew.MESSAGE_ERROR
+//            },
+//            bubbles: true,
+//            composed: true
+//        }));
+
 //                        });
 //                }
 //            }
@@ -943,7 +992,15 @@
                     })
                     .catch(function (responseError) {
                         console.log("Could not obtain the variable sets of the study " + _this.study);
-                        UtilsNew.showNotifyError(responseError.error);
+                        this.dispatchEvent(new CustomEvent("notifymessage", {
+                            detail: {
+                                message: responseError.error,
+                                type: UtilsNew.MESSAGE_ERROR
+                            },
+                            bubbles: true,
+                            composed: true
+                        }));
+
                     });
             }
 
