@@ -127,17 +127,31 @@
                                 composed: true
                             }));
 
-                            let message = user + ' has logged in.'
+                            let _message = user + ' has logged in.'
 
-                            let options = {
+                            let _options = {
                                 icon: 'glyphicon glyphicon-user',
                             };
 
-                            UtilsApp.showNotifySuccess(message, options)
+                            _this.dispatchEvent(new CustomEvent("notifymessage", {
+                                detail: {
+                                    message: _message,
+                                    options: _options,
+                                    type: UtilsNew.MESSAGE_SUCCESS
+                                },
+                                bubbles: true,
+                                composed: true
+                            }));
                         })
                         .catch(function(response) {
-                            let message = this.errorMessage = response.error
-                            UtilsApp.showNotifyError(message)
+                            let _message = this.errorMessage = response.error
+                            this.dispatchEvent(new CustomEvent("notifymessage", {
+                                detail: {
+                                    message: _message, type: UtilsNew.MESSAGE_ERROR
+                                },
+                                bubbles: true,
+                                composed: true
+                            }));
                         }.bind(this));
                 }
 

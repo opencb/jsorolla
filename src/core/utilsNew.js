@@ -1,4 +1,21 @@
 class UtilsNew {
+
+    static get MESSAGE_SUCCESS() {
+        return "SUCCESS";
+    }
+
+    static get MESSAGE_ERROR() {
+        return "ERROR";
+    }
+
+    static get MESSAGE_INFO() {
+        return "INFO";
+    }
+
+    static get MESSAGE_WARNING() {
+        return "WARNING";
+    }
+
     static isUndefined(obj) {
         return typeof obj === 'undefined';
     }
