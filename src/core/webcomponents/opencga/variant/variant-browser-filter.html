@@ -111,11 +111,11 @@
                 </button>
             </div>
 
-            <br>
-            <!--<div id="{{prefix}}FilterMenu">-->
-            <div id="FilterMenu">
 
+            <br>
+            <div id="FilterMenu">
             </div>
+
 
             <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true">
 
@@ -1518,10 +1518,6 @@
             }
 
             _clearHtmlDom() {
-                // Empty samples and genotypes
-//                this.set('samples', []);
-//                this.sampleGenotypes = {};
-
                 // Empty everything before rendering
                 $("." + this.prefix + "FilterSelect").prop('selectedIndex', 0);
                 $("." + this.prefix + "FilterSelect").prop("disabled", false);
@@ -1531,8 +1527,6 @@
                 $("." + this.prefix + "FilterRadio").prop("checked", false);
                 $("." + this.prefix + "FilterRadio").filter('[value="or"]').prop('checked', true);
                 $("." + this.prefix + "FilterRadio").prop("disabled", true);
-
-
 
                 // Deselect bootstrap-select dropdowns
                 $("#" + this.prefix + "GeneBiotypes").selectpicker('val', []);
@@ -1591,7 +1585,7 @@
                 let collapsed = section.collapsed ? "" : "in";
 
                 let header= `
-                    <div class="panel panel-default">
+                    <div class="panel panel-default" style="margin-bottom: 10px">
                         <div class="panel-heading" role="tab" id="${prefix}${id}Heading">
                             <h4 class="panel-title">
                                 <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${prefix}Accordion"
@@ -1646,25 +1640,11 @@
                     case "biotype":
                         content = this._getBiotypeHtml(this.prefix);
                         break;
-                    case "variantType":
+                    case "type":
                         content = this._getVariantTypeHtml(this.prefix);
                         break;
-                    case "1kG_phase3":
-                    case "EXAC":
-                    case "ESP6500":
-                        header = `
-                            <div class="form-group">
-                                <div class="browser-subsection" id="${subsection.id}" name="${subsection.title}">
-                                    <i id="${this.prefix}${subsection.id}Icon" data-id="${this.prefix}${subsection.id}"
-                                            class="fa fa-plus" style="cursor: pointer;padding-right: 10px"></i>
-                                        ${subsection.title}
-                                    <div style="float: right" class="tooltip-div">
-                                        <a><i class="fa fa-info-circle" aria-hidden="true" id="${subsection.id}Tooltip"></i></a>
-                                    </div>
-                                </div>
-                            <div class="subsection-content">
-                        `;
-                        content = this._getPopulationFrequencyHtml(subsection.id, this.prefix);
+                    case "populationFrequency":
+                        content = this._getPopulationFrequencyHtml(this.prefix);
                         break;
                     case "proteinSubstitutionScore":
                         content = this._getProteinSubstitutionScore(this.prefix);
@@ -1675,13 +1655,13 @@
                     case "conservation":
                         content = this._getConservation(this.prefix);
                         break;
-                    case "goAccessions":
+                    case "go":
                         content = this._getGoAccessions(this.prefix);
                         break;
-                    case "hpoAccessions":
+                    case "hpo":
                         content = this._getHpoAccessions(this.prefix);
                         break;
-                    case "clinvarAccesions":
+                    case "clinvar":
                         content = this._getClinvarAccessions(this.prefix);
                         break;
                     case "fullTextSearch":
@@ -1746,7 +1726,6 @@
                 `;
             }
 
-
             _getBiotypeHtml(prefix) {
                 let options = "";
                 for (let biotype of this.biotypes) {
@@ -1772,42 +1751,45 @@
                 `;
             }
 
-            _getPopulationFrequencyHtml(studyId, prefix) {
-                let study;
-                for (let st of this.populationFrequencies.studies) {
-                    if (st.id === studyId) {
-                        study = st;
-                        break;
-                    }
-                }
-
+            _getPopulationFrequencyHtml(prefix) {
                 let content = "";
-                for (let popFreq of study.populations) {
+                for (let study of this.populationFrequencies.studies) {
                     content += `
-                        <div class="row" style="margin: 5px 0px">
-                            <span class="col-md-3 control-label" data-toggle="tooltip" data-placement="top" title="${popFreq.title}">${popFreq.id}</span>
-                            <div class="col-md-4" style="padding: 0px 10px">
-                                <select id="${prefix}${studyId}${popFreq.id}Operator" name="${popFreq.id}Operator"
-                                        class="form-control input-sm ${prefix}FilterSelect" style="padding: 0px 5px">
-                                    <option value="<" selected><</option>
-                                    <option value="<="><=</option>
-                                    <option value=">">></option>
-                                    <option value=">=">>=</option>
-                                </select>
-                            </div>
-                            <div class="col-md-5" style="padding: 0px 10px">
-                                <input id="${prefix}${studyId}${popFreq.id}" type="text" value="" class="form-control input-sm ${prefix}FilterTextInput"
-                                        name="${study.id}_${popFreq.id}">
+                        <div style="padding-top: 10px">
+                            <i id="${this.prefix}${study.id}Icon" data-id="${this.prefix}${study.id}"
+                                    class="fa fa-plus" style="cursor: pointer;padding-right: 10px"></i>
+                            <strong>${study.title}</strong>
+                            <div id="${prefix}${study.id}" class="form-horizontal" hidden>
+                    `;
+
+                    for (let popFreq of study.populations) {
+                        content += `
+                                <div class="row" style="margin: 5px 0px">
+                                    <span class="col-md-3 control-label" data-toggle="tooltip" data-placement="top" title="${popFreq.title}">${popFreq.id}</span>
+                                    <div class="col-md-4" style="padding: 0px 10px">
+                                        <select id="${prefix}${study.id}${popFreq.id}Operator" name="${popFreq.id}Operator"
+                                                class="form-control input-sm ${prefix}FilterSelect" style="padding: 0px 5px">
+                                            <option value="<" selected><</option>
+                                            <option value="<="><=</option>
+                                            <option value=">">></option>
+                                            <option value=">=">>=</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-5" style="padding: 0px 10px">
+                                        <input id="${prefix}${study.id}${popFreq.id}" type="text" value="" class="form-control input-sm ${prefix}FilterTextInput"
+                                                name="${study.id}_${popFreq.id}">
+                                    </div>
+                                </div>
+                        `;
+                    }
+
+                    content += `
                             </div>
                         </div>
                     `;
                 }
 
-                return `
-                    <div id="${prefix}${studyId}" class="form-horizontal" hidden>
-                        ${content}
-                    </div>
-                `;
+                return content;
             }
 
             _getProteinSubstitutionScore(prefix) {
@@ -1835,9 +1817,9 @@
                                            class="${prefix}FilterTextInput form-control input-sm">
                                 </div>
                             </div>
-                        </div>
+                       </div>
 
-                        <div style="padding-top: 15px">
+                       <div style="padding-top: 15px">
                             <span style="padding-top: 10px;padding-left: 0px;">Polyphen</span>
                             <div class="row">
                                 <div class="col-sm-5" style="padding-right: 5px">
@@ -1872,7 +1854,7 @@
                                     class="${prefix}FilterRadio" disabled style="margin-left: 102px"> AND  <br>
                             </form>
                             <br>
-                        </div>
+                       </div>
                 `;
             }
 
@@ -1924,7 +1906,7 @@
 
             _getConservation(prefix) {
                 return `
-                     <div style="padding-top: 10px">
+                    <div style="padding-top: 10px">
                         <div class="row">
                             <span class="col-md-5 control-label" style="padding-right: 5px"> PhyloP</span>
                             <div class="col-md-3" style="padding: 0px 5px">
@@ -1975,16 +1957,16 @@
                              </div>
                             <div class="col-md-4" style="padding-left: 5px">
                                 <input type="text" value="" class="${prefix}FilterTextInput form-control input-sm"
-                                    id="${prefix}GerpInput" name="gerp">
+                                        id="${prefix}GerpInput" name="gerp">
                             </div>
                         </div>
 
                         <form style="padding-top: 15px">
                             <label style="font-weight: normal;">Logical Operator</label>
                             <input type="radio" name="conservation" id="${prefix}conservationOrRadio" value="or"
-                                class="${prefix}FilterRadio" checked disabled  style="margin-left: 10px"> OR<br>
+                                    class="${prefix}FilterRadio" checked disabled style="margin-left: 10px"> OR<br>
                             <input type="radio" name="conservation" id="${prefix}conservationAndRadio" value="and"
-                                class="${prefix}FilterRadio" disabled style="margin-left: 102px"> AND<br>
+                                    class="${prefix}FilterRadio" disabled style="margin-left: 102px"> AND<br>
                         </form>
                     </div>
                 `;
@@ -1992,45 +1974,37 @@
 
             _getGoAccessions(prefix) {
                 return `
-                    <div class="form-group">
-                        <textarea id="${prefix}GeneOntologyTextarea" readonly class="form-control clearable ${prefix}FilterTextInput"
-                                  rows="3" name="geneOntology" placeholder="GO:0000145"></textarea>
-                        <span class="input-group-addon btn btn-primary searchingSpan" id="${prefix}buttonOpenGoAccesions">
-                            <strong style="color: white;" >Add Go Term</strong>
-                            <i class="fa fa-search searchingButton" aria-hidden="true"></i>
-                        </span>
-                    </div>
+                    <textarea id="${prefix}GeneOntologyTextarea" readonly class="form-control clearable ${prefix}FilterTextInput"
+                                rows="3" name="geneOntology" placeholder="GO:0000145"></textarea>
+                    <span class="input-group-addon btn btn-primary searchingSpan" id="${prefix}buttonOpenGoAccesions">
+                        <strong style="color: white">Add GO Term</strong>
+                        <i class="fa fa-search searchingButton" aria-hidden="true"></i>
+                    </span>
                 `;
             }
 
             _getHpoAccessions(prefix) {
                 return `
-                    <div class="form-group">
-                        <textarea id="${prefix}HumanPhenotypeOntologyTextarea" readonly class="form-control clearable ${prefix}FilterTextInput"
-                              rows="3" name="hpo" placeholder="HP:0000001, HP:3000079"></textarea>
-                        <span class="input-group-addon btn btn-primary searchingSpan" id="${prefix}buttonOpenHpoAccesions">
-                            <strong style="color: white;" >Add HPO Term</strong>
-                            <i class="fa fa-search searchingButton" aria-hidden="true"></i>
-                        </span>
-                    </div>
+                    <textarea id="${prefix}HumanPhenotypeOntologyTextarea" readonly class="form-control clearable ${prefix}FilterTextInput"
+                                rows="3" name="hpo" placeholder="HP:0000001, HP:3000079"></textarea>
+                    <span class="input-group-addon btn btn-primary searchingSpan" id="${prefix}buttonOpenHpoAccesions">
+                        <strong style="color: white">Add HPO Term</strong>
+                        <i class="fa fa-search searchingButton" aria-hidden="true"></i>
+                    </span>
                 `;
             }
 
             _getClinvarAccessions(prefix) {
                 return `
-                     <div class="form-group">
-                         <textarea id="${prefix}ClinVarTextarea" class="form-control clearable ${prefix}FilterTextInput" rows="3"
-                                  name="clinvar" placeholder="RCV000058226"></textarea>
-                    </div>
+                    <textarea id="${prefix}ClinVarTextarea" class="form-control clearable ${prefix}FilterTextInput" rows="3"
+                                name="clinvar" placeholder="RCV000058226"></textarea>
                 `;
             }
 
             _getFullTextSearchAccessions(prefix) {
                 return `
-                    <div class="form-group">
-                        <textarea id="${prefix}TraitsTextarea" class="form-control clearable ${prefix}FilterTextInput" rows="5"
-                              name="traits" placeholder="Full-text search, e.g. *melanoma*"></textarea>
-                    </div>
+                    <textarea id="${prefix}TraitsTextarea" class="form-control clearable ${prefix}FilterTextInput" rows="5"
+                                name="traits" placeholder="Full-text search, e.g. *melanoma*"></textarea>
                 `;
             }
 
@@ -2061,7 +2035,6 @@
                 // Add events for gene disease panels
                 PolymerUtils.getElementById(this.prefix + "PanelApps").addEventListener('change', this.onGeneDiseasePanelChange.bind(this));
 
-
                 // Add events for Population Frequency
                 for (let study of this.populationFrequencies.studies) {
                     let element = PolymerUtils.getElementById(this.prefix + study.id + "Icon");
@@ -2079,10 +2052,10 @@
                 PolymerUtils.getElementById(this.prefix + "SiftValues").addEventListener('change', this.checkScore.bind(this));
                 PolymerUtils.getElementById(this.prefix + "PolyphenValues").addEventListener('change', this.checkScore.bind(this));
 
-                // Add events gene Accesions
+                // Add events gene accessions
                 PolymerUtils.getElementById(this.prefix + "buttonOpenGoAccesions").addEventListener('click', this.openModalGo.bind(this));
 
-                // Add events hpo Accesions
+                // Add events hpo accessions
                 PolymerUtils.getElementById(this.prefix + "buttonOpenHpoAccesions").addEventListener('click', this.openModalHpo.bind(this));
             }
 
