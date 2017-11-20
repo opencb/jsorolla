@@ -338,114 +338,6 @@
                     </div>
                 </template>
                 <br>
-
-                <!--Consequence Type filter-->
-                <div class="panel panel-default">
-                    <div class="panel-heading" role="tab" id="{{prefix}}ConsequenceTypeHeading">
-                        <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                               href="#{{prefix}}ConsequenceType" aria-expanded="false" aria-controls="{{prefix}}ConsequenceType">
-                                Consequence Type
-                                <!--<div style="float: right" class="tooltip-div">-->
-                                <!--<a data-toggle="tooltip" title="Only considers variants falling in the specified gene regions and with the specified effect, as defined by the consequence types">-->
-                                <!--<i class="fa fa-info-circle" aria-hidden="true"></i>-->
-                                <!--</a>-->
-                                <!--</div>-->
-                            </a>
-                        </h4>
-                    </div>
-                    <div id="{{prefix}}ConsequenceType" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}consequenceTypeHeading">
-                        <div class="panel-body browser-ct-scroll">
-                            <div class="form-group">
-                                <div class="browser-subsection">Loss-of-Function (LoF) terms</div>
-                                <div class="form-check" style="margin-top: 5px;">
-                                    <div class="form-check-label">
-
-                                        <label id="{{prefix}}LossOfFunctionCheckBoxLabel" class="notbold">
-                                            <input id="{{prefix}}LossOfFunctionCheckBox" type="checkbox"
-                                                   class$="{{prefix}}FilterCheckBox form-check-input" on-change="updateConsequenceTypeFilter">
-                                            LoF terms</label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <div class="browser-subsection">Consequence Type terms</div>
-
-                                <div class="browser-ct-tree-view browser-ct-item">
-                                    <ul id="{{prefix}}consequenceTypeFilter">
-                                        <template is="dom-repeat" items="{{consequenceTypes.categories}}" as="category">
-                                            <li id="{{category.title}}" class="form-check" style="margin-top: 10px;">
-                                                <!--First check if there is a title for that category-->
-                                                <template is="dom-if" if="{{checkTitle(category)}}">
-                                                    <!--If it is a category, only title is shown as it doesn't have any SO term associated with it-->
-                                                    <template is="dom-if" if="{{category.isCategory}}">
-                                                        <label class="form-check-label notbold">
-                                                            <input type="checkbox" on-change="updateConsequenceTypeFilter"
-                                                                   class$="{{prefix}}FilterCheckBox"> {{category.title}}
-                                                        </label>
-                                                    </template>
-                                                    <!--If it is not a category, SO terms should be shown along with its actual title-->
-                                                    <template is="dom-if" if="{{!category.isCategory}}">
-                                                        <input type="checkbox" on-change="updateConsequenceTypeFilter"
-                                                               data-id="{{category.name}}"
-                                                               class$="soTermCheckBox {{prefix}}FilterCheckBox">
-                                                        <span title="{{item.description}}">
-                                                                {{category.title}} (<a
-                                                                href="http://www.sequenceontology.org/browser/current_svn/term/{{category.id}}"
-                                                                target="_blank">{{category.id}}</a>)</span>
-
-                                                    </template>
-                                                </template>
-                                                <!--Title is optional. Consequence type name is taken in case title is not given-->
-                                                <template is="dom-if" if="{{!checkTitle(category)}}">
-                                                    <!--If it is a category, only name is shown as it doesn't have any SO term associated with it-->
-                                                    <template is="dom-if" if="{{category.isCategory}}">
-                                                        <div class="form-check" style="margin-top: 10px;">
-                                                            <label class="form-check-label notbold">
-                                                                <input type="checkbox" on-change="updateConsequenceTypeFilter"
-                                                                       class$="{{prefix}}FilterCheckBox"> {{category.name}}
-                                                            </label>
-                                                        </div>
-                                                    </template>
-                                                    <!--If it is not a category, SO terms should be shown along with its actual name-->
-                                                    <template is="dom-if" if="{{!category.isCategory}}">
-                                                        <div class="form-check" style="margin-top: 10px;">
-                                                            <label class="form-check-label notbold">
-                                                                <input type="checkbox" on-change="updateConsequenceTypeFilter"
-                                                                       data-id="{{category.name}}"
-                                                                       class$="soTermCheckBox {{prefix}}FilterCheckBox">
-                                                                <span title="{{item.description}}">
-                                                        {{category.name}} (<a
-                                                                        href="http://www.sequenceontology.org/browser/current_svn/term/{{category.id}}"
-                                                                        target="_blank">{{category.id}}</a>)</span>
-                                                            </label>
-                                                        </div>
-                                                    </template>
-                                                </template>
-                                                <ul>
-                                                    <template is="dom-repeat" items="{{category.terms}}">
-                                                        <li class="form-check">
-                                                            <label class="form-check-label notbold">
-                                                                <input type="checkbox" data-id="{{item.name}}" on-change="updateConsequenceTypeFilter"
-                                                                       class$="soTermCheckBox {{prefix}}FilterCheckBox">
-                                                                <span title="{{item.description}}">
-                                                                {{item.name}} (<a
-                                                                        href="http://www.sequenceontology.org/browser/current_svn/term/{{item.id}}"
-                                                                        target="_blank">{{item.id}}</a>)
-                                                                </span>
-                                                            </label>
-                                                        </li>
-                                                    </template>
-                                                </ul>
-                                            </li>
-                                        </template>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -920,14 +812,14 @@
                 let lofCheckBox = PolymerUtils.getElementById(this.prefix + "LossOfFunctionCheckBox");
                 if (e.target.id === this.prefix + "LossOfFunctionCheckBox") {
                     let checkBoxes = PolymerUtils.querySelectorAll("li input", this.prefix + "consequenceTypeFilter");
-                    for (let i = 0; i < this.consequenceTypes.lof.length; i++) {
-                        for (let j = 0; j < checkBoxes.length; j++) {
-                            if (checkBoxes[j].dataId === this.consequenceTypes.lof[i]) {
-                                checkBoxes[j].checked = lofCheckBox.checked;
-                                break;
+                    this.consequenceTypes.lof.forEach((consType) => {
+                        checkBoxes.forEach((checkbox) => {
+                            if (checkbox.getAttribute("data-id") === consType) {
+                                checkbox.checked = lofCheckBox.checked;
+                                return;
                             }
-                        }
-                    }
+                        });
+                    });
                 }
 
                 // Select/Unselect the items from one category
@@ -937,16 +829,16 @@
 //                let selected = $('.soTermCheckBox');
                 let soTerms = [];
                 let selected = PolymerUtils.querySelectorAll("li input", this.prefix + "consequenceTypeFilter");
-                for (let i = 0; i < selected.length; i++) {
-                    if (selected[i].checked && typeof selected[i].dataId !== "undefined") {
-                        soTerms.push(selected[i].dataId);
+                selected.forEach((sel) => {
+                    if (sel.checked && typeof sel.getAttribute("data-id") !== "undefined") {
+                        soTerms.push(sel.getAttribute("data-id"));
                     } else {
                         // If one term from LoF array is not selected we remove LoF check
-                        if (lofCheckBox.checked && this.consequenceTypes.lof.includes(selected[i].dataId)) {
+                        if (lofCheckBox.checked && this.consequenceTypes.lof.includes(sel.getAttribute("data-id"))) {
                             lofCheckBox.checked = false;
                         }
                     }
-                }
+                });
 
                 this.set('ct', soTerms);
                 this.updateQueryFilters();
@@ -1667,27 +1559,29 @@
                         content = this._getPopulationFrequencyHtml(subsection.id, this.prefix);
                         break;
                     case "proteinSubstitutionScore":
-                        content = this._getProteinSubstitutionScore(this.prefix);
+                        content = this._getProteinSubstitutionScoreHtml(this.prefix);
                         break;
                     case "cadd":
-                        content = this._getCadd(this.prefix);
+                        content = this._getCaddHtml(this.prefix);
                         break;
                     case "conservation":
-                        content = this._getConservation(this.prefix);
+                        content = this._getConservationHtml(this.prefix);
                         break;
                     case "goAccessions":
-                        content = this._getGoAccessions(this.prefix);
+                        content = this._getGoAccessionsHtml(this.prefix);
                         break;
                     case "hpoAccessions":
-                        content = this._getHpoAccessions(this.prefix);
+                        content = this._getHpoAccessionsHtml(this.prefix);
                         break;
                     case "clinvarAccesions":
-                        content = this._getClinvarAccessions(this.prefix);
+                        content = this._getClinvarAccessionsHtml(this.prefix);
                         break;
                     case "fullTextSearch":
-                        content = this._getFullTextSearchAccessions(this.prefix);
+                        content = this._getFullTextSearchAccessionsHtml(this.prefix);
                         break;
-
+                    case "consequenceType":
+                        content = this._getConsequenceTypeHtml(this.prefix);
+                        break;
                 }
 
                 // Add subsection footer
@@ -1810,7 +1704,7 @@
                 `;
             }
 
-            _getProteinSubstitutionScore(prefix) {
+            _getProteinSubstitutionScoreHtml(prefix) {
                 return `
                        <div style="padding-top: 10px">
                             <span style="padding-left: 0px;">SIFT</span>
@@ -1877,7 +1771,7 @@
             }
 
 
-            _getCadd(prefix) {
+            _getCaddHtml(prefix) {
                 return `
                     <div style="padding-top: 10px">
                         <div class="row">
@@ -1922,7 +1816,7 @@
                 `;
             }
 
-            _getConservation(prefix) {
+            _getConservationHtml(prefix) {
                 return `
                      <div style="padding-top: 10px">
                         <div class="row">
@@ -1990,7 +1884,7 @@
                 `;
             }
 
-            _getGoAccessions(prefix) {
+            _getGoAccessionsHtml(prefix) {
                 return `
                     <div class="form-group">
                         <textarea id="${prefix}GeneOntologyTextarea" readonly class="form-control clearable ${prefix}FilterTextInput"
@@ -2003,7 +1897,7 @@
                 `;
             }
 
-            _getHpoAccessions(prefix) {
+            _getHpoAccessionsHtml(prefix) {
                 return `
                     <div class="form-group">
                         <textarea id="${prefix}HumanPhenotypeOntologyTextarea" readonly class="form-control clearable ${prefix}FilterTextInput"
@@ -2016,7 +1910,7 @@
                 `;
             }
 
-            _getClinvarAccessions(prefix) {
+            _getClinvarAccessionsHtml(prefix) {
                 return `
                      <div class="form-group">
                          <textarea id="${prefix}ClinVarTextarea" class="form-control clearable ${prefix}FilterTextInput" rows="3"
@@ -2025,13 +1919,113 @@
                 `;
             }
 
-            _getFullTextSearchAccessions(prefix) {
+            _getFullTextSearchAccessionsHtml(prefix) {
                 return `
                     <div class="form-group">
                         <textarea id="${prefix}TraitsTextarea" class="form-control clearable ${prefix}FilterTextInput" rows="5"
                               name="traits" placeholder="Full-text search, e.g. *melanoma*"></textarea>
                     </div>
                 `;
+            }
+
+            _getConsequenceTypeHtml(prefix) {
+                let categoriesStart = `
+                 <div class="panel-body browser-ct-scroll">
+                     <div class="form-group">
+                        <div class="browser-subsection">Loss-of-Function (LoF) terms</div>
+                        <div class="form-check" style="margin-top: 5px;">
+                            <div class="form-check-label">
+                                <label id="${prefix}LossOfFunctionCheckBoxLabel" class="notbold">
+                                    <input id="${prefix}LossOfFunctionCheckBox" type="checkbox"
+                                           class="${prefix}FilterCheckBox form-check-input">
+                                    LoF terms</label>
+                            </div>
+                        </div>
+                    </div>
+
+                     <div class="form-group">
+                        <div class="browser-subsection">Consequence Type terms</div>
+                        <div class="browser-ct-tree-view browser-ct-item">
+                            <ul id="${prefix}consequenceTypeFilter">`;
+
+                let categoriesCheckbox = "";
+                if (UtilsNew.isNotEmptyArray(consequenceTypes.categories)) {
+
+                    consequenceTypes.categories.forEach((category) => {
+
+                        categoriesCheckbox += `<li id="${category.title}" class="form-check" style="margin-top: 10px;">`;
+                        if (this.checkTitle(category)) {
+                            if (category.isCategory) {
+
+                                categoriesCheckbox += `
+                                                 <label  class="form-check-label notbold">
+                                                    <input id="${prefix}${category.title}input" type="checkbox"
+                                                    class="${prefix}FilterCheckBox"> ${category.title}
+                                                </label>`;
+                            } else {
+                                categoriesCheckbox += `
+                                                <input id="${prefix}${category.title}input" type="checkbox"
+                                                data-id="${category.name}" class="soTermCheckBox ${prefix}FilterCheckBox">
+                                                <span title="${category.description}">
+                                                    ${category.title} (<a href="http://www.sequenceontology.org/browser/current_svn/term/${category.id}"
+                                                    target="_blank">${category.id}</a>)
+                                                </span>`;
+                            }
+                        } else {
+                            if (category.isCategory) {
+                                categoriesCheckbox += `
+                                                <div class="form-check" style="margin-top: 10px;">
+                                                    <label class="form-check-label notbold">
+                                                        <input id="${prefix}${category.title}input" type="checkbox"
+                                                        class="${prefix}FilterCheckBox"> ${category.name}
+                                                    </label>
+                                                </div>`;
+                            } else {
+                                categoriesCheckbox += `
+                                                <div class="form-check" style="margin-top: 10px;">
+                                                    <label class="form-check-label notbold">
+                                                        <input id="${prefix}${category.title}input" type="checkbox"
+                                                        data-id="${category.name}" class="soTermCheckBox ${prefix}FilterCheckBox">
+                                                        <span title="${category.description}">
+                                                            ${category.name} (<a
+                                                            href="http://www.sequenceontology.org/browser/current_svn/term/${category.id}$"
+                                                            target="_blank">${category.id}</a>)
+                                                        </span>
+                                                    </label>
+                                                </div>`;
+                            }
+                        }
+
+                        if (UtilsNew.isNotEmptyArray(category.terms)) {
+                            category.terms.forEach((item) => {
+                                categoriesCheckbox += ` <ul>
+                                                     <li class="form-check">
+                                                        <label class="form-check-label notbold">
+                                                            <input id="${prefix}${item.id}checkbox" type="checkbox" data-id="${item.name}"
+                                                                class="soTermCheckBox ${prefix}FilterCheckBox">
+                                                            <span title="${item.description}">${item.name} (<a
+                                                                href="http://www.sequenceontology.org/browser/current_svn/term/${item.id}"
+                                                                target="_blank">${item.id}</a>)
+                                                            </span>
+                                                        </label>
+                                                     </li>
+                                                 </ul>
+                                                   `;
+                            });
+                        }
+
+                        categoriesCheckbox += `</li>`;
+                    });
+                }
+
+               let categoriesEnd = `
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+               `;
+
+               return categoriesStart + categoriesCheckbox + categoriesEnd;
             }
 
 
@@ -2078,6 +2072,20 @@
                 // Add events Protein substitution score
                 PolymerUtils.getElementById(this.prefix + "SiftValues").addEventListener('change', this.checkScore.bind(this));
                 PolymerUtils.getElementById(this.prefix + "PolyphenValues").addEventListener('change', this.checkScore.bind(this));
+
+                // Add events consequence type
+                PolymerUtils.getElementById(this.prefix + "LossOfFunctionCheckBox").addEventListener('change', this.updateConsequenceTypeFilter.bind(this));
+                if (UtilsNew.isNotEmptyArray(consequenceTypes.categories)) {
+                    consequenceTypes.categories.forEach((category) => {
+                        PolymerUtils.getElementById(this.prefix + category.title + "input").addEventListener('change', this.updateConsequenceTypeFilter.bind(this));
+                        if (UtilsNew.isNotEmptyArray(category.terms)) {
+                            category.terms.forEach((item) => {
+                                PolymerUtils.getElementById(this.prefix + item.id + "checkbox").addEventListener('change', this.updateConsequenceTypeFilter.bind(this));
+                            });
+                        }
+
+                    });
+                }
 
                 // Add events gene Accesions
                 PolymerUtils.getElementById(this.prefix + "buttonOpenGoAccesions").addEventListener('click', this.openModalGo.bind(this));
