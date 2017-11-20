@@ -118,20 +118,31 @@
                         .then(function(response) {
                             _this.$.opencgaUser.value = "";
                             _this.$.opencgaPassword.value = "";
+                            let sessionId =  response.response[0].result[0].id;
                             _this.dispatchEvent(new CustomEvent('login', {
                                 detail: {
                                     userId: user,
-                                    sessionId: response.response[0].result[0].id
+                                    sessionId: sessionId
                                 },
                                 bubbles: true,
                                 composed: true
                             }));
-
-                            let _message = user + ' has logged in.'
+                            var decoded = jwt_decode(sessionId);
+//                            console.log(this.sessionId);
+//                            console.log(decoded);
+//                            console.log(new Date().getTime());
+//                            let validTimeSessionId = decoded.exp.format("dd/mm/yyyy hh:MM:ss");
+                            let dateExpired = new Date(null);
+                            dateExpired.setSeconds(decoded.exp);
+                            let validTimeSessionId =  moment(dateExpired, "YYYYMMDDHHmmss").format('D MMM YY HH:mm:ss');
+                            let _message = "Welcome " + user + ". Your session is valid until " + validTimeSessionId;
 
                             let _options = {
                                 icon: 'glyphicon glyphicon-user',
                             };
+
+                            //                var token = 'eyJ0eXAiO.../// jwt token';
+
 
                             _this.dispatchEvent(new CustomEvent("notifymessage", {
                                 detail: {
