@@ -144,134 +144,130 @@
                                     <div style="padding: 0px 0px 5px 0px">
                                         <div class="browser-subsection">Samples</div>
 
-                                        <template is="dom-if" if="{{config.filter.study.samples.selector}}">
-                                            <div style="margin: 10px 5px">
-                                                <span>Select Sample:</span>
+                                        <!--<template is="dom-if" if="{{config.filter.study.samples.selector}}">-->
+                                            <!--<div style="margin: 10px 5px">-->
+                                                <!--<span>Select Sample:</span>-->
 
-                                                <!--<div class="form-inline">-->
-                                                <!--<div class="form-group">-->
-                                                <div class="row">
-                                                    <div class="col-md-9">
-                                                        <input id="{{prefix}}AutocompleteSampleSearchInput" type="text" class="form-control" placeholder="Search name..."
-                                                               list$="{{prefix}}AutocompleteSampleSearchDataList" on-keyup="_autocompleteSampleSearch">
-                                                        <datalist id="{{prefix}}AutocompleteSampleSearchDataList">
-                                                            <template is="dom-repeat" items="{{autocompleteSampleData}}">
-                                                                <option id="{{prefix}}Sample{{item.name}}" value="{{item.name}}" data-sample$="{{item}}">
-                                                            </template>
-                                                        </datalist>
-                                                    </div>
-                                                    <div class="col-md-3">
-                                                        <button type="button" class="btn btn-default btn-sm form-control" on-click="onSampleChange">
-                                                            <i class="fa fa-plus"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
+                                                <!--<div class="row">-->
+                                                    <!--<div class="col-md-9">-->
+                                                        <!--<input id="{{prefix}}AutocompleteSampleSearchInput" type="text" class="form-control" placeholder="Search name..."-->
+                                                               <!--list$="{{prefix}}AutocompleteSampleSearchDataList" on-keyup="_autocompleteSampleSearch">-->
+                                                        <!--<datalist id="{{prefix}}AutocompleteSampleSearchDataList">-->
+                                                            <!--<template is="dom-repeat" items="{{autocompleteSampleData}}">-->
+                                                                <!--<option id="{{prefix}}Sample{{item.name}}" value="{{item.name}}" data-sample$="{{item}}">-->
+                                                            <!--</template>-->
+                                                        <!--</datalist>-->
+                                                    <!--</div>-->
+                                                    <!--<div class="col-md-3">-->
+                                                        <!--<button type="button" class="btn btn-default btn-sm form-control" on-click="onSampleChange">-->
+                                                            <!--<i class="fa fa-plus"></i>-->
+                                                        <!--</button>-->
+                                                    <!--</div>-->
                                                 <!--</div>-->
-                                                <!--</div>-->
-                                            </div>
-                                        </template>
+                                            <!--</div>-->
+                                        <!--</template>-->
 
-                                        <div style="margin: 5px 5px">
-                                            <span>Select Sample Genotypes:</span>
+                                        <!--<div style="margin: 5px 5px">-->
+                                            <!--<span>Select Sample Genotypes:</span>-->
 
-                                            <template is="dom-if" if="{{!showSampleGenotypes}}">
-                                                <br>
-                                                <span style="color: darkred;padding: 5px 0px 0px 10px">No samples selected</span>
-                                            </template>
+                                            <!--<template is="dom-if" if="{{!showSampleGenotypes}}">-->
+                                                <!--<br>-->
+                                                <!--<span style="color: darkred;padding: 5px 0px 0px 10px">No samples selected</span>-->
+                                            <!--</template>-->
 
-                                            <template is="dom-if" if="{{!showSampleGenotypes}}">
-                                                <template is="dom-if" if="{{showFamilySegregationSelector}}">
-                                                    <div class="form-inline">
-                                                        <div class="form-group" style="margin: 5px 0px">
-                                                            <label class="col-md-4" style="padding-left: 8px">Segregation:</label>
-                                                            <div class="col-md-8">
-                                                                <!--<button class="btn btn-default btn-sm dropdown-toggle" type="button"-->
-                                                                <!--id="segregationPrioritizationDropdown" data-toggle="dropdown"-->
-                                                                <!--aria-haspopup="true" aria-expanded="true" disabled$="{{isDisabledRadioAnalysisAndSettings()}}">-->
-                                                                <!--Select ...-->
-                                                                <!--<span class="caret"></span>-->
-                                                                <!--</button>-->
-                                                                <!--<ul class="dropdown-menu" aria-labelledby="segregationPrioritizationDropdown"-->
-                                                                <!--on-click="selectSegregation">-->
-                                                                <!--<template is="dom-repeat" items="{{config.segregation}}">-->
-                                                                <!--<li><a>{{item}}</a></li>-->
-                                                                <!--</template>-->
-                                                                <!--</ul>-->
+                                            <!--<template is="dom-if" if="{{!showSampleGenotypes}}">-->
+                                                <!--<template is="dom-if" if="{{showFamilySegregationSelector}}">-->
+                                                    <!--<div class="form-inline">-->
+                                                        <!--<div class="form-group" style="margin: 5px 0px">-->
+                                                            <!--<label class="col-md-4" style="padding-left: 8px">Segregation:</label>-->
+                                                            <!--<div class="col-md-8">-->
+                                                                <!--&lt;!&ndash;<button class="btn btn-default btn-sm dropdown-toggle" type="button"&ndash;&gt;-->
+                                                                <!--&lt;!&ndash;id="segregationPrioritizationDropdown" data-toggle="dropdown"&ndash;&gt;-->
+                                                                <!--&lt;!&ndash;aria-haspopup="true" aria-expanded="true" disabled$="{{isDisabledRadioAnalysisAndSettings()}}">&ndash;&gt;-->
+                                                                <!--&lt;!&ndash;Select ...&ndash;&gt;-->
+                                                                <!--&lt;!&ndash;<span class="caret"></span>&ndash;&gt;-->
+                                                                <!--&lt;!&ndash;</button>&ndash;&gt;-->
+                                                                <!--&lt;!&ndash;<ul class="dropdown-menu" aria-labelledby="segregationPrioritizationDropdown"&ndash;&gt;-->
+                                                                <!--&lt;!&ndash;on-click="selectSegregation">&ndash;&gt;-->
+                                                                <!--&lt;!&ndash;<template is="dom-repeat" items="{{config.segregation}}">&ndash;&gt;-->
+                                                                <!--&lt;!&ndash;<li><a>{{item}}</a></li>&ndash;&gt;-->
+                                                                <!--&lt;!&ndash;</template>&ndash;&gt;-->
+                                                                <!--&lt;!&ndash;</ul>&ndash;&gt;-->
 
-                                                                <select id="{{prefix}}{{study.alias}}{{cohort.id}}CohortOperator2" name="{{cohort.id}}Operator"
-                                                                        class$="form-control input-sm {{prefix}}FilterSelect" on-change="selectSegregation" style="width: 150px">
-                                                                    <template is="dom-repeat" items="{{config.filter.study.samples.segregation}}">
-                                                                        <option value$="{{item}}">{{item}}</option>
-                                                                    </template>
-                                                                </select>
+                                                                <!--<select id="{{prefix}}{{study.alias}}{{cohort.id}}CohortOperator2" name="{{cohort.id}}Operator"-->
+                                                                        <!--class$="form-control input-sm {{prefix}}FilterSelect" on-change="selectSegregation" style="width: 150px">-->
+                                                                    <!--<template is="dom-repeat" items="{{config.filter.study.samples.segregation}}">-->
+                                                                        <!--<option value$="{{item}}">{{item}}</option>-->
+                                                                    <!--</template>-->
+                                                                <!--</select>-->
 
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </template>
-                                            </template>
-
-                                            <table id="{{prefix}}SampleGenotypeTable" class="table table-hover" style="margin-bottom: 5px;display: none">
-                                                <thead>
-                                                <tr>
-                                                    <th>Sample</th>
-                                                    <th>0/0</th>
-                                                    <th>0/1</th>
-                                                    <th>1/1</th>
-                                                    <th>./.</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                <!--<template is="dom-repeat" items="{{samples}}" as="sample">-->
-                                                <!--<tr id="{{sample.name}}">-->
-                                                <!--<td id="{{prefix}}{{sample.name}}RowName" class$="{{sample.className}}">{{sample.name}}</td>-->
-                                                <!--<td><input id="{{prefix}}{{sample.name}}00Checkbox" type="checkbox" value="0/0" data-id$="{{sample.name}}"-->
-                                                <!--on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"checked></td>-->
-                                                <!--<td><input id="{{prefix}}{{sample.name}}01Checkbox" type="checkbox" value="0/1" data-id$="{{sample.name}}"-->
-                                                <!--on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>-->
-                                                <!--<td><input id="{{prefix}}{{sample.name}}11Checkbox" type="checkbox" value="1/1" data-id$="{{sample.name}}"-->
-                                                <!--on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>-->
-                                                <!--<td><input id="{{prefix}}{{sample.name}}MissingCheckbox" type="checkbox" value="./." data-id$="{{sample.name}}"-->
-                                                <!--on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>-->
-                                                <!--</tr>-->
+                                                            <!--</div>-->
+                                                        <!--</div>-->
+                                                    <!--</div>-->
                                                 <!--</template>-->
-                                                </tbody>
-                                            </table>
-                                        </div>
+                                            <!--</template>-->
+
+                                            <!--<table id="{{prefix}}SampleGenotypeTable" class="table table-hover" style="margin-bottom: 5px;display: none">-->
+                                                <!--<thead>-->
+                                                <!--<tr>-->
+                                                    <!--<th>Sample</th>-->
+                                                    <!--<th>0/0</th>-->
+                                                    <!--<th>0/1</th>-->
+                                                    <!--<th>1/1</th>-->
+                                                    <!--<th>./.</th>-->
+                                                <!--</tr>-->
+                                                <!--</thead>-->
+                                                <!--<tbody>-->
+                                                <!--&lt;!&ndash;<template is="dom-repeat" items="{{samples}}" as="sample">&ndash;&gt;-->
+                                                <!--&lt;!&ndash;<tr id="{{sample.name}}">&ndash;&gt;-->
+                                                <!--&lt;!&ndash;<td id="{{prefix}}{{sample.name}}RowName" class$="{{sample.className}}">{{sample.name}}</td>&ndash;&gt;-->
+                                                <!--&lt;!&ndash;<td><input id="{{prefix}}{{sample.name}}00Checkbox" type="checkbox" value="0/0" data-id$="{{sample.name}}"&ndash;&gt;-->
+                                                <!--&lt;!&ndash;on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"checked></td>&ndash;&gt;-->
+                                                <!--&lt;!&ndash;<td><input id="{{prefix}}{{sample.name}}01Checkbox" type="checkbox" value="0/1" data-id$="{{sample.name}}"&ndash;&gt;-->
+                                                <!--&lt;!&ndash;on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>&ndash;&gt;-->
+                                                <!--&lt;!&ndash;<td><input id="{{prefix}}{{sample.name}}11Checkbox" type="checkbox" value="1/1" data-id$="{{sample.name}}"&ndash;&gt;-->
+                                                <!--&lt;!&ndash;on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>&ndash;&gt;-->
+                                                <!--&lt;!&ndash;<td><input id="{{prefix}}{{sample.name}}MissingCheckbox" type="checkbox" value="./." data-id$="{{sample.name}}"&ndash;&gt;-->
+                                                <!--&lt;!&ndash;on-change="updateQueryFilters" class$="genotypes {{prefix}}FilterCheckBox"></td>&ndash;&gt;-->
+                                                <!--&lt;!&ndash;</tr>&ndash;&gt;-->
+                                                <!--&lt;!&ndash;</template>&ndash;&gt;-->
+                                                <!--</tbody>-->
+                                            <!--</table>-->
+                                        <!--</div>-->
                                     </div>
                                 </template>
 
                                 <!-- Cohorts sub-section -->
                                 <template is="dom-if" if="{{studyFilterVisibility.cohorts}}">
-                                    <div style="padding: 10px 0px">
-                                        <div class="browser-subsection">Cohort Stats (MAF)</div>
+                                    <!--<div style="padding: 10px 0px">-->
+                                        <!--<div class="browser-subsection">Cohort Stats (MAF)</div>-->
 
-                                        <template is="dom-if" if="{{!_isNotEmptyArray('_cohorts')}}">
-                                            <label style="color: darkred;padding: 10px 0px 0px 15px">No cohorts defined</label>
-                                        </template>
+                                        <!--<template is="dom-if" if="{{!_isNotEmptyArray('_cohorts')}}">-->
+                                            <!--<label style="color: darkred;padding: 10px 0px 0px 15px">No cohorts defined</label>-->
+                                        <!--</template>-->
 
-                                        <template is="dom-repeat" items="{{_cohorts}}" as="cohort">
-                                            <div class="form-horizontal">
-                                                <div class="form-group" style="margin: 5px 0px">
-                                                    <span class="col-md-4 control-label">{{cohort.name}}</span>
-                                                    <div class="col-md-4">
-                                                        <select id="{{prefix}}{{study.alias}}{{cohort.id}}CohortOperator" name="{{cohort.id}}Operator"
-                                                                class$="form-control input-sm {{prefix}}FilterSelect" on-change="updateQueryFilters" style="padding: 0px 5px">
-                                                            <option value="<" selected><</option>
-                                                            <option value="<="><=</option>
-                                                            <option value=">">></option>
-                                                            <option value=">=">>=</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="col-md-4">
-                                                        <input type="text" value="" class$="form-control input-sm col-md-4 {{prefix}}FilterTextInput"
-                                                               name="{{study.alias}}_{{cohort.id}}" id="{{prefix}}{{study.alias}}{{cohort.id}}Cohort"
-                                                               on-keyup="updateQueryFilters">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </template>
-                                    </div>
+                                        <!--<template is="dom-repeat" items="{{_cohorts}}" as="cohort">-->
+                                            <!--<div class="form-horizontal">-->
+                                                <!--<div class="form-group" style="margin: 5px 0px">-->
+                                                    <!--<span class="col-md-4 control-label">{{cohort.name}}</span>-->
+                                                    <!--<div class="col-md-4">-->
+                                                        <!--<select id="{{prefix}}{{study.alias}}{{cohort.id}}CohortOperator" name="{{cohort.id}}Operator"-->
+                                                                <!--class$="form-control input-sm {{prefix}}FilterSelect" on-change="updateQueryFilters" style="padding: 0px 5px">-->
+                                                            <!--<option value="<" selected><</option>-->
+                                                            <!--<option value="<="><=</option>-->
+                                                            <!--<option value=">">></option>-->
+                                                            <!--<option value=">=">>=</option>-->
+                                                        <!--</select>-->
+                                                    <!--</div>-->
+                                                    <!--<div class="col-md-4">-->
+                                                        <!--<input type="text" value="" class$="form-control input-sm col-md-4 {{prefix}}FilterTextInput"-->
+                                                               <!--name="{{study.alias}}_{{cohort.id}}" id="{{prefix}}{{study.alias}}{{cohort.id}}Cohort"-->
+                                                               <!--on-keyup="updateQueryFilters">-->
+                                                    <!--</div>-->
+                                                <!--</div>-->
+                                            <!--</div>-->
+                                        <!--</template>-->
+                                    <!--</div>-->
                                 </template>
 
                                 <!-- Scores sub-section -->
@@ -480,27 +476,6 @@
         <!--</div>-->
         <!--</div>-->
 
-        <!--Modal dialog for Analysis Browser-->
-        <!--<div class="modal fade" id="{{prefix}}AnalysisBrowser" tabindex="-1" role="dialog"-->
-        <!--aria-labelledby="sampleBrowserLabel">-->
-        <!--<div class="modal-dialog modal-lg" role="document" style="width: 1280px;">-->
-        <!--<div class="modal-content">-->
-        <!--<div class="modal-header">-->
-        <!--<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span-->
-        <!--aria-hidden="true">&times;</span></button>-->
-        <!--<h4 class="modal-title" id="{{prefix}}AnalysisBrowserLabel">Analysis Selector</h4>-->
-        <!--</div>-->
-        <!--<div class="modal-body" style="height: 780px">-->
-        <!--<variant-clinical-selector opencga-client="{{opencgaClient}}" analysis-selected="{{analysisSelected}}" analysis-modal="{{analysisModal}}" study="{{study}}" show-pedigree="{{showPedigree}}"></variant-clinical-selector>-->
-        <!--</div>-->
-        <!--<div class="modal-footer">-->
-        <!--<button type="button" class="btn btn-primary" data-dismiss="modal" on-click="showSegregation">-->
-        <!--OK-->
-        <!--</button>-->
-        <!--</div>-->
-        <!--</div>-->
-        <!--</div>-->
-        <!--</div>-->
     </template>
 
     <script>
@@ -671,7 +646,13 @@
                             include: "id,name",
                             limit: 20}, {})
                         .then(function (response) {
-                            _this.autocompleteSampleData = response.response[0].result;
+//                            _this.autocompleteSampleData = response.response[0].result;
+                            let options = "";
+                            for (let sample of response.response[0].result) {
+                                let sampleStr = JSON.stringify(sample);
+                                options += `<option id="${_this.prefix}Sample${sample.name}" value="${sample.name}" data-sample='` + sampleStr + "'>";
+                            }
+                            PolymerUtils.innerHTML(_this.prefix + "AutocompleteSampleSearchDataList", options);
                         });
                 }
             }
@@ -679,8 +660,8 @@
             onSampleChange(e) {
                 if (UtilsNew.isNotUndefinedOrNull(this.samples)) {
                     let sampleSearchInput = PolymerUtils.getElementById(this.prefix + "AutocompleteSampleSearchInput");
-                    let sampleString = PolymerUtils.getElementById(this.prefix + "Sample" + sampleSearchInput.value).dataset.sample;
-                    let sample = JSON.parse(sampleString);
+                    let sampleHtmlObj = PolymerUtils.getElementById(this.prefix + "Sample" + sampleSearchInput.value);
+                    let sample = JSON.parse(sampleHtmlObj.dataset.sample);
 
                     if (UtilsNew.isNotUndefinedOrNull(sample)) {
                         // Default genotype when adding samples is 0/1, 1/1
@@ -706,6 +687,12 @@
             }
 
             samplesObserver(e) {
+                if (UtilsNew.isNotEmptyArray(this.samples)) {
+                    PolymerUtils.addStyle(this.prefix + "SampleGenotypeMessage", "display", "none");
+                } else {
+                    PolymerUtils.addStyle(this.prefix + "SampleGenotypeMessage", "display", "inline");
+                }
+
                 this.renderSampleGenotypesTable();
 
                 this.updateQueryFilters();
@@ -1628,6 +1615,15 @@
 
                 let content = "";
                 switch (subsection.id) {
+                    case "sample":
+                        content = this._getSampleHtml(this.prefix);
+                        break;
+                    case "cohort":
+                        content = this._getCohortHtml(subsection.cohortPerStudy, this.prefix);
+                        break;
+                    case "study":
+                        content = this._getSampleHtml(this.prefix);
+                        break;
                     case "location":
                         content = this._getLocationHtml(this.prefix);
                         break;
@@ -1677,6 +1673,90 @@
                 `;
 
                 return header + content + footer;
+            }
+
+            _getSampleHtml(prefix) {
+                return `
+                    <div style="margin: 10px 5px">
+                        <span>Select Sample:</span>
+
+                        <div class="row">
+                            <div class="col-md-9">
+                                <input id="${prefix}AutocompleteSampleSearchInput" type="text" class="form-control" placeholder="Search name..."
+                                            list="${prefix}AutocompleteSampleSearchDataList"">
+                                <datalist id="${prefix}AutocompleteSampleSearchDataList"></datalist>
+                            </div>
+                            <div class="col-md-3">
+                                <button id="${prefix}SampleAddButton" type="button" class="btn btn-default btn-sm form-control">
+                                    <i class="fa fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin: 5px 5px">
+                        <span>Select Sample Genotypes:</span>
+                        <div id="${prefix}SampleGenotypeMessage">
+                            <span style="color: darkred;padding: 5px 0px 0px 10px">No samples selected</span>
+                        </div>
+
+                        <div id="${prefix}SampleGenotypeMessage">
+                            <div class="form-inline">
+                                <div class="form-group" style="margin: 5px 0px">
+                                    <label class="col-md-4" style="padding-left: 8px">Segregation:</label>
+                                    <div class="col-md-8">
+                                        <select id="${prefix}{{study.alias}}{{cohort.id}}CohortOperator2" name="{{cohort.id}}Operator"
+                                                    class="form-control input-sm ${prefix}FilterSelect" on-change="selectSegregation" style="width: 150px">
+                                            <template is="dom-repeat" items="{{config.filter.study.samples.segregation}}">
+                                                <option value$="{{item}}">{{item}}</option>
+                                            </template>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <table id="${prefix}SampleGenotypeTable" class="table table-hover" style="margin-bottom: 5px;display: none">
+                            <thead>
+                                <tr>
+                                    <th>Sample</th><th>0/0</th><th>0/1</th><th>1/1</th><th>./.</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                `;
+            }
+
+            _getCohortHtml(cohortPerStudy, prefix) {
+                let study = this.study;
+                let cohorts = cohortPerStudy[this.study.alias];
+
+                let content = "";
+                for (let cohort of cohorts) {
+                    content += `
+                        <div class="form-horizontal">
+                            <div class="form-group" style="margin: 5px 0px">
+                                <span class="col-md-4 control-label">${cohort.name}</span>
+                                <div class="col-md-4">
+                                    <select id="${prefix}${study.alias}${cohort.id}CohortOperator" name="${cohort.id}Operator"
+                                                class="form-control input-sm ${prefix}FilterSelect" on-change="updateQueryFilters" style="padding: 0px 5px">
+                                        <option value="<" selected><</option>
+                                        <option value="<="><=</option>
+                                        <option value=">">></option>
+                                        <option value=">=">>=</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="text" value="" class="form-control input-sm col-md-4 ${prefix}FilterTextInput"
+                                                name="${study.alias}_${cohort.id}" id="${prefix}${study.alias}${cohort.id}Cohort"
+                                                                   on-keyup="updateQueryFilters">
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                return content;
             }
 
             _getLocationHtml(prefix) {
@@ -1794,70 +1874,69 @@
 
             _getProteinSubstitutionScore(prefix) {
                 return `
-                       <div style="padding-top: 10px">
-                            <span style="padding-left: 0px;">SIFT</span>
-                            <div class="row">
-                                <div class="col-md-5" style="padding-right: 5px">
-                                    <select  name="Sift" id="${prefix}SiftValues" class="${prefix}FilterSelect form-control input-sm options">
-                                        <option value="score" selected>Score...</option>
-                                        <option value="tolerated">Tolerated</option>
-                                        <option value="deleterious">Deleterious</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-3" style="padding: 0px 5px">
-                                    <select name="siftOperator" id="${prefix}SiftOperator" class="${prefix}FilterSelect form-control input-sm" style="padding: 0px 5px">
-                                        <option value="<"><</option>
-                                        <option value="<="><=</option>
-                                        <option value=">"selected>></option>
-                                        <option value=">=">>=</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-4" style="padding-left: 5px">
-                                    <input id="${prefix}SiftInput" name="Sift" type="text" value=""
-                                           class="${prefix}FilterTextInput form-control input-sm">
-                                </div>
+                    <div style="padding-top: 10px">
+                        <span style="padding-left: 0px;">SIFT</span>
+                        <div class="row">
+                            <div class="col-md-5" style="padding-right: 5px">
+                                <select  name="Sift" id="${prefix}SiftValues" class="${prefix}FilterSelect form-control input-sm options">
+                                    <option value="score" selected>Score...</option>
+                                    <option value="tolerated">Tolerated</option>
+                                    <option value="deleterious">Deleterious</option>
+                                </select>
                             </div>
-                       </div>
-
-                       <div style="padding-top: 15px">
-                            <span style="padding-top: 10px;padding-left: 0px;">Polyphen</span>
-                            <div class="row">
-                                <div class="col-sm-5" style="padding-right: 5px">
-                                    <select name="Polyphen" id="${prefix}PolyphenValues" class="${prefix}FilterSelect form-control input-sm options">
-                                        <option value="score" selected>Score...</option>
-                                        <option value="benign">Benign</option>
-                                        <option value="unknown">Unknown</option>
-                                        <option value="possibly damaging">Possibly damaging</option>
-                                        <option value="probably damaging">Probably damaging</option>
-                                        <option value="possibly damaging,probably damaging">Possibly & Probably damaging</option>
-                                    </select>
-                                </div>
-                                <div class="col-sm-3" style="padding: 0px 5px">
-                                    <select name="polyphenOperator" id="${prefix}PolyphenOperator" class="${prefix}FilterSelect form-control input-sm" style="padding: 0px 5px">
-                                        <option value=">" selected>></option>
-                                        <option value=">=">>=</option>
-                                        <option value="<" ><</option>
-                                        <option value="<="><=</option>
-                                    </select>
-                                </div>
-                                <div class="col-sm-4" style="padding-left: 5px">
-                                    <input type="text" value="" class="${prefix}FilterTextInput form-control input-sm"
-                                        id="${prefix}PolyphenInput" name="Polyphen" >
-                                </div>
+                            <div class="col-md-3" style="padding: 0px 5px">
+                                <select name="siftOperator" id="${prefix}SiftOperator" class="${prefix}FilterSelect form-control input-sm" style="padding: 0px 5px">
+                                    <option value="<"><</option>
+                                    <option value="<="><=</option>
+                                    <option value=">"selected>></option>
+                                    <option value=">=">>=</option>
+                                </select>
                             </div>
+                            <div class="col-md-4" style="padding-left: 5px">
+                                <input id="${prefix}SiftInput" name="Sift" type="text" value=""
+                                            class="${prefix}FilterTextInput form-control input-sm">
+                            </div>
+                        </div>
+                    </div>
 
-                            <form style="padding-top: 15px">
-                                <label style="font-weight: normal;">Logical Operator</label>
-                                <input type="radio" name="pss" id="${prefix}pssOrRadio" value="or" class="${prefix}FilterRadio"
+                    <div style="padding-top: 15px">
+                        <span style="padding-top: 10px;padding-left: 0px;">Polyphen</span>
+                        <div class="row">
+                            <div class="col-sm-5" style="padding-right: 5px">
+                                <select name="Polyphen" id="${prefix}PolyphenValues" class="${prefix}FilterSelect form-control input-sm options">
+                                    <option value="score" selected>Score...</option>
+                                    <option value="benign">Benign</option>
+                                    <option value="unknown">Unknown</option>
+                                    <option value="possibly damaging">Possibly damaging</option>
+                                    <option value="probably damaging">Probably damaging</option>
+                                    <option value="possibly damaging,probably damaging">Possibly & Probably damaging</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-3" style="padding: 0px 5px">
+                                <select name="polyphenOperator" id="${prefix}PolyphenOperator" class="${prefix}FilterSelect form-control input-sm" style="padding: 0px 5px">
+                                    <option value=">" selected>></option>
+                                    <option value=">=">>=</option>
+                                    <option value="<" ><</option>
+                                    <option value="<="><=</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-4" style="padding-left: 5px">
+                                <input type="text" value="" class="${prefix}FilterTextInput form-control input-sm"
+                                            id="${prefix}PolyphenInput" name="Polyphen" >
+                            </div>
+                        </div>
+
+                        <form style="padding-top: 15px">
+                            <label style="font-weight: normal;">Logical Operator</label>
+                            <input type="radio" name="pss" id="${prefix}pssOrRadio" value="or" class="${prefix}FilterRadio"
                                     checked disabled  style="margin-left: 10px"> OR<br>
-                                <input type="radio" name="pss" id="${prefix}pssAndRadio" value="and"
+                            <input type="radio" name="pss" id="${prefix}pssAndRadio" value="and"
                                     class="${prefix}FilterRadio" disabled style="margin-left: 102px"> AND  <br>
-                            </form>
-                            <br>
-                       </div>
+                        </form>
+                        <br>
+                    </div>
                 `;
             }
-
 
             _getCadd(prefix) {
                 return `
@@ -2027,6 +2106,13 @@
                         element.addEventListener('change', this.updateQueryFilters.bind(this));
                     }
                 }
+
+                // Add events for Sample IDs
+                PolymerUtils.getElementById(this.prefix + "AutocompleteSampleSearchInput").addEventListener('keyup', this._autocompleteSampleSearch.bind(this));
+                PolymerUtils.getElementById(this.prefix + "SampleAddButton").addEventListener('click', this.onSampleChange.bind(this));
+
+                // Add events for Cohrt
+
 
                 // Add events for Feature IDs
                 PolymerUtils.getElementById(this.prefix + "FeatureIdText").addEventListener('keyup', this.callAutocomplete.bind(this));
