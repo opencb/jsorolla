@@ -434,6 +434,10 @@
                     },
                     icd10: {
                         type: Array
+                    },
+                    eventNotifyName: {
+                        type: String,
+                        value: "messageevent"
                     }
                 }
             }
@@ -695,7 +699,7 @@
                                     let headerColumns = content[i].split('\t');
                                     if (headerColumns.length != 10) {
                                         let _message = "VCF file does not have proper number of data columns which are CHROM POS ID REF ALT QUAL FILTER INFO FORMAT <sample>. Besides, notice that for this version VCF multisample is not allowed";
-                                        this.dispatchEvent(new CustomEvent("notifymessage", {
+                                        this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
                                             detail: {
                                                 message: _message,
                                                 type: UtilsNew.MESSAGE_ERROR
@@ -715,7 +719,7 @@
                         });
                         reader.onerror = (function () {
                             let _message = "The VCF file couldn't be read";
-                            this.dispatchEvent(new CustomEvent("notifymessage", {
+                            this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
                                 detail: {
                                     message: _message,
                                     type: UtilsNew.MESSAGE_ERROR
@@ -729,7 +733,7 @@
                     } else {
                         // Type of file: VCF or not
                         let _message = "The file selected is not a VCF file";
-                        this.dispatchEvent(new CustomEvent("notifymessage", {
+                        this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
                             detail: {
                                 message: _message,
                                 type: UtilsNew.MESSAGE_ERROR
@@ -741,7 +745,7 @@
                 } else {
                     // Whether browser supports FILE API
                     let _message = "Your browser is not supported. The latest version of Google Chrome is recommended (https://www.google.es/chrome/browser/desktop/index.html)";
-                    this.dispatchEvent(new CustomEvent("notifymessage", {
+                    this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
                         detail: {
                             message: _message,
                             type: UtilsNew.MESSAGE_ERROR
@@ -826,7 +830,7 @@
                         })
                         .catch(function (responseError) {
                             let _message = responseError.error;
-                            this.dispatchEvent(new CustomEvent("notifymessage", {
+                            this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
                                 detail: {
                                     message: _message,
                                     type: UtilsNew.MESSAGE_ERROR
@@ -858,7 +862,7 @@
                         })
                         .catch(function (responseError) {
                             let _message = response.error;
-                            this.dispatchEvent(new CustomEvent("notifymessage", {
+                            this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
                                 detail: {
                                     message: _message,
                                     type: UtilsNew.MESSAGE_ERROR
@@ -889,7 +893,7 @@
                     })
                     .catch(function () {
                         let _message = "Could not index file " + _this.fileId;
-                        this.dispatchEvent(new CustomEvent("notifymessage", {
+                        this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
                             detail: {
                                 message: _message,
                                 type: UtilsNew.MESSAGE_ERROR
@@ -901,7 +905,7 @@
 
                 this._clearHtmlDom(true);
                 let _message = "The VCF file has successfully uploaded and annotated. You can now proceed to Analysis tab or upload another VCF file";
-                this.dispatchEvent(new CustomEvent("notifymessage", {
+                this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
                     detail: {
                         message: _message,
                         type: UtilsNew.MESSAGE_SUCCESS
@@ -956,7 +960,7 @@
 //                        })
 //                        .catch(function (response) {
 //                            let _message = "The user " + _individualId + " does not exist";
-//            this.dispatchEvent(new CustomEvent("notifymessage", {
+//            this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
 //            detail: {
 //                message: _message,
 //                type: UtilsNew.MESSAGE_ERROR
@@ -992,7 +996,7 @@
                     })
                     .catch(function (responseError) {
                         console.log("Could not obtain the variable sets of the study " + _this.study);
-                        this.dispatchEvent(new CustomEvent("notifymessage", {
+                        this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
                             detail: {
                                 message: responseError.error,
                                 type: UtilsNew.MESSAGE_ERROR

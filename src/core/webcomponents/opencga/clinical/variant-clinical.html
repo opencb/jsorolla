@@ -153,7 +153,7 @@
                 <template is="dom-if" if="{{activesTab.uploadTab}}">
                     <div class$="analysis-content" id="{{prefix}}UploadButtonDiv">
                         <variant-clinical-upload-new opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}"
-                                                 ebi-config="{{ebiConfig}}" project="{{project}}" icd10="{{icd10}}">
+                                                 ebi-config="{{ebiConfig}}" project="{{project}}" icd10="{{icd10}}" event-notify-name="{{eventNotifyName}}">
                         </variant-clinical-upload-new>
                     </div>
                 </template>
@@ -162,7 +162,7 @@
                 <template is="dom-if" if="{{activesTab.analysisTab}}">
                     <div class$="analysis-content" id="{{prefix}}SamplesButtonDiv">
                         <variant-clinical-samples opencga-client="{{opencgaClient}}" project="{{project}}" study="{{study}}"
-                                                  samples="{{samples}}" prefix="{{prefix}}" config="{{config}}">
+                                                  samples="{{samples}}" prefix="{{prefix}}" config="{{config}}" event-notify-name="{{eventNotifyName}}">
                         </variant-clinical-samples>
                     </div>
                 </template>
@@ -415,6 +415,10 @@
                     },
                     icd10: {
                         type: Array
+                    },
+                    eventNotifyName: {
+                        type: String,
+                        value: "messageevent"
                     }
                 }
             }

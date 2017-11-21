@@ -204,6 +204,10 @@
                     analysisChanged: {
                         type: Number,
                         observer: "renderAnalysisTable"
+                    },
+                    eventNotifyName: {
+                        type: String,
+                        value: "messageevent"
                     }
                 }
             }
@@ -866,7 +870,7 @@
                 let _existsAllIndividual= this._checkExistIndividualsInSamples(samples);
                 if (_existsAllIndividual) {
                     if ((analysisType === 'Trio' || analysisType === 'Duo' || analysisType === 'Single' || analysisType === 'Auto comparative') && introducedLength != properLength) {
-                        this.dispatchEvent(new CustomEvent("notifymessage", {
+                        this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
                             detail: {
                                 message: "Incorrect number of samples selected (" + introducedLength.toString() + ") for " + analysisType + " analysis (" + properLength.toString() + ")",
                                 type: UtilsNew.MESSAGE_ERROR
@@ -876,7 +880,7 @@
                         }));
                         return false;
                     } else if ((analysisType === 'Family' || analysisType === 'Multisample') && introducedLength < properLength) {
-                        this.dispatchEvent(new CustomEvent("notifymessage", {
+                        this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
                             detail: {
                                 message: "Incorrect number of samples selected (" + introducedLength.toString() + ") for " + analysisType + " analysis (at least " + properLength.toString() + ")",
                                 type: UtilsNew.MESSAGE_ERROR
@@ -887,7 +891,7 @@
                         return false;
                     } else if (analysisType === "Single" && UtilsNew.isNotUndefinedOrNull(samples[0]) &&
                         (UtilsNew.isUndefinedOrNull(samples[0].phenotypes) || UtilsNew.isEmptyArray(samples[0].phenotypes))) {
-                        this.dispatchEvent(new CustomEvent("notifymessage", {
+                        this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
                             detail: {
                                 message: "Incorrect single analysis without diseases",
                                 type: UtilsNew.MESSAGE_ERROR
@@ -900,7 +904,7 @@
                         return true;
                     }
                 } else {
-                    this.dispatchEvent(new CustomEvent("notifymessage", {
+                    this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
                         detail: {
                             message: "All samples must have an associated individual.",
                             type: UtilsNew.MESSAGE_ERROR
