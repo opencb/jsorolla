@@ -399,7 +399,7 @@
                                         ontology-filter="{{ontologyFilter}}" term="{{ontologyTerm}}" selected-terms="{{selectedTermsOntology}}"></variant-modal-ontology>
                 
                 <!-- Modal dialog for ICD-10 diagnosis selector-->
-                <variant-modal-icd10 prefix="{{prefix}}" icd10="{{icd10}}"  on-propagateokicd10="_propagateOkICD10"></variant-modal-icd10>
+                <variant-modal-icd10 prefix="{{prefix}}" icd10="{{config.icd10}}"  on-propagateokicd10="_propagateOkICD10"></variant-modal-icd10>
             </div>
         </div>
     </template>
@@ -431,9 +431,6 @@
                     minYearBirth: {
                         type: Number,
                         value: 1920
-                    },
-                    icd10: {
-                        type: Array
                     },
                     eventNotifyName: {
                         type: String,

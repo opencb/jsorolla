@@ -153,7 +153,7 @@
                 <template is="dom-if" if="{{activesTab.uploadTab}}">
                     <div class$="analysis-content" id="{{prefix}}UploadButtonDiv">
                         <variant-clinical-upload-new opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}"
-                                                 ebi-config="{{ebiConfig}}" project="{{project}}" icd10="{{icd10}}" event-notify-name="{{eventNotifyName}}">
+                                                 ebi-config="{{ebiConfig}}" project="{{project}}" event-notify-name="{{eventNotifyName}}">
                         </variant-clinical-upload-new>
                     </div>
                 </template>
@@ -412,9 +412,6 @@
                     checkPermissions: {
                         type: Boolean,
                         computed: '_checkPermissions(project)'
-                    },
-                    icd10: {
-                        type: Array
                     },
                     eventNotifyName: {
                         type: String,
