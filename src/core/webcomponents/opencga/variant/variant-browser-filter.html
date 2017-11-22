@@ -102,6 +102,9 @@
             .notbold{
                 font-weight: normal;
             }
+            .bootstrap-select{
+                width: 100%!important;
+            }
         </style>
 
         <div>
@@ -116,7 +119,6 @@
             <br>
             <div id="FilterMenu">
             </div>
-
 
             <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true">
 
@@ -333,6 +335,7 @@
 
                 this._addEventListeners();
                 this._addAllTooltips();
+                $('select.selectpicker').selectpicker('render');
             }
 
             static get observers() {
@@ -1591,7 +1594,7 @@
                     options += `<option value="${biotype}">${biotype}</option>`;
                 }
                 return `
-                    <select class="selectpicker form-control" id="${prefix}GeneBiotypes" data-size="10" data-live-search="true"
+                    <select class="selectpicker" id="${prefix}GeneBiotypes" data-size="10" data-live-search="true"
                             data-selected-text-format="count" multiple>
                         ${options}
                     </select>
@@ -1986,7 +1989,6 @@
                 PolymerUtils.getElementById(this.prefix + "SampleAddButton").addEventListener('click', this.onSampleChange.bind(this));
 
                 // Add events for Cohrt
-
 
                 // Add events for Feature IDs
                 PolymerUtils.getElementById(this.prefix + "FeatureIdText").addEventListener('keyup', this.callAutocomplete.bind(this));
