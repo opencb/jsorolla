@@ -28,8 +28,9 @@
             }
 
             .browser-ct-scroll {
-                max-height: 450px;
-                overflow-y: scroll;
+                /*max-height: 450px;*/
+                /*overflow-y: scroll;*/
+                overflow-x: scroll;
             }
 
             .browser-ct-tree-view,
@@ -1494,6 +1495,9 @@
             }
 
             _createSubSection(subsection) {
+                // ConsequenceType needs horizontal scroll
+                let ctScroll = (subsection.id === "consequenceType") ? "browser-ct-scroll" : "";
+
                 // Add subsection header
                 let header = `
                     <div class="form-group">
@@ -1502,7 +1506,7 @@
                                 <a><i class="fa fa-info-circle" aria-hidden="true" id="${subsection.id}Tooltip"></i></a>
                             </div>
                         </div>
-                        <div class="subsection-content">
+                        <div class="subsection-content ${ctScroll}">
                 `;
 
                 let content = "";
@@ -1543,6 +1547,9 @@
                     case "conservation":
                         content = this._getConservationHtml(this.prefix);
                         break;
+                    case "consequenceType":
+                        content = this._getConsequenceTypeHtml(this.prefix);
+                        break;
                     case "go":
                         content = this._getGoAccessionsHtml(this.prefix);
                         break;
@@ -1554,9 +1561,6 @@
                         break;
                     case "fullTextSearch":
                         content = this._getFullTextSearchAccessionsHtml(this.prefix);
-                        break;
-                    case "consequenceType":
-                        content = this._getConsequenceTypeHtml(this.prefix);
                         break;
                 }
 
@@ -1983,23 +1987,19 @@
 
             _getConsequenceTypeHtml(prefix) {
                 let categoriesStart = `
-                 <div class="panel-body browser-ct-scroll">
-                     <div class="form-group">
-                        <div class="browser-subsection">Loss-of-Function (LoF) terms</div>
-                        <div class="form-check" style="margin-top: 5px;">
-                            <div class="form-check-label">
-                                <label id="${prefix}LossOfFunctionCheckBoxLabel" class="notbold">
-                                    <input id="${prefix}LossOfFunctionCheckBox" type="checkbox"
-                                           class="${prefix}FilterCheckBox form-check-input">
-                                    LoF terms</label>
-                            </div>
+                    <div style="padding-top: 15px">Loss-of-Function (LoF) terms:</div>
+                    <div class="form-check" style="margin-top: 5px;">
+                        <div class="form-check-label">
+                            <label id="${prefix}LossOfFunctionCheckBoxLabel" class="notbold">
+                                <input id="${prefix}LossOfFunctionCheckBox" type="checkbox" class="${prefix}FilterCheckBox form-check-input">
+                                LoF terms
+                            </label>
                         </div>
                     </div>
 
-                     <div class="form-group">
-                        <div class="browser-subsection">Consequence Type terms</div>
-                        <div class="browser-ct-tree-view browser-ct-item">
-                            <ul id="${prefix}consequenceTypeFilter">`;
+                    <div style="padding-top: 15px">Consequence Type terms:</div>
+                    <div class="browser-ct-tree-view browser-ct-item">
+                        <ul id="${prefix}consequenceTypeFilter">`;
 
                 let categoriesCheckbox = "";
                 if (UtilsNew.isNotEmptyArray(consequenceTypes.categories)) {
@@ -2011,7 +2011,7 @@
                             if (category.isCategory) {
 
                                 categoriesCheckbox += `
-                                                 <label  class="form-check-label notbold">
+                                                 <label class="form-check-label notbold">
                                                     <input id="${prefix}${category.title}input" type="checkbox"
                                                     class="${prefix}FilterCheckBox"> ${category.title}
                                                 </label>`;
@@ -2075,7 +2075,6 @@
                                 </ul>
                             </div>
                         </div>
-                    </div>
                `;
 
                return categoriesStart + categoriesCheckbox + categoriesEnd;
