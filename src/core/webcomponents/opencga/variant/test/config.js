@@ -21,7 +21,8 @@ const cellbase = {
 };
 
 const opencga = {
-    host: "bioinfodev.hpc.cam.ac.uk/hgva-1.2.0-dev",
+    // host: "bioinfodev.hpc.cam.ac.uk/hgva-1.2.0-dev",
+    host: "bioinfo.hpc.cam.ac.uk/hgva",
     version: "v1",
     // asUser: "researchcga", // user@project:study
     projects: [
@@ -36,14 +37,14 @@ const opencga = {
         //     ]
         // }
     ],
-    // summary: true,
+    summary: true,
     cookie: {
         prefix: "iva",
     },
 };
 
 const ebiWS = {
-    root: "http://www.ebi.ac.uk/ols/api",
+    root: "https://www.ebi.ac.uk/ols/api",
     tree: {
         "hp": ["/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0012823", "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0040279",
             "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0000005", "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0040006",
@@ -58,6 +59,15 @@ const application = {
     title: "IVA",
     version: "v0.9.0",
     logo: "img/opencb-logo.png",
+    notifyEventMessage: "notifymessage",
+    session: {
+        // 60000 ms = 1 min
+        checkTime: 60000,
+        // 60000 ms = 1 min
+        minRemainingTime: 60000,
+        // 600000 ms = 10 min = 1000(1sec) * 60(60 sec = 1min) * 10(10 min)
+        maxRemainingTime: 600000
+    },
     menu: [
         {
             id: "browser",
@@ -176,53 +186,6 @@ const application = {
     },
 };
 
-// Copied from tools.js for simplify testing
-const tools = {
-    prioritization: {
-        segregation: ["Autosomal Dominant", "Autosomal Recessive", "Compound Heterocygotous", "Recessive X-linked"],
-        filters: [
-            {
-                name: "Example BRCA2",
-                query: {
-                    gene: "BRCA2",
-                    conservation: "phylop<0.001",
-                },
-            },
-            {
-                name: "Example OR11",
-                query: {
-                    gene: "OR11H1",
-                    conservation: "phylop<=0.001",
-                },
-            },
-        ],
-        active: false,
-        filter: {
-            missing: true,
-            study: {
-                title: "Sample and Cohorts",
-                samples: {
-                    visibility: "public",
-                    selector: false,
-                    segregation: ["Autosomal Dominant", "Autosomal Recessive", "Compound Heterocygotous", "Recessive X-linked"]
-                },
-                cohorts: {
-                    visibility: "none",
-                    cohortPerStudy: {
-                        "1kG_phase3": [{id: "ALL", name: "All"}, {id: "MXL", name: "Mexican"}],
-                        "illumina_platinum": [{id: "ALL", name: "All"}]
-                    }
-                },
-                studies: {
-                    visibility: "public"
-                },
-                clinicalData: {
-                    visibility: "none"
-                },
-            }
-        }
-    }
-};
 
 const beacon = {
     hosts: [

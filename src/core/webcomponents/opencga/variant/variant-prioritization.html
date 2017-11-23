@@ -513,9 +513,11 @@
 
                 if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.family) && UtilsNew.isNotEmptyArray(this.clinicalAnalysis.family.members)) {
                     this.clinicalAnalysis.family.members.forEach((member) => {
-                        member.samples.map((sample) => {
-                            _samples.push(sample)
-                        });
+                        if (UtilsNew.isNotUndefinedOrNull(member.samples)) {
+                            member.samples.map((sample) => {
+                                _samples.push(sample)
+                            });
+                        }
                     });
                 } else if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.subjects) && UtilsNew.isNotEmptyArray(this.clinicalAnalysis.subjects)) {
                     this.clinicalAnalysis.subjects.forEach((individual) => {

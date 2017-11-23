@@ -663,14 +663,14 @@
                                 if (subsection.id === "cohort") {
                                     let projectFields = this.project.alias.split("@");
                                     let projectId = (projectFields.length > 0) ? projectFields[1] : projectFields[0];
-                                    for (let study of Object.keys(subsection.cohorts[projectId])) {
-//                                        this._cohorts.push(subsection.cohorts[projectId][study]);
-                                        Array.prototype.push.apply(this._cohorts, subsection.cohorts[projectId][study]);
+                                    if (UtilsNew.isNotUndefinedOrNull(subsection.cohorts[projectId])) {
+                                        for (let study of Object.keys(subsection.cohorts[projectId])) {
+                                            Array.prototype.push.apply(this._cohorts, subsection.cohorts[projectId][study]);
+                                        }
                                     }
                                 }
                             }
                         }
-                        debugger
                     }
 
 //                    this._studyCohortBoolean = differentStudies.length > 0 || (typeof this._cohorts !== "undefined" && this._cohorts.length > 0);
@@ -1519,16 +1519,17 @@
                 let projectId = (projectFields.length > 0) ? projectFields[1] : projectFields[0];
                 let cohortsPerStudy = cohorts[projectId];
 
-                let content = "";
-                for (let study of Object.keys(cohortsPerStudy)) {
-                    content += `
+                if (UtilsNew.isNotUndefinedOrNull(cohortsPerStudy)) {
+                    let content = "";
+                    for (let study of Object.keys(cohortsPerStudy)) {
+                        content += `
                         <div style="padding-left: 10px;padding-top: 10px">
                             <span><em>${study}</em> study:</span>
                     `;
 
-                    let cohorts = cohortsPerStudy[study];
-                    for (let cohort of cohorts) {
-                        content += `
+                        let cohorts = cohortsPerStudy[study];
+                        for (let cohort of cohorts) {
+                            content += `
                             <div class="form-horizontal">
                                 <div class="form-group" style="margin: 5px 0px">
                                     <span class="col-md-4 control-label">${cohort.name}</span>
@@ -1548,10 +1549,13 @@
                                 </div>
                             </div>
                         `;
+                        }
+                        content += "</div>";
                     }
-                    content += "</div>";
+                    return content;
+                } else {
+                    return "<span>Project not found</span>"
                 }
-                return content;
             }
 
             _getLocationHtml(prefix) {
@@ -1583,22 +1587,24 @@
             }
 
             _getGeneDiseasePanelsHtml(prefix) {
-                let options = "";
-                this.panelList.sort(this.sortPanelApp).forEach((item) => {
-                    options += `<option value="${item.name}">${item.title} (${item.genes.length})</option>`;
-                });
+                if (UtilsNew.isNotUndefinedOrNull(this.panelLsit)) {
+                    let options = "";
+                    this.panelList.sort(this.sortPanelApp).forEach((item) => {
+                        options += `<option value="${item.name}">${item.title} (${item.genes.length})</option>`;
+                    });
 
-                return `
-                    <select class="form-control ${prefix}FilterSelect" id="${prefix}PanelApps">
-                        <option value="none">Select a panel...</option>
-                        ${options}
-                    </select>
-                    <div style="padding-top: 5px">
-                        <textarea id="${prefix}PanelAppsTextarea" name="panelAppsTextarea"
-                                  class="form-control clearable ${prefix}FilterTextInput"
-                                  rows="3" placeholder="No panel selected"></textarea>
-                    </div>
-                `;
+                    return `
+                        <select class="form-control ${prefix}FilterSelect" id="${prefix}PanelApps">
+                            <option value="none">Select a panel...</option>
+                            ${options}
+                        </select>
+                        <div style="padding-top: 5px">
+                            <textarea id="${prefix}PanelAppsTextarea" name="panelAppsTextarea"
+                                      class="form-control clearable ${prefix}FilterTextInput"
+                                      rows="3" placeholder="No panel selected"></textarea>
+                        </div>
+                    `;
+                }
             }
 
             _getBiotypeHtml(prefix) {
@@ -2009,15 +2015,17 @@
                             let projectFields = this.project.alias.split("@");
                             let projectId = (projectFields.length > 0) ? projectFields[1] : projectFields[0];
 
-                            for (let study of Object.keys(subsection.cohorts[projectId])) {
-                                for (let cohort of subsection.cohorts[projectId][study]) {
-                                    let element = PolymerUtils.getElementById(this.prefix + study + cohort.id + "CohortOperator");
-                                    if (UtilsNew.isNotUndefinedOrNull(element)) {
-                                        element.addEventListener('change', this.updateQueryFilters.bind(this));
-                                    }
-                                    element = PolymerUtils.getElementById(this.prefix + study + cohort.id + "Cohort");
-                                    if (UtilsNew.isNotUndefinedOrNull(element)) {
-                                        element.addEventListener('keyup', this.updateQueryFilters.bind(this));
+                            if (UtilsNew.isNotUndefinedOrNull(subsection.cohorts[projectId])) {
+                                for (let study of Object.keys(subsection.cohorts[projectId])) {
+                                    for (let cohort of subsection.cohorts[projectId][study]) {
+                                        let element = PolymerUtils.getElementById(this.prefix + study + cohort.id + "CohortOperator");
+                                        if (UtilsNew.isNotUndefinedOrNull(element)) {
+                                            element.addEventListener('change', this.updateQueryFilters.bind(this));
+                                        }
+                                        element = PolymerUtils.getElementById(this.prefix + study + cohort.id + "Cohort");
+                                        if (UtilsNew.isNotUndefinedOrNull(element)) {
+                                            element.addEventListener('keyup', this.updateQueryFilters.bind(this));
+                                        }
                                     }
                                 }
                             }
