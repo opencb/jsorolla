@@ -125,21 +125,29 @@ class FeatureRenderer extends Renderer {
                     }
 
                     $(featureGroup).mouseover(function (event) {
-                        this.trigger("feature:mouseover", {
-                            query: feature[infoWidgetId],
-                            feature: feature,
-                            featureType: feature.featureType,
-                            mouseoverEvent: event
-                        });
+                        this.dispatchEvent(new CustomEvent("feature:mouseover",
+                                {detail:{
+                                    query: feature[infoWidgetId],
+                                    feature: feature,
+                                    featureType: feature.featureType,
+                                    mouseoverEvent: event
+                                },
+                                    composed: true // for IE
+                                })
+                        );
                     });
 
                     $(featureGroup).click(function (event) {
-                        this.trigger("feature:click", {
-                            query: feature[infoWidgetId],
-                            feature: feature,
-                            featureType: feature.featureType,
-                            clickEvent: event
-                        });
+                        this.dispatchEvent(new CustomEvent("feature:click",
+                                {detail:{
+                                    query: feature[infoWidgetId],
+                                    feature: feature,
+                                    featureType: feature.featureType,
+                                    clickEvent: event
+                                },
+                                    composed: true //for IE
+                                })
+                        );
                     });
                     break;
                 }
