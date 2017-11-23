@@ -124,22 +124,40 @@ class FeatureRenderer extends Renderer {
                         });
                     }
 
+                    //$(featureGroup).mouseover(function (event) {
+                    //    this.trigger("feature:mouseover", {
+                    //        query: feature[infoWidgetId],
+                    //        feature: feature,
+                    //        featureType: feature.featureType,
+                    //        mouseoverEvent: event
+                    //    });
+                    //});
+                    //
+                    //$(featureGroup).click(function (event) {
+                    //    this.trigger("feature:click", {
+                    //        query: feature[infoWidgetId],
+                    //        feature: feature,
+                    //        featureType: feature.featureType,
+                    //        clickEvent: event
+                    //    });
+                    //});
+
                     $(featureGroup).mouseover(function (event) {
-                        this.trigger("feature:mouseover", {
+                        this.dispatchEvent(new CustomEvent("feature:mouseover", {
                             query: feature[infoWidgetId],
                             feature: feature,
                             featureType: feature.featureType,
                             mouseoverEvent: event
-                        });
+                        }));
                     });
 
                     $(featureGroup).click(function (event) {
-                        this.trigger("feature:click", {
+                        this.dispatchEvent(new CustomEvent("feature:click", {
                             query: feature[infoWidgetId],
                             feature: feature,
                             featureType: feature.featureType,
                             clickEvent: event
-                        });
+                        }));
                     });
                     break;
                 }
