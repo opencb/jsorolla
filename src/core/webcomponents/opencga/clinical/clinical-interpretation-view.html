@@ -339,11 +339,11 @@
                                             <!--Genotype Stats-->
                                         <!--</a>-->
                                     <!--</li>-->
-                                    <!--<li role="presentation">-->
-                                        <!--<a href="#{{prefix}}FileMetrics" role="tab" data-toggle="tab" class="clinical-bottom-tab-title">-->
-                                            <!--File Metrics-->
-                                        <!--</a>-->
-                                    <!--</li>-->
+                                    <li role="presentation">
+                                        <a href="#{{prefix}}FileMetrics" role="tab" data-toggle="tab" class="clinical-bottom-tab-title">
+                                            File Metrics
+                                        </a>
+                                    </li>
                                     <li role="presentation">
                                         <a href="#{{prefix}}BeaconNetwork" role="tab" data-toggle="tab" class="clinical-bottom-tab-title">
                                             Beacon Network
@@ -375,30 +375,30 @@
                                     <!--</div>-->
 
                                     <!-- File Metrics Tab -->
-                                    <!--<div id="{{prefix}}FileMetrics" role="tabpanel" class="tab-pane">-->
-                                        <!--<div class="col-md-8 col-md-offset-1" style="padding-top: 20px">-->
-                                            <!--<table class="table table-hover">-->
-                                                <!--<thead>-->
-                                                <!--<tr>-->
-                                                    <!--<th>VCF Attribute</th>-->
-                                                    <!--<template is="dom-repeat" items="{{interpretation.clinicalAnalysis.family.members}}" as="member">-->
-                                                        <!--<th>{{member.name}}</th>-->
-                                                    <!--</template>-->
-                                                <!--</tr>-->
-                                                <!--</thead>-->
-                                                <!--<tbody id="{{prefix}}TableTBody">-->
-                                                <!--<template is="dom-repeat" items="{{_getFileMetricsArray(variantObj.studies.0.files)}}" as="attrs">-->
-                                                    <!--<tr id="{{attrs.name}}" class$="file-metrics-table-{{attrs.name}}">-->
-                                                        <!--<td><span style="font-weight: bold">{{attrs.name}}</span></td>-->
-                                                        <!--<template is="dom-repeat" items="{{attrs.values}}" as="attr">-->
-                                                            <!--<td>{{attr}}</td>-->
-                                                        <!--</template>-->
-                                                    <!--</tr>-->
-                                                <!--</template>-->
-                                                <!--</tbody>-->
-                                            <!--</table>-->
-                                        <!--</div>-->
-                                    <!--</div>-->
+                                    <div id="{{prefix}}FileMetrics" role="tabpanel" class="tab-pane">
+                                        <div class="col-md-8 col-md-offset-1" style="padding-top: 20px">
+                                            <table class="table table-hover">
+                                                <thead>
+                                                <tr>
+                                                    <th>VCF Attribute</th>
+                                                    <template is="dom-repeat" items="{{interpretation.clinicalAnalysis.family.members}}" as="member">
+                                                        <th>{{member.name}}</th>
+                                                    </template>
+                                                </tr>
+                                                </thead>
+                                                <tbody id="{{prefix}}TableTBody">
+                                                <template is="dom-repeat" items="{{_getFileMetricsArray(variantObj.studies.0.files)}}" as="attrs">
+                                                    <tr id="{{attrs.name}}" class$="file-metrics-table-{{attrs.name}}">
+                                                        <td><span style="font-weight: bold">{{attrs.name}}</span></td>
+                                                        <template is="dom-repeat" items="{{attrs.values}}" as="attr">
+                                                            <td>{{attr}}</td>
+                                                        </template>
+                                                    </tr>
+                                                </template>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
 
                                     <!--Beacon network-->
                                     <div role="tabpanel" class="tab-pane" id="{{prefix}}BeaconNetwork">
