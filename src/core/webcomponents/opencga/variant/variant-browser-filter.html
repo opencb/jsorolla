@@ -656,7 +656,21 @@
 
                     // Update cohorts from config, this updates the Cohort filter MAF
                     if (typeof this.config !== "undefined" && typeof this.config.filter.study.cohorts.cohortPerStudy !== "undefined") {
-                        this._cohorts = this.config.filter.study.cohorts.cohortPerStudy[this.study.alias];
+//                        this._cohorts = this.config.filter.study.cohorts.cohortPerStudy[this.study.alias];
+                        this._cohorts = [];
+                        for (let section of this.config.filter.sections) {
+                            for (let subsection of section.subsections) {
+                                if (subsection.id === "cohort") {
+                                    let projectFields = this.project.alias.split("@");
+                                    let projectId = (projectFields.length > 0) ? projectFields[1] : projectFields[0];
+                                    for (let study of Object.keys(subsection.cohorts[projectId])) {
+//                                        this._cohorts.push(subsection.cohorts[projectId][study]);
+                                        Array.prototype.push.apply(this._cohorts, subsection.cohorts[projectId][study]);
+                                    }
+                                }
+                            }
+                        }
+                        debugger
                     }
 
 //                    this._studyCohortBoolean = differentStudies.length > 0 || (typeof this._cohorts !== "undefined" && this._cohorts.length > 0);
@@ -1010,7 +1024,7 @@
                         let operator = PolymerUtils.getElementById(this.prefix + this.study.alias + cohort + "CohortOperator");
 //                        if (this.$$("#" + this.prefix + this.study.alias + cohort + "Cohort").value !== "" || this.$$("#" + this.prefix + this.study.alias + cohort + "CohortOperator").value !== "<") {
                         if ((cohortInput !== null && cohortInput.value !== "") || (operator !== null && operator.value !== "<")) {
-                            let operator = operator.value;
+                            operator = operator.value;
                             let study = this.study.alias;
                             // to be removed!!
                             if (study === "BRIDGE") {
@@ -1519,8 +1533,8 @@
                                 <div class="form-group" style="margin: 5px 0px">
                                     <span class="col-md-4 control-label">${cohort.name}</span>
                                     <div class="col-md-4">
-                                        <select id="${prefix}${study.alias}${cohort.id}CohortOperator" name="${cohort.id}Operator"
-                                                    class="form-control input-sm ${prefix}FilterSelect" on-change="updateQueryFilters" style="padding: 0px 5px">
+                                        <select id="${prefix}${study}${cohort.id}CohortOperator" name="${cohort.id}Operator"
+                                                    class="form-control input-sm ${prefix}FilterSelect" style="padding: 0px 5px">
                                             <option value="<" selected><</option>
                                             <option value="<="><=</option>
                                             <option value=">">></option>
@@ -1529,8 +1543,7 @@
                                     </div>
                                     <div class="col-md-4">
                                         <input type="text" value="" class="form-control input-sm col-md-4 ${prefix}FilterTextInput"
-                                                    name="${study.alias}_${cohort.id}" id="${prefix}${study.alias}${cohort.id}Cohort"
-                                                                       on-keyup="updateQueryFilters">
+                                                    name="${study}_${cohort.id}" id="${prefix}${study}${cohort.id}Cohort">
                                     </div>
                                 </div>
                             </div>
@@ -1988,7 +2001,29 @@
                 PolymerUtils.getElementById(this.prefix + "AutocompleteSampleSearchInput").addEventListener('keyup', this._autocompleteSampleSearch.bind(this));
                 PolymerUtils.getElementById(this.prefix + "SampleAddButton").addEventListener('click', this.onSampleChange.bind(this));
 
-                // Add events for Cohrt
+                // Add events for Cohort
+//                let cohorts = this.config.filter.sections.forEach(section => section.subsections.forEach(subsection => {if (subsection.id === "cohort") return subsection}));
+                for (let section of this.config.filter.sections) {
+                    for (let subsection of section.subsections) {
+                        if (subsection.id === "cohort") {
+                            let projectFields = this.project.alias.split("@");
+                            let projectId = (projectFields.length > 0) ? projectFields[1] : projectFields[0];
+
+                            for (let study of Object.keys(subsection.cohorts[projectId])) {
+                                for (let cohort of subsection.cohorts[projectId][study]) {
+                                    let element = PolymerUtils.getElementById(this.prefix + study + cohort.id + "CohortOperator");
+                                    if (UtilsNew.isNotUndefinedOrNull(element)) {
+                                        element.addEventListener('change', this.updateQueryFilters.bind(this));
+                                    }
+                                    element = PolymerUtils.getElementById(this.prefix + study + cohort.id + "Cohort");
+                                    if (UtilsNew.isNotUndefinedOrNull(element)) {
+                                        element.addEventListener('keyup', this.updateQueryFilters.bind(this));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
 
                 // Add events for Feature IDs
                 PolymerUtils.getElementById(this.prefix + "FeatureIdText").addEventListener('keyup', this.callAutocomplete.bind(this));

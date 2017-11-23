@@ -184,8 +184,19 @@
             onStudyUpdate() {
                 // Update cohorts from config, this updates the Cohort filter MAF
                 //TODO polymerUtils
-                if (typeof this.config !== "undefined" && typeof this.config.cohorts !== "undefined" && Object.keys(this.config.cohorts).length > 0) {
-                    this.cohorts = this.config.cohorts;
+//                if (typeof this.config !== "undefined" && typeof this.config.cohorts !== "undefined" && Object.keys(this.config.cohorts).length > 0) {
+//                    this.cohorts = this.config.cohorts;
+//                }
+                for (let section of this.config.filter.sections) {
+                    for (let subsection of section.subsections) {
+                        if (subsection.id === "cohort") {
+                            let projectFields = this.project.alias.split("@");
+                            let projectId = (projectFields.length > 0) ? projectFields[1] : projectFields[0];
+                            this.cohorts = subsection.cohorts[projectId];
+//                            for (let study of Object.keys(subsection.cohorts[projectId])) {
+//                            }
+                        }
+                    }
                 }
             }
 
