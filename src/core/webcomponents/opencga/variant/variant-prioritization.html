@@ -58,7 +58,7 @@
             <div>
 
                 <div id="{{prefix}}FilterMenu" class="col-md-2" >
-                    <variant-browser-filter project="{{project}}" study="{{study}}" studies="{{studies}}" samples="[[samples]]"
+                    <variant-browser-filter project="{{project}}" study="{{study}}" studies="{{studies}}" samples="{{samples}}"
                                             opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"
                                             population-frequencies="{{populationFrequencies}}" biotypes="{{biotypes}}"
                                             consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}"
@@ -468,10 +468,11 @@
 ////                this.set('samples', e.detail.samples);
 //            }
 
-            onSampleChange(e) {
-                this.set('samples', e.detail.samples);
-                this.dispatchEvent(new CustomEvent("samplechange", {detail: {samples: this.samples}, bubbles: true, composed: true}));
-            }
+//            onSampleChange(e) {
+//                debugger
+//                this.set('samples', e.detail.samples);
+//                this.dispatchEvent(new CustomEvent("samplechange", {detail: {samples: this.samples}, bubbles: true, composed: true}));
+//            }
 
             _checkPermissions(project) {
                 return UtilsNew.checkPermissions(project);
@@ -504,6 +505,7 @@
             }
 
             onSampleChange(e) {
+                debugger
                 this.set('samples', e.detail.samples);
                 this.dispatchEvent(new CustomEvent("samplechange", {detail: {samples: this.samples}, bubbles: true, composed: true}));
             }

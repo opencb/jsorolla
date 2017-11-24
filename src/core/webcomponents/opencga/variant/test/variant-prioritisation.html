@@ -99,7 +99,7 @@
     <template>
         <variant-prioritization mode="prioritization" title="Prioritization" host="{{opencga.host}}"
                                 project="{{project}}" study="{{study}}" samples="{{samples}}"
-                                config="{{config.tools.prioritization}}"  config-opencga="{{config.opencga}}" biotypes="{{config.biotypes}}"
+                                config="{{config.tools.prioritization}}" config-opencga="{{config.opencga}}" biotypes="{{config.biotypes}}"
                                 population-frequencies="{{populationFrequencies}}"
                                 protein-substitution-scores="{{proteinSubstitutionScores}}"
                                 consequence-types="{{consequenceTypes}}"
@@ -154,7 +154,7 @@
 
                     this.region = new Region({chromosome: "21", start: 22859462, end: 22859610});
 
-                    this.samples = [{name: "aaa"}, {name: "bbb"}];
+                    this.samples = [{id: "1", name: "aaa"}, {id: "2", name: "bbb"}];
                 }
 
                 static get is() {

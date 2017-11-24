@@ -278,6 +278,7 @@
                 //                if (UtilsNew.isNotUndefinedOrNull(this.family)) {
 //                    this._addSample(this.family.members);
 //                }
+
                 if (UtilsNew.isUndefinedOrNull(this.samples)) {
                     this.samples = [];
                 }
@@ -365,6 +366,9 @@
                     } else {
                         this.set("samples", []);
                     }
+
+                    // Display family segregation dropdown
+                    PolymerUtils.addStyle(this.prefix + "SampleSegregation", "display", "inline");
 
                     // Notify the sample change
                     this.dispatchEvent(new CustomEvent("samplechange", {
@@ -1269,7 +1273,7 @@
                 let content = "";
                 switch (subsection.id) {
                     case "sample":
-                        content = this._getSampleHtml(this.prefix);
+                        content = this._getSampleHtml(subsection, this.prefix);
                         break;
                     case "cohort":
                         content = this._getCohortHtml(subsection.cohorts, this.prefix);
@@ -1330,9 +1334,14 @@
                 return header + content + footer;
             }
 
-            _getSampleHtml(prefix) {
+            _getSampleHtml(subsection, prefix) {
+                let options = "";
+                for (let segregation of subsection.segregations) {
+                    options += `<option value="${segregation}">${segregation}</option>`;
+                }
+
                 return `
-                    <div style="margin: 10px 5px">
+                    <div style="margin: 15px 0px">
                         <span>Select Sample:</span>
 
                         <div class="row">
@@ -1349,36 +1358,37 @@
                         </div>
                     </div>
 
-                    <div style="margin: 5px 5px">
+                    <div style="margin: 15px 0px">
                         <span>Select Sample Genotypes:</span>
                         <div id="${prefix}SampleGenotypeMessage">
                             <span style="color: darkred;padding: 5px 0px 0px 10px">No samples selected</span>
                         </div>
 
-                        <div id="${prefix}SampleGenotypeMessage">
-                            <div class="form-inline">
-                                <div class="form-group" style="margin: 5px 0px">
-                                    <label class="col-md-4" style="padding-left: 8px">Segregation:</label>
-                                    <div class="col-md-8">
-                                        <select id="${prefix}{{study.alias}}{{cohort.id}}CohortOperator2" name="{{cohort.id}}Operator"
-                                                    class="form-control input-sm ${prefix}FilterSelect" on-change="selectSegregation" style="width: 150px">
-                                            <template is="dom-repeat" items="{{config.filter.study.samples.segregation}}">
-                                                <option value$="{{item}}">{{item}}</option>
-                                            </template>
-                                        </select>
-                                    </div>
-                                </div>
+
+                        <div id="${prefix}SampleSegregation" style="display: none">
+                            <div style="padding-left: 10px;padding-top: 10px">
+                                <span class="control-label">Family Segregation:</span>
+                                <select id="${prefix}SegregationOperator" name="${prefix}Segregation"
+                                     class="form-control input-sm ${prefix}FilterSelect" on-change="selectSegregation">
+                                 ${options}
+                                </select>
                             </div>
                         </div>
 
-                        <table id="${prefix}SampleGenotypeTable" class="table table-hover" style="margin-bottom: 5px;display: none">
-                            <thead>
-                                <tr>
-                                    <th>Sample</th><th>0/0</th><th>0/1</th><th>1/1</th><th>./.</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
+                        <div id="${prefix}SampleGenotypeTable" style="display: none">
+                            <div style="padding-left: 10px;padding-top: 10px">
+                                <table id="${prefix}SampleGenotypeTable" class="table table-hover" style="margin-bottom: 10px">
+                                    <thead>
+                                        <tr>
+                                            <th>Sample</th><th>0/0</th><th>0/1</th><th>1/1</th><th>./.</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                                <input type="checkbox" value="alternateGenotype" class="${prefix}AlternateGenotypeCheckBox" style="padding-left: 10px">
+                                    Any allele in multi-allelic variants
+                            </div>
+                        </div>
                     </div>
                 `;
             }
@@ -1394,7 +1404,7 @@
                     let content = "";
                     for (let study of Object.keys(cohortsPerStudy)) {
                         content += `
-                        <div style="padding-left: 10px;padding-top: 10px">
+                        <div style="padding-left: 5px;padding-top: 10px">
                             <span><em>${study}</em> study:</span>
                     `;
 
