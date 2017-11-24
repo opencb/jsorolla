@@ -46,14 +46,19 @@ const filter = {
                             EXAC: [
                                 {id: "ALL", name: "All"}
                             ]
+                        },
+                        platinum: {
+                            illumina_platinum: [
+                                {id: "ALL", name: "All"}
+                            ]
                         }
                     },
                     tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
                 },
                 {
                     id: "study",
-                    title: "Variant Type",
-                    tooltip: "Only considers variants of the selected type"
+                    title: "Studies Filter",
+                    tooltip: "Only considers variants from the selected studies"
                 }
             ]
         },

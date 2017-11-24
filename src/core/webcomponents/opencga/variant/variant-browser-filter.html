@@ -102,7 +102,7 @@
             .notbold{
                 font-weight: normal;
             }
-            .bootstrap-select{
+            .bootstrap-select {
                 width: 100%!important;
             }
         </style>
@@ -116,97 +116,10 @@
             </div>
 
 
-            <br>
-            <div id="FilterMenu">
+            <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true" style="padding-top: 20px">
+                <div id="FilterMenu"></div>
             </div>
 
-            <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true">
-
-                <!-- STUDY filters -->
-                <template is="dom-if" if="{{studyFilterVisibility.visible}}">
-                    <div class="panel panel-default">
-                        <div class="panel-heading" role="tab" id="{{prefix}}StudiesHeading">
-                            <h4 class="panel-title">
-                                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                                   href="#{{prefix}}Studies" aria-expanded="true" aria-controls="{{prefix}}Studies">
-                                    {{config.filter.study.title}}
-                                    <!--<div style="float: right" class="tooltip-div">-->
-                                    <!--<a data-toggle="tooltip"-->
-                                    <!--title="Use this filter to find variants which are: 1) also present in all of the selected studies below, 2) not present in any of the studies selected below or 3) present in at least one of the studies selected below">-->
-                                    <!--<i class="fa fa-info-circle" aria-hidden="true"></i></a>-->
-                                    <!--</div>-->
-                                </a>
-                            </h4>
-                        </div>
-
-                        <div id="{{prefix}}Studies" class$="panel-collapse collapse {{collapsed}}" role="tabpanel" aria-labelledby="{{prefix}}StudiesHeading">
-                            <div class="panel-body">
-
-                                <!-- Scores sub-section -->
-                                <template is="dom-if" if="{{studyFilterVisibility.scores}}">
-                                    <div style="padding: 10px 0px">
-                                        <div class="browser-subsection">Variant Scores</div>
-                                        <label style="color: darkred;padding: 10px 0px 0px 15px">Coming soon</label>
-                                    </div>
-                                </template>
-
-                                <!-- Studies sub-section -->
-                                <template is="dom-if" if="{{studyFilterVisibility.studies}}">
-                                    <div style="padding: 10px 0px">
-                                        <div class="browser-subsection">Studies Filter</div>
-
-                                        <div style="margin: 5px 5px">
-
-                                            <select class$="form-control input-sm {{prefix}}FilterSelect" id="includeOtherStudy" style="width: 50%;" on-change="updateQueryFilters">
-                                                <option value="in" selected>In (AND)</option>
-                                                <!--<option value="not in">Not In</option>-->
-                                                <option value="atleast">At least (OR)</option>
-                                            </select>
-
-                                            <!--<div class="form-horizontal">-->
-
-                                            <div id="{{prefix}}DifferentStudies" class="form-group">
-                                                <!--<div class="checkbox">-->
-                                                <!--<label>-->
-                                                <br>
-
-                                                <input type="checkbox" value="{{study.alias}}" data-id="{{study.id}}" checked disabled>
-                                                <span style="font-weight: bold;font-style: italic;color: darkred">
-                                                    {{study.alias}}
-                                                </span>
-                                                <!--</label>-->
-                                                <!--</div>-->
-                                                <!--<br>-->
-                                                <template is="dom-repeat" items="{{differentStudies}}">
-                                                    <!--<div class="checkbox">-->
-                                                    <!--<label>-->
-                                                    <br>
-                                                    <input type="checkbox" value$="{{item.alias}}" data-id="{{item.id}}"
-                                                           on-change="updateQueryFilters" class$="{{prefix}}FilterCheckBox">
-                                                    {{item.alias}}
-                                                    <!--<br>-->
-                                                    <!--</label>-->
-                                                    <!--</div>-->
-                                                </template>
-                                            </div>
-                                            <!--</div>-->
-                                        </div>
-                                    </div>
-                                </template>
-
-                                <!-- Clinical Data sub-section -->
-                                <template is="dom-if" if="{{studyFilterVisibility.clinicalData}}">
-                                    <div style="padding: 10px 0px">
-                                        <div class="browser-subsection">Clinical Data</div>
-                                        <label style="color: darkred;padding: 10px 0px 0px 15px">Coming soon</label>
-                                    </div>
-                                </template>
-                            </div>
-                        </div>
-                    </div>
-                </template>
-                <br>
-            </div>
         </div>
 
 
@@ -316,8 +229,8 @@
                         type: Object,
                         notify: true
                     },
-                    clinicalAnalysis:{
-                        type:Object,
+                    clinicalAnalysis: {
+                        type: Object,
                         observer: "clinicalAnalysisExistObserver"
                     }
                 }
@@ -356,14 +269,13 @@
             init() {
                 this.sampleGenotypesObj = {};
                 this.query = {};
-//                this.selectedAnalysisType();
 
                 if (typeof PANELS !== "undefined") {
                     this.set('panelList', PANELS);
                 }
 
 
-//                if (UtilsNew.isNotUndefinedOrNull(this.family)) {
+                //                if (UtilsNew.isNotUndefinedOrNull(this.family)) {
 //                    this._addSample(this.family.members);
 //                }
                 if (UtilsNew.isUndefinedOrNull(this.samples)) {
@@ -376,25 +288,6 @@
 
                 this.modalHpoActive = false;
                 this.modalGoActive = false;
-
-
-                let _studyConfig = this.config.filter.study;
-
-                this.studyFilterVisibility = {
-                    samples: _studyConfig.samples !== undefined && _studyConfig.samples.visibility === "public",
-                    cohorts: _studyConfig.cohorts !== undefined && _studyConfig.cohorts.visibility === "public",
-                    scores: _studyConfig.scores !== undefined && _studyConfig.scores.visibility === "public",
-                    studies: UtilsNew.isNotUndefinedOrNull(_studyConfig.studies) && _studyConfig.studies.visibility === "public"
-                    && UtilsNew.isNotEmptyArray(this.studies) && this.studies.length > 1,
-                    clinicalData: _studyConfig.samples !== undefined && _studyConfig.clinicalData.visibility === "public",
-                    visible: this.config.filter.study.samples.visibility === "public" || this.config.filter.study.cohorts.visibility === "public"
-                    || this.config.filter.study.studies.visibility === "public" || this.config.filter.study.clinicalData.visibility === "public"
-                };
-
-                // Show cohorts
-                if (!this.config.filter.study.collapsed) {
-                    this.collapsed = "in";
-                }
 
                 this._genotypes = ["0/0", "0/1", "1/1", "./."];
             }
@@ -637,14 +530,10 @@
                 }
             }
 
-            checkTitle(consequenceType) {
-                return typeof consequenceType.title !== "undefined" && consequenceType.title !== null;
-            }
 
             updateDifferentStudies() {
                 let differentStudies = [];
                 if (typeof this.study !== "undefined") {
-
                     if (UtilsNew.isNotUndefinedOrNull(this.studies)) {
                         for (let i = 0; i < this.studies.length; i++) {
                             if (this.study.alias !== this.studies[i].alias) {
@@ -652,10 +541,18 @@
                             }
                         }
                         this.differentStudies = differentStudies;
+
+                        PolymerUtils.innerHTML(this.prefix + "study", this._getStudyHtml(this.prefix));
+                        for (let study of this.differentStudies) {
+                            let element = PolymerUtils.getElementById(this.prefix + study.alias + "Checkbox");
+                            if (UtilsNew.isNotUndefinedOrNull(element)) {
+                                element.addEventListener('change', this.updateQueryFilters.bind(this));
+                            }
+                        }
                     }
 
                     // Update cohorts from config, this updates the Cohort filter MAF
-                    if (typeof this.config !== "undefined" && typeof this.config.filter.study.cohorts.cohortPerStudy !== "undefined") {
+                    if (typeof this.config !== "undefined" && typeof this.config.filter.sections !== "undefined") {
 //                        this._cohorts = this.config.filter.study.cohorts.cohortPerStudy[this.study.alias];
                         this._cohorts = [];
                         for (let section of this.config.filter.sections) {
@@ -672,8 +569,6 @@
                             }
                         }
                     }
-
-//                    this._studyCohortBoolean = differentStudies.length > 0 || (typeof this._cohorts !== "undefined" && this._cohorts.length > 0);
 
                     // Setting mandatory field for variant query
                     this.query = {studies: this.project.alias + ":" + this.study.alias};
@@ -974,12 +869,7 @@
                 this.updateQueryFilters();
             }
 
-            sortPanelApp(a, b) {
-                if (a.title === b.title) {
-                    return 0;
-                }
-                return a.title < b.title ? -1 : 1;
-            }
+
 
             updateQueryFilters() {
                 let _filters = {};
@@ -1048,7 +938,7 @@
                             studies.push(this.project.alias + ':' + selectedStudies[i].value);
                         }
                     }
-                    switch (PolymerUtils.getElementById("includeOtherStudy").value) {
+                    switch (PolymerUtils.getElementById(this.prefix + "includeOtherStudy").value) {
                         case "in":
                             _filters.studies = studies.join(';');
                             break;
@@ -1310,17 +1200,6 @@
                 this.dispatchEvent(new CustomEvent("closemodalsample", {detail: {}, bubbles: true, composed: true}));
             }
 
-//            showClinicalSelector(e){
-//                e.preventDefault();
-//                if (UtilsNew.isUndefined(this.analysisModal)){
-//                    this.analysisModal = true;
-//                }
-//                else {
-//                    this.analysisModal = ! this.analysisModal;
-//                }
-//                $("#" + this.prefix + "AnalysisBrowser").modal('show');
-//
-//            }
 
             clinicalAnalysisExistObserver(e){
 //                if(UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)){
@@ -1328,14 +1207,6 @@
 //                    PolymerUtils.setAttribute(this.prefix + "selectAnalysisType", "disabled", "disabled");
 //                }
             }
-
-            _isNotEmptyArray(str) {
-                let arr = this[str];
-                return UtilsNew.isNotEmptyArray(arr);
-            }
-
-
-
 
 
             _renderFilterMenu() {
@@ -1347,7 +1218,7 @@
             }
 
             _createSection(section, prefix) {
-                let id = section.title.replace(" ", "");
+                let id = section.title.replace(/ /g, "");
                 let collapsed = section.collapsed ? "" : "in";
 
                 let header= `
@@ -1392,7 +1263,7 @@
                                 <a><i class="fa fa-info-circle" aria-hidden="true" id="${subsection.id}Tooltip"></i></a>
                             </div>
                         </div>
-                        <div class="subsection-content ${ctScroll}">
+                        <div id="${this.prefix}${subsection.id}" class="subsection-content ${ctScroll}">
                 `;
 
                 let content = "";
@@ -1404,7 +1275,7 @@
                         content = this._getCohortHtml(subsection.cohorts, this.prefix);
                         break;
                     case "study":
-                        content = this._getSampleHtml(this.prefix);
+                        content = this._getStudyHtml(this.prefix);
                         break;
                     case "location":
                         content = this._getLocationHtml(this.prefix);
@@ -1558,6 +1429,34 @@
                 }
             }
 
+            _getStudyHtml(prefix) {
+                let options = "";
+                if (UtilsNew.isNotUndefinedOrNull(this.differentStudies)) {
+                    for (let study of this.differentStudies) {
+                        options += `<br>
+                                    <input id="${prefix}${study.alias}Checkbox" type="checkbox" value="${study.alias}" data-id="${study.id}" class="${prefix}FilterCheckBox">
+                                    ${study.alias}
+                               `;
+                    }
+                }
+
+                return `
+                    <select class="form-control input-sm ${prefix}FilterSelect" id="${prefix}includeOtherStudy" style="width: 50%;">
+                        <option value="in" selected>In (AND)</option>
+                        <option value="atleast">At least (OR)</option>
+                    </select>
+
+                    <div id="${prefix}DifferentStudies" class="form-group">
+                        <br>
+                        <input type="checkbox" value="${this.study.alias}" data-id="${this.study.id}" checked disabled>
+                        <span style="font-weight: bold;font-style: italic;color: darkred">
+                            ${this.study.alias}
+                        </span>
+                        ${options}
+                    </div>
+                `;
+            }
+
             _getLocationHtml(prefix) {
                 return `
                     <textarea id="${prefix}LocationTextarea" name="location" class="form-control clearable ${prefix}FilterTextInput"
@@ -1587,11 +1486,18 @@
             }
 
             _getGeneDiseasePanelsHtml(prefix) {
-                if (UtilsNew.isNotUndefinedOrNull(this.panelLsit)) {
+                if (UtilsNew.isNotUndefinedOrNull(this.panelList)) {
                     let options = "";
-                    this.panelList.sort(this.sortPanelApp).forEach((item) => {
-                        options += `<option value="${item.name}">${item.title} (${item.genes.length})</option>`;
-                    });
+                    this.panelList
+                        .sort((a, b) => {
+                            if (a.title === b.title) {
+                                return 0;
+                            }
+                            return a.title < b.title ? -1 : 1;
+                        })
+                        .forEach((item) => {
+                            options += `<option value="${item.name}">${item.title} (${item.genes.length})</option>`;
+                        });
 
                     return `
                         <select class="form-control ${prefix}FilterSelect" id="${prefix}PanelApps">
@@ -1910,7 +1816,7 @@
                     consequenceTypes.categories.forEach((category) => {
 
                         categoriesCheckbox += `<li id="${category.title}" class="form-check" style="margin-top: 10px;">`;
-                        if (this.checkTitle(category)) {
+                        if (UtilsNew.isNotUndefinedOrNull(category.title)) {
                             if (category.isCategory) {
 
                                 categoriesCheckbox += `
@@ -1994,7 +1900,7 @@
                     }
                 }
 
-                let changeEvents = ["GeneBiotypes", "Type", "CaddRawOperator", "CaddScaledOperator", "SiftOperator", "PolyphenOperator",
+                let changeEvents = ["includeOtherStudy", "GeneBiotypes", "Type", "CaddRawOperator", "CaddScaledOperator", "SiftOperator", "PolyphenOperator",
                     "pssOrRadio", "pssAndRadio", "PhylopOperator", "PhastconsOperator", "GerpOperator", "conservationAndRadio", "conservationOrRadio"];
                 for (let id of changeEvents) {
                     let element = PolymerUtils.getElementById(this.prefix + id);
@@ -2004,8 +1910,11 @@
                 }
 
                 // Add events for Sample IDs
-                PolymerUtils.getElementById(this.prefix + "AutocompleteSampleSearchInput").addEventListener('keyup', this._autocompleteSampleSearch.bind(this));
-                PolymerUtils.getElementById(this.prefix + "SampleAddButton").addEventListener('click', this.onSampleChange.bind(this));
+                let autoCompleteSampleElement = PolymerUtils.getElementById(this.prefix + "AutocompleteSampleSearchInput");
+                if (UtilsNew.isNotUndefinedOrNull(autoCompleteSampleElement)) {
+                    autoCompleteSampleElement.addEventListener('keyup', this._autocompleteSampleSearch.bind(this));
+                    PolymerUtils.getElementById(this.prefix + "SampleAddButton").addEventListener('click', this.onSampleChange.bind(this));
+                }
 
                 // Add events for Cohort
 //                let cohorts = this.config.filter.sections.forEach(section => section.subsections.forEach(subsection => {if (subsection.id === "cohort") return subsection}));
@@ -2033,12 +1942,25 @@
                     }
                 }
 
+                // Add events for Studies checkboxes
+                if (UtilsNew.isNotUndefinedOrNull(this.differentStudies)) {
+                    for (let study of this.differentStudies) {
+                        let element = PolymerUtils.getElementById(this.prefix + study.alias + "Checkbox");
+                        if (UtilsNew.isNotUndefinedOrNull(element)) {
+                            element.addEventListener('change', this.updateQueryFilters.bind(this));
+                        }
+                    }
+                }
+
                 // Add events for Feature IDs
                 PolymerUtils.getElementById(this.prefix + "FeatureIdText").addEventListener('keyup', this.callAutocomplete.bind(this));
                 PolymerUtils.getElementById(this.prefix + "FeatureAddButton").addEventListener('click', this.addFeatureId.bind(this));
 
                 // Add events for gene disease panels
-                PolymerUtils.getElementById(this.prefix + "PanelApps").addEventListener('change', this.onGeneDiseasePanelChange.bind(this));
+                let element = PolymerUtils.getElementById(this.prefix + "PanelApps");
+                if (UtilsNew.isNotUndefinedOrNull(element)) {
+                    element.addEventListener('change', this.onGeneDiseasePanelChange.bind(this));
+                }
 
                 // Add events for Population Frequency
                 for (let study of this.populationFrequencies.studies) {
