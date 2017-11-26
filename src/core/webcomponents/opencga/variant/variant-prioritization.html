@@ -58,11 +58,11 @@
             <div>
 
                 <div id="{{prefix}}FilterMenu" class="col-md-2" >
-                    <variant-browser-filter project="{{project}}" study="{{study}}" studies="{{studies}}" samples="{{samples}}"
+                    <variant-browser-filter project="{{project}}" study="{{study}}" studies="{{studies}}" samples="[[samples]]"
                                             opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"
                                             population-frequencies="{{populationFrequencies}}" biotypes="{{biotypes}}"
                                             consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}"
-                                            on-closemodalsample="onCloseModalSample" ebi-config="{{ebiConfig}}" clinical-analysis="{{clinicalAnalysis}}"
+                                            on-closemodalsample="onCloseModalSample" ebi-config="{{ebiConfig}}"
                                             on-samplechange="onSampleChange">
                     </variant-browser-filter>
                 </div>
@@ -74,7 +74,6 @@
                     </opencga-active-filters>
 
 
-                    <!--<template is="dom-if" if="{{_isPrioritizationMode}}">-->
                     <div class="col-md-12" style="padding: 5px 0px 5px 0px">
                         <div class="btn-toolbar" role="toolbar" aria-label="..." style="padding: 10px 0px">
                             <div class="btn-group" role="group" aria-label="..." >
@@ -86,7 +85,6 @@
                                 </button>
                             </div>
 
-                            <!--<template is="dom-if" if="{{clinicalAnalysis}}">-->
                             <div style="float: right">
                                 <div class="btn-group" role="group" aria-label="..." style="padding: 0px 5px">
                                     <button type="button" class="hidden btn btn-success variant-prioritization-view-buttons" data-view="Panels" on-click="_changeView">
@@ -116,10 +114,8 @@
                                     </button>
                                 </div>
                             </div>
-                            <!--</template>-->
                         </div>
                     </div>
-                    <!--</template>-->
 
                     <div>
                         <!-- TABLE RESULT -->
@@ -329,7 +325,8 @@
             constructor() {
                 super();
 
-                this.prefix = "prioritization-" + Utils.randomString(6);
+                // Set status and init private properties
+                this._init();
             }
 
             static get is() {
@@ -338,6 +335,10 @@
 
             static get properties() {
                 return {
+                    toolTitle: {
+                        type: String,
+                        value: "Prioritization"
+                    },
                     project: {
                         type: Object
                     },
@@ -345,13 +346,6 @@
                         type: Object
                     },
                     studies: {
-                        type: Array
-                    },
-                    toolTitle: {
-                        type: String,
-                        value: "Prioritization"
-                    },
-                    samples: {
                         type: Array
                     },
                     opencgaClient: {
@@ -362,13 +356,12 @@
                     },
                     clinicalAnalysisId: {
                         type: String,
-
+                        observer: 'clinicalAnalysisIdObserver',
                     },
                     clinicalAnalysis: {
                         type: Object,
-                        observer: '_clinicalAnalysisChanged',
+                        observer: 'clinicalAnalysisObserver',
                         notify: true
-
                     },
                     beaconHosts: {
                         type: Array
@@ -405,9 +398,11 @@
                 this.appendChild(dom);
             }
 
-            ready() {
-                super.ready();
+            connectedCallback() {
+                super.connectedCallback();
+            }
 
+            _init() {
                 this._collapsed = false;
                 this.resultsViewActive = true;
                 this.activeFilterAlias = {
@@ -424,10 +419,49 @@
                 this.showSelect = true;
                 this.messageError = false;
                 this.messageSuccess = false;
+
+                this.samples = [];
+
+                this.prefix = "prioritization-" + Utils.randomString(6);
             }
 
-            connectedCallback() {
-                super.connectedCallback();
+            clinicalAnalysisObserver() {
+                console.warn("Not tested yet");
+                let _this = this;
+                this.opencgaClient.clinical().info(this.clinicalAnalysisId, {})
+                    .then((response) => {
+                        // this must call to clinicalAnalysisObserver function
+                        _this.clinicalAnalysis = response.response[0].result[0];
+                    })
+                    .catch((response) => {
+                        console.error("An error occurred fetching clinicalAnalysis: ", response)
+                    });
+            }
+
+            clinicalAnalysisObserver() {
+                let _samples = [];
+
+                if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.family) && UtilsNew.isNotEmptyArray(this.clinicalAnalysis.family.members)) {
+                    this.clinicalAnalysis.family.members.forEach((member) => {
+                        if (UtilsNew.isNotUndefinedOrNull(member.samples)) {
+                            member.samples.map((sample) => {
+                                _samples.push(sample)
+                            });
+                        }
+                    });
+                } else if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.subjects) && UtilsNew.isNotEmptyArray(this.clinicalAnalysis.subjects)) {
+                    this.clinicalAnalysis.subjects.forEach((individual) => {
+                        individual.samples.map((sample) => {
+                            _samples.push(sample)
+                        });
+                    });
+                }
+
+                // Set samples array and notify, this must be done using Polymer API
+                this.set("samples", _samples);
+
+                // Notify to all listeners of the new samples
+                this.dispatchEvent(new CustomEvent('samplechange', {detail: {samples: this.samples}}));
             }
 
             propagateGeneEvent(e) {
@@ -436,11 +470,9 @@
 
             onCollapse() {
                 if (this._collapsed) {
-//                    $("#" + this.prefix + "FilterMenu").css("display", "inline");
                     $("#" + this.prefix + "FilterMenu").show(400);
                     $("#" + this.prefix + "MainWindow").removeClass("prioritization-center").addClass("col-md-10");
                 } else {
-//                    $("#" + this.prefix + "FilterMenu").css("display", "none");
                     $("#" + this.prefix + "FilterMenu").hide(400);
                     $("#" + this.prefix + "MainWindow").removeClass("col-md-10").addClass("prioritization-center");
                 }
@@ -461,18 +493,6 @@
             onCloseModalSample(e) {
                 this._samples = this.samples;
             }
-
-//            onSampleChange(e) {
-//                this.samples = [];
-//                this.samples = e.detail.samples;
-////                this.set('samples', e.detail.samples);
-//            }
-
-//            onSampleChange(e) {
-//                debugger
-//                this.set('samples', e.detail.samples);
-//                this.dispatchEvent(new CustomEvent("samplechange", {detail: {samples: this.samples}, bubbles: true, composed: true}));
-//            }
 
             _checkPermissions(project) {
                 return UtilsNew.checkPermissions(project);
@@ -508,29 +528,6 @@
                 debugger
                 this.set('samples', e.detail.samples);
                 this.dispatchEvent(new CustomEvent("samplechange", {detail: {samples: this.samples}, bubbles: true, composed: true}));
-            }
-
-            _clinicalAnalysisChanged() {
-                let _samples = [];
-
-                if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.family) && UtilsNew.isNotEmptyArray(this.clinicalAnalysis.family.members)) {
-                    this.clinicalAnalysis.family.members.forEach((member) => {
-                        if (UtilsNew.isNotUndefinedOrNull(member.samples)) {
-                            member.samples.map((sample) => {
-                                _samples.push(sample)
-                            });
-                        }
-                    });
-                } else if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.subjects) && UtilsNew.isNotEmptyArray(this.clinicalAnalysis.subjects)) {
-                    this.clinicalAnalysis.subjects.forEach((individual) => {
-                        individual.samples.map((sample) => {
-                            _samples.push(sample)
-                        });
-                    });
-                }
-                this.samples = _samples;
-
-                this.dispatchEvent(new CustomEvent('samplechange', {detail: {samples: this.samples}}));
             }
 
             _changeView(e) {
@@ -700,7 +697,6 @@
                         if (response.response[0].numResults === 1) {
                             _this.clinicalAnalysis = response.response[0].result[0];
                         }
-
                     });
             }
         }

@@ -128,6 +128,7 @@ const interpretationJson = {
                         name: "Aaaa",
                         source: "HPO"
                     }],
+                    samples: [{id: 110, name: "sample10"}],
                     carrier: ["OMIM:056789"],
                     parentalConsanguinity: true,
                     multiples: {"type": "mellizo", "siblings": ["pepe"]}
@@ -137,6 +138,7 @@ const interpretationJson = {
                     father: "NA0003",
                     mother: "NA0004",
                     phenotypes: [],
+                    samples: [{id: 113, name: "sample13"}],
                     carrier: [{
                         id: "OMIM:056789",
                         name: "Cccc",
@@ -154,6 +156,7 @@ const interpretationJson = {
                         name: "Aaaa",
                         source: "HPO"
                     }],
+                    samples: [{id: 111, name: "sample11"}],
                     carrier: ["OMIM:056789"],
                     parentalConsaguinity: false,
                     multiples: {"type": "mellizo", "siblings": ["luis"]}
@@ -167,6 +170,7 @@ const interpretationJson = {
                         "name": "VII. Diseases of the eye and adnexa ",
                         "source": "ICD10"
                     }],
+                    samples: [{id: 112, name: "sample12"}],
                     carrier: ["OMIM:056789"],
                     parentalConsaguinity: false,
                     multiples: {"type": "mellizo", "siblings": ["luis"]}

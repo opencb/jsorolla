@@ -161,7 +161,8 @@
             constructor() {
                 super();
 
-                this.prefix = "var-browser-filter-" + Utils.randomString(6);
+                // Set status and init private properties
+                this._init();
             }
 
             static get is() {
@@ -198,6 +199,7 @@
                     },
                     query: {
                         type: Object,
+                        value: {},
                         notify: true,
                         observer: 'queryObserver'
                     },
@@ -206,7 +208,9 @@
                         notify: true
                     },
                     samples: {
-                        type: Array
+                        type: Array,
+                        value: []
+//                        observer: "samplesObserver"
 //                        value: [{id: "", name: "aaa"}, {id: "", name: "bbb"}]
                     },
 //                    sampleGenotypes: {
@@ -229,10 +233,10 @@
                         type: Object,
                         notify: true
                     },
-                    clinicalAnalysis: {
-                        type: Object,
-                        observer: "clinicalAnalysisExistObserver"
-                    }
+//                    clinicalAnalysis: {
+//                        type: Object,
+//                        observer: "clinicalAnalysisExistObserver"
+//                    }
                 }
             }
 
@@ -242,13 +246,15 @@
 
             connectedCallback() {
                 super.connectedCallback();
+//                this.clinicalAnalysisExistObserver();
 
-                this.clinicalAnalysisExistObserver();
-
+                this._renderFilterMenu();
 
                 this._addEventListeners();
                 this._addAllTooltips();
                 $('select.selectpicker').selectpicker('render');
+
+                this.renderSampleGenotypesTable();
             }
 
             static get observers() {
@@ -257,31 +263,25 @@
                 ]
             }
 
-            ready() {
-                super.ready();
+//            ready() {
+//                super.ready();
+//            }
 
-                // We initialise all objects
-                this.init();
-
-                this._renderFilterMenu();
-            }
-
-            init() {
+            _init() {
                 this.sampleGenotypesObj = {};
-                this.query = {};
+//                this.query = {};
 
                 if (typeof PANELS !== "undefined") {
                     this.set('panelList', PANELS);
                 }
 
-
                 //                if (UtilsNew.isNotUndefinedOrNull(this.family)) {
 //                    this._addSample(this.family.members);
 //                }
 
-                if (UtilsNew.isUndefinedOrNull(this.samples)) {
-                    this.samples = [];
-                }
+//                if (UtilsNew.isUndefinedOrNull(this.samples)) {
+//                    this.samples = [];
+//                }
                 this.showSampleGenotypes = this.samples.length > 0;
 
                 this.showFamilySegregationSelector = this.family !== undefined && this.family !== null;
@@ -291,6 +291,8 @@
                 this.modalGoActive = false;
 
                 this._genotypes = ["0/0", "0/1", "1/1", "./."];
+
+                this.prefix = "var-browser-filter-" + Utils.randomString(6);
             }
 
             _autocompleteSampleSearch(e) {
@@ -1205,12 +1207,12 @@
             }
 
 
-            clinicalAnalysisExistObserver(e){
+//            clinicalAnalysisExistObserver(e){
 //                if(UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)){
 //                    PolymerUtils.setAttribute(this.prefix + "analysisSettings", "disabled", "disabled");
 //                    PolymerUtils.setAttribute(this.prefix + "selectAnalysisType", "disabled", "disabled");
 //                }
-            }
+//            }
 
 
             _renderFilterMenu() {
