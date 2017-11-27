@@ -32,7 +32,7 @@ const filter = {
                     id: "sample",
                     title: "Samples",
                     selector: true,
-                    segregation: ["Autosomal Dominant", "Autosomal Recessive", "Compound Heterocygotous", "Recessive X-linked"],
+                    segregations: ["Autosomal Dominant", "Autosomal Recessive", "Compound Heterocygotous", "Recessive X-linked"],
                     tooltip: "Filter by sample genotypes"
                 },
                 {
