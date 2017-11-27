@@ -81,4 +81,12 @@ class UtilsNew {
     static checkPermissions(project) {
         return Object.keys(project).length === 0;
     }
+
+    static isNotEqual(str, str2) {
+        return str !== str2;
+    }
+
+    static isEqual(str, str2) {
+        return str === str2;
+    }
 }

@@ -134,7 +134,7 @@
                                                   consequence-types="{{consequenceTypes}}"
                                                   query="[[query]]" search="[[search]]" variant="{{variant}}"
                                                   on-selected="selectedGene" on-selectvariant="onSelectVariant" on-checkvariant="onCheckVariant"
-                                                  show-select="{{showSelect}}" style="font-size: 12px">
+                                                  show-select="{{showSelect}}" style="font-size: 12px" variant-view-config="{{variantViewConfig}}" config="{{config}}">
                             </variant-browser-grid>
 
                             <!-- Bottom tabs with specific variant information -->
@@ -396,6 +396,9 @@
                         computed: '_checkPermissions(project)'
                     },
                     config: {
+                        type: Object
+                    },
+                    variantViewConfig: {
                         type: Object
                     }
                 }
