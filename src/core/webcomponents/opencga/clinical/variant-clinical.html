@@ -248,7 +248,7 @@
                                                     cellbase-client="{{cellbaseClient}}"
                                                     ebi-config="{{ebiConfig}}"
                                                     beacon-hosts="{{config.tools.beacon.hosts}}" on-gene="geneSelected"
-                                                    clinical-analysis="{{clinicalAnalysis}}" on-backtoselectanalysis="changeTool" >
+                                                    clinical-analysis="{{clinicalAnalysis}}" on-backtoselectanalysis="changeTool" variant-view-config="{{variantViewConfig}}" >
                             </variant-prioritization>
                         </div>
                     </template>
@@ -416,6 +416,9 @@
                     eventNotifyName: {
                         type: String,
                         value: "messageevent"
+                    },
+                    variantViewConfig: {
+                        type: Object
                     }
                 }
             }
@@ -438,13 +441,12 @@
                             reportTab: false
                         };
 
-
-                this.config.filter.study.title = "Study";
-                this.config.filter.study.samples.visibility = "public";
-                this.config.filter.study.cohorts.visibility = "none";
-                this.config.filter.study.scores.visibility = "none";
-                this.config.filter.study.studies.visibility = "none";
-                this.config.filter.study.clinicalData.visibility = "none";
+//                this.config.filter.study.title = "Study";
+//                this.config.filter.study.samples.visibility = "public";
+//                this.config.filter.study.cohorts.visibility = "none";
+//                this.config.filter.study.scores.visibility = "none";
+//                this.config.filter.study.studies.visibility = "none";
+//                this.config.filter.study.clinicalData.visibility = "none";
             }
 
             changeTool(e) {

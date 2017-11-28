@@ -130,6 +130,9 @@
                     },
                     config: {
                         type: Object
+                    },
+                    variantViewConfig: {
+                        type: Object
                     }
                 }
             }
@@ -147,7 +150,7 @@
                 super.ready();
 
                 this.analysisMode = "family";
-                this._summary = true;
+                this._summary = false;
             }
 
             connectedCallback() {
@@ -273,6 +276,35 @@
                         onPageChange: function (page, size) {
                             _this.from = (page - 1) * size + 1;
                             _this.to = page * size;
+                        },
+                        onPostBody: function (data) {
+                            $("span.sampleGenotype").qtip({
+                                content: {
+                                    title: "More info",
+                                    text: function (event, api) {
+                                        return $(this).attr('data-text');
+                                    }
+                                },
+                                position: {
+                                    target: "mouse",
+                                    adjust: {
+                                        x: 2, y: 2,
+                                        mouse: false
+                                    }
+                                },
+                                style: {
+                                    width: true,
+//                        classes:  "ocb-tooltip-font" + "  ui-tooltip ui-tooltip-shadow"},
+                                    classes: _this.config.filter.tooltip.classes
+                                },
+                                show: {
+                                    delay: 200
+                                },
+                                hide: {
+                                    fixed: true,
+                                    delay: 300
+                                }
+                            });
                         }
                     });
                     if (!this.showSelect) {
@@ -701,17 +733,100 @@
                 return '-';
             }
             sampleFormatter(value, row, index) {
+                let res = "-";
                 if (typeof row !== "undefined" && typeof row.studies !== "undefined" && row.studies.length > 0) {
                     // NOTE: There are always 4 columns before the samples
-                    for (let studyIdx in row.studies) {
-                        if (row.studies[studyIdx].samplesData.length > 0) {
-                            if (typeof row.studies[studyIdx].samplesData[this.fieldIndex - 5] !== "undefined") {
-                                return row.studies[studyIdx].samplesData[this.fieldIndex - 5][0];
+                    // This context is for row
+                    if (this.nucleotideGenotype) {
+                        let alternateSequence = row.alternate;
+                        let referenceSequence = row.reference;
+                        let genotypeMatch = new Map();
+                        genotypeMatch.set(0, referenceSequence === "" ? "-" : referenceSequence);
+                        genotypeMatch.set(1, alternateSequence === "" ? "-" : alternateSequence);
+
+                        row.studies.forEach((study) => {
+                            if (UtilsNew.isNotUndefinedOrNull(study.secondaryAlternates) && UtilsNew.isNotEmptyArray(study.secondaryAlternates)) {
+                                study.secondaryAlternates.forEach((secondary) => {
+                                    genotypeMatch.set(genotypeMatch.size, secondary.alternate === "" ? "-" : secondary.alternate);
+                                })
                             }
-                        }
+                            if (UtilsNew.isNotUndefinedOrNull(study.samplesData) && UtilsNew.isNotEmptyArray(study.samplesData)) {
+                                if (UtilsNew.isNotUndefinedOrNull(study.samplesData[this.fieldIndex - 5])) {
+                                    let currentGenotype = study.samplesData[this.fieldIndex - 5][0];
+                                    let colText = "";
+                                    let reference = currentGenotype.split("/")[0];
+                                    let alternate = currentGenotype.split("/")[1];
+                                    let tooltipText = reference + " / " + alternate;
+                                    if (UtilsNew.isNotEqual(reference, ".") && UtilsNew.isNotEqual(alternate, ".")) {
+                                        reference = parseInt(reference);
+                                        alternate = parseInt(alternate);
+                                        let referenceValue = genotypeMatch.get(reference);
+                                        let alternateValue = genotypeMatch.get(alternate);
+
+                                        // Not equal X/- or -/X
+                                        if (UtilsNew.isNotEqual(referenceValue, "-") && UtilsNew.isNotEqual(alternateValue, "-")) {
+                                            if (referenceValue.length <= 5 && alternateValue.length <= 5) {
+                                                colText = referenceValue + " / " + alternateValue;
+                                            } else if ((referenceValue.length <= 5 && alternateValue.length > 5) || (referenceValue.length > 5 && alternateValue.length <= 5)) {
+                                                if (referenceValue.length > 5) {
+                                                    // referenceValue > 5
+                                                    let substringReference = referenceValue.substring(0, 3) + "...";
+                                                    colText = substringReference + " / " + alternateValue;
+                                                    tooltipText += "<br>" + referenceValue +" / " + alternateValue;
+                                                }  else {
+                                                    // alternateValue > 5
+                                                    let substringAlternate = alternateValue.substring(0, 3) + "...";
+                                                    colText = referenceValue + " / " + substringAlternate;
+                                                    tooltipText += "<br>" + referenceValue +" / " + alternateValue;
+                                                }
+                                            } else {
+                                                // Both > 5 It will never happen
+                                                let substringReference = referenceValue.substring(0, 3) + "...";
+                                                let substringAlternate = alternateValue.substring(0, 3) + "...";
+                                                colText = substringReference + " / " + substringAlternate;
+                                                tooltipText += "<br>" +   referenceValue +" / " + alternateValue;
+                                            }
+                                        } else if (UtilsNew.isNotEqual(referenceValue, "-")) {
+                                            // X/-
+                                            if (referenceValue.length <= 10) {
+                                                colText = referenceValue + " / "+ alternateValue;
+                                            } else {
+                                                let substringReference = referenceValue.substring(0, 5) + "...";
+                                                colText = substringReference + " / -";
+                                                tooltipText += "<br>" +   referenceValue +" / " + alternateValue;
+                                            }
+                                        } else if (UtilsNew.isNotEqual(alternateValue, "-")) {
+                                            // -/X
+                                            if (alternateValue.length <= 10) {
+                                                colText = referenceValue + " / " + alternateValue;
+                                            } else {
+                                                let substringAlternate = alternateValue.substring(0, 5) + "...";
+                                                colText = "- / " + substringAlternate;
+                                                tooltipText += "<br>" +   referenceValue + " / " + alternateValue;
+                                            }
+                                        } else {
+                                            colText = "- / -";
+                                        }
+                                    } else {
+                                        colText = reference + " / " + alternate;
+                                    }
+                                    res = "<span class='sampleGenotype' data-text='"+tooltipText+"'> "+ colText + " </span>";
+                                    return;
+                                }
+                            }
+                        });
+                    } else {
+                        row.studies.forEach((study) => {
+                            if (study.samplesData.length > 0) {
+                                let currentGenotype = study.samplesData[this.fieldIndex - 5];
+                                if (UtilsNew.isNotUndefinedOrNull(currentGenotype)) {
+                                    return currentGenotype[0];
+                                }
+                            }
+                        });
                     }
                 }
-                return '-';
+                return res;
             }
             _refreshTableColumns() {
                 this.cols = this._createDefaultColumns();
@@ -810,7 +925,8 @@
                                     rowspan: 1,
                                     colspan: 1,
                                     formatter: this.sampleFormatter,
-                                    halign: 'center'
+                                    halign: 'center',
+                                    nucleotideGenotype: this.variantViewConfig.gridView.nucleotideGenotype,
                                 });
                             }
                             break;
