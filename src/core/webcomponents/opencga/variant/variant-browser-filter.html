@@ -1338,8 +1338,10 @@
 
             _getSampleHtml(subsection, prefix) {
                 let options = "";
-                for (let segregation of subsection.segregations) {
-                    options += `<option value="${segregation}">${segregation}</option>`;
+                if (UtilsNew.isNotUndefinedOrNull(subsection) && UtilsNew.isNotEmptyArray(subsection.segregations)) {
+                    for (let segregation of subsection.segregations) {
+                        options += `<option value="${segregation}">${segregation}</option>`;
+                    }
                 }
 
                 return `
