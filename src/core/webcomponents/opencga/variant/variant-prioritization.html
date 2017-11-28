@@ -58,7 +58,7 @@
             <div>
 
                 <div id="{{prefix}}FilterMenu" class="col-md-2" >
-                    <variant-browser-filter project="{{project}}" study="{{study}}" studies="{{studies}}" samples="[[samples]]"
+                    <variant-browser-filter project="{{project}}" study="{{study}}" studies="{{studies}}" samples="[[samplesForMenuFilter]]" family="[[family]]"
                                             opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"
                                             population-frequencies="{{populationFrequencies}}" biotypes="{{biotypes}}"
                                             consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}"
@@ -367,7 +367,8 @@
                         type: Array
                     },
                     query: {
-                        type: Object
+                        type: Object,
+                        value: {}
                     },
                     search: {
                         type: Object
@@ -421,6 +422,7 @@
                 this.messageSuccess = false;
 
                 this.samples = [];
+                this.family = {};
 
                 this.prefix = "prioritization-" + Utils.randomString(6);
             }
@@ -442,26 +444,30 @@
                 let _samples = [];
 
                 if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.family) && UtilsNew.isNotEmptyArray(this.clinicalAnalysis.family.members)) {
-                    this.clinicalAnalysis.family.members.forEach((member) => {
-                        if (UtilsNew.isNotUndefinedOrNull(member.samples)) {
-                            member.samples.map((sample) => {
-                                _samples.push(sample)
-                            });
-                        }
-                    });
-                } else if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.subjects) && UtilsNew.isNotEmptyArray(this.clinicalAnalysis.subjects)) {
+                    this.set("family", this.clinicalAnalysis.family);
+//                    this.clinicalAnalysis.family.members.forEach((member) => {
+//                        if (UtilsNew.isNotUndefinedOrNull(member.samples)) {
+//                            member.samples.map((sample) => {
+//                                _samples.push(sample)
+//                            });
+//                        }
+//                    });
+                } else if (UtilsNew.isNotEmptyArray(this.clinicalAnalysis.subjects)) {
                     this.clinicalAnalysis.subjects.forEach((individual) => {
                         individual.samples.map((sample) => {
                             _samples.push(sample)
                         });
                     });
+
+                    // Set samples array and notify, this must be done using Polymer API
+                    this.set("samples", _samples);
+
+                    // We need a different private property for variant-browser-filter to avoid circular calls
+                    this.set("samplesForMenuFilter", _samples);
+
+                    // Notify to all listeners of the new samples
+                    this.dispatchEvent(new CustomEvent('samplechange', {detail: {samples: this.samples}}));
                 }
-
-                // Set samples array and notify, this must be done using Polymer API
-                this.set("samples", _samples);
-
-                // Notify to all listeners of the new samples
-                this.dispatchEvent(new CustomEvent('samplechange', {detail: {samples: this.samples}}));
             }
 
             propagateGeneEvent(e) {
@@ -525,9 +531,8 @@
             }
 
             onSampleChange(e) {
-                debugger
                 this.set('samples', e.detail.samples);
-                this.dispatchEvent(new CustomEvent("samplechange", {detail: {samples: this.samples}, bubbles: true, composed: true}));
+                this.dispatchEvent(new CustomEvent("samplechange", {detail: e.detail, bubbles: true, composed: true}));
             }
 
             _changeView(e) {

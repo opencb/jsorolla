@@ -152,7 +152,6 @@
         <!--</div>-->
         <!--</div>-->
         <!--</div>-->
-
     </template>
 
     <script>
@@ -176,26 +175,10 @@
                     },
                     study: {
                         type: Object,
-                        observer: 'updateDifferentStudies'
+                        observer: 'studyObserver'
                     },
                     studies: {
                         type: Array
-//                        observer: 'updateDifferentStudies'
-                    },
-                    opencgaClient: {
-                        type: Object
-                    },
-                    cellbaseClient: {
-                        type: Object
-                    },
-                    config: {
-                        type: Object
-                    },
-                    populationFrequencies: {
-                        type: Object
-                    },
-                    consequenceTypes: {
-                        type: Object
                     },
                     query: {
                         type: Object,
@@ -210,16 +193,23 @@
                     samples: {
                         type: Array,
                         value: []
-//                        observer: "samplesObserver"
 //                        value: [{id: "", name: "aaa"}, {id: "", name: "bbb"}]
                     },
-//                    sampleGenotypes: {
-//                        type: Object,
-//                        value: {}
-//                    },
                     family: {
                         type: Object,
                         observer: "familyObserver"
+                    },
+                    opencgaClient: {
+                        type: Object
+                    },
+                    cellbaseClient: {
+                        type: Object
+                    },
+                    populationFrequencies: {
+                        type: Object
+                    },
+                    consequenceTypes: {
+                        type: Object
                     },
                     biotypes: {
                         type: Array
@@ -227,16 +217,14 @@
                     segregation: {
                         type: String,
                         value: "Select ..."
-//                        observer: "segregate"
                     },
-                    analysisSelected: {
-                        type: Object,
-                        notify: true
-                    },
-//                    clinicalAnalysis: {
+//                    analysisSelected: {
 //                        type: Object,
-//                        observer: "clinicalAnalysisExistObserver"
-//                    }
+//                        notify: true
+//                    },
+                    config: {
+                        type: Object
+                    }
                 }
             }
 
@@ -246,15 +234,11 @@
 
             connectedCallback() {
                 super.connectedCallback();
-//                this.clinicalAnalysisExistObserver();
 
+                // Render filter menu and add event and tooltips
                 this._renderFilterMenu();
 
-                this._addEventListeners();
-                this._addAllTooltips();
-                $('select.selectpicker').selectpicker('render');
-
-                this.renderSampleGenotypesTable();
+                //                $('select.selectpicker').selectpicker('render');
             }
 
             static get observers() {
@@ -263,29 +247,15 @@
                 ]
             }
 
-//            ready() {
-//                super.ready();
-//            }
-
             _init() {
                 this.sampleGenotypesObj = {};
-//                this.query = {};
-
+                this._reset = true;
                 if (typeof PANELS !== "undefined") {
                     this.set('panelList', PANELS);
                 }
 
-                //                if (UtilsNew.isNotUndefinedOrNull(this.family)) {
-//                    this._addSample(this.family.members);
-//                }
-
-//                if (UtilsNew.isUndefinedOrNull(this.samples)) {
-//                    this.samples = [];
-//                }
-                this.showSampleGenotypes = this.samples.length > 0;
-
+                this.showSampleGenotypes = UtilsNew.isNotEmptyArray(this.samples);
                 this.showFamilySegregationSelector = this.family !== undefined && this.family !== null;
-
 
                 this.modalHpoActive = false;
                 this.modalGoActive = false;
@@ -294,6 +264,91 @@
 
                 this.prefix = "var-browser-filter-" + Utils.randomString(6);
             }
+
+            studyObserver() {
+                if (UtilsNew.isNotUndefinedOrNull(this.study)) {
+                    // Update the study list of studies and the selected one
+                    if (UtilsNew.isNotUndefinedOrNull(this.studies)) {
+                        let _differentStudies = [];
+                        for (let i = 0; i < this.studies.length; i++) {
+                            if (this.study.alias !== this.studies[i].alias) {
+                                _differentStudies.push(this.studies[i]);
+                            }
+                        }
+                        this.differentStudies = _differentStudies;
+
+                        // Insert study checkboxes HTML, this only happens if the Study subsection has been added
+                        PolymerUtils.innerHTML(this.prefix + "study", this._getStudyHtml(this.prefix));
+                        for (let study of this.differentStudies) {
+                            let element = PolymerUtils.getElementById(this.prefix + study.alias + "Checkbox");
+                            if (UtilsNew.isNotUndefinedOrNull(element)) {
+                                element.addEventListener('change', this.updateQueryFilters.bind(this));
+                            }
+                        }
+                    }
+
+                    // Update cohorts from config, this updates the Cohort filter MAF
+                    if (typeof this.config !== "undefined" && typeof this.config.filter.sections !== "undefined") {
+                        this._cohorts = [];
+                        for (let section of this.config.filter.sections) {
+                            for (let subsection of section.subsections) {
+                                if (subsection.id === "cohort") {
+                                    let projectFields = this.project.alias.split("@");
+                                    let projectId = (projectFields.length > 0) ? projectFields[1] : projectFields[0];
+                                    if (UtilsNew.isNotUndefinedOrNull(subsection.cohorts[projectId])) {
+                                        for (let study of Object.keys(subsection.cohorts[projectId])) {
+                                            Array.prototype.push.apply(this._cohorts, subsection.cohorts[projectId][study]);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Setting mandatory field for variant query
+                    this.query = {studies: this.project.alias + ":" + this.study.alias};
+                }
+            }
+
+            queryObserver() {
+                if (this._reset) {
+                    this.setQueryFilters();
+                } else {
+                    this._reset = true;
+                }
+            }
+
+            samplesObserver(e) {
+                if (UtilsNew.isNotEmptyArray(this.samples)) {
+                    PolymerUtils.addStyle(this.prefix + "SampleGenotypeMessage", "display", "none");
+                } else {
+                    PolymerUtils.addStyle(this.prefix + "SampleGenotypeMessage", "display", "inline");
+                }
+
+                this.renderSampleGenotypesTable();
+
+                this.updateQueryFilters();
+            }
+
+            familyObserver() {
+                if (UtilsNew.isNotUndefinedOrNull(this.family)) {
+                    // Updating samples triggers the call to samplesObserver()
+                    if (UtilsNew.isNotUndefinedOrNull(this.family.members) && Array.isArray(this.family.members)) {
+                        this.set("samples", this.family.members);
+                    } else {
+                        this.set("samples", []);
+                    }
+
+                    // Display family segregation dropdown
+                    PolymerUtils.addStyle(this.prefix + "SampleSegregation", "display", "inline");
+
+                    // Notify the sample change
+                    this.dispatchEvent(new CustomEvent("samplechange", {
+                        detail: {samples: this.samples, family: this.family}, bubbles: true, composed: true
+                    }));
+                }
+            }
+
 
             _autocompleteSampleSearch(e) {
                 // Only gene symbols are going to be searched and not Ensembl IDs
@@ -347,39 +402,6 @@
                 }
             }
 
-            samplesObserver(e) {
-                if (UtilsNew.isNotEmptyArray(this.samples)) {
-                    PolymerUtils.addStyle(this.prefix + "SampleGenotypeMessage", "display", "none");
-                } else {
-                    PolymerUtils.addStyle(this.prefix + "SampleGenotypeMessage", "display", "inline");
-                }
-
-                this.renderSampleGenotypesTable();
-
-                this.updateQueryFilters();
-            }
-
-            familyObserver() {
-                if (UtilsNew.isNotUndefinedOrNull(this.samples) && UtilsNew.isNotUndefinedOrNull(this.family)) {
-                    // Updating samples triggers the call to samplesObserver()
-                    if (UtilsNew.isNotUndefinedOrNull(this.family.members) && Array.isArray(this.family.members)) {
-                        this.family.members.foreach(item => this.sampleGenotypes[item] = []);
-                        this.set("samples", this.family.members);
-                    } else {
-                        this.set("samples", []);
-                    }
-
-                    // Display family segregation dropdown
-                    PolymerUtils.addStyle(this.prefix + "SampleSegregation", "display", "inline");
-
-                    // Notify the sample change
-                    this.dispatchEvent(new CustomEvent("samplechange", {
-                        detail: {samples: this.samples, family: this.family}, bubbles: true, composed: true
-                    }));
-                }
-            }
-
-
             renderSampleGenotypesTable(sampleGenotypes) {
                 if (UtilsNew.isUndefinedOrNull(sampleGenotypes)) {
                     sampleGenotypes = {};
@@ -395,7 +417,7 @@
 
                 let table = PolymerUtils.getElementById(this.prefix + "SampleGenotypeTable");
                 if (UtilsNew.isUndefinedOrNull(table) || UtilsNew.isUndefinedOrNull(this.samples)) {
-                    console.log("Sample Array or Genotypes table are still undefined")
+                    console.log("Sample Array or Genotypes table are still undefined");
                     return;
                 }
 
@@ -422,7 +444,7 @@
                         cell.setAttribute("class", this.prefix + "genotypes " + this.prefix + "FilterCheckBox");
                         cell.setAttribute("value", genotype);
                         cell.setAttribute("data-id", sample.name);
-                        cell.addEventListener("change", this.updateSampleGenotypeFilter.bind(this));
+                        cell.addEventListener("change", this.updateQueryFilters.bind(this));
                         if (UtilsNew.isNotUndefinedOrNull(sampleGenotypes[sample.name]) && sampleGenotypes[sample.name].includes(genotype)) {
                             cell.setAttribute("checked", true);
                         }
@@ -432,7 +454,7 @@
                 }
 
                 // Change visibility
-                if (this.samples.length > 0) {
+                if (UtilsNew.isNotEmptyArray(this.samples)) {  // this.query.samples !== undefined && this.query.samples.length > 0
                     this.showSampleGenotypes = true;
                     PolymerUtils.setAttribute(this.prefix + "SampleGenotypeTable", "style", "display: inline");
                 } else {
@@ -440,46 +462,6 @@
                     PolymerUtils.setAttribute(this.prefix + "SampleGenotypeTable", "style", "display: none");
                 }
             }
-
-
-            updateSampleGenotypeFilter(e) {
-//                if (UtilsNew.isUndefinedOrNull(this.sampleGenotypes[e.target.dataset.id])) {
-//                    this.sampleGenotypes[e.target.dataset.id] = [];
-//                }
-//
-//                if (e.target.checked) {
-//                    this.sampleGenotypes[e.target.dataset.id].push(e.target.defaultValue);
-//                } else {
-//                    let index = this.sampleGenotypes[e.target.dataset.id].indexOf(e.target.defaultValue);
-//                    this.sampleGenotypes[e.target.dataset.id].splice(index, 1);
-//                }
-//
-//                // Update the sample genotypes, the observer will call to 'renderSampleGenotypesTable'
-//                this.sampleGenotypes = Object.assign({}, this.sampleGenotypes);
-
-                this.updateQueryFilters();
-            }
-
-            // This method manipulates this.samples object including dispatching the event and refreshing web
-//            _addSample(sample) {
-//                if (UtilsNew.isNotUndefinedOrNull(sample) && UtilsNew.isNotUndefinedOrNull(this.samples)) {
-//                    // If 'sample' is an array we need to set instead of push to avoid multiple refresh events
-//                    if (Array.isArray(sample)) {
-//                        this.set("samples", sample);
-//                    } else {
-//                        // If 'sample' is an object we just add default genotypes and push it
-//                        if (UtilsNew.isUndefinedOrNull(this.sampleGenotypes[sample.name])) {
-//                            this.sampleGenotypes[sample.name] = ["0/1", "1/1"];
-//                        }
-//                        this.push("samples", sample);
-//                    }
-//
-//                    // Launch and refresh the web
-//                    this.dispatchEvent(new CustomEvent("samplechange", {detail: {samples: this.samples}, bubbles: true, composed: true}));
-//                    this.showSampleGenotypes = this.samples.length > 0;
-//                }
-//            }
-
 
             propagateOkHPO(e) {
                 if (this.openHPO) {
@@ -490,6 +472,7 @@
                     this.selectedTermsGO = e.detail.originalResult;
                 }
                 $("#" + this.prefix + "ontologyModal").modal('hide');
+
                 this.updateQueryFilters();
             }
 
@@ -516,15 +499,6 @@
                 this.search = this.query;
             }
 
-            queryObserver() {
-                if (this._reset) {
-                    console.log("queryObserver: calling to 'setQueryFilters()'")
-                    this.setQueryFilters();
-                } else {
-                    this._reset = true;
-                }
-            }
-
             handleCollapseAction(e) {
                 let id = e.target.dataset.id;
                 let elem = $('#' + id)[0];
@@ -533,51 +507,6 @@
                     e.target.className = "fa fa-plus";
                 } else {
                     e.target.className = "fa fa-minus";
-                }
-            }
-
-
-            updateDifferentStudies() {
-                let differentStudies = [];
-                if (typeof this.study !== "undefined") {
-                    if (UtilsNew.isNotUndefinedOrNull(this.studies)) {
-                        for (let i = 0; i < this.studies.length; i++) {
-                            if (this.study.alias !== this.studies[i].alias) {
-                                differentStudies.push(this.studies[i]);
-                            }
-                        }
-                        this.differentStudies = differentStudies;
-
-                        PolymerUtils.innerHTML(this.prefix + "study", this._getStudyHtml(this.prefix));
-                        for (let study of this.differentStudies) {
-                            let element = PolymerUtils.getElementById(this.prefix + study.alias + "Checkbox");
-                            if (UtilsNew.isNotUndefinedOrNull(element)) {
-                                element.addEventListener('change', this.updateQueryFilters.bind(this));
-                            }
-                        }
-                    }
-
-                    // Update cohorts from config, this updates the Cohort filter MAF
-                    if (typeof this.config !== "undefined" && typeof this.config.filter.sections !== "undefined") {
-//                        this._cohorts = this.config.filter.study.cohorts.cohortPerStudy[this.study.alias];
-                        this._cohorts = [];
-                        for (let section of this.config.filter.sections) {
-                            for (let subsection of section.subsections) {
-                                if (subsection.id === "cohort") {
-                                    let projectFields = this.project.alias.split("@");
-                                    let projectId = (projectFields.length > 0) ? projectFields[1] : projectFields[0];
-                                    if (UtilsNew.isNotUndefinedOrNull(subsection.cohorts[projectId])) {
-                                        for (let study of Object.keys(subsection.cohorts[projectId])) {
-                                            Array.prototype.push.apply(this._cohorts, subsection.cohorts[projectId][study]);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    // Setting mandatory field for variant query
-                    this.query = {studies: this.project.alias + ":" + this.study.alias};
                 }
             }
 
@@ -646,20 +575,12 @@
                 // Empty everything before rendering
                 this._clearHtmlDom();
 
-//                this.query.genotype = "HG00956:0/1";
+                // If this,query is null or empty there is nothing else to do
+                if (UtilsNew.isUndefinedOrNull(this.query) || Object.keys(this.query).length === 0) {
+                    return;
+                }
+
                 // Sample Genotypes
-//                if (UtilsNew.isNotEmpty(this.query.genotype)) {
-//                    let _sampleGenotypes = {};
-//                    let samplesWithGT = this.query.genotype.split(';');
-//                    for (let i = 0; i < samplesWithGT.length; i++) {
-//                        let [sample, genotypes] = samplesWithGT[i].split(':');
-//                        _sampleGenotypes[sample] = genotypes.split(',');
-//                    }
-//                    // This assignment is observed by renderSampleGenotypesTable
-////                    this.sampleGenotypes = _sampleGenotypes;
-//                    debugger
-//                    this.renderSampleGenotypesTable(_sampleGenotypes);
-//                }
                 this.renderSampleGenotypesTable();
 
                 // Cohorts
@@ -670,8 +591,6 @@
                         let [study, cohortFreq] = cohortArray[i].split(':');
                         let [cohort, freq] = cohortFreq.split(/[<=>]+/);
                         let operator = cohortFreq.split(/[-A-Za-z0-9._:]+/)[1];
-//                        this.$$("#" + this.prefix + study + cohort + "Cohort").value = freq;
-//                        this.$$("#" + this.prefix + study + cohort + "CohortOperator").value = operator;
                         PolymerUtils.setValue(this.prefix + study + cohort + "Cohort", freq);
                         PolymerUtils.setValue(this.prefix + study + cohort + "CohortOperator", operator);
                     }
@@ -682,7 +601,6 @@
                     if (this.$.includeOtherStudy !== null && this.$.differentStudies !== null) {
                         let studies = this.query.studies.split(new RegExp("[,;]"));
                         if (studies.length > 1) {
-//                            let checkBoxes = this.$$("#differentStudies").querySelectorAll("input");
                             let checkBoxes = PolymerUtils.querySelectorAll("input", this.prefix + "DifferentStudies");
                             for (let i = 0; i < studies.length; i++) {
                                 let study = studies[i].split(':')[1];
@@ -704,15 +622,12 @@
                 // XRefs, Gene and Variant Ids
                 if (typeof this.query["annot-xref"] !== "undefined") {
                     PolymerUtils.setValue(this.prefix + "FeatureTextarea", this.query["annot-xref"]);
-//                } else if (typeof this.query.gene !== "undefined") {
-//                    this.$$("#" + this.prefix + "FeatureTextarea").value = this.query.gene;
                 } else if (typeof this.query.ids !== "undefined") {
                     PolymerUtils.setValue(this.prefix + "FeatureTextarea", this.query.ids);
                 }
 
                 // Biotype
                 if (typeof this.query["annot-biotype"] !== "undefined") {
-//                    PolymerUtils.setValue(this.prefix + "GeneBiotypes", this.query["annot-biotype"]);
                     $("#" + this.prefix + "GeneBiotypes").selectpicker('val', this.query["annot-biotype"].split(","));
                 }
 
@@ -748,8 +663,6 @@
                                 for (let k = 0; k < pfArray.length; k++) {
                                     let pf = pfArray[k];
                                     if (pf.startsWith(study + ":" + population)) {
-//                                        this.$$("#" + this.prefix + study + population).value = pf.split(/[<=>]+/)[1];
-//                                        this.$$("#" + this.prefix + study + population + "Operator").value = pf.split(/[-A-Za-z0-9._:]+/)[1];
                                         PolymerUtils.setValue(this.prefix + study + population, pf.split(/[<=>]+/)[1]);
                                         PolymerUtils.setValue(this.prefix + study + population + "Operator", pf.split(/[-A-Za-z0-9._:]+/)[1]);
                                         break;
@@ -768,12 +681,9 @@
                             if (pss[i].startsWith("sift")) {
                                 let value = pss[i].split("sift")[1];
                                 if (value.startsWith("<") || value.startsWith(">")) {
-//                                    this.$$("#" + this.prefix + "SiftInput").value = value.split(/[<=>]+/)[1];
-//                                    this.$$("#" + this.prefix + "SiftOperator").value = value.split(/[-0-9.]+/)[0];
                                     PolymerUtils.setValue(this.prefix + "SiftInput", value.split(/[<=>]+/)[1]);
                                     PolymerUtils.setValue(this.prefix + "SiftOperator", value.split(/[-0-9.]+/)[0]);
                                 } else {
-//                                    this.$$("#" + this.prefix + "SiftValues").value = value.split('==')[1];
                                     PolymerUtils.setValue(this.prefix + "SiftValues", value.split('==')[1]);
                                 }
                                 this.$$("#" + this.prefix + "SiftInput").disabled = !(value.startsWith("<") || value.startsWith(">"));
@@ -781,12 +691,9 @@
                             } else if (pss[i].startsWith("polyphen")) {
                                 let value = pss[i].split("polyphen")[1];
                                 if (value.startsWith("<") || value.startsWith(">")) {
-//                                    this.$$("#" + this.prefix + "PolyphenInput").value = value.split(/[<=>]+/)[1];
-//                                    this.$$("#" + this.prefix + "PolyphenOperator").value = value.split(/[-0-9.]+/)[0];
                                     PolymerUtils.setValue(this.prefix + "PolyphenInput", value.split(/[<=>]+/)[1]);
                                     PolymerUtils.setValue(this.prefix + "PolyphenOperator", value.split(/[-0-9.]+/)[0]);
                                 } else {
-//                                    this.$$("#" + this.prefix + "PolyphenValues").value = value.split('==')[1];
                                     PolymerUtils.setValue(this.prefix + "PolyphenValues", value.split('==')[1]);
                                 }
                                 this.$$("#" + this.prefix + "PolyphenInput").disabled = !(value.startsWith("<") || value.startsWith(">"));
@@ -881,12 +788,6 @@
                 let _filters = {};
 
                 // Adding sample genotypes filter
-//                let _genotypes = [];
-//                if (UtilsNew.isNotUndefinedOrNull(this.sampleGenotypes)) {
-//                    Object.keys(this.sampleGenotypes)
-//                        .forEach(sample => _genotypes.push(sample + ":" + this.sampleGenotypes[sample].join(",")));
-//                }
-//                _filters.genotype = _genotypes.join(';');
                 let selectedGenotypes = $("." + this.prefix + "genotypes:checkbox:checked");
                 if (selectedGenotypes.length > 0) {
                     let sampleGenotypesObj = {};
@@ -918,7 +819,6 @@
                         let cohort = this._cohorts[i].id;
                         let cohortInput = PolymerUtils.getElementById(this.prefix + this.study.alias + cohort + "Cohort");
                         let operator = PolymerUtils.getElementById(this.prefix + this.study.alias + cohort + "CohortOperator");
-//                        if (this.$$("#" + this.prefix + this.study.alias + cohort + "Cohort").value !== "" || this.$$("#" + this.prefix + this.study.alias + cohort + "CohortOperator").value !== "<") {
                         if ((cohortInput !== null && cohortInput.value !== "") || (operator !== null && operator.value !== "<")) {
                             operator = operator.value;
                             let study = this.study.alias;
@@ -1207,20 +1107,28 @@
             }
 
 
-//            clinicalAnalysisExistObserver(e){
-//                if(UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)){
-//                    PolymerUtils.setAttribute(this.prefix + "analysisSettings", "disabled", "disabled");
-//                    PolymerUtils.setAttribute(this.prefix + "selectAnalysisType", "disabled", "disabled");
-//                }
-//            }
-
-
+            // This method is only executed once in the connectedCallback
             _renderFilterMenu() {
                 let html = "";
                 for (let section of this.config.filter.sections) {
                     html += this._createSection(section, this.prefix);
                 }
+
+                // This set the generated HTML in the DIV element
                 this.$.FilterMenu.innerHTML = html;
+
+                // Add events and tooltips to the filter menu
+                this._addEventListeners();
+                this._addAllTooltips();
+
+                // Now we can render the sample genotype table, this is an external function to allow some dynamism
+                this.renderSampleGenotypesTable();
+
+                // If Samples or Family properties have been passed then we hide the Sample selector
+                if (UtilsNew.isNotEmptyArray(this.samples)) {
+                    PolymerUtils.hide(this.prefix + "AutocompleteSampleSelect");
+                    PolymerUtils.addStyle(this.prefix + "SampleGenotypeMessage", "display", "none");
+                }
             }
 
             _createSection(section, prefix) {
@@ -1343,7 +1251,7 @@
                 }
 
                 return `
-                    <div style="margin: 15px 0px">
+                    <div id="${prefix}AutocompleteSampleSelect" style="margin: 15px 0px">
                         <span>Select Sample:</span>
 
                         <div class="row">
@@ -1396,8 +1304,6 @@
             }
 
             _getCohortHtml(cohorts, prefix) {
-//                let study = this.study;
-//                let cohortsPerStudy = cohorts[this.study.alias];
                 let projectFields = this.project.alias.split("@");
                 let projectId = (projectFields.length > 0) ? projectFields[1] : projectFields[0];
                 let cohortsPerStudy = cohorts[projectId];
@@ -2005,12 +1911,13 @@
                     });
                 }
 
-                // Add events gene Accesions
+                // Add events GO accessions
                 PolymerUtils.getElementById(this.prefix + "buttonOpenGoAccesions").addEventListener('click', this.openModalGo.bind(this));
 
                 // Add events hpo accessions
                 PolymerUtils.getElementById(this.prefix + "buttonOpenHpoAccesions").addEventListener('click', this.openModalHpo.bind(this));
             }
+
 
             _addAllTooltips() {
                 for (let section of this.config.filter.sections) {
