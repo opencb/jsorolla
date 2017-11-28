@@ -335,12 +335,14 @@
                     // Updating samples triggers the call to samplesObserver()
                     if (UtilsNew.isNotUndefinedOrNull(this.family.members) && Array.isArray(this.family.members)) {
                         this.set("samples", this.family.members);
+                        // Hide the sample selector, this must not be available when a family is passed
+                        PolymerUtils.hide(this.prefix + "AutocompleteSampleSelect");
                     } else {
                         this.set("samples", []);
                     }
 
                     // Display family segregation dropdown
-                    PolymerUtils.addStyle(this.prefix + "SampleSegregation", "display", "inline");
+                    PolymerUtils.show(this.prefix + "SampleSegregation");
 
                     // Notify the sample change
                     this.dispatchEvent(new CustomEvent("samplechange", {
@@ -1107,7 +1109,7 @@
             }
 
 
-            // This method is only executed once in the connectedCallback
+            // This method is only executed one time from connectedCallback function
             _renderFilterMenu() {
                 let html = "";
                 for (let section of this.config.filter.sections) {
@@ -1128,6 +1130,10 @@
                 if (UtilsNew.isNotEmptyArray(this.samples)) {
                     PolymerUtils.hide(this.prefix + "AutocompleteSampleSelect");
                     PolymerUtils.addStyle(this.prefix + "SampleGenotypeMessage", "display", "none");
+                }
+
+                if (UtilsNew.isNotUndefinedOrNull(this.family) && Object.keys(this.family).length > 0) {
+                    PolymerUtils.show(this.prefix + "SampleSegregation");
                 }
             }
 
