@@ -150,7 +150,7 @@
                 super.ready();
 
                 this.analysisMode = "family";
-                this._summary = true;
+                this._summary = false;
             }
 
             connectedCallback() {
@@ -756,7 +756,7 @@
                                     let colText = "";
                                     let reference = currentGenotype.split("/")[0];
                                     let alternate = currentGenotype.split("/")[1];
-                                    let tooltipText = currentGenotype;
+                                    let tooltipText = reference + " / " + alternate;
                                     if (UtilsNew.isNotEqual(reference, ".") && UtilsNew.isNotEqual(alternate, ".")) {
                                         reference = parseInt(reference);
                                         alternate = parseInt(alternate);
@@ -770,16 +770,20 @@
                                             } else if ((referenceValue.length <= 5 && alternateValue.length > 5) || (referenceValue.length > 5 && alternateValue.length <= 5)) {
                                                 if (referenceValue.length > 5) {
                                                     // referenceValue > 5
-                                                    colText = "... / " + alternateValue;
+                                                    let substringReference = referenceValue.substring(0, 3) + "...";
+                                                    colText = substringReference + " / " + alternateValue;
                                                     tooltipText += "<br>" + referenceValue +" / " + alternateValue;
                                                 }  else {
                                                     // alternateValue > 5
-                                                    colText = referenceValue + " / ...";
+                                                    let substringAlternate = alternateValue.substring(0, 3) + "...";
+                                                    colText = referenceValue + " / " + substringAlternate;
                                                     tooltipText += "<br>" + referenceValue +" / " + alternateValue;
                                                 }
                                             } else {
                                                 // Both > 5 It will never happen
-                                                colText = "... / ...";
+                                                let substringReference = referenceValue.substring(0, 3) + "...";
+                                                let substringAlternate = alternateValue.substring(0, 3) + "...";
+                                                colText = substringReference + " / " + substringAlternate;
                                                 tooltipText += "<br>" +   referenceValue +" / " + alternateValue;
                                             }
                                         } else if (UtilsNew.isNotEqual(referenceValue, "-")) {
@@ -787,7 +791,8 @@
                                             if (referenceValue.length <= 10) {
                                                 colText = referenceValue + " / "+ alternateValue;
                                             } else {
-                                                colText = "... / -";
+                                                let substringReference = referenceValue.substring(0, 5) + "...";
+                                                colText = substringReference + " / -";
                                                 tooltipText += "<br>" +   referenceValue +" / " + alternateValue;
                                             }
                                         } else if (UtilsNew.isNotEqual(alternateValue, "-")) {
@@ -795,36 +800,33 @@
                                             if (alternateValue.length <= 10) {
                                                 colText = referenceValue + " / " + alternateValue;
                                             } else {
-                                                colText = "- / ...";
+                                                let substringAlternate = alternateValue.substring(0, 5) + "...";
+                                                colText = "- / " + substringAlternate;
                                                 tooltipText += "<br>" +   referenceValue + " / " + alternateValue;
                                             }
                                         } else {
                                             colText = "- / -";
                                         }
                                     } else {
-                                        colText = currentGenotype;
+                                        colText = reference + " / " + alternate;
                                     }
                                     res = "<span class='sampleGenotype' data-text='"+tooltipText+"'> "+ colText + " </span>";
                                     return;
                                 }
                             }
                         });
-
-                        console.log("Genotype ");
                     } else {
-                        for (let studyIdx in row.studies) {
-                            if (row.studies[studyIdx].samplesData.length > 0) {
-                                if (typeof row.studies[studyIdx].samplesData[this.fieldIndex - 5] !== "undefined") {
-                                    return row.studies[studyIdx].samplesData[this.fieldIndex - 5][0];
+                        row.studies.forEach((study) => {
+                            if (study.samplesData.length > 0) {
+                                let currentGenotype = study.samplesData[this.fieldIndex - 5];
+                                if (UtilsNew.isNotUndefinedOrNull(currentGenotype)) {
+                                    return currentGenotype[0];
                                 }
                             }
-                        }
+                        });
                     }
                 }
-
-
                 return res;
-
             }
             _refreshTableColumns() {
                 this.cols = this._createDefaultColumns();
