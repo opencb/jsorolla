@@ -55,7 +55,8 @@
             constructor() {
                 super();
 
-                this.prefix = "VarBrowserGrid-" + Utils.randomString(6);
+                // Set status and init private properties
+                this._init();
             }
 
             static get is() {
@@ -88,7 +89,7 @@
                     },
                     samples: {
                         type: Array,
-                        value: []
+//                        value: []
 //                        observer: '_refreshTableColumns'
                     },
                     cohorts: {
@@ -139,18 +140,12 @@
 
             static get observers() {
                 return [
-                    '_refreshTableColumns(samples.*)'
+                    "_refreshTableColumns(samples.*)"
                 ];
             }
+
             _attachDom(dom) {
                 this.appendChild(dom);
-            }
-
-            ready() {
-                super.ready();
-
-                this.analysisMode = "family";
-                this._summary = false;
             }
 
             connectedCallback() {
@@ -160,7 +155,18 @@
                 this.table = $('#' + this.prefix + 'VariantBrowserGrid');
                 this.downloadRefreshIcon = $("#" + this.prefix + "DownloadRefresh");
                 this.downloadIcon = $("#" + this.prefix + "DownloadIcon");
+
+                this.samples;
+                debugger
+
                 this._refreshTableColumns();
+            }
+
+            _init() {
+                this.analysisMode = "family";
+                this._summary = false;
+
+                this.prefix = "VarBrowserGrid-" + Utils.randomString(6);
             }
 
             assignColors() {
@@ -828,6 +834,12 @@
                 }
                 return res;
             }
+
+            _refreshTableColumns2() {
+                this.samples;
+                debugger
+            }
+
             _refreshTableColumns() {
                 this.cols = this._createDefaultColumns();
 //                debugger
@@ -906,7 +918,7 @@
                         });
                     }
                 }
-
+debugger
                 if (typeof this.cols !== "undefined" && typeof this.samples !== "undefined" && this.samples.length > 0) {
                     switch(this.analysisMode) {
                         case "family":
@@ -926,7 +938,7 @@
                                     colspan: 1,
                                     formatter: this.sampleFormatter,
                                     halign: 'center',
-                                    nucleotideGenotype: this.variantViewConfig.gridView.nucleotideGenotype,
+//                                    nucleotideGenotype: this.variantViewConfig.gridView.nucleotideGenotype,
                                 });
                             }
                             break;
