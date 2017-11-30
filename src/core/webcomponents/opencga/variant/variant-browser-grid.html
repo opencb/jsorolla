@@ -155,17 +155,12 @@
                 this.table = $('#' + this.prefix + 'VariantBrowserGrid');
                 this.downloadRefreshIcon = $("#" + this.prefix + "DownloadRefresh");
                 this.downloadIcon = $("#" + this.prefix + "DownloadIcon");
-
-                this.samples;
-                debugger
-
                 this._refreshTableColumns();
             }
 
             _init() {
                 this.analysisMode = "family";
                 this._summary = false;
-
                 this.prefix = "VarBrowserGrid-" + Utils.randomString(6);
             }
 
@@ -826,7 +821,8 @@
                             if (study.samplesData.length > 0) {
                                 let currentGenotype = study.samplesData[this.fieldIndex - 5];
                                 if (UtilsNew.isNotUndefinedOrNull(currentGenotype)) {
-                                    return currentGenotype[0];
+                                    res = currentGenotype[0];
+                                    return;
                                 }
                             }
                         });
@@ -938,7 +934,7 @@ debugger
                                     colspan: 1,
                                     formatter: this.sampleFormatter,
                                     halign: 'center',
-//                                    nucleotideGenotype: this.variantViewConfig.gridView.nucleotideGenotype,
+                                    nucleotideGenotype: this.variantViewConfig.gridView.nucleotideGenotype,
                                 });
                             }
                             break;
