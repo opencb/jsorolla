@@ -56,10 +56,12 @@
                                 <label class="col-md-4">Date:</label>
                                 <span class="col-md-8">{{clinicalAnalysisCreationDateFormat}}</span>
                             </div>
-                            <!--<div class="form-group" style="margin: 0px 2px">-->
-                                <!--<label class="col-md-4">Description:</label>-->
-                                <!--<span class="col-md-8">{{clinicalAnalysis.description}}</span>-->
-                            <!--</div>-->
+                            <template is="dom-if" if="{{clinicalAnalysis.description}}">
+                                <div class="form-group" style="margin: 0px 2px">
+                                    <label class="col-md-4">Description:</label>
+                                    <span class="col-md-8">{{clinicalAnalysis.description}}</span>
+                                </div>
+                            </template>
                         </form>
                     </div>
                     <div class="col-md-4">
