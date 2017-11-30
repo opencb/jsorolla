@@ -121,11 +121,9 @@
                         <!-- TABLE RESULT -->
                         <div id="{{prefix}}TableResult" class="variant-prioritization-content">
                             <!-- Variant Browser Grid -->
-                            <variant-browser-grid mode="{{mode}}" study="{{study}}" project="{{project}}" prefix="{{prefix}}"
-                                                  opencga-client="{{opencgaClient}}"
-                                                  cellbase-client="{{cellbaseClient}}"
+                            <variant-browser-grid mode="{{mode}}" study="{{study}}" project="{{project}}" samples="{{samples}}"
+                                                  opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
                                                   population-frequencies="{{populationFrequencies}}"
-                                                  samples="{{samples}}"
                                                   protein-substitution-scores="{{proteinSubstitutionScores}}"
                                                   consequence-types="{{consequenceTypes}}"
                                                   query="[[query]]" search="[[search]]" variant="{{variant}}"
@@ -448,20 +446,26 @@
 
                 if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.family) && UtilsNew.isNotEmptyArray(this.clinicalAnalysis.family.members)) {
                     this.set("family", this.clinicalAnalysis.family);
-//                    this.clinicalAnalysis.family.members.forEach((member) => {
-//                        if (UtilsNew.isNotUndefinedOrNull(member.samples)) {
-//                            member.samples.map((sample) => {
-//                                _samples.push(sample)
-//                            });
-//                        }
-//                    });
-                } else if (UtilsNew.isNotEmptyArray(this.clinicalAnalysis.subjects)) {
-                    this.clinicalAnalysis.subjects.forEach((individual) => {
-                        individual.samples.map((sample) => {
-                            _samples.push(sample)
-                        });
+                    this.clinicalAnalysis.family.members.forEach((member) => {
+                        if (UtilsNew.isNotUndefinedOrNull(member.samples)) {
+                            member.samples.map((sample) => {
+                                _samples.push(sample)
+                            });
+                        }
                     });
+                } else {
+                    if (UtilsNew.isNotEmptyArray(this.clinicalAnalysis.subjects)) {
+                        this.clinicalAnalysis.subjects.forEach((individual) => {
+                            individual.samples.map((sample) => {
+                                _samples.push(sample)
+                            });
+                        });
+                    } else {
+                        console.warn("A Clinical Analysis with no subjects or family has been passed");
+                    }
+                }
 
+                if (UtilsNew.isNotEmptyArray(_samples)) {
                     // Set samples array and notify, this must be done using Polymer API
                     this.set("samples", _samples);
 
@@ -534,7 +538,8 @@
             }
 
             onSampleChange(e) {
-                this.set('samples', e.detail.samples);
+                let _samples = e.detail.samples;
+                this.set('samples', _samples);
                 this.dispatchEvent(new CustomEvent("samplechange", {detail: e.detail, bubbles: true, composed: true}));
             }
 
