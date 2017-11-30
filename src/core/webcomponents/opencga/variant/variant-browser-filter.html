@@ -769,6 +769,11 @@
                 if (typeof this.query["clinvar"] !== "undefined") {
                     PolymerUtils.setValue(this.prefix + "ClinVarTextarea", this.query["clinvar"]);
                 }
+
+                // VCFFilter
+                if (typeof this.query["filter"] !== "undefined") {
+                    $("#" + this.prefix + "vcfFilterSelect").selectpicker('val', this.query["filter"].split(","));
+                }
             }
 
             onGeneDiseasePanelChange() {
@@ -1036,6 +1041,15 @@
                     _filters["traits"] = inputTextArea.value;
                 }
 
+                // VCF Filter -> PASS, QualByDepth, FisherStrand, RMSMappingQuality,
+                let vcfFilterDropdown = PolymerUtils.getElementById(this.prefix + "vcfFilterSelect");
+                if (UtilsNew.isNotUndefinedOrNull(vcfFilterDropdown) && UtilsNew.isNotEmpty(vcfFilterDropdown.value)) {
+                    let types = PolymerUtils.querySelectorAll("option:checked", vcfFilterDropdown);
+                    let vcfFilters = [];
+                    types.forEach(option => vcfFilters.push(option.value));
+                    _filters["filter"] = vcfFilters.join(",");
+                }
+
                 // To prevent to call setQueryFilters we set this to false
                 this._reset = false;
                 this.query = _filters;
@@ -1093,6 +1107,7 @@
 
                 // Deselect bootstrap-select dropdowns
                 $("#" + this.prefix + "GeneBiotypes").selectpicker('val', []);
+                $("#" + this.prefix + "VCFFilter").selectpicker('val', []);
             }
 
             showSegregation(e) {
@@ -1237,6 +1252,9 @@
                         break;
                     case "fullTextSearch":
                         content = this._getFullTextSearchAccessionsHtml(this.prefix);
+                        break;
+                    case "vcfFilterDropdown":
+                        content = this._getVCFFilterHTML(subsection.filterValues, this.prefix);
                         break;
                 }
 
@@ -1814,6 +1832,19 @@
                 return categoriesStart + categoriesCheckbox + categoriesEnd;
             }
 
+            _getVCFFilterHTML(filterValues, prefix) {
+                let options = "";
+                for (let val of filterValues) {
+                    options += `<option value="${val}">${val}</option>`;
+                }
+                return `
+                    <select class="selectpicker" id="${prefix}vcfFilterSelect" data-size="10" data-live-search="true"
+                            data-selected-text-format="count" multiple>
+                        ${options}
+                    </select>
+                `;
+            }
+
 
             _addEventListeners() {
                 let keyupEvents = ["LocationTextarea", "FeatureTextarea", "PanelAppsTextarea", "FilterTextInput", "CaddScaledInput", "SiftInput",
@@ -1826,7 +1857,7 @@
                 }
 
                 let changeEvents = ["includeOtherStudy", "GeneBiotypes", "Type", "CaddRawOperator", "CaddScaledOperator", "SiftOperator", "PolyphenOperator",
-                    "pssOrRadio", "pssAndRadio", "PhylopOperator", "PhastconsOperator", "GerpOperator", "conservationAndRadio", "conservationOrRadio"];
+                    "pssOrRadio", "pssAndRadio", "PhylopOperator", "PhastconsOperator", "GerpOperator", "conservationAndRadio", "conservationOrRadio", "vcfFilterSelect"];
                 for (let id of changeEvents) {
                     let element = PolymerUtils.getElementById(this.prefix + id);
                     if (UtilsNew.isNotUndefinedOrNull(element)) {
