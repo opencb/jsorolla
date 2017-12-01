@@ -128,17 +128,17 @@ const interpretationJson = {
                         name: "Aaaa",
                         source: "HPO"
                     }],
-                    samples: [{id: 110, name: "sample10"}],
+                    samples: [{id: 110, name: "NA12877"}],
                     carrier: ["OMIM:056789"],
                     parentalConsanguinity: true,
                     multiples: {"type": "mellizo", "siblings": ["pepe"]}
                 },
                 {
-                    "id": 13, "version": 1, "name": "NA0002", sex: "female",
+                    "id": 13, "version": 1, "name": "NA12878", sex: "female",
                     father: "NA0003",
                     mother: "NA0004",
                     phenotypes: [],
-                    samples: [{id: 113, name: "sample13"}],
+                    samples: [{id: 113, name: "NA12878"}],
                     carrier: [{
                         id: "OMIM:056789",
                         name: "Cccc",
@@ -148,7 +148,7 @@ const interpretationJson = {
                     multiples: {"type": "mellizo", "siblings": ["pepe"]}
                 },
                 {
-                    "id": 11, "version": 1, "name": "NA0003", sex: "male", lifeStatus: "deceased",
+                    "id": 11, "version": 1, "name": "NA12879", sex: "male", lifeStatus: "deceased",
                     // father: {"id": -1, "version": 1},
                     // mother: {"id": -1, "version": 1},
                     phenotypes: [ {
@@ -156,13 +156,13 @@ const interpretationJson = {
                         name: "Aaaa",
                         source: "HPO"
                     }],
-                    samples: [{id: 111, name: "sample11"}],
+                    samples: [{id: 111, name: "NA12879"}],
                     carrier: ["OMIM:056789"],
                     parentalConsaguinity: false,
                     multiples: {"type": "mellizo", "siblings": ["luis"]}
                 },
                 {
-                    "id": 12, "version": 1, "name": "NA0004", sex: "female",
+                    "id": 12, "version": 1, "name": "NA12880", sex: "female",
                     // father: {"id": -1, "version": 1},
                     // mother: {"id": -1, "version": 1},
                     phenotypes: [  {
@@ -170,7 +170,7 @@ const interpretationJson = {
                         "name": "VII. Diseases of the eye and adnexa ",
                         "source": "ICD10"
                     }],
-                    samples: [{id: 112, name: "sample12"}],
+                    samples: [{id: 112, name: "NA12880"}],
                     carrier: ["OMIM:056789"],
                     parentalConsaguinity: false,
                     multiples: {"type": "mellizo", "siblings": ["luis"]}
