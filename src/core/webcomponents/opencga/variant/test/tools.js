@@ -224,6 +224,12 @@ const filter = {
     }
 };
 
+const variantView = {
+    gridView : {
+        nucleotideGenotype: false
+    },
+    advancedView: {}
+}
 
 const tools = {
     browser: {

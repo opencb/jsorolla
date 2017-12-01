@@ -155,12 +155,13 @@
                 this.table = $('#' + this.prefix + 'VariantBrowserGrid');
                 this.downloadRefreshIcon = $("#" + this.prefix + "DownloadRefresh");
                 this.downloadIcon = $("#" + this.prefix + "DownloadIcon");
+
                 this._refreshTableColumns();
             }
 
             _init() {
                 this.analysisMode = "family";
-                this._summary = false;
+
                 this.prefix = "VarBrowserGrid-" + Utils.randomString(6);
             }
 
@@ -197,7 +198,6 @@
             }
 
             renderVariantTable() {
-
                 this.variant = ""; // Empty the variant every time the grid is loaded
 
                 this.from = 1;
@@ -220,14 +220,12 @@
                         queryParams: function (params) {
                             queryParams.limit = params.limit;
                             queryParams.skip = params.offset;
-//                            queryParams.skipCount = true;
                             queryParams.skipCount = false;
                             return queryParams;
                         },
                         responseHandler: function (res) {
                             if (_numTotal === -1) {
-                                    _numTotal = res.response[0].numTotalResults;
-//
+                                _numTotal = res.response[0].numTotalResults;
                             }
                             _this.numTotalResultsText = _numTotal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
                             return {total: _numTotal, rows: res.response[0].result}
@@ -390,21 +388,20 @@
                 let queryParams = {
                     sid: this.opencgaClient._config.sessionId,
                     timeout: 60000,
-                    summary: this._summary,
-//                    count: true
                 };
 
                 Object.assign(queryParams, this.query); // Important : Adding the query object contents to queryParams
 
-                if (typeof this.samples !== "undefined" && this.samples.length > 0) {
+                if (UtilsNew.isNotEmptyArray(this.samples)) {
                     let sampleNames = [];
-                    let sampleIdx = {};
-                    for (sampleIdx in this.samples) {
-                        sampleNames.push(this.samples[sampleIdx].name);
-                    }
-                    queryParams.returnedSamples = sampleNames.join();
+                    this.samples.forEach((sample) => {
+                        sampleNames.push(sample.name);
+                    });
+                    queryParams.returnedSamples = sampleNames.join(",");
+                    queryParams.summary = false;
                 } else {
                     queryParams.exclude = "studies";
+                    queryParams.summary = true;
                 }
 
                 if (typeof this.config !== "undefined" && typeof this.config.missing !== "undefined" && this.config.missing) {
@@ -418,6 +415,10 @@
                         }
                     }
                 }
+
+                // Advanced query params
+                queryParams.intersectSearch = true;
+                queryParams.approxCount = true;
 
                 let query = ["limit=1000"];
                 for (let key in queryParams) {
@@ -434,7 +435,6 @@
             }
             _onSelectVariant(row) {
                 if (typeof row !== "undefined") {
-//                    debugger
                     let _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
 //                    this.fire('selectvariant', {id: _variant, variant: row});
                     this.dispatchEvent(new CustomEvent('selectvariant', {detail: {id: _variant, variant: row}}));
@@ -831,11 +831,6 @@
                 return res;
             }
 
-            _refreshTableColumns2() {
-                this.samples;
-                debugger
-            }
-
             _refreshTableColumns() {
                 this.cols = this._createDefaultColumns();
 //                debugger
@@ -914,7 +909,7 @@
                         });
                     }
                 }
-debugger
+
                 if (typeof this.cols !== "undefined" && typeof this.samples !== "undefined" && this.samples.length > 0) {
                     switch(this.analysisMode) {
                         case "family":
