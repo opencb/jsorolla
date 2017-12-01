@@ -107,7 +107,7 @@
                                 cellbase-client="{{cellbaseClient}}"
                                 active="{{config.tools.prioritization.active}}" ebi-config="{{config.ebiWS}}"
                                 beacon-hosts="{{config.tools.beacon.hosts}}" on-gene="geneSelected"
-                                samples="{{samples}}"
+                                samples="{{samples}}" variant-view-config="{{variantViewConfig}}"
                                 style="font-size: 12px">
         </variant-prioritization>
     </template>
@@ -130,6 +130,7 @@
                     this.populationFrequencies = populationFrequencies;
                     this.proteinSubstitutionScores = proteinSubstitutionScores;
                     this.consequenceTypes = consequenceTypes;
+                    this.variantViewConfig = variantView;
 
                     this.opencgaClientConfig = new OpenCGAClientConfig(this.config.opencga.host, this.config.opencga.version, true, this.config.opencga.cookie.prefix);
                     this.opencgaClient = new OpenCGAClient(this.opencgaClientConfig);
