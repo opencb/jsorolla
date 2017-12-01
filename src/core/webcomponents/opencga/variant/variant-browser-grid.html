@@ -822,6 +822,7 @@
                                 let currentGenotype = study.samplesData[this.fieldIndex - 5];
                                 if (UtilsNew.isNotUndefinedOrNull(currentGenotype)) {
                                     res = currentGenotype[0];
+                                    return;
                                 }
                             }
                         });
@@ -928,7 +929,7 @@
                                     colspan: 1,
                                     formatter: this.sampleFormatter,
                                     halign: 'center',
-//                                    nucleotideGenotype: this.variantViewConfig.gridView.nucleotideGenotype,
+                                    nucleotideGenotype: this.variantViewConfig.gridView.nucleotideGenotype,
                                 });
                             }
                             break;
