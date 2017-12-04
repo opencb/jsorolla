@@ -587,14 +587,26 @@
 
                 if (UtilsNew.isNotEmpty(id) && UtilsNew.isNotEmpty(name)) {
                     if ((/\s/.test(name)) ||  (/\s/.test(id))) {
-                            this.messageError = true;
-                            this.messageErrorText = "ID or Name must not contains blanks.";
+                        this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+                            detail: {
+                                message: "ID or Name must not contains blanks.",
+                                type: UtilsNew.MESSAGE_ERROR
+                            },
+                            bubbles: true,
+                            composed: true
+                        }));
                     } else {
                         this.interpretation = this._createInterpretation();
                     }
                 } else {
-                    this.messageError = true;
-                    this.messageErrorText = "ID or Name must not be empty.";
+                    this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+                        detail: {
+                            message: "ID or Name must not be empty.",
+                            type: UtilsNew.MESSAGE_ERROR
+                        },
+                        bubbles: true,
+                        composed: true
+                    }));
                 }
 //                PolymerUtils.removeAttribute(this.prefix + 'GoToReportButton', 'disabled');
             }
@@ -673,8 +685,15 @@
                             let interpretations =  { interpretations: interpretation.clinicalAnalysis.interpretations };
                             _this.opencgaClient.clinical().update(interpretation.clinicalAnalysis.id, params, interpretations)
                                 .then((response) => {
-                                    _this.messageSuccess = true;
-                                    _this.messageSuccessText = interpretation.id + " interpretation has been created correctly.";
+                                    this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+                                        detail: {
+                                            message:  interpretation.id + " interpretation has been created correctly.",
+                                            type: UtilsNew.MESSAGE_SUCCESS
+                                        },
+                                        bubbles: true,
+                                        composed: true
+                                    }));
+
                                     _this.cleanSaveInterpretation();
                                     console.log(response);
                                     // Update analysis with new interpretations
