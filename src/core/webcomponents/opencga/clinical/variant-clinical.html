@@ -306,7 +306,7 @@
                             </div>
 
                         </template>
-                        <template is="dom-if" if="{{activeReport}}">
+                        <template is="dom-if" if="{{activeReport}}" restamp="true">
                             <variant-clinical-report opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}"
                                                      tool-title="Report of {{clinicalAnalysis.name}}" interpretation="{{interpretationReport}}" analysis="{{clinicalAnalysis}}" expReport="true">
                             </variant-clinical-report>
@@ -468,20 +468,26 @@
             changeToolById(id) {
                 if (id === this.prefix + "SamplesButton") {
                     this.set("activesTab.analysisTab", true);
+                    this.activePrioritization = false;
+                    this.activeReport = false;
                 }
 
                 if (id === this.prefix + "UploadButton") {
                     this.set("activesTab.uploadTab", true);
+                    this.activePrioritization = false;
+                    this.activeReport = false;
                 }
 
                 if (id === this.prefix + "PrioritizationButton") {
                     this.set("activesTab.prioritizationTab", true);
                     this.activePrioritization = false;
+                    this.activeReport = false;
                     this.getRecentAnalysis();
                 }
 
                 if (id === this.prefix + "ReportButton") {
                     this.set("activesTab.reportTab", true);
+                    this.activePrioritization = false;
                     this.activeReport = false;
                     this.getRecentInterpretations();
                 }
@@ -547,6 +553,9 @@
                 if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
                     this.recentInterpretations = this.clinicalAnalysis.interpretations;
                     this.interpretationId = null;
+                    if (UtilsNew.isNotUndefinedOrNull(this.recentInterpretations) && UtilsNew.isNotEmptyArray(this.recentInterpretations)){
+                        this.interpretationId = this.clinicalAnalysis.interpretations[0].id;
+                    }
                     this.checkExistsRecentInterpretations = !UtilsNew.isEmptyArray(this.recentInterpretations);
                 }
             }
