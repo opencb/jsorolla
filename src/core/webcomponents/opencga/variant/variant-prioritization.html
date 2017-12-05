@@ -613,10 +613,6 @@
 
             _createInterpretation() {
                 try {
-                    this.messageErrorText = "";
-                    this.messageSuccessText = "";
-                    this.messageError = false;
-                    this.messageSuccess = false;
                     let userID = this.opencgaClient._config.userId;
                     let interpretation = {};
                     interpretation.id = this.clinicalAnalysis.id + "_" + PolymerUtils.getValue(this.prefix + "IDInterpretation");
