@@ -475,6 +475,7 @@
 
                     let _anObject = {
                         analysisID: analysisID,
+                        description: _this.descriptionFormatter(aux),
                         analysisSamples: samplesToShow,
                         analysisType: analysisType,
                         analysisDate: currentDate,
@@ -570,6 +571,7 @@
                         let samplesName = [];
                         let diseaseAnalysis = [];
                         let subjects = [];
+                        let description = "";
 
                         // These properties are for analysis params
                         subjectName = PolymerUtils.getValue(this.prefix + "selectedSubject" + rowInfo.analysisIDinternal);
@@ -579,6 +581,8 @@
                             let res = {name: sample.name};
                             return res;
                         });
+                        description = PolymerUtils.getValue(this.prefix + "description" + rowInfo.analysisIDinternal);
+
 
                         let diseaseSelected = PolymerUtils.getValue(this.prefix + "selectedDisease" + rowInfo.analysisIDinternal);
                         if (UtilsNew.isUndefinedOrNull(rowInfo.family)) {
@@ -617,6 +621,7 @@
 
                         let analysisInfo = {
                             analysisID: rowInfo.analysisID,
+                            description: description,
                             type: _analysisType,
                             familyID: rowInfo.family !== null ? rowInfo.family.name : undefined,
                             subjects: subjects,
@@ -744,6 +749,7 @@
                 };
                 let body = {
                     "name": analysisInfo.analysisID,
+                    "description": analysisInfo.description,
                     "type": analysisInfo.type,
                     "family": analysisInfo.familyID,
                     "subjects": analysisInfo.subjects,
@@ -864,6 +870,10 @@
             analysisFormatter(analysisID, randomString) {
 //                return '<input type="text" id="' + this.prefix + 'analysisID' + randomString + '" class="form-control" value="' + analysisID + '" maxlength="75">';
                 return analysisID;
+            }
+
+            descriptionFormatter(randomString) {
+                return '<input type="text" id="' + this.prefix + 'description' + randomString + '" class="form-control" maxlength="75">';
             }
 
             analysisError(analysisType, introducedLength, properLength, samples) {
@@ -988,6 +998,10 @@
                         {
                             field: 'analysisID',
                             title: 'Analysis ID'
+                        },
+                        {
+                            field: 'description',
+                            title: 'Description'
                         },
                         {
                             field: 'analysisSamples',
