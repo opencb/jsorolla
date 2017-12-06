@@ -397,11 +397,13 @@
                     this.samples.forEach((sample) => {
                         sampleNames.push(sample.name);
                     });
+//                    queryParams.includeSamples = sampleNames.join(",");
                     queryParams.returnedSamples = sampleNames.join(",");
                     queryParams.summary = false;
+//                    queryParams.exclude = "studies.files,studies.stats,annotations.expression,annotations.drugs";
                 } else {
-                    queryParams.exclude = "studies";
                     queryParams.summary = true;
+//                    queryParams.exclude = "studies";
                 }
 
                 if (typeof this.config !== "undefined" && typeof this.config.missing !== "undefined" && this.config.missing) {
@@ -417,6 +419,9 @@
                 }
 
                 // Advanced query params
+//                queryParams.useSearchIndex = "yes"; // values accepted: yes, no and auto
+//                queryParams.approximateCount = true;
+//                queryParams.approximateCountSamplingSize = 1000;
                 queryParams.intersectSearch = true;
                 queryParams.approxCount = true;
 
@@ -929,7 +934,7 @@
                                     colspan: 1,
                                     formatter: this.sampleFormatter,
                                     halign: 'center',
-                                    nucleotideGenotype: this.variantViewConfig.gridView.nucleotideGenotype,
+                                    nucleotideGenotype: this.config.grid.nucleotideGenotype,
                                 });
                             }
                             break;
