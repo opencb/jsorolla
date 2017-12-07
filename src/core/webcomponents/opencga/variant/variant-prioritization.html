@@ -128,7 +128,7 @@
                                                   consequence-types="{{consequenceTypes}}"
                                                   query="[[query]]" search="[[search]]" variant="{{variant}}"
                                                   on-selected="selectedGene" on-selectvariant="onSelectVariant" on-checkvariant="onCheckVariant"
-                                                  show-select="{{showSelect}}" style="font-size: 12px" variant-view-config="{{variantViewConfig}}" config="{{config}}">
+                                                  show-select="{{config.grid.showSelect}}" style="font-size: 12px" config="{{config}}">
                             </variant-browser-grid>
 
                             <!-- Bottom tabs with specific variant information -->
@@ -389,9 +389,6 @@
                     },
                     config: {
                         type: Object
-                    },
-                    variantViewConfig: {
-                        type: Object
                     }
                 }
             }
@@ -418,14 +415,13 @@
                     "annot-hpo": "HPO"
                 };
 
-                this.showSelect = true;
                 this.messageError = false;
                 this.messageSuccess = false;
 
                 this.samples = [];
                 this.family = {};
 
-                this.prefix = "prioritization-" + Utils.randomString(6);
+                this.prefix = "varPrior-" + Utils.randomString(6);
             }
 
             clinicalAnalysisIdObserver() {
