@@ -1187,7 +1187,10 @@
                 // We get the HTML content for each subsection
                 let content = "";
                 for (let subsection of section.subsections) {
-                    content += this._createSubSection(subsection);
+                    // We check if this subsection is not disabled in the configuration file
+                    if (UtilsNew.isEmptyArray(this.config.filter.skipSubsections) || !this.config.filter.skipSubsections.includes(subsection.id)) {
+                        content += this._createSubSection(subsection);
+                    }
                 }
 
                 let footer = `

@@ -248,7 +248,7 @@
                                                     cellbase-client="{{cellbaseClient}}"
                                                     ebi-config="{{ebiConfig}}"
                                                     beacon-hosts="{{config.tools.beacon.hosts}}" on-gene="geneSelected"
-                                                    clinical-analysis="{{clinicalAnalysis}}" on-backtoselectanalysis="changeTool" variant-view-config="{{variantViewConfig}}" event-notify-name="{{eventNotifyName}}">
+                                                    clinical-analysis="{{clinicalAnalysis}}" on-backtoselectanalysis="changeTool" event-notify-name="{{eventNotifyName}}">
                             </variant-prioritization>
                         </div>
                     </template>
@@ -416,9 +416,6 @@
                     eventNotifyName: {
                         type: String,
                         value: "messageevent"
-                    },
-                    variantViewConfig: {
-                        type: Object
                     }
                 }
             }
