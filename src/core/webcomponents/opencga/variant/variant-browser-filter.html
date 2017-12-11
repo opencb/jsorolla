@@ -352,8 +352,22 @@
                 }
 
                 this.renderSampleGenotypesTable();
-
+                this._calculateFilesSamples();
                 this.updateQueryFilters();
+            }
+
+            _calculateFilesSamples() {
+                this.samplesFiles = [];
+                let _this = this;
+                let params = {
+                    study: this.project.alias + ":" + this.study.alias
+                };
+                this.samples.forEach((sample) => {
+                    params.samples = [sample.source];
+                    if (!UtilsNew.containsArray(_this.samplesFiles, sample.source)) {
+                        _this.samplesFiles.push(sample.source);
+                    }
+                });
             }
 
             familyObserver() {
@@ -1062,6 +1076,7 @@
                     let vcfFilters = [];
                     types.forEach(option => vcfFilters.push(option.value));
                     _filters["filter"] = vcfFilters.join(",");
+                    _filters["files"] = this.samplesFiles.join(",");
                 }
 
                 // To prevent to call setQueryFilters we set this to false
