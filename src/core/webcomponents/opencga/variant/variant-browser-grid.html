@@ -16,7 +16,20 @@
 
 <dom-module id="variant-browser-grid">
     <template>
-        <style include="jso-styles"></style>
+        <style include="jso-styles">
+            span.redText, span.orangeText {
+                margin-left: 0;
+            }
+
+            span.redText {
+                color: red;
+            }
+
+            span.orangeText {
+                color: orange;
+            }
+
+        </style>
 
         <div id="{{prefix}}ToolbarLeft" style="float: left;margin: 10px 0px 0px 0px">
             <span>
@@ -744,6 +757,10 @@
                         let alternateSequence = row.alternate;
                         let referenceSequence = row.reference;
                         let genotypeMatch = new Map();
+                        let colText = "";
+                        let referenceValueColText = "-";
+                        let alternateValueColText = "-";
+
                         genotypeMatch.set(0, referenceSequence === "" ? "-" : referenceSequence);
                         genotypeMatch.set(1, alternateSequence === "" ? "-" : alternateSequence);
 
@@ -751,12 +768,11 @@
                             if (UtilsNew.isNotUndefinedOrNull(study.secondaryAlternates) && UtilsNew.isNotEmptyArray(study.secondaryAlternates)) {
                                 study.secondaryAlternates.forEach((secondary) => {
                                     genotypeMatch.set(genotypeMatch.size, secondary.alternate === "" ? "-" : secondary.alternate);
-                                })
+                                });
                             }
                             if (UtilsNew.isNotUndefinedOrNull(study.samplesData) && UtilsNew.isNotEmptyArray(study.samplesData)) {
                                 if (UtilsNew.isNotUndefinedOrNull(study.samplesData[this.fieldIndex - 5])) {
                                     let currentGenotype = study.samplesData[this.fieldIndex - 5][0];
-                                    let colText = "";
                                     let reference = currentGenotype.split("/")[0];
                                     let alternate = currentGenotype.split("/")[1];
                                     let tooltipText = reference + " / " + alternate;
@@ -765,54 +781,64 @@
                                         alternate = parseInt(alternate);
                                         let referenceValue = genotypeMatch.get(reference);
                                         let alternateValue = genotypeMatch.get(alternate);
+                                        // Cases which this will cover.
+                                        // referenceValue.length <= 5 && alternateVAlue.length <= 5
+                                        // referenceValue.length <= 10 && alternateValue == "-"
+                                        // alternateValue.length <= 10 && referenceValue == "-"
+                                        referenceValueColText = referenceValue;
+                                        alternateValueColText = alternateValue;
 
                                         // Not equal X/- or -/X
                                         if (UtilsNew.isNotEqual(referenceValue, "-") && UtilsNew.isNotEqual(alternateValue, "-")) {
-                                            if (referenceValue.length <= 5 && alternateValue.length <= 5) {
-                                                colText = referenceValue + " / " + alternateValue;
-                                            } else if ((referenceValue.length <= 5 && alternateValue.length > 5) || (referenceValue.length > 5 && alternateValue.length <= 5)) {
+                                            if ((referenceValue.length <= 5 && alternateValue.length > 5) || (referenceValue.length > 5 && alternateValue.length <= 5)) {
                                                 if (referenceValue.length > 5) {
                                                     // referenceValue > 5
-                                                    let substringReference = referenceValue.substring(0, 3) + "...";
-                                                    colText = substringReference + " / " + alternateValue;
-                                                    tooltipText += "<br>" + referenceValue +" / " + alternateValue;
+                                                    referenceValueColText = referenceValue.substring(0, 3) + "...";
+//                                                    tooltipText += "<br>" + referenceValue +" / " + alternateValue;
                                                 }  else {
                                                     // alternateValue > 5
-                                                    let substringAlternate = alternateValue.substring(0, 3) + "...";
-                                                    colText = referenceValue + " / " + substringAlternate;
-                                                    tooltipText += "<br>" + referenceValue +" / " + alternateValue;
+                                                    alternateValueColText = alternateValue.substring(0, 3) + "...";
+//                                                    tooltipText += "<br>" + referenceValue +" / " + alternateValue;
                                                 }
-                                            } else {
+                                            } else if (referenceValue.length > 5 && alternateValue.length > 5){
                                                 // Both > 5 It will never happen
-                                                let substringReference = referenceValue.substring(0, 3) + "...";
-                                                let substringAlternate = alternateValue.substring(0, 3) + "...";
-                                                colText = substringReference + " / " + substringAlternate;
-                                                tooltipText += "<br>" +   referenceValue +" / " + alternateValue;
+                                                referenceValueColText = referenceValue.substring(0, 3) + "...";
+                                                alternateValueColText = alternateValue.substring(0, 3) + "...";
+//                                                tooltipText += "<br>" +   referenceValue +" / " + alternateValue;
                                             }
-                                        } else if (UtilsNew.isNotEqual(referenceValue, "-")) {
+                                        } else if (UtilsNew.isNotEqual(referenceValue, "-") && referenceValue.length > 10) {
                                             // X/-
-                                            if (referenceValue.length <= 10) {
-                                                colText = referenceValue + " / "+ alternateValue;
-                                            } else {
                                                 let substringReference = referenceValue.substring(0, 5) + "...";
-                                                colText = substringReference + " / -";
-                                                tooltipText += "<br>" +   referenceValue +" / " + alternateValue;
-                                            }
-                                        } else if (UtilsNew.isNotEqual(alternateValue, "-")) {
+                                                referenceValueColText = substringReference;
+                                                alternateValueColText = "-";
+//                                                tooltipText += "<br>" +   referenceValue +" / " + alternateValue;
+                                        } else if (UtilsNew.isNotEqual(alternateValue, "-") && alternateValue.length > 10) {
                                             // -/X
-                                            if (alternateValue.length <= 10) {
-                                                colText = referenceValue + " / " + alternateValue;
-                                            } else {
                                                 let substringAlternate = alternateValue.substring(0, 5) + "...";
-                                                colText = "- / " + substringAlternate;
-                                                tooltipText += "<br>" +   referenceValue + " / " + alternateValue;
-                                            }
-                                        } else {
-                                            colText = "- / -";
+                                                alternateValueColText = substringAlternate;
+                                                referenceValueColText = "-";
+//                                                tooltipText += "<br>" +   referenceValue + " / " + alternateValue;
                                         }
+                                        tooltipText += "<br>" +   referenceValue + " / " + alternateValue;
                                     } else {
-                                        colText = reference + " / " + alternate;
+                                        referenceValueColText = reference;
+                                        alternateValueColText = alternate;
+                                        tooltipText += "<br>" +   reference + " / " + alternate;
                                     }
+
+                                    let referenceIndex = parseInt(reference);
+                                    let alternateIndex = parseInt(alternate);
+                                    if (referenceIndex === 1 && (referenceValueColText !== "-" && referenceValueColText !== "*")) {
+                                        referenceValueColText = "<span class='orangeText'>" + referenceValueColText +"</span>"
+                                    } else if(referenceIndex > 1 && (referenceValueColText !== "-" && referenceValueColText !== "*")) {
+                                        referenceValueColText = "<span class='redText'>" + referenceValueColText +"</span>"
+                                    }
+                                    if (alternateIndex === 1 && (alternateValueColText !== "-" && alternateValueColText !== "*")) {
+                                        alternateValueColText = "<span class='orangeText'>" + alternateValueColText +"</span>"
+                                    } else if(alternateIndex > 1 && (alternateValueColText !== "-" && alternateValueColText !== "*")) {
+                                        alternateValueColText = "<span class='redText'>" + alternateValueColText +"</span>"
+                                    }
+                                    colText = referenceValueColText + " / " + alternateValueColText;
                                     res = "<span class='sampleGenotype' data-text='"+tooltipText+"'> "+ colText + " </span>";
                                     return;
                                 }
