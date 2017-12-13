@@ -510,6 +510,8 @@
                 let params = {
                     study: this.project.alias + ":" + this.study.alias,
                     include: "id,name,description",
+                    sort: "creationDate",
+                    order: "descending",
                     limit: 5
                 };
                 let _this = this;
