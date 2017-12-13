@@ -186,7 +186,9 @@
                                                 <input id="{{prefix}}sampleRadio{{analysis.id}}" type="radio" name="analysisRecentRadioButtons"
                                                        checked$="{{isCheckedDefaultAnalysis(j, analysis.id)}}" value="{{analysis.id}}"
                                                        class$="{{prefix}}FilterRadio" on-change="selectAnalysisRecent"
-                                                       style="padding-left: 20px"> {{analysis.name}}<br>
+                                                       style="padding-left: 20px"> {{analysis.name}}
+                                                <template is="dom-if" if="{{analysis.description}}">([[analysis.description]])</template>
+                                                <br>
                                             </template>
                                         </template>
                                     </div>
@@ -437,13 +439,6 @@
                             prioritizationTab: false,
                             reportTab: false
                         };
-
-//                this.config.filter.study.title = "Study";
-//                this.config.filter.study.samples.visibility = "public";
-//                this.config.filter.study.cohorts.visibility = "none";
-//                this.config.filter.study.scores.visibility = "none";
-//                this.config.filter.study.studies.visibility = "none";
-//                this.config.filter.study.clinicalData.visibility = "none";
             }
 
             changeTool(e) {
@@ -490,7 +485,6 @@
                 }
             }
 
-
             computedClassTabs(isActive) {
                 return !isActive ? "btn-success" : "btn-primary";
             }
@@ -515,7 +509,7 @@
             getRecentAnalysis() {
                 let params = {
                     study: this.project.alias + ":" + this.study.alias,
-                    include: "id,name",
+                    include: "id,name,description",
                     limit: 5
                 };
                 let _this = this;

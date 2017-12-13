@@ -78,10 +78,19 @@
                     <hr>
                     <div style="margin: 10px 0px 15px 5px" class="analysis-information col-sm-10"
                          id="{{prefix}}analysisInformationContent">
-                        <div class="col-xs-10 row" id="{{prefix}}analysisInformationID" hidden>
-                            <label for="{{prefix}}analysisID" class=" col-form-label">Analysis ID:</label>
-                            <span class$=" {{prefix}}TextInput" id="{{prefix}}analysisID"
-                                      name="analysis"></span>
+                        <div class="row" id="{{prefix}}analysisInformation" hidden>
+
+                            <div class="col-xs-5" id="{{prefix}}analysisInformationID">
+                                <label for="{{prefix}}analysisID" class="col-form-label">Analysis ID:</label>
+                                <span class$="{{prefix}}TextInput" id="{{prefix}}analysisID"
+                                          name="analysis"></span>
+                            </div>
+
+                            <div class="col-xs-5" id="{{prefix}}analysisDescription">
+                                <label for="{{prefix}}Description" class="col-form-label">Description:</label>
+                                <span class$="{{prefix}}TextInput" id="{{prefix}}Description"
+                                      name="description"></span>
+                            </div>
                         </div>
                         <div class="row" id="{{prefix}}analysisInformationResume" hidden>
 
@@ -112,7 +121,7 @@
                                   name="interpretation"></span>
                         </div>
                         <div class="col-xs-5 col-sm-5 col-md-5" id="{{prefix}}interpretationInformationName">
-                            <label for="{{prefix}interpretationName" class="col-form-label">Interpretation Name:</label>
+                            <label for="{{prefix}}interpretationName" class="col-form-label">Interpretation Name:</label>
                             <span class$="{{prefix}}TextInput" id="{{prefix}}interpretationName"
                                   name="interpretationName"></span>
                         </div>
@@ -448,6 +457,7 @@
                     if (UtilsNew.isNotUndefined(this.interpretation.clinicalAnalysis) ) {
                         // Analysis ID and analysis resume
                         PolymerUtils.setPropertyById(this.prefix + "analysisID", "innerText", this.interpretation.clinicalAnalysis.id);
+                        PolymerUtils.setPropertyById(this.prefix + "Description", "innerText", this.interpretation.clinicalAnalysis.description);
                         PolymerUtils.setPropertyById(this.prefix + "analysisType", "innerText", this.interpretation.clinicalAnalysis.type);
                         PolymerUtils.setPropertyById(this.prefix + "date", "innerText", moment(this.interpretation.clinicalAnalysis.creationDate, "YYYYMMDDHHmmss").format('D MMM YY'));
                         this.analysisID = this.interpretation.clinicalAnalysis.id;
@@ -565,7 +575,7 @@
                 // Analysis ID
                 if (UtilsNew.isNotUndefined(this.selection && this.selection.analysisSelected)) {
                     PolymerUtils.removeAttribute(this.prefix + "sampleInformationDiv", "hidden");
-                    PolymerUtils.removeAttribute(this.prefix + "analysisInformationID", "hidden");
+                    PolymerUtils.removeAttribute(this.prefix + "analysisInformation", "hidden");
                     PolymerUtils.removeAttribute(this.prefix + "analysisInformationDiv", "hidden")
                 }
 

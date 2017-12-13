@@ -106,6 +106,7 @@
                             for (let i = 0; i < _analysis.length; i++) {
                                 _analysisObj.push({
                                     analysisID: _analysis[i].name,
+                                    description: _analysis[i].description,
                                     analysisType: _analysis[i].type,
                                     analysisDate: _this.dateFormatter(_analysis[i].creationDate),
                                     filter: _this.filterFormatter(_analysis[i].attributes.filter),
@@ -209,6 +210,10 @@
                         {
                             field: 'analysisID',
                             title: 'Analysis ID'
+                        },
+                        {
+                            field: 'description',
+                            title: 'Description'
                         },
                         {
                             field: 'analysisType',
