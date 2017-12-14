@@ -174,20 +174,19 @@
                             <h3>Clinical Analysis {{clinicalAnalysis.name}}</h3>
                             <div class="col-md-12" style="padding: 10px 15px">
 
-                                <div class="form-group col-md-12" id="{{prefix}}selectAnalysisType">
+                                <div class="form-group col-md-12" id="[[prefix]]selectAnalysisType">
                                     <h4>Select Recent Analysis:</h4>
                                     <div style="padding: 10px 20px">
                                         <template is="dom-if" if="{{!checkExistsRecentAnalysis}}">
                                             <span>No recent clinical analysis found</span>
                                         </template>
-                                        <template is="dom-if" if="{{checkExistsRecentAnalysis}}">
-                                            <template is="dom-repeat" items="{{recentAnalysis}}" as="analysis" index-as="j">
-
-                                                <input id="{{prefix}}sampleRadio{{analysis.id}}" type="radio" name="analysisRecentRadioButtons"
-                                                       checked$="{{isCheckedDefaultAnalysis(j, analysis.id)}}" value="{{analysis.id}}"
-                                                       class$="{{prefix}}FilterRadio" on-change="selectAnalysisRecent"
-                                                       style="padding-left: 20px"> {{analysis.name}}
-                                                <template is="dom-if" if="{{analysis.description}}">([[analysis.description]])</template>
+                                        <template is="dom-if" if="{{checkExistsRecentAnalysis}}" restamp="true">
+                                            <template id="recentAnalysisLoop" is="dom-repeat" items="{{recentAnalysis}}" as="analysis">
+                                                <input id="[[prefix]]sampleRadio{{analysis.id}}" type="radio" name="analysisRecentRadioButtons"
+                                                       checked$="{{isCheckedDefaultAnalysis(analysis.id)}}" value="{{analysis.id}}"
+                                                       class$="[[prefix]]FilterRadio" on-change="selectAnalysisRecent"
+                                                       style="padding-left: 20px"> [[analysis.name]]
+                                                <template is="dom-if" if="[[analysis.description]]">([[analysis.description]])</template>
                                                 <br>
                                             </template>
                                         </template>
@@ -206,7 +205,7 @@
 
                             <!-- Clinical Analysis View -->
                             <div class="col-md-12" style="padding: 10px 15px">
-                                <clinical-analysis-view project="{{project}}" study="{{study}}" config="{{config}}" opencga-client="{{opencgaClient}}"
+                                <clinical-analysis-view project="[[project]]" study="[[study]]" config="{{config}}" opencga-client="[[opencgaClient]]"
                                                        clinical-analysis="{{clinicalAnalysis}}" clinical-analysis-id="{{clinicalAnalysisId}}" show-summary="{{showSummary}}"
                                                         active-prioritization="{{activePrioritization}}">
                                 </clinical-analysis-view>
@@ -497,6 +496,7 @@
             showClinicalSelector(e) {
                 e.preventDefault();
                 this.analysisModal = UtilsNew.isUndefined(this.analysisModal) ? true : !this.analysisModal;
+                this.checkExistsRecentAnalysis = false;
                 $("#" + this.prefix + "AnalysisBrowser").modal('show');
             }
 
@@ -504,6 +504,20 @@
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
                 this.clinicalAnalysis = this.analysisSelected.analysis;
                 this.clinicalAnalysisId = this.clinicalAnalysis.id;
+                let existRecentAnalysis = this.recentAnalysis.find((recent) => {
+                   return recent.id === this.clinicalAnalysisId;
+                });
+
+                if (UtilsNew.isUndefinedOrNull(existRecentAnalysis)) {
+                    this.recentAnalysis.push(this.clinicalAnalysis);
+                    this.recentAnalysis = this.recentAnalysis.slice();
+                } else {
+                    this.recentAnalysis = this.recentAnalysis.map((recent) => {
+//                        recent.name = recent.name+"a"+recent.id;
+                        return Object.assign({},recent);
+                    });
+                }
+                this.checkExistsRecentAnalysis = true;
             }
 
             getRecentAnalysis() {
@@ -559,11 +573,8 @@
                 }
             }
 
-            isCheckedDefaultAnalysis(currentIndex, clinicalAnalysisId) {
-                if (currentIndex === 0) {
-                    this.clinicalAnalysisId = clinicalAnalysisId;
-                    return true;
-                } else if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysisId) && this.clinicalAnalysisId === clinicalAnalysisId) {
+            isCheckedDefaultAnalysis(clinicalAnalysisId) {
+                if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysisId) && this.clinicalAnalysisId === clinicalAnalysisId) {
                     return true;
                 }
                 return false
