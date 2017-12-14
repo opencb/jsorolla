@@ -828,7 +828,7 @@
                         })
                         .catch(function (responseError) {
                             let _message = responseError.error;
-                            this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+                            _this.dispatchEvent(new CustomEvent(_this.eventNotifyName, {
                                 detail: {
                                     message: _message,
                                     type: UtilsNew.MESSAGE_ERROR
