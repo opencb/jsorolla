@@ -142,7 +142,7 @@
                                             </a>
                                         </li>
                                         <li role="presentation">
-                                            <a href="#{{prefix}}FileMetrics" role="tab" data-toggle="tab" class="clinical-bottom-tab-title">
+                                            <a href="#{{prefix}}FileMetrics" role="tab" data-toggle="tab" class="prioritization-variant-tab-title">
                                                 File Metrics
                                             </a>
                                         </li>
@@ -471,7 +471,7 @@
             clinicalAnalysisObserver() {
                 let _samples = [];
 
-                if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.family) && UtilsNew.isNotEmptyArray(this.clinicalAnalysis.family.members)) {
+                if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis) && UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.family) && UtilsNew.isNotEmptyArray(this.clinicalAnalysis.family.members)) {
                     this.set("family", this.clinicalAnalysis.family);
                     this.clinicalAnalysis.family.members.forEach((member) => {
                         if (UtilsNew.isNotUndefinedOrNull(member.samples)) {
@@ -481,7 +481,7 @@
                         }
                     });
                 } else {
-                    if (UtilsNew.isNotEmptyArray(this.clinicalAnalysis.subjects)) {
+                    if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis) && UtilsNew.isNotEmptyArray(this.clinicalAnalysis.subjects)) {
                         this.clinicalAnalysis.subjects.forEach((individual) => {
                             individual.samples.map((sample) => {
                                 _samples.push(sample)
@@ -635,7 +635,6 @@
                         composed: true
                     }));
                 }
-//                PolymerUtils.removeAttribute(this.prefix + 'GoToReportButton', 'disabled');
             }
 
             _createInterpretation() {
@@ -723,14 +722,36 @@
                                     _this.getAnalysisInterpretations();
                                 })
                                 .catch((err) => {
-                                    _this.messageError = true;
-                                    _this.messageErrorText = err.error;
+                                    this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+                                        detail: {
+                                            message:  err.error,
+                                            type: UtilsNew.MESSAGE_ERROR
+                                        },
+                                        bubbles: true,
+                                        composed: true
+                                    }));
                                 });
+                        })
+                        .catch((err) => {
+                            this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+                                detail: {
+                                    message:  err.error,
+                                    type: UtilsNew.MESSAGE_ERROR
+                                },
+                                bubbles: true,
+                                composed: true
+                            }));
                         });
 
                 } catch (err) {
-                    this.messageError = true;
-                    this.messageErrorText = err;
+                    this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+                        detail: {
+                            message:  err,
+                            type: UtilsNew.MESSAGE_ERROR
+                        },
+                        bubbles: true,
+                        composed: true
+                    }));
                 }
             }
 
