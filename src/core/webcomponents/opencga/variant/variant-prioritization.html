@@ -142,6 +142,11 @@
                                             </a>
                                         </li>
                                         <li role="presentation">
+                                            <a href="#{{prefix}}FileMetrics" role="tab" data-toggle="tab" class="clinical-bottom-tab-title">
+                                                File Metrics
+                                            </a>
+                                        </li>
+                                        <li role="presentation">
                                             <a href="#{{prefix}}Beacon" role="tab" data-toggle="tab" class="prioritization-variant-tab-title">
                                                 Beacon Network
                                             </a>
@@ -159,6 +164,32 @@
                                                                              protein-substitution-scores="{{proteinSubstitutionScores}}"
                                                                              style="font-size: 12px">
                                             </cellbase-variantannotation-view>
+                                        </div>
+
+                                        <!-- File Metrics Tab -->
+                                        <div id="{{prefix}}FileMetrics" role="tabpanel" class="tab-pane">
+                                            <div class="col-md-8 col-md-offset-1" style="padding-top: 20px;overflow: auto;">
+                                                <table class="table table-hover">
+                                                    <thead>
+                                                    <tr>
+                                                        <th>VCF Attribute</th>
+                                                        <template is="dom-repeat" items="{{clinicalAnalysis.family.members}}" as="member">
+                                                            <th>{{member.name}}</th>
+                                                        </template>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody id="{{prefix}}TableTBody">
+                                                    <template is="dom-repeat" items="{{_getFileMetricsArray(variantObj.studies.0.files)}}" as="attrs">
+                                                        <tr id="{{attrs.name}}" class$="file-metrics-table-{{attrs.name}}">
+                                                            <td><span style="font-weight: bold">{{attrs.name}}</span></td>
+                                                            <template is="dom-repeat" items="{{attrs.values}}" as="attr">
+                                                                <td>{{attr}}</td>
+                                                            </template>
+                                                        </tr>
+                                                    </template>
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         </div>
 
                                         <!--Beacon network-->
@@ -514,7 +545,7 @@
 
             onSelectVariant(e) {
                 this.variant = e.detail.id;
-//                debugger
+                this.variantObj = e.detail.variant;
             }
 
             onCheckVariant(e) {
@@ -723,6 +754,36 @@
                         }
                     });
             }
+
+            _getFileMetricsArray() {
+                if (this.variantObj === undefined || this.variantObj.studies === undefined) {
+                    return [];
+                }
+                let files = this.variantObj.studies[0].files;
+                // Let's find all the existing attributes
+                let attributesSet = new Set();
+                for (let file of files) {
+                    for(let attr of Object.keys(file.attributes)) {
+                        if (attr !== "QUAL" && attr !== "FILTER") {
+                            attributesSet.add(attr);
+                        }
+                    }
+                }
+                let attributesArray = Array.from(attributesSet.values()).sort();
+                attributesArray.unshift("QUAL", "FILTER");
+
+                // We store the values as: result = [{name: "AC", values: [1, 2, 3, 4]}]
+                let result = [];
+                for (let attr of attributesArray) {
+                    let tmp = {name: attr, values: []};
+                    for (let file of files) {
+                        tmp.values.push(file.attributes[attr]);
+                    }
+                    result.push(tmp);
+                }
+                return result;
+            }
+
         }
 
         customElements.define(VariantPrioritization.is, VariantPrioritization);

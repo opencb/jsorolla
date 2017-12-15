@@ -376,7 +376,7 @@
 
                                     <!-- File Metrics Tab -->
                                     <div id="{{prefix}}FileMetrics" role="tabpanel" class="tab-pane">
-                                        <div class="col-md-8 col-md-offset-1" style="padding-top: 20px">
+                                        <div class="col-md-8 col-md-offset-1" style="padding-top: 20px;overflow: auto;">
                                             <table class="table table-hover">
                                                 <thead>
                                                 <tr>
@@ -495,7 +495,6 @@
             ready() {
                 super.ready();
                 this._summaryCollapsed = false;
-//                this.samples = ["NA12877"];
                 this.variantObj = {};
                 this.reportVariants = [];
             }
@@ -519,7 +518,6 @@
                     let table = $('#' + this.prefix + 'mainTable');
                     let _this = this;
                     table.on('expand-row.bs.table', function (e, index, row, $detail) {
-                        //                    debugger
                         let res = _this.detailFormatter(index, row);
                         $detail.html(res);
                         console.log('row expanded', e, index);
