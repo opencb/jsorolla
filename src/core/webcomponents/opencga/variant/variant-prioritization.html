@@ -535,7 +535,7 @@
 
             onSampleChange(e) {
                 let _samples = e.detail.samples;
-                this.set('samples', _samples);
+                this.set('samples', _samples.slice());
                 this.dispatchEvent(new CustomEvent("samplechange", {detail: e.detail, bubbles: true, composed: true}));
             }
 
