@@ -1377,9 +1377,9 @@
                         for (let cohort of cohorts) {
                             content += `
                             <div class="form-horizontal">
-                                <div class="form-group" style="margin: 5px 0px">
+                                <div class="form-group">
                                     <span class="col-md-4 control-label">${cohort.name}</span>
-                                    <div class="col-md-4">
+                                    <div class="col-md-4" style="padding: 0px 10px">
                                         <select id="${prefix}${study}${cohort.id}CohortOperator" name="${cohort.id}Operator"
                                                     class="form-control input-sm ${prefix}FilterSelect" style="padding: 0px 5px">
                                             <option value="<" selected><</option>
@@ -1416,7 +1416,7 @@
                 }
 
                 return `
-                    <select class="form-control input-sm ${prefix}FilterSelect" id="${prefix}includeOtherStudy" style="width: 50%;">
+                    <select class="form-control input-sm ${prefix}FilterSelect" id="${prefix}includeOtherStudy">
                         <option value="in" selected>In (AND)</option>
                         <option value="atleast">At least (OR)</option>
                     </select>
