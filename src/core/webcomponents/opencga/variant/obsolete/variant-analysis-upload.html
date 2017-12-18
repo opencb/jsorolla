@@ -24,12 +24,12 @@
             <br>
 
             <!-- REgular expressions: http://stackoverflow.com/questions/275160/regex-for-names -->
-            <form class="form-horizontal" data-toggle="validator" role="form">
+            <form class="form-horizontal" data-toggle="validator" data-feedback='{"success": "fa-check", "error": "fa-times"}' role="form">
                 <div class="form-group has-feedback">
                     <label for="hospital" class="col-sm-3 control-label">Hospital</label>
                     <div class="col-sm-9">
                         <input type="text" class="form-control" id="hospital" placeholder="Name" pattern="^[A-Za-z]+((\s)?(('|-)?[A-Za-z])+)+$" maxlength="75" required required data-error="Mandatory hospital name. Only a-z, - or ' characters and spaces are allowed ">
-                        <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                        <span class="fa form-control-feedback" aria-hidden="true"></span>
                         <div class="help-block with-errors"></div>
                     </div>
                 </div>
@@ -38,7 +38,7 @@
                     <div class="col-sm-9">
                         <input type="text" class="form-control" id="physician" placeholder="Name Surname" pattern="^[A-Za-z]+((\s)(('|-)?[A-Za-z])+)+$" maxlength="75"
                                required data-error="Mandatory name and surname. Only a-z, - or ' characters and spaces are allowed">
-                        <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                        <span class="fa form-control-feedback" aria-hidden="true"></span>
                         <div class="help-block with-errors"></div>
                     </div>
 

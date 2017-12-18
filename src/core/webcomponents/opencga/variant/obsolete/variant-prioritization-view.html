@@ -180,7 +180,7 @@
                     <h2 class="clinical-title">Save Interpretation</h2>
                     <hr style="margin-top: 5px">
 
-                    <form id="{{prefix}}uploadForm" class="form-horizontal" data-toggle="validator" role="form">
+                    <form id="{{prefix}}uploadForm" class="form-horizontal" data-toggle="validator" data-feedback='{"success": "fa-check", "error": "fa-times"}' role="form">
                         <!-- GENERAL INFORMATION -->
                         <!-- ID -->
                         <div class="form-group has-feedback">
@@ -194,7 +194,7 @@
                                     <!--<i class="fa fa-search" aria-hidden="true"></i>-->
                                     <!--</span>-->
                                 </div>
-                                <span class="glyphicon form-control-feedback" aria-hidden="true" style="padding-right:60px; z-index:5"></span>
+                                <span class="fa form-control-feedback" aria-hidden="true" style="padding-right:60px; z-index:5"></span>
                                 <div class="help-block with-errors"></div>
                             </div>
                         </div>
@@ -211,7 +211,7 @@
                                     <!--<i class="fa fa-search" aria-hidden="true"></i>-->
                                     <!--</span>-->
                                 </div>
-                                <span class="glyphicon form-control-feedback" aria-hidden="true" style="padding-right:60px; z-index:5"></span>
+                                <span class="fa form-control-feedback" aria-hidden="true" style="padding-right:60px; z-index:5"></span>
                                 <div class="help-block with-errors"></div>
                             </div>
                         </div>
@@ -225,7 +225,7 @@
                                            id="{{prefix}}DescriptionInterpretation" name="Name" placeholder="Description of this interpretation ..."
                                            maxlength="250" required data-error="" pattern=".+" style="width: 480px">
                                 </div>
-                                <span class="glyphicon form-control-feedback" aria-hidden="true" style="padding-right:60px; z-index:5"></span>
+                                <span class="fa form-control-feedback" aria-hidden="true" style="padding-right:60px; z-index:5"></span>
                                 <div class="help-block with-errors"></div>
                             </div>
                         </div>
@@ -239,7 +239,7 @@
                                            id="{{prefix}}CommentInterpretation" name="Name" placeholder="Add a comment ..."
                                            maxlength="250" required data-error="" pattern=".+" style="width: 480px">
                                 </div>
-                                <span class="glyphicon form-control-feedback" aria-hidden="true" style="padding-right:60px; z-index:5"></span>
+                                <span class="fa form-control-feedback" aria-hidden="true" style="padding-right:60px; z-index:5"></span>
                                 <div class="help-block with-errors"></div>
                             </div>
                         </div>

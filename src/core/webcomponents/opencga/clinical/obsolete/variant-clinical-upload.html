@@ -31,7 +31,7 @@
 
         <div class="col-md-12">
             <div style="width: 60%; margin: 0px 0px 0px 90px">
-                <form id="{{prefix}}uploadForm" class="form-horizontal" data-toggle="validator" role="form">
+                <form id="{{prefix}}uploadForm" class="form-horizontal" data-toggle="validator" data-feedback='{"success": "fa-check", "error": "fa-times"}' role="form">
                     <h3 class="clinical-title">Patient Information</h3>
                     <!-- GENERAL INFORMATION -->
                     <!-- Individual ID -->
@@ -47,7 +47,7 @@
                                     <i class="fa fa-search" aria-hidden="true"></i>
                                 </span>
                             </div>
-                            <span class="glyphicon form-control-feedback" aria-hidden="true"
+                            <span class="fa form-control-feedback" aria-hidden="true"
                                   style="padding-right:60px; z-index:5"></span>
                             <div class="help-block with-errors"></div>
                         </div>
@@ -134,7 +134,7 @@
                                    maxlength="75" required
                                    data-error="Mandatory country. Only a-z characteres and spaces are allowed"
                                    pattern="^[A-Za-z]+((\\s)?([A-Za-z])+)+$">
-                            <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                            <span class="fa form-control-feedback" aria-hidden="true"></span>
                             <div class="help-block with-errors"></div>
                         </div>
                     </div>
@@ -185,7 +185,7 @@
                                     <i class="fa fa-search" aria-hidden="true"></i>
                                 </span>
                             </div>
-                            <span class="glyphicon form-control-feedback" aria-hidden="true"
+                            <span class="fa form-control-feedback" aria-hidden="true"
                                   style="padding-right:60px; padding-top:10px; z-index:5"></span>
                             <div class="help-block with-errors"></div>
                         </div>
@@ -206,7 +206,7 @@
                                     <i class="fa fa-search" aria-hidden="true"></i>
                                 </span>
                             </div>
-                            <span class="glyphicon form-control-feedback" aria-hidden="true"
+                            <span class="fa form-control-feedback" aria-hidden="true"
                                   style="padding-right:60px; padding-top:10px; z-index:5"></span>
                             <div class="help-block with-errors"></div>
 
@@ -296,7 +296,7 @@
                                                    maxlength="{{variable.attributes.maxLength}}" required
                                                    data-error="{{variable.attributes.errorPattern}}"
                                                    pattern="{{variable.attributes.pattern}}">
-                                            <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                            <span class="fa form-control-feedback" aria-hidden="true"></span>
                                             <div class="help-block with-errors"></div>
                                         </div>
                                     </template>
@@ -320,7 +320,7 @@
                                                           data-error="{{variable.attributes.errorPattern}}"
                                                           pattern="{{variable.attributes.pattern}}"></textarea>
                                             </template>
-                                            <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                            <span class="fa form-control-feedback" aria-hidden="true"></span>
                                             <div class="help-block with-errors"></div>
                                         </div>
                                     </template>
@@ -335,7 +335,7 @@
                                                        maxlength="{{variable.attributes.maxLength}}" required
                                                        data-error="{{variable.attributes.errorPattern}}"
                                                        pattern="{{variable.attributes.pattern}}">
-                                                <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                                <span class="fa form-control-feedback" aria-hidden="true"></span>
                                                 <div class="help-block with-errors"></div>
                                             </div>
                                         </template>
@@ -359,7 +359,7 @@
                                                    placeholder="{{variable.title}} number" pattern="^[0-9]+$" maxlength="75"
                                                    required data-error="Mandatory field. Only numbers are allowed ">
                                         </template>
-                                        <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                        <span class="fa form-control-feedback" aria-hidden="true"></span>
                                         <div class="help-block with-errors"></div>
                                     </div>
                                 </template>
@@ -371,7 +371,7 @@
                                                id="{{prefix}}{{variable.name}}" name="{{variable.name}}"
                                                placeholder="{{variable.name}} number" pattern="^[0-9]+$" maxlength="75"
                                                required data-error="Mandatory field. Only numbers are allowed ">
-                                        <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                        <span class="fa form-control-feedback" aria-hidden="true"></span>
                                         <div class="help-block with-errors"></div>
                                     </div>
                                 </template>

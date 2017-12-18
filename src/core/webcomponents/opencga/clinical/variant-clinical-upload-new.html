@@ -17,7 +17,7 @@
             <div class="col-md-4 col-md-offset-4">
                 <h3 class="clinical-title">Patient Information</h3>
 
-                <form id="{{prefix}}uploadForm" class="form-horizontal" data-toggle="validator" role="form">
+                <form id="{{prefix}}uploadForm" class="form-horizontal" data-toggle="validator" data-feedback='{"success": "fa-check", "error": "fa-times"}' role="form">
 
                     <!-- Patient ID -->
                     <div class="form-group has-feedback">
@@ -27,7 +27,7 @@
                                placeholder="ID or clinical record number" maxlength="75" required
                                data-required-error="This field is required" data-error="Only a-z, -, _ or ' characters are allowed."
                                pattern="^[A-Za-z0-9]+((('|-|_)?[A-Za-z0-9])+)+$" value="{{patientIdValue::input}}">
-                        <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                        <span class="fa form-control-feedback" aria-hidden="true"></span>
                         <div class="help-block with-errors"></div>
                     </div>
 
@@ -41,7 +41,7 @@
                                 <option value="{{item}}">{{item}}</option>
                             </template>
                         </select>
-                        <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                        <span class="fa form-control-feedback" aria-hidden="true"></span>
                         <div class="help-block with-errors" id="{{prefix}}_errorDiv_chromosomalGender"></div>
                     </div>
 
@@ -55,7 +55,7 @@
                                 <option value="{{item.id}}">{{item.title}}</option>
                             </template>
                         </select>
-                        <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                        <span class="fa form-control-feedback" aria-hidden="true"></span>
                         <div class="help-block with-errors" id="{{prefix}}_errorDiv_status"></div>
                     </div>
 
@@ -69,7 +69,7 @@
                                 <option value="{{item.id}}">{{item.title}}</option>
                             </template>
                         </select>
-                        <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                        <span class="fa form-control-feedback" aria-hidden="true"></span>
                         <div class="help-block with-errors" id="{{prefix}}_errorDiv_lifeStatus"></div>
                     </div>
 
@@ -83,7 +83,7 @@
                                 <option value="{{item}}">{{item}}</option>
                             </template>
                         </select>
-                        <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                        <span class="fa form-control-feedback" aria-hidden="true"></span>
                         <div class="help-block with-errors" id="{{prefix}}_errorDiv_birthYear">Year of Birth must be prior to year of Test</div>
                     </div>
 
@@ -97,7 +97,7 @@
                                 <option value="{{item}}">{{item}}</option>
                             </template>
                         </select>
-                        <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                        <span class="fa form-control-feedback" aria-hidden="true"></span>
                         <div class="help-block with-errors" id="{{prefix}}_errorDiv_birthPlace"></div>
                     </div>
 
@@ -110,7 +110,7 @@
                                    maxlength="75" required
                                    data-required-error="This field is required. Only a-z characteres and spaces are allowed"
                                    pattern="^[A-Za-z]+((\\s)?([A-Za-z])+)+$" value="{{otherCountryValue::input}}">
-                            <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                            <span class="fa form-control-feedback" aria-hidden="true"></span>
                             <div class="help-block with-errors"></div>
                         </div>
                     </template>
@@ -126,7 +126,7 @@
                                     <option value="{{item}}">{{item}}</option>
                                 </template>
                             </select>
-                            <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                            <span class="fa form-control-feedback" aria-hidden="true"></span>
                             <div class="help-block with-errors" id="{{prefix}}_errorDiv_birthPlaceRegion"></div>
                         </div>
                     </template>
@@ -141,7 +141,7 @@
                                 <option value="{{item.id}}">{{item.title}}</option>
                             </template>
                         </select>
-                        <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                        <span class="fa form-control-feedback" aria-hidden="true"></span>
                         <div class="help-block with-errors" id="{{prefix}}_errorDiv_ethnicity"></div>
                     </div>
 
@@ -193,7 +193,7 @@
                                 yes
                             </label>
                         </div>
-                        <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                        <span class="fa form-control-feedback" aria-hidden="true"></span>
                         <div class="help-block with-errors"></div>
                     </div>
 
@@ -209,7 +209,7 @@
                                 <option value="{{item.id}}">{{item.title}}</option>
                             </template>
                         </select>
-                        <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                        <span class="fa form-control-feedback" aria-hidden="true"></span>
                         <div class="help-block with-errors" id="{{prefix}}_errorDiv_sampleType"></div>
                     </div>
 
@@ -226,7 +226,7 @@
                                 </label>
                             </div>
                         </template>
-                        <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                        <span class="fa form-control-feedback" aria-hidden="true"></span>
                         <div class="help-block with-errors"></div>
                     </div>
 
@@ -255,7 +255,7 @@
                                                    maxlength="{{variable.attributes.maxLength}}" required
                                                    data-error$="{{variable.attributes.errorPattern}}"
                                                    pattern="{{variable.attributes.pattern}}" value="{{variable.value::input}}">
-                                            <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                            <span class="fa form-control-feedback" aria-hidden="true"></span>
                                             <div class="help-block with-errors">{{variable.attributes.helpBlock}}</div>
                                     </template>
 
@@ -278,7 +278,7 @@
                                                           data-error$="{{variable.attributes.errorPattern}}"
                                                           pattern="{{variable.attributes.pattern}}" value="{{variable.value::input}}">{{variable.value}}</textarea>
                                             </template>
-                                            <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                            <span class="fa form-control-feedback" aria-hidden="true"></span>
                                             <div class="help-block with-errors">{{variable.attributes.helpBlock}}</div>
                                     </template>
 
@@ -291,7 +291,7 @@
                                                        maxlength="{{variable.attributes.maxLength}}" required
                                                        data-error$="{{variable.attributes.errorPattern}}"
                                                        pattern="{{variable.attributes.pattern}}" value="{{variable.value::input}}">
-                                                <span class="glyphicon form-control-feedback" aria-hidden="true" ></span>
+                                                <span class="fa form-control-feedback" aria-hidden="true" ></span>
                                                 <div class="help-block with-errors">{{variable.attributes.helpBlock}}</div>
                                         </template>
                                     </template>
@@ -313,7 +313,7 @@
                                                    placeholder="{{variable.title}} number" pattern="^[0-9]+$" maxlength="75"
                                                    required data-error$="Mandatory field. Only numbers are allowed " value="{{variable.value::input}}">
                                         </template>
-                                        <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                        <span class="fa form-control-feedback" aria-hidden="true"></span>
                                         <div class="help-block with-errors">{{variable.attributes.helpBlock}}</div>
                                 </template>
 
@@ -323,7 +323,7 @@
                                                id="{{prefix}}{{variable.name}}" name="{{variable.name}}"
                                                placeholder="{{variable.name}} number" pattern="^[0-9]+$" maxlength="75"
                                                required data-error$="Mandatory field. Only numbers are allowed " value="{{variable.value::input}}">
-                                        <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                        <span class="fa form-control-feedback" aria-hidden="true"></span>
                                         <div class="help-block with-errors">{{variable.attributes.helpBlock}}</div>
                                 </template>
 
@@ -343,7 +343,7 @@
                                                 yes
                                             </label>
                                         </div>
-                                        <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                        <span class="fa form-control-feedback" aria-hidden="true"></span>
                                         <div class="help-block with-errors">{{variable.attributes.helpBlock}}</div>
                                     </div>
 
@@ -360,7 +360,7 @@
                                                 <option value="{{item}}">{{item}}</option>
                                             </template>
                                         </select>
-                                    <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                    <span class="fa form-control-feedback" aria-hidden="true"></span>
                                     <div class="help-block with-errors" id="{{prefix}}_errorDiv_{{variable.name}}">{{variable.attributes.helpBlock}}</div>
                                 </template>
 
@@ -397,7 +397,7 @@
                 <!-- MODAL HPO TERM (ONTOLOGY) -->
                 <variant-modal-ontology prefix="{{prefix}}" ebi-config="{{ebiConfig}}" on-propagateok="_propagateOkHPO"
                                         ontology-filter="{{ontologyFilter}}" term="{{ontologyTerm}}" selected-terms="{{selectedTermsOntology}}"></variant-modal-ontology>
-                
+
                 <!-- Modal dialog for ICD-10 diagnosis selector-->
                 <variant-modal-icd10 prefix="{{prefix}}" icd10="{{config.icd10}}"  on-propagateokicd10="_propagateOkICD10"></variant-modal-icd10>
             </div>

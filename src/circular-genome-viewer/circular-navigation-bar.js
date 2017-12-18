@@ -57,16 +57,16 @@ CircosNavigationBar.prototype = {
         }
 
 //        <button type="button" class="btn btn-default btn-lg">
-//            <span class="glyphicon glyphicon-star"></span> Star
+//            <i class="fa fa-star" aria-hidden="true"></i> Star
 //        </button>
 
 
         var navgationHtml = '' +
             '<div class="btn-toolbar" role="toolbar">' +
             '   <div class="btn-group btn-group-sm">' +
-            '       <button id="zoomOutButton" type="button" class="btn btn-default btn-xs"><span style="color:#428BCA" class="glyphicon glyphicon-minus"></span></button>' +
-            '       <button id="zoomInButton" type="button" class="btn btn-default btn-xs"><span style="color:#428BCA" class="glyphicon glyphicon-plus"></span></button>' +
-            '       <button id="zoomRestoreButton" type="button" class="btn btn-default btn-xs"><span style="color:#428BCA" class="glyphicon glyphicon-repeat"></span></button>' +
+            '       <button id="zoomOutButton" type="button" class="btn btn-default btn-xs"><i style="color:#428BCA" class="fa fa-minus" aria-hidden="true"></i></button>' +
+            '       <button id="zoomInButton" type="button" class="btn btn-default btn-xs"><i style="color:#428BCA" class="fa fa-plus" aria-hidden="true"></i></button>' +
+            '       <button id="zoomRestoreButton" type="button" class="btn btn-default btn-xs"><i style="color:#428BCA" class="fa fa-repeat" aria-hidden="true"></i></button>' +
             '   </div>' +
 //            '   <div class="btn-group btn-group-sm">' +
 //            '       <button id="chromosomesButton" type="button" class="btn btn-default btn-xs" data-toggle="button">Chromosomes</button>' +
@@ -79,9 +79,9 @@ CircosNavigationBar.prototype = {
             '</div>' +
 //            '' +
 //            '<ul class="nav nav-pills">'+
-//            '    <li id="zoomOutButton"     class=""><a><span class="glyphicon glyphicon-minus"></span></a></li>'+
-//            '    <li id="zoomInButton"      class=""><a><span class="glyphicon glyphicon-plus"></span></a></li>'+
-//            '    <li id="zoomRestoreButton" class=""><a><span class="glyphicon glyphicon-repeat"></span></a></li>'+
+//            '    <li id="zoomOutButton"     class=""><a><i class="fa fa-minus" aria-hidden="true"></i></a></li>'+
+//            '    <li id="zoomInButton"      class=""><a><i class="fa fa-plus" aria-hidden="true"></i></a></li>'+
+//            '    <li id="zoomRestoreButton" class=""><a><i class="fa fa-repeat" aria-hidden="true"></i></a></li>'+
 //            '    <li class="dropdown">'+
 //            '        <a id="drop4" role="button" data-toggle="dropdown" href="#">Chromosomes <b class="caret"></b></a>'+
 //            '        <ul id="menu1" class="dropdown-menu" role="menu" aria-labelledby="drop4">'+
