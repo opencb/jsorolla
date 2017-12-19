@@ -4,10 +4,10 @@
 
 class VariantUtils {
 
-    static jsonToTabConvert(json) {
+    static jsonToTabConvert(json, studiesPopFrequencies) {
         let dataString = [];
         let variantString = [];
-
+        let populationMap = {};
 
         for (var key in json[0]) {
             console.log(key);
@@ -24,7 +24,10 @@ class VariantUtils {
         variantString.push("PhyloP");
         variantString.push("PhastCons");
         variantString.push("GERP");
-        variantString.push("Population frequencies");
+        // variantString.push("Population frequencies");
+        studiesPopFrequencies.forEach((study) => {
+            study.populations.forEach(pop => variantString.push(study.id + "_" + pop.id));
+        });
         variantString.push("Clinvar");
         variantString.push("Cosmic");
         dataString.push(variantString.join('\t'));
@@ -115,13 +118,27 @@ class VariantUtils {
                 }
 
                 // Population frequency
-                let populationMap = {};
-                if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.studies !== "undefined" && this.populationFrequencies.studies.length > 0) {
-                    for (let i = 0; i < this.populationFrequencies.studies.length; i++) {
-                        let study = this.populationFrequencies.studies[i].id;
-                        for (let j = 0; j < this.populationFrequencies.studies[i].populations.length; j++) {
-                            let population = this.populationFrequencies.studies[i].populations[j].id;
-                            populationMap[study + "_" + population] = 'NA';
+                let populations = [];
+                let populationStudyBidimensional = [];
+                let populationMapExists = [];
+                studiesPopFrequencies.forEach((study) => {
+                    populations[study.id] = study.populations.map(pop => pop.id);
+                    study.populations.forEach((pop) => {
+                        populationMapExists[pop.id] = true;
+                    });
+                    populationStudyBidimensional[study.id] = populationMapExists;
+                });
+                if (typeof studiesPopFrequencies !== "undefined" && studiesPopFrequencies.length > 0) {
+                    for (let j = 0; j < studiesPopFrequencies.length; j++) {
+                        let study = studiesPopFrequencies[j];
+                        for (let popFreqIdx in json[i].annotation.populationFrequencies) {
+                            let popFreq = json[i].annotation.populationFrequencies[popFreqIdx];
+                            if (UtilsNew.isNotUndefinedOrNull(popFreq)) {
+                                let population = popFreq.population;
+                                if (study.id === popFreq.study && populationStudyBidimensional[study.id][population] === true) {
+                                    populationMap[study.id + "_" + population] = 'NA';
+                                }
+                            }
                         }
                     }
                 }
@@ -134,7 +151,7 @@ class VariantUtils {
                         }
                     }
                 }
-                pfArray = Object.keys(populationMap).map(key => populationMap[key]);
+                // pfArray = Object.keys(populationMap).map(key => populationMap[key]);
 
                 // Clinvar, cosmic
                 if (typeof json[i].annotation.variantTraitAssociation !== "undefined" && json[i].annotation.variantTraitAssociation != null) {
@@ -172,7 +189,10 @@ class VariantUtils {
             variantString.push(phylop);
             variantString.push(phastCons);
             variantString.push(gerp);
-            variantString.push(pfArray.join(','));
+            studiesPopFrequencies.forEach((study) => {
+                study.populations.forEach(pop => variantString.push(populationMap[study.id + "_" + pop.id]));
+            });
+            // variantString.push(pfArray.join(','));
             if (clinvar.length > 0) {
                 variantString.push(clinvar.join(','));
             } else {
