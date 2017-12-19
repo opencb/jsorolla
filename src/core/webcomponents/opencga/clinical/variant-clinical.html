@@ -203,38 +203,46 @@
                                 </div>
                             </div>
 
-                            <!-- Clinical Analysis View -->
-                            <div class="col-md-12" style="padding: 10px 15px">
-                                <clinical-analysis-view project="[[project]]" study="[[study]]" config="{{config}}" opencga-client="[[opencgaClient]]"
-                                                       clinical-analysis="{{clinicalAnalysis}}" clinical-analysis-id="{{clinicalAnalysisId}}" show-summary="{{showSummary}}"
-                                                        active-prioritization="{{activePrioritization}}">
-                                </clinical-analysis-view>
-                            </div>
+                            <template is="dom-if" if="{{checkExistsRecentAnalysis}}">
+                                <!-- <template is="dom-repeat" items="{{recentAnalysis}}" as="analysis" index-as="i"> -->
 
-                            <br>
-                            <h3>Interpretation Algorithms</h3>
-                            <div class="form-group" style="margin-bottom: 5px">
-                                <p>Several prioritization and interpretation algorithms are available, you can choose an <span style="font-weight: bold">interactive</span> tool:</p>
-                                <input id="interactiveRadio" type="radio" name="analysisRadioButtons" value="sample" class$="{{prefix}}FilterRadio"
-                                       checked on-change="selectAnalysisType" style="padding-left: 20px"> Interactive Prioritization (based on <a href="https://www.ncbi.nlm.nih.gov/pubmed/24861626" target="_blank" style="font-weight: bold">TEAM</a> paper)<br>
-                                <!--<br>-->
-                                <!--<span>Or a <span style="font-weight: bold">batch</span> algorithm that will be executed in the server:</span>-->
-                                <!--<br>-->
-                                <!--<template is="dom-repeat" items="{{config.interpretation.algorithms}}" as="algorithm">-->
+                                <!-- Clinical Analysis View -->
+                                <div class="col-md-12" style="padding: 10px 15px">
+                                    <clinical-analysis-view project="[[project]]" study="[[study]]" config="{{config}}" opencga-client="[[opencgaClient]]"
+                                                            clinical-analysis="{{clinicalAnalysis}}" clinical-analysis-id="{{clinicalAnalysisId}}" show-summary="{{showSummary}}"
+                                                            active-prioritization="{{activePrioritization}}">
+                                    </clinical-analysis-view>
+                                </div>
+
+                                <br>
+                                <h3>Interpretation Algorithms</h3>
+                                <div class="form-group" style="margin-bottom: 5px">
+                                    <p>Several prioritization and interpretation algorithms are available, you can choose an <span style="font-weight: bold">interactive</span> tool:</p>
+                                    <input id="interactiveRadio" type="radio" name="analysisRadioButtons" value="sample" class$="{{prefix}}FilterRadio"
+                                           checked on-change="selectAnalysisType" style="padding-left: 20px"> Interactive Prioritization (based on <a href="https://www.ncbi.nlm.nih.gov/pubmed/24861626" target="_blank" style="font-weight: bold">TEAM</a> paper)<br>
+                                    <!--<br>-->
+                                    <!--<span>Or a <span style="font-weight: bold">batch</span> algorithm that will be executed in the server:</span>-->
+                                    <!--<br>-->
+                                    <!--<template is="dom-repeat" items="{{config.interpretation.algorithms}}" as="algorithm">-->
                                     <!--<input id="{{algorithm}}Radio" type="radio" name="analysisRadioButtons" value="{{algorithm}}"-->
-                                           <!--class$="{{prefix}}FilterRadio" on-change="selectAnalysisType"-->
-                                           <!--style="padding-left: 20px"> {{algorithm}} (pending)<br>-->
-                                <!--</template>-->
-                            </div>
-                        </div>
+                                    <!--class$="{{prefix}}FilterRadio" on-change="selectAnalysisType"-->
+                                    <!--style="padding-left: 20px"> {{algorithm}} (pending)<br>-->
+                                    <!--</template>-->
+                                </div>
 
-                        <template is="dom-if" if="{{showSummary}}">
-                            <div style="width: 50%;padding-top: 20px">
-                                <button id="clickOkPrioritization" type="button" class="btn btn-primary" style="float: right" on-click="onClickOkPrioritization">
-                                    OK
-                                </button>
-                            </div>
-                        </template>
+                                <template is="dom-if" if="{{showSummary}}">
+                                    <div style="width: 50%;padding-top: 20px">
+                                        <button id="clickOkPrioritization" type="button" class="btn btn-primary" style="float: right" on-click="onClickOkPrioritization">
+                                            OK
+                                        </button>
+                                    </div>
+                                </template>
+
+                                <!-- </template> -->
+                            </template>
+                          </div>
+
+
                     </template>
 
                     <template is="dom-if" if="{{activePrioritization}}">
