@@ -868,7 +868,7 @@
                     this.opencgaClient.files().upload(params)
                         .then(function (response) {
                             // 3. Index and annotate the VCF file (using fileId obtained in step 2)
-                            if (UtilsNew.isNotUndefinedOrNull(response.error)){
+                            if (UtilsNew.isNotUndefinedOrNull(response.error) && UtilsNew.isNotEmpty(response.error)){
                                 _this.dispatchEvent(new CustomEvent(_this.eventNotifyName, {
                                     detail: {
                                         message: response.error,
