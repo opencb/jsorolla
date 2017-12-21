@@ -706,13 +706,26 @@
                                         }));
                                     } else {
                                         sampleName = headerColumns[headerColumns.length - 1];
+                                        sampleName = sampleName.replace(/[\r\n]/g, "");
                                         break;
                                     }
                                 }
                                 i++;
                             }
                             // Register the form in openCGA through different steps
-                            _this.openCGAsteps(formFields, sampleName, vcfFile);
+                            if (isNaN(sampleName)) {
+                                _this.openCGAsteps(formFields, sampleName, vcfFile);
+                            } else {
+                                let _message = "VCF name cannot be a number. Changed and upload it again please.";
+                                _this.dispatchEvent(new CustomEvent(_this.eventNotifyName, {
+                                    detail: {
+                                        message: _message,
+                                        type: UtilsNew.MESSAGE_ERROR
+                                    },
+                                    bubbles: true,
+                                    composed: true
+                                }));
+                            }
                         });
                         reader.onerror = (function () {
                             let _message = "The VCF file couldn't be read";
@@ -855,12 +868,23 @@
                     this.opencgaClient.files().upload(params)
                         .then(function (response) {
                             // 3. Index and annotate the VCF file (using fileId obtained in step 2)
-                            let _fileId = response.response[0].result[0].id;
-                            _this.indexVCF(_fileId);
+                            if (UtilsNew.isNotUndefinedOrNull(response.error)){
+                                _this.dispatchEvent(new CustomEvent(_this.eventNotifyName, {
+                                    detail: {
+                                        message: response.error,
+                                        type: UtilsNew.MESSAGE_ERROR
+                                    },
+                                    bubbles: true,
+                                    composed: true
+                                }));
+                            } else {
+                                let _fileId = response.response[0].result[0].id;
+                                _this.indexVCF(_fileId);
+                            }
                         })
                         .catch(function (responseError) {
-                            let _message = response.error;
-                            this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+                            let _message = responseError.error;
+                            _this.dispatchEvent(new CustomEvent(_this.eventNotifyName, {
                                 detail: {
                                     message: _message,
                                     type: UtilsNew.MESSAGE_ERROR
