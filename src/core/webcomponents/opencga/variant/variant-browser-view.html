@@ -95,7 +95,7 @@
                         <div class="tab-content" style="height: 680px">
                             <!--Annotation Tab-->
                             <div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">
-                                <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}"
+                                <cellbase-variantannotation-view data="{{variant}}" assembly={{project.organism.assembly}} prefix="{{prefix}}"
                                                                  cellbase-client="{{cellbaseClient}}"
                                                                  mode="vertical"
                                                                  hash-fragment-credentials="{{hashFragmentCredentials}}"

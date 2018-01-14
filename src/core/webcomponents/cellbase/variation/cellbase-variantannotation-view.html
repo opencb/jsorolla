@@ -175,6 +175,10 @@
                         value: "",
                         observer: '_variantChanged'
                     },
+                    assembly: {
+                        type: String,
+                        value: "GRCh37"
+                    },
                     variantAnnotation: {
                         type: Object
                     },
@@ -242,7 +246,7 @@
             _variantChanged() {
                 let _this = this;
                 if (typeof this.cellbaseClient !== "undefined" && this.data !== "") {
-                    this.cellbaseClient.get('genomic', 'variant', this.data, 'annotation', {}, {})
+                    this.cellbaseClient.get('genomic', 'variant', this.data, 'annotation', {assembly: this.assembly}, {})
                         .then(function (response) {
                             _this.variantAnnotation = response.response[0].result[0];
 
