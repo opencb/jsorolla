@@ -470,7 +470,7 @@
             }
 
             downloadFormatter(value, row) {
-                return '<button role="button" type="button" class="'+this.prefix + 'Download btn btn-sm btn-success" data-sample-name="'+row.name +'sample" ><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;Download</button>';
+                return '<button role="button" type="button" class="'+this.prefix + 'Download btn btn-sm btn-success" data-sample-name="'+row.name +'" ><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;Download</button>';
             }
 
             downloadQCFile(e) {
@@ -479,6 +479,7 @@
                     study: this.project.alias + ":" + this.study.alias
                 };
                 let name = e.target.getAttribute('data-sample-name');
+                name = name + ".QC.tar.gz";
                 this.opencgaClient.files().download(name, paramsDownload)
                     .then((response) => {
                     let MIME_TYPE = "application/octet-stream";
