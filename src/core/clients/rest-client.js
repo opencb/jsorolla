@@ -90,7 +90,10 @@ class RestClient {
                     } else if (contentType.startsWith("text/plain")) {
                         resolve(this.response);
 
-                    } else {
+                    } else if (contentType.startsWith("application/octet-stream")) {
+                        resolve(this.response);
+
+                    }  else {
                         console.log(`Result is not JSON: ${this.response}`);
                     }
                 } else {

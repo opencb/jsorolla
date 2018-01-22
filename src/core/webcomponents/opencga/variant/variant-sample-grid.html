@@ -49,9 +49,15 @@
                         type: Object,
                         observer: 'renderTable'
                     },
+                    project: {
+                        type: Object
+                    },
                     study: {
                         type: Object,
                         observer: 'renderTable'
+                    },
+                    config: {
+                        type: Object
                     },
                     samples: {
                         type: Array,
@@ -64,6 +70,10 @@
                     search: {
                         type: Object,
                         observer: 'renderTable'
+                    },
+                    eventNotifyName: {
+                        type: String,
+                        value: "messageevent"
                     }
                 }
             }
@@ -242,6 +252,14 @@
                         onPageChange: function (page, size) {
                             _this.from = (page - 1) * size + 1;
                             _this.to = page * size;
+                        },
+                        onPostBody: function() {
+                            if(PolymerUtils.getElementsByClassName(_this.prefix + 'Download')) {
+                                PolymerUtils.querySelectorAll("." + _this.prefix + "Download").forEach(elem => elem.addEventListener("click", _this.downloadQCFile.bind(_this), true));
+
+//                                PolymerUtils.getElementById(_this.prefix + 'Download').addEventListener('click', _this.downloadQCFile.bind(_this));
+                            }
+
                         }
                     });
 
@@ -451,7 +469,37 @@
                 return (row.somatic) ? "Somatic" : "Germline";
             }
 
+            downloadFormatter(value, row) {
+                return '<button role="button" type="button" class="'+this.prefix + 'Download btn btn-sm btn-primary" data-sample-name="'+row.name +'" ><i class="fa fa-download" aria-hidden="true"></i>&nbsp;Download</button>';
+            }
+
+            downloadQCFile(e) {
+
+                let paramsDownload = {
+                    study: this.project.alias + ":" + this.study.alias
+                };
+                let name = e.target.getAttribute('data-sample-name');
+                name = name + ".QC.tar.gz";
+                this.opencgaClient.files().download(name, paramsDownload)
+                    .then((response) => {
+                    let MIME_TYPE = "application/octet-stream";
+                    let blob = new Blob([response], {type: MIME_TYPE});
+                    window.location.href = window.URL.createObjectURL(blob);
+                })
+                .catch((response) => {
+                    this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+                        detail: {
+                            message: response.error,
+                            type: UtilsNew.MESSAGE_ERROR
+                        },
+                        bubbles: true,
+                        composed: true
+                    }));
+                });
+            }
+
             _initTableColumns() {
+
                 this._columns = [
                     [
                         {
@@ -505,16 +553,22 @@
                             title: 'Type',
                             visible: false,
                             field: 'type'
-                        },
-                        {
-                            title: 'Description',
-                            visible: false,
-                            field: 'description'
                         }
+
                     ]
                 ];
+                if (this.config.grid.downloadQcSample) {
+                    this._columns[0].push({
+                        title: 'QC',
+                        field: 'download',
+                        formatter: this.downloadFormatter.bind(this)
+                    });
+                }
                 return this._columns;
             }
+
+
+
         }
 
         customElements.define(VariantSampleGrid.is, VariantSampleGrid);
