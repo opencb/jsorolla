@@ -245,7 +245,7 @@
 
             _variantChanged() {
                 let _this = this;
-                if (typeof this.cellbaseClient !== "undefined" && this.data !== "") {
+                if (typeof this.cellbaseClient !== "undefined" && this.data !== "" && !this.data.includes(" ")) {
                     this.cellbaseClient.get('genomic', 'variant', this.data, 'annotation', {assembly: this.assembly}, {})
                         .then(function (response) {
                             _this.variantAnnotation = response.response[0].result[0];
