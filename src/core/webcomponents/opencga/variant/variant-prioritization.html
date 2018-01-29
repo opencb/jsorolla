@@ -63,7 +63,7 @@
                                             population-frequencies="{{populationFrequencies}}" biotypes="{{biotypes}}"
                                             consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}"
                                             on-closemodalsample="onCloseModalSample" ebi-config="{{ebiConfig}}"
-                                            on-samplechange="onSampleChange">
+                                            on-samplechange="onSampleChange" mmp-extension-config="{{mmpExtensionConfig}}">
                     </variant-browser-filter>
                 </div>
 
@@ -419,6 +419,9 @@
                         computed: '_checkPermissions(project)'
                     },
                     config: {
+                        type: Object
+                    },
+                    mmpExtensionConfig: {
                         type: Object
                     }
                 }

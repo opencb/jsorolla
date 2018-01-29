@@ -224,6 +224,9 @@
 //                    },
                     config: {
                         type: Object
+                    },
+                    mmpExtensionConfig: {
+                        type: Object
                     }
                 }
             }
@@ -398,6 +401,47 @@
                             }
                             PolymerUtils.innerHTML(_this.prefix + "AutocompleteSampleSearchDataList", options);
                         });
+                }
+            }
+
+
+            _autocompleteExternalPanelSearch(e) {
+                // Only gene symbols are going to be searched and not Ensembl IDs
+                let externalPanelNamePrefix = PolymerUtils.getElementById(this.prefix  + "AutocompleteExternalPanelSearchInput").value;
+                if (UtilsNew.isNotUndefinedOrNull(externalPanelNamePrefix) && externalPanelNamePrefix.length >= 2) {
+                    let _this = this;
+                    let limit = 20;
+                    let query = externalPanelNamePrefix;
+                    let params = {
+                        limit: limit,
+                        query: query
+                    };
+                    var url = new URL(this.mmpExtensionConfig.root + this.mmpExtensionConfig.panel  + "searchPanel");
+                    Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+
+                    fetch(url, {
+                        method: 'get',
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then((response) => {
+                        return response.json();
+                    }).then((response) => {
+//                        return console.log(response.data);
+                    let options = "";
+                    PolymerUtils.innerHTML(_this.prefix + "AutocompleteExternalPanelSearchDataList", "");
+
+                    for (let externalPanel of response.data) {
+                        let panelStr = JSON.stringify(externalPanel);
+//                        console.log("panel2" + panelStr);
+
+                        options += `<option id="${_this.prefix}Panel${externalPanel.internalId}" value="${externalPanel.name}" data-panel='` + panelStr + "'>";
+
+                    }
+                        PolymerUtils.innerHTML(_this.prefix + "AutocompleteExternalPanelSearchDataList", options);
+                        _this.onExternalPanelChange();
+                    });
                 }
             }
 
@@ -662,8 +706,25 @@
 
                 // Panel - annot-panel
                 if (typeof this.query["gene"] !== "undefined") {
-                    PolymerUtils.setValue(this.prefix + "PanelAppsTextarea", this.query.gene);
+                    let genesPanelAppValues = PolymerUtils.getValue(this.prefix + "PanelAppsTextarea");
+
+                    if(this.query["gene"] !== genesPanelAppValues ){
+                        PolymerUtils.setValue(this.prefix + "PanelAppsTextarea", "");
+                        PolymerUtils.setPropertyById(this.prefix + "PanelApps", "selectedIndex", 0);
+                    }
+
+                    let genesExternalPanelValues = PolymerUtils.getValue(this.prefix + "ExternalPanelAppsTextarea");
+
+                    if(this.query["gene"] !== genesExternalPanelValues ){
+                        PolymerUtils.setValue(this.prefix + "AutocompleteExternalPanelSearchInput", "");
+                        PolymerUtils.setValue(this.prefix + "ExternalPanelAppsTextarea", "");
+                    }
                 }
+
+////                // Panel - annot-panel-external
+//                if (typeof this.query["geneExternal"] !== "undefined") {
+//                    PolymerUtils.setValue(this.prefix + "ExternalPanelAppsTextarea", this.query.geneExternal);
+//                }
 
                 // Type
                 if (typeof this.query.type !== "undefined") {
@@ -810,8 +871,30 @@
                     if (this.panelList[i].name === panelName) {
                         let panel = this.panelList[i];
                         PolymerUtils.getElementById(this.prefix + "PanelAppsTextarea").value = panel.genes;
+                        PolymerUtils.setValue(this.prefix + "AutocompleteExternalPanelSearchInput", "");
+                        PolymerUtils.setValue(this.prefix + "ExternalPanelAppsTextarea", "");
                         break;
                     }
+                }
+                this.updateQueryFilters();
+            }
+
+            onExternalPanelChange() {
+                let externalPanelSearchInputValue = PolymerUtils.getValue(this.prefix + "AutocompleteExternalPanelSearchInput");
+                let externalPanelSearchInput =PolymerUtils.getElementById(this.prefix + "AutocompleteExternalPanelSearchDataList").options;
+                let optionSelected = Array.from(externalPanelSearchInput).find((option) => {
+                    return option.value === externalPanelSearchInputValue;
+                });
+                if (UtilsNew.isNotUndefinedOrNull(optionSelected)) {
+                    let panel = JSON.parse(optionSelected.dataset.panel);
+                    console.log("Prueba: "+ panel);
+                    let genes = panel.genes.map((gene) => {
+                        return gene._id.name;
+                    }).join(",");
+                    PolymerUtils.getElementById(this.prefix + "ExternalPanelAppsTextarea").value = genes;
+                    PolymerUtils.setValue(this.prefix + "PanelAppsTextarea", "");
+                    PolymerUtils.setPropertyById(this.prefix + "PanelApps", "selectedIndex", 0);
+
                 }
                 this.updateQueryFilters();
             }
@@ -922,6 +1005,12 @@
                 let panelsTextArea = PolymerUtils.getElementById(this.prefix + "PanelAppsTextarea");
                 if (UtilsNew.isNotUndefinedOrNull(panelsDropdown) && (panelsDropdown.value !== "none" || panelsTextArea.value !== "")) {
                     _filters["gene"] = panelsTextArea.value;
+
+                }
+
+                let externalPanelsTextArea = PolymerUtils.getElementById(this.prefix + "ExternalPanelAppsTextarea");
+                if (UtilsNew.isNotUndefinedOrNull(panelsTextArea) && externalPanelsTextArea.value !== "") {
+                    _filters["gene"] = externalPanelsTextArea.value;
                 }
 
                 // Biotype
@@ -1288,6 +1377,8 @@
                     case "vcfFilterDropdown":
                         content = this._getVCFFilterHTML(subsection.filterValues, this.prefix);
                         break;
+                    case "externalPanels":
+                        content = this._getExternalPanelsHTML(this.prefix);
                 }
 
                 // Add subsection footer
@@ -1480,7 +1571,7 @@
                             ${options}
                         </select>
                         <div style="padding-top: 5px">
-                            <textarea id="${prefix}PanelAppsTextarea" name="panelAppsTextarea"
+                            <textarea id="${prefix}PanelAppsTextarea" readonly name="panelAppsTextarea"
                                       class="form-control clearable ${prefix}FilterTextInput"
                                       rows="3" placeholder="No panel selected"></textarea>
                         </div>
@@ -1878,6 +1969,28 @@
             }
 
 
+            _getExternalPanelsHTML(prefix){
+                return `<div id="${prefix}AutocompleteExternalPanel" style="margin: 15px 0px">
+                        <span>Select MMP panel:</span>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <input id="${prefix}AutocompleteExternalPanelSearchInput" type="text" class="form-control" placeholder="Search name..."
+                                    list="${prefix}AutocompleteExternalPanelSearchDataList"">
+                                <datalist id="${prefix}AutocompleteExternalPanelSearchDataList"></datalist>
+                            </div>
+
+                        </div>
+                     </div>
+                     <div style="padding-top: 5px">
+                        <textarea id="${prefix}ExternalPanelAppsTextarea" readonly name="externalPanelAppsTextarea"
+                          class="form-control clearable ${prefix}FilterTextInput"
+                          rows="3" placeholder="No panel selected"></textarea>
+                    </div>
+`;
+            }
+
+
             _addEventListeners() {
                 let keyupEvents = ["LocationTextarea", "FeatureTextarea", "PanelAppsTextarea", "FilterTextInput", "CaddScaledInput", "SiftInput",
                     "PolyphenInput", "PhylopInput", "PhastconsInput", "GerpInput", "GeneOntologyTextarea", "HumanPhenotypeOntologyTextarea", "ClinVarTextarea", "TraitsTextarea"];
@@ -1903,6 +2016,7 @@
                     autoCompleteSampleElement.addEventListener('keyup', this._autocompleteSampleSearch.bind(this));
                     PolymerUtils.getElementById(this.prefix + "SampleAddButton").addEventListener('click', this.onSampleChange.bind(this));
                 }
+
 
                 // Add events for Cohort
 //                let cohorts = this.config.filter.sections.forEach(section => section.subsections.forEach(subsection => {if (subsection.id === "cohort") return subsection}));
@@ -1977,7 +2091,6 @@
                                 PolymerUtils.getElementById(this.prefix + item.id + "checkbox").addEventListener('change', this.updateConsequenceTypeFilter.bind(this));
                             });
                         }
-
                     });
                 }
 
@@ -1986,7 +2099,17 @@
 
                 // Add events hpo accessions
                 PolymerUtils.getElementById(this.prefix + "buttonOpenHpoAccesions").addEventListener('click', this.openModalHpo.bind(this));
+
+                // Add events for externalPanel
+                let autoCompleteExternalPanels = PolymerUtils.getElementById(this.prefix + "AutocompleteExternalPanelSearchInput");
+                if (UtilsNew.isNotUndefinedOrNull(autoCompleteExternalPanels)) {
+//                    autoCompleteExternalPanels.addEventListener('keyup', this._autocompleteExternalPanelSearch.bind(this));
+                    autoCompleteExternalPanels.addEventListener('input', this._autocompleteExternalPanelSearch.bind(this));
+//                    PolymerUtils.getElementById(this.prefix + "SampleAddButton").addEventListener('click', this.onSampleChange.bind(this));
+                }
+
             }
+
 
 
             _addAllTooltips() {
