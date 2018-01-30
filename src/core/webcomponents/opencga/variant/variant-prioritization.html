@@ -62,7 +62,7 @@
                                             opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"
                                             population-frequencies="{{populationFrequencies}}" biotypes="{{biotypes}}"
                                             consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}"
-                                            on-closemodalsample="onCloseModalSample" ebi-config="{{ebiConfig}}"
+                                            on-closemodalsample="onCloseModalSample" ebi-config="{{ebiConfig}}" on-panelselected="onPanelSelected"
                                             on-samplechange="onSampleChange" mmp-extension-config="{{mmpExtensionConfig}}">
                     </variant-browser-filter>
                 </div>
@@ -109,7 +109,7 @@
                                         <i class="fa fa-search icon-padding" aria-hidden="true" data-view="OpenClinicalAnalysis" on-click="_changeView"></i>Clinical Analysis
                                     </button>
                                     <button id="{{prefix}}SaveInterpretationButton" type="button" class="btn btn-primary variant-prioritization-view-buttons"
-                                            data-view="SaveInterpretation" on-click="_changeView" disabled>
+                                            data-view="SaveInterpretation" on-click="_changeView">
                                         <i class="fa fa-floppy-o icon-padding" aria-hidden="true" data-view="SaveInterpretation" on-click="_changeView"></i>Save Interpretation...
                                     </button>
                                 </div>
@@ -257,6 +257,12 @@
                             <div class="col-md-12">
                                 <form id="{{prefix}}uploadForm" class="form-horizontal" data-toggle="validator" data-feedback='{"success": "fa-check", "error": "fa-times"}' role="form">
                                     <!-- GENERAL INFORMATION -->
+                                    <template is="dom-if" if="{{panelInfo.positive}}">
+                                        <span class="badge badge-secondary">Positive panel</span>
+                                    </template>
+                                    <template is="dom-if" if="{{!panelInfo.positive}}">
+                                        <span class="badge badge-secondary">Negative panel</span>
+                                    </template>
                                     <!-- ID -->
                                     <div class="form-group has-feedback">
                                         <label for="{{prefix}}IDInterpretation" class="col-md-2 col-form-label">ID</label>
@@ -454,7 +460,10 @@
 
                 this.samples = [];
                 this.family = {};
-
+                this.panelInfo = {
+                    positive: false,
+                    panel: ''
+                };
                 this.prefix = "varPrior-" + Utils.randomString(6);
             }
 
@@ -553,14 +562,13 @@
 
             onCheckVariant(e) {
                 // Alexis: we need to do something like this:
+                this.panelInfo.positive = false;
                 this.checkedVariants = e.detail.variants;
-
-                // We set/remove disable status to Save button
                 if (this.checkedVariants.length > 0) {
-                    PolymerUtils.removeAttribute(this.prefix + 'SaveInterpretationButton', 'disabled');
-                } else {
-                    PolymerUtils.setAttribute(this.prefix + 'SaveInterpretationButton', 'disabled', true);
+                    this.panelInfo.positive = true;
                 }
+                this.panelInfo = Object.assign({}, this.panelInfo);
+
             }
 
             selectedGene(e) {
@@ -640,8 +648,25 @@
                 }
             }
 
+            onPanelSelected(e){
+                let panel = e.detail.panel;
+                if (UtilsNew.isNotUndefinedOrNull(panel)) {
+                    this.panelInfo.panel = panel;
+                }
+            }
             _createInterpretation() {
                 try {
+
+                    if (this.checkedVariants.length > 0) {
+                        let valueExternalPanel = PolymerUtils.getValue(this.prefix + "AutocompleteExternalPanelSearchInput");
+                        let valuePanelApps = PolymerUtils.getValue(this.prefix + "PanelApps");
+                        if (UtilsNew.isNotUndefinedOrNull(valueExternalPanel)) {
+                            this.panelInfo.panel = valueExternalPanel;
+                        } else if (UtilsNew.isNotUndefinedOrNull(valuePanelApps)) {
+                            this.panelInfo.panel = valuePanelApps;
+                        }
+                    }
+
                     let userID = this.opencgaClient._config.userId;
                     let interpretation = {};
                     interpretation.id = this.clinicalAnalysis.id + "_" + PolymerUtils.getValue(this.prefix + "IDInterpretation");
@@ -670,7 +695,7 @@
                     //                interpretation.creationDate = Date();
                     interpretation.comments = PolymerUtils.getValue(this.prefix + "CommentInterpretation");
                     interpretation.reportedVariants = this.checkedVariants;
-                    interpretation.attributes = {};
+                    interpretation.attributes = {panelInfo: this.panelInfo};
                     interpretation.creationDate = moment(new Date(), "YYYYMMDDHHmmss").format('D MMM YY');
 
 

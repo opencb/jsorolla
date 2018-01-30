@@ -18,11 +18,12 @@ JSorolla is versioned following the rules from [Semantic versioning](http://semv
 ### Maintainers
 The main developers and maintainers are:
 * Ignacio Medina (im411@cam.ac.uk) (_Founder and Project Leader_)
-* Susi Gallego (sgaort@gmail.com)
 * Alexis Martínez (alexis.martinez@juntadeandalucia.es)
 
 ##### Former Contributors
 * Francisco Salavert (fsalavert@cipf.es)
+* Susi Gallego (sgaort@gmail.com)
+
 
 ##### Contributing
 JSorolla is an open-source and collaborative project. We appreciate any help and feedback from users, you can contribute in many different ways such as simple bug reporting and feature request. Depending on your skills you are more than welcome to develop client tools, new features or even fixing bugs.

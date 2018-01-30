@@ -721,11 +721,6 @@
                     }
                 }
 
-////                // Panel - annot-panel-external
-//                if (typeof this.query["geneExternal"] !== "undefined") {
-//                    PolymerUtils.setValue(this.prefix + "ExternalPanelAppsTextarea", this.query.geneExternal);
-//                }
-
                 // Type
                 if (typeof this.query.type !== "undefined") {
                     let types = this.query.type.split(",");
@@ -876,6 +871,8 @@
                         break;
                     }
                 }
+                this.dispatchEvent(new CustomEvent("panelselected", {detail: {panel: panelName}, bubbles: true, composed: true}));
+
                 this.updateQueryFilters();
             }
 
@@ -894,8 +891,9 @@
                     PolymerUtils.getElementById(this.prefix + "ExternalPanelAppsTextarea").value = genes;
                     PolymerUtils.setValue(this.prefix + "PanelAppsTextarea", "");
                     PolymerUtils.setPropertyById(this.prefix + "PanelApps", "selectedIndex", 0);
-
+                    this.dispatchEvent(new CustomEvent("panelselected", {detail: {panel: optionSelected.value}, bubbles: true, composed: true}));
                 }
+
                 this.updateQueryFilters();
             }
 
