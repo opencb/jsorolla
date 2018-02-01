@@ -656,17 +656,6 @@
             }
             _createInterpretation() {
                 try {
-
-                    if (this.checkedVariants.length > 0) {
-                        let valueExternalPanel = PolymerUtils.getValue(this.prefix + "AutocompleteExternalPanelSearchInput");
-                        let valuePanelApps = PolymerUtils.getValue(this.prefix + "PanelApps");
-                        if (UtilsNew.isNotUndefinedOrNull(valueExternalPanel)) {
-                            this.panelInfo.panel = valueExternalPanel;
-                        } else if (UtilsNew.isNotUndefinedOrNull(valuePanelApps)) {
-                            this.panelInfo.panel = valuePanelApps;
-                        }
-                    }
-
                     let userID = this.opencgaClient._config.userId;
                     let interpretation = {};
                     interpretation.id = this.clinicalAnalysis.id + "_" + PolymerUtils.getValue(this.prefix + "IDInterpretation");

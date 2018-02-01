@@ -24,12 +24,13 @@
         <div class="col-md-2">
             <variant-report-filter opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}"
                                    selection="{{selection}}" exp-report="{{expReport}}" variables="{{variables}}"
-                                   analysis-selected="{{analysis}}"></variant-report-filter>
+                                   analysis-selected="{{analysis}}"
+                                   interpretation="{{interpretation}}" data-fields="{{dataFields}}"></variant-report-filter>
         </div>
         <div class="col-md-10">
-            <variant-report-view study="{{study}}" config="{{config.tools.clinical}}"
+            <variant-report-view study="{{study}}" config="{{config.tools.clinical}}" i18n="{{i18n}}"
                                  tool-title="{{toolTitle}}" variables="{{variables}}" selection="{{selection}}"
-                                 interpretation="{{interpretation}}" exp-report="{{expReport}}"></variant-report-view>
+                                 interpretation="{{interpretation}}" exp-report="{{expReport}}" data-fields="{{dataFields}}" mmp-extension-config="{{mmpExtensionConfig}}"></variant-report-view>
         </div>
     </template>
 
@@ -68,8 +69,13 @@
                     },
                     interpretation: {
                         type: Object
+                    },
+                    i18n: {
+                        type: Object
+                    },
+                    mmpExtensionConfig: {
+                        type: Object
                     }
-
                 }
 
             }

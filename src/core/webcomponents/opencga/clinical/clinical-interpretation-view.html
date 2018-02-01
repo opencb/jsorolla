@@ -691,40 +691,44 @@
 
             render() {
                 this.variant = ""; // Empty the variant every time the grid is loaded
-                this.from = 1;
-                this.to = Math.min(this.interpretation.reportedVariants.length, 10);
-                this.numTotalResultsText = this.interpretation.reportedVariants.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                if (UtilsNew.isNotUndefinedOrNull(this.interpretation.reportedVariants)) {
+                    this.from = 1;
+                    this.to = Math.min(this.interpretation.reportedVariants.length, 10);
+                    this.numTotalResultsText = this.interpretation.reportedVariants.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-                this.cols = this._refreshTableColumns();
-                this._genomeBrowserActive = false;
-                if (UtilsNew.isNotUndefinedOrNull(this.interpretation.reportedVariants[0])){
-                    this.regionGenomeBrowser = new Region({chromosome:this.interpretation.reportedVariants[0].chromosome,
-                        start: this.interpretation.reportedVariants[0].start, end:this.interpretation.reportedVariants[0].end});
-                }
-                this._collapse = false;
-                let _this = this;
-                let _table = $('#' + this.prefix + 'mainTable');
-                $('#' + this.prefix + 'mainTable').bootstrapTable('destroy');
-                $("#" + this.prefix + "mainTable").bootstrapTable({
-                    data: _this.interpretation.reportedVariants,
-                    columns: _this.cols,
-                    onPageChange: function (page, size) {
-                        _this.from = (page - 1) * size + 1;
-                        _this.to = page * size;
-                    },
-                    onClickRow: function (row, $element) {
-                        $('.success').removeClass('success');
-                        $($element).addClass('success');
-                        _this._onSelectVariant(row);
-                        _this.regionGenomeBrowser = new Region({chromosome: row.chromosome, start: row.start, end: row.end});
-                    },
-                    onPostBody: function (data) {
-                        if (UtilsNew.isNotUndefinedOrNull(_table)) {
-                            PolymerUtils.querySelector(_table.selector).rows[2].setAttribute('class', 'success');
-                            _this._onSelectVariant(data[0]);
-                        }
+                    this.cols = this._refreshTableColumns();
+                    this._genomeBrowserActive = false;
+                    if (UtilsNew.isNotUndefinedOrNull(this.interpretation.reportedVariants[0])){
+                        this.regionGenomeBrowser = new Region({chromosome:this.interpretation.reportedVariants[0].chromosome,
+                            start: this.interpretation.reportedVariants[0].start, end:this.interpretation.reportedVariants[0].end});
                     }
-                });
+                    this._collapse = false;
+                    let _this = this;
+                    let _table = $('#' + this.prefix + 'mainTable');
+                    $('#' + this.prefix + 'mainTable').bootstrapTable('destroy');
+                    $("#" + this.prefix + "mainTable").bootstrapTable({
+                        data: _this.interpretation.reportedVariants,
+                        columns: _this.cols,
+                        onPageChange: function (page, size) {
+                            _this.from = (page - 1) * size + 1;
+                            _this.to = page * size;
+                        },
+                        onClickRow: function (row, $element) {
+                            $('.success').removeClass('success');
+                            $($element).addClass('success');
+                            _this._onSelectVariant(row);
+                            _this.regionGenomeBrowser = new Region({chromosome: row.chromosome, start: row.start, end: row.end});
+                        },
+                        onPostBody: function (data) {
+                            if (UtilsNew.isNotUndefinedOrNull(_table)) {
+                                PolymerUtils.querySelector(_table.selector).rows[2].setAttribute('class', 'success');
+                                _this._onSelectVariant(data[0]);
+                            }
+                        }
+                    });
+                } else {
+                    PolymerUtils.innerHTML(this.prefix + 'mainTable', "");
+                }
             }
             _onSelectVariant(row) {
                 if (typeof row !== "undefined") {

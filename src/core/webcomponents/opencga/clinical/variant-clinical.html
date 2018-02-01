@@ -148,7 +148,7 @@
                 </div>
             </div>
 
-            <!-- UPLOAD TAB -->ç
+            <!-- UPLOAD TAB -->
             <div class="col-md-12">
                 <template is="dom-if" if="{{activesTab.uploadTab}}">
                     <div class$="analysis-content" id="{{prefix}}UploadButtonDiv">
@@ -317,7 +317,8 @@
                         </template>
                         <template is="dom-if" if="{{activeReport}}" restamp="true">
                             <variant-clinical-report opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}" i18n="{{i18n.report}}"
-                                                     tool-title="{{clinicalAnalysis.name}}" interpretation="{{interpretationReport}}" analysis="{{clinicalAnalysis}}" expReport="true">
+                                                     tool-title="{{clinicalAnalysis.name}}" interpretation="{{interpretationReport}}" analysis="{{clinicalAnalysis}}"
+                                                     expReport="true" mmp-extension-config="{{mmpExtensionConfig}}">
                             </variant-clinical-report>
                         </template>
                 </template>

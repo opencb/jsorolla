@@ -28,23 +28,88 @@
         <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true">
             <!-- Analysis Information -->
             <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="{{prefix}}GeneralHeading">
+                    <h4 class="panel-title">
+                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
+                           href="#{{prefix}}FillInputsGeneral"
+                           aria-expanded="true" aria-controls="{{prefix}}General">
+                            General
+                        </a>
+                    </h4>
+                </div>
+
+                <div id="{{prefix}}FillInputsGeneral" class="panel-collapse collapse in" role="tabpanel"
+                     aria-labelledby="{{prefix}}GeneralHeading">
+                    <div class="panel-body">
+                        <div id="{{prefix}}FillInputsGeneralDiv" style="">
+                            <label>Applicant:</label>
+                            <input type="text" class$="custom-sized-input {{prefix}}ApplicantInput" id="{{prefix}}ApplicantInput"
+                                   aria-describedby="basic-addon1" value="{{dataFieldsPrivate.applicant::input}}">
+                            <label>Departament:</label>
+                            <input type="text" class$="custom-sized-input {{prefix}}DepartmentInput" id="{{prefix}}DepartmentInput"
+                                   aria-describedby="basic-addon1" value="{{dataFieldsPrivate.department::input}}">
+                            <label>City:</label>
+                            <input type="text" class$="custom-sized-input {{prefix}}CityInput" id="{{prefix}}CityInput"
+                                   aria-describedby="basic-addon1" value="{{dataFieldsPrivate.city::input}}">
+                            <label>Patient:</label>
+                            <input type="text" class$="custom-sized-input {{prefix}}PatientInput" id="{{prefix}}PatientInput"
+                                   aria-describedby="basic-addon1" value="{{dataFieldsPrivate.patient::input}}">
+                            <label>NUHSA:</label>
+                            <input type="text" class$="custom-sized-input {{prefix}}nuhsaInput" id="{{prefix}}nuhsaInput"
+                                   aria-describedby="basic-addon1" value="{{dataFieldsPrivate.nuhsa::input}}">
+                            <label>Family Number:</label>
+                            <input type="text" class$="custom-sized-input {{prefix}}FamilyNumberInput" id="{{prefix}}FamilyNumberInput"
+                                   aria-describedby="basic-addon1" value="{{dataFieldsPrivate.familyNumber::input}}">
+                            <label>Analysis type:</label>
+                            <input type="text" class$="custom-sized-input {{prefix}}AnalysisTypeInput" id="{{prefix}}AnalysisTypeInput"
+                                   aria-describedby="basic-addon1" value="{{dataFieldsPrivate.analysisType::input}}">
+                            <label>Entry date:</label>
+                            <input type="text" class$="custom-sized-input {{prefix}}EntryDateInput" id="{{prefix}}EntryDateInput"
+                                   aria-describedby="basic-addon1" value="{{dataFieldsPrivate.entryDate::input}}">
+                            <label>Relationship:</label>
+                            <input type="text" class$="custom-sized-input {{prefix}}RelationshipInput" id="{{prefix}}RelationshipInput"
+                                   aria-describedby="basic-addon1" value="{{dataFieldsPrivate.relationship::input}}">
+                            <label>Sign Left:</label>
+                            <input type="text" class$="custom-sized-input {{prefix}}SignLeft" id="{{prefix}}SignLeftInput"
+                                   aria-describedby="basic-addon1" value="{{dataFieldsPrivate.signLeft::input}}">
+                            <label>Sign Right:</label>
+                            <input type="text" class$="custom-sized-input {{prefix}}SignRightInput" id="{{prefix}}SignRightInput"
+                                   aria-describedby="basic-addon1" value="{{dataFieldsPrivate.signRight::input}}">
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+            <!-- Analysis Information -->
+            <div class="panel panel-default">
                 <div class="panel-heading" role="tab" id="{{prefix}}SampleAnalysisHeading">
                     <h4 class="panel-title">
                         <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
                            href="#{{prefix}}AnalysisSelector"
-                           aria-expanded="true" aria-controls="{{prefix}}AnalysisSelector">
+                           aria-controls="{{prefix}}AnalysisSelector">
                             Analysis
                         </a>
                     </h4>
                 </div>
 
-                <div id="{{prefix}}AnalysisSelector" class="panel-collapse collapse in" role="tabpanel"
+                <div id="{{prefix}}AnalysisSelector" class="panel-collapse collapse" role="tabpanel"
                      aria-labelledby="{{prefix}}SampleFilterHeading">
                     <div class="panel-body">
                         <div id="{{prefix}}analysisSelectedDiv" style="">
                             <label>Analysis selected:</label>
                             <input type="text" class$="custom-sized-input {{prefix}}FilterTextInput" id="{{prefix}}FilterTextInput"
                                    placeholder="{{currentAnalysisID}}" aria-describedby="basic-addon1" disabled>
+                        </div>
+                        <div id="{{prefix}}analysisDiseaseHeaderDiv" style="">
+                            <label>Disease header:</label>
+                            <input type="text" class$="custom-sized-input {{prefix}}DiseaseHeaderTextInput" id="{{prefix}}DiseaseHeaderTextInput"
+                                   placeholder="{{currentAnalysisID}}" aria-describedby="basic-addon1" value="{{dataFieldsPrivate.diseaseHeader::input}}">
+                        </div>
+                        <div id="{{prefix}}reasonConsultationHeaderDiv" style="">
+                            <label>Reason consultation:</label>
+                            <input type="text" class$="custom-sized-input {{prefix}}ReasonConsultationTextInput" id="{{prefix}}ReasonConsultationTextInput"
+                                   placeholder="{{currentAnalysisID}}" aria-describedby="basic-addon1" value="{{dataFieldsPrivate.reasonConsultation::input}}">
                         </div>
                         <div id="{{prefix}}analysisResumeDiv" hidden>
                             <input type="checkbox" name="analysisButtons" id="{{prefix}}AnalysisResume"
@@ -55,66 +120,37 @@
                 </div>
 
             </div>
-            <!-- Sample Information -->
-            <div class="panel panel-default" id="{{prefix}}SampleInformationDiv" style="">
-                <div class="panel-heading" role="tab" id="{{prefix}}SampleInformationHeading">
+
+            <!-- Interpretation -->
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="{{prefix}}InterpretationHeading">
                     <h4 class="panel-title">
                         <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                           href="#{{prefix}}SampleInformationContent" aria-expanded="true"
-                           aria-controls="{{prefix}}SampleInformationContent">
-                            Proband Information
-                            <div style="float: right" class="tooltip-div">
-                                <a data-toggle="tooltip" title="Sample information">
-                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                </a>
-                            </div>
+                           href="#{{prefix}}InterpretationContent"
+                           aria-expanded="true" aria-controls="{{prefix}}Interpretation">
+                            Interpretation
                         </a>
                     </h4>
                 </div>
-                <div id="{{prefix}}SampleInformationContent" class="panel-collapse collapse" role="tabpanel"
-                     aria-labelledby="{{prefix}}SampleInformationHeading">
+
+                <div id="{{prefix}}InterpretationContent" class="panel-collapse collapse" role="tabpanel"
+                     aria-labelledby="{{prefix}}InterpretationHeading">
                     <div class="panel-body">
-                        <div class="form-group">
-                            <label>Additional information</label>
-                            <br>
-                            <input type="radio" name="sampleButtons" id="{{prefix}}AllRadio" value="all"
-                                   class$="{{prefix}}FilterRadio" checked on-change="sampleInfoAll"
-                                   style="padding-left: 20px"> All<br>
-                            <input type="radio" name="sampleButtons" id="{{prefix}}SubsetRadio" value="range"
-                                   class$="{{prefix}}FilterRadio" on-change="sampleInfoSubset"
-                                   style="padding-left: 20px"> Subset
-                            <div id="{{prefix}}SampleFields" class="panel-body">
-                                <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}lifeStatus"
-                                       value="lifeStatus" class$="{{prefix}}FilterRadio" checked disabled
-                                       on-change="sampleInfoField" style="padding-left: 20px"> Life Status<br>
-                                <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}birthPlace"
-                                       value="birthPlace" class$="{{prefix}}FilterRadio" checked disabled
-                                       on-change="sampleInfoField" style="padding-left: 20px"> Birth place<br>
-                                <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}sampleType"
-                                       value="sampleType" class$="{{prefix}}FilterRadio" checked disabled
-                                       on-change="sampleInfoField" style="padding-left: 20px"> Type of sample<br>
-                                <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}cellLine" value="cellLine"
-                                       class$="{{prefix}}FilterRadio" checked disabled on-change="sampleInfoField"
-                                       style="padding-left: 20px"> Cell line<br>
-                                <!-- SPECIFIC FIELDS FROM VARIABLE SET -->
-                                <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}"
-                                          as="variable" sort="_sortVariables">
-                                    <input type="checkbox" name="sampleInfoButtons" id="{{prefix}}{{variable.name}}"
-                                           value="{{variable.name}}" class$="{{prefix}}FilterRadio" checked disabled
-                                           on-change="sampleInfoField" style="padding-left: 20px">
-                                    {{variable.title}}<br>
-                                </template>
-                            </div>
-                            <div>
-                                <label>Family information:</label>
-                                <br>
-                                <input type="checkbox" name="familyButtons" id="{{prefix}}familyPedigree"
-                                       value="familyPedigree" class$="{{prefix}}FilterRadio" on-change="showPedigreeIn"
-                                       style="padding-left: 20px"> Pedigree<br>
-                            </div>
+                        <div id="{{prefix}}FillInputsInterpretationDiv" style="">
+                            <label>Depth:</label>
+                            <input type="text" class$="custom-sized-input {{prefix}}DepthInput" id="{{prefix}}DepthInput"
+                                   aria-describedby="basic-addon1" value="{{dataFieldsPrivate.depth::input}}">
+                            <label>Coverage:</label>
+                            <input type="text" class$="custom-sized-input {{prefix}}CoverageInput" id="{{prefix}}CoverageInput"
+                                   aria-describedby="basic-addon1" value="{{dataFieldsPrivate.coverage::input}}">
+                            <label>Extra interpretation(Only positive):</label>
+                            <textarea type="text" class$="{{prefix}}extraInfoInput" id="{{prefix}}extraInfoInput"
+                                       rows="5" value="{{dataFieldsPrivate.extraInterpretation::input}}"></textarea>
                         </div>
+
                     </div>
                 </div>
+
             </div>
 
             <!-- Prioritization information -->
@@ -124,7 +160,7 @@
                         <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
                            href="#{{prefix}}PrioritizationInformationContent" aria-expanded="true"
                            aria-controls="{{prefix}}PrioritizationInformationContent">
-                            Prioritization Information
+                            Attached
                             <div style="float: right" class="tooltip-div">
                                 <a data-toggle="tooltip" title="Prioritization information">
                                     <i class="fa fa-info-circle" aria-hidden="true"></i>
@@ -137,15 +173,17 @@
                      aria-labelledby="{{prefix}}PrioritizationInformationHeading">
                     <div id="{{prefix}}PrioritizationFields" class="panel-body">
                         <div class="form-group">
-                            <label>Select</label>
-                            <br>
-                            <input type="checkbox" name="prioritizationButtons" id="{{prefix}}VariantsTable"
-                                   value="variantsTable" class$="{{prefix}}FilterRadio" on-change="showPrioritization"
-                                   style="padding-left: 20px"> Variants table<br>
                             <!--<input type="checkbox" name="prioritizationButtons" id="{{prefix}}SummaryResults" value="prioritizationSummary" class$="{{prefix}}FilterRadio" on-change="showPrioritization" style="padding-left: 20px"> Summary of results<br>-->
-                            <input type="checkbox" name="prioritizationButtons" id="{{prefix}}FilterResume"
-                                   value="filterResume" class$="{{prefix}}FilterRadio" on-change="showPrioritization"
-                                   style="padding-left: 20px"> Filter summary<br>
+                            <div id="{{prefix}}attached1Div" style="">
+                                <input type="checkbox" name="prioritizationButtons" id="{{prefix}}attached1"
+                                       value="attached1" class$="{{prefix}}FilterRadio" on-change="showAttached1"
+                                       style="padding-left: 20px">Attached 1<br>
+                            </div>
+                            <div id="{{prefix}}filterSummaryHeaderDiv" style="">
+                                <input type="checkbox" name="prioritizationButtons" id="{{prefix}}FilterResume"
+                                       value="filterResume" class$="{{prefix}}FilterRadio" on-change="showAttached2"
+                                       style="padding-left: 20px">Attached 2<br>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -183,28 +221,28 @@
 
         <!--&lt;!&ndash; Modal dialog for Analysis Browser&ndash;&gt;-->
         <!--<div class="modal fade" id="{{prefix}}AnalysisBrowser" tabindex="-1" role="dialog"-->
-             <!--aria-labelledby="sampleBrowserLabel">-->
-            <!--<div class="modal-dialog modal-lg" role="document" style="width: 1024px;">-->
-                <!--<div class="modal-content">-->
-                    <!--<div class="modal-header">-->
-                        <!--<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span-->
-                                <!--aria-hidden="true">&times;</span></button>-->
-                        <!--<h4 class="modal-title" id="{{prefix}}AnalysisBrowserLabel">Analysis Selector</h4>-->
-                    <!--</div>-->
-                    <!--<div class="modal-body" style="height: 650px">-->
-                        <!--&lt;!&ndash;<variant-clinical-selector opencga-client="{{opencgaClient}}" analysis="{{analysis}}" analysis-selected="{{analysisSelected}}"></variant-clinical-selector>&ndash;&gt;-->
-                        <!--<variant-clinical-selector opencga-client="{{opencgaClient}}"-->
-                                                   <!--analysis-selected="{{analysisSelected}}" study="{{study}}"-->
-                                                   <!--analysis-modal="{{analysisModal}}"-->
-                                                   <!--show-pedigree="{{showPedigree}}"></variant-clinical-selector>-->
-                    <!--</div>-->
-                    <!--<div class="modal-footer">-->
-                        <!--<button type="button" class="btn btn-primary" data-dismiss="modal" on-click="showReportOptions">-->
-                            <!--OK-->
-                        <!--</button>-->
-                    <!--</div>-->
-                <!--</div>-->
-            <!--</div>-->
+        <!--aria-labelledby="sampleBrowserLabel">-->
+        <!--<div class="modal-dialog modal-lg" role="document" style="width: 1024px;">-->
+        <!--<div class="modal-content">-->
+        <!--<div class="modal-header">-->
+        <!--<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span-->
+        <!--aria-hidden="true">&times;</span></button>-->
+        <!--<h4 class="modal-title" id="{{prefix}}AnalysisBrowserLabel">Analysis Selector</h4>-->
+        <!--</div>-->
+        <!--<div class="modal-body" style="height: 650px">-->
+        <!--&lt;!&ndash;<variant-clinical-selector opencga-client="{{opencgaClient}}" analysis="{{analysis}}" analysis-selected="{{analysisSelected}}"></variant-clinical-selector>&ndash;&gt;-->
+        <!--<variant-clinical-selector opencga-client="{{opencgaClient}}"-->
+        <!--analysis-selected="{{analysisSelected}}" study="{{study}}"-->
+        <!--analysis-modal="{{analysisModal}}"-->
+        <!--show-pedigree="{{showPedigree}}"></variant-clinical-selector>-->
+        <!--</div>-->
+        <!--<div class="modal-footer">-->
+        <!--<button type="button" class="btn btn-primary" data-dismiss="modal" on-click="showReportOptions">-->
+        <!--OK-->
+        <!--</button>-->
+        <!--</div>-->
+        <!--</div>-->
+        <!--</div>-->
         <!--</div>-->
         <div style="width: 60%;margin: 0 auto">
             <button type="button" class="btn btn-primary btn-md" style="width: 100%" on-click="onSave">
@@ -259,9 +297,22 @@
                     },
                     analysisSelected: {
                         type: Object
+                    },
+                    dataFields: {
+                        type:Object,
+                        notify: true
+                    },
+                    interpretation: {
+                        type: Object
                     }
                 }
 
+            }
+
+            static get observers() {
+                return [
+                    'updateDataFields(dataFieldsPrivate.*)'
+                ]
             }
 
             constructor() {
@@ -278,11 +329,38 @@
                     this.prefix = "repFilter" + Utils.randomString(6);
                 }
                 this.showPedigree = false;
+                this.dataFieldsPrivate = {
+                    reasonConsultation: "____",
+                    diseaseHeader: "____",
+                    applicant: "",
+                    department: "",
+                    city: "",
+                    patient: "",
+                    nuhsa: "",
+                    familyNumber: "",
+                    analysisType: "",
+                    entryDate: "",
+                    relationship: "",
+                    depth: "___",
+                    extraInterpretation: "___",
+                    coverage: "___",
+                    signLeft: "___",
+                    signRight: "___"
+                };
             }
 
             connectedCallback(){
                 super.connectedCallback();
+                if (UtilsNew.isNotUndefinedOrNull(this.interpretation) && UtilsNew.isNotUndefinedOrNull(this.interpretation.attributes) && UtilsNew.isNotUndefinedOrNull(this.interpretation.attributes.panelInfo)) {
+                    this.dataFieldsPrivate.reasonConsultation = this.interpretation.attributes.panelInfo.panel;
+                    this.dataFieldsPrivate.diseaseHeader = this.interpretation.attributes.panelInfo.panel;
+                    this.dataFieldsPrivate = Object.assign({},this.dataFieldsPrivate)
+                }
                 this.showReportOptions();
+            }
+
+            updateDataFields() {
+                this.dataFields = Object.assign({},this.dataFieldsPrivate);
             }
 
             updateVariableSets() {
@@ -422,11 +500,21 @@
                 this.selection = _obj;
             }
 
+            showAttached1(e) {
+                e.preventDefault();
+                let _obj = Object.assign({}, this.selection, {attached1: e.target.checked});
+                this.selection = _obj;
+            }
+            showAttached2(e) {
+                e.preventDefault();
+                let _obj = Object.assign({}, this.selection, {attached2: e.target.checked});
+                this.selection = _obj;
+            }
+
             showConclusions(e) {
                 e.preventDefault();
                 let _obj = Object.assign({}, this.selection, {conclusions: e.target.checked});
                 this.selection = _obj;
-
             }
 
 //            showClinicalSelector(e) {

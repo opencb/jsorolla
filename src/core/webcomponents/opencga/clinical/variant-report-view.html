@@ -60,214 +60,158 @@
             #variantTable th {
                 text-align: center;
             }
+            .centerHeader{
+                text-align: center;
+                width: 80%;
+                margin: 0% 10%;
+            }
+            .hrReport{
+                border-top: 1px solid;
+            }
 
+            .divSection {
+                margin: 0px 5px 15px 10px;
+            }
         </style>
 
         <br>
         <div id="{{prefix}}reportDiv" class="panel panel-default" >
             <div class="panel-body">
-                <h2 id="{{prefix}}titleReport" style="margin: 10px 5px 15px 25px">{{toolTitle}}</h2>
-                <div style="float: right; padding: 0px 0px 10px 5px">
-                    <span>{{requestDate}}</span>
-                </div>
-                <br>
-                <!-- Analysis Information -->
-                <div style="margin: 10px 5px 0px 50px" class="analysis-information col-sm-12"
-                     id="{{prefix}}analysisInformationDiv" hidden>
-                    <h3>Analysis Information</h3>
-                    <hr>
-                    <div style="margin: 10px 0px 15px 5px" class="analysis-information col-sm-10"
-                         id="{{prefix}}analysisInformationContent">
-                        <div class="row" id="{{prefix}}analysisInformation" hidden>
-
-                            <div class="col-xs-5" id="{{prefix}}analysisInformationID">
-                                <label for="{{prefix}}analysisID" class="col-form-label">Analysis ID:</label>
-                                <span class$="{{prefix}}TextInput" id="{{prefix}}analysisID"
-                                          name="analysis"></span>
-                            </div>
-
-                            <div class="col-xs-5" id="{{prefix}}analysisDescription">
-                                <label for="{{prefix}}Description" class="col-form-label">Description:</label>
-                                <span class$="{{prefix}}TextInput" id="{{prefix}}Description"
-                                      name="description"></span>
-                            </div>
-                        </div>
-                        <div class="row" id="{{prefix}}analysisInformationResume" hidden>
-
-                            <content class="col-xs-5">
-                                <label for="{{prefix}}analysisType" class="col-form-label">Analysis Type:</label>
-                                <span class$="{{prefix}}TextInput" id="{{prefix}}analysisType"
-                                           name="analysisType"></span>
-                            </content>
-                            <content class="col-xs-5">
-                                <label for="{{prefix}}date" class="col-form-label">Date:</label>
-                                <span  class$="col-form-label {{prefix}}TextInput" id="{{prefix}}date"
-                                           name="date"></span>
-                            </content>
-                        </div>
-                    </div>
-                </div>
-                <br>
-
-                <div style="margin: 10px 5px 0px 50px" class="col-sm-12"
-                     id="{{prefix}}interpretationInformationDiv">
-                    <h3>Interpretation Information</h3>
-                    <hr>
-                    <div style="margin: 10px 0px 15px 5px" class="col-sm-10"
-                         id="{{prefix}}interpretationInformationContent">
-                        <div class="col-xs-5 col-sm-5 col-md-5" id="{{prefix}}interpretationInformationID">
-                            <label for="{{prefix}}interpretationID" class="col-form-label">Interpretation ID:</label>
-                            <span class$="{{prefix}}TextInput" id="{{prefix}}interpretationID"
-                                  name="interpretation"></span>
-                        </div>
-                        <div class="col-xs-5 col-sm-5 col-md-5" id="{{prefix}}interpretationInformationName">
-                            <label for="{{prefix}}interpretationName" class="col-form-label">Interpretation Name:</label>
-                            <span class$="{{prefix}}TextInput" id="{{prefix}}interpretationName"
-                                  name="interpretationName"></span>
-                        </div>
-                    </div>
-                </div>
-                <br>
-
-
-                <div style="margin: 0px 5px 15px 50px" class="sample-information col-sm-12 col-xs-12"
-                     id="{{prefix}}sampleInformationDiv" hidden>
-                    <h3>Proband Information</h3>
-                    <hr>
+                <img src="[[importPath]]images/logo-sspa.gif" style="margin: 10px 5px 15px 25px" height="100">
+                <hr class="hrReport">
+                <div class="divSection sample-information col-sm-12 col-xs-12"
+                     id="{{prefix}}InfoFirstTab">
                     <!-- Sample information related to proband -->
                     <div style="margin: 0px 0px 0px 30px">
-                        <h4> Proband </h4>
-
-                        <table  class="analysis-information col-sm-10" id="{{prefix}}analysisInformationProband">
+                        <table  class="analysis-information col-sm-10" >
                             <tr>
                                 <td class="col-xs-5 col-sm-5 col-md-5">
-                                    <label for="{{prefix}}IndividualID" class="col-form-label">Patient ID:</label>
-                                    <span class$="col-form-control {{prefix}}TextInput" id="{{prefix}}IndividualID"
-                                          name="individualID"></span>
+                                    <label for="{{prefix}}Applicant" class="col-form-label">{{loadi18n('applicant')}}:</label>
+                                    <span class$="col-form-control {{prefix}}TextInput" id="{{prefix}}Applicant"
+                                          name="applicant">{{dataFields.applicant}}</span>
                                 </td>
                                 <td class="col-xs-5 col-sm-5 col-md-5">
-                                    <label for="{{prefix}}SampleID" class="col-form-label">Sample ID:</label>
-                                    <span  class$="col-form-control {{prefix}}TextInput" id="{{prefix}}SampleID"
-                                           name="date"></span>
+                                    <label class="col-form-label"></label>
+                                    <span class$="col-form-control {{prefix}}TextInput">Sección de Genética y Genómica</span>
                                 </td>
                             </tr>
                             <tr>
                                 <td class="col-xs-5 col-sm-5 col-md-5">
-                                    <label for="{{prefix}}ChromosomalGender" class="col-form-label"><b>Chromosomal
-                                        Gender:</b></label>
+                                    <label for="{{prefix}}department" class="col-form-label">{{loadi18n('department')}}:</label>
+                                    <span  class$="col-form-control {{prefix}}TextInput" id="{{prefix}}department"
+                                           name="date">{{dataFields.department}}</span>
+                                </td>
+                                <td class="col-xs-5 col-sm-5 col-md-5">
+                                    <label class="col-form-label"></label>
+                                    <span class$="col-form-control {{prefix}}TextInput">UGC Medicina Maternofetal, Genética y Reproducción de Genética y Genómica</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="col-xs-5 col-sm-5 col-md-5">
+                                    <label for="{{prefix}}ChromosomalGender" class="col-form-label"><b>{{loadi18n('hospital')}}:</b></label>
                                     <span class$="col-form-control {{prefix}}TextInput"
-                                          id="{{prefix}}ChromosomalGender" name="chromosomalGender"></span>
+                                          id="{{prefix}}ChromosomalGender" name="chromosomalGender">{{dataFieldsFixed.hospital}}</span>
                                 </td>
                                 <td class="col-xs-5 col-sm-5 col-md-5">
-                                    <label for="{{prefix}}AffectationStatus" class="col-form-label"><b>Affectation
-                                        Status:</b></label>
+                                    <label  class="col-form-label"></label>
+                                    <span class$="col-form-control {{prefix}}TextInput">HU virgen del Rocío</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="col-xs-5 col-sm-5 col-md-5">
+                                    <label for="{{prefix}}city" class="col-form-label"><b>{{loadi18n('city')}}:</b></label>
                                     <span class$="col-form-control {{prefix}}TextInput"
-                                          id="{{prefix}}AffectationStatus" name="date"></span>
+                                          id="{{prefix}}city" name="date">{{dataFields.city}}</span>
+                                </td>
+                                <td class="col-xs-5 col-sm-5 col-md-5">
+                                    <label class="col-form-label"></label>
+                                    <span class$="col-form-control {{prefix}}TextInput">Avda. Manuel Siurot s/n, 41013 Sevilla</span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <hr class="hrReport" width="100%">
+                <div  class="divSection sample-information col-sm-12 col-xs-12"
+                     id="{{prefix}}InfoSecondTab">
+                    <div style="margin: 0px 0px 0px 30px">
+
+                        <table  class="analysis-information col-sm-10">
+                            <tr>
+                                <td class="col-xs-5 col-sm-5 col-md-5">
+                                    <label for="{{prefix}}Patient" class="col-form-label">{{loadi18n('patient')}}:</label>
+                                    <span class$="col-form-control {{prefix}}TextInput" id="{{prefix}}Patient"
+                                          name="patient">{{dataFields.patient}}</span>
+                                </td>
+                                <td class="col-xs-5 col-sm-5 col-md-5">
+                                    <label for="{{prefix}}EntryDate" class="col-form-label">{{loadi18n('entryDate')}}:</label>
+                                    <span class$="col-form-control {{prefix}}TextInput" id="{{prefix}}EntryDate"
+                                          name="entryDate">{{dataFields.entryDate}}</span>
                                 </td>
                             </tr>
                             <tr>
                                 <td class="col-xs-5 col-sm-5 col-md-5">
-                                    <label for="{{prefix}}Ethnicity" class="col-form-label">Ethnicity:</label>
-                                    <span class$="col-form-control {{prefix}}TextInput" id="{{prefix}}Ethnicity"
-                                          name="ethnicity"></span>
+                                    <label for="{{prefix}}nuhsa" class="col-form-label">{{loadi18n('nuhsa')}}:</label>
+                                    <span class$="col-form-control {{prefix}}TextInput" id="{{prefix}}nuhsa"
+                                          name="nuhsa">{{dataFields.nuhsa}}</span>
                                 </td>
                                 <td class="col-xs-5 col-sm-5 col-md-5">
-                                    <label for="{{prefix}}BirthYear" class="col-form-label">Year of Birth:</label>
-                                    <span class$="col-form-control {{prefix}}TextInput" id="{{prefix}}BirthYear"
-                                          name="birthYear"></span>
+                                    <label for="{{prefix}}YearBirth" class="col-form-label">{{loadi18n('yearBirth')}}:</label>
+                                    <span class$="col-form-control {{prefix}}TextInput" id="{{prefix}}YearBirth"
+                                          name="yearBirth">{{dataFieldsFixed.birthYear}}</span>
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="2">
-                                    <label for="{{prefix}}HPO" class="col-xs-2 col-form-label">HPO:</label>
+                                <td class="col-xs-5 col-sm-5 col-md-5">
+                                    <label for="{{prefix}}adn" class="col-form-label">{{loadi18n('adn')}}:</label>
+                                    <span class$="col-form-control {{prefix}}TextInput" id="{{prefix}}adn"
+                                          name="adn">{{dataFieldsFixed.sampleName}}</span>
+                                </td>
+                                <td class="col-xs-5 col-sm-5 col-md-5">
+                                    <label for="{{prefix}}Sex" class="col-form-label">{{loadi18n('sex')}}:</label>
+                                    <span class$="col-form-control {{prefix}}TextInput" id="{{prefix}}Sex"
+                                          name="sex">{{loadi18n(dataFieldsFixed.sex)}}</span>
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="2">
-                                        <textarea class$="form-control {{prefix}}TextInput" id="{{prefix}}HPO" name="HPO"
-                                                  disabled value="" rows="2"></textarea>
+                                <td class="col-xs-5 col-sm-5 col-md-5">
+                                    <label for="{{prefix}}Family" class="col-form-label">{{loadi18n('family')}}:</label>
+                                    <span class$="col-form-control {{prefix}}TextInput" id="{{prefix}}Family"
+                                          name="family">{{dataFields.familyNumber}}</span>
+                                </td>
+                                <td class="col-xs-5 col-sm-5 col-md-5">
+                                    <label for="{{prefix}}Relationship" class="col-form-label">{{loadi18n('relationship')}}:</label>
+                                    <span class$="col-form-control {{prefix}}TextInput" id="{{prefix}}Relationship"
+                                          name="relationship">{{dataFields.relationship}}</span>
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="2">
-                                    <label for="{{prefix}}Diagnosis" class="col-xs-2 col-form-label">Diagnosis:</label>
+                                <td class="col-xs-5 col-sm-5 col-md-5">
+                                    <label for="{{prefix}}AnalysisType" class="col-form-label">{{loadi18n('analysisType')}}:</label>
+                                    <span class$="col-form-control {{prefix}}TextInput" id="{{prefix}}AnalysisType"
+                                          name="analysisType">{{dataFields.analysisType}}</span>
+                                </td>
+                                <td class="col-xs-5 col-sm-5 col-md-5">
+                                    <label for="{{prefix}}Status" class="col-form-label">{{loadi18n('status')}}:</label>
+                                    <span class$="col-form-control {{prefix}}TextInput" id="{{prefix}}Status"
+                                          name="status">{{loadi18n(dataFieldsFixed.affectationStatus)}}</span>
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="2">
-                                        <textarea class$="form-control {{prefix}}TextInput" id="{{prefix}}Diagnosis"
-                                                  name="diagnosis" disabled value="" style="resize:none" rows="2"></textarea>
+                                <td class="col-xs-5 col-sm-5 col-md-5">
+                                    <label for="{{prefix}}SampleType" class="col-form-label">{{loadi18n('sampleType')}}:</label>
+                                    <span class$="col-form-control {{prefix}}TextInput" id="{{prefix}}SampleType"
+                                          name="sampleType">{{loadi18n(dataFieldsFixed.sampleType)}}</span>
+                                </td>
+                                <td class="col-xs-5 col-sm-5 col-md-5">
+                                    <label for="{{prefix}}ReportDate" class="col-form-label">{{loadi18n('reportDate')}}:</label>
+                                    <span class$="col-form-control {{prefix}}TextInput" id="{{prefix}}ReportDate"
+                                          name="reportDate">{{requestDate}}</span>
                                 </td>
                             </tr>
-                            <tr>
-                                <td colspan="2" class="col-xs-5 col-sm-5 col-md-5">
-                                    <label for="{{prefix}}ParentalConsanguinity" class="col-form-label">Parental
-                                        Consanguinity:</label>
-                                    <span class$="col-form-control {{prefix}}TextInput"
-                                          id="{{prefix}}ParentalConsanguinity" name="parentalConsanguinity"></span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td colspan="2" id="{{prefix}}sampleTypeDiv" class="col-xs-5 col-sm-5 col-md-5">
-                                    <label for="{{prefix}}sampleType" class="col-form-label">Sample Type:</label>
-                                    <span class$="col-form-control {{prefix}}TextInput" id="{{prefix}}sampleType"
-                                          name="sampleType"></span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td colspan="2" id="{{prefix}}cellLineDiv" class="col-xs-5 col-sm-5 col-md-5">
-                                    <label for="{{prefix}}cellLine" class="col-form-label">Cell Line:</label>
-                                    <span class$="col-form-control {{prefix}}TextInput" id="{{prefix}}cellLine"
-                                          name="sampleType"></span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td colspan="2" id="{{prefix}}lifeStatusDiv" class="col-xs-5 col-sm-5 col-md-5">
-                                    <label for="{{prefix}}lifeStatus" class="col-form-label">Life Status:</label>
-                                    <span class$="col-form-control {{prefix}}TextInput" id="{{prefix}}lifeStatus"
-                                          name="lifeStatus"></span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td  id="{{prefix}}birthPlaceDiv" class="col-xs-5 col-sm-5 col-md-5">
-                                    <label for="{{prefix}}birthPlace" class="col-form-label">Birth Place:</label>
-                                    <span class$="col-form-control {{prefix}}TextInput" id="{{prefix}}birthPlace"
-                                          name="birthPlace"></span>
-                                </td>
-                            </tr>
-
-                            <!-- Sample information related to variable set -->
-                            <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}" as="variable"
-                                      sort="_sortVariables">
-
-                                <template is="dom-if" if="{{checkSubType(variable, 'TEXT')}}">
-                                    <tr id="{{prefix}}{{variable.name}}Div">
-                                        <td colspan="2">
-                                            <label for="{{prefix}}{{variable.name}}Value" class="col-xs-2 col-form-label">{{variable.title}}:</label>
-                                            <textarea class$="form-control {{prefix}}TextInput"
-                                                      id="{{prefix}}{{variable.name}}Value" name="{{variable.name}}" disabled
-                                                      style="resize:none" rows="3">{{getValueVariableSet(variable.name)}}</textarea>
-                                        </td>
-                                    </tr>
-                                    <!--<tr class="row" id="{{prefix}}{{variable.name}}Div">-->
-                                    <!--<td class="col-xs-6">-->
-                                    <!---->
-                                    <!--</td>-->
-                                    <!--</tr>-->
-                                </template>
-                                <template is="dom-if" if="{{!checkSubType(variable, 'TEXT')}}">
-                                    <tr>
-                                        <td colspan="2" id="{{prefix}}{{variable.name}}Div" class="col-xs-5 col-sm-5 col-md-5">
-                                            <label for="{{prefix}}{{variable.name}}Value" class="col-form-label">{{variable.title}}:</label>
-                                            <span class$="col-form-control {{prefix}}TextInput" id="{{prefix}}{{variable.name}}Value"
-                                                  name="{{variable.name}}">{{getValueVariableSet(variable.name)}}</span>
-                                        </td>
-                                    </tr>
-                                </template>
-                            </template>
                         </table>
 
-                        <div style="margin: 15px 5px 15px 0px" class="sample-information col-sm-12"
+                        <div class="divSection sample-information col-sm-12"
                              id="{{prefix}}analysisInformationFamilyDiv" hidden>
                             <h4> Family </h4>
                             <div style="margin: 10px 0px 15px 5px" class="analysis-information col-sm-10">
@@ -278,71 +222,238 @@
                         </div>
                     </div>
                 </div>
-                <div style="margin: 0px 5px 15px 50px" class="prioritization-information col-sm-12"
-                     id="{{prefix}}prioritizationInformationDiv" hidden>
-                    <h3>Prioritization Information</h3>
+                <hr class="hrReport" width="100%">
+
+                <h3 id="{{prefix}}titleReport" class="centerHeader">{{loadi18n('header')}} {{dataFields.diseaseHeader}}</h3>
+                <div style="float: left; padding: 0px 0px 10px 5px">
+                    <strong>{{loadi18n('reasonConsultation')}}</strong>
+                    <p>{{dataFields.reasonConsultation}}</p>
+                </div>
+                <br>
+                <br>
+                <br>
+                <!-- Analysis Information -->
+                <div class="divSection analysis-information col-sm-12"
+                     id="{{prefix}}analysisInformationDiv" hidden>
+                    <h3>{{loadi18n('headerAnalysis')}}</h3>
+
+                    <div style="margin: 10px 0px 15px 30px" class="analysis-information col-sm-10"
+                         id="{{prefix}}analysisInformationContent">
+                        <div class="row" id="{{prefix}}analysisInformation" hidden>
+
+                            <div class="col-xs-6" id="{{prefix}}analysisInformationID">
+                                <label for="{{prefix}}analysisID" class="col-form-label">{{loadi18n('analysisId')}}:</label>
+                                <span class$="{{prefix}}TextInput" id="{{prefix}}analysisID"
+                                      name="analysis"></span>
+                            </div>
+
+                            <div class="col-xs-6" id="{{prefix}}analysisDescription">
+                                <label for="{{prefix}}Description" class="col-form-label">{{loadi18n('analysisDescription')}}:</label>
+                                <span class$="{{prefix}}TextInput" id="{{prefix}}Description"
+                                      name="description"></span>
+                            </div>
+                        </div>
+                        <div class="row" id="{{prefix}}analysisInformationResume" hidden>
+
+                            <content class="col-xs-6">
+                                <label for="{{prefix}}analysisType" class="col-form-label">{{loadi18n('analysisType')}}:</label>
+                                <span class$="{{prefix}}TextInput" id="{{prefix}}analysisType"
+                                      name="analysisType"></span>
+                            </content>
+                            <content class="col-xs-6">
+                                <label for="{{prefix}}date" class="col-form-label">{{loadi18n('analysisDate')}}:</label>
+                                <span  class$="col-form-label {{prefix}}TextInput" id="{{prefix}}date"
+                                       name="date"></span>
+                            </content>
+                        </div>
+                    </div>
+                </div>
+                <br>
+
+                <div class="divSection prioritization-information col-sm-12"
+                     id="{{prefix}}prioritizationInformationDiv">
+                    <h3>{{loadi18n('prioritizationInfo')}}</h3>
                     <hr>
-                    <div class="prioritization-summary col-sm-10" id="{{prefix}}variantsTableDiv" >
-                        <h4>Variants table</h4>
-                        <table id="variantTable" class="table hover" style="border: 1px solid #dadada;
-                        border-collapse: collapse;">
-                            <thead>
+                    <div class="prioritization-summary col-sm-10" id="{{prefix}}variantsTableDiv" hidden>
+                            <h4>{{loadi18n('result')}}</h4>
+                            <table id="variantTable" class="table hover" style="border: 1px solid #dadada;
+                                border-collapse: collapse;">
+                                <thead>
+                                <tr class="active">
+                                    <th>{{loadi18n('variant')}}</th>
+                                    <th>{{loadi18n('snpId')}}</th>
+                                    <th>{{loadi18n('genes')}}</th>
+                                    <th>{{loadi18n('type')}}</th>
+                                    <th>{{loadi18n('consequenceType')}}</th>
+                                </tr>
+                                </thead>
+                                <tbody id="variantTablebody">
+                                </tbody>
+                            </table>
+                    </div>
+                    <div class="prioritization-summary col-sm-10" id="{{prefix}}variantsResultDiv">
+                        <table id="resultTable" class="table hover" style="border: 1px solid #dadada;
+                                border-collapse: collapse;">
+                            <tbody>
+                            <template is="dom-if" if="{{!interpretation.attributes.panelInfo.positive}}">
+                                <tr class="active">
+                                    <td><strong>{{loadi18n('result')}}</strong></td>
+
+
+                                        <td>{{loadi18n('textResultNegative')}} {{dataFields.diseaseHeader}}</td>
+                                </tr>
+                            </template>
+
                             <tr class="active">
-                                <th>Variant</th>
-                                <th>SNP Id</th>
-                                <th>Genes</th>
-                                <th>Type</th>
-                                <th>Consequence Type</th>
+                                <td><strong>{{loadi18n('summary')}}</strong></td>
+                                <template is="dom-if" if="{{!interpretation.attributes.panelInfo.positive}}">
+                                    <td>{{loadi18n('textSummaryNegative')}}</td>
+                                </template>
+                                <template is="dom-if" if="{{interpretation.attributes.panelInfo.positive}}">
+                                    <td><template is="dom-repeat"  items="{{interpretation.reportedVariants}}">
+                                        <!--let variantId  = data[j].chromosome + ":" + data[j].start + ":" + data[j].reference + ":" + data[j].alternate;-->
+                                        <li>{{dataFields.patient}} presenta la mutación {{item.chromosome}}:{{item.start}}:{{item.reference}}:{{item.alternate}} del gen {{genesRow(item)}} en {{zigosityResult(item.studies)}}</li>
+                                    </template>
+                                    </td>
+                                </template>
                             </tr>
-                            </thead>
-                            <tbody id = "variantTablebody">
-                            <!--<template id="samplesTable" is="dom-repeat" items="{{interpretation.reportedVariants}}" as="variant">-->
-                            <!--<tr>-->
-                            <!--<td>{{variant.id}}</td>-->
-                            <!--<td>{{variant.names}}</td>-->
-                            <!--<td>{{genesRow(variant)}}</td>-->
-                            <!--<td>{{variant.type}}</td>-->
-                            <!--<td>{{variant.annotation.displayConsequenceType}}</td>-->
-                            <!--</tr>-->
-                            <!--</template>-->
                             </tbody>
                         </table>
                     </div>
 
                     <div class="prioritization-summary col-sm-12" id="{{prefix}}prioritizationSummaryDiv" hidden>
-                        <h4>Summary of results</h4>
+                        <h4>{{loadi18n('filterSummary')}}</h4>
                         <div class="form-group row">
                             <div class="col-xs-10">
-                                <label for="{{prefix}}totalVariants" class="col-form-label">Total Variants:</label>
+                                <label for="{{prefix}}totalVariants" class="col-form-label">{{loadi18n('totalVariants')}}:</label>
                                 <span class$="col-form-control {{prefix}}TextInput"
                                       id="{{prefix}}totalVariants" name="totalVariants" value="20"></span>
                             </div>
                             <div class="col-xs-10">
-                                <label for="{{prefix}}diagnosticVariants" class="col-xs-2 col-form-label">Diagnostic
-                                    Variants:</label>
+                                <label for="{{prefix}}diagnosticVariants" class="col-xs-2 col-form-label">{{loadi18n('diagnosticVariants')}}:</label>
                                 <span class$="col-form-control {{prefix}}TextInput"
                                       id="{{prefix}}diagnosticVariants" name="diagnosticVariants" value="2"></span>
                             </div>
                         </div>
                         <div class="form-group row">
                             <div class="col-xs-10">
-                                <label for="{{prefix}}vus" class="col-form-label">VUS</label>
+                                <label for="{{prefix}}vus" class="col-form-label">{{loadi18n('vus')}}</label>
                                 <span class$="col-form-control {{prefix}}TextInput" id="{{prefix}}vus"
                                       name="totalVariants" value="2"></span>
                             </div>
                             <div class="col-xs-10">
-                                <label for="{{prefix}}unexpectedVariants" class="col-xs-2 col-form-label">Unexpected
-                                    Variants:</label>
+                                <label for="{{prefix}}unexpectedVariants" class="col-xs-2 col-form-label">{{loadi18n('unexpectedVariants')}}:</label>
                                 <span class$="col-form-control {{prefix}}TextInput"
                                       id="{{prefix}}unexpectedVariants" name="diagnosticVariants" value="1"></span>
                             </div>
                         </div>
                     </div>
 
-                    <div class="prioritization-summary col-sm-12" id="{{prefix}}filterResumeDiv" hidden>
-                        <h4>Filter Summary</h4>
+                </div>
+                <div class="divSection col-sm-12"
+                     id="{{prefix}}interpretationInformationDiv">
+                    <h3>{{loadi18n('interpretationInfo')}}</h3>
+                    <hr>
+                    <div style="margin: 10px 0px 15px 30px" class="col-sm-10"
+                         id="{{prefix}}interpretationInformationContent">
+                        <div class="row" >
+
+                            <content class="col-xs-6" id="{{prefix}}interpretationInformationID">
+                                <label for="{{prefix}}interpretationID" class="col-form-label">{{loadi18n('interpretationId')}}:</label>
+                                <span class$="{{prefix}}TextInput" id="{{prefix}}interpretationID"
+                                      name="interpretation"></span>
+                            </content>
+                            <content class="col-xs-6" id="{{prefix}}interpretationInformationName">
+                                <label for="{{prefix}}interpretationName" class="col-form-label">{{loadi18n('interpretationName')}}:</label>
+                                <span class$="{{prefix}}TextInput" id="{{prefix}}interpretationName"
+                                      name="interpretationName"></span>
+                            </content>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <template is="dom-if" if="{{!interpretation.attributes.panelInfo.positive}}">
+                    <div class="divSection other-information col-sm-12"
+                         id="{{prefix}}interpretationDiv">
+                        <h3>{{loadi18n('interpretationHeader')}}</h3>
+                        <ul>
+                            <li><span id="{{prefix}}interpretationText1">{{dataFields.applicant}}({{dataFieldsFixed.birthYear}})</span>{{loadi18n('interpretationText1')}}</li>
+                            <li>{{loadi18n('interpretationText2_1')}} {{dataFields.depth}}{{loadi18n('interpretationText2_2')}} {{dataFields.coverage}}{{loadi18n('interpretationText2_3')}}</li>
+                            <li>{{loadi18n('interpretationText3')}}</li>
+                            <li>{{loadi18n('interpretationText4')}}</li>
+                        </ul>
+                    </div>
+                </template>
+                <template is="dom-if" if="{{interpretation.attributes.panelInfo.positive}}">
+                    <div class="divSection other-information col-sm-12"
+                         id="{{prefix}}interpretationDiv">
+                        <h3>{{loadi18n('interpretationHeader')}}</h3>
+                        <ul>
+                            <li>{{dataFields.extraInterpretation}}</li>
+                            <li>{{loadi18n('interpretation1_positive')}}</li>
+                        </ul>
+                    </div>
+                </template>
+
+                <div class="divSection other-information col-sm-12"
+                     id="{{prefix}}signDiv">
+                    <div class="row" >
+
+                        <content class="col-xs-6" id="{{prefix}}signLeft">
+                            <label class="col-form-label">{{loadi18n('signBy')}}{{dataFields.signLeft}}</label>
+                        </content>
+                        <content class="col-xs-6" id="{{prefix}}signRight">
+                            <label class="col-form-label">{{loadi18n('signBy')}}{{dataFields.signRight}}</label>
+                        </content>
+                    </div>
+                </div>
+
+                <div class="divSection other-information col-sm-12"
+                     id="{{prefix}}methodologyDiv">
+                    <h3>{{loadi18n('methodology')}}</h3>
+                    <ul>
+                        <li>{{loadi18n('methodologyText1')}}</li>
+                        <li>{{loadi18n('methodologyText2')}}</li>
+                        <li>{{loadi18n('methodologyText3')}}
+                            <ul>
+                                <li>{{loadi18n('methodologyText3_1')}}</li>
+                                <li>{{loadi18n('methodologyText3_2')}}</li>
+                                <li>{{loadi18n('methodologyText3_3')}}</li>
+                                <li>{{loadi18n('methodologyText3_4')}}</li>
+                            </ul>
+                        </li>
+                        <li>{{loadi18n('methodologyText4')}}</li>
+                    </ul>
+                    <p>{{loadi18n('methodologyText4')}}</p>
+                    <p>{{loadi18n('methodologyText5')}}</p>
+                    <p>{{loadi18n('methodologyText6')}}</p>
+                </div>
+
+                <div class="divSection other-information col-sm-12"
+                     id="{{prefix}}attached1Div">
+                    <h3>{{loadi18n('attached1')}}</h3>
+                    <hr>
+
+                    <table class="table hover" style="border: 1px solid #dadada;
+                            border-collapse: collapse; width: 50%;">
+                        <thead>
+                        <tr class="active">
+                            <th>{{loadi18n('gen')}}</th>
+                            <th>{{loadi18n('reference')}}</th>
+                        </tr>
+                        </thead>
+                        <tbody id="sequenceGeneTablebody">
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="divSection prioritization-information col-sm-12"
+                     id="{{prefix}}attached2Div" hidden>
+                    <h3>{{loadi18n('attached2')}}</h3>
+                    <hr>
+                    <div class="prioritization-summary col-sm-12" id="{{prefix}}filterResumeDiv">
+                        <h4>{{loadi18n('filterSummary')}}</h4>
                         <template is="dom-if" if="{{filters}}">
-                            For this analysis, the following filters were applied for prioritization:
                             <div style="margin: 10px 5px 15px 55px">
                                 <br>
                                 <ul type="disc">
@@ -353,22 +464,21 @@
                             </div>
                         </template>
                         <template is="dom-if" if="{{!filters}}">
-                            No filters were applied for this analysis
+
+                            {{loadi18n('noFiltersApplied')}}
                         </template>
                     </div>
                 </div>
-                <div style="margin: 10px 15px 15px 50px" class="other-information col-sm-12"
+                <div class="divSection other-information col-sm-12"
                      id="{{prefix}}conclusionsDiv" hidden>
-                    <h3>Other Information</h3>
+                    <h3>{{loadi18n('otherInformation')}}</h3>
                     <hr>
                     <div class="col-sm-10">
                         <textarea type="text" class$="form-control {{prefix}}TextInput autoExpand" id="{{prefix}}conclusions"
-                                  name="conclusions" placeholder="Editable conclusions" rows="5"
+                                  name="conclusions" placeholder="{{loadi18n('editableConclusions')}}" rows="5"
                                   on-input="updateTextArea" on-focus="calculateHeightTextArea" data-min-rows="5"></textarea>
                     </div>
                 </div>
-
-
             </div>
         </div>
 
@@ -420,7 +530,17 @@
                         type: Object,
                         observer: 'loadData'
 
+                    },
+                    i18n: {
+                        type: Object
+                    },
+                    dataFields: {
+                        type: Object
+                    },
+                    mmpExtensionConfig: {
+                        type: Object
                     }
+
                 }
             }
 
@@ -442,19 +562,63 @@
                 let date = new Date();
                 this.requestDate = date.toLocaleString();
                 this.fitlerPrioritization = {};
+
             }
 
             connectedCallback(){
                 super.connectedCallback();
-                this.loadData();
                 this.loadVariableSet();
+                this.loadData();
+            }
+
+
+            loadi18n(key,...keys){
+                if (UtilsNew.isNotUndefinedOrNull(this.i18n[key])) {
+                    if (this.i18n[key] instanceof Function) {
+                        let data = {};
+                        keys.forEach((key, i) => {
+                            data[key] = this.dataFields[key];
+                        });
+                        return this.i18n[key](data);
+                    } else {
+                        return this.i18n[key]
+                    }
+                } else {
+                    return "No exists key:" + key;
+                }
+            }
+
+            zigosityResult(studies) {
+                if (UtilsNew.isNotEmptyArray(studies) && UtilsNew.isNotUndefinedOrNull(studies[0]) && UtilsNew.isNotUndefinedOrNull(studies[0].samplesData)
+                && UtilsNew.isNotUndefinedOrNull(studies[0].samplesData[0])){
+                    let genotypes = studies[0].samplesData[0][0].split("/");
+                    if(genotypes[0] !== genotypes[1]) {
+                        return this.loadi18n('heterocigosis');
+                    } else {
+                        return this.loadi18n('homocigosis');
+                    }
+                }
+                return "N/A";
             }
 
             loadData() {
                 // Load data into report
-
+                this.dataFieldsFixed = {
+                };
                 if(UtilsNew.isNotUndefined(this.selection && this.selection.analysisSelected)){
                     if (UtilsNew.isNotUndefined(this.interpretation.clinicalAnalysis) ) {
+                        let patientId = this.interpretation.clinicalAnalysis.subjects[0].name;
+                        let birthYear = this.interpretation.clinicalAnalysis.subjects[0].dateOfBirth;
+                        let affectationStatus = this.interpretation.clinicalAnalysis.subjects[0].affectationStatus;
+                        let sex = this.interpretation.clinicalAnalysis.subjects[0].sex;
+                        let sampleType = this.interpretation.clinicalAnalysis.subjects[0].samples[0].type;
+                        let sampleName = this.interpretation.clinicalAnalysis.subjects[0].samples[0].name;
+                        this.dataFieldsFixed.hospital =  this.getValueVariableSet('hospital');
+                        this.dataFieldsFixed.birthYear = birthYear;
+                        this.dataFieldsFixed.affectationStatus = affectationStatus;
+                        this.dataFieldsFixed.sex = sex;
+                        this.dataFieldsFixed.sampleType = sampleType;
+                        this.dataFieldsFixed.sampleName = sampleName;
                         // Analysis ID and analysis resume
                         PolymerUtils.setPropertyById(this.prefix + "analysisID", "innerText", this.interpretation.clinicalAnalysis.id);
                         PolymerUtils.setPropertyById(this.prefix + "Description", "innerText", this.interpretation.clinicalAnalysis.description);
@@ -464,29 +628,29 @@
                         PolymerUtils.setPropertyById(this.prefix + "interpretationID", "innerText", this.interpretation.id);
                         PolymerUtils.setPropertyById(this.prefix + "interpretationName", "innerText", this.interpretation.name);
 
-                        //                    // Sample Information
-                        PolymerUtils.setPropertyById(this.prefix + "IndividualID", "innerText", this.interpretation.clinicalAnalysis.subjects[0].name);
-                        PolymerUtils.setPropertyById(this.prefix + "AffectationStatus", "innerText",  this.interpretation.clinicalAnalysis.subjects[0].affectationStatus);
-                        PolymerUtils.setPropertyById(this.prefix + "BirthYear", "innerText",  this.interpretation.clinicalAnalysis.subjects[0].dateOfBirth);
+                        // Sample Information
+                        PolymerUtils.setPropertyById(this.prefix + "IndividualID", "innerText", patientId);
+                        PolymerUtils.setPropertyById(this.prefix + "AffectationStatus", "innerText",  affectationStatus);
+                        PolymerUtils.setPropertyById(this.prefix + "BirthYear", "innerText",  birthYear);
                         PolymerUtils.setPropertyById(this.prefix + "Ethnicity", "innerText", this.interpretation.clinicalAnalysis.subjects[0].ethnicity);
                         PolymerUtils.setPropertyById(this.prefix + "ChromosomalGender", "innerText",  this.interpretation.clinicalAnalysis.subjects[0].karyotypicSex);
                         PolymerUtils.setPropertyById(this.prefix + "lifeStatus", "innerText",  this.interpretation.clinicalAnalysis.subjects[0].lifeStatus);
                         PolymerUtils.setPropertyById(this.prefix + "ParentalConsanguinity", "innerText",  this.interpretation.clinicalAnalysis.subjects[0].parentalConsanguinity ? "Yes" : "No");
                         PolymerUtils.setPropertyById(this.prefix + "birthPlace", "innerText", this.interpretation.clinicalAnalysis.subjects[0].population.name);
-                        PolymerUtils.setPropertyById(this.prefix + "SampleID", "innerText",  this.interpretation.clinicalAnalysis.subjects[0].samples[0].name);
+                        PolymerUtils.setPropertyById(this.prefix + "SampleID", "innerText",  sampleName);
                         //
 
                         let HPODiseases = this.interpretation.clinicalAnalysis.subjects[0].phenotypes.filter((hpo) =>{
-                            return hpo.source === "HPO";
+                                return hpo.source === "HPO";
                         }).map((hpo) => hpo.name).join(",");
-                        PolymerUtils.innerHTML(this.prefix + "HPO",  HPODiseases);
-                        let ICD10Diseases = this.interpretation.clinicalAnalysis.subjects[0].phenotypes.filter((icd) =>{
-                            return icd.source === "ICD10";
+                            PolymerUtils.innerHTML(this.prefix + "HPO",  HPODiseases);
+                            let ICD10Diseases = this.interpretation.clinicalAnalysis.subjects[0].phenotypes.filter((icd) =>{
+                                    return icd.source === "ICD10";
                         }).map((icd) => icd.name).join(",");
                         PolymerUtils.innerHTML(this.prefix + "Diagnosis",  ICD10Diseases);
                         //
                         PolymerUtils.setPropertyById(this.prefix + "cellLine", "innerText", this.interpretation.clinicalAnalysis.subjects[0].samples[0].somatic ? "Somatic" : "Germline");
-                        PolymerUtils.setPropertyById(this.prefix + "sampleType", "innerText", this.interpretation.clinicalAnalysis.subjects[0].samples[0].type);
+                        PolymerUtils.setPropertyById(this.prefix + "sampleType", "innerText", sampleType);
 
 
 
@@ -505,6 +669,8 @@
                             this.loadVariantTable(this.interpretation.reportedVariants);
                         }
 
+                        // Load attached genes/reference
+                        this.sequenceGeneTablebody();
                         //                    let _prioritization = this.interpretation.clinicalAnalysis.family.children[0].samples[0].attributes.PRIORITIZATION;
                         let _dataTable = [];
                         let _query = undefined;
@@ -534,23 +700,66 @@
                             this.filters = false;
                         }
 
+
+
                     }
+
+                    this.dataFieldsFixed = Object.assign({},this.dataFieldsFixed);
                     this.showSelection();
                 }
             }
             loadVariantTable(data){
                 let table = document.getElementById("variantTablebody");
-                let rows = "";
-                for( let j = 0; j < data.length; j++){
-                    let variantId  = data[j].chromosome + ":" + data[j].start + ":" + data[j].reference + ":" + data[j].alternate;
+                if (UtilsNew.isNotUndefinedOrNull(table)) {
+                    let rows = "";
+                    for( let j = 0; j < data.length; j++){
+                        let variantId  = data[j].chromosome + ":" + data[j].start + ":" + data[j].reference + ":" + data[j].alternate;
 
-                    rows += '<tr><td>'+ variantId + '</td><td>'+ this._variantParamValue(data[j].id)
-                        + '</td><td>' + this.genesRow(data[j]) + '</td><td>' + this._variantParamValue(data[j].type)
-                        + '</td><td>' + this._variantParamValue(data[j].annotation.displayConsequenceType) + '</td></tr>';
+                        rows += '<tr><td>'+ variantId + '</td><td>'+ this._variantParamValue(data[j].id)
+                            + '</td><td>' + this.genesRow(data[j]) + '</td><td>' + this._variantParamValue(data[j].type)
+                            + '</td><td>' + this._variantParamValue(data[j].annotation.displayConsequenceType) + '</td></tr>';
 
+                    }
+                    table.innerHTML = rows;
                 }
-                table.innerHTML = rows;
             }
+
+            sequenceGeneTablebody() {
+                let table = document.getElementById("sequenceGeneTablebody");
+                let genes = this.interpretation.filters['gene'];
+
+                if (UtilsNew.isNotUndefinedOrNull(table) && UtilsNew.isNotUndefinedOrNull(genes)){
+                    genes = genes.split(",");
+                    let rows = "";
+                    genes.forEach((gene)=>{
+                        var url = new URL(this.mmpExtensionConfig.root + this.mmpExtensionConfig.gene  + "findByName");
+                        url.searchParams.append("name", gene);
+
+                        fetch(url, {
+                            method: 'get',
+                            headers: {
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then((response) => {
+                            return response.json();
+                        }).then((response) => {
+                            if (UtilsNew.isNotUndefinedOrNull(response.data)) {
+                                let reference = UtilsNew.isNotUndefinedOrNull(response.data.reference) ? response.data.reference : "N/A";
+                                let row = `
+                                <tr>
+                                    <td>${response.data.name}</td>
+                                    <td>${reference}</td>
+                                </tr>
+                                `;
+                                rows += row;
+                                table.innerHTML = rows;
+                            }
+                        });
+                    });
+                }
+            }
+
             _variantParamValue(param){
                 if (UtilsNew.isNotUndefined(param)) {
                     return param;
@@ -564,7 +773,7 @@
                 let _this = this;
                 this.interpretation.clinicalAnalysis.subjects[0].samples[0].annotationSets[0].annotations.forEach((annotation) => {
                     _this.variableSetMap[annotation.name] = annotation.value;
-                });
+            });
             }
 
             getValueVariableSet(key){
@@ -592,7 +801,6 @@
                         }
                         querySelector.appendChild(this.pedigreeRender(this.interpretation.clinicalAnalysis.family));
                     }
-
                 }
 //
 
@@ -600,8 +808,18 @@
                 if (UtilsNew.isNotUndefined(this.selection.analysisResume)) {
                     PolymerUtils.setPropertyById(this.prefix + "analysisInformationResume", "hidden", !this.selection.analysisResume)
                 }
-//
-//                // Sample Information
+
+                // attached1
+                if (UtilsNew.isNotUndefined(this.selection.attached1)) {
+                    PolymerUtils.setPropertyById(this.prefix + "attached1Div", "hidden", !this.selection.attached1)
+                }
+
+                // attached2
+                if (UtilsNew.isNotUndefined(this.selection.attached2)) {
+                    PolymerUtils.setPropertyById(this.prefix + "attached2Div", "hidden", !this.selection.attached2)
+                }
+
+                // Sample Information
                 if (UtilsNew.isNotUndefined(this.selection.sampleInfo)) {
                     for (let i = 0; i < this.selection.sampleInfo.length; i++) {
                         if (this.selection.sampleInfo[i].value) {
@@ -639,6 +857,11 @@
                     else {
                         PolymerUtils.removeAttribute(this.prefix + "prioritizationInformationDiv", "hidden");
                     }
+                }
+
+                if (UtilsNew.isNotUndefinedOrNull(this.interpretation) && UtilsNew.isNotUndefinedOrNull(this.interpretation.attributes.panelInfo.positive)
+                    && UtilsNew.isNotUndefinedOrNull(this.interpretation.attributes.panelInfo) && this.interpretation.attributes.panelInfo.positive) {
+                    PolymerUtils.removeAttribute(this.prefix + "variantsTableDiv", "hidden");
                 }
 
 
@@ -748,25 +971,25 @@
                     let membersNew =[];
                     body.members.forEach((member) => {
                         let newMember = Object.assign({},member);
-                        if (UtilsNew.isNotUndefinedOrNull(newMember.father) && UtilsNew.isNotUndefinedOrNull(newMember.father.id)) {
-                            let newFather = body.members.find((member) =>{
+                    if (UtilsNew.isNotUndefinedOrNull(newMember.father) && UtilsNew.isNotUndefinedOrNull(newMember.father.id)) {
+                        let newFather = body.members.find((member) =>{
                                 return member.id === newMember.father.id;
-                            });
-                            if(UtilsNew.isNotUndefinedOrNull(newFather)){
-                                newMember.father = newFather.name;
-                            }
-                        }
-
-                        if (UtilsNew.isNotUndefinedOrNull(newMember.mother) && UtilsNew.isNotUndefinedOrNull(newMember.mother.id)) {
-                            let newMother = body.members.find((member) =>{
-                                return member.id === newMember.mother.id;
-                            });
-                            if(UtilsNew.isNotUndefinedOrNull(newMother)){
-                                newMember.mother = newMother.name;
-                            }
-                        }
-                        membersNew.push(newMember);
                     });
+                        if(UtilsNew.isNotUndefinedOrNull(newFather)){
+                            newMember.father = newFather.name;
+                        }
+                    }
+
+                    if (UtilsNew.isNotUndefinedOrNull(newMember.mother) && UtilsNew.isNotUndefinedOrNull(newMember.mother.id)) {
+                        let newMother = body.members.find((member) =>{
+                                return member.id === newMember.mother.id;
+                    });
+                        if(UtilsNew.isNotUndefinedOrNull(newMother)){
+                            newMember.mother = newMother.name;
+                        }
+                    }
+                    membersNew.push(newMember);
+                });
                     body.members = membersNew;
 
                     // Render new Pedigree
