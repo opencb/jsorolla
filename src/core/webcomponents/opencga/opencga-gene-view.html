@@ -113,13 +113,13 @@
         <div class="tab-content" style="height: 1024px">
             <div role="tabpanel" class="tab-pane active" id="{{prefix}}Variants">
                 <div class="btn-group btn-group" role="group" aria-label="..." style="padding: 15px;float: right">
-                    <button type="button" class="btn btn-default btn-warning gene-ct-buttons active"
-                            on-click="updateQuery">All
+                    <button id="{{prefix}}AllConsTypeButton" type="button" class="btn btn-default btn-warning gene-ct-buttons active" on-click="updateQuery">
+                        All
                     </button>
-                    <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
+                    <button id="{{prefix}}MissenseConsTypeButton" type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
                         Missense
                     </button>
-                    <button type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
+                    <button id="{{prefix}}LoFConsTypeButton" type="button" class="btn btn-default btn-warning gene-ct-buttons" on-click="updateQuery">
                         LoF
                     </button>
                 </div>
@@ -137,7 +137,7 @@
 
                 <div hidden$="{{checkVariant(variant)}}">
                     <br>
-                    <h3>Please select a variant to view variant's detailed annotation</h3>
+                    <h3>Please select a variant to view the detailed annotation</h3>
                 </div>
 
                 <!-- Bottom tabs with specific variant information -->
@@ -149,7 +149,8 @@
                                                      style="font-size: 12px"
                                                      population-frequencies="{{populationFrequencies}}"
                                                      protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                                     consequence-types="{{consequenceTypes}}"></cellbase-variantannotation-view>
+                                                     consequence-types="{{consequenceTypes}}">
+                    </cellbase-variantannotation-view>
                 </div>
             </div>
 
@@ -159,14 +160,16 @@
                                       gene="{{gene}}" config="{{config.protein}}" summary="{{summary}}">
                 </variant-protein-view>
             </div>
-
         </div>
     </template>
+
     <script>
         class OpencgaGeneView extends Polymer.Element {
 
             constructor() {
                 super();
+
+                this.prefix = "geneView" + Utils.randomString(6);
             }
 
             static get is() {
@@ -221,13 +224,6 @@
                 this.appendChild(dom);
             }
 
-            ready() {
-                super.ready();
-                if (UtilsNew.isEmpty(this.prefix)) {
-                    this.prefix = "gene" + Utils.randomString(6);
-                }
-            }
-
             projectStudyObtained(project, study) {
                 if (UtilsNew.isNotUndefined(this.project) && UtilsNew.isNotEmpty(this.project.alias)
                     && UtilsNew.isNotUndefined(this.study) && UtilsNew.isNotEmpty(this.study.alias)) {
@@ -253,27 +249,23 @@
 
             updateQuery(e) {
                 PolymerUtils.removeClass(".gene-ct-buttons", "active");
-                let button = e.target;
-                PolymerUtils.addClass(button.id, "active");
+                PolymerUtils.addClass(e.target.id, "active");
                 let query = this.query;
-                switch (e.target.textContent) {
+                switch (e.target.innerText) {
                     case "Missense":
-                        query["annot-ct"] = "missense_variant";
+                        query["ct"] = "missense_variant";
                         break;
                     case "LoF":
-//                        query["annot-ct"] = "transcript_ablation,splice_acceptor_variant,splice_donor_variant,stop_gained,frameshift_variant," +
-//                            "stop_lost,start_lost,transcript_amplification,inframe_insertion,inframe_deletion";
-                        query["annot-ct"] = this.consequenceTypes.lof.join(",");
+                        query["ct"] = this.consequenceTypes.lof.join(",");
                         break;
                     default:
-                        if (UtilsNew.isNotUndefined(query["annot-ct"])) {
-                            delete query["annot-ct"];
+                        if (UtilsNew.isNotUndefined(query["ct"])) {
+                            delete query["ct"];
                         }
                         break;
                 }
                 this.query = Object.assign({}, query);
             }
-
 
             checkVariant(variant) {
                 return variant.split(':').length > 2;
