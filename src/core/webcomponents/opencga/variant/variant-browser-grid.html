@@ -866,7 +866,8 @@
             _refreshTableColumns() {
                 this.cols = this._createDefaultColumns();
 //                debugger
-                if (typeof this.cols !== "undefined" && typeof this.cohorts !== "undefined" && Object.keys(this.cohorts).length > 0) {
+                if (typeof this.cols !== "undefined" && typeof this.cohorts !== "undefined" && Object.keys(this.cohorts).length > 0
+                    && this.config.filter.skipSubsections !== undefined && !this.config.filter.skipSubsections.includes("cohort")) {
                     let cohortIdx = 6;
                     let cohortStudies = Object.keys(this.cohorts);
                     this.cols[0].splice(8, 0, {
@@ -896,7 +897,8 @@
                 if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.studies !== "undefined" && this.populationFrequencies.studies.length > 0) {
                     let popIdx = 8;
                     let subPopIdx = 6;
-                    if (typeof this.cohorts !== "undefined" && Object.keys(this.cohorts).length > 0) {
+                    if (typeof this.cohorts !== "undefined" && Object.keys(this.cohorts).length > 0
+                        && this.config.filter.skipSubsections !== undefined && !this.config.filter.skipSubsections.includes("cohort")) {
                         popIdx++;
                         subPopIdx += Object.keys(this.cohorts).length;
                     }
