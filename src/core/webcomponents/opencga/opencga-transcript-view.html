@@ -60,24 +60,32 @@
             </div>
         </div>
 
+        <div id="{{prefix}}TranscriptSvg"></div>
+
         <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
-            <li role="presentation" class="active"><a href="#{{prefix}}Variants" role="tab" data-toggle="tab"
-                                                      class="transcript-variant-tab-title">Variants</a></li>
-            <li role="presentation"><a href="#{{prefix}}Protein" role="tab" data-toggle="tab"
-                                       class="transcript-variant-tab-title">Protein</a></li>
+            <li role="presentation" class="active">
+                <a href="#{{prefix}}Variants" role="tab" data-toggle="tab" class="transcript-variant-tab-title">
+                    Variants
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="#{{prefix}}Protein" role="tab" data-toggle="tab" class="transcript-variant-tab-title">
+                    Protein
+                </a>
+            </li>
         </ul>
 
         <div class="tab-content" style="height: 1024px">
             <div role="tabpanel" class="tab-pane active" id="{{prefix}}Variants">
                 <div class="btn-group btn-group" role="group" aria-label="..." style="padding: 15px;float: right">
-                    <button type="button" class="btn btn-default btn-warning transcript-ct-buttons active"
-                            on-click="updateQuery">All
+                    <button id="{{prefix}}AllConsTypeButton" type="button" class="btn btn-default btn-warning transcript-ct-buttons active" on-click="updateQuery">
+                        All
                     </button>
-                    <button type="button" class="btn btn-default btn-warning transcript-ct-buttons"
-                            on-click="updateQuery">Missense
+                    <button id="{{prefix}}MissenseConsTypeButton" type="button" class="btn btn-default btn-warning transcript-ct-buttons" on-click="updateQuery">
+                        Missense
                     </button>
-                    <button type="button" class="btn btn-default btn-warning transcript-ct-buttons"
-                            on-click="updateQuery">LoF
+                    <button id="{{prefix}}LoFConsTypeButton" type="button" class="btn btn-default btn-warning transcript-ct-buttons" on-click="updateQuery">
+                        LoF
                     </button>
                 </div>
 
@@ -106,7 +114,8 @@
                                                      style="font-size: 12px"
                                                      population-frequencies="{{populationFrequencies}}"
                                                      protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                                     consequence-types="{{consequenceTypes}}"></cellbase-variantannotation-view>
+                                                     consequence-types="{{consequenceTypes}}">
+                    </cellbase-variantannotation-view>
                 </div>
             </div>
 
@@ -115,9 +124,9 @@
                                       project="{{project}}" study="{{study}}" ids="{{transcriptObj.id}}" config="{{config.protein}}">
                 </variant-protein-view>
             </div>
-
         </div>
     </template>
+
     <script>
         class OpencgaTranscriptView extends Polymer.Element {
 
@@ -179,13 +188,6 @@
                 this.appendChild(dom);
             }
 
-            ready() {
-                super.ready();
-//                if (UtilsNew.isEmpty(this.prefix)) {
-//                    this.prefix = "transcript" + Utils.randomString(6);
-//                }
-            }
-
             projectStudyObtained(project, study) {
                 if (UtilsNew.isNotUndefined(this.project) && UtilsNew.isNotEmpty(this.project.alias)
                     && UtilsNew.isNotUndefined(this.study) && UtilsNew.isNotEmpty(this.study.alias)) {
@@ -199,21 +201,24 @@
             transcriptChanged() {
                 // Remove the previously added SVG
                 let svg = PolymerUtils.querySelector("svg");
-                if (svg != null) {
+                if (svg !== null) {
                     let proteinSvgDiv = PolymerUtils.getElementById(this.prefix + "TranscriptSvg");
-                    proteinSvgDiv.removeChild(svg);
+                    if (UtilsNew.isNotUndefinedOrNull(proteinSvgDiv)) {
+                        // proteinSvgDiv.removeChild(svg);
+                    }
                 }
 
                 let query = {};
                 let _this = this;
                 if (UtilsNew.isNotEmpty(this.transcript)) {
                     query["annot-xref"] = this.transcript;
-                    _this.cellbaseClient.getTranscriptClient(this.transcript, 'info', {}, {})
+                    this.cellbaseClient.getTranscriptClient(this.transcript, 'info', {exclude: "xrefs, exons.sequence"}, {})
                         .then(function (response) {
                             _this.transcriptObj = response.response[0].result[0];
-                            let svg = _this._createSvgTranscript(_this.transcriptObj);
-                            let querySelector = PolymerUtils.getElementById(_this.prefix + "TranscriptSvg");
-                            querySelector.appendChild(svg);
+                            // FIXME We need to improve how the transcript is rendered
+                            // let svg = _this._createSvgTranscript(_this.transcriptObj);
+                            // let querySelector = PolymerUtils.getElementById(_this.prefix + "TranscriptSvg");
+                            // querySelector.appendChild(svg);
                         });
                     _this.query = query;
                 }
@@ -221,26 +226,23 @@
 
             updateQuery(e) {
                 PolymerUtils.removeClass(".transcript-ct-buttons", "active");
-                let button = e.target;
-                PolymerUtils.addClass(button.id, "active");
+                PolymerUtils.addClass(e.target.id, "active");
                 let query = this.query;
-                switch (e.target.textContent) {
+                switch (e.target.innerText) {
                     case "Missense":
-                        query["annot-ct"] = "missense_variant";
+                        query["ct"] = "missense_variant";
                         break;
                     case "LoF":
-                        query["annot-ct"] = "transcript_ablation,splice_acceptor_variant,splice_donor_variant,stop_gained,frameshift_variant," +
-                            "stop_lost,start_lost,transcript_amplification,inframe_insertion,inframe_deletion";
+                        query["ct"] = this.consequenceTypes.lof.join(",");
                         break;
                     default:
-                        if (UtilsNew.isNotUndefined(query["annot-ct"])) {
-                            delete query["annot-ct"];
+                        if (UtilsNew.isNotUndefined(query["ct"])) {
+                            delete query["ct"];
                         }
                         break;
                 }
                 this.query = Object.assign({}, query);
             }
-
 
             checkVariant(variant) {
                 return variant.split(':').length > 2;
