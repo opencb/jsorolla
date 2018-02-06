@@ -886,7 +886,7 @@
                     let panel = JSON.parse(optionSelected.dataset.panel);
                     console.log("Prueba: "+ panel);
                     let genes = panel.genes.map((gene) => {
-                        return gene._id.name;
+                        return gene._id.cellbaseId;
                     }).join(",");
                     PolymerUtils.getElementById(this.prefix + "ExternalPanelAppsTextarea").value = genes;
                     PolymerUtils.setValue(this.prefix + "PanelAppsTextarea", "");
