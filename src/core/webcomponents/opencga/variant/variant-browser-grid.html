@@ -479,12 +479,16 @@
             }
             snpFormatter(value, row, index) {
                 /*
-                    We try first to reaf SNP ID from the identifier of the variant (this identifier comes from the file).
+                    We try first to read SNP ID from the identifier of the variant (this identifier comes from the file).
                     If this ID is not a "rs..." (it is a variant with the format: "13:20277279:-:T") then we search
-                    the rs in the CellBase XRef annotations. This field is in annnotation.xref when source: "dbSNP".
+                    the rs in the CellBase XRef annotations. This field is in annotation.xref when source: "dbSNP".
                 */
                 if (typeof row.id !== "undefined" && row.id.startsWith("rs")) {
-                    return "<a target='_blank' href='http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + row.id + "'>" + row.id + "</a>";
+                    if (this.field.context.project.organism !== undefined && this.field.context.project.organism.assembly === "GRCh37") {
+                        return "<a target='_blank' href='http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + row.id + "'>" + row.id + "</a>";
+                    } else {
+                        return "<a target='_blank' href='http://www.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + row.id + "'>" + row.id + "</a>";
+                    }
                 } else if (typeof row.annotation !== "undefined" && typeof row.annotation.xrefs !== "undefined" && row.annotation.xrefs.length > 0) {
                     let annotation = row.annotation.xrefs.find(function (element) {
                         return element.source === "dbSNP";
@@ -866,7 +870,8 @@
             _refreshTableColumns() {
                 this.cols = this._createDefaultColumns();
 //                debugger
-                if (typeof this.cols !== "undefined" && typeof this.cohorts !== "undefined" && Object.keys(this.cohorts).length > 0) {
+                if (typeof this.cols !== "undefined" && typeof this.cohorts !== "undefined" && Object.keys(this.cohorts).length > 0
+                    && this.config.filter.skipSubsections !== undefined && !this.config.filter.skipSubsections.includes("cohort")) {
                     let cohortIdx = 6;
                     let cohortStudies = Object.keys(this.cohorts);
                     this.cols[0].splice(8, 0, {
@@ -896,7 +901,8 @@
                 if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.studies !== "undefined" && this.populationFrequencies.studies.length > 0) {
                     let popIdx = 8;
                     let subPopIdx = 6;
-                    if (typeof this.cohorts !== "undefined" && Object.keys(this.cohorts).length > 0) {
+                    if (typeof this.cohorts !== "undefined" && Object.keys(this.cohorts).length > 0
+                        && this.config.filter.skipSubsections !== undefined && !this.config.filter.skipSubsections.includes("cohort")) {
                         popIdx++;
                         subPopIdx += Object.keys(this.cohorts).length;
                     }
@@ -1043,7 +1049,8 @@
                         },
                         {
                             title: 'SNP Id',
-                            field: 'id',
+                            // field: 'id',
+                            field: {context: this},
                             colspan: 1,
                             rowspan: 2,
                             formatter: this.snpFormatter,

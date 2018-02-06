@@ -35,7 +35,7 @@
                 </button>
             </div>
 
-            <h2>{{protein}}</h2>
+            <h2>{{protein}} (<i>Beta</i>)</h2>
 
             <div class="row" style="padding: 5px 0px 25px 0px">
                 <div class="col-md-5">
@@ -114,20 +114,21 @@
         <br>
 
         <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
-            <li role="presentation" class="active"><a href="#{{prefix}}Variants" role="tab" data-toggle="tab"
-                                                      class="protein-variant-tab-title">Variants</a></li>
+            <li role="presentation" class="active">
+                <a href="#{{prefix}}Variants" role="tab" data-toggle="tab" class="protein-variant-tab-title">Variants</a>
+            </li>
         </ul>
 
         <div class="tab-content" style="height: 1024px">
             <div role="tabpanel" class="tab-pane active" id="{{prefix}}Variants">
                 <div class="btn-group btn-group" role="group" aria-label="..." style="padding: 15px;float: right">
-                    <button type="button" class="btn btn-default btn-warning protein-ct-buttons active"
-                            on-click="updateQuery">All
+                    <button id="{{prefix}}AllConsTypeButton" type="button" class="btn btn-default btn-warning protein-ct-buttons active" on-click="updateQuery">
+                        All
                     </button>
-                    <button type="button" class="btn btn-default btn-warning protein-ct-buttons" on-click="updateQuery">
+                    <button id="{{prefix}}MissenseConsTypeButton" type="button" class="btn btn-default btn-warning protein-ct-buttons" on-click="updateQuery">
                         Missense
                     </button>
-                    <button type="button" class="btn btn-default btn-warning protein-ct-buttons" on-click="updateQuery">
+                    <button id="{{prefix}}LoFConsTypeButton" type="button" class="btn btn-default btn-warning protein-ct-buttons" on-click="updateQuery">
                         LoF
                     </button>
                 </div>
@@ -169,7 +170,7 @@
             constructor() {
                 super();
 
-                this.prefix = "protein" + Utils.randomString(6);
+                this.prefix = "opencgaProteinView" + Utils.randomString(6);
             }
 
             static get is() {
@@ -226,10 +227,6 @@
                 this.appendChild(dom);
             }
 
-            ready() {
-                super.ready();
-            }
-
             projectStudyObtained(project, study) {
                 if (UtilsNew.isNotUndefined(this.project) &&  UtilsNew.isNotEmpty(this.project.alias)
                     && UtilsNew.isNotUndefined(this.study) && UtilsNew.isNotEmpty(this.study.alias)) {
@@ -263,6 +260,7 @@
                 }
 
                 let query = {};
+                query.xref = this.protein;
                 let _this = this;
                 if (this.cellbaseClient instanceof CellBaseClient && UtilsNew.isNotEmpty(this.protein)) {
                     // FIXME Below line should work as soon as the proteins are annotated
@@ -290,11 +288,11 @@
                                 let params = {
 //                                    "annot-xref": _this.protein,
                                     // TODO remove below gene and give proper query param
-                                    gene: _this.proteinObj.gene[0].name[0].value,
+                                    xref: _this.proteinObj.gene[0].name[0].value,
                                     "annot-ct": "missense_variant,transcript_ablation,splice_acceptor_variant,splice_donor_variant,stop_gained,frameshift_variant,stop_lost,start_lost," +
                                     "transcript_amplification,inframe_insertion,inframe_deletion",
-                                    studies: _this.project.alias + ":" + _this.study.alias,
-                                    returnedStudies: _this.project.alias + ":" + _this.study.alias,
+                                    study: _this.project.alias + ":" + _this.study.alias,
+                                    includeStudy: _this.project.alias + ":" + _this.study.alias,
                                     summary: _this.summary,
                                     exclude: "studies.samplesData,studies.files"
                                 };
@@ -303,7 +301,8 @@
                                     .then(function (variants) {
                                         let lollipop = new Lollipop();
                                         let svgSettings = {
-                                            width: _this.proteinObj.sequence.length,
+                                            // width: _this.proteinObj.sequence.length,
+                                            width: 1280,
                                             height: 140,
                                             proteinPositioningInterval: 3,
                                             color: _this.config.color
@@ -322,20 +321,18 @@
 
             updateQuery(e) {
                 PolymerUtils.removeClass(".protein-ct-buttons", "active");
-                let button = e.target;
-                PolymerUtils.addClass(button.id, "active");
+                PolymerUtils.addClass(e.target.id, "active");
                 let query = this.query;
-                switch (e.target.textContent) {
+                switch (e.target.innerText) {
                     case "Missense":
-                        query["annot-ct"] = "missense_variant";
+                        query.ct = "missense_variant";
                         break;
                     case "LoF":
-                        query["annot-ct"] = "transcript_ablation,splice_acceptor_variant,splice_donor_variant,stop_gained,frameshift_variant," +
-                            "stop_lost,start_lost,transcript_amplification,inframe_insertion,inframe_deletion";
+                        query.ct = this.consequenceTypes.lof.join(",");
                         break;
                     default:
-                        if (typeof query["annot-ct"] !== "undefined") {
-                            delete query["annot-ct"];
+                        if (typeof query.ct !== "undefined") {
+                            delete query.ct;
                         }
                         break;
                 }

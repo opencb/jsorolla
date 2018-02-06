@@ -603,12 +603,12 @@
                 if (e.target.parentNode.parentNode.id !== "") {
                     $("#" + e.target.parentNode.parentNode.id).children('ul').children('li').children('label').children('input').prop("checked", e.target.checked);
                 }
-//                let selected = $('.soTermCheckBox');
+
                 let soTerms = [];
                 let selected = PolymerUtils.querySelectorAll("li input", this.prefix + "consequenceTypeFilter");
                 selected.forEach((sel) => {
-                    if (sel.checked && typeof sel.getAttribute("data-id") !== "undefined") {
-                        soTerms.push(sel.getAttribute("data-id"));
+                    if (sel.checked && typeof sel.dataset !== "undefined" && typeof sel.dataset.id !== "undefined") {
+                        soTerms.push(sel.dataset.id);
                     } else {
                         // If one term from LoF array is not selected we remove LoF check
                         if (lofCheckBox.checked && this.consequenceTypes.lof.includes(sel.getAttribute("data-id"))) {
@@ -1990,7 +1990,7 @@
 
 
             _addEventListeners() {
-                let keyupEvents = ["LocationTextarea", "FeatureTextarea", "PanelAppsTextarea", "FilterTextInput", "CaddScaledInput", "SiftInput",
+                let keyupEvents = ["LocationTextarea", "FeatureTextarea", "PanelAppsTextarea", "FilterTextInput", "CaddRawInput", "CaddScaledInput", "SiftInput",
                     "PolyphenInput", "PhylopInput", "PhastconsInput", "GerpInput", "GeneOntologyTextarea", "HumanPhenotypeOntologyTextarea", "ClinVarTextarea", "TraitsTextarea"];
                 for (let id of keyupEvents) {
                     let element = PolymerUtils.getElementById(this.prefix + id);
