@@ -1,0 +1,60 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Network Browser test</title>
+
+    <script type="text/javascript" src="../../../node_modules/underscore/underscore-min.js"></script>
+    <script type="text/javascript" src="../../../node_modules/backbone/backbone-min.js"></script>
+
+    <script type="text/javascript" src="../renderers/svg-renderer.js"></script>
+
+    <script type="text/javascript" src="../shapes/basic-svg-shapes.js"></script>
+
+    <script type="text/javascript" src="../network-manager.js"></script>
+    <script type="text/javascript" src="../network-browser.js"></script>
+
+    <style type="text/css">
+        body {
+            margin: 0px;
+            padding: 0px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="network"></div>
+
+<script>
+    var parent = document.getElementById("network");
+    var data = {
+        nodes: [
+            {id: "node1", display: {shape: "square", size: 15, color: "red"}},
+            {id: "node2"},
+            {id: "node3"},
+            {id: "node4"}
+        ],
+        relations: [
+            {source: "node1", target: "node2"},
+            {source: "node1", target: "node3"},
+            {source: "node1", target: "node4"}
+        ]
+    };
+
+    var testDefault = false;
+    var config = null;
+    if (!testDefault) {
+        config = {
+            width: 600,
+            height: 400,
+            renderer: new SvgNetworkRenderer(),
+            shapes: BasicNetworkSvgShapes
+        };
+    }
+
+    var network = new NetworkBrowser(parent, data, config);
+    network.draw();
+</script>
+
+</body>
+</html>
