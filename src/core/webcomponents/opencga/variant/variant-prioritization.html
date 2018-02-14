@@ -62,8 +62,9 @@
                                             opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"
                                             population-frequencies="{{populationFrequencies}}" biotypes="{{biotypes}}"
                                             consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}"
-                                            on-closemodalsample="onCloseModalSample" ebi-config="{{ebiConfig}}" on-panelselected="onPanelSelected"
-                                            on-samplechange="onSampleChange" mmp-extension-config="{{mmpExtensionConfig}}">
+                                            ebi-config="{{ebiConfig}}" on-panelselected="onPanelSelected"
+                                            on-samplechange="onSampleChange" mmp-extension-config="{{mmpExtensionConfig}}" genotype-samples="{{genotypeSamples}}"
+                                            on-inheritancemode="_onInheritanceMode">
                     </variant-browser-filter>
                 </div>
 
@@ -464,6 +465,7 @@
                     positive: false,
                     panel: ''
                 };
+
                 this.prefix = "varPrior-" + Utils.randomString(6);
             }
 
@@ -510,6 +512,7 @@
 
                     // We need a different private property for variant-browser-filter to avoid circular calls
                     this.set("samplesForMenuFilter", _samples);
+                    this._initGenotypeSamples(_samples);
 
                     // Notify to all listeners of the new samples
                     this.dispatchEvent(new CustomEvent('samplechange', {detail: {samples: this.samples}}));
@@ -542,9 +545,6 @@
                 this.search = e.detail;
             }
 
-            onCloseModalSample(e) {
-                this._samples = this.samples;
-            }
 
             _checkPermissions(project) {
                 return UtilsNew.checkPermissions(project);
@@ -579,6 +579,22 @@
                 let _samples = e.detail.samples;
                 this.set('samples', _samples.slice());
                 this.dispatchEvent(new CustomEvent("samplechange", {detail: e.detail, bubbles: true, composed: true}));
+                this._initGenotypeSamples(this.samples);
+            }
+
+            _initGenotypeSamples(samples, force) {
+                if (UtilsNew.isUndefinedOrNull(this.genotypeSamples)) {
+                    this.genotypeSamples = {};
+                }
+                samples.forEach((sample) => {
+                    if (UtilsNew.isUndefinedOrNull(this.genotypeSamples[sample.name]) || force){
+                        this.genotypeSamples[sample.name] = {};
+                        this.genotypeSamples[sample.name]["0/1"] = false;
+                        this.genotypeSamples[sample.name]["1/1"] = false;
+                        this.genotypeSamples[sample.name]["1/0"] = false;
+                        this.genotypeSamples[sample.name]["./."] = false;
+                    }
+                });
             }
 
             _changeView(e) {
@@ -820,6 +836,22 @@
                     result.push(tmp);
                 }
                 return result;
+            }
+
+
+            /*
+            * Inheritance Mode Methods
+            * @TODO We should remove this when exists in server an endpoint to get this values
+            */
+            _onInheritanceMode(e) {
+                // Recover modeInheritance selected and decisionTree from settings tools
+                let modeInheritance = e.detail.modeInheritance;
+                this.decisionTreeInheritanceMode = e.detail.decisionTreeInheritance;
+
+                // Init for each sample its value for each genotype
+                this._initGenotypeSamples(this.samples, true);
+                // Get genotype values
+                this.genotypeSamples = Segregations.inheritanceMode(modeInheritance, this.clinicalAnalysis, this.genotypeSamples, this.decisionTreeInheritanceMode, this.samples);
             }
 
         }

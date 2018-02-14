@@ -227,13 +227,16 @@
                     },
                     mmpExtensionConfig: {
                         type: Object
+                    },
+                    genotypeSamples: {
+                        type: Object
                     }
                 }
             }
 
             static get observers() {
                 return [
-                    "samplesObserver(samples.*)"
+                    "samplesObserver(samples.*, genotypeSamples.*)"
                 ]
             }
 
@@ -269,23 +272,24 @@
                 this.prefix = "var-browser-filter-" + Utils.randomString(6);
             }
 
-            _initDefaultSampleGenotypes(samples) {
-                if (UtilsNew.isNotUndefinedOrNull(samples)) {
-                    let _genotypes = [];
-                    if (Array.isArray(samples)) {
-                        for (let sample of samples) {
-                            _genotypes.push(sample.name + ":0/1,1/1");
-                        }
-                    } else {
-                        _genotypes.push(samples.name + ":0/1,1/1");
-                    }
 
-                    if (UtilsNew.isNotUndefinedOrNull(this.query.genotype)) {
-                        this.set("query.genotype", this.query.genotype + ";" + _genotypes.join(";"));
-                    } else {
-                        this.set("query.genotype", _genotypes.join(";"));
-                    }
-                }
+            _initDefaultSampleGenotypes(samples) {
+                // if (UtilsNew.isNotUndefinedOrNull(samples)) {
+                //     let _genotypes = [];
+                //     if (Array.isArray(samples)) {
+                //         for (let sample of samples) {
+                //             _genotypes.push(sample.name + ":0/1,1/1");
+                //         }
+                //     } else {
+                //         _genotypes.push(samples.name + ":0/1,1/1");
+                //     }
+                //
+                //     if (UtilsNew.isNotUndefinedOrNull(this.query.genotype)) {
+                //         this.set("query.genotype", this.query.genotype + ";" + _genotypes.join(";"));
+                //     } else {
+                //         this.set("query.genotype", _genotypes.join(";"));
+                //     }
+                // }
             }
 
             studyObserver() {
@@ -376,7 +380,7 @@
             familyObserver() {
                 if (UtilsNew.isNotUndefinedOrNull(this.family)) {
                     // Display family segregation dropdown
-                    PolymerUtils.show(this.prefix + "SampleSegregation");
+                    // PolymerUtils.show(this.prefix + "SampleSegregation");
                 }
             }
 
@@ -391,6 +395,7 @@
                             study: _this.project.alias + ":" + _this.study.alias,
                             name: "~^" + sampleNamePrefix,
                             include: "id,name",
+                            includeIndividual: true,
                             limit: 20}, {})
                         .then(function (response) {
 //                            _this.autocompleteSampleData = response.response[0].result;
@@ -452,12 +457,7 @@
                     let sample = JSON.parse(sampleHtmlObj.dataset.sample);
 
                     if (UtilsNew.isNotUndefinedOrNull(sample)) {
-                        // Default genotype when adding samples is 0/1, 1/1
-                        if (UtilsNew.isEmpty(this.query.genotype)) {
-                            this.query.genotype = sample.name + ":0/1,1/1";
-                        } else {
-                            this.query.genotype += ";" + sample.name + ":0/1,1/1";
-                        }
+                        // // Default genotype when adding samples is 0/1, 1/1
 
                         // This triggers the call to samplesObserver()
                         this.push("samples", sample);
@@ -470,6 +470,7 @@
                         this.dispatchEvent(new CustomEvent("samplechange", {
                             detail: {samples: this.samples}, bubbles: true, composed: true
                         }));
+                        this.dispatchEvent(new CustomEvent("inheritancemode", {detail: {modeInheritance: this.modeInheritance, decisionTreeInheritance: this.decisionTreeInheritance}, bubbles: true, composed: true}));
                     }
                 }
             }
@@ -494,45 +495,15 @@
                     return;
                 }
 
-                // Delete all existing rows
-                let tableBody = table.getElementsByTagName('tbody')[0];
-                while(tableBody.rows.length) {
-                    tableBody.deleteRow(0);
-                }
-
-                for (let sample of this.samples) {
-                    let tr = tableBody.insertRow(-1);
-                    tr.setAttribute("id", sample.name);
-
-                    let td = tr.insertCell(0);
-                    let nameText = document.createTextNode(sample.name);
-                    td.appendChild(nameText);
-
-                    for (let genotype of this._genotypes) {
-                        let td = tr.insertCell(-1);
-
-                        let cell = document.createElement("INPUT");
-                        cell.setAttribute("id", this.prefix + "SampleGenotypeCheckbox" + genotype);
-                        cell.setAttribute("type", "checkbox");
-                        cell.setAttribute("class", this.prefix + "genotypes " + this.prefix + "FilterCheckBox");
-                        cell.setAttribute("value", genotype);
-                        cell.setAttribute("data-id", sample.name);
-                        cell.addEventListener("change", this.updateQueryFilters.bind(this));
-                        if (UtilsNew.isNotUndefinedOrNull(sampleGenotypes[sample.name]) && sampleGenotypes[sample.name].includes(genotype)) {
-                            cell.setAttribute("checked", true);
-                        }
-
-                        td.appendChild(cell);
-                    }
-                }
+                this.renderGenotypes();
 
                 // Change visibility
                 if (UtilsNew.isNotEmptyArray(this.samples)) {  // this.query.samples !== undefined && this.query.samples.length > 0
                     this.showSampleGenotypes = true;
-                    PolymerUtils.setAttribute(this.prefix + "SampleGenotypeTable", "style", "display: inline");
+                    PolymerUtils.setAttribute(this.prefix + "SampleGenotypeDivTable", "style", "display: inline");
                 } else {
                     this.showSampleGenotypes = false;
-                    PolymerUtils.setAttribute(this.prefix + "SampleGenotypeTable", "style", "display: none");
+                    PolymerUtils.setAttribute(this.prefix + "SampleGenotypeDivTable", "style", "display: none");
                 }
             }
 
@@ -1210,6 +1181,64 @@
                 this.segregation = e.target.innerHTML;
             }
 
+            // @TODO We should remove this when exists in server an endpoint to get this values
+            selectGenotypeSamples(e) {
+                e.preventDefault();
+                this.modeInheritance = e.target.value;
+                this.dispatchEvent(new CustomEvent("inheritancemode", {detail: {modeInheritance: e.target.value, decisionTreeInheritance: this.decisionTreeInheritance}, bubbles: true, composed: true}));
+                // this.renderGenotypes(e.target.value);
+            }
+
+            renderGenotypes() {
+                let table = PolymerUtils.getElementById(this.prefix + "SampleGenotypeTable");
+                let tableBody = table.getElementsByTagName('tbody')[0];
+                let _genotypes = [];
+                // Delete all existing rows
+                while(tableBody.rows.length) {
+                    tableBody.deleteRow(0);
+                }
+
+                for (let sample of this.samples) {
+                    let tr = tableBody.insertRow(-1);
+                    tr.setAttribute("id", sample.name);
+
+                    let td = tr.insertCell(0);
+                    let nameText = document.createTextNode(sample.name);
+                    td.appendChild(nameText);
+
+                    for (let genotype of this._genotypes) {
+                        let isCheckedGenotype = UtilsNew.isNotUndefinedOrNull(this.genotypeSamples) && UtilsNew.isNotUndefinedOrNull(this.genotypeSamples[sample.name]) &&
+                        UtilsNew.isNotUndefinedOrNull(this.genotypeSamples[sample.name][genotype]) ? this.genotypeSamples[sample.name][genotype] : false;
+
+                        let td = tr.insertCell(-1);
+                        let cell = document.createElement("INPUT");
+                        cell.setAttribute("id", this.prefix + "SampleGenotypeCheckbox" + genotype);
+                        cell.setAttribute("type", "checkbox");
+                        cell.setAttribute("class", this.prefix + "genotypes " + this.prefix + "FilterCheckBox");
+                        cell.setAttribute("value", genotype);
+                        cell.setAttribute("data-id", sample.name);
+                        cell.addEventListener("change", this.updateQueryFilters.bind(this));
+                        if (isCheckedGenotype) {
+                            cell.setAttribute("checked", true);
+                            _genotypes.push(genotype);
+                        }
+
+                        td.appendChild(cell);
+
+                    }
+                    if (UtilsNew.isNotEmptyArray(_genotypes)) {
+                        if(UtilsNew.isNotUndefinedOrNull(this.query.genotype)) {
+                            this.set("query.genotype", this.query.genotype + ";" + sample.name + ":" + _genotypes.join(","));
+                        } else {
+                            this.set("query.genotype", sample.name + ":" + _genotypes.join(","));
+                        }
+                    }
+                }
+                // this.query.genotype;
+                this.updateQueryFilters();
+                console.log(tableBody);
+            }
+
             _clearHtmlDom() {
                 // Empty everything before rendering
                 $("." + this.prefix + "FilterSelect").prop('selectedIndex', 0);
@@ -1234,11 +1263,6 @@
 //                $("#segregationDropdownDiv").show();
             }
 
-            closeModalSample(e) {
-                this.dispatchEvent(new CustomEvent("closemodalsample", {detail: {}, bubbles: true, composed: true}));
-            }
-
-
             // This method is only executed one time from connectedCallback function
             _renderFilterMenu() {
                 let html = "";
@@ -1262,9 +1286,9 @@
                     PolymerUtils.addStyle(this.prefix + "SampleGenotypeMessage", "display", "none");
                 }
 
-                if (UtilsNew.isNotUndefinedOrNull(this.family) && Object.keys(this.family).length > 0) {
-                    PolymerUtils.show(this.prefix + "SampleSegregation");
-                }
+                // if (UtilsNew.isNotUndefinedOrNull(this.family) && Object.keys(this.family).length > 0) {
+                //     PolymerUtils.show(this.prefix + "SampleSegregation");
+                // }
             }
 
             _createSection(section, prefix) {
@@ -1322,6 +1346,7 @@
                 let content = "";
                 switch (subsection.id) {
                     case "sample":
+                        this.decisionTreeInheritance = subsection.decisionTreeInheritance;
                         content = this._getSampleHtml(subsection, this.prefix);
                         break;
                     case "cohort":
@@ -1392,10 +1417,9 @@
                 let options = "";
                 if (UtilsNew.isNotUndefinedOrNull(subsection) && UtilsNew.isNotEmptyArray(subsection.segregations)) {
                     for (let segregation of subsection.segregations) {
-                        options += `<option value="${segregation}">${segregation}</option>`;
+                        options += `<option value="${segregation.key}">${segregation.text}</option>`;
                     }
                 }
-
                 return `
                     <div id="${prefix}AutocompleteSampleSelect" style="margin: 15px 0px">
                         <span>Select Sample:</span>
@@ -1421,17 +1445,18 @@
                         </div>
 
 
-                        <div id="${prefix}SampleSegregation" style="display: none">
+                        <div id="${prefix}SampleSegregation">
                             <div style="padding-left: 10px;padding-top: 10px">
-                                <span class="control-label">Family Segregation:</span>
+                                <span class="control-label">Inheritance Mode:</span>
                                 <select id="${prefix}SegregationOperator" name="${prefix}Segregation"
-                                     class="form-control input-sm ${prefix}FilterSelect" on-change="selectSegregation">
+                                     class="form-control input-sm ${prefix}FilterSelect" on-change="selectGenotypeSamples">
                                  ${options}
                                 </select>
                             </div>
                         </div>
 
-                        <div id="${prefix}SampleGenotypeTable" style="display: none">
+                        <div id="${prefix}SampleGenotypeDivTable" style="display: none">
+
                             <div style="padding-left: 10px;padding-top: 10px">
                                 <table id="${prefix}SampleGenotypeTable" class="table table-hover" style="margin-bottom: 10px">
                                     <thead>
@@ -2013,6 +2038,11 @@
                 if (UtilsNew.isNotUndefinedOrNull(autoCompleteSampleElement)) {
                     autoCompleteSampleElement.addEventListener('keyup', this._autocompleteSampleSearch.bind(this));
                     PolymerUtils.getElementById(this.prefix + "SampleAddButton").addEventListener('click', this.onSampleChange.bind(this));
+                }
+                // Add event for inheritanceMode
+                let inheritanceModeElement = PolymerUtils.getElementById(this.prefix + "SegregationOperator");
+                if (UtilsNew.isNotUndefinedOrNull(inheritanceModeElement)) {
+                    inheritanceModeElement.addEventListener('change', this.selectGenotypeSamples.bind(this));
                 }
 
 
