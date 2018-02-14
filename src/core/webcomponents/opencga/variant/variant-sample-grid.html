@@ -470,32 +470,55 @@
             }
 
             downloadFormatter(value, row) {
-                return '<button role="button" type="button" class="'+this.prefix + 'Download btn btn-sm btn-primary" data-sample-name="'+row.name +'" ><i class="fa fa-download" aria-hidden="true"></i>&nbsp;Download</button>';
+
+                return '<a role="button" type="button" class="'+this.prefix + 'Download btn btn-sm btn-primary" data-sample-name="'+row.name +'" ><i class="fa fa-download" aria-hidden="true"></i>&nbsp;Download</a>';
             }
 
             downloadQCFile(e) {
+                let name = e.target.getAttribute('data-sample-name') + ".QC.tar.gz";
+                let study = this.project.alias + ":" + this.study.alias;
+                let sid =  Cookies.get(this.opencgaClient.getConfig().cookieSessionId);
+                let opencgaHostUrl = this.opencgaClient.getConfig().host;
+                if (!opencgaHostUrl.startsWith("http://") && !opencgaHostUrl.startsWith("https://")) {
+                    opencgaHostUrl = 'http://' + opencgaHostUrl;
+                }
+                opencgaHostUrl += '/webservices/rest/v1/files/';
 
-                let paramsDownload = {
-                    study: this.project.alias + ":" + this.study.alias
+                let paramsInfo= {
+                    study: study
                 };
-                let name = e.target.getAttribute('data-sample-name');
-                name = name + ".QC.tar.gz";
-                this.opencgaClient.files().download(name, paramsDownload)
+
+                this.opencgaClient.files().info(name, paramsInfo)
                     .then((response) => {
-                    let MIME_TYPE = "application/octet-stream";
-                    let blob = new Blob([response], {type: MIME_TYPE});
-                    window.location.href = window.URL.createObjectURL(blob);
-                })
-                .catch((response) => {
-                    this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
-                        detail: {
-                            message: response.error,
-                            type: UtilsNew.MESSAGE_ERROR
-                        },
-                        bubbles: true,
-                        composed: true
-                    }));
-                });
+                        if (response.response.length > 0) {
+                            let url = opencgaHostUrl + name + "/download?sid=" + sid + "&study=" + study;
+                            let a = document.createElement("a");
+                            a.href = url;
+                            a.download = name;
+                            document.body.appendChild(a);
+                            a.click();
+                        } else {
+                            this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+                                detail: {
+                                    message: name + " not found.",
+                                    type: UtilsNew.MESSAGE_ERROR
+                                },
+                                bubbles: true,
+                                composed: true
+                            }));
+                        }
+                    })
+                    .catch((response) => {
+                        this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+                            detail: {
+                                message: name + " not found.",
+                                type: UtilsNew.MESSAGE_ERROR
+                            },
+                            bubbles: true,
+                            composed: true
+                        }));
+                    });
+
             }
 
             _initTableColumns() {
