@@ -470,8 +470,7 @@
             }
 
             downloadFormatter(value, row) {
-
-                return '<a role="button" type="button" class="'+this.prefix + 'Download btn btn-sm btn-primary" data-sample-name="'+row.name +'" ><i class="fa fa-download" aria-hidden="true"></i>&nbsp;Download</a>';
+                return '<button role="button" type="button" class="'+this.prefix + 'Download btn btn-sm btn-primary" data-sample-name="'+row.name +'" ><i class="fa fa-download"  data-sample-name="' + row.name + '" aria-hidden="true"></i>&nbsp;Download</button>';
             }
 
             downloadQCFile(e) {

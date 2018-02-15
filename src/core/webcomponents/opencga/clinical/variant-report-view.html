@@ -158,7 +158,7 @@
                                 <td class="col-xs-5 col-sm-5 col-md-5">
                                     <label for="{{prefix}}YearBirth" class="col-form-label">{{loadi18n('yearBirth')}}:</label>
                                     <span class$="col-form-control {{prefix}}TextInput" id="{{prefix}}YearBirth"
-                                          name="yearBirth">{{dataFieldsFixed.birthYear}}</span>
+                                          name="yearBirth">{{dataFields.birthYear}}</span>
                                 </td>
                             </tr>
                             <tr>
@@ -377,7 +377,7 @@
                          id="{{prefix}}interpretationDiv">
                         <h3>{{loadi18n('interpretationHeader')}}</h3>
                         <ul>
-                            <li><span id="{{prefix}}interpretationText1">{{dataFields.applicant}}({{dataFieldsFixed.birthYear}})</span>{{loadi18n('interpretationText1')}}</li>
+                            <li><span id="{{prefix}}interpretationText1">{{dataFields.applicant}}({{dataFields.birthYear}})</span>{{loadi18n('interpretationText1')}}</li>
                             <li>{{loadi18n('interpretationText2_1')}} {{dataFields.depth}}{{loadi18n('interpretationText2_2')}} {{dataFields.coverage}}{{loadi18n('interpretationText2_3')}}</li>
                             <li>{{loadi18n('interpretationText3')}}</li>
                             <li>{{loadi18n('interpretationText4')}}</li>
@@ -432,6 +432,17 @@
                 </div>
 
                 <div class="divSection other-information col-sm-12"
+                     id="{{prefix}}conclusionsDiv" hidden>
+                    <h3>{{loadi18n('otherInformation')}}</h3>
+                    <hr>
+                    <div class="col-sm-10">
+                        <textarea type="text" class$="form-control {{prefix}}TextInput autoExpand" id="{{prefix}}conclusions"
+                                  name="conclusions" placeholder="{{loadi18n('otherInformation')}}" rows="5"
+                                  on-input="updateTextArea" on-focus="calculateHeightTextArea" data-min-rows="5"></textarea>
+                    </div>
+                </div>
+
+                <div class="divSection other-information col-sm-12"
                      id="{{prefix}}attached1Div">
                     <h3>{{loadi18n('attached1')}}</h3>
                     <hr>
@@ -471,16 +482,7 @@
                         </template>
                     </div>
                 </div>
-                <div class="divSection other-information col-sm-12"
-                     id="{{prefix}}conclusionsDiv" hidden>
-                    <h3>{{loadi18n('otherInformation')}}</h3>
-                    <hr>
-                    <div class="col-sm-10">
-                        <textarea type="text" class$="form-control {{prefix}}TextInput autoExpand" id="{{prefix}}conclusions"
-                                  name="conclusions" placeholder="{{loadi18n('editableConclusions')}}" rows="5"
-                                  on-input="updateTextArea" on-focus="calculateHeightTextArea" data-min-rows="5"></textarea>
-                    </div>
-                </div>
+
             </div>
         </div>
 

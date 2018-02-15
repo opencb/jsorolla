@@ -23,6 +23,9 @@
             label {
                 padding-top: 10px;
             }
+            .labelReportFilter {
+                display: block;
+            }
         </style>
 
         <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true">
@@ -33,7 +36,7 @@
                         <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
                            href="#{{prefix}}FillInputsGeneral"
                            aria-expanded="true" aria-controls="{{prefix}}General">
-                            General
+                            Personal Information
                         </a>
                     </h4>
                 </div>
@@ -42,38 +45,41 @@
                      aria-labelledby="{{prefix}}GeneralHeading">
                     <div class="panel-body">
                         <div id="{{prefix}}FillInputsGeneralDiv" style="">
-                            <label>Applicant:</label>
-                            <input type="text" class$="custom-sized-input {{prefix}}ApplicantInput" id="{{prefix}}ApplicantInput"
+                            <label class="labelReportFilter">Service petitioner:</label>
+                            <input type="text" class$="custom-sized-input {{prefix}}ApplicantInput" id="{{prefix}}ApplicantInput" placeholder="___"
                                    aria-describedby="basic-addon1" value="{{dataFieldsPrivate.applicant::input}}">
-                            <label>Departament:</label>
-                            <input type="text" class$="custom-sized-input {{prefix}}DepartmentInput" id="{{prefix}}DepartmentInput"
+                            <label class="labelReportFilter">Departament:</label>
+                            <input type="text" class$="custom-sized-input {{prefix}}DepartmentInput" id="{{prefix}}DepartmentInput" placeholder="___"
                                    aria-describedby="basic-addon1" value="{{dataFieldsPrivate.department::input}}">
-                            <label>City:</label>
-                            <input type="text" class$="custom-sized-input {{prefix}}CityInput" id="{{prefix}}CityInput"
+                            <label class="labelReportFilter">City:</label>
+                            <input type="text" class$="custom-sized-input {{prefix}}CityInput" id="{{prefix}}CityInput" placeholder="___"
                                    aria-describedby="basic-addon1" value="{{dataFieldsPrivate.city::input}}">
-                            <label>Patient:</label>
-                            <input type="text" class$="custom-sized-input {{prefix}}PatientInput" id="{{prefix}}PatientInput"
+                            <label class="labelReportFilter">Patient:</label>
+                            <input type="text" class$="custom-sized-input {{prefix}}PatientInput" id="{{prefix}}PatientInput" placeholder="___"
                                    aria-describedby="basic-addon1" value="{{dataFieldsPrivate.patient::input}}">
-                            <label>NUHSA:</label>
-                            <input type="text" class$="custom-sized-input {{prefix}}nuhsaInput" id="{{prefix}}nuhsaInput"
+                            <label class="labelReportFilter">NUHSA:</label>
+                            <input type="text" class$="custom-sized-input {{prefix}}nuhsaInput" id="{{prefix}}nuhsaInput" placeholder="___"
                                    aria-describedby="basic-addon1" value="{{dataFieldsPrivate.nuhsa::input}}">
-                            <label>Family Number:</label>
-                            <input type="text" class$="custom-sized-input {{prefix}}FamilyNumberInput" id="{{prefix}}FamilyNumberInput"
+                            <label class="labelReportFilter">Family Number:</label>
+                            <input type="text" class$="custom-sized-input {{prefix}}FamilyNumberInput" id="{{prefix}}FamilyNumberInput" placeholder="___"
                                    aria-describedby="basic-addon1" value="{{dataFieldsPrivate.familyNumber::input}}">
-                            <label>Analysis type:</label>
-                            <input type="text" class$="custom-sized-input {{prefix}}AnalysisTypeInput" id="{{prefix}}AnalysisTypeInput"
+                            <label class="labelReportFilter">Analysis type:</label>
+                            <input type="text" class$="custom-sized-input {{prefix}}AnalysisTypeInput" id="{{prefix}}AnalysisTypeInput" placeholder="___"
                                    aria-describedby="basic-addon1" value="{{dataFieldsPrivate.analysisType::input}}">
-                            <label>Entry date:</label>
-                            <input type="text" class$="custom-sized-input {{prefix}}EntryDateInput" id="{{prefix}}EntryDateInput"
+                            <label class="labelReportFilter">Entry date:</label>
+                            <input type="text" class$="custom-sized-input {{prefix}}EntryDateInput" id="{{prefix}}EntryDateInput" placeholder="___"
                                    aria-describedby="basic-addon1" value="{{dataFieldsPrivate.entryDate::input}}">
-                            <label>Relationship:</label>
-                            <input type="text" class$="custom-sized-input {{prefix}}RelationshipInput" id="{{prefix}}RelationshipInput"
+                            <label class="labelReportFilter">Birth Year:</label>
+                            <input type="text" class$="custom-sized-input {{prefix}}nuhsaInput" id="{{prefix}}birthYear" placeholder="___"
+                                   aria-describedby="basic-addon1" value="{{dataFieldsPrivate.birthYear::input}}">
+                            <label class="labelReportFilter">Relationship:</label>
+                            <input type="text" class$="custom-sized-input {{prefix}}RelationshipInput" id="{{prefix}}RelationshipInput" placeholder="___"
                                    aria-describedby="basic-addon1" value="{{dataFieldsPrivate.relationship::input}}">
-                            <label>Sign Left:</label>
-                            <input type="text" class$="custom-sized-input {{prefix}}SignLeft" id="{{prefix}}SignLeftInput"
+                            <label class="labelReportFilter">Physician one:</label>
+                            <input type="text" class$="custom-sized-input {{prefix}}SignLeft" id="{{prefix}}SignLeftInput" placeholder="___"
                                    aria-describedby="basic-addon1" value="{{dataFieldsPrivate.signLeft::input}}">
-                            <label>Sign Right:</label>
-                            <input type="text" class$="custom-sized-input {{prefix}}SignRightInput" id="{{prefix}}SignRightInput"
+                            <label class="labelReportFilter">Physician two:</label>
+                            <input type="text" class$="custom-sized-input {{prefix}}SignRightInput" id="{{prefix}}SignRightInput" placeholder="___"
                                    aria-describedby="basic-addon1" value="{{dataFieldsPrivate.signRight::input}}">
                         </div>
 
@@ -97,18 +103,13 @@
                      aria-labelledby="{{prefix}}SampleFilterHeading">
                     <div class="panel-body">
                         <div id="{{prefix}}analysisSelectedDiv" style="">
-                            <label>Analysis selected:</label>
+                            <label class="labelReportFilter">Analysis selected:</label>
                             <input type="text" class$="custom-sized-input {{prefix}}FilterTextInput" id="{{prefix}}FilterTextInput"
                                    placeholder="{{currentAnalysisID}}" aria-describedby="basic-addon1" disabled>
                         </div>
-                        <div id="{{prefix}}analysisDiseaseHeaderDiv" style="">
-                            <label>Disease header:</label>
-                            <input type="text" class$="custom-sized-input {{prefix}}DiseaseHeaderTextInput" id="{{prefix}}DiseaseHeaderTextInput"
-                                   placeholder="{{currentAnalysisID}}" aria-describedby="basic-addon1" value="{{dataFieldsPrivate.diseaseHeader::input}}">
-                        </div>
                         <div id="{{prefix}}reasonConsultationHeaderDiv" style="">
-                            <label>Reason consultation:</label>
-                            <input type="text" class$="custom-sized-input {{prefix}}ReasonConsultationTextInput" id="{{prefix}}ReasonConsultationTextInput"
+                            <label class="labelReportFilter">Presenting complaint:</label>
+                            <input type="text" class$="custom-sized-input {{prefix}}ReasonConsultationTextInput" id="{{prefix}}ReasonConsultationTextInput" placeholder="___"
                                    placeholder="{{currentAnalysisID}}" aria-describedby="basic-addon1" value="{{dataFieldsPrivate.reasonConsultation::input}}">
                         </div>
                         <div id="{{prefix}}analysisResumeDiv" hidden>
@@ -137,14 +138,14 @@
                      aria-labelledby="{{prefix}}InterpretationHeading">
                     <div class="panel-body">
                         <div id="{{prefix}}FillInputsInterpretationDiv" style="">
-                            <label>Depth:</label>
-                            <input type="text" class$="custom-sized-input {{prefix}}DepthInput" id="{{prefix}}DepthInput"
+                            <label class="labelReportFilter">Depth:</label>
+                            <input type="text" class$="custom-sized-input {{prefix}}DepthInput" id="{{prefix}}DepthInput" placeholder="___"
                                    aria-describedby="basic-addon1" value="{{dataFieldsPrivate.depth::input}}">
-                            <label>Coverage:</label>
-                            <input type="text" class$="custom-sized-input {{prefix}}CoverageInput" id="{{prefix}}CoverageInput"
+                            <label class="labelReportFilter">Coverage:</label>
+                            <input type="text" class$="custom-sized-input {{prefix}}CoverageInput" id="{{prefix}}CoverageInput" placeholder="___"
                                    aria-describedby="basic-addon1" value="{{dataFieldsPrivate.coverage::input}}">
-                            <label>Extra interpretation(Only positive):</label>
-                            <textarea type="text" class$="{{prefix}}extraInfoInput" id="{{prefix}}extraInfoInput"
+                            <label class="labelReportFilter">Interpretation Comments(Only for positive diagnosis):</label>
+                            <textarea type="text" class$="{{prefix}}extraInfoInput" id="{{prefix}}extraInfoInput" placeholder="___"
                                        rows="5" value="{{dataFieldsPrivate.extraInterpretation::input}}"></textarea>
                         </div>
 
@@ -153,41 +154,6 @@
 
             </div>
 
-            <!-- Prioritization information -->
-            <div class="panel panel-default" id="{{prefix}}PrioritizationInformationDiv" style="">
-                <div class="panel-heading" role="tab" id="{{prefix}}PrioritizationInformationHeading">
-                    <h4 class="panel-title">
-                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                           href="#{{prefix}}PrioritizationInformationContent" aria-expanded="true"
-                           aria-controls="{{prefix}}PrioritizationInformationContent">
-                            Attached
-                            <div style="float: right" class="tooltip-div">
-                                <a data-toggle="tooltip" title="Prioritization information">
-                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                </a>
-                            </div>
-                        </a>
-                    </h4>
-                </div>
-                <div id="{{prefix}}PrioritizationInformationContent" class="panel-collapse collapse" role="tabpanel"
-                     aria-labelledby="{{prefix}}PrioritizationInformationHeading">
-                    <div id="{{prefix}}PrioritizationFields" class="panel-body">
-                        <div class="form-group">
-                            <!--<input type="checkbox" name="prioritizationButtons" id="{{prefix}}SummaryResults" value="prioritizationSummary" class$="{{prefix}}FilterRadio" on-change="showPrioritization" style="padding-left: 20px"> Summary of results<br>-->
-                            <div id="{{prefix}}attached1Div" style="">
-                                <input type="checkbox" name="prioritizationButtons" id="{{prefix}}attached1"
-                                       value="attached1" class$="{{prefix}}FilterRadio" on-change="showAttached1"
-                                       style="padding-left: 20px">Attached 1<br>
-                            </div>
-                            <div id="{{prefix}}filterSummaryHeaderDiv" style="">
-                                <input type="checkbox" name="prioritizationButtons" id="{{prefix}}FilterResume"
-                                       value="filterResume" class$="{{prefix}}FilterRadio" on-change="showAttached2"
-                                       style="padding-left: 20px">Attached 2<br>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
             <!-- Other information -->
             <div class="panel panel-default" id="{{prefix}}OtherInformationDiv" style="">
                 <div class="panel-heading" role="tab" id="{{prefix}}OtherInformationHeading">
@@ -208,12 +174,26 @@
                      aria-labelledby="{{prefix}}OtherInformationHeading">
                     <div class="panel-body">
                         <div class="form-group">
-                            <label>Select</label>
-                            <br>
-                            <input type="checkbox" name="otherButtons" id="{{prefix}}Conclusions" value="conclusions"
-                                   class$="{{prefix}}FilterRadio" on-change="showConclusions"
-                                   style="padding-left: 20px"> Editable conclusions<br>
+                            <div id="{{prefix}}editableConclusion" style="">
+
+                                <label class="labelReportFilter">Select</label>
+                                <br>
+                                <input type="checkbox" name="otherButtons" id="{{prefix}}Conclusions" value="conclusions"
+                                       class$="{{prefix}}FilterRadio" on-change="showConclusions"
+                                       style="padding-left: 20px"> Editable conclusions<br>
+                            </div>
+                            <div id="{{prefix}}attached1Div" style="">
+                                <input type="checkbox" name="prioritizationButtons" checked id="{{prefix}}attached1"
+                                       value="attached1" class$="{{prefix}}FilterRadio" on-change="showAttached1"
+                                       style="padding-left: 20px"> Gene panel<br>
+                            </div>
+                            <div id="{{prefix}}filterSummaryHeaderDiv" style="">
+                                <input type="checkbox" name="prioritizationButtons" id="{{prefix}}FilterResume"
+                                       value="filterResume" class$="{{prefix}}FilterRadio" on-change="showAttached2"
+                                       style="padding-left: 20px"> Prioritization filter<br>
+                            </div>
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -330,8 +310,8 @@
                 }
                 this.showPedigree = false;
                 this.dataFieldsPrivate = {
-                    reasonConsultation: "____",
-                    diseaseHeader: "____",
+                    reasonConsultation: "",
+                    diseaseHeader: "",
                     applicant: "",
                     department: "",
                     city: "",
@@ -341,11 +321,12 @@
                     analysisType: "",
                     entryDate: "",
                     relationship: "",
-                    depth: "___",
-                    extraInterpretation: "___",
-                    coverage: "___",
-                    signLeft: "___",
-                    signRight: "___"
+                    depth: "",
+                    extraInterpretation: "",
+                    coverage: "",
+                    signLeft: "",
+                    signRight: "",
+                    birthYear: ""
                 };
             }
 
