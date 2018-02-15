@@ -151,7 +151,7 @@
                             }));
                         })
                         .catch(function(response) {
-                            let _message = this.errorMessage = response.error
+                            let _message = this.errorMessage = response.error;
                             this.dispatchEvent(new CustomEvent(_this.eventNotifyName, {
                                 detail: {
                                     message: _message, type: UtilsNew.MESSAGE_ERROR
