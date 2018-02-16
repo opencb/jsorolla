@@ -144,7 +144,7 @@
                 <div style="padding-top: 20px; height: 400px" hidden$="{{!checkVariant(variant)}}">
                     <h3>Advanced Annotation for Variant: {{variant}}</h3>
                     <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}"
-                                                     cellbase-client="{{cellbaseClient}}"
+                                                     cellbase-client="{{cellbaseClient}}" assembly={{project.organism.assembly}}
                                                      hash-fragment-credentials="{{hashFragmentCredentials}}"
                                                      style="font-size: 12px"
                                                      population-frequencies="{{populationFrequencies}}"
