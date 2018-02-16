@@ -381,7 +381,8 @@
                     }
                     queryParams.returnedSamples = sampleNames.join();
                 } else {
-                    queryParams.exclude = "studies,annotation.xrefs,annotation.populationFrequencies,annotation.conservation,annotation.geneTraitAssociation,annotation.geneDrugInteraction";
+                    // queryParams.exclude = "studies,annotation.xrefs,annotation.populationFrequencies,annotation.conservation,annotation.geneTraitAssociation,annotation.geneDrugInteraction";
+                    queryParams.include = "id,chromosome,start,end,type,annotation.consequenceTypes";
                 }
 
                 if (typeof this.config !== "undefined" && typeof this.config.missing !== "undefined" && this.config.missing) {

@@ -53,9 +53,9 @@
                         <button type="button" class="btn btn-success variant-browser-view-buttons" data-view="Summary" on-click="_changeView">
                             <i class="fa fa-line-chart icon-padding" aria-hidden="true" data-view="Summary" on-click="_changeView"></i> Summary (Beta)
                         </button>
-                        <button type="button" class="btn btn-success variant-browser-view-buttons" data-view="GenomeBrowser" on-click="_changeView">
-                            <i class="fa fa-list-alt icon-padding" aria-hidden="true" data-view="GenomeBrowser" on-click="_changeView"></i> Genome Browser (Beta)
-                        </button>
+                        <!--<button type="button" class="btn btn-success variant-browser-view-buttons" data-view="GenomeBrowser" on-click="_changeView">-->
+                            <!--<i class="fa fa-list-alt icon-padding" aria-hidden="true" data-view="GenomeBrowser" on-click="_changeView"></i> Genome Browser (Beta)-->
+                        <!--</button>-->
                     </div>
                 </div>
             </div>
@@ -140,18 +140,12 @@
                                                             <td>{{cohort.name}}</td>
                                                             <td>{{cohort.value.refAllele}}</td>
                                                             <td>{{cohort.value.altAllele}}</td>
-                                                            <td>{{cohort.value.maf}} ({{cohort.value.mafAllele}})
-                                                            </td>
-                                                            <td>{{cohort.value.refAlleleFreq}}
-                                                            </td>
-                                                            <td>{{cohort.value.altAlleleFreq}}
-                                                            </td>
-                                                            <td>{{cohort.value.genotypesFreq.homref}}
-                                                            </td>
-                                                            <td>{{cohort.value.genotypesFreq.het}}
-                                                            </td>
-                                                            <td>{{cohort.value.genotypesFreq.homalt}}
-                                                            </td>
+                                                            <td>{{cohort.value.maf}} ({{cohort.value.mafAllele}})</td>
+                                                            <td>{{cohort.value.refAlleleFreq}}</td>
+                                                            <td>{{cohort.value.altAlleleFreq}}</td>
+                                                            <td>{{cohort.value.genotypesFreq.homref}}</td>
+                                                            <td>{{cohort.value.genotypesFreq.het}}</td>
+                                                            <td>{{cohort.value.genotypesFreq.homalt}}</td>
                                                         </tr>
                                                     </template>
                                                     </tbody>
@@ -173,11 +167,11 @@
                                     Network
                                 </button>
                                 <a data-toggle="tooltip"
-                                   title="Beacon Network is a search engine across the world's public beacons. You can find it here - https://beacon-network.org/#/"><i
-                                        class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                   title="Beacon Network is a search engine across the world's public beacons. You can find it here - https://beacon-network.org/#/">
+                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                </a>
                                 <br><br>
-                                <variant-beacon-network hosts="{{beaconHosts}}" clear="{{variant}}"
-                                                        variant="{{variantToBeacon}}"></variant-beacon-network>
+                                <variant-beacon-network hosts="{{beaconHosts}}" clear="{{variant}}" variant="{{variantToBeacon}}"></variant-beacon-network>
                             </div>
                         </div>
                     </div>
@@ -206,15 +200,15 @@
             </div>
 
             <!-- Third TAB -->
-            <div id="{{prefix}}GenomeBrowser" class="variant-browser-content" style="display: none">
-                <br>
-                <br>
-                <variant-genome-browser project="{{project}}" study="{{study}}" opencga-client="{{opencgaClient}}"
-                                        cellbase-client="{{cellbaseClient}}"
-                                        query={{query}} search={{search}} species={{config.species}}
-                                        region="{{region}}" active="{{_genomeBrowserActive}}" full-screen="{{fullScreen}}">
-                </variant-genome-browser>
-            </div>
+            <!--<div id="{{prefix}}GenomeBrowser" class="variant-browser-content" style="display: none">-->
+                <!--<br>-->
+                <!--<br>-->
+                <!--<variant-genome-browser project="{{project}}" study="{{study}}" opencga-client="{{opencgaClient}}"-->
+                                        <!--cellbase-client="{{cellbaseClient}}"-->
+                                        <!--query={{query}} search={{search}} species={{config.species}}-->
+                                        <!--region="{{region}}" active="{{_genomeBrowserActive}}" full-screen="{{fullScreen}}">-->
+                <!--</variant-genome-browser>-->
+            <!--</div>-->
 
         </div>
         <!--</div>-->
