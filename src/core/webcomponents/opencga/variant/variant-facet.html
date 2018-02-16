@@ -32,7 +32,7 @@
             <div class="col-md-2" hidden$="{{checkProject(project)}}">
                 <variant-browser-filter study="{{study}}" project="{{project}}" studies="{{studies}}"
                                         opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
-                                        population-frequencies="{{populationFrequencies}}"
+                                        population-frequencies="{{populationFrequencies}}" biotypes="{{biotypes}}"
                                         consequence-types="{{consequenceTypes}}"
                                         query="{{query}}" search="{{search}}" config="{{config}}" style="font-size: 12px">
                 </variant-browser-filter>
@@ -92,6 +92,9 @@
                     consequenceTypes: {
                         type: Object
                     },
+                    biotypes: {
+                        type: Array
+                    },
                     proteinSubstitutionScores: {
                         type: Object
                     },
@@ -120,11 +123,11 @@
                 super.ready();
 
                 // At the moment we do not support Study accordion in facets, we disable all of them.
-                this.config.filter.study.samples.visibility = "none";
-                this.config.filter.study.cohorts.visibility = "none";
-                this.config.filter.study.scores.visibility = "none";
-                this.config.filter.study.studies.visibility = "none";
-                this.config.filter.study.clinicalData.visibility = "none";
+                // this.config.filter.study.samples.visibility = "none";
+                // this.config.filter.study.cohorts.visibility = "none";
+                // this.config.filter.study.scores.visibility = "none";
+                // this.config.filter.study.studies.visibility = "none";
+                // this.config.filter.study.clinicalData.visibility = "none";
             }
 
             onClear() {
