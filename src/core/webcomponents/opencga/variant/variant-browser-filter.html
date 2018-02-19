@@ -252,9 +252,13 @@
                 // Render filter menu and add event and tooltips
                 this._renderFilterMenu();
                 $('select.selectpicker').selectpicker('render');
+
+                this._initialised = true;
+                this.setQueryFilters();
             }
 
             _init() {
+                this._initialised = false;
                 this.sampleGenotypesObj = {};
                 this._reset = true;
                 if (typeof PANELS !== "undefined") {
@@ -334,7 +338,7 @@
 
                     // Setting mandatory field for variant query
 //                    this.samples = [];
-                    this.query = {studies: this.project.alias + ":" + this.study.alias};
+                    // this.query = {studies: this.project.alias + ":" + this.study.alias};
                 }
             }
 
@@ -870,6 +874,10 @@
 
 
             updateQueryFilters() {
+                if (!this._initialised) {
+                    return;
+                }
+
                 let _filters = {};
 
                 // Adding sample genotypes filter

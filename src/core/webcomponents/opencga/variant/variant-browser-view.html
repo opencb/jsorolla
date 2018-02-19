@@ -53,9 +53,9 @@
                         <button type="button" class="btn btn-success variant-browser-view-buttons" data-view="Summary" on-click="_changeView">
                             <i class="fa fa-line-chart icon-padding" aria-hidden="true" data-view="Summary" on-click="_changeView"></i> Summary (Beta)
                         </button>
-                        <button type="button" class="btn btn-success variant-browser-view-buttons" data-view="GenomeBrowser" on-click="_changeView">
-                            <i class="fa fa-list-alt icon-padding" aria-hidden="true" data-view="GenomeBrowser" on-click="_changeView"></i> Genome Browser (Beta)
-                        </button>
+                        <!--<button type="button" class="btn btn-success variant-browser-view-buttons" data-view="GenomeBrowser" on-click="_changeView">-->
+                            <!--<i class="fa fa-list-alt icon-padding" aria-hidden="true" data-view="GenomeBrowser" on-click="_changeView"></i> Genome Browser (Beta)-->
+                        <!--</button>-->
                     </div>
                 </div>
             </div>
@@ -127,11 +127,11 @@
                                                         <th colspan="3" scope="colgroup">Genotype Frequencies</th>
                                                     </tr>
                                                     <tr>
-                                                        <th scope="col">Reference (count)</th>
-                                                        <th scope="col">Alternate (count)</th>
-                                                        <th scope="col">0/0 (count)</th>
-                                                        <th scope="col">0/1 (count)</th>
-                                                        <th scope="col">1/1 (count)</th>
+                                                        <th scope="col">Reference</th>
+                                                        <th scope="col">Alternate</th>
+                                                        <th scope="col">0/0</th>
+                                                        <th scope="col">0/1</th>
+                                                        <th scope="col">1/1</th>
                                                     </tr>
                                                     </thead>
                                                     <tbody>
@@ -140,23 +140,12 @@
                                                             <td>{{cohort.name}}</td>
                                                             <td>{{cohort.value.refAllele}}</td>
                                                             <td>{{cohort.value.altAllele}}</td>
-                                                            <td>{{cohort.value.maf}} ({{cohort.value.mafAllele}})
-                                                            </td>
-                                                            <td>{{cohort.value.refAlleleFreq}}
-                                                                ({{cohort.value.refAlleleCount}})
-                                                            </td>
-                                                            <td>{{cohort.value.altAlleleFreq}}
-                                                                ({{cohort.value.altAlleleCount}})
-                                                            </td>
-                                                            <td>{{cohort.value.genotypesFreq.homref}}
-                                                                ({{cohort.value.genotypesCount.homref}})
-                                                            </td>
-                                                            <td>{{cohort.value.genotypesFreq.het}}
-                                                                ({{cohort.value.genotypesCount.het}})
-                                                            </td>
-                                                            <td>{{cohort.value.genotypesFreq.homalt}}
-                                                                ({{cohort.value.genotypesCount.homalt}})
-                                                            </td>
+                                                            <td>{{cohort.value.maf}} ({{cohort.value.mafAllele}})</td>
+                                                            <td>{{cohort.value.refAlleleFreq}}</td>
+                                                            <td>{{cohort.value.altAlleleFreq}}</td>
+                                                            <td>{{cohort.value.genotypesFreq.homref}}</td>
+                                                            <td>{{cohort.value.genotypesFreq.het}}</td>
+                                                            <td>{{cohort.value.genotypesFreq.homalt}}</td>
                                                         </tr>
                                                     </template>
                                                     </tbody>
@@ -178,11 +167,11 @@
                                     Network
                                 </button>
                                 <a data-toggle="tooltip"
-                                   title="Beacon Network is a search engine across the world's public beacons. You can find it here - https://beacon-network.org/#/"><i
-                                        class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                   title="Beacon Network is a search engine across the world's public beacons. You can find it here - https://beacon-network.org/#/">
+                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                </a>
                                 <br><br>
-                                <variant-beacon-network hosts="{{beaconHosts}}" clear="{{variant}}"
-                                                        variant="{{variantToBeacon}}"></variant-beacon-network>
+                                <variant-beacon-network hosts="{{beaconHosts}}" clear="{{variant}}" variant="{{variantToBeacon}}"></variant-beacon-network>
                             </div>
                         </div>
                     </div>
@@ -211,15 +200,15 @@
             </div>
 
             <!-- Third TAB -->
-            <div id="{{prefix}}GenomeBrowser" class="variant-browser-content" style="display: none">
-                <br>
-                <br>
-                <variant-genome-browser project="{{project}}" study="{{study}}" opencga-client="{{opencgaClient}}"
-                                        cellbase-client="{{cellbaseClient}}"
-                                        query={{query}} search={{search}} species={{config.species}}
-                                        region="{{region}}" active="{{_genomeBrowserActive}}" full-screen="{{fullScreen}}">
-                </variant-genome-browser>
-            </div>
+            <!--<div id="{{prefix}}GenomeBrowser" class="variant-browser-content" style="display: none">-->
+                <!--<br>-->
+                <!--<br>-->
+                <!--<variant-genome-browser project="{{project}}" study="{{study}}" opencga-client="{{opencgaClient}}"-->
+                                        <!--cellbase-client="{{cellbaseClient}}"-->
+                                        <!--query={{query}} search={{search}} species={{config.species}}-->
+                                        <!--region="{{region}}" active="{{_genomeBrowserActive}}" full-screen="{{fullScreen}}">-->
+                <!--</variant-genome-browser>-->
+            <!--</div>-->
 
         </div>
         <!--</div>-->
@@ -399,9 +388,11 @@
                     let [chromosome, start, ref, alt] = this.variant.split(":");
                     this.region = new Region(chromosome + ":" + start);
                     let params = {
-                        ids: this.variant,
+                        id: this.variant,
                         studies: this.project.alias + ":" + this.study.alias,
-                        exclude: "annotation,studies.files,studies.samplesData"
+                        includeStudy: "all",
+                        exclude: "annotation,studies.files,studies.samplesData",
+                        useSearchIndex: "no"
                     };
                     let _this = this;
                     this.opencgaClient.variants().query(params)
@@ -413,33 +404,35 @@
                                     let statsObject = _variantStudies[i].stats;
                                     let statsArray = [];
                                     Object.keys(statsObject).map(key => {
-                                        statsObject[key].maf = _this._freqFormatter(statsObject[key].maf || 0);
-                                        statsObject[key].mafAllele = statsObject[key].mafAllele || '-';
+                                        if (typeof statsObject[key].mafAllele !== "undefined" && statsObject[key].mafAllele !== -1) {
+                                            statsObject[key].maf = _this._freqFormatter(statsObject[key].maf || 0);
+                                            statsObject[key].mafAllele = statsObject[key].mafAllele || '-';
 
-                                        statsObject[key].refAlleleFreq = _this._freqFormatter(statsObject[key].refAlleleFreq || 0);
-                                        statsObject[key].altAlleleFreq = _this._freqFormatter(statsObject[key].altAlleleFreq || 0);
+                                            statsObject[key].refAlleleFreq = _this._freqFormatter(statsObject[key].refAlleleFreq || 0);
+                                            statsObject[key].altAlleleFreq = _this._freqFormatter(statsObject[key].altAlleleFreq || 0);
 
-                                        statsObject[key].genotypesFreq.homref = _this._freqFormatter(statsObject[key].genotypesFreq["0/0"] || statsObject[key].genotypesFreq["0|0"] || 0);
-                                        statsObject[key].genotypesFreq.het = _this._freqFormatter(statsObject[key].genotypesFreq["0/1"] || statsObject[key].genotypesFreq["0|1"] || 0);
-                                        statsObject[key].genotypesFreq.homalt = _this._freqFormatter(statsObject[key].genotypesFreq["1/1"] || statsObject[key].genotypesFreq["1|1"] || 0);
+                                            statsObject[key].genotypesFreq.homref = _this._freqFormatter(statsObject[key].genotypesFreq["0/0"] || statsObject[key].genotypesFreq["0|0"] || 0);
+                                            statsObject[key].genotypesFreq.het = _this._freqFormatter(statsObject[key].genotypesFreq["0/1"] || statsObject[key].genotypesFreq["0|1"] || 0);
+                                            statsObject[key].genotypesFreq.homalt = _this._freqFormatter(statsObject[key].genotypesFreq["1/1"] || statsObject[key].genotypesFreq["1|1"] || 0);
 
-                                        statsObject[key].genotypesCount.homref = statsObject[key].genotypesCount["0/0"] || statsObject[key].genotypesCount["0|0"] || 0;
-                                        statsObject[key].genotypesCount.het = statsObject[key].genotypesCount["0/1"] || statsObject[key].genotypesCount["0|1"] || 0;
-                                        statsObject[key].genotypesCount.homalt = statsObject[key].genotypesCount["1/1"] || statsObject[key].genotypesCount["1|1"] || 0;
+                                            statsObject[key].genotypesCount.homref = statsObject[key].genotypesCount["0/0"] || statsObject[key].genotypesCount["0|0"] || 0;
+                                            statsObject[key].genotypesCount.het = statsObject[key].genotypesCount["0/1"] || statsObject[key].genotypesCount["0|1"] || 0;
+                                            statsObject[key].genotypesCount.homalt = statsObject[key].genotypesCount["1/1"] || statsObject[key].genotypesCount["1|1"] || 0;
 
 
-                                        if (key === "ALL") {
-                                            statsArray.unshift({
-                                                name: key,
-                                                value: statsObject[key],
-                                                study: study
-                                            })
-                                        } else {
-                                            statsArray.push({
-                                                name: key,
-                                                value: statsObject[key],
-                                                study: study
-                                            })
+                                            if (key === "ALL") {
+                                                statsArray.unshift({
+                                                    name: key,
+                                                    value: statsObject[key],
+                                                    study: study
+                                                })
+                                            } else {
+                                                statsArray.push({
+                                                    name: key,
+                                                    value: statsObject[key],
+                                                    study: study
+                                                })
+                                            }
                                         }
                                     });
                                     _variantStudies[i].stats = statsArray;

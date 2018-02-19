@@ -1,6 +1,68 @@
-class Segregations{
+class Segregations {
 
-    static inheritanceMode(modeInheritance, clinicalAnalysis, genotypeSamples, decisionTreeInheritanceMode, samples){
+    static decisionTreeInheritance() {
+        return {
+            autoDominant: {
+                last: false,
+                true:{
+                    last: false,
+                    true: "0/1",
+                    false: {
+                        last: false,
+                        true: "0/1",
+                        false: "1/1,0/1"
+                    }
+                },
+                false: "0/0"
+            },
+            autoRecessive: {
+                last: false,
+                true: "1/1",
+                false: {
+                    last: false,
+                    true: "0/1",
+                    false: {
+                        last: false,
+                        true: "0/1",
+                        false:"0/0,0/1"
+                    }
+                }
+            },
+            xLinked: {
+                last: false,
+                male: {
+                    last: false,
+                    true: "1/1",
+                    false: "0/0"
+                },
+                female: {
+                    last: false,
+                    true: "1/1",
+                    false: {
+                        last: false,
+                        true: "0/1",
+                        false: {
+                            last: false,
+                            true: "0/1",
+                            false: "0/0,0/1"
+                        }
+                    }
+                }
+            },
+            yLinked: {
+                last: false,
+                male: {
+                    last: false,
+                    true: "1/1",
+                    false: "0/0"
+                },
+                female: "-"
+
+            }
+        };
+    }
+
+    static inheritanceMode(modeInheritance, clinicalAnalysis, genotypeSamples, samples){
         // Set by default to false properties to get values from decision Tree
         let isHealthyOffsrping  = false
         let isHealthyParent  = false;
@@ -18,17 +80,17 @@ class Segregations{
                     // Depends of modeInheritance we select how get value from decisionTree
                     switch (modeInheritance) {
                         case "autoDominant":
-                            res = this.autoDominantMode(member, modeInheritance, isDiseased, false, false, clinicalAnalysis, decisionTreeInheritanceMode);
+                            res = this.autoDominantMode(member, modeInheritance, isDiseased, false, false, clinicalAnalysis);
                             break;
                         case "autoRecessive":
-                            res = this.autoRecessiveMode(member, modeInheritance, isDiseased, false, false, clinicalAnalysis, decisionTreeInheritanceMode);
+                            res = this.autoRecessiveMode(member, modeInheritance, isDiseased, false, false, clinicalAnalysis);
                             break;
                         case "xLinked":
-                            res = this.xLinkedMode(member, modeInheritance, isDiseased, null, null, isMale, clinicalAnalysis, decisionTreeInheritanceMode);
+                            res = this.xLinkedMode(member, modeInheritance, isDiseased, null, null, isMale, clinicalAnalysis);
                             break;
                         case "yLinked":
                             // We do not need do more checks when we have yLinked at least for default config. We just need isDiseased.
-                            res = this._getValueModeDecisionTree(modeInheritance, isDiseased, null, null, decisionTreeInheritanceMode, isMale);
+                            res = this._getValueModeDecisionTree(modeInheritance, isDiseased, null, null, isMale);
                             break;
                         default:
                             res = "-";
@@ -57,7 +119,7 @@ class Segregations{
                             if (UtilsNew.isNotUndefinedOrNull(sample)) {
                                 isDiseased = UtilsNew.isNotUndefinedOrNull(individual.phenotypes) && UtilsNew.isNotEmpty(individual.phenotypes) && individual.phenotypes.length > 0;
                                 // When it is single, we call _getValueModeDecisionTree because do not have offSpring or parents, so we do not need consider other logic to get results.
-                                let res = this._getValueModeDecisionTree(modeInheritance, isDiseased, isHealthyOffsrping, isHealthyParent, decisionTreeInheritanceMode, isMale );
+                                let res = this._getValueModeDecisionTree(modeInheritance, isDiseased, isHealthyOffsrping, isHealthyParent, isMale );
 
                                 // We set for every sample and genotype values from decision tree its result in genotypeSamples
                                 if (res) {
@@ -81,7 +143,7 @@ class Segregations{
                         if (UtilsNew.isNotUndefinedOrNull(sample)) {
                             isDiseased = UtilsNew.isNotUndefinedOrNull(_individual.phenotypes) && UtilsNew.isNotEmpty(_individual.phenotypes) && _individual.phenotypes.length > 0;
                             // When it is just a sample, we call _getValueModeDecisionTree because do not have offSpring or parents, so we do not need consider other logic to get results.
-                            let res = this._getValueModeDecisionTree(modeInheritance, isDiseased, isHealthyOffsrping, isHealthyParent, decisionTreeInheritanceMode, isMale);
+                            let res = this._getValueModeDecisionTree(modeInheritance, isDiseased, isHealthyOffsrping, isHealthyParent, isMale);
                             if (res) {
                                 let genotypesValue = res.split(",");
                                 genotypesValue.forEach((value) => {
@@ -97,7 +159,7 @@ class Segregations{
         return Object.assign({},genotypeSamples);
     }
 
-    static autoDominantMode(member, modeInheritance, isDiseased, isHealthyOffsrping=false, isHealthyParent=false, clinicalAnalysis, decisionTreeInheritanceMode) {
+    static autoDominantMode(member, modeInheritance, isDiseased, isHealthyOffsrping=false, isHealthyParent=false, clinicalAnalysis) {
         // If some child of current member do not have a diseased
         let diseasedOffspring = clinicalAnalysis.family.members.filter((memberChild)=>{
             return (memberChild.father.id === member.id || memberChild.mother.id === member.id) &&
@@ -120,15 +182,15 @@ class Segregations{
             }
         }
 
-        return this._getValueModeDecisionTree(modeInheritance, isDiseased, isHealthyOffsrping, isHealthyParent, decisionTreeInheritanceMode);
+        return this._getValueModeDecisionTree(modeInheritance, isDiseased, isHealthyOffsrping, isHealthyParent);
     }
 
-    static autoRecessiveMode(member, modeInheritance, isDiseased, isDiseasedOffspring=false, isDiseasedParent=false, clinicalAnalysis, decisionTreeInheritanceMode) {
+    static autoRecessiveMode(member, modeInheritance, isDiseased, isDiseasedOffspring=false, isDiseasedParent=false, clinicalAnalysis) {
         // We do this because FEMALE xLinkedMode is equal to autoRecessiveMode
-        return this.xLinkedMode(member, modeInheritance, isDiseased, isDiseasedOffspring, isDiseasedParent, "female", clinicalAnalysis, decisionTreeInheritanceMode);
+        return this.xLinkedMode(member, modeInheritance, isDiseased, isDiseasedOffspring, isDiseasedParent, "female", clinicalAnalysis);
     }
 
-    static xLinkedMode(member, modeInheritance, isDiseased, isDiseasedOffspring=false, isDiseasedParent=false, isMale="male", clinicalAnalysis, decisionTreeInheritanceMode) {
+    static xLinkedMode(member, modeInheritance, isDiseased, isDiseasedOffspring=false, isDiseasedParent=false, isMale="male", clinicalAnalysis) {
         if(isMale !== "male") {
             // If some child of current member has a diseased
             let diseasedOffspring = clinicalAnalysis.family.members.filter((memberChild)=>{
@@ -153,12 +215,12 @@ class Segregations{
             }
         }
         // We do not need do more checks when we have male xLinked. We just need isDiseased
-        return this._getValueModeDecisionTree(modeInheritance, isDiseased, isDiseasedOffspring, isDiseasedParent, decisionTreeInheritanceMode, isMale);
+        return this._getValueModeDecisionTree(modeInheritance, isDiseased, isDiseasedOffspring, isDiseasedParent, isMale);
 
     }
 
-    static _getValueModeDecisionTree(modeInheritance, isDiseased, isHealthyOffsrping, isHealthyParent, decisionTreeInheritanceMode, isMale){
-        let treeCurrent = decisionTreeInheritanceMode;
+    static _getValueModeDecisionTree(modeInheritance, isDiseased, isHealthyOffsrping, isHealthyParent, isMale){
+        let treeCurrent = this.decisionTreeInheritance();
         if (UtilsNew.isNotUndefinedOrNull(modeInheritance)){
             treeCurrent = treeCurrent[modeInheritance];
             // If modeInheritance is equal to yLinked or xLinked we have to do one more step choosing between male and female.
