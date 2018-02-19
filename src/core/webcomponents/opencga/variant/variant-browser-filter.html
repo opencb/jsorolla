@@ -494,7 +494,6 @@
                     console.log("Sample Array or Genotypes table are still undefined");
                     return;
                 }
-
                 this.renderGenotypes();
 
                 // Change visibility
@@ -1185,6 +1184,11 @@
             selectGenotypeSamples(e) {
                 e.preventDefault();
                 this.modeInheritance = e.target.value;
+                if (this.modeInheritance == "xLinked") {
+                    PolymerUtils.setValue(this.prefix + "LocationTextarea", "X");
+                } else if(this.modeInheritance == "yLinked") {
+                    PolymerUtils.setValue(this.prefix + "LocationTextarea", "Y");
+                }
                 this.dispatchEvent(new CustomEvent("inheritancemode", {detail: {modeInheritance: e.target.value, decisionTreeInheritance: this.decisionTreeInheritance}, bubbles: true, composed: true}));
                 // this.renderGenotypes(e.target.value);
             }
@@ -1233,6 +1237,8 @@
                             this.set("query.genotype", sample.name + ":" + _genotypes.join(","));
                         }
                     }
+
+
                 }
                 // this.query.genotype;
                 this.updateQueryFilters();
