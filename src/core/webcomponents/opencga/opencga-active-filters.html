@@ -167,6 +167,10 @@
                     refresh: {
                         type: Object,
                         observer: "searchClicked"
+                    },
+                    genotypeSamples: {
+                        type: Object,
+                        notify: true
                     }
                 }
             }
@@ -319,6 +323,14 @@
                 if (UtilsNew.isNotUndefined(PolymerUtils.getElementById('filtersList'))) {
                     //TODO Refactor
                     $("#filtersList option[value='none']").prop('selected', true);
+                }
+                this.genotypeSamples = {};
+                if (UtilsNew.isNotUndefinedOrNull(_queryList.genotype)){
+                    _queryList.genotype.split(";").forEach((nameGeno) => {
+                        let name_Genotype = nameGeno.split(":");
+                        this.genotypeSamples[name_Genotype[0]] = {};
+                        this.genotypeSamples[name_Genotype[0]][name_Genotype[1]] = true;
+                    });
                 }
 //                debugger
 //                this.query = Object.assign({}, _queryList);

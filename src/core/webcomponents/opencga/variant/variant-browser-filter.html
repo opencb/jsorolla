@@ -1107,11 +1107,15 @@
             }
 
             // @TODO We should remove this when exists in server an endpoint to get this values
-            selectGenotypeSamples(e) {
+            selectInheritanceMode(e) {
                 e.preventDefault();
                 this.modeInheritance = e.target.value;
-                this.dispatchEvent(new CustomEvent("inheritancemode", {detail: {modeInheritance: e.target.value, decisionTreeInheritance: this.decisionTreeInheritance}, bubbles: true, composed: true}));
-                // this.renderGenotypes(e.target.value);
+                if (this.modeInheritance == "xLinked") {
+                    PolymerUtils.setValue(this.prefix + "LocationTextarea", "X");
+                } else if(this.modeInheritance == "yLinked") {
+                    PolymerUtils.setValue(this.prefix + "LocationTextarea", "Y");
+                }
+                this.dispatchEvent(new CustomEvent("inheritancemode", { detail: { modeInheritance: e.target.value, decisionTreeInheritance: this.decisionTreeInheritance }, bubbles: true, composed: true }));
             }
 
             renderGenotypes() {
@@ -1142,7 +1146,7 @@
                         cell.setAttribute("class", this.prefix + "genotypes " + this.prefix + "FilterCheckBox");
                         cell.setAttribute("value", genotype);
                         cell.setAttribute("data-id", sample.name);
-                        cell.addEventListener("change", this.updateQueryFilters.bind(this));
+                        cell.addEventListener("change", this.genotypeCheckboxClicked.bind(this));
                         if (isCheckedGenotype) {
                             cell.setAttribute("checked", true);
                             _genotypes.push(genotype);
@@ -1159,9 +1163,12 @@
                         }
                     }
                 }
-                // this.query.genotype;
                 this.updateQueryFilters();
-                console.log(tableBody);
+            }
+
+            genotypeCheckboxClicked(e) {
+                PolymerUtils.setValue(this.prefix + "SegregationOperator", "none");
+                this.updateQueryFilters();
             }
 
             _clearHtmlDom() {
@@ -1372,7 +1379,7 @@
                             <div style="padding-left: 10px;padding-top: 10px">
                                 <span class="control-label">Inheritance Mode:</span>
                                 <select id="${prefix}SegregationOperator" name="${prefix}Segregation"
-                                     class="form-control input-sm ${prefix}FilterSelect" on-change="selectGenotypeSamples">
+                                     class="form-control input-sm ${prefix}FilterSelect">
                                  ${options}
                                 </select>
                             </div>
@@ -1943,7 +1950,7 @@
                 // Add event for inheritanceMode
                 let inheritanceModeElement = PolymerUtils.getElementById(this.prefix + "SegregationOperator");
                 if (UtilsNew.isNotUndefinedOrNull(inheritanceModeElement)) {
-                    inheritanceModeElement.addEventListener('change', this.selectGenotypeSamples.bind(this));
+                    inheritanceModeElement.addEventListener('change', this.selectInheritanceMode.bind(this));
                 }
 
                 // Add events for Cohort
