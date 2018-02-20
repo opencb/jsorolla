@@ -1,5 +1,5 @@
-mgvizNet README
-================
+network-browser widget README
+=============================
 
 Metabolic Graphs Visualization Networks
 
@@ -90,8 +90,8 @@ Milestone 2
 
 Widget testing
 --------------
-1- Navigate to the mgvizNet folder and run: 
+1- Navigate to the main parent folder (where package.json is located) and run: 
  
     $ npm install
 
-2 - Open the file mgvizNet/src/network-browser/test/network-browser.html on a new browser window.
+2 - Open the file ./src/network-browser/test/network-browser.html on a new browser window.
