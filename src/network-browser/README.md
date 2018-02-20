@@ -3,6 +3,16 @@ network-browser widget README
 
 Metabolic Graphs Visualization Networks
 
+Projet status
+-------------
+
+Early development. Only for internal use.
+
+Maintainers:
+pablo.marin@mgviz.org
+jose.juanes@mgviz.org
+im411@cam.ac.uk
+
 Overview
 --------
 
