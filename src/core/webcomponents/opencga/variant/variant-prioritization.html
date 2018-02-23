@@ -525,6 +525,7 @@
 
             onClear() {
                 this._initGenotypeSamples(this.samples,true);
+                this.modeInheritance = "none";
                 this.query = {studies: this.project.alias + ":" + this.study.alias};
                 this.search = {};
             }
