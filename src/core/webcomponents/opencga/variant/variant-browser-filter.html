@@ -227,6 +227,10 @@
                     },
                     genotypeSamples: {
                         type: Object
+                    },
+                    modeInheritance: {
+                        type: String,
+                        notify: true
                     }
                 }
             }
@@ -430,32 +434,26 @@
                         this.dispatchEvent(new CustomEvent("samplechange", {
                             detail: {samples: this.samples}, bubbles: true, composed: true
                         }));
-                        this.dispatchEvent(new CustomEvent("inheritancemode", {detail: {modeInheritance: this.modeInheritance, decisionTreeInheritance: this.decisionTreeInheritance}, bubbles: true, composed: true}));
+                        this.dispatchEvent(new CustomEvent("inheritancemode", {detail: {decisionTreeInheritance: this.decisionTreeInheritance}, bubbles: true, composed: true}));
                     }
                 }
             }
 
             renderSampleGenotypesTable() {
-                let sampleGenotypes = null;
-                if (UtilsNew.isUndefinedOrNull(sampleGenotypes)) {
-                    sampleGenotypes = {};
-                    if (UtilsNew.isNotUndefinedOrNull(this.query) && UtilsNew.isNotEmpty(this.query.genotype)) {
-                        sampleGenotypes = {};
-                        let samplesWithGT = this.query.genotype.split(';');
-                        for (let i = 0; i < samplesWithGT.length; i++) {
-                            let [sample, genotypes] = samplesWithGT[i].split(':');
-                            sampleGenotypes[sample] = genotypes.split(',');
-                        }
-                    }
-                }
-
                 let table = PolymerUtils.getElementById(this.prefix + "SampleGenotypeTable");
                 if (UtilsNew.isUndefinedOrNull(table) || UtilsNew.isUndefinedOrNull(this.samples)) {
                     console.log("Sample Array or Genotypes table are still undefined");
                     return;
                 }
 
+                if (UtilsNew.isNotUndefinedOrNull(this.modeInheritance)) {
+                    PolymerUtils.setValue(this.prefix + "SegregationOperator", this.modeInheritance)
+                }
+
                 this.renderGenotypes();
+                if (!(UtilsNew.isNotUndefinedOrNull(this.query) && UtilsNew.isNotEmpty(this.query.genotype))) {
+                    this.genotypesChanged();
+                }
 
                 // Change visibility
                 if (UtilsNew.isNotEmptyArray(this.samples)) {  // this.query.samples !== undefined && this.query.samples.length > 0
@@ -584,8 +582,7 @@
                     return;
                 }
 
-                // Sample Genotypes
-                this.renderSampleGenotypesTable();
+
 
                 // Cohorts
                 let cohortArray = [];
@@ -781,6 +778,9 @@
                 if (typeof this.query["filter"] !== "undefined") {
                     $("#" + this.prefix + "vcfFilterSelect").selectpicker('val', this.query["filter"].split(","));
                 }
+
+                // Sample Genotypes
+                this.renderSampleGenotypesTable();
             }
 
             onGeneDiseasePanelChange() {
@@ -1109,13 +1109,20 @@
             // @TODO We should remove this when exists in server an endpoint to get this values
             selectInheritanceMode(e) {
                 e.preventDefault();
+                // if in a last state we had yLinked or xLinked mode and we do not now, we need to clear locationTextArea
+                if (UtilsNew.isNotUndefinedOrNull(e.target.value) && (e.target.value!== "xLinked" || e.target.value!== "yLinked")
+                    && (this.modeInheritance === "xLinked" || this.modeInheritance === "yLinked")) {
+                    PolymerUtils.setValue(this.prefix + "LocationTextarea", "");
+                }
+
+                // Set current mode
                 this.modeInheritance = e.target.value;
                 if (this.modeInheritance == "xLinked") {
                     PolymerUtils.setValue(this.prefix + "LocationTextarea", "X");
-                } else if(this.modeInheritance == "yLinked") {
+                } else if (this.modeInheritance == "yLinked") {
                     PolymerUtils.setValue(this.prefix + "LocationTextarea", "Y");
                 }
-                this.dispatchEvent(new CustomEvent("inheritancemode", { detail: { modeInheritance: e.target.value, decisionTreeInheritance: this.decisionTreeInheritance }, bubbles: true, composed: true }));
+                this.dispatchEvent(new CustomEvent("inheritancemode", { detail: {decisionTreeInheritance: this.decisionTreeInheritance }, bubbles: true, composed: true }));
             }
 
             renderGenotypes() {
@@ -1155,6 +1162,7 @@
                         td.appendChild(cell);
 
                     }
+
                     if (UtilsNew.isNotEmptyArray(_genotypes)) {
                         if(UtilsNew.isNotUndefinedOrNull(this.query.genotype)) {
                             this.set("query.genotype", this.query.genotype + ";" + sample.name + ":" + _genotypes.join(","));
@@ -1163,12 +1171,26 @@
                         }
                     }
                 }
+
+                if (UtilsNew.isNotUndefinedOrNull(this.genotypeSamples.resetMode) && this.genotypeSamples.resetMode) {
+                    this.genotypesChanged();
+                    this.genotypeSamples.resetMode = false;
+                }
+
                 this.updateQueryFilters();
             }
 
             genotypeCheckboxClicked(e) {
-                PolymerUtils.setValue(this.prefix + "SegregationOperator", "none");
+                this.genotypesChanged();
                 this.updateQueryFilters();
+            }
+
+            genotypesChanged(){
+                if (this.modeInheritance === "xLinked" || this.modeInheritance === "yLinked") {
+                    PolymerUtils.setValue(this.prefix + "LocationTextarea", "");
+                }
+                PolymerUtils.setValue(this.prefix + "SegregationOperator", "none");
+                this.modeInheritance = "none";
             }
 
             _clearHtmlDom() {
