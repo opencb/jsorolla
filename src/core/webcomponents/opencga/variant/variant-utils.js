@@ -6,13 +6,13 @@ class VariantUtils {
 
     static jsonToTabConvert(json, studiesPopFrequencies) {
         let dataString = [];
-        let variantString = [];
         let populationMap = {};
 
+        let variantString = [];
         for (var key in json[0]) {
             console.log(key);
-        }
 
+        }
         variantString.push("Variant");
         variantString.push("SNP ID");
         variantString.push("Genes");
@@ -41,7 +41,8 @@ class VariantUtils {
             let sift, polyphen, cadd = "-", phylop = "-", phastCons = "-", gerp = "-";
             let clinvar = [];
             let cosmic = [];
-
+            populationMap = {};
+            
             if (typeof json[i].annotation !== "undefined") {
                 if (typeof json[i].annotation.consequenceTypes !== "undefined" && json[i].annotation.consequenceTypes.length > 0) {
                     let visitedGenes = {};
