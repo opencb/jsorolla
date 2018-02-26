@@ -218,8 +218,10 @@
                                 <h3>Interpretation Algorithms</h3>
                                 <div class="form-group" style="margin-bottom: 5px">
                                     <p>Several prioritization and interpretation algorithms are available, you can choose an <span style="font-weight: bold">interactive</span> tool:</p>
-                                    <input id="interactiveRadio" type="radio" name="analysisRadioButtons" value="sample" class$="{{prefix}}FilterRadio"
+                                    <input id="interactiveRadio" type="radio" name="analysisRadioButtons" value="interactive" class$="{{prefix}}FilterRadio"
                                            checked on-change="selectAnalysisType" style="padding-left: 20px"> Interactive Prioritization (based on <a href="https://www.ncbi.nlm.nih.gov/pubmed/24861626" target="_blank" style="font-weight: bold">TEAM</a> paper)<br>
+                                    <input id="manualRadio" type="radio" name="analysisRadioButtons" value="manual" class$="{{prefix}}FilterRadio"
+                                           on-change="selectAnalysisType" style="padding-left: 20px"> Manual interactive prioritization
                                     <!--<br>-->
                                     <!--<span>Or a <span style="font-weight: bold">batch</span> algorithm that will be executed in the server:</span>-->
                                     <!--<br>-->
@@ -257,7 +259,8 @@
                                                     cellbase-client="{{cellbaseClient}}"
                                                     ebi-config="{{ebiConfig}}"
                                                     beacon-hosts="{{config.tools.beacon.hosts}}" on-gene="geneSelected"
-                                                    clinical-analysis="{{clinicalAnalysis}}" on-backtoselectanalysis="changeTool" event-notify-name="{{eventNotifyName}}">
+                                                    clinical-analysis="{{clinicalAnalysis}}" on-backtoselectanalysis="changeTool" event-notify-name="{{eventNotifyName}}"
+                                                    interactive="{{interactive}}">
                             </variant-prioritization>
                         </div>
                     </template>
@@ -560,6 +563,10 @@
                 }
             }
 
+            selectAnalysisType(e) {
+                let analysisType = e.target.value;
+                this.interactive = analysisType == "interactive" ? true : false;
+            }
             onClickOkPrioritization() {
                 this.activePrioritization = true;
             }

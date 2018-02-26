@@ -1,0 +1,96 @@
+<!--
+  ~ Copyright 2015-2016 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<link rel="import" href="./opencga-panel-editor.html">
+<link rel="import" href="./opencga-panel-list.html">
+
+<dom-module id="opencga-panel">
+    <template>
+        <style include="jso-styles">
+
+        </style>
+        <div class="row">
+            <button id="{{prefix}}newPanelButton" type="button" class="btn btn-primary variant-prioritization-view-buttons"
+                    on-click="_changeView">
+                <i class="fa fa-floppy-o icon-padding" aria-hidden="true" data-view="SaveInterpretation" on-click="_changeView"></i>New Panel...
+            </button>
+            <div class="col-md-12">
+                <template is="dom-if" if="{{!panelEditor}}">
+                    <opencga-panel-list project="{{project}}" study="{{study}}" opencga-client="{{opencgaClient}}"></opencga-panel-list>
+                </template>
+                <template is="dom-if" if="{{panelEditor}}">
+                    <opencga-panel-editor project="{{project}}" study="{{study}}" opencga-client="{{opencgaClient}}">
+
+                    </opencga-panel-editor>
+                </template>
+            </div>
+        </div>
+
+    </template>
+
+    <script>
+        class OpencgaPanel extends Polymer.Element {
+
+            constructor() {
+                super();
+                this.prefix = "OpencgaPanel" + Utils.randomString(6);
+
+            }
+
+            static get is() {
+                return 'opencga-panel';
+            }
+
+            static get properties() {
+                return {
+                    project: {
+                        type: Object
+                    },
+                    study: {
+                        type: Object
+                    },
+                    studies: {
+                        type: Array
+                    },
+                    opencgaClient: {
+                        type: Object
+                    },
+                    cellbaseClient: {
+                        type: Object
+                    },
+                    panelEditor: {
+                        type: Boolean,
+                        value: false,
+                    }
+                }
+            }
+            _changeView() {
+                this.panelEditor = !this.panelEditor;
+            }
+
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            connectedCallback() {
+                super.connectedCallback();
+            }
+
+        }
+
+        customElements.define(OpencgaPanel.is, OpencgaPanel);
+    </script>
+</dom-module>

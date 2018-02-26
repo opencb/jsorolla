@@ -22,6 +22,7 @@
 <link rel="import" href="variant-genome-browser.html">
 <link rel="import" href="../clinical/clinical-analysis-view.html">
 <link rel="import" href="../clinical/clinical-interpretation-view.html">
+<link rel="import" href="../opencga-panel.html">
 
 
 <dom-module id="variant-prioritization">
@@ -58,13 +59,13 @@
             <div>
 
                 <div id="{{prefix}}FilterMenu" class="col-md-2" >
-                    <variant-browser-filter project="{{project}}" study="{{study}}" studies="{{studies}}" samples="[[samplesForMenuFilter]]" family="[[family]]"
-                                            opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"
-                                            population-frequencies="{{populationFrequencies}}" biotypes="{{biotypes}}"
-                                            consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}"
-                                            ebi-config="{{ebiConfig}}"
-                                            on-samplechange="onSampleChange" genotype-samples="{{genotypeSamples}}" on-inheritancemode="_onInheritanceMode">
-                    </variant-browser-filter>
+                        <variant-browser-filter project="{{project}}" study="{{study}}" studies="{{studies}}" samples="[[samplesForMenuFilter]]" family="[[family]]"
+                                                opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"
+                                                population-frequencies="{{populationFrequencies}}" biotypes="{{biotypes}}"
+                                                consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}"
+                                                ebi-config="{{ebiConfig}}"
+                                                on-samplechange="onSampleChange" genotype-samples="{{genotypeSamples}}" on-inheritancemode="_onInheritanceMode">
+                        </variant-browser-filter>
                 </div>
 
                 <div id="{{prefix}}MainWindow" class="col-md-10">
@@ -87,7 +88,7 @@
 
                             <div style="float: right">
                                 <div class="btn-group" role="group" aria-label="..." style="padding: 0px 5px">
-                                    <button type="button" class="hidden btn btn-success variant-prioritization-view-buttons" data-view="Panels" on-click="_changeView">
+                                    <button type="button" class="btn btn-success variant-prioritization-view-buttons" data-view="Panels" on-click="_changeView">
                                         <i class="fa fa-columns icon-padding" aria-hidden="true" data-view="Panels" on-click="_changeView"></i>Panels
                                     </button>
                                     <button type="button" class="hidden btn btn-success variant-prioritization-view-buttons" data-view="ClinicalData" on-click="_changeView">
@@ -120,16 +121,80 @@
                     <div>
                         <!-- TABLE RESULT -->
                         <div id="{{prefix}}TableResult" class="variant-prioritization-content">
-                            <!-- Variant Browser Grid -->
-                            <variant-browser-grid mode="{{mode}}" study="{{study}}" project="{{project}}" samples="{{samples}}"
-                                                  opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
-                                                  population-frequencies="{{populationFrequencies}}"
-                                                  protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                                  consequence-types="{{consequenceTypes}}"
-                                                  query="[[query]]" search="[[search]]" variant="{{variant}}"
-                                                  on-selected="selectedGene" on-selectvariant="onSelectVariant" on-checkvariant="onCheckVariant"
-                                                  show-select="{{config.grid.showSelect}}" style="font-size: 12px" config="{{config}}">
-                            </variant-browser-grid>
+                            <template is="dom-if" if="{{interactive}}">
+                                <!-- Variant Browser Grid -->
+                                <variant-browser-grid study="{{study}}" project="{{project}}" samples="{{samples}}"
+                                                      opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+                                                      population-frequencies="{{populationFrequencies}}"
+                                                      protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                      consequence-types="{{consequenceTypes}}"
+                                                      query="[[query]]" search="[[search]]" variant="{{variant}}"
+                                                      on-selected="selectedGene" on-selectvariant="onSelectVariant" on-checkvariant="onCheckVariant"
+                                                      show-select="{{config.grid.showSelect}}" style="font-size: 12px" config="{{config}}">
+                                </variant-browser-grid>
+                            </template>
+                            <template is="dom-if" if="{{!interactive}}">
+                                <div style="padding-top: 20px">
+                                    <div style="padding-top: 20px">
+                                        <ul id="{{prefix}}ManualTabs" class="nav nav-tabs" role="tablist">
+                                            <li role="presentation" class="active">
+                                                <a href="#{{prefix}}TAB_A" role="tab" data-toggle="tab" class="prioritization-variant-tab-title">
+                                                    TAB A
+                                                </a>
+                                            </li>
+                                            <li role="presentation">
+                                                <a href="#{{prefix}}TAB_B" role="tab" data-toggle="tab" class="prioritization-variant-tab-title">
+                                                    TAB B
+                                                </a>
+                                            </li>
+                                            <li role="presentation">
+                                                <a href="#{{prefix}}TAB_C" role="tab" data-toggle="tab" class="prioritization-variant-tab-title">
+                                                    TAB C
+                                                </a>
+                                            </li>
+                                        </ul>
+
+                                        <div class="tab-content" >
+                                            <div role="tabpanel" class="tab-pane active" id="{{prefix}}TAB_A">
+                                                <!-- Variant Browser Grid -->
+                                                <variant-browser-grid study="{{study}}" project="{{project}}" samples="{{samples}}"
+                                                                      opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+                                                                      population-frequencies="{{populationFrequencies}}"
+                                                                      protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                                      consequence-types="{{consequenceTypes}}"
+                                                                      query="[[query]]" search="[[search]]" variant="{{variant}}"
+                                                                      on-selected="selectedGene" on-selectvariant="onSelectVariant" on-checkvariant="onCheckVariant"
+                                                                      show-select="{{config.grid.showSelect}}" style="font-size: 12px" config="{{config}}">
+                                                </variant-browser-grid>
+                                            </div>
+                                            <div id="{{prefix}}TAB_B" role="tabpanel" class="tab-pane">
+                                                <!-- Variant Browser Grid -->
+                                                <variant-browser-grid study="{{study}}" project="{{project}}" samples="{{samples}}"
+                                                                      opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+                                                                      population-frequencies="{{populationFrequencies}}"
+                                                                      protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                                      consequence-types="{{consequenceTypes}}"
+                                                                      query="[[query]]" search="[[search]]" variant="{{variant}}"
+                                                                      on-selected="selectedGene" on-selectvariant="onSelectVariant" on-checkvariant="onCheckVariant"
+                                                                      show-select="{{config.grid.showSelect}}" style="font-size: 12px" config="{{config}}">
+                                                </variant-browser-grid>
+                                            </div>
+                                            <div role="tabpanel" class="tab-pane" id="{{prefix}}TAB_C">
+                                                <!-- Variant Browser Grid -->
+                                                <variant-browser-grid study="{{study}}" project="{{project}}" samples="{{samples}}"
+                                                                      opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+                                                                      population-frequencies="{{populationFrequencies}}"
+                                                                      protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                                      consequence-types="{{consequenceTypes}}"
+                                                                      query="[[query]]" search="[[search]]" variant="{{variant}}"
+                                                                      on-selected="selectedGene" on-selectvariant="onSelectVariant" on-checkvariant="onCheckVariant"
+                                                                      show-select="{{config.grid.showSelect}}" style="font-size: 12px" config="{{config}}">
+                                                </variant-browser-grid>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
 
                             <!-- Bottom tabs with specific variant information -->
                             <div style="padding-top: 20px" hidden$="{{!checkVariant(variant)}}">
@@ -222,12 +287,16 @@
 
                         <!-- PANELS -->
                         <div id="{{prefix}}Panels" class="variant-prioritization-content" style="display: none">
+                            <template is="dom-if" if="{{!interactive}}">
+                                <opencga-panel project="{{project}}" study="{{study}}" opencga-client="{{opencgaClient}}"></opencga-panel>
+                            </template>
                             <br>
                             <br>
                             <br>
                             <div class="alert alert-warning" role="alert" id="{{prefix}}PanelsAlert" style="padding: 10px;margin: 10px">
                                 <span style="font-weight: bold;font-size: 1.20em">Work in progress</span>
-                                &nbsp;&nbsp;This will create and save virtual disease Panels
+
+                                &nbsp;&nbsp;This will create and save virtual disease Panels COMPONENT PANEL EDITOR
                             </div>
                         </div>
 
@@ -420,6 +489,10 @@
                     },
                     config: {
                         type: Object
+                    },
+                    interactive: {
+                        type: Boolean,
+                        value: true
                     }
                 }
             }
