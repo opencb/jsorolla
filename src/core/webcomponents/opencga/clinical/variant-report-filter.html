@@ -46,41 +46,70 @@
                     <div class="panel-body">
                         <div id="{{prefix}}FillInputsGeneralDiv" style="">
                             <label class="labelReportFilter">Service petitioner:</label>
-                            <input type="text" class$="custom-sized-input {{prefix}}ApplicantInput" id="{{prefix}}ApplicantInput" placeholder="___"
+                            <input type="text" class$="form-control input-sm {{prefix}}ApplicantInput" id="{{prefix}}ApplicantInput" placeholder="___"
                                    aria-describedby="basic-addon1" value="{{dataFieldsPrivate.applicant::input}}">
                             <label class="labelReportFilter">Departament:</label>
-                            <input type="text" class$="custom-sized-input {{prefix}}DepartmentInput" id="{{prefix}}DepartmentInput" placeholder="___"
+                            <input type="text" class$="form-control input-sm {{prefix}}DepartmentInput" id="{{prefix}}DepartmentInput" placeholder="___"
                                    aria-describedby="basic-addon1" value="{{dataFieldsPrivate.department::input}}">
                             <label class="labelReportFilter">City:</label>
-                            <input type="text" class$="custom-sized-input {{prefix}}CityInput" id="{{prefix}}CityInput" placeholder="___"
+                            <input type="text" class$="form-control input-sm {{prefix}}CityInput" id="{{prefix}}CityInput" placeholder="___"
                                    aria-describedby="basic-addon1" value="{{dataFieldsPrivate.city::input}}">
                             <label class="labelReportFilter">Patient:</label>
-                            <input type="text" class$="custom-sized-input {{prefix}}PatientInput" id="{{prefix}}PatientInput" placeholder="___"
+                            <input type="text" class$="form-control input-sm {{prefix}}PatientInput" id="{{prefix}}PatientInput" placeholder="___"
                                    aria-describedby="basic-addon1" value="{{dataFieldsPrivate.patient::input}}">
                             <label class="labelReportFilter">NUHSA:</label>
-                            <input type="text" class$="custom-sized-input {{prefix}}nuhsaInput" id="{{prefix}}nuhsaInput" placeholder="___"
+                            <input type="text" class$="form-control input-sm {{prefix}}nuhsaInput" id="{{prefix}}nuhsaInput" placeholder="___"
                                    aria-describedby="basic-addon1" value="{{dataFieldsPrivate.nuhsa::input}}">
                             <label class="labelReportFilter">Family Number:</label>
-                            <input type="text" class$="custom-sized-input {{prefix}}FamilyNumberInput" id="{{prefix}}FamilyNumberInput" placeholder="___"
+                            <input type="text" class$="form-control input-sm {{prefix}}FamilyNumberInput" id="{{prefix}}FamilyNumberInput" placeholder="___"
                                    aria-describedby="basic-addon1" value="{{dataFieldsPrivate.familyNumber::input}}">
                             <label class="labelReportFilter">Analysis type:</label>
-                            <input type="text" class$="custom-sized-input {{prefix}}AnalysisTypeInput" id="{{prefix}}AnalysisTypeInput" placeholder="___"
-                                   aria-describedby="basic-addon1" value="{{dataFieldsPrivate.analysisType::input}}">
+                            <select id="{{prefix}}AnalysisTypeSelect" name="{{prefix}}AnalysisTypeSelect"
+                                    class$="form-control input-sm {{prefix}}AnalysisTypeSelect" value="{{dataFieldsPrivate.analysisType::input}}">
+                                <option value="{{loadi18n('diagnosis')}}">{{loadi18n('diagnosis')}}</option>
+                                <option value="{{loadi18n('carrier')}}">{{loadi18n('carrier')}}</option>
+                                <option value="{{loadi18n('presymptomatic')}}">{{loadi18n('presymptomatic')}}</option>
+                            </select>
                             <label class="labelReportFilter">Entry date:</label>
-                            <input type="text" class$="custom-sized-input {{prefix}}EntryDateInput" id="{{prefix}}EntryDateInput" placeholder="___"
+                            <input type="text" class$="form-control input-sm {{prefix}}EntryDateInput" id="{{prefix}}EntryDateInput" placeholder="___"
                                    aria-describedby="basic-addon1" value="{{dataFieldsPrivate.entryDate::input}}">
                             <label class="labelReportFilter">Birth Year:</label>
-                            <input type="text" class$="custom-sized-input {{prefix}}nuhsaInput" id="{{prefix}}birthYear" placeholder="___"
+                            <input type="text" class$="form-control input-sm {{prefix}}nuhsaInput" id="{{prefix}}birthYear" placeholder="___"
                                    aria-describedby="basic-addon1" value="{{dataFieldsPrivate.birthYear::input}}">
                             <label class="labelReportFilter">Relationship:</label>
-                            <input type="text" class$="custom-sized-input {{prefix}}RelationshipInput" id="{{prefix}}RelationshipInput" placeholder="___"
-                                   aria-describedby="basic-addon1" value="{{dataFieldsPrivate.relationship::input}}">
+                            <select id="{{prefix}}RelationshipSelect" name="{{prefix}}RelationshipSelect" on-change="changeRelationshipSelect"
+                                    class$="form-control input-sm {{prefix}}RelationshipSelect" value="{{dataFieldsPrivate.relationship::input}}">
+                                <option value="{{loadi18n('proband')}}">{{loadi18n('probandus')}}</option>
+                                <option value="{{loadi18n('sonof')}}">{{loadi18n('sonof')}}</option>
+                                <option value="{{loadi18n('daughterof')}}">{{loadi18n('daughterof')}}</option>
+                                <option value="{{loadi18n('brotherof')}}">{{loadi18n('brotherof')}}</option>
+                                <option value="{{loadi18n('sisterof')}}">{{loadi18n('sisterof')}}</option>
+                                <option value="{{loadi18n('motherof')}}">{{loadi18n('motherof')}}</option>
+                                <option value="{{loadi18n('fatherof')}}">{{loadi18n('fatherof')}}</option>
+                                <option value="{{loadi18n('other')}}">{{loadi18n('other')}}</option>
+                            </select>
+                            <input type="text" class$="form-control input-sm {{prefix}}extraRelationship" id="{{prefix}}extraRelationship" placeholder="___"
+                                   aria-describedby="basic-addon1" value="{{dataFieldsPrivate.extraRelationship::input}}" style="display: none; margin-top: 2%;">
                             <label class="labelReportFilter">Physician one:</label>
-                            <input type="text" class$="custom-sized-input {{prefix}}SignLeft" id="{{prefix}}SignLeftInput" placeholder="___"
-                                   aria-describedby="basic-addon1" value="{{dataFieldsPrivate.signLeft::input}}">
+                            <select id="{{prefix}}SignLeftSelect" name="{{prefix}}SignLeftSelect"
+                                    class$="form-control input-sm {{prefix}}SignLeftSelect" value="{{dataFieldsPrivate.signLeft::input}}">
+                                <option value="{{loadi18n('dr')}}{{loadi18n('antinolo')}}">{{loadi18n('dr')}}{{loadi18n('antinolo')}}</option>
+                                <option value="{{loadi18n('dra')}}{{loadi18n('borrego')}}">{{loadi18n('dra')}}{{loadi18n('borrego')}}</option>
+                                <option value="{{loadi18n('dra')}}{{loadi18n('mendez')}}">{{loadi18n('dra')}}{{loadi18n('mendez')}}</option>
+                                <option value="{{loadi18n('dra')}}{{loadi18n('bravo')}}">{{loadi18n('dra')}}{{loadi18n('bravo')}}</option>
+                                <option value="{{loadi18n('dra')}}{{loadi18n('fernandez')}}">{{loadi18n('dra')}}{{loadi18n('fernandez')}}</option>
+                                <option value="{{loadi18n('dra')}}{{loadi18n('marcos')}}">{{loadi18n('dra')}}{{loadi18n('marcos')}}</option>
+                            </select>
                             <label class="labelReportFilter">Physician two:</label>
-                            <input type="text" class$="custom-sized-input {{prefix}}SignRightInput" id="{{prefix}}SignRightInput" placeholder="___"
-                                   aria-describedby="basic-addon1" value="{{dataFieldsPrivate.signRight::input}}">
+                            <select id="{{prefix}}SignRightSelect" name="{{prefix}}SignRightSelect"
+                                    class$="form-control input-sm {{prefix}}SignRightSelect" value="{{dataFieldsPrivate.signRight::input}}">
+                                <option value="{{loadi18n('dr')}}{{loadi18n('antinolo')}}">{{loadi18n('dr')}}{{loadi18n('antinolo')}}</option>
+                                <option value="{{loadi18n('dra')}}{{loadi18n('borrego')}}">{{loadi18n('dra')}}{{loadi18n('borrego')}}</option>
+                                <option value="{{loadi18n('dra')}}{{loadi18n('mendez')}}">{{loadi18n('dra')}}{{loadi18n('mendez')}}</option>
+                                <option value="{{loadi18n('dra')}}{{loadi18n('bravo')}}">{{loadi18n('dra')}}{{loadi18n('bravo')}}</option>
+                                <option value="{{loadi18n('dra')}}{{loadi18n('fernandez')}}">{{loadi18n('dra')}}{{loadi18n('fernandez')}}</option>
+                                <option value="{{loadi18n('dra')}}{{loadi18n('marcos')}}">{{loadi18n('dra')}}{{loadi18n('marcos')}}</option>
+                            </select>
                         </div>
 
                     </div>
@@ -104,12 +133,12 @@
                     <div class="panel-body">
                         <div id="{{prefix}}analysisSelectedDiv" style="">
                             <label class="labelReportFilter">Analysis selected:</label>
-                            <input type="text" class$="custom-sized-input {{prefix}}FilterTextInput" id="{{prefix}}FilterTextInput"
+                            <input type="text" class$="form-control input-sm {{prefix}}FilterTextInput" id="{{prefix}}FilterTextInput"
                                    placeholder="{{currentAnalysisID}}" aria-describedby="basic-addon1" disabled>
                         </div>
                         <div id="{{prefix}}reasonConsultationHeaderDiv" style="">
                             <label class="labelReportFilter">Presenting complaint:</label>
-                            <input type="text" class$="custom-sized-input {{prefix}}ReasonConsultationTextInput" id="{{prefix}}ReasonConsultationTextInput" placeholder="___"
+                            <input type="text" class$="form-control input-sm {{prefix}}ReasonConsultationTextInput" id="{{prefix}}ReasonConsultationTextInput" placeholder="___"
                                    placeholder="{{currentAnalysisID}}" aria-describedby="basic-addon1" value="{{dataFieldsPrivate.reasonConsultation::input}}">
                         </div>
                         <div id="{{prefix}}analysisResumeDiv" hidden>
@@ -139,13 +168,13 @@
                     <div class="panel-body">
                         <div id="{{prefix}}FillInputsInterpretationDiv" style="">
                             <label class="labelReportFilter">Depth:</label>
-                            <input type="text" class$="custom-sized-input {{prefix}}DepthInput" id="{{prefix}}DepthInput" placeholder="___"
+                            <input type="text" class$="form-control input-sm {{prefix}}DepthInput" id="{{prefix}}DepthInput" placeholder="___"
                                    aria-describedby="basic-addon1" value="{{dataFieldsPrivate.depth::input}}">
                             <label class="labelReportFilter">Coverage:</label>
-                            <input type="text" class$="custom-sized-input {{prefix}}CoverageInput" id="{{prefix}}CoverageInput" placeholder="___"
+                            <input type="text" class$="form-control input-sm {{prefix}}CoverageInput" id="{{prefix}}CoverageInput" placeholder="___"
                                    aria-describedby="basic-addon1" value="{{dataFieldsPrivate.coverage::input}}">
                             <label class="labelReportFilter">Interpretation Comments(Only for positive diagnosis):</label>
-                            <textarea type="text" class$="{{prefix}}extraInfoInput" id="{{prefix}}extraInfoInput" placeholder="___"
+                            <textarea type="text" class$="form-control input-sm {{prefix}}extraInfoInput" id="{{prefix}}extraInfoInput" placeholder="___"
                                        rows="5" value="{{dataFieldsPrivate.extraInterpretation::input}}"></textarea>
                         </div>
 
@@ -284,7 +313,10 @@
                     },
                     interpretation: {
                         type: Object
-                    }
+                    },
+                    i18n: {
+                        type: Object
+                    },
                 }
 
             }
@@ -302,6 +334,7 @@
             _attachDom(dom) {
                 this.appendChild(dom);
             }
+
 
             ready() {
                 super.ready();
@@ -326,7 +359,8 @@
                     coverage: "",
                     signLeft: "",
                     signRight: "",
-                    birthYear: ""
+                    birthYear: "",
+                    extraRelationship: ""
                 };
             }
 
@@ -339,6 +373,14 @@
                 }
                 this.showReportOptions();
             }
+
+            loadi18n(key) {
+                if (UtilsNew.isNotUndefinedOrNull(this.i18n[key])) {
+                    return this.i18n[key]
+                } else {
+                    return "No exists key:" + key;
+                }
+            };
 
             updateDataFields() {
                 this.dataFields = Object.assign({},this.dataFieldsPrivate);
@@ -496,6 +538,18 @@
                 e.preventDefault();
                 let _obj = Object.assign({}, this.selection, {conclusions: e.target.checked});
                 this.selection = _obj;
+            }
+
+            changeRelationshipSelect(e) {
+                let relationshipSelected = e.target.value;
+                if (relationshipSelected !== this.loadi18n('proband')) {
+                    PolymerUtils.show(this.prefix + "extraRelationship");
+                } else {
+                    PolymerUtils.hide(this.prefix + "extraRelationship");
+                    this.dataFieldsPrivate.extraRelationship = "";
+                    this.dataFieldsPrivate = Object.assign({},this.dataFieldsPrivate)
+
+                }
             }
 
 //            showClinicalSelector(e) {
