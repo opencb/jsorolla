@@ -79,20 +79,20 @@
                             <label class="labelReportFilter">Relationship:</label>
                             <select id="{{prefix}}RelationshipSelect" name="{{prefix}}RelationshipSelect" on-change="changeRelationshipSelect"
                                     class$="form-control input-sm {{prefix}}RelationshipSelect" value="{{dataFieldsPrivate.relationship::input}}">
-                                <option value="{{loadi18n('proband')}}">{{loadi18n('probandus')}}</option>
-                                <option value="{{loadi18n('sonof')}}">{{loadi18n('sonof')}}</option>
-                                <option value="{{loadi18n('daughterof')}}">{{loadi18n('daughterof')}}</option>
-                                <option value="{{loadi18n('brotherof')}}">{{loadi18n('brotherof')}}</option>
-                                <option value="{{loadi18n('sisterof')}}">{{loadi18n('sisterof')}}</option>
-                                <option value="{{loadi18n('motherof')}}">{{loadi18n('motherof')}}</option>
-                                <option value="{{loadi18n('fatherof')}}">{{loadi18n('fatherof')}}</option>
-                                <option value="{{loadi18n('other')}}">{{loadi18n('other')}}</option>
+                                <option value="{{loadi18n('proband')}}">Proband</option>
+                                <option value="{{loadi18n('sonof')}}">Son of</option>
+                                <option value="{{loadi18n('daughterof')}}">Daughter of</option>
+                                <option value="{{loadi18n('brotherof')}}">Brother of</option>
+                                <option value="{{loadi18n('sisterof')}}">Sister of</option>
+                                <option value="{{loadi18n('motherof')}}">Mother of</option>
+                                <option value="{{loadi18n('fatherof')}}">Father of</option>
+                                <option value="{{loadi18n('other')}}">Other</option>
                             </select>
                             <input type="text" class$="form-control input-sm {{prefix}}extraRelationship" id="{{prefix}}extraRelationship" placeholder="___"
                                    aria-describedby="basic-addon1" value="{{dataFieldsPrivate.extraRelationship::input}}" style="display: none; margin-top: 2%;">
                             <label class="labelReportFilter">Physician one:</label>
                             <select id="{{prefix}}SignLeftSelect" name="{{prefix}}SignLeftSelect"
-                                    class$="form-control input-sm {{prefix}}SignLeftSelect" value="{{dataFieldsPrivate.signLeft::input}}">
+                                    class$="form-control input-sm {{prefix}}SignLeftSelect" value="{{dataFieldsPrivate.signLeft::input}}" on-change="changeSign">
                                 <option value="{{loadi18n('dr')}}{{loadi18n('antinolo')}}">{{loadi18n('dr')}}{{loadi18n('antinolo')}}</option>
                                 <option value="{{loadi18n('dra')}}{{loadi18n('borrego')}}">{{loadi18n('dra')}}{{loadi18n('borrego')}}</option>
                                 <option value="{{loadi18n('dra')}}{{loadi18n('mendez')}}">{{loadi18n('dra')}}{{loadi18n('mendez')}}</option>
@@ -102,7 +102,7 @@
                             </select>
                             <label class="labelReportFilter">Physician two:</label>
                             <select id="{{prefix}}SignRightSelect" name="{{prefix}}SignRightSelect"
-                                    class$="form-control input-sm {{prefix}}SignRightSelect" value="{{dataFieldsPrivate.signRight::input}}">
+                                    class$="form-control input-sm {{prefix}}SignRightSelect" value="{{dataFieldsPrivate.signRight::input}}" on-change="changeSign">
                                 <option value="{{loadi18n('dr')}}{{loadi18n('antinolo')}}">{{loadi18n('dr')}}{{loadi18n('antinolo')}}</option>
                                 <option value="{{loadi18n('dra')}}{{loadi18n('borrego')}}">{{loadi18n('dra')}}{{loadi18n('borrego')}}</option>
                                 <option value="{{loadi18n('dra')}}{{loadi18n('mendez')}}">{{loadi18n('dra')}}{{loadi18n('mendez')}}</option>
@@ -550,6 +550,31 @@
                     this.dataFieldsPrivate = Object.assign({},this.dataFieldsPrivate)
 
                 }
+            }
+            changeSign(e) {
+                let drsSign = [];
+                drsSign.push("");
+                drsSign.push(this.loadi18n('dr') + this.loadi18n('antinolo'));
+                drsSign.push(this.loadi18n('dra') + this.loadi18n('borrego'));
+                drsSign.push(this.loadi18n('dra') + this.loadi18n('mendez'));
+                drsSign.push(this.loadi18n('dra') + this.loadi18n('bravo'));
+                drsSign.push(this.loadi18n('dra') + this.loadi18n('fernandez'));
+                drsSign.push(this.loadi18n('dra') + this.loadi18n('marcos'));
+
+                let toModify = e.target.id === this.prefix + "SignLeftSelect" ? this.prefix + "SignRightSelect" : this.prefix + "SignLeftSelect";
+                let lastValue = e.target.id === this.prefix + "SignLeftSelect" ? this.dataFieldsPrivate.signRight : this.dataFieldsPrivate.signLeft;
+                let options = "";
+                drsSign.forEach((doctor) => {
+                    if (doctor !== e.target.value) {
+                        if (lastValue === doctor) {
+                            options += `<option selected value="${doctor}">${doctor}</option>`;
+                        } else {
+                            options += `<option value="${doctor}">${doctor}</option>`;
+                        }
+                    }
+                });
+                PolymerUtils.innerHTML(toModify,options);
+
             }
 
 //            showClinicalSelector(e) {
