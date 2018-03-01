@@ -6,13 +6,13 @@ class VariantUtils {
 
     static jsonToTabConvert(json, studiesPopFrequencies) {
         let dataString = [];
+        let variantString = [];
         let populationMap = {};
 
-        let variantString = [];
         for (var key in json[0]) {
             console.log(key);
-
         }
+
         variantString.push("Variant");
         variantString.push("SNP ID");
         variantString.push("Genes");
@@ -34,18 +34,18 @@ class VariantUtils {
         variantString = [];
         for (let i = 0; i < json.length; i++) {
             variantString.push(json[i].chromosome + ':' + json[i].start + " " + json[i].reference + '/' + json[i].alternate);
-            variantString.push(json[i].id);
+            if (typeof json[i].id !== "undefined" && json[i].id.startsWith("rs")) {
+                variantString.push(json[i].id);
+            } else {
+                variantString.push("-");
+            }
             let genes = [];
             let ct = [];
             let pfArray  = [];
             let sift, polyphen, cadd = "-", phylop = "-", phastCons = "-", gerp = "-";
             let clinvar = [];
             let cosmic = [];
-            populationMap = {};
 
-            let description = {sift: "-", polyphen:  "-"};
-            let min = 10;
-            let max = 0;
             if (typeof json[i].annotation !== "undefined") {
                 if (typeof json[i].annotation.consequenceTypes !== "undefined" && json[i].annotation.consequenceTypes.length > 0) {
                     let visitedGenes = {};
@@ -68,6 +68,9 @@ class VariantUtils {
                         }
 
                         // Sift, Polyphen
+                        let min = 10;
+                        let max = 0;
+                        let description = {};
                         if (typeof json[i].annotation.consequenceTypes[j].proteinVariantAnnotation !== "undefined"
                             && typeof json[i].annotation.consequenceTypes[j].proteinVariantAnnotation.substitutionScores !== "undefined") {
                             for (let ss = 0; ss < json[i].annotation.consequenceTypes[j].proteinVariantAnnotation.substitutionScores.length; ss++) {
@@ -76,22 +79,22 @@ class VariantUtils {
                                     case "sift":
                                         if (json[i].annotation.consequenceTypes[j].proteinVariantAnnotation.substitutionScores[ss].score < min) {
                                             min = json[i].annotation.consequenceTypes[j].proteinVariantAnnotation.substitutionScores[ss].score;
-                                            description.sift = json[i].annotation.consequenceTypes[j].proteinVariantAnnotation.substitutionScores[ss].description + " ("+json[i].annotation.consequenceTypes[j].proteinVariantAnnotation.substitutionScores[ss].score+")";
+                                            description.sift = json[i].annotation.consequenceTypes[j].proteinVariantAnnotation.substitutionScores[ss].description;
                                         }
                                         break;
                                     case "polyphen":
-                                        if (json[i].annotation.consequenceTypes[j].proteinVariantAnnotation.substitutionScores[ss].score >= max) {
+                                        if (json[i].annotation.consequenceTypes[j].proteinVariantAnnotation.substitutionScores[ss].score > max) {
                                             max = json[i].annotation.consequenceTypes[j].proteinVariantAnnotation.substitutionScores[ss].score;
-                                            description.polyphen = json[i].annotation.consequenceTypes[j].proteinVariantAnnotation.substitutionScores[ss].description + " ("+json[i].annotation.consequenceTypes[j].proteinVariantAnnotation.substitutionScores[ss].score+")";
+                                            description.polyphen = json[i].annotation.consequenceTypes[j].proteinVariantAnnotation.substitutionScores[ss].description;
                                         }
                                         break;
                                 }
                             }
                         }
+                        sift = typeof description.sift !== "undefined" ? description.sift : "-";
+                        polyphen = typeof description.polyphen !== "undefined" ? description.polyphen : "-";
                     }
                 }
-                sift = typeof description.sift !== "undefined" ? description.sift : "-";
-                polyphen = typeof description.polyphen !== "undefined" ? description.polyphen : "-";
                 // CADD
                 if (typeof json[i].annotation.functionalScore !== "undefined") {
                     for (let fs = 0; fs < json[i].annotation.functionalScore.length; fs++) {
