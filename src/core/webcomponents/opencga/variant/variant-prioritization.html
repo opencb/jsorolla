@@ -59,19 +59,22 @@
             <div>
 
                 <div id="{{prefix}}FilterMenu" class="col-md-2" >
-                        <variant-browser-filter project="{{project}}" study="{{study}}" studies="{{studies}}" samples="[[samplesForMenuFilter]]" family="[[family]]"
-                                                opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"
-                                                population-frequencies="{{populationFrequencies}}" biotypes="{{biotypes}}"
-                                                consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}"
-                                                ebi-config="{{ebiConfig}}"
-                                                on-samplechange="onSampleChange" genotype-samples="{{genotypeSamples}}" on-inheritancemode="_onInheritanceMode">
-                        </variant-browser-filter>
+                    <variant-browser-filter project="{{project}}" study="{{study}}" studies="{{studies}}" samples="[[samplesForMenuFilter]]" family="[[family]]"
+                                            opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"
+                                            population-frequencies="{{populationFrequencies}}" biotypes="{{biotypes}}"
+                                            consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}"
+                                            ebi-config="{{ebiConfig}}"
+                                            on-samplechange="onSampleChange" genotype-samples="{{genotypeSamples}}"
+                                            on-inheritancemode="_onInheritanceMode" mode-inheritance="{{modeInheritance}}">
+
+                    </variant-browser-filter>
                 </div>
 
                 <div id="{{prefix}}MainWindow" class="col-md-10">
 
                     <opencga-active-filters opencga-client="{{opencgaClient}}" query="[[query]]" filters="{{config.filters}}" on-filterchange="onFilterChange" on-clear="onClear"
-                                            filter-bioformat="VARIANT" default-study="{{study.alias}}" alias="{{activeFilterAlias}}" refresh="{{search}}" genotype-samples="{{genotypeSamples}}">
+                                            filter-bioformat="VARIANT" default-study="{{study.alias}}" alias="{{activeFilterAlias}}" refresh="{{search}}" genotype-samples="{{genotypeSamples}}"
+                                            mode-inheritance="[[modeInheritance]]">
                     </opencga-active-filters>
 
 
@@ -595,6 +598,7 @@
 
             onClear() {
                 this._initGenotypeSamples(this.samples,true);
+                this.modeInheritance = "none";
                 this.query = {studies: this.project.alias + ":" + this.study.alias};
                 this.search = {};
             }
@@ -899,11 +903,10 @@
             */
             _onInheritanceMode(e) {
                 // Recover modeInheritance selected and decisionTree from settings tools
-                let modeInheritance = e.detail.modeInheritance;
                 this.decisionTreeInheritanceMode = e.detail.decisionTreeInheritance;
 
                 // Init for each sample its value for each genotype
-                if (modeInheritance !== "autoDominant" && modeInheritance !== "autoRecessive" && modeInheritance !== "xLinked" && modeInheritance !== "yLinked") {
+                if (this.modeInheritance !== "autoDominant" && this.modeInheritance !== "autoRecessive" && this.modeInheritance !== "xLinked" && this.modeInheritance !== "yLinked") {
                     this._initGenotypeSamples(this.samples, true);
                     this.genotypeSamples = Object.assign({}, this.genotypeSamples);
                     return;
@@ -911,7 +914,7 @@
 
                 this._initGenotypeSamples(this.samples, true, false);
                 // Get genotype values
-                this.genotypeSamples = Segregations.inheritanceMode(modeInheritance, this.clinicalAnalysis, this.genotypeSamples, this.samples);
+                this.genotypeSamples = Segregations.inheritanceMode(this.modeInheritance, this.clinicalAnalysis, this.genotypeSamples, this.samples);
             }
 
         }

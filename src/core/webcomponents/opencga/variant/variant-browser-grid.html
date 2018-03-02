@@ -1190,7 +1190,7 @@
                 this.opencgaClient.variants().query(params)
                     .then(function (response) {
                         let json = response.response[0].result;
-                        let dataString = VariantUtils.jsonToTabConvert(json, _this.populationFrequencies.studies);
+                        let dataString = VariantUtils.jsonToTabConvert(json, _this.populationFrequencies.studies, _this.samples, _this.config.grid.nucleotideGenotype);
                         let data = new Blob([dataString.join('\n')], {type: 'text/plain'});
                         let file = window.URL.createObjectURL(data);
                         let a = document.createElement("a");

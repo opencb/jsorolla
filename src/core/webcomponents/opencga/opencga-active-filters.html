@@ -324,16 +324,25 @@
                     //TODO Refactor
                     $("#filtersList option[value='none']").prop('selected', true);
                 }
-                this.genotypeSamples = {};
+                let genotypeSamples = {};
                 if (UtilsNew.isNotUndefinedOrNull(_queryList.genotype)){
                     _queryList.genotype.split(";").forEach((nameGeno) => {
                         let name_Genotype = nameGeno.split(":");
-                        this.genotypeSamples[name_Genotype[0]] = {};
-                        this.genotypeSamples[name_Genotype[0]][name_Genotype[1]] = true;
+                        let genotypes = name_Genotype[1].split(",");
+                        genotypeSamples[name_Genotype[0]] = {};
+                        genotypes.forEach((genotype) => {
+                            genotypeSamples[name_Genotype[0]][genotype] = true;
+                        })
                     });
                 }
-//                debugger
-//                this.query = Object.assign({}, _queryList);
+
+                if (name === "genotype"){
+                    genotypeSamples["resetMode"] = true;
+                    if (this.modeInheritance === "xLinked" || this.modeInheritance === "yLinked"){
+                        delete _queryList["region"];
+                    }
+                }
+                this.genotypeSamples = genotypeSamples;
                 this.dispatchEvent(new CustomEvent("filterchange", {detail: _queryList, bubbles: true, composed: true}));
             }
 

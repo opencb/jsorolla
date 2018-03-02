@@ -4,7 +4,7 @@
 
 class VariantUtils {
 
-    static jsonToTabConvert(json, studiesPopFrequencies) {
+    static jsonToTabConvert(json, studiesPopFrequencies, samples, nucleotideGenotype) {
         let dataString = [];
         let variantString = [];
         let populationMap = {};
@@ -17,6 +17,9 @@ class VariantUtils {
         variantString.push("SNP ID");
         variantString.push("Genes");
         variantString.push("Type");
+        samples.forEach((sample) => {
+            variantString.push(sample.name);
+        });
         variantString.push("Consequence Type");
         variantString.push("SIFT");
         variantString.push("Polyphen");
@@ -34,7 +37,12 @@ class VariantUtils {
         variantString = [];
         for (let i = 0; i < json.length; i++) {
             variantString.push(json[i].chromosome + ':' + json[i].start + " " + json[i].reference + '/' + json[i].alternate);
-            variantString.push(json[i].id);
+            if (typeof json[i].id !== "undefined" && json[i].id.startsWith("rs")) {
+                variantString.push(json[i].id);
+            } else {
+                variantString.push("-");
+            }
+
             let genes = [];
             let ct = [];
             let pfArray  = [];
@@ -178,6 +186,7 @@ class VariantUtils {
                 variantString.push("-");
             }
             variantString.push(json[i].type);
+            this.getGenotypeSamples(json[i], samples, nucleotideGenotype, variantString);
             if (ct.length > 0) {
                 variantString.push(ct.join(','));
             } else {
@@ -208,5 +217,111 @@ class VariantUtils {
             variantString = [];
         }
         return dataString;
+    }
+
+    static getGenotypeSamples(json,samples, nucleotideGenotype, variantString) {
+        // Samples genotypes
+        if (nucleotideGenotype) {
+            samples.forEach((sample, indexSample) => {
+                let alternateSequence = json.alternate;
+                let referenceSequence = json.reference;
+                let genotypeMatch = new Map();
+                let colText = "";
+                let referenceValueColText = "-";
+                let alternateValueColText = "-";
+
+                genotypeMatch.set(0, referenceSequence === "" ? "-" : referenceSequence);
+                genotypeMatch.set(1, alternateSequence === "" ? "-" : alternateSequence);
+                json.studies.forEach((study) => {
+                    if (UtilsNew.isNotUndefinedOrNull(study.secondaryAlternates) && UtilsNew.isNotEmptyArray(study.secondaryAlternates)) {
+                        study.secondaryAlternates.forEach((secondary) => {
+                            genotypeMatch.set(genotypeMatch.size, secondary.alternate === "" ? "-" : secondary.alternate);
+                        });
+                    }
+                    if (UtilsNew.isNotUndefinedOrNull(study.samplesData) && UtilsNew.isNotEmptyArray(study.samplesData)) {
+                        if (UtilsNew.isNotUndefinedOrNull(study.samplesData[indexSample])) {
+                            let currentGenotype = study.samplesData[indexSample][0];
+                            let reference = currentGenotype.split("/")[0];
+                            let alternate = currentGenotype.split("/")[1];
+                            let tooltipText = reference + " / " + alternate;
+                            if (UtilsNew.isNotEqual(reference, ".") && UtilsNew.isNotEqual(alternate, ".")) {
+                                reference = parseInt(reference);
+                                alternate = parseInt(alternate);
+                                let referenceValue = genotypeMatch.get(reference);
+                                let alternateValue = genotypeMatch.get(alternate);
+                                // Cases which this will cover.
+                                // referenceValue.length <= 5 && alternateVAlue.length <= 5
+                                // referenceValue.length <= 10 && alternateValue == "-"
+                                // alternateValue.length <= 10 && referenceValue == "-"
+                                referenceValueColText = referenceValue;
+                                alternateValueColText = alternateValue;
+
+                                // Not equal X/- or -/X
+                                if (UtilsNew.isNotEqual(referenceValue, "-") && UtilsNew.isNotEqual(alternateValue, "-")) {
+                                    if ((referenceValue.length <= 5 && alternateValue.length > 5) || (referenceValue.length > 5 && alternateValue.length <= 5)) {
+                                        if (referenceValue.length > 5) {
+                                            // referenceValue > 5
+                                            referenceValueColText = referenceValue.substring(0, 3) + "...";
+                                            //                                                    tooltipText += "<br>" + referenceValue +" / " + alternateValue;
+                                        } else {
+                                            // alternateValue > 5
+                                            alternateValueColText = alternateValue.substring(0, 3) + "...";
+                                            //                                                    tooltipText += "<br>" + referenceValue +" / " + alternateValue;
+                                        }
+                                    } else if (referenceValue.length > 5 && alternateValue.length > 5) {
+                                        // Both > 5 It will never happen
+                                        referenceValueColText = referenceValue.substring(0, 3) + "...";
+                                        alternateValueColText = alternateValue.substring(0, 3) + "...";
+                                        //                                                tooltipText += "<br>" +   referenceValue +" / " + alternateValue;
+                                    }
+                                } else if (UtilsNew.isNotEqual(referenceValue, "-") && referenceValue.length > 10) {
+                                    // X/-
+                                    let substringReference = referenceValue.substring(0, 5) + "...";
+                                    referenceValueColText = substringReference;
+                                    alternateValueColText = "-";
+                                    //                                                tooltipText += "<br>" +   referenceValue +" / " + alternateValue;
+                                } else if (UtilsNew.isNotEqual(alternateValue, "-") && alternateValue.length > 10) {
+                                    // -/X
+                                    let substringAlternate = alternateValue.substring(0, 5) + "...";
+                                    alternateValueColText = substringAlternate;
+                                    referenceValueColText = "-";
+                                    //                                                tooltipText += "<br>" +   referenceValue + " / " + alternateValue;
+                                }
+                                tooltipText += "<br>" + referenceValue + " / " + alternateValue;
+                            } else {
+                                referenceValueColText = reference;
+                                alternateValueColText = alternate;
+                                tooltipText += "<br>" + reference + " / " + alternate;
+                            }
+
+                            let referenceIndex = parseInt(reference);
+                            let alternateIndex = parseInt(alternate);
+                            referenceValueColText =  referenceValueColText;
+                            alternateValueColText = alternateValueColText;
+                            colText = referenceValueColText + " / " + alternateValueColText;
+                            variantString.push(colText);
+
+                            // res = "<span class='sampleGenotype' data-text='" + tooltipText + "'> " + colText + " </span>";
+                            return;
+                        }
+                    }
+                });
+            });
+        } else {
+            if (UtilsNew.isNotUndefinedOrNull(samples)) {
+                samples.forEach((sample, indexSample) => {
+                    json.studies.forEach((study) => {
+                        if (study.samplesData.length > 0) {
+                            let currentGenotype = study.samplesData[indexSample];
+                            if (UtilsNew.isNotUndefinedOrNull(currentGenotype)) {
+                                variantString.push(currentGenotype[0]);
+                                return;
+                            }
+                        }
+                        variantString.push("-");
+                    });
+                });
+            }
+        }
     }
 }
