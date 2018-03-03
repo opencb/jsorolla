@@ -24,12 +24,15 @@ class NetworkBrowser {
         this.simulation = {};
         this.simulation.enabled = false;
         this.simulation.interval = null;
-        this.simulation.velocityDecay = 0.0005;
-        this.simulation.velocityMin = 0.001;
-        this.simulation.tick = 10;
-        this.simulation.repulsion = 30000;
-        this.simulation.minAttractionDistance = 100;
-        this.simulation.maxRepulsionDistance = 60;
+        this.simulation.tick = 50;
+        this.simulation.attraction = 0.05;
+        this.simulation.repulsion = 150;
+        this.simulation.damping = 0.9;
+        this.simulation.alpha = 1;
+        this.simulation.alphaMin = 0.001;
+        this.simulation.alphaDecay = 0.02;
+        this.simulation.alphaTarget = 0.9;
+        this.simulation.alphaDefault = 0.9;
 
         return this.init();
     }
@@ -50,6 +53,7 @@ class NetworkBrowser {
             }
             //Add the nodes ids to the list of selected nodes
             self.addSelectedNodes(nodes);
+            self.simulation.alphaTarget = self.simulation.alphaDefault;
             if (self.simulation.enabled === true) {
                 self.startSimulation();
             }
@@ -57,9 +61,10 @@ class NetworkBrowser {
         //Register the svg mouse move event listener.
         //This event is only fired while the mouse left button is pressed.
         this.renderer.on("mousemove", function (event, click) {
+            let scale = self.renderer.getScale();
             //Calculate the difference between the current mouse position and the clicked down initial position
-            let dx = click.currentX - click.initialX;
-            let dy = click.currentY - click.initialY;
+            let dx = (click.currentX - click.initialX) / scale;
+            let dy = (click.currentY - click.initialY) / scale;
             //Move all selected nodes
             self.selectedNodes.forEach(function (nodeID) {
                 let node = self.manager.getNodeById(nodeID);
@@ -70,10 +75,12 @@ class NetworkBrowser {
         });
         //Register the svg mouse up event listener
         this.renderer.on("mouseup", function (event) {
+            self.simulation.alphaTarget = 0;
             return self.clearSelectedNodes();
         });
         //Register the svg mouse leave event listener
         this.renderer.on("mouseleave", function (event) {
+            self.simulation.alphaTarget = 0;
             // defensive codding: loose track of a clicked point when mouse leave canvas.
             // - would it be nice to keep track of the clicked node and follow motion after reentering canvas
             // - [problem] if mouse get unclicked outside the canvas, the event is not registered and if svg-renderer.js
@@ -148,63 +155,52 @@ class NetworkBrowser {
         let self = this;
         let s = this.simulation;
         let nodes = this.manager.getNodes();
-        let inMovement = false;
-        //let sx = 0, sy = 0;
-        //Calculate the forces for each node
+        let relations = this.manager.getRelations();
+        //Calculate the new alpha value
+        s.alpha = s.alpha + (s.alphaTarget - s.alpha) * s.alphaDecay;
+        //Calculate the repulsion forces for each node
         for (let i = 0; i < nodes.length; i++) {
-            nodes[i].display.vx = 0;
-            nodes[i].display.vy = 0;
-            //sx = sx + nodes[i].display.x;
-            //sy = sy + nodes[i].display.y;
+            nodes[i].display.fx = 0;
+            nodes[i].display.fy = 0;
             for (let j = 0; j < nodes.length; j++) {
                 if (i !== j) {
-                    //console.log("Calculating force between node " + i + " and node " + j);
                     let dx = nodes[j].display.x - nodes[i].display.x;
                     let dy = nodes[j].display.y - nodes[i].display.y;
-                    let dd = dx * dx + dy * dy;
-                    let distance = Math.sqrt(dd);
-                    //Check the distance between the nodes
-                    if (distance < s.maxRepulsionDistance) {
-                        //Apply Coulomb's law
-                        nodes[i].display.vx = nodes[i].display.vx - (s.repulsion * dx / dd);
-                        nodes[i].display.vy = nodes[i].display.vy - (s.repulsion * dy / dd);
-                    }
-                    //Check if both nodes are related
-                    if (nodes[i].relatedTo.indexOf(nodes[j].id) !== -1) {
-                        //Apply Hooke's law
-                        nodes[i].display.vx = nodes[i].display.vx + (distance - s.minAttractionDistance) * dx;
-                        nodes[i].display.vy = nodes[i].display.vy + (distance - s.minAttractionDistance) * dy;
-                    }
+                    let dd = Math.max(dx * dx + dy * dy, 0.001);
+                    //Apply Coulomb's law
+                    nodes[i].display.fx = nodes[i].display.fx - (s.repulsion * dx / dd);
+                    nodes[i].display.fy = nodes[i].display.fy - (s.repulsion * dy / dd);
                 }
             }
         }
-        /*
-         if(nodes.length > 0) {
-         sx = (sx / nodes.length) - center.x;
-         sy = (sy / nodes.length) - center.y;
-         }
-         */
+        //Calculate the attraction forces between related nodes
+        for(let i = 0; i < relations.length; i++) {
+            let source = relations[i].nodeSource;
+            let target = relations[i].nodeTarget;
+            //Calculate the distance between the two related nodes
+            let dx = target.display.x - source.display.x;
+            let dy = target.display.y - source.display.y;
+            //Apply Hooke's law
+            target.display.fx = target.display.fx - dx * s.attraction;
+            target.display.fy = target.display.fy - dy * s.attraction;
+            source.display.fx = source.display.fx + dx * s.attraction;
+            source.display.fy = source.display.fy + dy * s.attraction;
+        }
         //Apply the forces and move the nodes
         nodes.forEach(function (node) {
-            //Check if this node is selected
-            if (node.display.selected === true) {
-                inMovement = true;
-            }
-            else {
+            //Check if this node is not selected
+            if (node.display.selected === false) {
                 //Calculate the velocity values to apply
-                let vx = node.display.vx * s.velocityDecay;
-                let vy = node.display.vy * s.velocityDecay;
-                //Check if the velocity is over the threshold
-                if (Math.abs(vx) > s.velocityMin || Math.abs(vy) > s.velocityMin) {
-                    node.display.x = node.display.x + vx; // - sx;
-                    node.display.y = node.display.y + vy; // - sy;
-                    inMovement = true;
-                    self.renderer.moveNode(node);
-                }
+                node.display.vx = (node.display.vx + node.display.fx) * s.alpha;
+                node.display.vy = (node.display.vy + node.display.fy) * s.alpha;
+                //Move the node
+                node.display.x = node.display.x + node.display.vx;
+                node.display.y = node.display.y + node.display.vy;
+                self.renderer.moveNode(node);
             }
         });
-        //Check if simulation is not in movement and stop the simulation
-        if (inMovement === false) {
+        //Check the alpha value to stop the simulation
+        if (s.alpha < s.alphaMin) {
             console.log("Simulation finished");
             return this.stopSimulation();
         }
@@ -240,10 +236,35 @@ class NetworkBrowser {
         }
     }
 
+    zoomIn() {
+        this.renderer.applyScale(1.5);
+        return this;
+    }
+
+    zoomOut() {
+        this.renderer.applyScale(0.6);
+        return this;
+    }
+
+    zoomReset() {
+        this.renderer.resetScale();
+        return this;
+    }
+
+    move(dx, dy) {
+        this.renderer.applyTranslation(dx, dy);
+        return this;
+    }
+
+    moveReset() {
+        this.renderer.resetTranslation();
+        return this;
+    }
+
     static getDefaultConfig() {
         return {
-            width: 800,
-            height: 600,
+            width: "100%",
+            height: "600px",
             renderer: new SvgNetworkRenderer(),
             shapes: BasicNetworkSvgShapes
         };

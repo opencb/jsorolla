@@ -17,6 +17,8 @@
     <script type="text/javascript" src="../network-manager.js"></script>
     <script type="text/javascript" src="../network-browser.js"></script>
 
+    <script type="text/javascript" src="./utils/network-generator.js"></script>
+
     <style>
         body {
             padding: 20px;
@@ -27,6 +29,11 @@
             padding-left: 0px;
             padding-right: 0px;
             width: 100%;
+            margin-bottom: 10px;
+        }
+        .btn-move {
+            width: 60px !important;
+            margin: 5px;
         }
     </style>
 </head>
@@ -34,11 +41,17 @@
 
 <div class="siimple-grid">
     <div class="siimple-grid-col siimple-grid-col--9">
+        <div class="siimple-h5">Network testing</div>
         <div id="network-content"></div>
     </div>
     <div class="siimple-grid-col siimple-grid-col--3">
         <div class="siimple-form-field">
-            <div class="siimple-form-field-label">Simulation:</div>
+            <div class="siimple-form-field-label">Load test:</div>
+            <div class="siimple-btn btn-fluid siimple-btn--grey" id="load-test" data-test="test1">Test 1</div>
+            <div class="siimple-btn btn-fluid siimple-btn--grey" id="load-test" data-test="test666">Test 666</div>
+        </div>
+        <div class="siimple-form-field">
+            <div class="siimple-form-field-label">Force Layout:</div>
             <div class="siimple-btn btn-fluid siimple-btn--blue" id="network-simulation" data-is-enabled="0">
                 Enable Force Layout
             </div>
@@ -49,6 +62,28 @@
             <label for="click-behavior-node">Move NODE</label><br>
             <input type="radio" id="click-behavior-path" name="click-behavior" value="path">
             <label for="click-behavior-path">Move PATH</label><br>
+        </div>
+        <div class="siimple-form-field">
+            <div class="siimple-form-field-label">Move:</div>
+            <div align="center">
+                <div id="move-up" class="siimple-btn siimple-btn--green btn-move">Up</div>
+            </div>
+            <div align="center">
+                <div id="move-left" class="siimple-btn siimple-btn--green btn-move">Left</div>
+                <div id="move-reset" class="siimple-btn siimple-btn--navy">Reset</div>
+                <div id="move-right" class="siimple-btn siimple-btn--green btn-move">Right</div>
+            </div>
+            <div align="center">
+                <div id="move-down" class="siimple-btn siimple-btn--green btn-move">Down</div>
+            </div>
+        </div>
+        <div class="siimple-form-field">
+            <div class="siimple-form-field-label">Zooming:</div>
+            <div align="center">
+                <div id="zoom-in" class="siimple-btn siimple-btn--grey" style="margin-right:10px;">Zoom in</div>
+                <div id="zoom-reset" class="siimple-btn siimple-btn--navy">Reset</div>
+                <div id="zoom-out" class="siimple-btn siimple-btn--grey" style="margin-left:10px;">Zoom out</div>
+            </div>
         </div>
     </div>
 </div>
@@ -78,57 +113,80 @@
         });
     });
 
-    var data = {
-        nodes: [
-            {id: "node0", display: {shape: "square", size: 30, fill: "#2a82ef"}},
-            {id: "node1"},
-            {id: "node2"},
-            {id: "node3"},
-            {id: "node4"},
-            {id: "node5"}
-        ],
-        relations: [
-            {source: "node0", target: "node1"},
-            {source: "node0", target: "node2"},
-            {source: "node0", target: "node3"},
-            {source: "node4", target: "node5"}
-        ]
-    };
+    //Zooming buttons
+    document.getElementById("zoom-in").addEventListener("click", function () {
+        return network.zoomIn();
+    });
+    document.getElementById("zoom-out").addEventListener("click", function () {
+        return network.zoomOut();
+    });
+    document.getElementById("zoom-reset").addEventListener("click", function () {
+        return network.zoomReset();
+    });
 
-    var testDefault = false;
-    var config = null;
-    if (!testDefault) {
-        config = {
-            width: 600,
-            height: 400,
+    //Move buttons
+    document.getElementById("move-up").addEventListener("click", function(){
+        return network.move(0, 50);
+    });
+    document.getElementById("move-down").addEventListener("click", function(){
+        return network.move(0, -50);
+    });
+    document.getElementById("move-left").addEventListener("click", function(){
+        return network.move(50, 0);
+    });
+    document.getElementById("move-right").addEventListener("click", function(){
+        return network.move(-50, 0);
+    });
+    document.getElementById("move-reset").addEventListener("click", function(){
+        return network.moveReset();
+    });
+
+    //Data loader
+    Array.from(document.querySelectorAll("#load-test")).forEach(function(button) {
+        return button.addEventListener("click", function () {
+            //Load the data if the network is not initialized
+            if(network === null) {
+                var data = getNetwork(button.dataset.test);
+                return initNetwork(data);
+            } else {
+                return alert("The network is already loaded. Reload the page or implement the network.load method.");
+            }
+        });
+    });
+
+    function initNetwork(data) {
+        //Default configuration
+        var config = {
+            width: "100%",
+            height: "600px",
             renderer: new SvgNetworkRenderer(),
             shapes: BasicNetworkSvgShapes
         };
+        //Initialize the network browser
+        network = new NetworkBrowser(parent, data, config);
+        network.draw();
+        //Default network behavior
+        network.setClickBehavior("MOVE_NODE");
+        network.disableSimulation();
+
+        //Simulation enabled
+        network.on("simulation:enabled", function () {
+            //Update the simulation button
+            var button = document.getElementById("network-simulation");
+            button.innerHTML = "Disable Force Layout";
+            button.classList.remove("siimple-btn--blue");
+            button.classList.add("siimple-btn--red");
+        });
+        //Simulation disabled event listener
+        network.on("simulation:disabled", function () {
+            //Update the simulation button
+            var button = document.getElementById("network-simulation");
+            button.innerHTML = "Enable Force Layout";
+            button.classList.add("siimple-btn--blue");
+            button.classList.remove("siimple-btn--red");
+        });
     }
 
-    //Initialize the network browser
-    network = new NetworkBrowser(parent, data, config);
-    network.draw();
-    //Default network behavior
-    network.setClickBehavior("MOVE_NODE");
-    network.disableSimulation();
-
-    //Simulation enabled
-    network.on("simulation:enabled", function () {
-        //Update the simulation button
-        var button = document.getElementById("network-simulation");
-        button.innerHTML = "Disable Force Layout";
-        button.classList.remove("siimple-btn--blue");
-        button.classList.add("siimple-btn--red");
-    });
-    //Simulation disabled event listener
-    network.on("simulation:disabled", function () {
-        //Update the simulation button
-        var button = document.getElementById("network-simulation");
-        button.innerHTML = "Enable Force Layout";
-        button.classList.add("siimple-btn--blue");
-        button.classList.remove("siimple-btn--red");
-    });
 </script>
 
 </body>

@@ -4,10 +4,13 @@ class SvgNetworkRenderer {
         Object.assign(this, Backbone.Events);
 
         this.svg = null;
+        this.mainGroup = null;
         this.nodesGroup = null;
         this.relationsGroup = null;
         this.shapes = null;
-
+        //Initial transformation matrix
+        this.transMatrix = [1, 0, 0, 1, 0, 0];
+        //Click event
         this.clickEvent = {active: false, initialX: 0, initialY: 0, currentX: 0, currentY: 0};
     }
 
@@ -31,8 +34,12 @@ class SvgNetworkRenderer {
         }, false);
 
         //Add groups
-        this.relationsGroup = SvgNetworkRenderer.addChild(this.svg, "g", {id: "network-relations"});
-        this.nodesGroup = SvgNetworkRenderer.addChild(this.svg, "g", {id: "network-nodes"});
+        this.mainGroup = SvgNetworkRenderer.addChild(this.svg, "g", {});
+        this.relationsGroup = SvgNetworkRenderer.addChild(this.mainGroup, "g", {id: "network-relations"});
+        this.nodesGroup = SvgNetworkRenderer.addChild(this.mainGroup, "g", {id: "network-nodes"});
+
+        //Apply the initial transformation matrix
+        this.applyTransformationMatrix();
 
         //Save the shapes
         this.shapes = config.shapes;
@@ -154,6 +161,48 @@ class SvgNetworkRenderer {
         r.setAttribute("stroke-width", "2px");
         r.dataset["nodeSource"] = relation.nodeSource.id;
         r.dataset["nodeTarget"] = relation.nodeTarget.id;
+    }
+
+    applyTransformationMatrix() {
+        //Build and apply the current transformation matrix
+        let matrix = "matrix(" + this.transMatrix.join(' ') + ")";
+        this.mainGroup.setAttribute("transform", matrix);
+    }
+
+    getScale() {
+        return this.transMatrix[0];
+    }
+
+    resetScale() {
+        //Reset the scale to 1
+        let scale = 1 / this.transMatrix[0];
+        this.applyScale(scale);
+    }
+
+    applyScale(scale) {
+        for (let i = 0; i < this.transMatrix.length; i++) {
+            this.transMatrix[i] = this.transMatrix[i] * scale;
+        }
+        this.transMatrix[4] = parseInt(this.transMatrix[4] + (1 - scale) * this.getWidth() / 2);
+        this.transMatrix[5] = parseInt(this.transMatrix[5] + (1 - scale) * this.getHeight() / 2);
+        this.applyTransformationMatrix();
+    }
+
+    applyTranslation(dx, dy) {
+        this.transMatrix[4] = this.transMatrix[4] + dx;
+        this.transMatrix[5] = this.transMatrix[5] + dy;
+        this.applyTransformationMatrix();
+    }
+
+    resetTranslation() {
+        let scale = this.getScale();
+        this.transMatrix[4] = parseInt((1 - scale) * this.getWidth() / 2);
+        this.transMatrix[5] = parseInt((1 - scale) * this.getHeight() / 2);
+        this.applyTransformationMatrix();
+    }
+
+    getTranslation() {
+        return {x: this.transMatrix[4], y: this.transMatrix[5]};
     }
 
     static addChild(parent, elementName, elementAttributes) {

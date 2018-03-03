@@ -27,7 +27,7 @@ class NetworkManager {
             }
             //Check the node initial position
             if (!node.display.x || !node.display.y) {
-                let radius = initialRadius * Math.sqrt(index);
+                let radius = initialRadius * Math.sqrt(index) * 0.8;
                 let angle = index * initialAngle;
                 node.display.x = parseInt(center.x + radius * Math.cos(angle));
                 node.display.y = parseInt(center.y + radius * Math.sin(angle));
@@ -54,6 +54,13 @@ class NetworkManager {
             //Save the relations between the nodes
             relation.nodeSource.relatedTo.push(relation.target);
             relation.nodeTarget.relatedTo.push(relation.source);
+            //Relation force
+            relation.force = 0;
+        });
+        this.data.relations.forEach(function(relation, index){
+            let sourceCount = relation.nodeSource.relatedTo.length;
+            let targetCount = relation.nodeTarget.relatedTo.length;
+            relation.force = sourceCount / (sourceCount + targetCount);
         });
     }
 
@@ -116,6 +123,8 @@ class NetworkManager {
             oy: null,
             vx: 0,
             vy: 0,
+            fx: 0,
+            fy: 0,
             size: 30,
             shape: "circle",
             hide: false,
