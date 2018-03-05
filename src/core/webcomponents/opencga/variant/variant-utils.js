@@ -39,6 +39,15 @@ class VariantUtils {
             variantString.push(json[i].chromosome + ':' + json[i].start + " " + json[i].reference + '/' + json[i].alternate);
             if (typeof json[i].id !== "undefined" && json[i].id.startsWith("rs")) {
                 variantString.push(json[i].id);
+            } else if (typeof json[i].annotation !== "undefined" && typeof json[i].annotation.xrefs !== "undefined" && json[i].annotation.xrefs.length > 0) {
+                let annotation = json[i].annotation.xrefs.find(function (element) {
+                    return element.source === "dbSNP";
+                });
+                if (typeof annotation !== "undefined") {
+                    variantString.push(annotation.id);
+                } else {
+                    variantString.push("-");
+                }
             } else {
                 variantString.push("-");
             }
