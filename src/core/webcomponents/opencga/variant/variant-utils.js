@@ -204,7 +204,7 @@ class VariantUtils {
             studiesPopFrequencies.forEach((study) => {
                 study.populations.forEach(pop => {
                     let valuePopFreq = populationMap[study.id + "_" + pop.id];
-                    variantString.push(UtilsNew.isNotEmpty(valuePopFreq) ? valuePopFreq : "NA");
+                    variantString.push(UtilsNew.isNotEmpty(valuePopFreq) ? valuePopFreq : "-");
                 });
             });
             // variantString.push(pfArray.join(','));
