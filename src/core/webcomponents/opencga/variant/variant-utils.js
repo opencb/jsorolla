@@ -202,7 +202,10 @@ class VariantUtils {
             variantString.push(phastCons);
             variantString.push(gerp);
             studiesPopFrequencies.forEach((study) => {
-                study.populations.forEach(pop => variantString.push(populationMap[study.id + "_" + pop.id]));
+                study.populations.forEach(pop => {
+                    let valuePopFreq = populationMap[study.id + "_" + pop.id];
+                    variantString.push(UtilsNew.isNotEmpty(valuePopFreq) ? valuePopFreq : "NA");
+                });
             });
             // variantString.push(pfArray.join(','));
             if (clinvar.length > 0) {
