@@ -440,18 +440,19 @@
                     })
                     .then((response) => {
                         return response.json();
-                    }).then((response) => {
+                    })
+                    .then((response) => {
 //                        return console.log(response.data);
-                    let options = "";
-                    PolymerUtils.innerHTML(_this.prefix + "AutocompleteExternalPanelSearchDataList", "");
+                        let options = "";
+                        PolymerUtils.innerHTML(_this.prefix + "AutocompleteExternalPanelSearchDataList", "");
 
-                    for (let externalPanel of response.data) {
-                        let panelStr = JSON.stringify(externalPanel);
-//                        console.log("panel2" + panelStr);
+                        for (let externalPanel of response.data) {
+                            let panelStr = JSON.stringify(externalPanel);
+    //                        console.log("panel2" + panelStr);
 
-                        options += `<option id="${_this.prefix}Panel${externalPanel.internalId}" value="${externalPanel.name}" data-panel='` + panelStr + "'>";
+                            options += `<option id="${_this.prefix}Panel${externalPanel.internalId}" value="${externalPanel.name}" data-panel='` + panelStr + "'>";
 
-                    }
+                        }
                         PolymerUtils.innerHTML(_this.prefix + "AutocompleteExternalPanelSearchDataList", options);
                         _this.onExternalPanelChange();
                     });
