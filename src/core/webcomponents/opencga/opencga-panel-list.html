@@ -22,12 +22,38 @@
             }
         </style>
         <div class="col-md-2 div-margin">
+            <div class="form-group has-feedback">
+                <label class="col-label">Name</label>
+                <span> {{panelSelected.name}}</span>
+            </div>
+            <div class="form-group has-feedback">
+                <label class="col-label">Author</label>
+                <span> {{panelSelected.author}}</span>
+            </div>
+            <div class="form-group has-feedback">
+                <label class="col-label">Version</label>
+                <span> {{panelSelected.version}}</span>
+            </div>
+            <div class="form-group has-feedback">
+                <label class="col-label">Description</label>
+                <span> {{panelSelected.description}}</span>
+            </div>
+            <div class="form-group has-feedback">
+                <label for="{{prefix}}Genes" class="col-label">Genes</label>
+                <input id="{{prefix}}Genes" type="text" class="form-control"
+                       placeholder="Search for" value="">
+            </div>
+            <div class="form-group has-feedback">
+                <label for="{{prefix}}Mutations" class="col-label">Mutations</label>
+                <input id="{{prefix}}Mutations" type="text" class="form-control"
+                       placeholder="Search for" value="">
+            </div>
+            <div class="form-group has-feedback">
+                <label for="{{prefix}}Diseases" class="col-label">Diseases</label>
+                <input id="{{prefix}}Diseases" type="text" class="form-control"
+                       placeholder="Search for" value="">
+            </div>
 
-            Filters
-            <div><label class="col-form-label">Name: </label> <span> {{panelSelected.name}}</span></div>
-            <div><label class="col-form-label">Author: </label><span> {{panelSelected.author}}</span></div>
-            <div><label class="col-form-label">Version: </label><span> {{panelSelected.version}}</span></div>
-            <div><label class="col-form-label">Description: </label><span> {{panelSelected.description}}</span></div>
         </div>
         <div class="col-md-10 div-margin">
             <div id="{{prefix}}PanelsDiv">
