@@ -291,16 +291,9 @@
                         <!-- PANELS -->
                         <div id="{{prefix}}Panels" class="variant-prioritization-content" style="display: none">
                             <template is="dom-if" if="{{!interactive}}">
-                                <opencga-panel project="{{project}}" study="{{study}}" opencga-client="{{opencgaClient}}"></opencga-panel>
+                                <opencga-panel project="{{project}}" study="{{study}}" opencga-client="{{opencgaClient}}" panel-examples="{{panelExamples}}"></opencga-panel>
                             </template>
-                            <br>
-                            <br>
-                            <br>
-                            <div class="alert alert-warning" role="alert" id="{{prefix}}PanelsAlert" style="padding: 10px;margin: 10px">
-                                <span style="font-weight: bold;font-size: 1.20em">Work in progress</span>
 
-                                &nbsp;&nbsp;This will create and save virtual disease Panels COMPONENT PANEL EDITOR
-                            </div>
                         </div>
 
                         <!-- ANALYSIS AND CLINICAL DATA -->
@@ -496,6 +489,9 @@
                     interactive: {
                         type: Boolean,
                         value: true
+                    },
+                    panelExamples: {
+                        type: Array
                     }
                 }
             }

@@ -21,14 +21,23 @@
         <style include="jso-styles">
 
         </style>
-        <div class="row">
-            <button id="{{prefix}}newPanelButton" type="button" class="btn btn-primary variant-prioritization-view-buttons"
-                    on-click="_changeView">
-                <i class="fa fa-floppy-o icon-padding" aria-hidden="true" data-view="SaveInterpretation" on-click="_changeView"></i>New Panel...
-            </button>
-            <div class="col-md-12">
+        <div class="col-md-12">
+            <div >
+
+                <button id="{{prefix}}newPanelButton" type="button" class="btn btn-primary variant-prioritization-view-buttons"
+                        on-click="_changeView" style="float: right;">
+                    <template is="dom-if" if="{{!panelEditor}}">
+                        <i class="fa fa-floppy-o icon-padding" aria-hidden="true" on-click="_changeView"></i>New Panel...
+                    </template>
+                    <template is="dom-if" if="{{panelEditor}}">
+                        <i class="fa fa-floppy-o icon-padding" aria-hidden="true" on-click="_changeView"></i>Panel List...
+                    </template>
+                </button>
+            </div>
+            <div >
+                <h3>Panel Preview</h3>
                 <template is="dom-if" if="{{!panelEditor}}">
-                    <opencga-panel-list project="{{project}}" study="{{study}}" opencga-client="{{opencgaClient}}"></opencga-panel-list>
+                    <opencga-panel-list project="{{project}}" study="{{study}}" opencga-client="{{opencgaClient}}" panel-examples="{{panelExamples}}"></opencga-panel-list>
                 </template>
                 <template is="dom-if" if="{{panelEditor}}">
                     <opencga-panel-editor project="{{project}}" study="{{study}}" opencga-client="{{opencgaClient}}">
@@ -73,6 +82,9 @@
                     panelEditor: {
                         type: Boolean,
                         value: false,
+                    },
+                    panelExamples: {
+                        type: Array
                     }
                 }
             }

@@ -17,21 +17,25 @@
 <dom-module id="opencga-panel-list">
     <template>
         <style include="jso-styles">
+            .div-margin {
+                margin-top: 20px;
+            }
         </style>
-        <div class="col-md-2">
+        <div class="col-md-2 div-margin">
 
-            <div id="{{prefix}}PanelsDiv" style="margin-top: 10px;">
-                <table id="{{prefix}}PanelsGrid" data-pagination="true" data-page-list="[10, 25, 50]"
-                       data-click-to-select="true" data-search="true">
+            Filters
+            <div><label class="col-form-label">Name: </label> <span> {{panelSelected.name}}</span></div>
+            <div><label class="col-form-label">Author: </label><span> {{panelSelected.author}}</span></div>
+            <div><label class="col-form-label">Version: </label><span> {{panelSelected.version}}</span></div>
+            <div><label class="col-form-label">Description: </label><span> {{panelSelected.description}}</span></div>
+        </div>
+        <div class="col-md-10 div-margin">
+            <div id="{{prefix}}PanelsDiv">
+                <table id="{{prefix}}PanelsGrid" data-pagination="true" data-page-list="[5, 10, 25, 50]"
+                        data-search="true">
                 </table>
             </div>
-        </div>
-        <div class="col-md-10" style="margin-top: 20px;">
 
-            <div><label class="col-form-label">Name: </label> <span>PanelName</span></div>
-            <div><label class="col-form-label">Author: </label><span>AuthorPAnel</span></div>
-            <div><label class="col-form-label">Version:</label><span>2</span></div>
-            <div><label class="col-form-label">Description:</label><span> Description Panel</span></div>
             <div style="padding-top: 20px">
                 <ul id="{{prefix}}ManualTabs" class="nav nav-tabs" role="tablist">
                     <li role="presentation" class="active">
@@ -56,7 +60,7 @@
                         <!-- Variant Browser Grid -->
 
                         <div id="{{prefix}}PanelDiseases" style="">
-                            <table id="{{prefix}}PanelDiseasesGrid" data-pagination="true" data-page-list="[10, 25, 50]"
+                            <table id="{{prefix}}PanelDiseasesGrid" data-pagination="true" data-page-list="[5, 10, 25, 50]"
                                    data-click-to-select="true" data-search="true">
                             </table>
                         </div>
@@ -111,6 +115,9 @@
                     },
                     cellbaseClient: {
                         type: Object
+                    },
+                    panelExamples: {
+                        type: Array
                     }
                 }
             }
@@ -135,13 +142,16 @@
                 }
                 opencgaHostUrl += '/webservices/rest/v1/samples/search';
 
+                let _table = $('#' + this.prefix + 'PanelsGrid');
+
                 let _this = this;
-                $("#" + this.prefix + 'PanelsGrid').bootstrapTable('destroy');
-                $("#" + this.prefix + 'PanelsGrid').bootstrapTable({
-                    url: opencgaHostUrl,
-                    columns: _this._createDefaultColumnsCheckbox(),
-                    method: 'get',
-                    sidePagination: 'server',
+                $(_table).bootstrapTable('destroy');
+                $(_table).bootstrapTable({
+                    // url: opencgaHostUrl,
+                    data: this.panelExamples,
+                    columns: _this._createPanels(),
+                    // method: 'get',
+                    // sidePagination: 'server',
                     filterControl: true,
                     queryParams: function (params) {
                         let auxParams = {
@@ -180,6 +190,10 @@
                         };
                     },
                     onClickRow: function (row, element, field) {
+                        $('.success').removeClass('success');
+                        $(element).addClass('success');
+                        _this.selectPanel(row);
+
                         // let index = element[0].getAttribute("data-index");
                         // // Check and uncheck actions trigger events that are captured below
                         // if (row.state) {
@@ -250,33 +264,31 @@
 
                     },
                     onLoadSuccess: function (data) {
-                        // Check all already selected rows. Selected samples are stored in this.samples array
-                        // if (_this.samples !== "undefined") {
-                        //     for (let idx in _this.samples) {
-                        //         for (let j in data.rows) {
-                        //             if (_this.samples[idx].name === data.rows[j].name) {
-                        //                 $(PolymerUtils.getElementById(_this.prefix + 'SampleSelector')).bootstrapTable('check', j);
-                        //                 break;
-                        //             }
-                        //         }
-                        //     }
-                        // }
+                        PolymerUtils.querySelector(_table.selector).rows[1].setAttribute('class', 'success');
+                        _this.selectPanel(data[0]);
+
                     },
                     onPageChange: function (page, size) {
                         _this.from = (page - 1) * size + 1;
                         _this.to = page * size;
                     },
-                    onPostBody: function() {
-//                         if(PolymerUtils.getElementsByClassName(_this.prefix + 'Download')) {
-//                             PolymerUtils.querySelectorAll("." + _this.prefix + "Download").forEach(elem => elem.addEventListener("click", _this.downloadQCFile.bind(_this), true));
-//
-// //                                PolymerUtils.getElementById(_this.prefix + 'Download').addEventListener('click', _this.downloadQCFile.bind(_this));
-//                         }
-
+                    onPostBody: function(data) {
+                        PolymerUtils.querySelector(_table.selector).rows[1].setAttribute('class', 'success');
+                        // _this.panelSelected = data[0];
+                        _this.selectPanel(data[0]);
                     }
                 });
             }
 
+            selectPanel(panel) {
+                this.panelSelected = panel;
+                this.diseasesSelected = panel.phenotypes;
+                this.genesSelected = panel.genes;
+                this.mutationsSelected = panel.variants;
+                this.renderPanelTableDiseases();
+                this.renderPanelTableGenes();
+                this.renderPanelTableMutations();
+            }
             renderPanelTableDiseases(){
                 // Check that HTTP protocol is present and complete the URL
                 let opencgaHostUrl = this.opencgaClient.getConfig().host;
@@ -288,10 +300,11 @@
                 let _this = this;
                 $("#" + this.prefix + 'PanelDiseasesGrid').bootstrapTable('destroy');
                 $("#" + this.prefix + 'PanelDiseasesGrid').bootstrapTable({
-                    url: opencgaHostUrl,
-                    columns: _this._createDefaultColumns(),
-                    method: 'get',
-                    sidePagination: 'server',
+                    // url: opencgaHostUrl,
+                    data: _this.diseasesSelected,
+                    columns: _this._createPhenotypes(),
+                    // method: 'get',
+                    // sidePagination: 'server',
                     filterControl: true,
                     queryParams: function (params) {
                         let auxParams = {
@@ -438,10 +451,11 @@
                 let _this = this;
                 $("#" + this.prefix + 'PanelGenesGrid').bootstrapTable('destroy');
                 $("#" + this.prefix + 'PanelGenesGrid').bootstrapTable({
-                    url: opencgaHostUrl,
-                    columns: _this._createDefaultColumns(),
-                    method: 'get',
-                    sidePagination: 'server',
+                    // url: opencgaHostUrl,
+                    data: _this.genesSelected,
+                    columns: _this._createGenes(),
+                    // method: 'get',
+                    // sidePagination: 'server',
                     filterControl: true,
                     queryParams: function (params) {
                         let auxParams = {
@@ -588,10 +602,11 @@
                 let _this = this;
                 $("#" + this.prefix + 'PanelMutationsGrid').bootstrapTable('destroy');
                 $("#" + this.prefix + 'PanelMutationsGrid').bootstrapTable({
-                    url: opencgaHostUrl,
-                    columns: _this._createDefaultColumns(),
-                    method: 'get',
-                    sidePagination: 'server',
+                    // url: opencgaHostUrl,
+                    columns: _this._createMutations(),
+                    data: _this.mutationsSelected,
+                    // method: 'get',
+                    // sidePagination: 'server',
                     filterControl: true,
                     queryParams: function (params) {
                         let auxParams = {
@@ -730,17 +745,20 @@
             // panelFormatter(value, row, index) {
             //     return "<span style='white-space: nowrap'>" + index + "</span>";
             // }
+            genesFormatter(value, row, index) {
+                return UtilsNew.isNotEmptyArray(row.genes) ? row.genes.length : 0;
+            }
+            phenotypesFormatter(value, row, index) {
+                return UtilsNew.isNotEmptyArray(row.phenotypes) ? row.phenotypes.length : 0;
+            }
 
-            _createDefaultColumnsCheckbox() {
+            variantFormatter(value, row, index) {
+                return row;
+            }
+
+            _createPanels() {
                 return [
                     [
-                        {
-                            field: "stateCheckBox",
-                            checkbox: true,
-                            colspan: 1,
-                            rowspan: 1,
-                            formatter: this.stateFormatter,
-                        },
                         {
                             title: 'Panel',
                             field: 'name',
@@ -749,6 +767,87 @@
                             rowspan: 1,
                             halign: 'center',
                             searchable: true
+                        },
+                        {
+                            title: 'Genes Number',
+                            // sortable: true,
+                            colspan: 1,
+                            rowspan: 1,
+                            halign: 'center',
+                            formatter: this.genesFormatter,
+                        },
+                        {
+                            title: 'Phenotypes Number',
+                            // sortable: true,
+                            colspan: 1,
+                            rowspan: 1,
+                            halign: 'center',
+                            formatter: this.phenotypesFormatter,
+                        }
+                    ]
+                ];
+            }
+            _createPhenotypes() {
+                return [
+                    [
+                        {
+                            title: 'Name',
+                            field: 'name',
+                            // sortable: true,
+                            colspan: 1,
+                            rowspan: 1,
+                            halign: 'center',
+                            searchable: true
+                        },
+                        {
+                            title: 'Source',
+                            field: 'source',
+                            // sortable: true,
+                            colspan: 1,
+                            rowspan: 1,
+                            halign: 'center',
+                        },
+
+                    ]
+                ];
+            }
+
+            _createGenes() {
+                return [
+                    [
+                        {
+                            title: 'ID',
+                            field: 'id',
+                            // sortable: true,
+                            colspan: 1,
+                            rowspan: 1,
+                            halign: 'center',
+                            searchable: true
+                        },
+                        {
+                            title: 'Weight',
+                            title: 'weight',
+                            // sortable: true,
+                            colspan: 1,
+                            rowspan: 1,
+                            halign: 'center',
+                        },
+                    ]
+                ];
+            }
+
+            _createMutations() {
+                return [
+                    [
+                        {
+                            title: 'Variant',
+                            // sortable: true,
+                            colspan: 1,
+                            rowspan: 1,
+                            halign: 'center',
+                            searchable: true,
+                            formatter: this.variantFormatter,
+
                         }
                     ]
                 ];
