@@ -2,7 +2,7 @@ let diseasePanels = [{
     id: "x",
     name: "X",
 
-    author: "florido@pollon.com",
+    author: "florido@test.com",
     date: "1/1/1111",
     description: "asdf asdf asdf asdf asdf",
 
@@ -46,7 +46,7 @@ let diseasePanels = [{
         id: "x2",
         name: "X2",
 
-        author: "florido@pollon.com",
+        author: "florido@tst2.com",
         date: "1/1/1111",
         description: "asdf asdf asdf asdf asdf",
 

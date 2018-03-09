@@ -23,20 +23,14 @@
         </style>
         <div class="col-md-2 div-margin">
             <div class="form-group has-feedback">
-                <label class="col-label">Name</label>
-                <span> {{panelSelected.name}}</span>
+                <label for="{{prefix}}NamePanel" class="col-label">Panel name</label>
+                <input id="{{prefix}}NamePanel" type="text" class="form-control"
+                       placeholder="Search for" value="">
             </div>
             <div class="form-group has-feedback">
-                <label class="col-label">Author</label>
-                <span> {{panelSelected.author}}</span>
-            </div>
-            <div class="form-group has-feedback">
-                <label class="col-label">Version</label>
-                <span> {{panelSelected.version}}</span>
-            </div>
-            <div class="form-group has-feedback">
-                <label class="col-label">Description</label>
-                <span> {{panelSelected.description}}</span>
+                <label for="{{prefix}}Genes" class="col-label">Genes</label>
+                <input id="{{prefix}}Genes" type="text" class="form-control"
+                       placeholder="Search for" value="">
             </div>
             <div class="form-group has-feedback">
                 <label for="{{prefix}}Genes" class="col-label">Genes</label>
@@ -57,14 +51,18 @@
         </div>
         <div class="col-md-10 div-margin">
             <div id="{{prefix}}PanelsDiv">
-                <table id="{{prefix}}PanelsGrid" data-pagination="true" data-page-list="[5, 10, 25, 50]"
-                        data-search="true">
+                <table id="{{prefix}}PanelsGrid" data-pagination="true" data-page-list="[5, 10, 25, 50]">
                 </table>
             </div>
 
             <div style="padding-top: 20px">
                 <ul id="{{prefix}}ManualTabs" class="nav nav-tabs" role="tablist">
                     <li role="presentation" class="active">
+                        <a href="#{{prefix}}TAB_SUMMARY" role="tab" data-toggle="tab" class="prioritization-variant-tab-title">
+                            Summary
+                        </a>
+                    </li>
+                    <li role="presentation">
                         <a href="#{{prefix}}TAB_A" role="tab" data-toggle="tab" class="prioritization-variant-tab-title">
                           Diseases
                         </a>
@@ -82,12 +80,31 @@
                 </ul>
 
                 <div class="tab-content" >
-                    <div role="tabpanel" class="tab-pane active" id="{{prefix}}TAB_A">
+                    <div role="tabpanel" class="tab-pane active" id="{{prefix}}TAB_SUMMARY">
+                        <div class="form-group has-feedback">
+                            <label class="col-label">Name</label>
+                            <span> {{panelSelected.name}}</span>
+                        </div>
+                        <div class="form-group has-feedback">
+                            <label class="col-label">Author</label>
+                            <span> {{panelSelected.author}}</span>
+                        </div>
+                        <div class="form-group has-feedback">
+                            <label class="col-label">Version</label>
+                            <span> {{panelSelected.version}}</span>
+                        </div>
+                        <div class="form-group has-feedback">
+                            <label class="col-label">Description</label>
+                            <span> {{panelSelected.description}}</span>
+                        </div>
+                    </div>
+
+                    <div role="tabpanel" class="tab-pane" id="{{prefix}}TAB_A">
                         <!-- Variant Browser Grid -->
 
                         <div id="{{prefix}}PanelDiseases" style="">
                             <table id="{{prefix}}PanelDiseasesGrid" data-pagination="true" data-page-list="[5, 10, 25, 50]"
-                                   data-click-to-select="true" data-search="true">
+                                   data-click-to-select="true">
                             </table>
                         </div>
                     </div>
@@ -95,7 +112,7 @@
                         <!-- Variant Browser Grid -->
                         <div id="{{prefix}}PanelGenes" style="">
                             <table id="{{prefix}}PanelGenesGrid" data-pagination="true" data-page-list="[10, 25, 50]"
-                                   data-click-to-select="true" data-search="true">
+                                   data-click-to-select="true" >
                             </table>
                         </div>
                     </div>
@@ -103,7 +120,7 @@
                         <!-- Variant Browser Grid -->
                         <div id="{{prefix}}PanelMutations" style="">
                             <table id="{{prefix}}PanelMutationsGrid" data-pagination="true" data-page-list="[10, 25, 50]"
-                                   data-click-to-select="true" data-search="true">
+                                   data-click-to-select="true" >
                             </table>
                         </div>
                     </div>

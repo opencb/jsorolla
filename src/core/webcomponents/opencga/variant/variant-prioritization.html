@@ -22,7 +22,6 @@
 <link rel="import" href="variant-genome-browser.html">
 <link rel="import" href="../clinical/clinical-analysis-view.html">
 <link rel="import" href="../clinical/clinical-interpretation-view.html">
-<link rel="import" href="../opencga-panel.html">
 
 
 <dom-module id="variant-prioritization">
@@ -91,9 +90,6 @@
 
                             <div style="float: right">
                                 <div class="btn-group" role="group" aria-label="..." style="padding: 0px 5px">
-                                    <button type="button" class="btn btn-success variant-prioritization-view-buttons" data-view="Panels" on-click="_changeView">
-                                        <i class="fa fa-columns icon-padding" aria-hidden="true" data-view="Panels" on-click="_changeView"></i>Panels
-                                    </button>
                                     <button type="button" class="hidden btn btn-success variant-prioritization-view-buttons" data-view="ClinicalData" on-click="_changeView">
                                         <i class="fa fa-user-md icon-padding" aria-hidden="true" data-view="ClinicalData" on-click="_changeView"></i>Analysis and Clinical Data
                                     </button>
@@ -285,15 +281,6 @@
                                                     cellbase-client="{{cellbaseClient}}" query={{query}} search={{search}} region="{{region}}"
                                                     active="{{_genomeBrowserActive}}" full-screen="{{fullScreen}}">
                             </variant-genome-browser>
-                        </div>
-
-
-                        <!-- PANELS -->
-                        <div id="{{prefix}}Panels" class="variant-prioritization-content" style="display: none">
-                            <template is="dom-if" if="{{!interactive}}">
-                                <opencga-panel project="{{project}}" study="{{study}}" opencga-client="{{opencgaClient}}" panel-examples="{{panelExamples}}"></opencga-panel>
-                            </template>
-
                         </div>
 
                         <!-- ANALYSIS AND CLINICAL DATA -->
@@ -489,9 +476,6 @@
                     interactive: {
                         type: Boolean,
                         value: true
-                    },
-                    panelExamples: {
-                        type: Array
                     }
                 }
             }
@@ -661,7 +645,7 @@
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
                 PolymerUtils.hide(this.prefix + "TableResult");
                 PolymerUtils.hide(this.prefix + "GenomeBrowser");
-                PolymerUtils.hide(this.prefix + "Panels");
+                // PolymerUtils.hide(this.prefix + "Panels");
                 PolymerUtils.hide(this.prefix + "ClinicalData");
                 PolymerUtils.hide(this.prefix + "SaveInterpretation");
 
