@@ -37,7 +37,7 @@
                         <select class="form-control" id="{{prefix}}chromosomalGender"
                                 name="chromosomalGender" required data-required-error="This field is required" value="{{chromosomalGenderValue::input}}">
                             <option value="">Select...</option>
-                            <template is="dom-repeat" items="{{config.chromosomal_gender}}">
+                            <template is="dom-repeat" items="{{config.kariotypicSex}}">
                                 <option value="{{item}}">{{item}}</option>
                             </template>
                         </select>
