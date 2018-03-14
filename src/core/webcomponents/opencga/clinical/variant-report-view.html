@@ -29,7 +29,9 @@
             }
 
             #variantTable,
-            #variantTable th {
+            #variantTable th,
+            .tablaGenes,
+            .tablaGenes th {
                 text-align: center
             }
 
@@ -83,6 +85,11 @@
                 margin-bottom: 22px
             }
 
+            .tablaGenes td,
+            .tablaGenes th {
+                border: 1px solid #000
+            }
+
             .divSection {
                 margin: -24px 0 5px 11px
             }
@@ -90,7 +97,12 @@
             .tablaGenes {
                 width: 300px;
                 float: left;
-                margin-top: 10px
+                margin-top: 10px;
+                margin-right: 5px
+            }
+
+            .tablaGenes th {
+                background-color: #a9a9a9
             }
 
             .clean {
@@ -510,7 +522,7 @@
                     <br>
                     <h3 class="titlesAnalysis">{{loadi18n('attached1')}}</h3>
 
-                    <table class="tablaGenes table-sm table-striped">
+                    <table class="tablaGenes">
                         <thead>
                             <tr class="active">
                                 <th>{{loadi18n('gen')}}</th>
