@@ -459,6 +459,10 @@
                 if (UtilsNew.isNotEmptyArray(this.samples)) {  // this.query.samples !== undefined && this.query.samples.length > 0
                     this.showSampleGenotypes = true;
                     PolymerUtils.setAttribute(this.prefix + "SampleGenotypeDivTable", "style", "display: inline");
+                    // If there is more than one sample we make visible the Segregation dropdown
+                    if (this.samples.length > 1) {
+                        PolymerUtils.setAttribute(this.prefix + "SampleSegregation", "style", "display: inline");
+                    }
                 } else {
                     this.showSampleGenotypes = false;
                     PolymerUtils.setAttribute(this.prefix + "SampleGenotypeDivTable", "style", "display: none");
@@ -1398,7 +1402,7 @@
                         </div>
 
 
-                        <div id="${prefix}SampleSegregation">
+                        <div id="${prefix}SampleSegregation" style="display: none">
                             <div style="padding-left: 10px;padding-top: 10px">
                                 <span class="control-label">Inheritance Mode:</span>
                                 <select id="${prefix}SegregationOperator" name="${prefix}Segregation"
