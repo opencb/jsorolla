@@ -23,7 +23,8 @@ const filter = {
     tooltip: {
         classes: "qtip-dark qtip-rounded qtip-shadow"
     },
-    sections: [
+    skipSubsections: [],    // controls which subsections are disabled and should not be displayed
+    sections: [             // sections and subsections, structure and order is respected
         {
             title: "Study and Cohorts",
             collapsed: false,
@@ -32,7 +33,7 @@ const filter = {
                     id: "sample",
                     title: "Samples",
                     selector: true,
-                    segregations: ["Autosomal Dominant", "Autosomal Recessive", "Compound Heterocygotous", "Recessive X-linked"],
+                    segregations: [{key: "none",text: "Select..."}, {key: "autoDominant", text: "Autosomal Dominant"}, {key: "autoRecessive", text: "Autosomal Recessive"}, {key:"xLinked", text: "X linked"}, {key: "yLinked", text: "Y linked"}],
                     tooltip: "Filter by sample genotypes"
                 },
                 {
@@ -44,11 +45,6 @@ const filter = {
                                 {id: "ALL", name: "All"}, {id: "MXL", name: "Mexican"}
                             ],
                             EXAC: [
-                                {id: "ALL", name: "All"}
-                            ]
-                        },
-                        platinum: {
-                            illumina_platinum: [
                                 {id: "ALL", name: "All"}
                             ]
                         }
@@ -99,7 +95,7 @@ const filter = {
             subsections: [
                 {
                     id: "populationFrequency",
-                    title: "Select Population MAF",
+                    title: "Select Population Frequency",
                     tooltip: "<strong>1000 Genomes</strong> only considers variants whose observed allelic frequency in the 1000 Genomes " +
                     "Phase 3 project is below (or above) the defined value. Allele frequencies were obtained from about 2,500 samples." +
                     "<br><strong>ExAC</strong> only considers variants whose observed allelic frequency in the The Exome Aggregation " +
@@ -111,7 +107,7 @@ const filter = {
             ]
         },
         {
-            title: "Deleriousness",
+            title: "Deleteriousness",
             collapsed: true,
             subsections: [
                 {
@@ -194,34 +190,7 @@ const filter = {
                 }
             ]
         }
-
-    ],
-    study: {
-        title: "Study and Cohorts",
-        collapsed: false,
-        samples: {
-            visibility: "public",
-            selector: true,
-            segregation: ["Autosomal Dominant", "Autosomal Recessive", "Compound Heterocygotous", "Recessive X-linked"]
-        },
-        cohorts: {
-            visibility: "public",
-            cohortPerStudy: {
-                "1kG_phase3": [{id: "ALL", name: "All"}, {id: "MXL", name: "Mexican"}],
-                "EXAC": [{id: "ALL", name: "All"}]
-            }
-        },
-        scores: {
-            visibility: "none",
-            tooltip: ""
-        },
-        studies: {
-            visibility: "public"
-        },
-        clinicalData: {
-            visibility: "none"
-        }
-    }
+    ]
 };
 
 const variantView = {
@@ -272,7 +241,12 @@ const tools = {
                 },
             },
         ],
-        filter: filter
+        // This disables two subsections in the filter menu Prioritization
+        filter: Object.assign({}, filter, {skipSubsections: ["cohort", "study"]}),
+        grid: {
+            showSelect: true,
+            nucleotideGenotype: false
+        }
     },
     interpretation: {
         active: false

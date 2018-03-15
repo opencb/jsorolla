@@ -230,15 +230,15 @@
                         queryParams: function (params) {
                             queryParams.limit = params.limit;
                             queryParams.skip = params.offset;
-                            queryParams.skipCount = false;
                             return queryParams;
                         },
-                        responseHandler: function (res) {
+                        responseHandler: function (resp) {
                             if (_numTotal === -1) {
-                                _numTotal = res.response[0].numTotalResults;
+                                _numTotal = resp.response[0].numTotalResults;
                             }
+                            // Format the number string with commas
                             _this.numTotalResultsText = _numTotal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-                            return {total: _numTotal, rows: res.response[0].result}
+                            return {total: _numTotal, rows: resp.response[0].result}
                         },
                         onClickRow: function (row, $element) {
                             $('.success').removeClass('success');
@@ -353,7 +353,7 @@
                             return queryParams;
                         },
                         responseHandler: function (res) {
-                            if (_numTotal == -1) {
+                            if (_numTotal === -1) {
                                 _numTotal = res.response[0].numTotalResults;
                                 _this.count = _numTotal;
                             }
@@ -372,48 +372,43 @@
             }
 
             _getUrlQueryParams() {
-                if (typeof this.opencgaClient === "undefined") {
-                    return {host: "", queryParams: {}, url: ""};
+                // Check the opencgaClient exists
+                if (UtilsNew.isUndefinedOrNull(this.opencgaClient)) {
+                    return {host: "", queryParams: {}};
                 }
 
-                let host = "";
-                if (this.opencgaClient.getConfig().host.startsWith("https://")) {
-                    host = this.opencgaClient.getConfig().host;
-                } else {
-                    host = 'http://' + this.opencgaClient.getConfig().host;
+                let host = this.opencgaClient.getConfig().host;
+                // By default we assume https protocol instead of http
+                if (!host.startsWith("https://") && !host.startsWith("http://")) {
+                    host = 'https://' + this.opencgaClient.getConfig().host;
                 }
 
                 if (typeof this.project !== "undefined" && typeof this.study.alias !== "undefined") {
                     if (typeof this.query === "undefined") {
                         this.query = {};
                     }
-                    if (typeof this.query.studies === "undefined" || this.query.studies === "" || this.query.studies.split(new RegExp("[,;]")).length === 1) {
+                    if (UtilsNew.isEmpty(this.query.studies) || this.query.studies.split(new RegExp("[,;]")).length === 1) {
                         this.query.studies = this.project.alias + ":" + this.study.alias;
                     }
                     host += '/webservices/rest/v1/analysis/variant/query';
                 } else {
-                    return {host: host, queryParams: {}, url: ""};
+                    return {host: host, queryParams: {}};
                 }
 
-                let queryParams = {
-                    sid: this.opencgaClient._config.sessionId,
-                    timeout: 60000,
-                };
 
-                Object.assign(queryParams, this.query); // Important : Adding the query object contents to queryParams
+                // Init queryParams with default and config values plus query object
+                let queryParams = Object.assign({sid: this.opencgaClient._config.sessionId}, this.config.queryParams, this.query);
 
                 if (UtilsNew.isNotEmptyArray(this.samples)) {
                     let sampleNames = [];
                     this.samples.forEach((sample) => {
                         sampleNames.push(sample.name);
                     });
-//                    queryParams.includeSamples = sampleNames.join(",");
-                    queryParams.returnedSamples = sampleNames.join(",");
                     queryParams.summary = false;
-//                    queryParams.exclude = "studies.files,studies.stats,annotations.expression,annotations.drugs";
+                    queryParams.includeSample = sampleNames.join(",");
+                    queryParams.exclude = "studies.files,annotation.geneExpression";
                 } else {
                     queryParams.summary = true;
-//                    queryParams.exclude = "studies";
                 }
 
                 if (typeof this.config !== "undefined" && typeof this.config.missing !== "undefined" && this.config.missing) {
@@ -428,33 +423,16 @@
                     }
                 }
 
-                // Advanced query params
-//                queryParams.useSearchIndex = "yes"; // values accepted: yes, no and auto
-//                queryParams.approximateCount = true;
-//                queryParams.approximateCountSamplingSize = 1000;
-                queryParams.intersectSearch = true;
-                queryParams.approxCount = true;
-
-                let query = ["limit=1000"];
-                for (let key in queryParams) {
-                    // Check sid has a proper value. For public projects sid is undefined. In that case, sid must be removed from the url
-                    if (key === "sid" && queryParams[key] === undefined) {
-                        delete queryParams["sid"];
-                    } else {
-                        query.push(key + "=" + queryParams[key]);
-                    }
-                }
-                let url = host + "?" + query.join("&");
-
-                return {host: host, queryParams: queryParams, url: url};
+                return {host: host, queryParams: queryParams};
             }
+
             _onSelectVariant(row) {
                 if (typeof row !== "undefined") {
                     let _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
-//                    this.fire('selectvariant', {id: _variant, variant: row});
                     this.dispatchEvent(new CustomEvent('selectvariant', {detail: {id: _variant, variant: row}}));
                 }
             }
+
             renderFromLocal() {
                 let _this = this;
                 $('#' + this.prefix + 'VariantBrowserGrid').bootstrapTable('destroy');
@@ -1244,7 +1222,16 @@
                 $("[data-toggle=popover]").popover({
                     content: function() {
                         let getUrlQueryParams = _this._getUrlQueryParams();
-                        return getUrlQueryParams.url;
+                        let query = ["limit=1000"];
+                        for (let key in getUrlQueryParams.queryParams) {
+                            // Check sid has a proper value. For public projects sid is undefined. In that case, sid must be removed from the url
+                            if (key === "sid" && getUrlQueryParams.queryParams[key] === undefined) {
+                                delete getUrlQueryParams.queryParams["sid"];
+                            } else {
+                                query.push(key + "=" + getUrlQueryParams.queryParams[key]);
+                            }
+                        }
+                        return getUrlQueryParams.host + "?" + query.join("&");
                     }
                 }).on("show.bs.popover", function () {
                     $(this).data("bs.popover").tip().css("max-width", "none");
