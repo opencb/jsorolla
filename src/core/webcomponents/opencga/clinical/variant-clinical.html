@@ -16,7 +16,7 @@
 
 <link rel="import" href="variant-clinical-upload-new.html">
 <link rel="import" href="variant-clinical-samples.html">
-<link rel="import" href="../variant/variant-prioritization.html">
+<link rel="import" href="../variant/opencga-variant-interpretation.html">
 <link rel="import" href="variant-clinical-report.html">
 <link rel="import" href="variant-clinical-selector.html">
 <link rel="import" href="clinical-analysis-view.html">
@@ -250,7 +250,7 @@
 
                     <template is="dom-if" if="{{activePrioritization}}">
                         <div style="margin: auto">
-                            <variant-prioritization mode="prioritization" tool-title="Prioritization"
+                            <opencga-variant-interpretation tool-title="Prioritization"
                                                     project="{{project}}" study="{{study}}" samples="{{samples}}"
                                                     config="{{config}}" biotypes="{{biotypes}}"
                                                     population-frequencies="{{populationFrequencies}}"
@@ -262,7 +262,7 @@
                                                     beacon-hosts="{{config.tools.beacon.hosts}}" on-gene="geneSelected"
                                                     clinical-analysis="{{clinicalAnalysis}}" on-backtoselectanalysis="changeTool" event-notify-name="{{eventNotifyName}}"
                                                     interactive="{{interactive}}" panel-examples="{{panelExamples}}">
-                            </variant-prioritization>
+                            </opencga-variant-interpretation>
                         </div>
                     </template>
                 </template>

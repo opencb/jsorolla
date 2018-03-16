@@ -24,7 +24,7 @@
 <link rel="import" href="../clinical/clinical-interpretation-view.html">
 
 
-<dom-module id="variant-prioritization">
+<dom-module id="opencga-variant-interpretation">
     <template>
         <style include="jso-styles">
             .prioritization-center {
@@ -65,7 +65,6 @@
                                             ebi-config="{{ebiConfig}}"
                                             on-samplechange="onSampleChange" genotype-samples="{{genotypeSamples}}"
                                             on-inheritancemode="_onInheritanceMode" mode-inheritance="{{modeInheritance}}">
-
                     </variant-browser-filter>
                 </div>
 
@@ -80,17 +79,17 @@
                     <div class="col-md-12" style="padding: 5px 0px 5px 0px">
                         <div class="btn-toolbar" role="toolbar" aria-label="..." style="padding: 10px 0px">
                             <div class="btn-group" role="group" aria-label="..." >
-                                <button type="button" class="btn btn-success variant-prioritization-view-buttons active" data-view="TableResult" on-click="_changeView">
+                                <button type="button" class="btn btn-success variant-interpretation-view-buttons active" data-view="TableResult" on-click="_changeView">
                                     <i class="fa fa-table icon-padding" aria-hidden="true" data-view="TableResult" on-click="_changeView"></i>Table Result
                                 </button>
-                                <button type="button" class="btn btn-success variant-prioritization-view-buttons" data-view="GenomeBrowser" on-click="_changeView">
+                                <button type="button" class="btn btn-success variant-interpretation-view-buttons" data-view="GenomeBrowser" on-click="_changeView">
                                     <i class="fa fa-list-alt icon-padding" aria-hidden="true" data-view="GenomeBrowser" on-click="_changeView"></i>Genome Browser (Beta)
                                 </button>
                             </div>
 
                             <div style="float: right">
                                 <div class="btn-group" role="group" aria-label="..." style="padding: 0px 5px">
-                                    <button type="button" class="hidden btn btn-success variant-prioritization-view-buttons" data-view="ClinicalData" on-click="_changeView">
+                                    <button type="button" class="hidden btn btn-success variant-interpretation-view-buttons" data-view="ClinicalData" on-click="_changeView">
                                         <i class="fa fa-user-md icon-padding" aria-hidden="true" data-view="ClinicalData" on-click="_changeView"></i>Analysis and Clinical Data
                                     </button>
                                 </div>
@@ -98,17 +97,17 @@
                                 <div class="btn-group" role="group" aria-label="...">
                                     <template is="dom-if" if="{{clinicalAnalysis}}">
                                         <div class="btn-group" role="group" aria-label="...">
-                                            <button id="{{prefix}}BackToAnalysisSelector" type="button" class="btn btn-primary variant-prioritization-view-buttons"
+                                            <button id="{{prefix}}BackToAnalysisSelector" type="button" class="btn btn-primary variant-interpretation-view-buttons"
                                                     data-view="OpenClinicalAnalysis" on-click="_backToSelectAnalysis">
                                                 <i class="fa fa-arrow-left icon-padding" aria-hidden="true" data-view="OpenClinicalAnalysis" on-click="_backToSelectAnalysis"></i>Back to Clinical Analysis Selector
                                             </button>
                                         </div>
                                     </template>
-                                    <button id="{{prefix}}OpenClinicalButton" type="button" class="hidden btn btn-primary variant-prioritization-view-buttons"
+                                    <button id="{{prefix}}OpenClinicalButton" type="button" class="hidden btn btn-primary variant-interpretation-view-buttons"
                                             data-view="OpenClinicalAnalysis" on-click="_changeView">
                                         <i class="fa fa-search icon-padding" aria-hidden="true" data-view="OpenClinicalAnalysis" on-click="_changeView"></i>Clinical Analysis
                                     </button>
-                                    <button id="{{prefix}}SaveInterpretationButton" type="button" class="btn btn-primary variant-prioritization-view-buttons"
+                                    <button id="{{prefix}}SaveInterpretationButton" type="button" class="btn btn-primary variant-interpretation-view-buttons"
                                             data-view="SaveInterpretation" on-click="_changeView" disabled>
                                         <i class="fa fa-floppy-o icon-padding" aria-hidden="true" data-view="SaveInterpretation" on-click="_changeView"></i>Save Interpretation...
                                     </button>
@@ -119,7 +118,7 @@
 
                     <div>
                         <!-- TABLE RESULT -->
-                        <div id="{{prefix}}TableResult" class="variant-prioritization-content">
+                        <div id="{{prefix}}TableResult" class="variant-interpretation-content">
                             <template is="dom-if" if="{{interactive}}">
                                 <!-- Variant Browser Grid -->
                                 <variant-browser-grid study="{{study}}" project="{{project}}" samples="{{samples}}"
@@ -274,7 +273,7 @@
                         </div>
 
                         <!-- GENOME BROWSER -->
-                        <div id="{{prefix}}GenomeBrowser" class="variant-prioritization-content" style="display: none">
+                        <div id="{{prefix}}GenomeBrowser" class="variant-interpretation-content" style="display: none">
                             <br>
                             <br>
                             <variant-genome-browser project="{{project}}" study="{{study}}" samples="{{samples}}" opencga-client="{{opencgaClient}}"
@@ -284,7 +283,7 @@
                         </div>
 
                         <!-- ANALYSIS AND CLINICAL DATA -->
-                        <div id="{{prefix}}ClinicalData" class="variant-prioritization-content" style="display: none">
+                        <div id="{{prefix}}ClinicalData" class="variant-interpretation-content" style="display: none">
                             <br>
                             <!--<opencga-sample-comparator opencga-client="{{opencgaClient}}" samples="{{samples}}"-->
                             <!--variable-sets="{{variableSets}}">-->
@@ -295,7 +294,7 @@
                         </div>
 
                         <!-- SAVE INTERPRETATION TAB -->
-                        <div id="{{prefix}}SaveInterpretation" class="variant-prioritization-content" style="display: none">
+                        <div id="{{prefix}}SaveInterpretation" class="variant-interpretation-content" style="display: none">
                             <div class="col-md-12">
                                 <h2 class="clinical-title">Save Interpretation</h2>
                                 <hr style="margin-top: 5px">
@@ -401,7 +400,7 @@
     </template>
 
     <script>
-        class VariantPrioritization extends Polymer.Element {
+        class OpencgaVariantInterpretation extends Polymer.Element {
 
             constructor() {
                 super();
@@ -411,7 +410,7 @@
             }
 
             static get is() {
-                return 'variant-prioritization';
+                return 'opencga-variant-interpretation';
             }
 
             static get properties() {
@@ -654,7 +653,7 @@
                 }
 
                 // Show the active button
-                PolymerUtils.removeClass(".variant-prioritization-view-buttons", "active");
+                PolymerUtils.removeClass(".variant-interpretation-view-buttons", "active");
                 $(e.target).addClass("active");
 
                 // Make Genome Browser active
@@ -899,6 +898,6 @@
 
         }
 
-        customElements.define(VariantPrioritization.is, VariantPrioritization);
+        customElements.define(OpencgaVariantInterpretation.is, OpencgaVariantInterpretation);
     </script>
 </dom-module>
