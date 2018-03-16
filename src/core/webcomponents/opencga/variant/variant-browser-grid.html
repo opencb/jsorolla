@@ -34,6 +34,9 @@
         <div id="{{prefix}}ToolbarLeft" style="float: left;margin: 10px 0px 0px 0px">
             <span>
                 Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> variants
+                <template is="dom-if" if="{{approximateCountResult}}">
+                    (approximate num total result)
+                </template>
             </span>
         </div>
 
@@ -209,6 +212,7 @@
 
                 this.from = 1;
                 this.to = 10;
+                this.approximateCountResult = false;
 
                 let _table = $('#' + this.prefix + 'VariantBrowserGrid');
                 let _this = this;
@@ -235,6 +239,7 @@
                             }
                             // Format the number string with commas
                             _this.numTotalResultsText = _numTotal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                            _this.approximateCountResult = resp.response[0].approximateCount;
                             return {total: _numTotal, rows: resp.response[0].result}
                         },
                         onClickRow: function (row, $element) {
