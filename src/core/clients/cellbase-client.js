@@ -323,7 +323,7 @@ class CellBaseClient {
 
 
     _createRestUrl(host, version, species, category, subcategory, ids, resource, params) {
-        let url = host;
+        let url = host + `/webservices/rest/${version}/${species}/`;
         // By default we assume https protocol instead of http
         if (!url.startsWith("https://") && !url.startsWith("http://")) {
             url = `http://${host}/webservices/rest/${version}/${species}/`;
