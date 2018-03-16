@@ -717,9 +717,10 @@
                         let clinicalData = row.annotation.variantTraitAssociation[this.field];
                         if (typeof clinicalData !== "undefined") {
                             for (let j = 0; j < clinicalData.length; j++) {
-                                if (this.field == "clinvar" || this.field == "gwas" && traits.indexOf(clinicalData[j].traits[0]) == -1) {
+                                if (this.field === "clinvar" && traits.indexOf(clinicalData[j].traits[0]) === -1
+                                    && clinicalData[j].traits[0] !== "not specified" && clinicalData[j].traits[0] !== "not provided") {
                                     traits.push(clinicalData[j].traits[0]);
-                                } else if (this.field == "cosmic" && traits.indexOf(clinicalData[j].primaryHistology) == -1) {
+                                } else if (this.field === "cosmic" && traits.indexOf(clinicalData[j].primaryHistology) === -1) {
                                     traits.push(clinicalData[j].primaryHistology);
                                 }
                             }
