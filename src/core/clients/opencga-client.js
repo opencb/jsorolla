@@ -248,11 +248,10 @@ class OpenCGAParentClass {
     }
 
     _createRestUrl(host, version, category1, ids1, category2, ids2, action) {
-        let url;
-        if (host.startsWith("https://")) {
-            url = `${host}/webservices/rest/${version}/${category1}/`;
-        } else {
-            url = `http://${host}/webservices/rest/${version}/${category1}/`;
+        let url = host;
+        // By default we assume https protocol instead of http
+        if (!url.startsWith("https://") && !url.startsWith("http://")) {
+            url = `https://${host}/webservices/rest/${version}/${category1}/`;
         }
 
         // Some web services do not need IDs
