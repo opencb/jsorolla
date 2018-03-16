@@ -74,6 +74,7 @@
                 font-weight: 550
             }
 
+            .fontBody,
             .tablaGenes,
             span.col-form-control {
                 font-size: 14px
@@ -111,7 +112,26 @@
 
             label.col-form-label {
                 font-weight: 600;
-                font-size: 14px
+                font-size: 14px;
+                margin-bottom: 0
+            }
+
+            .marginbreak {
+                margin-bottom: 25.5px
+            }
+
+            .sampleMargin {
+                margin: 0 0 0 30px
+            }
+
+            .logoSas {
+                height: 100px;
+                margin: 0 0 0 72px
+            }
+
+            .infoPos,
+            .posContent {
+                margin-left: 55px
             }
 
             table {
@@ -135,23 +155,18 @@
                     page-break-before: always
                 }
             }
-
-            .marginbreak {
-                margin-bottom: 25.5px
-            }
         </style>
 
         <br>
-
         <div id="{{prefix}}reportDiv" class="panel panel-default">
             <div class="panel-body">
-                <img src="[[importPath]]images/logosas.svg" style="margin: 0px 0px 0px 72px" height="100">
+                <img src="[[importPath]]images/logosas.svg" class="logoSas">
 
                 <hr class="hrReport">
 
                 <div class="divSection sample-information col-sm-12 col-xs-12" id="{{prefix}}InfoFirstTab">
                     <!-- Sample information related to proband -->
-                    <div style="margin: 0px 0px 0px 30px">
+                    <div class="sampleMargin">
                         <table class="analysis-information col-sm-10">
                             <tr>
                                 <td class="col-xs-5 col-sm-5 col-md-5">
@@ -204,7 +219,7 @@
                 <hr class="hrReport">
 
                 <div class="divSection sample-information col-sm-12 col-xs-12" id="{{prefix}}InfoSecondTab">
-                    <div style="margin: 0px 0px 0px 30px">
+                    <div class="sampleMargin">
                         <table class="analysis-information col-sm-10">
                             <tr>
                                 <td class="col-xs-5 col-sm-5 col-md-5">
@@ -282,10 +297,10 @@
                 <hr class="hrReport">
 
                 <!-- Disease Header -->
-                <h3 id="{{prefix}}titleReport" class="centerHeader text-center">{{loadi18n('header')}} {{dataFields.diseaseHeader}}</h3>
-                <div style="float: left; margin: 0px 0px 20px 80px">
-                    <strong>{{loadi18n('reasonConsultation')}}</strong>
-                    <p>{{dataFields.reasonConsultation}}</p>
+                <h3 id="{{prefix}}titleReport" class="centerHeader text-center" style=" width: 75%; margin: 0 auto; ">{{loadi18n('header')}} {{dataFields.diseaseHeader}}</h3>
+                <div style="float: left;margin: 0px 0px 15px 70px;">
+                    <h3 class="titlesAnalysis">{{loadi18n('reasonConsultation')}}</h3>
+                    <p style="margin-left: 13px;">{{dataFields.reasonConsultation}}</p>
                 </div>
 
                 <br>
@@ -295,12 +310,13 @@
                 <br>
 
                 <!-- Analysis Information -->
-                <div class="divSection analysis-information col-sm-12" id="{{prefix}}analysisInformationDiv" hidden>
+                <div class="clean"></div>
+                <br>
+                <div class="divSection analysis-information infoPos col-sm-12" id="{{prefix}}analysisInformationDiv" hidden>
                     <h3 class="titlesAnalysis">{{loadi18n('headerAnalysis')}}</h3>
 
                     <div style="margin: 0px 0px 30px 0px" class="analysis-information col-sm-10" id="{{prefix}}analysisInformationContent">
                         <div class="row" id="{{prefix}}analysisInformation" hidden>
-
                             <div class="col-xs-6" id="{{prefix}}analysisInformationID">
                                 <label for="{{prefix}}analysisID" class="col-form-label">{{loadi18n('analysisId')}}:</label>
                                 <span class$="{{prefix}}TextInput" id="{{prefix}}analysisID" name="analysis"></span>
@@ -312,7 +328,6 @@
                             </div>
                         </div>
                         <div class="row" id="{{prefix}}analysisInformationResume" hidden>
-
                             <content class="col-xs-6">
                                 <label for="{{prefix}}analysisType" class="col-form-label">{{loadi18n('analysisType')}}:</label>
                                 <span class$="{{prefix}}TextInput" id="{{prefix}}analysisType" name="analysisType"></span>
@@ -325,17 +340,39 @@
                     </div>
                 </div>
 
+                <br>
+                <br>
+
+                <!-- Interpretation Information -->
+                <div class="divSection posContent col-sm-12 marginbreak" id="{{prefix}}interpretationInformationDiv">
+                    <h3 class="titlesAnalysis">{{loadi18n('interpretationInfo')}}</h3>
+
+                    <div style="margin: 0px 0px 20px 0px" class="col-sm-10" id="{{prefix}}interpretationInformationContent">
+                        <div class="row">
+
+                            <content class="col-xs-6 fontBody" id="{{prefix}}interpretationInformationID">
+                                <label for="{{prefix}}interpretationID" class="col-form-label">{{loadi18n('interpretationId')}}:</label>
+                                <span class$="{{prefix}}TextInput" id="{{prefix}}interpretationID" name="interpretation"></span>
+                            </content>
+                            <content class="col-xs-6 fontBody" id="{{prefix}}interpretationInformationName">
+                                <label for="{{prefix}}interpretationName" class="col-form-label">{{loadi18n('interpretationName')}}:</label>
+                                <span class$="{{prefix}}TextInput" id="{{prefix}}interpretationName" name="interpretationName"></span>
+                            </content>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="page-break marginbreak">
-                    <img src="[[importPath]]images/logosas.svg" style="margin: 0px 0px 0px 72px" height="100">
+                    <img src="[[importPath]]images/logosas.svg" class="logoSas">
                 </div>
 
                 <!-- Prioritization Information -->
-                <div class="divSection prioritization-information col-sm-12" id="{{prefix}}prioritizationInformationDiv">
+                <div class="divSection prioritization-information infoPos col-sm-12" id="{{prefix}}prioritizationInformationDiv">
                     <div style="padding-bottom: 25.5px;"></div>
                     <h3 class="titlesAnalysis">{{loadi18n('prioritizationInfo')}}</h3>
                     <hr>
                     <div class="prioritization-summary col-sm-10" id="{{prefix}}variantsTableDiv" hidden>
-                        <h4 style="font-size:14px; font-weight: 600;">{{loadi18n('result')}}</h4>
+                        <h4 class="fontBody" style="font-weight: 600;">{{loadi18n('result')}}</h4>
                         <table id="variantTable" class="table hover" style="border: 1px solid #dadada;
                                 border-collapse: collapse;">
                             <thead>
@@ -360,21 +397,21 @@
                                 <template is="dom-if" if="{{!interpretation.attributes.panelInfo.positive}}">
                                     <tr class="active">
                                         <td>
-                                            <strong style="font-size:14px;">{{loadi18n('result')}}</strong>
+                                            <strong class="fontBody">{{loadi18n('result')}}</strong>
                                         </td>
-                                        <td style="font-size:14px;">{{loadi18n('textResultNegative')}} {{dataFields.diseaseHeader}}</td>
+                                        <td class="fontBody">{{loadi18n('textResultNegative')}} {{dataFields.diseaseHeader}}</td>
                                     </tr>
                                 </template>
 
                                 <tr class="active">
                                     <td>
-                                        <strong style="font-size:14px;">{{loadi18n('summary')}}</strong>
+                                        <strong class="fontBody">{{loadi18n('summary')}}</strong>
                                     </td>
                                     <template is="dom-if" if="{{!interpretation.attributes.panelInfo.positive}}">
-                                        <td style="font-size:14px;">{{loadi18n('textSummaryNegative')}}</td>
+                                        <td class="fontBody">{{loadi18n('textSummaryNegative')}}</td>
                                     </template>
                                     <template is="dom-if" if="{{interpretation.attributes.panelInfo.positive}}">
-                                        <td style="font-size:14px;">
+                                        <td class="fontBody">
                                             <template is="dom-repeat" items="{{interpretation.reportedVariants}}">
                                                 <!--let variantId  = data[j].chromosome + ":" + data[j].start + ":" + data[j].reference + ":" + data[j].alternate;-->
                                                 <li>{{dataFields.patient}} presenta la mutación {{item.chromosome}}:{{item.start}}:{{item.reference}}:{{item.alternate}}
@@ -386,6 +423,7 @@
                             </tbody>
                         </table>
                     </div>
+
                     <div class="prioritization-summary col-sm-12" id="{{prefix}}prioritizationSummaryDiv" hidden>
                         <h4>{{loadi18n('filterSummary')}}</h4>
                         <div class="form-group row">
@@ -412,28 +450,9 @@
                     <br>
                 </div>
 
-                <!-- Interpretation Information -->
-                <div class="divSection col-sm-12 marginbreak" id="{{prefix}}interpretationInformationDiv" style="margin-top:25px;">
-                    <h3 class="titlesAnalysis">{{loadi18n('interpretationInfo')}}</h3>
-
-                    <div style="margin: 0px 0px 30px 0px" class="col-sm-10" id="{{prefix}}interpretationInformationContent">
-                        <div class="row">
-
-                            <content style="font-size:14px;" class="col-xs-6" id="{{prefix}}interpretationInformationID">
-                                <label for="{{prefix}}interpretationID" class="col-form-label">{{loadi18n('interpretationId')}}:</label>
-                                <span class$="{{prefix}}TextInput" id="{{prefix}}interpretationID" name="interpretation"></span>
-                            </content>
-                            <content style="font-size:14px;" class="col-xs-6" id="{{prefix}}interpretationInformationName">
-                                <label for="{{prefix}}interpretationName" class="col-form-label">{{loadi18n('interpretationName')}}:</label>
-                                <span class$="{{prefix}}TextInput" id="{{prefix}}interpretationName" name="interpretationName"></span>
-                            </content>
-                        </div>
-                    </div>
-                </div>
-                <br>
                 <!-- Interpretation -->
                 <template is="dom-if" if="{{!interpretation.attributes.panelInfo.positive}}">
-                    <div class="divSection other-information col-sm-12" id="{{prefix}}interpretationDiv">
+                    <div class="divSection other-information posContent col-sm-12" id="{{prefix}}interpretationDiv">
                         <h3 class="titlesAnalysis">{{loadi18n('interpretationHeader')}}</h3>
                         <ul>
                             <li>
@@ -446,6 +465,8 @@
                         </ul>
                     </div>
                 </template>
+
+                <!-- Info positive -->
                 <template is="dom-if" if="{{interpretation.attributes.panelInfo.positive}}">
                     <div class="divSection other-information col-sm-12 marginbreak" id="{{prefix}}interpretationDiv">
                         <h3 class="titlesAnalysis">{{loadi18n('interpretationHeader')}}</h3>
@@ -460,29 +481,25 @@
                     </div>
                 </template>
 
-                <div class="divSection other-information col-sm-12" id="{{prefix}}signDiv">
+                <!-- Sign -->
+                <div class="divSection other-information col-sm-12" id="{{prefix}}signDiv" style="margin-top:30px; padding-bottom:100px;">
                     <div class="row">
                         <div class="marginbreak"></div>
                         <content class="col-xs-6" id="{{prefix}}signLeft">
-                            <label class="col-form-label">{{loadi18n('signBy')}}{{dataFields.signLeft}}</label>
-                            <!-- <textarea disabled name="signBy1" id="signBy1" cols="25" rows="8"></textarea> -->
-                            <br>
+                            <label class="col-form-label posContent">{{loadi18n('signBy')}}{{dataFields.signLeft}}</label>
                         </content>
                         <content class="col-xs-6" id="{{prefix}}signRight">
-                            <label class="col-form-label">{{loadi18n('signBy')}}{{dataFields.signRight}}</label>
-                            <!-- <textarea disabled name="signBy2" id="signBy2" cols="25" rows="8"></textarea> -->
-                            <br>
+                            <label class="col-form-label posContent">{{loadi18n('signBy')}}{{dataFields.signRight}}</label>
                         </content>
-                        <br>
                     </div>
                 </div>
 
                 <div class="page-break marginbreak">
-                    <img src="[[importPath]]images/logosas.svg" style="margin: 0px 0px 0px 72px" height="100">
+                    <img src="[[importPath]]images/logosas.svg" class="logoSas">
                 </div>
 
                 <!-- Metodology -->
-                <div class="divSection other-information col-sm-12" id="{{prefix}}methodologyDiv">
+                <div class="divSection other-information posContent col-sm-12" id="{{prefix}}methodologyDiv">
                     <br>
                     <h3 class="titlesAnalysis">{{loadi18n('methodology')}}</h3>
                     <br>
@@ -499,15 +516,14 @@
                         </li>
                         <li>{{loadi18n('methodologyText4')}}</li>
                     </ul>
-                    <p>{{loadi18n('methodologyText4')}}</p>
                     <p>{{loadi18n('methodologyText5')}}</p>
                     <p>{{loadi18n('methodologyText6')}}</p>
                 </div>
 
-                <div class="divSection other-information col-sm-12" id="{{prefix}}conclusionsDiv" hidden>
+                <!-- Additional Info -->
+                <div class="divSection other-information posContent col-sm-12" id="{{prefix}}conclusionsDiv" hidden>
                     <div style="padding-top:25.5px;"></div>
                     <h3 class="titlesAnalysis">{{loadi18n('otherInformation')}}</h3>
-                    <hr>
                     <div class="col-sm-10">
                         <textarea type="text" class$="form-control {{prefix}}TextInput autoExpand" id="{{prefix}}conclusions" name="conclusions"
                             placeholder="{{loadi18n('otherInformation')}}" rows="5" on-input="updateTextArea" on-focus="calculateHeightTextArea"
@@ -520,7 +536,7 @@
                 <!-- Attached -->
                 <div class="divSection other-information col-sm-12" id="{{prefix}}attached1Div">
                     <br>
-                    <h3 class="titlesAnalysis">{{loadi18n('attached1')}}</h3>
+                    <h3 class="titlesAnalysis">{{loadi18n('attached1')}} - Secuencias de referencia de los genes incluidos en el estudio</h3>
 
                     <table class="tablaGenes">
                         <thead>
@@ -536,15 +552,15 @@
 
                 <div class="clean"></div>
 
-
+                <!-- Attached 2 -->
                 <div class="divSection prioritization-information col-sm-12" id="{{prefix}}attached2Div" style="margin-top:50px;" hidden>
                     <div class="page-break"></div>
-                    <h3 class="titlesAnalysis">{{loadi18n('attached2')}}</h3>
+                    <h3 class="titlesAnalysis">{{loadi18n('attached2')}} - {{loadi18n('filterSummary')}}</h3>
 
                     <div class="prioritization-summary col-sm-12" id="{{prefix}}filterResumeDiv">
-                        <h4>{{loadi18n('filterSummary')}}</h4>
+                        <!-- <h4>{{loadi18n('filterSummary')}}</h4> -->
                         <template is="dom-if" if="{{filters}}">
-                            <div style="margin: 10px 5px 15px 55px">
+                            <div>
                                 <br>
                                 <ul type="disc">
                                     <template is="dom-repeat" items="{{filterPrioritization}}">
@@ -560,26 +576,25 @@
                         </template>
                     </div>
                 </div>
-
             </div>
         </div>
 
     </template>
     <script>
         function splitTable(table, maxHeight) {
-            var header = table.children("thead");
+            let header = table.children("thead");
             if (!header.length)
                 return;
 
-            var headerHeight = header.outerHeight();
-            var header = header.detach();
+            let headerHeight = header.outerHeight();
+            header = header.detach();
 
-            var splitIndices = [0];
-            var rows = table.children("tbody").children();
-            var numRows = rows.length;
+            let splitIndices = [0];
+            let rows = table.children("tbody").children();
+            let numRows = rows.length;
 
             maxHeight -= headerHeight;
-            var currHeight = 0;
+            let currHeight = 0;
             rows.each(function (i, row) {
                 currHeight += $(rows[i]).outerHeight();
                 if (currHeight > maxHeight) {
@@ -592,8 +607,8 @@
             table = table.replaceWith('<div id="_split_table_wrapper"></div>');
             table.empty();
 
-            for (var i = 0; i < splitIndices.length - 1; i++) {
-                var newTable = table.clone();
+            for (let i = 0; i < splitIndices.length - 1; i++) {
+                let newTable = table.clone();
                 header.clone().appendTo(newTable);
                 $('<tbody />').appendTo(newTable);
                 rows.slice(splitIndices[i], splitIndices[i + 1]).appendTo(newTable.children('tbody'));
