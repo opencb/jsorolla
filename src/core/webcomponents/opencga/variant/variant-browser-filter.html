@@ -459,6 +459,7 @@
                 if (UtilsNew.isNotEmptyArray(this.samples)) {  // this.query.samples !== undefined && this.query.samples.length > 0
                     this.showSampleGenotypes = true;
                     PolymerUtils.setAttribute(this.prefix + "SampleGenotypeDivTable", "style", "display: inline");
+                    PolymerUtils.setAttribute(this.prefix + "SampleGenotypeOptions", "style", "display: inline");
                     // If there is more than one sample we make visible the Segregation dropdown
                     if (this.samples.length > 1) {
                         PolymerUtils.setAttribute(this.prefix + "SampleSegregation", "style", "display: inline");
@@ -1413,7 +1414,6 @@
                         </div>
 
                         <div id="${prefix}SampleGenotypeDivTable" style="display: none">
-
                             <div style="padding-left: 10px;padding-top: 10px">
                                 <table id="${prefix}SampleGenotypeTable" class="table table-hover" style="margin-bottom: 10px">
                                     <thead>
@@ -1423,6 +1423,14 @@
                                     </thead>
                                     <tbody></tbody>
                                 </table>
+                            </div>
+                        </div>
+
+                        <div id="${prefix}SampleGenotypeOptions" style="display: none">
+                            <span>Sample Genotypes Query Options</span>
+                            <div id="${prefix}GenotypeQueryOptions" style="padding-left: 10px;padding-top: 5px">
+                                <input type="checkbox" value="approximateCount" class="${prefix}GenotypeQueryOptionsCheckBox" checked> Approximate Count<br>
+                                <input type="checkbox" value="multiAllelic" class="${prefix}GenotypeQueryOptionsCheckBox"> Select all multi-allelic variants<br>
                             </div>
                         </div>
                     </div>
