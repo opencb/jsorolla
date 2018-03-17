@@ -214,10 +214,10 @@
                     biotypes: {
                         type: Array
                     },
-                    segregation: {
-                        type: String,
-                        value: "Select ..."
-                    },
+                    // segregation: {
+                    //     type: String,
+                    //     value: "Select ..."
+                    // },
 //                    analysisSelected: {
 //                        type: Object,
 //                        notify: true
@@ -434,7 +434,9 @@
                         this.dispatchEvent(new CustomEvent("samplechange", {
                             detail: {samples: this.samples}, bubbles: true, composed: true
                         }));
-                        this.dispatchEvent(new CustomEvent("inheritancemode", {detail: {decisionTreeInheritance: this.decisionTreeInheritance}, bubbles: true, composed: true}));
+                        this.dispatchEvent(new CustomEvent("inheritancemode", {
+                            detail: {decisionTreeInheritance: this.decisionTreeInheritance}, bubbles: true, composed: true
+                        }));
                     }
                 }
             }
@@ -461,7 +463,7 @@
                     PolymerUtils.setAttribute(this.prefix + "SampleGenotypeDivTable", "style", "display: inline");
                     PolymerUtils.setAttribute(this.prefix + "SampleGenotypeOptions", "style", "display: inline");
                     // If there is more than one sample we make visible the Segregation dropdown
-                    if (this.samples.length > 1) {
+                    if (this.samples.length > 0) {
                         PolymerUtils.setAttribute(this.prefix + "SampleSegregation", "style", "display: inline");
                     }
                 } else {
@@ -586,8 +588,6 @@
                 if (UtilsNew.isUndefinedOrNull(this.query) || Object.keys(this.query).length === 0) {
                     return;
                 }
-
-
 
                 // Cohorts
                 let cohortArray = [];
@@ -1106,16 +1106,16 @@
                 this.updateQueryFilters();
             }
 
-            selectSegregation(e) {
-                e.preventDefault();
-                this.segregation = e.target.innerHTML;
-            }
+            // selectSegregation(e) {
+            //     e.preventDefault();
+            //     this.segregation = e.target.innerHTML;
+            // }
 
             // @TODO We should remove this when exists in server an endpoint to get this values
             selectInheritanceMode(e) {
                 e.preventDefault();
                 // if in a last state we had yLinked or xLinked mode and we do not now, we need to clear locationTextArea
-                if (UtilsNew.isNotUndefinedOrNull(e.target.value) && (e.target.value!== "xLinked" || e.target.value!== "yLinked")
+                if (UtilsNew.isNotUndefinedOrNull(e.target.value) && (e.target.value !== "xLinked" || e.target.value !== "yLinked")
                     && (this.modeInheritance === "xLinked" || this.modeInheritance === "yLinked")) {
                     PolymerUtils.setValue(this.prefix + "LocationTextarea", "");
                 }
@@ -1148,8 +1148,9 @@
                     td.appendChild(nameText);
 
                     for (let genotype of this._genotypes) {
-                        let isCheckedGenotype = UtilsNew.isNotUndefinedOrNull(this.genotypeSamples) && UtilsNew.isNotUndefinedOrNull(this.genotypeSamples[sample.name]) &&
-                        UtilsNew.isNotUndefinedOrNull(this.genotypeSamples[sample.name][genotype]) ? this.genotypeSamples[sample.name][genotype] : false;
+                        let isCheckedGenotype = UtilsNew.isNotUndefinedOrNull(this.genotypeSamples)
+                            && UtilsNew.isNotUndefinedOrNull(this.genotypeSamples[sample.name])
+                            && UtilsNew.isNotUndefinedOrNull(this.genotypeSamples[sample.name][genotype]) ? this.genotypeSamples[sample.name][genotype] : false;
 
                         let td = tr.insertCell(-1);
                         let cell = document.createElement("INPUT");
@@ -1165,7 +1166,6 @@
                         }
 
                         td.appendChild(cell);
-
                     }
 
                     if (UtilsNew.isNotEmptyArray(_genotypes)) {
@@ -1215,13 +1215,13 @@
                 $("#" + this.prefix + "VCFFilter").selectpicker('val', []);
             }
 
-            showSegregation(e) {
-                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-//                this.samples = this.analysisSelected.sampleList;
-//                this.
-                $("#analysisSelectedDiv").show();
-//                $("#segregationDropdownDiv").show();
-            }
+//             showSegregation(e) {
+//                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+// //                this.samples = this.analysisSelected.sampleList;
+// //                this.
+//                 $("#analysisSelectedDiv").show();
+// //                $("#segregationDropdownDiv").show();
+//             }
 
             // This method is only executed one time from connectedCallback function
             _renderFilterMenu() {
@@ -1373,10 +1373,15 @@
 
             _getSampleHtml(subsection, prefix) {
                 let options = "";
-                if (UtilsNew.isNotUndefinedOrNull(subsection) && UtilsNew.isNotEmptyArray(subsection.segregations)) {
-                    for (let segregation of subsection.segregations) {
-                        options += `<option value="${segregation.key}">${segregation.text}</option>`;
+                if (UtilsNew.isNotUndefinedOrNull(subsection) && UtilsNew.isNotEmptyArray(subsection.inheritanceModes)) {
+                    for (let inheritanceMode of subsection.inheritanceModes) {
+                        options += `<option value="${inheritanceMode.key}">${inheritanceMode.text}</option>`;
                     }
+                }
+                let approxCountCheckbox = "";
+                if (subsection.showApproximateCount) {
+                    // approxCountCheckbox = `<input id="${prefix}ApproxCountCheckbox" type="checkbox" value="approximateCount" class="${prefix}FilterCheckBox" checked> Approximate Count<br>`;
+                    approxCountCheckbox = '<input id="${prefix}ApproxCountCheckbox" type="checkbox" value="approximateCount" class="${prefix}FilterCheckBox" checked> Approximate Count<br>';
                 }
                 return `
                     <div id="${prefix}AutocompleteSampleSelect" style="margin: 15px 0px">
@@ -1426,11 +1431,11 @@
                             </div>
                         </div>
 
-                        <div id="${prefix}SampleGenotypeOptions" style="display: none">
+                        <div id="${prefix}SampleGenotypeOptions" style="display: inline">
                             <span>Sample Genotypes Query Options</span>
                             <div id="${prefix}GenotypeQueryOptions" style="padding-left: 10px;padding-top: 5px">
-                                <input type="checkbox" value="approximateCount" class="${prefix}GenotypeQueryOptionsCheckBox" checked> Approximate Count<br>
-                                <input type="checkbox" value="multiAllelic" class="${prefix}GenotypeQueryOptionsCheckBox"> Select all multi-allelic variants<br>
+                                ${approxCountCheckbox}
+                                <input type="checkbox" value="multiAllelic" class="${prefix}FilterCheckBox"> Select all multi-allelic variants<br>
                             </div>
                         </div>
                     </div>
@@ -1965,7 +1970,7 @@
                     }
                 }
 
-                let changeEvents = ["includeOtherStudy", "GeneBiotypes", "Type", "CaddRawOperator", "CaddScaledOperator", "SiftOperator", "PolyphenOperator",
+                let changeEvents = ["includeOtherStudy", "GenotypeQueryOptions", "GeneBiotypes", "Type", "CaddRawOperator", "CaddScaledOperator", "SiftOperator", "PolyphenOperator",
                     "pssOrRadio", "pssAndRadio", "PhylopOperator", "PhastconsOperator", "GerpOperator", "conservationAndRadio", "conservationOrRadio", "vcfFilterSelect"];
                 for (let id of changeEvents) {
                     let element = PolymerUtils.getElementById(this.prefix + id);
@@ -1984,6 +1989,12 @@
                 let inheritanceModeElement = PolymerUtils.getElementById(this.prefix + "SegregationOperator");
                 if (UtilsNew.isNotUndefinedOrNull(inheritanceModeElement)) {
                     inheritanceModeElement.addEventListener('change', this.selectInheritanceMode.bind(this));
+                }
+
+                // ApproxCountCheckbox
+                let approxCountCheckbox = PolymerUtils.getElementById(this.prefix + "ApproxCountCheckbox");
+                if (UtilsNew.isNotUndefinedOrNull(approxCountCheckbox)) {
+                    approxCountCheckbox.addEventListener('change', this.onApproxCountChange.bind(this));
                 }
 
                 // Add events for Cohort
@@ -2070,6 +2081,11 @@
                 PolymerUtils.getElementById(this.prefix + "buttonOpenHpoAccesions").addEventListener('click', this.openModalHpo.bind(this));
             }
 
+            onApproxCountChange(e) {
+                // this.query.approximateCount = e.target.checked;
+                this.set("query.approximateCount", e.target.checked);
+
+            }
 
             _addAllTooltips() {
                 for (let section of this.config.filter.sections) {
