@@ -347,11 +347,9 @@
                     return {host: "", queryParams: {}, url: ""};
                 }
 
-                let host = "";
-                if (this.opencgaClient.getConfig().host.startsWith("https://")) {
-                    host = this.opencgaClient.getConfig().host;
-                } else {
-                    host = `http://${this.opencgaClient.getConfig().host}`;
+                let host = this.opencgaClient.getConfig().host;
+                if (!host.startsWith("https://") && !host.startsWith("http://")) {
+                    host = `https://${host}`;
                 }
 
                 if (typeof this.project !== "undefined" && typeof this.study.alias !== "undefined") {

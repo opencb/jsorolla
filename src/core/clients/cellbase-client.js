@@ -326,7 +326,7 @@ class CellBaseClient {
         let url = host + `/webservices/rest/${version}/${species}/`;
         // By default we assume https protocol instead of http
         if (!url.startsWith("https://") && !url.startsWith("http://")) {
-            url = `http://${host}/webservices/rest/${version}/${species}/`;
+            url = `https://${host}/webservices/rest/${version}/${species}/`;
         }
 
         // Some web services do not need IDs
