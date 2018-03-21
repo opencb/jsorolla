@@ -1211,6 +1211,7 @@
                 $("." + this.prefix + "FilterRadio").prop("disabled", true);
 
                 // Deselect bootstrap-select dropdowns
+                $("#" + this.prefix + "PanelApps").selectpicker('val', []);
                 $("#" + this.prefix + "GeneBiotypes").selectpicker('val', []);
                 $("#" + this.prefix + "VCFFilter").selectpicker('val', []);
             }
@@ -1545,20 +1546,22 @@
             _getGeneDiseasePanelsHtml(prefix) {
                 if (UtilsNew.isNotUndefinedOrNull(this.panelList)) {
                     let options = "";
-                    this.panelList
-                        .sort((a, b) => {
-                            if (a.title === b.title) {
-                                return 0;
-                            }
-                            return a.title < b.title ? -1 : 1;
-                        })
-                        .forEach((item) => {
-                            options += `<option value="${item.name}">${item.title} (${item.genes.length})</option>`;
-                        });
+                    this.panelList.sort((a, b) => {
+                        if (a.title === b.title) {
+                            return 0;
+                        }
+                        return a.title < b.title ? -1 : 1;
+                    }).forEach((item) => {
+                        options += `<option value="${item.name}">${item.title} (${item.genes.length})</option>`;
+                    });
 
+                    // <select class="form-control ${prefix}FilterSelect" id="${prefix}PanelApps">
+                    //     <option value="none">Select a panel...</option>
+                    //     ${options}
+                    // </select>
                     return `
-                        <select class="form-control ${prefix}FilterSelect" id="${prefix}PanelApps">
-                            <option value="none">Select a panel...</option>
+                         <select id="${prefix}PanelApps" class="selectpicker show-tick ${prefix}FilterSelect" data-size="10" data-live-search="true"
+                                data-max-options="1" data-selected-text-format="count" multiple>
                             ${options}
                         </select>
                         <div style="padding-top: 5px">
