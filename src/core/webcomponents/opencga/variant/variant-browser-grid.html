@@ -35,7 +35,9 @@
             <span>
                 Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> variants
                 <template is="dom-if" if="{{approximateCountResult}}">
-                    (approximate num total result)
+                    <span style="padding-left: 10px; color: red" data-toggle="tooltip" title="Approximate count calculated, less than 5% of error">
+                        <i class="fa fa-lg fa-exclamation-triangle"></i>
+                    </span>
                 </template>
             </span>
         </div>
@@ -399,7 +401,12 @@
 
 
                 // Init queryParams with default and config values plus query object
-                let queryParams = Object.assign({sid: this.opencgaClient._config.sessionId}, this.config.queryParams, this.query);
+                let queryParams;
+                if (UtilsNew.isNotUndefinedOrNull(this.config)) {
+                    queryParams = Object.assign({sid: this.opencgaClient._config.sessionId}, this.config.queryParams, this.query);
+                } else {
+                    queryParams = Object.assign({sid: this.opencgaClient._config.sessionId}, this.query);
+                }
 
                 if (UtilsNew.isNotEmptyArray(this.samples)) {
                     let sampleNames = [];
