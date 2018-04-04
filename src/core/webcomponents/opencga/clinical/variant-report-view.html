@@ -17,142 +17,109 @@
 <dom-module id="variant-report-view">
     <template>
         <style include="jso-styles">
-            #variantTablebody,
-            #variantTablebody td {
-                border: 1px solid #dadada;
-                border-collapse: collapse
+            #variantTablebody,#variantTablebody td{
+                border:1px solid #dadada;
+                border-collapse:collapse
             }
-
-            .clinical-input-group-addon {
-                min-width: 200px;
-                text-align: left
+            .clinical-input-group-addon{
+                min-width:200px;
+                text-align:left
             }
-
-            #variantTable,
-            #variantTable th,
-            .tablaGenes,
-            .tablaGenes th {
-                text-align: center
+            #variantTable,#variantTable th,.tablaGenes,.tablaGenes th{
+                text-align:center
             }
-
-            .form-control:disabled {
-                background-color: #fff;
-                cursor: default
+            .form-control:disabled{
+                background-color:#fff;
+                cursor:default
             }
-
-            h3 {
-                color: #337ab7
+            h3{
+                color:#337ab7
             }
-
-            textarea {
-                width: 95%;
-                height: 100px;
-                margin-top: 5px;
-                resize: none;
-                border: 1px solid #d0d0d0
+            textarea{
+                width:95%;
+                height:100px;
+                margin-top:5px;
+                resize:none;
+                border:1px solid #d0d0d0
             }
-
-            #variantTable {
-                width: 95%;
-                font-size: 14px
+            #variantTable{
+                width:95%;
+                font-size:14px
             }
-
-            #variantTablebody td {
-                padding: 10px 0 0
+            #variantTablebody td{
+                padding:10px 0 0
             }
-
-            .centerHeader {
-                margin: 0;
-                font-size: 16px;
-                font-weight: 600;
-                padding-bottom: 30px;
-                text-transform: uppercase
+            .centerHeader{
+                margin:0;
+                font-size:16px;
+                font-weight:600;
+                padding-bottom:30px;
+                text-transform:uppercase
             }
-
-            .titlesAnalysis {
-                font-size: larger;
-                font-weight: 550
+            .titlesAnalysis{
+                font-size:larger;
+                font-weight:550
             }
-
-            .fontBody,
-            .tablaGenes,
-            span.col-form-control {
-                font-size: 14px
+            .fontBody,.tablaGenes,span.col-form-control{
+                font-size:14px
             }
-
-            .hrReport {
-                border: 1px solid #555;
-                width: 89%;
-                margin-bottom: 22px
+            .hrReport{
+                border:1px solid #555;
+                width:89%;
+                margin-bottom:22px
             }
-
-            .tablaGenes td,
-            .tablaGenes th {
-                border: 1px solid #000
+            .tablaGenes td,.tablaGenes th{
+                border:1px solid #000
             }
-
-            .divSection {
-                margin: -24px 0 5px 11px
+            .divSection{
+                margin:-24px 0 5px 11px
             }
-
-            .tablaGenes {
-                width: 300px;
-                float: left;
-                margin-top: 10px;
-                margin-right: 5px
+            .tablaGenes{
+                width:300px;
+                float:left;
+                margin-top:10px;
+                margin-right:5px
             }
-
-            .tablaGenes th {
-                background-color: #a9a9a9
+            .tablaGenes th{
+                background-color:#a9a9a9
             }
-
-            .clean {
-                clear: left
+            .clean{
+                clear:left
             }
-
-            label.col-form-label {
-                font-weight: 600;
-                font-size: 14px;
-                margin-bottom: 0
+            label.col-form-label{
+                font-weight:600;
+                font-size:14px;
+                margin-bottom:0
             }
-
-            .marginbreak {
-                margin-bottom: 25.5px
+            .marginbreak{
+                margin-bottom:25.5px
             }
-
-            .sampleMargin {
-                margin: 0 0 0 30px
+            .sampleMargin{
+                margin:0 0 0 30px
             }
-
-            .logoSas {
-                height: 100px;
-                margin: 0 0 0 72px
+            .logoSas{
+                height:100px;
+                margin:0 0 0 72px
             }
-
-            .infoPos,
-            .posContent {
-                margin-left: 55px
+            .infoPos,.posContent{
+                margin-left:55px
             }
-
-            table {
-                page-break-inside: auto
+            table{
+                page-break-inside:auto
             }
-
-            tr {
-                page-break-inside: avoid;
-                page-break-after: auto
+            tr{
+                page-break-inside:avoid;
+                page-break-after:auto
             }
-
-            @media all {
-                .page-break {
-                    display: none
+            @media all{
+                .page-break{
+                    display:none
                 }
             }
-
-            @media print {
-                .page-break {
-                    display: block;
-                    page-break-before: always
+            @media print{
+                .page-break{
+                    display:block;
+                    page-break-before:always
                 }
             }
         </style>
@@ -303,64 +270,7 @@
                     <p style="margin-left: 13px;">{{dataFields.reasonConsultation}}</p>
                 </div>
 
-                <br>
-                <br>
-                <br>
-                <br>
-                <br>
-
-                <!-- Analysis Information -->
-                <div class="clean"></div>
-                <br>
-                <div class="divSection analysis-information infoPos col-sm-12" id="{{prefix}}analysisInformationDiv" hidden>
-                    <h3 class="titlesAnalysis">{{loadi18n('headerAnalysis')}}</h3>
-
-                    <div style="margin: 0px 0px 30px 0px" class="analysis-information col-sm-10" id="{{prefix}}analysisInformationContent">
-                        <div class="row" id="{{prefix}}analysisInformation" hidden>
-                            <div class="col-xs-6" id="{{prefix}}analysisInformationID">
-                                <label for="{{prefix}}analysisID" class="col-form-label">{{loadi18n('analysisId')}}:</label>
-                                <span class$="{{prefix}}TextInput" id="{{prefix}}analysisID" name="analysis"></span>
-                            </div>
-
-                            <div class="col-xs-6" id="{{prefix}}analysisDescription">
-                                <label for="{{prefix}}Description" class="col-form-label">{{loadi18n('analysisDescription')}}:</label>
-                                <span class$="{{prefix}}TextInput" id="{{prefix}}Description" name="description"></span>
-                            </div>
-                        </div>
-                        <div class="row" id="{{prefix}}analysisInformationResume" hidden>
-                            <content class="col-xs-6">
-                                <label for="{{prefix}}analysisType" class="col-form-label">{{loadi18n('analysisType')}}:</label>
-                                <span class$="{{prefix}}TextInput" id="{{prefix}}analysisType" name="analysisType"></span>
-                            </content>
-                            <content class="col-xs-6">
-                                <label for="{{prefix}}date" class="col-form-label">{{loadi18n('analysisDate')}}:</label>
-                                <span class$="col-form-label {{prefix}}TextInput" id="{{prefix}}date" name="date"></span>
-                            </content>
-                        </div>
-                    </div>
-                </div>
-
-                <br>
-                <br>
-
-                <!-- Interpretation Information -->
-                <div class="divSection posContent col-sm-12 marginbreak" id="{{prefix}}interpretationInformationDiv">
-                    <h3 class="titlesAnalysis">{{loadi18n('interpretationInfo')}}</h3>
-
-                    <div style="margin: 0px 0px 20px 0px" class="col-sm-10" id="{{prefix}}interpretationInformationContent">
-                        <div class="row">
-
-                            <content class="col-xs-6 fontBody" id="{{prefix}}interpretationInformationID">
-                                <label for="{{prefix}}interpretationID" class="col-form-label">{{loadi18n('interpretationId')}}:</label>
-                                <span class$="{{prefix}}TextInput" id="{{prefix}}interpretationID" name="interpretation"></span>
-                            </content>
-                            <content class="col-xs-6 fontBody" id="{{prefix}}interpretationInformationName">
-                                <label for="{{prefix}}interpretationName" class="col-form-label">{{loadi18n('interpretationName')}}:</label>
-                                <span class$="{{prefix}}TextInput" id="{{prefix}}interpretationName" name="interpretationName"></span>
-                            </content>
-                        </div>
-                    </div>
-                </div>
+                <br><br><br><br><br><div class="clean"></div><br>
 
                 <div class="page-break marginbreak">
                     <img src="[[importPath]]images/logosas.svg" class="logoSas">
@@ -484,21 +394,22 @@
                 <!-- Sign -->
                 <div class="divSection other-information col-sm-12" id="{{prefix}}signDiv" style="margin-top:30px; padding-bottom:100px;">
                     <div class="row">
-                        <div class="marginbreak"></div>
+                        <div class="marginbreak" style="padding-top:50px;"></div>
+
                         <content class="col-xs-6" id="{{prefix}}signLeft">
-                            <label class="col-form-label posContent">{{loadi18n('signBy')}}{{dataFields.signLeft}}</label>
+                            <label class="col-form-label posContent" style="padding-left:20px;">{{loadi18n('signBy')}}{{dataFields.signLeft}}</label>
                         </content>
                         <content class="col-xs-6" id="{{prefix}}signRight">
-                            <label class="col-form-label posContent">{{loadi18n('signBy')}}{{dataFields.signRight}}</label>
+                            <label class="col-form-label posContent" style="padding-left:20px;">{{loadi18n('signBy')}}{{dataFields.signRight}}</label>
                         </content>
                     </div>
                 </div>
 
-                <div class="page-break marginbreak">
+                <div class="page-break">
                     <img src="[[importPath]]images/logosas.svg" class="logoSas">
                 </div>
 
-                <!-- Metodology -->
+                <!-- Methodology -->
                 <div class="divSection other-information posContent col-sm-12" id="{{prefix}}methodologyDiv">
                     <br>
                     <h3 class="titlesAnalysis">{{loadi18n('methodology')}}</h3>
@@ -520,10 +431,60 @@
                     <p>{{loadi18n('methodologyText6')}}</p>
                 </div>
 
+                <!-- Analysis Information -->
+                <div class="divSection analysis-information infoPos col-sm-12" id="{{prefix}}analysisInformationDiv" hidden>
+
+                    <br>
+                    <h3 class="titlesAnalysis">{{loadi18n('otherInformation')}}</h3>
+                    <!-- <h3 class="titlesAnalysis">{{loadi18n('headerAnalysis')}}</h3> -->
+
+                    <div style="margin: 0px 0px 30px 0px" class="analysis-information col-sm-10" id="{{prefix}}analysisInformationContent">
+                        <div class="row" id="{{prefix}}analysisInformation" hidden>
+                            <div class="col-xs-6" id="{{prefix}}analysisInformationID">
+                                <label for="{{prefix}}analysisID" class="col-form-label">{{loadi18n('analysisId')}}:</label>
+                                <span class$="{{prefix}}TextInput" id="{{prefix}}analysisID" name="analysis"></span>
+                            </div>
+
+                            <div class="col-xs-6" id="{{prefix}}analysisDescription">
+                                <label for="{{prefix}}Description" class="col-form-label">{{loadi18n('analysisDescription')}}:</label>
+                                <span class$="{{prefix}}TextInput" id="{{prefix}}Description" name="description"></span>
+                            </div>
+                        </div>
+                        <div class="row" id="{{prefix}}analysisInformationResume" hidden>
+                            <content class="col-xs-6">
+                                <label for="{{prefix}}analysisType" class="col-form-label">{{loadi18n('analysisType')}}:</label>
+                                <span class$="{{prefix}}TextInput" id="{{prefix}}analysisType" name="analysisType"></span>
+                            </content>
+                            <content class="col-xs-6">
+                                <label for="{{prefix}}date" class="col-form-label">{{loadi18n('analysisDate')}}:</label>
+                                <span class$="col-form-label {{prefix}}TextInput" id="{{prefix}}date" name="date"></span>
+                            </content>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interpretation Information -->
+                <div class="divSection posContent col-sm-12 marginbreak" id="{{prefix}}interpretationInformationDiv">
+                    <!-- <h3 class="titlesAnalysis">{{loadi18n('interpretationInfo')}}</h3> -->
+
+                    <div style="margin: 0px 0px 20px 0px" class="col-sm-10" id="{{prefix}}interpretationInformationContent">
+                        <div class="row">
+
+                            <content class="col-xs-6 fontBody" id="{{prefix}}interpretationInformationID">
+                                <label for="{{prefix}}interpretationID" class="col-form-label">{{loadi18n('interpretationId')}}:</label>
+                                <span class$="{{prefix}}TextInput" id="{{prefix}}interpretationID" name="interpretation"></span>
+                            </content>
+                            <content class="col-xs-6 fontBody" id="{{prefix}}interpretationInformationName">
+                                <label for="{{prefix}}interpretationName" class="col-form-label">{{loadi18n('interpretationName')}}:</label>
+                                <span class$="{{prefix}}TextInput" id="{{prefix}}interpretationName" name="interpretationName"></span>
+                            </content>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Additional Info -->
                 <div class="divSection other-information posContent col-sm-12" id="{{prefix}}conclusionsDiv" hidden>
-                    <div style="padding-top:25.5px;"></div>
-                    <h3 class="titlesAnalysis">{{loadi18n('otherInformation')}}</h3>
+                    <div style="padding-top:20px;"></div>
                     <div class="col-sm-10">
                         <textarea type="text" class$="form-control {{prefix}}TextInput autoExpand" id="{{prefix}}conclusions" name="conclusions"
                             placeholder="{{loadi18n('otherInformation')}}" rows="5" on-input="updateTextArea" on-focus="calculateHeightTextArea"
@@ -718,7 +679,6 @@
                     return "No exists key:" + key;
                 }
             };
-
 
             zigosityResult(studies) {
                 if (UtilsNew.isNotEmptyArray(studies) && UtilsNew.isNotUndefinedOrNull(studies[0]) && UtilsNew.isNotUndefinedOrNull(studies[0].samplesData)
@@ -1056,7 +1016,7 @@
             updateTextArea(e) {
                 PolymerUtils.innerHTML(this.prefix + "conclusions", PolymerUtils.getValue(this.prefix + "conclusions"));
 
-                // We dynamically change height of text area
+                // Dynamically change the height of the text area
                 let minRows = e.target.getAttribute('data-min-rows');
                 e.target.rows = minRows;
                 let targetRows = Math.ceil((e.target.scrollHeight - this.baseScrollHeightTextArea) / 16);
