@@ -51,9 +51,26 @@
                             <label class="labelReportFilter">Departament:</label>
                             <input type="text" class$="form-control input-sm {{prefix}}DepartmentInput" id="{{prefix}}DepartmentInput" placeholder="___"
                                    aria-describedby="basic-addon1" value="{{dataFieldsPrivate.department::input}}">
-                            <label class="labelReportFilter">City:</label>
+                           
+<!--                          
+                                   <label class="labelReportFilter">Province:</label>
                             <input type="text" class$="form-control input-sm {{prefix}}CityInput" id="{{prefix}}CityInput" placeholder="___"
                                    aria-describedby="basic-addon1" value="{{dataFieldsPrivate.city::input}}">
+ -->
+
+                               <label class="labelReportFilter">Province:</label>
+                               <select id="{{prefix}}CityInput" name="{{prefix}}CityInput"
+                                       class$="form-control input-sm {{prefix}}CityInput" value="{{dataFieldsPrivate.city::input}}">
+                                   <option value="Almería">Almería</option>
+                                   <option value="Cádiz">Cádiz</option>
+                                   <option value="Córdoba">Córdoba</option>
+                                   <option value="Granada">Granada</option>
+                                   <option value="Huelva">Huelva</option>
+                                   <option value="Jaén">Jaén</option>
+                                   <option value="Málaga">Málaga</option>
+                                   <option value="Sevilla">Sevilla</option>
+                               </select>
+                                
                             <label class="labelReportFilter">Patient:</label>
                             <input type="text" class$="form-control input-sm {{prefix}}PatientInput" id="{{prefix}}PatientInput" placeholder="___"
                                    aria-describedby="basic-addon1" value="{{dataFieldsPrivate.patient::input}}">
@@ -173,9 +190,16 @@
                             <label class="labelReportFilter">Coverage:</label>
                             <input type="text" class$="form-control input-sm {{prefix}}CoverageInput" id="{{prefix}}CoverageInput" placeholder="___"
                                    aria-describedby="basic-addon1" value="{{dataFieldsPrivate.coverage::input}}">
+
+
                             <label class="labelReportFilter">Interpretation Comments(Only for positive diagnosis):</label>
                             <textarea type="text" class$="form-control input-sm {{prefix}}extraInfoInput" id="{{prefix}}extraInfoInput" placeholder="___"
                                        rows="5" value="{{dataFieldsPrivate.extraInterpretation::input}}"></textarea>
+
+                            <label class="labelReportFilter">Extra comments:</label>
+                            <textarea type="text" class$="form-control input-sm {{prefix}}extraCommentsInput" id="{{prefix}}extraCommentsInput" placeholder="___"
+                                        rows="5" value="{{dataFieldsPrivate.extraInterpretationComments::input}}"></textarea>
+
                         </div>
 
                     </div>

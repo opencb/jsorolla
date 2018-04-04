@@ -164,7 +164,7 @@
                                 </td>
                                 <td class="col-xs-5 col-sm-5 col-md-5">
                                     <label class="col-form-label"></label>
-                                    <span class$="col-form-control {{prefix}}TextInput">HU virgen del Rocío</span>
+                                    <span class$="col-form-control {{prefix}}TextInput">HU Virgen del Rocío</span>
                                 </td>
                             </tr>
                             <tr>
@@ -282,7 +282,7 @@
                     <h3 class="titlesAnalysis">{{loadi18n('prioritizationInfo')}}</h3>
                     <hr>
                     <div class="prioritization-summary col-sm-10" id="{{prefix}}variantsTableDiv" hidden>
-                        <h4 class="fontBody" style="font-weight: 600;">{{loadi18n('result')}}</h4>
+                        <!-- <h4 class="fontBody" style="font-weight: 600;">{{loadi18n('result')}}</h4> -->
                         <table id="variantTable" class="table hover" style="border: 1px solid #dadada;
                                 border-collapse: collapse;">
                             <thead>
@@ -382,6 +382,7 @@
                         <h3 class="titlesAnalysis">{{loadi18n('interpretationHeader')}}</h3>
                         <ul>
                             <li>{{dataFields.extraInterpretation}}</li>
+                            <li>{{dataFields.extraInterpretationComments}}</li>
                             <li>{{loadi18n('interpretationText2_1')}} {{dataFields.depth}}{{loadi18n('interpretationText2_2')}}
                                 {{dataFields.coverage}}{{loadi18n('interpretationText2_3')}}
                             </li>
@@ -651,11 +652,10 @@
                 super.ready();
                 if (UtilsNew.isEmpty(this.prefix)) {
                 }
-
                 let date = new Date();
-                this.requestDate = date.toLocaleString();
+                let fecha  = date.toLocaleString('es-ES', { timeZone: 'UTC' });
+                this.requestDate = fecha.substring(0, fecha.length - 8);
                 this.fitlerPrioritization = {};
-
             }
 
             connectedCallback() {
@@ -836,7 +836,7 @@
                                     let reference = UtilsNew.isNotUndefinedOrNull(response.data.reference) ? response.data.reference : "N/A";
                                     let row = `
                                 <tr>
-                                    <td>${response.data.hgnc}</td>
+                                    <td><i>${response.data.hgnc}</i></td>
                                     <td>${reference}</td>
                                 </tr>
                                 `;
@@ -848,7 +848,6 @@
                     });
 
                     Promise.all(promises).then((pum) => {
-                        console.log("(´･ω･`)");
                         $(function () { splitTable($(".tablaGenes"), 800); });
                     });
                 }
