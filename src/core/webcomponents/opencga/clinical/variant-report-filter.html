@@ -44,7 +44,7 @@
                 <div id="{{prefix}}FillInputsGeneral" class="panel-collapse collapse in" role="tabpanel"
                      aria-labelledby="{{prefix}}GeneralHeading">
                     <div class="panel-body">
-                        <div id="{{prefix}}FillInputsGeneralDiv" style="">
+                        <div id="{{prefix}}FillInputsGeneralDiv">
                             <label class="labelReportFilter">Service petitioner:</label>
                             <input type="text" class$="form-control input-sm {{prefix}}ApplicantInput" id="{{prefix}}ApplicantInput" placeholder="___"
                                    aria-describedby="basic-addon1" value="{{dataFieldsPrivate.applicant::input}}">
@@ -148,12 +148,12 @@
                 <div id="{{prefix}}AnalysisSelector" class="panel-collapse collapse" role="tabpanel"
                      aria-labelledby="{{prefix}}SampleFilterHeading">
                     <div class="panel-body">
-                        <div id="{{prefix}}analysisSelectedDiv" style="">
+                        <div id="{{prefix}}analysisSelectedDiv">
                             <label class="labelReportFilter">Analysis selected:</label>
                             <input type="text" class$="form-control input-sm {{prefix}}FilterTextInput" id="{{prefix}}FilterTextInput"
                                    placeholder="{{currentAnalysisID}}" aria-describedby="basic-addon1" disabled>
                         </div>
-                        <div id="{{prefix}}reasonConsultationHeaderDiv" style="">
+                        <div id="{{prefix}}reasonConsultationHeaderDiv">
                             <label class="labelReportFilter">Presenting complaint:</label>
                             <input type="text" class$="form-control input-sm {{prefix}}ReasonConsultationTextInput" id="{{prefix}}ReasonConsultationTextInput" placeholder="___"
                                    placeholder="{{currentAnalysisID}}" aria-describedby="basic-addon1" value="{{dataFieldsPrivate.reasonConsultation::input}}">
@@ -183,7 +183,7 @@
                 <div id="{{prefix}}InterpretationContent" class="panel-collapse collapse" role="tabpanel"
                      aria-labelledby="{{prefix}}InterpretationHeading">
                     <div class="panel-body">
-                        <div id="{{prefix}}FillInputsInterpretationDiv" style="">
+                        <div id="{{prefix}}FillInputsInterpretationDiv">
                             <label class="labelReportFilter">Depth:</label>
                             <input type="text" class$="form-control input-sm {{prefix}}DepthInput" id="{{prefix}}DepthInput" placeholder="___"
                                    aria-describedby="basic-addon1" value="{{dataFieldsPrivate.depth::input}}">
@@ -191,24 +191,44 @@
                             <input type="text" class$="form-control input-sm {{prefix}}CoverageInput" id="{{prefix}}CoverageInput" placeholder="___"
                                    aria-describedby="basic-addon1" value="{{dataFieldsPrivate.coverage::input}}">
 
-
-                            <label class="labelReportFilter">Interpretation Comments(Only for positive diagnosis):</label>
+                            <label class="labelReportFilter">Interpretation Comments (Only for positive diagnosis):</label>
                             <textarea type="text" class$="form-control input-sm {{prefix}}extraInfoInput" id="{{prefix}}extraInfoInput" placeholder="___"
                                        rows="5" value="{{dataFieldsPrivate.extraInterpretation::input}}"></textarea>
-
-                            <label class="labelReportFilter">Extra comments:</label>
+                                       <br>
                             <textarea type="text" class$="form-control input-sm {{prefix}}extraCommentsInput" id="{{prefix}}extraCommentsInput" placeholder="___"
                                         rows="5" value="{{dataFieldsPrivate.extraInterpretationComments::input}}"></textarea>
-
                         </div>
-
                     </div>
                 </div>
-
             </div>
 
+            <!-- Methodology -->
+            <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="{{prefix}}MethodologyHeading">
+                        <h4 class="panel-title">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
+                                href="#{{prefix}}MethodologyContent"
+                                aria-expanded="true" aria-controls="{{prefix}}Interpretation">
+                                Methodology
+                            </a>
+                        </h4>
+                    </div>
+    
+                    <div id="{{prefix}}MethodologyContent" class="panel-collapse collapse" role="tabpanel"
+                            aria-labelledby="{{prefix}}MethodologyHeading">
+                        <div class="panel-body">
+                            <div id="{{prefix}}FillInputsMethodologyDiv">
+                                <label class="labelReportFilter">PCR amplification and direct sequentiation of region:</label>
+                                <input type="text" class$="form-control input-sm {{prefix}}PCRAmp" id="{{prefix}}PCRAmpInput" placeholder="___"
+                                        aria-describedby="basic-addon1" value="{{dataFieldsPrivate.PCRAmp::input}}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /Methodology -->
+
             <!-- Other information -->
-            <div class="panel panel-default" id="{{prefix}}OtherInformationDiv" style="">
+            <div class="panel panel-default" id="{{prefix}}OtherInformationDiv">
                 <div class="panel-heading" role="tab" id="{{prefix}}OtherInformationHeading">
                     <h4 class="panel-title">
                         <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
@@ -227,7 +247,7 @@
                      aria-labelledby="{{prefix}}OtherInformationHeading">
                     <div class="panel-body">
                         <div class="form-group">
-                            <div id="{{prefix}}editableConclusion" style="">
+                            <div id="{{prefix}}editableConclusion">
 
                                 <label class="labelReportFilter">Select</label>
                                 <br>
@@ -235,12 +255,12 @@
                                        class$="{{prefix}}FilterRadio" on-change="showConclusions"
                                        style="padding-left: 20px"> Editable conclusions<br>
                             </div>
-                            <div id="{{prefix}}attached1Div" style="">
+                            <div id="{{prefix}}attached1Div">
                                 <input type="checkbox" name="prioritizationButtons" checked id="{{prefix}}attached1"
                                        value="attached1" class$="{{prefix}}FilterRadio" on-change="showAttached1"
                                        style="padding-left: 20px"> Gene panel<br>
                             </div>
-                            <div id="{{prefix}}filterSummaryHeaderDiv" style="">
+                            <div id="{{prefix}}filterSummaryHeaderDiv">
                                 <input type="checkbox" name="prioritizationButtons" id="{{prefix}}FilterResume"
                                        value="filterResume" class$="{{prefix}}FilterRadio" on-change="showAttached2"
                                        style="padding-left: 20px"> Prioritization filter<br>
@@ -250,6 +270,7 @@
                     </div>
                 </div>
             </div>
+
         </div>
 
         <!--&lt;!&ndash; Modal dialog for Analysis Browser&ndash;&gt;-->
