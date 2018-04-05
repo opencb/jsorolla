@@ -58,7 +58,8 @@
             <div>
 
                 <div id="{{prefix}}FilterMenu" class="col-md-2" >
-                    <variant-browser-filter project="{{project}}" study="{{study}}" studies="{{studies}}" samples="[[samplesForMenuFilter]]" family="[[family]]"
+                    <variant-browser-filter project="{{opencgaSession.project}}" study="{{opencgaSession.study}}" studies="{{opencgaSession.project.studies}}"
+                                            samples="[[samplesForMenuFilter]]" family="[[family]]"
                                             opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"
                                             population-frequencies="{{populationFrequencies}}" biotypes="{{biotypes}}"
                                             consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}"
@@ -71,7 +72,7 @@
                 <div id="{{prefix}}MainWindow" class="col-md-10">
 
                     <opencga-active-filters opencga-client="{{opencgaClient}}" query="[[query]]" filters="{{config.filters}}" on-filterchange="onFilterChange" on-clear="onClear"
-                                            filter-bioformat="VARIANT" default-study="{{study.alias}}" alias="{{activeFilterAlias}}" refresh="{{search}}" genotype-samples="{{genotypeSamples}}"
+                                            filter-bioformat="VARIANT" default-study="{{opencgaSession.study.alias}}" alias="{{activeFilterAlias}}" refresh="{{search}}" genotype-samples="{{genotypeSamples}}"
                                             mode-inheritance="[[modeInheritance]]">
                     </opencga-active-filters>
 
@@ -121,7 +122,7 @@
                         <div id="{{prefix}}TableResult" class="variant-interpretation-content">
                             <template is="dom-if" if="{{interactive}}">
                                 <!-- Variant Browser Grid -->
-                                <variant-browser-grid study="{{study}}" project="{{project}}" samples="{{samples}}"
+                                <variant-browser-grid study="{{opencgaSession.study}}" project="{{opencgaSession.project}}" samples="{{samples}}"
                                                       opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
                                                       population-frequencies="{{populationFrequencies}}"
                                                       protein-substitution-scores="{{proteinSubstitutionScores}}"
@@ -155,7 +156,7 @@
                                         <div class="tab-content" >
                                             <div role="tabpanel" class="tab-pane active" id="{{prefix}}TAB_A">
                                                 <!-- Variant Browser Grid -->
-                                                <variant-browser-grid study="{{study}}" project="{{project}}" samples="{{samples}}"
+                                                <variant-browser-grid study="{{opencgaSession.study}}" project="{{opencgaSession.project}}" samples="{{samples}}"
                                                                       opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
                                                                       population-frequencies="{{populationFrequencies}}"
                                                                       protein-substitution-scores="{{proteinSubstitutionScores}}"
@@ -167,7 +168,7 @@
                                             </div>
                                             <div id="{{prefix}}TAB_B" role="tabpanel" class="tab-pane">
                                                 <!-- Variant Browser Grid -->
-                                                <variant-browser-grid study="{{study}}" project="{{project}}" samples="{{samples}}"
+                                                <variant-browser-grid study="{{opencgaSession.study}}" project="{{opencgaSession.project}}" samples="{{samples}}"
                                                                       opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
                                                                       population-frequencies="{{populationFrequencies}}"
                                                                       protein-substitution-scores="{{proteinSubstitutionScores}}"
@@ -179,7 +180,7 @@
                                             </div>
                                             <div role="tabpanel" class="tab-pane" id="{{prefix}}TAB_C">
                                                 <!-- Variant Browser Grid -->
-                                                <variant-browser-grid study="{{study}}" project="{{project}}" samples="{{samples}}"
+                                                <variant-browser-grid study="{{opencgaSession.study}}" project="{{opencgaSession.project}}" samples="{{samples}}"
                                                                       opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
                                                                       population-frequencies="{{populationFrequencies}}"
                                                                       protein-substitution-scores="{{proteinSubstitutionScores}}"
@@ -276,7 +277,7 @@
                         <div id="{{prefix}}GenomeBrowser" class="variant-interpretation-content" style="display: none">
                             <br>
                             <br>
-                            <variant-genome-browser project="{{project}}" study="{{study}}" samples="{{samples}}" opencga-client="{{opencgaClient}}"
+                            <variant-genome-browser project="{{opencgaSession.project}}" study="{{opencgaSession.study}}" samples="{{samples}}" opencga-client="{{opencgaClient}}"
                                                     cellbase-client="{{cellbaseClient}}" query={{query}} search={{search}} region="{{region}}"
                                                     active="{{_genomeBrowserActive}}" full-screen="{{fullScreen}}">
                             </variant-genome-browser>
@@ -288,7 +289,7 @@
                             <!--<opencga-sample-comparator opencga-client="{{opencgaClient}}" samples="{{samples}}"-->
                             <!--variable-sets="{{variableSets}}">-->
                             <!--</opencga-sample-comparator>-->
-                            <clinical-analysis-view clinical-analysis={{clinicalAnalysis}} study="{{study}}" opencga-client="{{opencgaClient}}" config="{{config}}"
+                            <clinical-analysis-view clinical-analysis={{clinicalAnalysis}} study="{{opencgaSession.study}}" opencga-client="{{opencgaClient}}" config="{{config}}"
                                                     class="col-md-10 col-md-offset-1" style="font-size: 12px">
                             </clinical-analysis-view>
                         </div>
@@ -380,8 +381,8 @@
 
                             <div class="col-md-12">
                                 <template is="dom-if" if="{{interpretationView}}">
-                                    <clinical-interpretation-view id="id" interpretation="{{interpretationView}}" project="{{project}}"
-                                                                  study="{{study}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+                                    <clinical-interpretation-view id="id" interpretation="{{interpretationView}}" project="{{opencgaSession.project}}"
+                                                                  study="{{opencgaSession.study}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
                                                                   consequence-types="{{consequenceTypes}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
                                                                   style="font-size: 12px">
                                     </clinical-interpretation-view>
@@ -415,18 +416,12 @@
 
             static get properties() {
                 return {
+                    opencgaSession: {
+                        type: Object
+                    },
                     toolTitle: {
                         type: String,
                         value: "Prioritization"
-                    },
-                    project: {
-                        type: Object
-                    },
-                    study: {
-                        type: Object
-                    },
-                    studies: {
-                        type: Array
                     },
                     opencgaClient: {
                         type: Object
@@ -467,7 +462,7 @@
                     },
                     checkPermissions: {
                         type: Boolean,
-                        computed: '_checkPermissions(project)'
+                        computed: '_checkPermissions(opencgaSession.project)'
                     },
                     interactive: {
                         type: Boolean,
@@ -488,6 +483,8 @@
             }
 
             _init() {
+                this.prefix = "varPrior-" + Utils.randomString(6);
+
                 this._collapsed = false;
                 this.resultsViewActive = true;
                 this.activeFilterAlias = {
@@ -506,7 +503,6 @@
 
                 this.samples = [];
                 this.family = {};
-                this.prefix = "varPrior-" + Utils.randomString(6);
             }
 
             clinicalAnalysisIdObserver() {
@@ -578,7 +574,7 @@
             onClear() {
                 this._initGenotypeSamples(this.samples,true);
                 this.modeInheritance = "none";
-                this.query = {studies: this.project.alias + ":" + this.study.alias};
+                this.query = {studies: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias};
                 this.search = {};
             }
 
@@ -742,7 +738,7 @@
 
 
                     let params = {
-                        study: this.project.alias + ":" + this.study.alias
+                        study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias
                     };
 
                     let body = {
@@ -772,7 +768,7 @@
                             }
 
                             params = {
-                                study: _this.project.alias + ":" + _this.study.alias
+                                study: _this.opencgaSession.project.alias + ":" + _this.opencgaSession.study.alias
                             };
                             let interpretations =  { interpretations: interpretation.clinicalAnalysis.interpretations };
                             _this.opencgaClient.clinical().update(interpretation.clinicalAnalysis.id, params, interpretations)
@@ -834,7 +830,7 @@
 
             getAnalysisInterpretations() {
                 let params = {
-                    study: this.project.alias + ":" + this.study.alias
+                    study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias
                 };
                 let _this = this;
                 this.opencgaClient.clinical().info(this.clinicalAnalysis.id, params, {})
