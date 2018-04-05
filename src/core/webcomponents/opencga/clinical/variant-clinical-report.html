@@ -22,12 +22,12 @@
         <style include="jso-styles"></style>
 
         <div class="col-md-2">
-            <variant-report-filter opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}"
+            <variant-report-filter opencga-client="{{opencgaClient}}" study="{{opencgaSession.study}}" config="{{config}}"
                                    selection="{{selection}}" exp-report="{{expReport}}" variables="{{variables}}"
                                    analysis-selected="{{analysis}}"></variant-report-filter>
         </div>
         <div class="col-md-10">
-            <variant-report-view study="{{study}}" config="{{config.tools.clinical}}"
+            <variant-report-view study="{{opencgaSession.study}}" config="{{config.tools.clinical}}"
                                  tool-title="{{toolTitle}}" variables="{{variables}}" selection="{{selection}}"
                                  interpretation="{{interpretation}}" exp-report="{{expReport}}"></variant-report-view>
         </div>
@@ -41,10 +41,10 @@
 
             static get properties() {
                 return {
-                    opencgaClient: {
+                    opencgaSession: {
                         type: Object
                     },
-                    study: {
+                    opencgaClient: {
                         type: Object
                     },
                     config: {
