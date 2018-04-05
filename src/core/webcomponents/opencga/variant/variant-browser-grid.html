@@ -20,15 +20,12 @@
             span.redText, span.orangeText {
                 margin-left: 0;
             }
-
             span.redText {
                 color: red;
             }
-
             span.orangeText {
                 color: orange;
             }
-
         </style>
 
         <div id="{{prefix}}ToolbarLeft" style="float: left;margin: 10px 0px 0px 0px">
@@ -83,6 +80,9 @@
 
             static get properties() {
                 return {
+                    opencgaSession: {
+                        type: Object
+                    },
                     opencgaClient: {
                         type: Object
                     },
@@ -90,13 +90,13 @@
                         type: Object,
                         observer: 'renderVariantTable'
                     },
-                    project: {
-                        type: Object
-                    },
-                    study: {
-                        type: Object,
-                        observer: 'renderVariantTable'
-                    },
+                    // project: {
+                    //     type: Object
+                    // },
+                    // study: {
+                    //     type: Object,
+                    //     observer: 'renderVariantTable'
+                    // },
                     data: {
                         type: Array,
                         value: [],
@@ -219,7 +219,7 @@
                 let _table = $('#' + this.prefix + 'VariantBrowserGrid');
                 let _this = this;
                 if (typeof this.opencgaClient !== "undefined" && this.opencgaClient instanceof OpenCGAClient && typeof
-                        this.project !== "undefined" && typeof this.study !== "undefined" && typeof this.study.alias !== "undefined") {
+                        this.opencgaSession.project !== "undefined" && typeof this.opencgaSession.study !== "undefined" && typeof this.opencgaSession.study.alias !== "undefined") {
 
                     let urlQueryParams = this._getUrlQueryParams();
                     let queryParams = urlQueryParams.queryParams;
@@ -387,12 +387,12 @@
                     host = 'https://' + this.opencgaClient.getConfig().host;
                 }
 
-                if (typeof this.project !== "undefined" && typeof this.study.alias !== "undefined") {
+                if (typeof this.opencgaSession.project !== "undefined" && typeof this.opencgaSession.study.alias !== "undefined") {
                     if (typeof this.query === "undefined") {
                         this.query = {};
                     }
                     if (UtilsNew.isEmpty(this.query.studies) || this.query.studies.split(new RegExp("[,;]")).length === 1) {
-                        this.query.studies = this.project.alias + ":" + this.study.alias;
+                        this.query.studies = this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias;
                     }
                     host += '/webservices/rest/v1/analysis/variant/query';
                 } else {
@@ -863,7 +863,7 @@
                     let cohortIdx = 6;
                     let cohortStudies = Object.keys(this.cohorts);
                     this.cols[0].splice(8, 0, {
-                        title: this.project.name,
+                        title: this.opencgaSession.project.name,
                         field: 'cohorts',
                         rowspan: 1,
                         colspan: cohortStudies.length,

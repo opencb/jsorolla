@@ -108,7 +108,7 @@
                         <!-- First TAB -->
                         <div id="{{prefix}}TableResult" class="variant-browser-content">
                             <!-- Variant Browser Grid -->
-                            <variant-browser-grid study="{{opencgaSession.study}}" project="{{opencgaSession.project}}" cohorts="{{cohorts}}"
+                            <variant-browser-grid opencga-session="{{opencgaSession}}" cohorts="{{cohorts}}"
                                                   opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
                                                   population-frequencies="{{populationFrequencies}}" active="{{active}}"
                                                   protein-substitution-scores="{{proteinSubstitutionScores}}"
