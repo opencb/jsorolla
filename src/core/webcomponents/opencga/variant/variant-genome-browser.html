@@ -84,7 +84,7 @@
             <div class="" style="width: 80%;float: right;padding: 0px 5px">
                 <genome-browser cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}"
                                 species={{species}} region="{{region}}" tracks="[[tracks]]"
-                                study="{{study}}" project="{{project}}" active="{{active}}"
+                                study="{{opencgaSession.study}}" project="{{opencgaSession.project}}" active="{{active}}"
                                 width="{{genomeBrowserWidth}}">
                 </genome-browser>
             </div>
@@ -107,6 +107,10 @@
 
             static get properties() {
                 return {
+                    opencgaSession: {
+                        type: Object,
+                        observer: "render"
+                    },
                     opencgaClient: {
                         type: Object,
                     },
@@ -117,13 +121,6 @@
                         type: Object,
                     },
                     search: {
-                        type: Object,
-                        observer: "render",
-                    },
-                    project: {
-                        type: Object,
-                    },
-                    study: {
                         type: Object,
                         observer: "render",
                     },
@@ -207,7 +204,7 @@
                     });
                     const query = {
                         samples,
-                        study: this.study.id,
+                        study: this.opencgaSession.study.id,
                         format: "BAM",
                         include: "id,name,path,samples",
                     };
@@ -278,7 +275,7 @@
             render() {
                 this.variant = ""; // Empty the variant every time the grid is loaded
                 if (typeof this.opencgaClient !== "undefined" && this.opencgaClient instanceof OpenCGAClient
-                        && typeof this.project !== "undefined" && typeof this.study !== "undefined" && typeof this.study.alias !== "undefined") {
+                        && typeof this.opencgaSession.project !== "undefined" && typeof this.opencgaSession.study !== "undefined" && typeof this.opencgaSession.study.alias !== "undefined") {
                     const urlQueryParams = this._getUrlQueryParams();
                     const queryParams = urlQueryParams.queryParams;
                     let _numTotal = -1;
@@ -352,12 +349,12 @@
                     host = `https://${host}`;
                 }
 
-                if (typeof this.project !== "undefined" && typeof this.study.alias !== "undefined") {
+                if (typeof this.opencgaSession.project !== "undefined" && typeof this.opencgaSession.study.alias !== "undefined") {
                     if (typeof this.query === "undefined") {
                         this.query = {};
                     }
                     if (typeof this.query.studies === "undefined" || this.query.studies === "" || this.query.studies.split(new RegExp("[,;]")).length === 1) {
-                        this.query.studies = `${this.project.alias}:${this.study.alias}`;
+                        this.query.studies = `${this.opencgaSession.project.alias}:${this.opencgaSession.study.alias}`;
                     }
                     host += "/webservices/rest/v1/analysis/variant/query";
                 } else {

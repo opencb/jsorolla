@@ -277,7 +277,7 @@
                         <div id="{{prefix}}GenomeBrowser" class="variant-interpretation-content" style="display: none">
                             <br>
                             <br>
-                            <variant-genome-browser project="{{opencgaSession.project}}" study="{{opencgaSession.study}}" samples="{{samples}}" opencga-client="{{opencgaClient}}"
+                            <variant-genome-browser opencga-session="{{opencgaSession}}"  samples="{{samples}}" opencga-client="{{opencgaClient}}"
                                                     cellbase-client="{{cellbaseClient}}" query={{query}} search={{search}} region="{{region}}"
                                                     active="{{_genomeBrowserActive}}" full-screen="{{fullScreen}}">
                             </variant-genome-browser>
@@ -289,7 +289,7 @@
                             <!--<opencga-sample-comparator opencga-client="{{opencgaClient}}" samples="{{samples}}"-->
                             <!--variable-sets="{{variableSets}}">-->
                             <!--</opencga-sample-comparator>-->
-                            <clinical-analysis-view clinical-analysis={{clinicalAnalysis}} study="{{opencgaSession.study}}" opencga-client="{{opencgaClient}}" config="{{config}}"
+                            <clinical-analysis-view clinical-analysis={{clinicalAnalysis}} opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}" config="{{config}}"
                                                     class="col-md-10 col-md-offset-1" style="font-size: 12px">
                             </clinical-analysis-view>
                         </div>
@@ -381,8 +381,7 @@
 
                             <div class="col-md-12">
                                 <template is="dom-if" if="{{interpretationView}}">
-                                    <clinical-interpretation-view id="id" interpretation="{{interpretationView}}" project="{{opencgaSession.project}}"
-                                                                  study="{{opencgaSession.study}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+                                    <clinical-interpretation-view id="id" interpretation="{{interpretationView}}" opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
                                                                   consequence-types="{{consequenceTypes}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
                                                                   style="font-size: 12px">
                                     </clinical-interpretation-view>

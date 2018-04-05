@@ -21,17 +21,14 @@
 
             static get properties() {
                 return {
+                    opencgaSession: {
+                        type: Object
+                    },
                     cellbaseClient: {
                         type: Object
 //                        observer: "init"
                     },
                     opencgaClient: {
-                        type: Object
-                    },
-                    project: {
-                        type: Object
-                    },
-                    study: {
                         type: Object
                     },
                     region: {
@@ -237,7 +234,7 @@
                     height: 100,
                     opencga: {
                         client: this.opencgaClient,
-                        studies: `${this.project.alias}:${this.study.alias}`,
+                        studies: `${this.opencgaSession.project.alias}:${this.opencgaSession.study.alias}`,
                         config: {}
 //                        studies: "reference_grch37:1kG_phase3"
 //                        "HG00096", "HG00097", "HG00099"
@@ -275,7 +272,7 @@
                     height: 300,
                     opencga: {
                         client: this.opencgaClient,
-                        studies: `${this.project.alias}:${this.study.alias}`,
+                        studies: `${this.opencgaSession.project.alias}:${this.opencgaSession.study.alias}`,
 //                        config: {height:1},
                         // By default no custom config
                         config: {},
@@ -310,7 +307,7 @@
                         let mySettings = {
                             data: {
                                 fileId: file,
-                                study: _this.study.id
+                                study: _this.opencgaSession.study.id
                             }
                         };
 

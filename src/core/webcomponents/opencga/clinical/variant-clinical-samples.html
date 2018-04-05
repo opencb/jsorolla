@@ -26,7 +26,7 @@
 
         <div class="row">
             <div class="col-md-2">
-                <opencga-sample-filter study="{{opencgaSession.study}}" config="{{config}}" samples="{{samples}}"
+                <opencga-sample-filter opencga-session="{{opencgaSession}}" config="{{config}}" samples="{{samples}}"
                                        opencga-client="{{opencgaClient}}" query="{{query}}" search="{{search}}">
                 </opencga-sample-filter>
             </div>
@@ -38,7 +38,7 @@
                 </opencga-active-filters>
 
                 <h3>Sample Results</h3>
-                <variant-sample-grid opencga-client="{{opencgaClient}}" config="[[config]]" event-notify-name="[[eventNotifyName]]" study="{{opencgaSession.study}}" samples="{{samples}}" search="{{search}}" project="[[opencgaSession.project]]"></variant-sample-grid>
+                <variant-sample-grid opencga-client="{{opencgaClient}}" opencga-session="{{opencgaSession}}" config="[[config]]" event-notify-name="[[eventNotifyName]]" samples="{{samples}}" search="{{search}}"></variant-sample-grid>
 
                 <br>
                 <h3>Analysis Type</h3>
@@ -108,7 +108,7 @@
                     <div class="modal-body" style="height: 500px">
                         <template is="dom-if" if="{{showModalFamilyEditor}}" restamp="true">
 
-                            <opencga-family-editor-new study="{{opencgaSession.study}}" samples="{{_samplesAnalysis}}"
+                            <opencga-family-editor-new opencga-session="{{opencgaSession}}" samples="{{_samplesAnalysis}}"
                                                        opencga-client="{{opencgaClient}}" family="{{family}}"
                                                        on-familychange="familyChange" message-error-family="{{messageErrorFamily}}">
                             </opencga-family-editor-new>

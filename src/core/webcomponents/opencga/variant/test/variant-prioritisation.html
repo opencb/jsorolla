@@ -98,7 +98,7 @@
 <dom-module id="opencga-variant-interpretation-test">
     <template>
         <opencga-variant-interpretation mode="prioritization" title="Prioritization" host="{{opencga.host}}"
-                                project="{{project}}" study="{{study}}" samples="{{samples}}" clinical-analysis="{{clinicalAnalysis}}"
+                                opencga-session="{{opencgaSession}}" samples="{{samples}}" clinical-analysis="{{clinicalAnalysis}}"
                                 config="{{config.tools.prioritization}}" config-opencga="{{config.opencga}}" biotypes="{{config.biotypes}}"
                                 population-frequencies="{{populationFrequencies}}"
                                 protein-substitution-scores="{{proteinSubstitutionScores}}"
@@ -133,7 +133,7 @@
 
                     this.opencgaClientConfig = new OpenCGAClientConfig(this.config.opencga.host, this.config.opencga.version, true, this.config.opencga.cookie.prefix);
                     this.opencgaClient = new OpenCGAClient(this.opencgaClientConfig);
-
+                    this.opencgaSession = this.opencgaClient.createAnonymousSession();
                     this.cellBaseClientConfig = new CellBaseClientConfig(this.config.cellbase.hosts, this.config.cellbase.version, "hsapiens");
                     this.cellbaseClient = new CellBaseClient(this.cellBaseClientConfig);
 
