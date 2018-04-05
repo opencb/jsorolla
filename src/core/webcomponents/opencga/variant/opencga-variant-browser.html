@@ -14,8 +14,7 @@
   ~ limitations under the License.
   -->
 
-<link rel="import" href="variant-browser-filter.html">
-<!--<link rel="import" href="obsolete/variant-browser-view.html">-->
+<link rel="import" href="opencga-variant-filter.html">
 <link rel="import" href="../opencga-active-filters.html">
 <link rel="import" href="variant-browser-grid.html">
 <link rel="import" href="variant-beacon-network.html">
@@ -59,29 +58,17 @@
 
             <div class="row" style="padding: 0px 5px">
                 <div id="{{prefix}}FilterMenu" class="col-md-2">
-                    <variant-browser-filter opencga-session="{{opencgaSession}}" config="{{config}}"
+                    <opencga-variant-filter opencga-session="{{opencgaSession}}" config="{{config}}"
                                             cohorts="[[cohorts]]" biotypes={{biotypes}}
                                             samples="[[samples]]" opencga-client="{{opencgaClient}}"
                                             cellbase-client="{{cellbaseClient}}"
                                             population-frequencies="{{populationFrequencies}}" ebi-config="{{ebiConfig}}"
                                             consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}"
                                             on-samplechange="onSampleChange">
-                    </variant-browser-filter>
+                    </opencga-variant-filter>
                 </div>
 
                 <div id="{{prefix}}MainWindow" class="col-md-10">
-                    <!--<variant-browser-view project="{{project}}" study="{{study}}" samples=[[samples]] cohorts="{{cohorts}}"-->
-                    <!--opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"-->
-                    <!--population-frequencies="{{populationFrequencies}}"-->
-                    <!--protein-substitution-scores="{{proteinSubstitutionScores}}"-->
-                    <!--consequence-types="{{consequenceTypes}}" beacon-hosts="{{beaconHosts}}"-->
-                    <!--query="[[query]]" search="[[search]]"-->
-                    <!--on-propagate="propagateGeneEvent" config="{{config}}" on-clear="onClear"-->
-                    <!--on-filterchange="onFilterChange" full-screen="{{_collapsed}}">-->
-                    <!--</variant-browser-view>-->
-
-
-
                     <opencga-active-filters opencga-client="{{opencgaClient}}" query="[[query]]" filters="{{config.filters}}" on-filterchange="onActiveFilterChange" on-clear="onClear"
                                             filter-bioformat="VARIANT" default-study="{{opencgaSession.study.alias}}" alias="{{activeFilterAlias}}" refresh="[[search]]">
                     </opencga-active-filters>

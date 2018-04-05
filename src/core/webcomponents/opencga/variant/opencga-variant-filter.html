@@ -20,7 +20,7 @@
 <link rel="import" href="../../commons/variant-modal-ontology.html">
 
 
-<dom-module id="variant-browser-filter">
+<dom-module id="opencga-variant-filter">
     <template>
         <style include="jso-styles">
             span + span {
@@ -122,11 +122,9 @@
 
         </div>
 
-
         <variant-modal-ontology prefix="{{prefix}}" ebi-config="{{ebiConfig}}" on-propagateok="propagateOkHPO"
                                 ontology-filter="{{ontologyFilter}}" term="{{ontologyTerm}}" selected-terms="{{selectedTermsOntology}}">
         </variant-modal-ontology>
-
 
         <!-- Modal dialog for Sample Browser in prioritization-->
         <!--<div class="modal fade" id="{{prefix}}SampleBrowser" tabindex="-1" role="dialog"-->
@@ -155,7 +153,7 @@
     </template>
 
     <script>
-        class VariantBrowserFilter extends Polymer.Element {
+        class OpencgaVariantFilter extends Polymer.Element {
 
             constructor() {
                 super();
@@ -165,7 +163,7 @@
             }
 
             static get is() {
-                return 'variant-browser-filter';
+                return 'opencga-variant-filter';
             }
 
             static get properties() {
@@ -174,13 +172,6 @@
                         type: Object,
                         observer: 'studyObserver'
                     },
-                    // study: {
-                    //     type: Object,
-                    //     observer: 'studyObserver'
-                    // },
-                    // studies: {
-                    //     type: Array
-                    // },
                     query: {
                         type: Object,
                         value: {},
@@ -260,6 +251,8 @@
             }
 
             _init() {
+                this.prefix = "var-browser-filter-" + Utils.randomString(6);
+
                 this._initialised = false;
                 this.sampleGenotypesObj = {};
                 this._reset = true;
@@ -274,10 +267,7 @@
                 this.modalGoActive = false;
 
                 this._genotypes = ["0/0", "0/1", "1/1", "./."];
-
-                this.prefix = "var-browser-filter-" + Utils.randomString(6);
             }
-
 
             _initDefaultSampleGenotypes(samples) {
                 // if (UtilsNew.isNotUndefinedOrNull(samples)) {
@@ -301,11 +291,11 @@
             studyObserver() {
                 if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession.study)) {
                     // Update the study list of studies and the selected one
-                    if (UtilsNew.isNotUndefinedOrNull(this.studies)) {
+                    if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession.project.studies)) {
                         let _differentStudies = [];
-                        for (let i = 0; i < this.studies.length; i++) {
-                            if (this.opencgaSession.study.alias !== this.studies[i].alias) {
-                                _differentStudies.push(this.studies[i]);
+                        for (let i = 0; i < this.opencgaSession.project.studies.length; i++) {
+                            if (this.opencgaSession.study.alias !== this.opencgaSession.project.studies[i].alias) {
+                                _differentStudies.push(this.opencgaSession.project.studies[i]);
                             }
                         }
                         this.differentStudies = _differentStudies;
@@ -2134,6 +2124,6 @@
             }
         }
 
-        customElements.define(VariantBrowserFilter.is, VariantBrowserFilter);
+        customElements.define(OpencgaVariantFilter.is, OpencgaVariantFilter);
     </script>
 </dom-module>

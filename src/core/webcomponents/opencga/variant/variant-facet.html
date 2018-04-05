@@ -14,7 +14,7 @@
   ~ limitations under the License.
   -->
 
-<link rel="import" href="variant-browser-filter.html">
+<link rel="import" href="opencga-variant-filter.html">
 <link rel="import" href="variant-facet-view.html">
 
 <dom-module id="variant-facet">
@@ -30,12 +30,12 @@
             </div>
 
             <div class="col-md-2" hidden$="{{checkProject(project)}}">
-                <variant-browser-filter study="{{study}}" project="{{project}}" studies="{{studies}}"
+                <opencga-variant-filter study="{{study}}" project="{{project}}" studies="{{studies}}"
                                         opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
                                         population-frequencies="{{populationFrequencies}}" biotypes="{{biotypes}}"
                                         consequence-types="{{consequenceTypes}}"
                                         query="{{query}}" search="{{search}}" config="{{config}}" style="font-size: 12px">
-                </variant-browser-filter>
+                </opencga-variant-filter>
             </div>
 
             <div class="col-md-10" hidden$="{{checkProject(project)}}">
