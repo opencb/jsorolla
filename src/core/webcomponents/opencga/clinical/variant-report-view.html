@@ -291,7 +291,7 @@
                                     <th>{{loadi18n('snpId')}}</th>
                                     <th>{{loadi18n('genes')}}</th>
                                     <th>{{loadi18n('type')}}</th>
-                                    <th>{{loadi18n('consequenceType')}}</th>
+                                    <!-- <th>{{loadi18n('consequenceType')}}</th> -->
                                 </tr>
                             </thead>
                             <tbody id="variantTablebody">
@@ -357,12 +357,11 @@
                             </div>
                         </div>
                     </div>
-                    <br>
                 </div>
 
                 <!-- Interpretation -->
                 <template is="dom-if" if="{{!interpretation.attributes.panelInfo.positive}}">
-                    <div class="divSection other-information posContent col-sm-12" id="{{prefix}}interpretationDiv">
+                    <div class="divSection other-information posContent col-sm-12" id="{{prefix}}interpretationDiv" style="margin-top:20px;">
                         <h3 class="titlesAnalysis">{{loadi18n('interpretationHeader')}}</h3>
                         <ul>
                             <li>
@@ -387,7 +386,7 @@
                                 {{dataFields.coverage}}{{loadi18n('interpretationText2_3')}}
                             </li>
                             <li>{{loadi18n('interpretationText3')}}</li>
-                            <li>{{loadi18n('interpretation1_positive')}}</li>
+                            <li>{{patientArticle}} {{loadi18n('interpretation1_positive')}} {{dataFields.InterpretationDetectionAdvice}}</li>
                         </ul>
                     </div>
                 </template>
@@ -432,7 +431,19 @@
                         <li>{{loadi18n('methodologyText4')}}</li>
                     </ul>
                     <p>{{loadi18n('methodologyText5')}}</p>
-                    <p>{{loadi18n('methodologyText6')}}</p>
+                    <p>{{loadi18n('methodologyText6')}}
+
+                        {{patientArticleTxtde}}
+
+                        <!-- del... -->
+
+
+                        {{loadi18n('methodologyText6_1')}}
+                       
+                        {{patientArticleTxt}}
+                       
+                        {{loadi18n('methodologyText6_2')}}
+                    </p>
                 </div>
 
                 <!-- Analysis Information -->
@@ -715,6 +726,20 @@
                         this.dataFieldsFixed.sampleType = sampleType;
                         this.dataFieldsFixed.sampleName = sampleName;
 
+                        let patientSex = this.dataFieldsFixed.sex = sex;
+                        this.patientArticle= "";
+                        this.patientArticleTxt= "";
+
+                        if (patientSex == "MALE"){
+                            this.patientArticle = this.loadi18n('articleM');
+                            this.patientArticleTxt = this.loadi18n('articleMtxt');
+                            this.patientArticleTxtde = this.loadi18n('articleMtxtdel');
+                        }else{
+                            this.patientArticle = this.loadi18n('articleF');
+                            this.patientArticleTxt = this.loadi18n('articleFtxt');
+                            this.patientArticleTxtde = this.loadi18n('articleFtxtdela');
+                        }
+
                         // Analysis ID and analysis resume
                         PolymerUtils.setPropertyById(this.prefix + "analysisID", "innerText", this.interpretation.clinicalAnalysis.id);
                         PolymerUtils.setPropertyById(this.prefix + "Description", "innerText", this.interpretation.clinicalAnalysis.description);
@@ -807,8 +832,7 @@
 
                         rows += '<tr><td>' + variantId + '</td><td>' + this._variantParamValue(data[j].id)
                             + '</td><td>' + this.genesRow(data[j]) + '</td><td>' + this._variantParamValue(data[j].type)
-                            + '</td><td>' + this._variantParamValue(data[j].annotation.displayConsequenceType) + '</td></tr>';
-
+                            + '</td></tr>';
                     }
                     table.innerHTML = rows;
                 }
