@@ -45,14 +45,11 @@
 
             static get properties() {
                 return {
-                    opencgaClient: {
+                    opencgaSession: {
                         type: Object,
-                        observer: 'renderTable'
+                        observer: "renderTable"
                     },
-                    project: {
-                        type: Object
-                    },
-                    study: {
+                    opencgaClient: {
                         type: Object,
                         observer: 'renderTable'
                     },
@@ -106,7 +103,7 @@
                 this.from = 1;
                 this.to = 5;
 
-                if (UtilsNew.isNotUndefined(this.opencgaClient) && UtilsNew.isNotUndefined(this.study) && this.study.id > 0) {
+                if (UtilsNew.isNotUndefined(this.opencgaClient) && UtilsNew.isNotUndefined(this.opencgaSession.study) && this.opencgaSession.study.id > 0) {
                     // Make a copy of the samples (if they exist), we will use this private copy until it is assigned to this.samples
                     if (UtilsNew.isNotUndefined(this.samples)) {
                         this._samples = this.samples;
@@ -130,7 +127,7 @@
                         sidePagination: 'server',
                         queryParams: function (params) {
                             let auxParams = {
-                                studyId: _this.study.id,
+                                studyId: _this.opencgaSession.study.id,
 //                                lazy: "false",
                                 sid: Cookies.get(_this.opencgaClient.getConfig().cookieSessionId),
                                 order: params.order,
@@ -263,12 +260,12 @@
                         }
                     });
 
-                    this.opencgaClient.studies().info(this.study.id)
+                    this.opencgaClient.studies().info(this.opencgaSession.study.id)
                         .then(function (response) {
                             _this.variableSets = response.response[0].result[0].variableSets;
                         })
                         .catch(function () {
-                            console.log("Could not obtain the variable sets of the study " + _this.study.id);
+                            console.log("Could not obtain the variable sets of the study " + _this.opencgaSession.study.id);
                         });
                 } else {
                     // Delete table
@@ -476,7 +473,7 @@
 
             downloadQCFile(e) {
                 let name = e.target.getAttribute('data-sample-name') + ".QC.tar.gz";
-                let study = this.project.alias + ":" + this.study.alias;
+                let study = this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias;
                 let sid =  Cookies.get(this.opencgaClient.getConfig().cookieSessionId);
                 let opencgaHostUrl = this.opencgaClient.getConfig().host;
                 if (!opencgaHostUrl.startsWith("http://") && !opencgaHostUrl.startsWith("https://")) {
