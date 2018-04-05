@@ -54,15 +54,15 @@
 
             static get properties() {
                 return {
+                    opencgaSession: {
+                        type: Object
+                    },
                     opencgaClient: {
                         type: Object
                     },
                     analysisSelected: {
                         type: Object,
                         notify: true
-                    },
-                    study: {
-                        type: Object
                     },
                     analysisModal: {
                         type: Boolean,

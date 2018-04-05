@@ -198,13 +198,10 @@
 
             static get properties() {
                 return {
+                    opencgaSession: {
+                        type: Object
+                    },
                     opencgaClient: {
-                        type: Object
-                    },
-                    project: {
-                        type: Object
-                    },
-                    study: {
                         type: Object
                     },
                     clinicalAnalysisId: {
@@ -265,7 +262,7 @@
             searchAnalysis(){
                 if(UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysisId)){
                     let params = {
-                        study: this.project.alias + ":" + this.study.alias
+                        study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias
                     };
                     let _this = this;
                     this.opencgaClient.clinical().info(this.clinicalAnalysisId, params, {})

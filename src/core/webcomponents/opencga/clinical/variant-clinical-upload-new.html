@@ -412,14 +412,11 @@
 
             static get properties() {
                 return {
+                    opencgaSession: {
+                        type: Object,
+                        observer: "_updateVariableSets"
+                    },
                     opencgaClient: {
-                        type: Object
-                    },
-                    study: {
-                        type: Number,
-                        observer: '_updateVariableSets'
-                    },
-                    project: {
                         type: Object
                     },
                     config: {
@@ -796,7 +793,7 @@
                     });
 
                     let params = {
-                        study: this.project.alias + ":" +  this.study.alias
+                        study: this.opencgaSession.project.alias + ":" +  this.opencgaSession.study.alias
                     };
 
                     let sexIndividual = this.matchingKaryotypicSex.get(formFields.chromosomalGender);
@@ -858,7 +855,7 @@
                 if (this.opencgaClient instanceof OpenCGAClient) {
                     let _this = this;
                     let params = {
-                        study: this.project.alias + ":" + this.study.alias,
+                        study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
                         type: "FILE",
                         file: vcfFile,
                         fileFormat: "VCF",
@@ -900,7 +897,7 @@
                 // Index and annotate a VCF file in openCGA
                 let params = {
                     file: fileId,
-                    study: this.project.alias + ":" + this.study.alias,
+                    study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
                     outDir: fileId + "_index_annot",
                     calculateStats: true,
                     annotate: true
@@ -999,7 +996,7 @@
             _updateVariableSets() {
                 this.variables = [];
                 let _this = this;
-                this.opencgaClient.studies().info(this.study.id, {include: "variableSets"})
+                this.opencgaClient.studies().info(this.opencgaSession.study.id, {include: "variableSets"})
                     .then(function (response) {
                         _this.variableSets = response.response[0].result[0].variableSets;
                         if (_this.variableSets.length > 0) {
@@ -1017,7 +1014,7 @@
                         }
                     })
                     .catch(function (responseError) {
-                        console.log("Could not obtain the variable sets of the study " + _this.study);
+                        console.log("Could not obtain the variable sets of the study " + _this.opencgaSession.study);
                         this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
                             detail: {
                                 message: responseError.error,

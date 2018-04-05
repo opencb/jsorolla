@@ -152,8 +152,8 @@
             <div class="col-md-12">
                 <template is="dom-if" if="{{activesTab.uploadTab}}">
                     <div class$="analysis-content" id="{{prefix}}UploadButtonDiv">
-                        <variant-clinical-upload-new opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}"
-                                                 ebi-config="{{ebiConfig}}" project="{{project}}" event-notify-name="{{eventNotifyName}}">
+                        <variant-clinical-upload-new opencga-client="{{opencgaClient}}" opencga-session="{{opencgaSession}}" config="{{config}}"
+                                                 ebi-config="{{ebiConfig}}" event-notify-name="{{eventNotifyName}}">
                         </variant-clinical-upload-new>
                     </div>
                 </template>
@@ -161,7 +161,7 @@
                 <!-- ANALYSIS TAB -->
                 <template is="dom-if" if="{{activesTab.analysisTab}}">
                     <div class$="analysis-content" id="{{prefix}}SamplesButtonDiv">
-                        <variant-clinical-samples opencga-client="{{opencgaClient}}" project="{{project}}" study="{{study}}"
+                        <variant-clinical-samples opencga-client="{{opencgaClient}}" opencga-session="{{opencgaSession}}"
                                                   samples="{{samples}}" prefix="{{prefix}}" config="{{config}}" event-notify-name="{{eventNotifyName}}">
                         </variant-clinical-samples>
                     </div>
@@ -208,7 +208,7 @@
 
                                 <!-- Clinical Analysis View -->
                                 <div class="col-md-12" style="padding: 10px 15px">
-                                    <clinical-analysis-view project="[[project]]" study="[[study]]" config="{{config}}" opencga-client="[[opencgaClient]]"
+                                    <clinical-analysis-view opencga-session="{{opencgaSession}}" config="{{config}}" opencga-client="[[opencgaClient]]"
                                                             clinical-analysis="{{clinicalAnalysis}}" clinical-analysis-id="{{clinicalAnalysisId}}" show-summary="{{showSummary}}"
                                                             active-prioritization="{{activePrioritization}}">
                                     </clinical-analysis-view>
@@ -250,8 +250,7 @@
 
                     <template is="dom-if" if="{{activePrioritization}}">
                         <div style="margin: auto">
-                            <opencga-variant-interpretation tool-title="Prioritization"
-                                                    project="{{project}}" study="{{study}}" samples="{{samples}}"
+                            <opencga-variant-interpretation tool-title="Prioritization" opencga-session="{{opencgaSession}}" samples="{{samples}}"
                                                     config="{{config}}" biotypes="{{biotypes}}"
                                                     population-frequencies="{{populationFrequencies}}"
                                                     protein-substitution-scores="{{proteinSubstitutionScores}}"
@@ -308,8 +307,8 @@
                                     </div>
                                     <div class="col-md-12" style="padding: 10px 15px">
                                         <template is="dom-if" if="{{interpretationId}}">
-                                            <clinical-interpretation-view id="id" interpretation-id={{interpretationId}} project="{{project}}"
-                                                                          study="{{study}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+                                            <clinical-interpretation-view id="id" interpretation-id={{interpretationId}} opencga-session="{{opencgaSession}}"
+                                                                          opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
                                                                           consequence-types="{{consequenceTypes}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
                                                                           on-createreport="onCreateReport" style="font-size: 12px">
                                             </clinical-interpretation-view>
@@ -320,7 +319,7 @@
 
                         </template>
                         <template is="dom-if" if="{{activeReport}}" restamp="true">
-                            <variant-clinical-report opencga-client="{{opencgaClient}}" study="{{study}}" config="{{config}}"
+                            <variant-clinical-report opencga-client="{{opencgaClient}}" opencga-session="{{opencgaSession}}" config="{{config}}"
                                                      tool-title="Report of {{clinicalAnalysis.name}}" interpretation="{{interpretationReport}}" analysis="{{clinicalAnalysis}}" expReport="true">
                             </variant-clinical-report>
                         </template>
@@ -337,8 +336,8 @@
                             <h4 class="modal-title" id="{{prefix}}AnalysisBrowserLabel">Analysis Selector</h4>
                         </div>
                         <div class="modal-body" style="height: 780px">
-                            <variant-clinical-selector opencga-client="{{opencgaClient}}" analysis-selected="{{analysisSelected}}"
-                                                       analysis-modal="{{analysisModal}}" project="{{project}}" study="{{study}}" show-pedigree="true"></variant-clinical-selector>
+                            <variant-clinical-selector opencga-client="{{opencgaClient}}" opencga-session="{{opencgaSession}}" analysis-selected="{{analysisSelected}}"
+                                                       analysis-modal="{{analysisModal}}"  show-pedigree="true"></variant-clinical-selector>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="onAnalysisSelected">
@@ -365,10 +364,7 @@
 
             static get properties() {
                 return {
-                    project: {
-                        type: Object
-                    },
-                    study: {
+                    opencgaSession: {
                         type: Object,
                         observer: "getRecentAnalysis"
                     },
@@ -424,7 +420,7 @@
                     },
                     checkPermissions: {
                         type: Boolean,
-                        computed: '_checkPermissions(project)'
+                        computed: '_checkPermissions(opencgaSession.project)'
                     },
                     eventNotifyName: {
                         type: String,
@@ -506,7 +502,7 @@
             }
 
             onClear() {
-                this.query = {studies: this.project.alias + ":" + this.study.alias};
+                this.query = {studies: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias};
                 this.search = {};
             }
 
@@ -539,7 +535,7 @@
 
             getRecentAnalysis() {
                 let params = {
-                    study: this.project.alias + ":" + this.study.alias,
+                    study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
                     include: "id,name,description",
                     sort: "creationDate",
                     order: "descending",
