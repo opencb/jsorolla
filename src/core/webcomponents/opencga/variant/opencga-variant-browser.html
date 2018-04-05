@@ -53,13 +53,13 @@
                 <span on-click="onCollapse" style="cursor: pointer;margin: 0px 30px 0px 0px">
                     <i class="fa fa-bars" aria-hidden="true"></i>
                 </span>
-                    <i class="fa fa-search" aria-hidden="true"></i>&nbsp;{{toolTitle}}
+                    <i class="fa fa-search" aria-hidden="true"></i>&nbsp;{{config.title}}
                 </h3>
             </div>
 
             <div class="row" style="padding: 0px 5px">
                 <div id="{{prefix}}FilterMenu" class="col-md-2">
-                    <variant-browser-filter study="{{study}}" project="{{project}}" studies="{{studies}}"
+                    <variant-browser-filter study="{{opencgaSession.study}}" project="{{opencgaSession.project}}" studies="{{opencgaSession.project.studies}}"
                                             cohorts="[[cohorts]]" biotypes={{biotypes}} config="{{config}}"
                                             samples="[[samples]]" opencga-client="{{opencgaClient}}"
                                             cellbase-client="{{cellbaseClient}}"
@@ -144,7 +144,7 @@
                                     <div class="tab-content" style="height: 680px">
                                         <!--Annotation Tab-->
                                         <div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">
-                                            <cellbase-variantannotation-view data="{{variant}}" assembly={{project.organism.assembly}} prefix="{{prefix}}"
+                                            <cellbase-variantannotation-view data="{{variant}}" assembly={{opencgaSession.project.organism.assembly}} prefix="{{prefix}}"
                                                                              cellbase-client="{{cellbaseClient}}" mode="vertical"
                                                                              hash-fragment-credentials="{{hashFragmentCredentials}}"
                                                                              consequence-types="{{consequenceTypes}}"
@@ -163,7 +163,7 @@
                                                     </h4>
 
                                                     <div id="{{getStudy(opencgaSession.study.alias)}}">
-                                                        <div hidden$="{{!checkStatsAvailable(study.stats)}}">
+                                                        <div hidden$="{{!checkStatsAvailable(opencgaSession.study.stats)}}">
                                                             <table class="table table-bordered" style="width: 70%">
                                                                 <thead style="background-color: #eee;">
                                                                 <tr>
@@ -183,7 +183,7 @@
                                                                 </tr>
                                                                 </thead>
                                                                 <tbody>
-                                                                <template is="dom-repeat" items="{{study.stats}}" as="cohort">
+                                                                <template is="dom-repeat" items="{{opencgaSession.study.stats}}" as="cohort">
                                                                     <tr>
                                                                         <td>{{cohort.name}}</td>
                                                                         <td>{{cohort.value.refAllele}}</td>
@@ -199,7 +199,7 @@
                                                                 </tbody>
                                                             </table>
                                                         </div>
-                                                        <div hidden$="{{checkStatsAvailable(study.stats)}}">
+                                                        <div hidden$="{{checkStatsAvailable(opencgaSession.study.stats)}}">
                                                             No Genotypes statistics available
                                                         </div>
                                                     </div>
@@ -295,10 +295,6 @@
                     samples: {
                         type: Array
                     },
-                    toolTitle: {
-                        type: String,
-                        value: "Variant Browser"
-                    },
                     opencgaClient: {
                         type: Object
                     },
@@ -329,7 +325,7 @@
                     },
                     checkPermissions: {
                         type: Boolean,
-                        computed: '_checkPermissions(project)'
+                        computed: '_checkPermissions(opencgaSession.project)'
                     },
                     variant: {
                         type: String,
@@ -348,8 +344,8 @@
 
             _init() {
                 this.prefix = "varbrowser" + Utils.randomString(6);
-                this._collapsed = false;
 
+                this._collapsed = false;
                 this.genotypeColor = {
                     "0/0": "#6698FF",
                     "0/1": "#FFA500",
@@ -386,6 +382,7 @@
                 this._collapsed = !this._collapsed;
             }
 
+            // TODO send an event with the query, only iva-app.html should change the URL
             renderHashQueryParams() {
                 let hashFrag = window.location.hash.split('?')[0];
                 if (typeof this.query !== "undefined" && Object.keys(this.query).length > 0) {
@@ -416,7 +413,7 @@
             }
 
             onClear() {
-                this.query = {studies: this.project.alias + ":" + this.study.alias};
+                this.query = {studies: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias};
                 this.search = {};
             }
 
@@ -460,7 +457,11 @@
             }
 
             checkStatsAvailable(stats) {
-                return stats.length > 0;
+                if (stats !== undefined) {
+                    return stats.length > 0;
+                } else {
+                    return false;
+                }
             }
 
             variantChanged(e) {
