@@ -232,12 +232,12 @@
 
             static get properties() {
                 return {
-                    opencgaClient: {
-                        type: Object
-                    },
-                    study: {
+                    opencgaSession: {
                         type: Object,
                         observer: 'updateVariableSets'
+                    },
+                    opencgaClient: {
+                        type: Object
                     },
                     prefix: {
                         type: String
@@ -288,7 +288,7 @@
             updateVariableSets() {
                 this.variables = [];
                 let _this = this;
-                this.opencgaClient.studies().info(this.study.id, {include: "variableSets"})
+                this.opencgaClient.studies().info(this.opencgaSession.study.id, {include: "variableSets"})
                     .then(function (response) {
                         _this.variableSets = response.response[0].result[0].variableSets;
                         if (_this.variableSets.length > 0) {
@@ -302,7 +302,7 @@
                         }
                     })
                     .catch(function () {
-                        console.log("Could not obtain the variable sets of the study " + _this.study);
+                        console.log("Could not obtain the variable sets of the study " + _this.opencgaSession.study);
                     });
             }
 
