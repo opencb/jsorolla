@@ -14,8 +14,8 @@
   ~ limitations under the License.
   -->
 
+<link rel="import" href="opencga-variant-filter.html">
 <link rel="import" href="../opencga-active-filters.html">
-<link rel="import" href="variant-browser-filter.html">
 <link rel="import" href="variant-browser-grid.html">
 <link rel="import" href="../../cellbase/variation/cellbase-variantannotation-view.html">
 <link rel="import" href="variant-beacon-network.html">
@@ -58,7 +58,7 @@
             <div>
 
                 <div id="{{prefix}}FilterMenu" class="col-md-2" >
-                    <variant-browser-filter opencga-session="{{opencgaSession}}"
+                    <opencga-variant-filter opencga-session="{{opencgaSession}}"
                                             samples="[[samplesForMenuFilter]]" family="[[family]]"
                                             opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"
                                             population-frequencies="{{populationFrequencies}}" biotypes="{{biotypes}}"
@@ -66,7 +66,7 @@
                                             ebi-config="{{ebiConfig}}"
                                             on-samplechange="onSampleChange" genotype-samples="{{genotypeSamples}}"
                                             on-inheritancemode="_onInheritanceMode" mode-inheritance="{{modeInheritance}}">
-                    </variant-browser-filter>
+                    </opencga-variant-filter>
                 </div>
 
                 <div id="{{prefix}}MainWindow" class="col-md-10">
