@@ -16,7 +16,7 @@
 
 <link rel="import" href="opencga-variant-filter.html">
 <link rel="import" href="../opencga-active-filters.html">
-<link rel="import" href="variant-browser-grid.html">
+<link rel="import" href="opencga-variant-grid.html">
 <link rel="import" href="variant-beacon-network.html">
 <link rel="import" href="variant-genome-browser.html">
 <link rel="import" href="../../cellbase/variation/cellbase-variantannotation-view.html">
@@ -95,7 +95,7 @@
                         <!-- First TAB -->
                         <div id="{{prefix}}TableResult" class="variant-browser-content">
                             <!-- Variant Browser Grid -->
-                            <variant-browser-grid opencga-session="{{opencgaSession}}" cohorts="{{cohorts}}"
+                            <opencga-variant-grid opencga-session="{{opencgaSession}}" cohorts="{{cohorts}}"
                                                   opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
                                                   population-frequencies="{{populationFrequencies}}" active="{{active}}"
                                                   protein-substitution-scores="{{proteinSubstitutionScores}}"
@@ -103,7 +103,7 @@
                                                   variant="{{variant}}" on-selected="selectedGene"
                                                   on-selectvariant="onSelectVariant" style="font-size: 12px" config="{{config}}"
                                                   summary="{{summary}}" samples="{{samples}}">
-                            </variant-browser-grid>
+                            </opencga-variant-grid>
 
 
                             <!-- Bottom tabs with specific variant information -->
@@ -146,11 +146,11 @@
                                                 <div class="col-md-10" style="padding-top: 8px">
                                                     <h4 style="font-weight: bold;padding: 20px 0px 0px 0px">
                                                         <i class="fa fa-minus-circle" on-click="handleCollapseAction"
-                                                           data-id="{{getStudy(opencgaSession.study.alias)}}" style="cursor: pointer;"></i>&nbsp;{{getStudy(opencgaSession.study.alias)}}
+                                                           data-id="{{getStudy(study.alias)}}" style="cursor: pointer;"></i>&nbsp;{{getStudy(study.studyId)}}
                                                     </h4>
 
-                                                    <div id="{{getStudy(opencgaSession.study.alias)}}">
-                                                        <div hidden$="{{!checkStatsAvailable(opencgaSession.study.stats)}}">
+                                                    <div id="{{getStudy(study.alias)}}">
+                                                        <div hidden$="{{!checkStatsAvailable(study.stats)}}">
                                                             <table class="table table-bordered" style="width: 70%">
                                                                 <thead style="background-color: #eee;">
                                                                 <tr>
@@ -170,7 +170,7 @@
                                                                 </tr>
                                                                 </thead>
                                                                 <tbody>
-                                                                <template is="dom-repeat" items="{{opencgaSession.study.stats}}" as="cohort">
+                                                                <template is="dom-repeat" items="{{study.stats}}" as="cohort">
                                                                     <tr>
                                                                         <td>{{cohort.name}}</td>
                                                                         <td>{{cohort.value.refAllele}}</td>
@@ -186,7 +186,7 @@
                                                                 </tbody>
                                                             </table>
                                                         </div>
-                                                        <div hidden$="{{checkStatsAvailable(opencgaSession.study.stats)}}">
+                                                        <div hidden$="{{checkStatsAvailable(study.stats)}}">
                                                             No Genotypes statistics available
                                                         </div>
                                                     </div>
@@ -626,8 +626,11 @@
             }
 
             getStudy(study) {
-                let fields = study.split(':');
-                return study.split(':')[fields.length - 1];
+                if (study !== undefined) {
+                    let fields = study.split(':');
+                    return fields[fields.length - 1];
+                }
+                return "";
             }
 
             checkForGenotypes(stat) {

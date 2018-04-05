@@ -14,7 +14,7 @@
   ~ limitations under the License.
   -->
 
-<dom-module id="variant-browser-grid">
+<dom-module id="opencga-variant-grid">
     <template>
         <style include="jso-styles">
             span.redText, span.orangeText {
@@ -65,7 +65,7 @@
     </template>
 
     <script>
-        class VariantBrowserGrid extends Polymer.Element {
+        class OpencgaVariantGrid extends Polymer.Element {
 
             constructor() {
                 super();
@@ -75,7 +75,7 @@
             }
 
             static get is() {
-                return 'variant-browser-grid';
+                return 'opencga-variant-grid';
             }
 
             static get properties() {
@@ -1249,6 +1249,6 @@
             }
         }
 
-        customElements.define(VariantBrowserGrid.is, VariantBrowserGrid);
+        customElements.define(OpencgaVariantGrid.is, OpencgaVariantGrid);
     </script>
 </dom-module>

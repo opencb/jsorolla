@@ -16,7 +16,7 @@
 
 <link rel="import" href="opencga-variant-filter.html">
 <link rel="import" href="../opencga-active-filters.html">
-<link rel="import" href="variant-browser-grid.html">
+<link rel="import" href="opencga-variant-grid.html">
 <link rel="import" href="../../cellbase/variation/cellbase-variantannotation-view.html">
 <link rel="import" href="variant-beacon-network.html">
 <link rel="import" href="variant-genome-browser.html">
@@ -122,7 +122,7 @@
                         <div id="{{prefix}}TableResult" class="variant-interpretation-content">
                             <template is="dom-if" if="{{interactive}}">
                                 <!-- Variant Browser Grid -->
-                                <variant-browser-grid opencga-session="{{opencgaSession}}" samples="{{samples}}"
+                                <opencga-variant-grid opencga-session="{{opencgaSession}}" samples="{{samples}}"
                                                       opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
                                                       population-frequencies="{{populationFrequencies}}"
                                                       protein-substitution-scores="{{proteinSubstitutionScores}}"
@@ -130,7 +130,7 @@
                                                       query="[[query]]" search="[[search]]" variant="{{variant}}"
                                                       on-selected="selectedGene" on-selectvariant="onSelectVariant" on-checkvariant="onCheckVariant"
                                                       show-select="{{config.grid.showSelect}}" style="font-size: 12px" config="{{config}}">
-                                </variant-browser-grid>
+                                </opencga-variant-grid>
                             </template>
                             <template is="dom-if" if="{{!interactive}}">
                                 <div style="padding-top: 20px">
@@ -156,7 +156,7 @@
                                         <div class="tab-content" >
                                             <div role="tabpanel" class="tab-pane active" id="{{prefix}}TAB_A">
                                                 <!-- Variant Browser Grid -->
-                                                <variant-browser-grid opencga-session="{{opencgaSession}}" samples="{{samples}}"
+                                                <opencga-variant-grid opencga-session="{{opencgaSession}}" samples="{{samples}}"
                                                                       opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
                                                                       population-frequencies="{{populationFrequencies}}"
                                                                       protein-substitution-scores="{{proteinSubstitutionScores}}"
@@ -164,11 +164,11 @@
                                                                       query="[[query]]" search="[[search]]" variant="{{variant}}"
                                                                       on-selected="selectedGene" on-selectvariant="onSelectVariant" on-checkvariant="onCheckVariant"
                                                                       show-select="{{config.grid.showSelect}}" style="font-size: 12px" config="{{config}}">
-                                                </variant-browser-grid>
+                                                </opencga-variant-grid>
                                             </div>
                                             <div id="{{prefix}}TAB_B" role="tabpanel" class="tab-pane">
                                                 <!-- Variant Browser Grid -->
-                                                <variant-browser-grid opencga-session="{{opencgaSession}}" samples="{{samples}}"
+                                                <opencga-variant-grid opencga-session="{{opencgaSession}}" samples="{{samples}}"
                                                                       opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
                                                                       population-frequencies="{{populationFrequencies}}"
                                                                       protein-substitution-scores="{{proteinSubstitutionScores}}"
@@ -176,11 +176,11 @@
                                                                       query="[[query]]" search="[[search]]" variant="{{variant}}"
                                                                       on-selected="selectedGene" on-selectvariant="onSelectVariant" on-checkvariant="onCheckVariant"
                                                                       show-select="{{config.grid.showSelect}}" style="font-size: 12px" config="{{config}}">
-                                                </variant-browser-grid>
+                                                </opencga-variant-grid>
                                             </div>
                                             <div role="tabpanel" class="tab-pane" id="{{prefix}}TAB_C">
                                                 <!-- Variant Browser Grid -->
-                                                <variant-browser-grid opencga-session="{{opencgaSession}}" samples="{{samples}}"
+                                                <opencga-variant-grid opencga-session="{{opencgaSession}}" samples="{{samples}}"
                                                                       opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
                                                                       population-frequencies="{{populationFrequencies}}"
                                                                       protein-substitution-scores="{{proteinSubstitutionScores}}"
@@ -188,7 +188,7 @@
                                                                       query="[[query]]" search="[[search]]" variant="{{variant}}"
                                                                       on-selected="selectedGene" on-selectvariant="onSelectVariant" on-checkvariant="onCheckVariant"
                                                                       show-select="{{config.grid.showSelect}}" style="font-size: 12px" config="{{config}}">
-                                                </variant-browser-grid>
+                                                </opencga-variant-grid>
                                             </div>
                                         </div>
                                     </div>
