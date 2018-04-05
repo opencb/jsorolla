@@ -58,7 +58,7 @@
             <div>
 
                 <div id="{{prefix}}FilterMenu" class="col-md-2" >
-                    <variant-browser-filter project="{{opencgaSession.project}}" study="{{opencgaSession.study}}" studies="{{opencgaSession.project.studies}}"
+                    <variant-browser-filter opencga-session="{{opencgaSession}}"
                                             samples="[[samplesForMenuFilter]]" family="[[family]]"
                                             opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"
                                             population-frequencies="{{populationFrequencies}}" biotypes="{{biotypes}}"

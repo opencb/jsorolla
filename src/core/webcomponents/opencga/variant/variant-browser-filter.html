@@ -170,16 +170,17 @@
 
             static get properties() {
                 return {
-                    project: {
-                        type: Object
-                    },
-                    study: {
+                    opencgaSession: {
                         type: Object,
                         observer: 'studyObserver'
                     },
-                    studies: {
-                        type: Array
-                    },
+                    // study: {
+                    //     type: Object,
+                    //     observer: 'studyObserver'
+                    // },
+                    // studies: {
+                    //     type: Array
+                    // },
                     query: {
                         type: Object,
                         value: {},
@@ -298,12 +299,12 @@
             }
 
             studyObserver() {
-                if (UtilsNew.isNotUndefinedOrNull(this.study)) {
+                if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession.study)) {
                     // Update the study list of studies and the selected one
                     if (UtilsNew.isNotUndefinedOrNull(this.studies)) {
                         let _differentStudies = [];
                         for (let i = 0; i < this.studies.length; i++) {
-                            if (this.study.alias !== this.studies[i].alias) {
+                            if (this.opencgaSession.study.alias !== this.studies[i].alias) {
                                 _differentStudies.push(this.studies[i]);
                             }
                         }
@@ -325,7 +326,7 @@
                         for (let section of this.config.filter.sections) {
                             for (let subsection of section.subsections) {
                                 if (subsection.id === "cohort") {
-                                    let projectFields = this.project.alias.split("@");
+                                    let projectFields = this.opencgaSession.project.alias.split("@");
                                     let projectId = (projectFields.length > 0) ? projectFields[1] : projectFields[0];
                                     if (UtilsNew.isNotUndefinedOrNull(subsection.cohorts[projectId])) {
                                         for (let study of Object.keys(subsection.cohorts[projectId])) {
@@ -339,7 +340,7 @@
 
                     // Setting mandatory field for variant query
 //                    this.samples = [];
-                    // this.query = {studies: this.project.alias + ":" + this.study.alias};
+                    // this.query = {studies: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias};
                 }
             }
 
@@ -372,7 +373,7 @@
                 this.samplesFiles = [];
                 let _this = this;
                 let params = {
-                    study: this.project.alias + ":" + this.study.alias
+                    study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias
                 };
                 this.samples.forEach((sample) => {
                     params.samples = [sample.source];
@@ -397,7 +398,7 @@
                     let _this = this;
                     this.opencgaClient.samples()
                         .search({
-                            study: _this.project.alias + ":" + _this.study.alias,
+                            study: _this.opencgaSession.project.alias + ":" + _this.opencgaSession.study.alias,
                             name: "~^" + sampleNamePrefix,
                             include: "id,name",
                             includeIndividual: true,
@@ -839,11 +840,11 @@
                 if (typeof this._cohorts !== "undefined" && this._cohorts.length > 0) {
                     for (let i = 0; i < this._cohorts.length; i++) {
                         let cohort = this._cohorts[i].id;
-                        let cohortInput = PolymerUtils.getElementById(this.prefix + this.study.alias + cohort + "Cohort");
-                        let operator = PolymerUtils.getElementById(this.prefix + this.study.alias + cohort + "CohortOperator");
+                        let cohortInput = PolymerUtils.getElementById(this.prefix + this.opencgaSession.study.alias + cohort + "Cohort");
+                        let operator = PolymerUtils.getElementById(this.prefix + this.opencgaSession.study.alias + cohort + "CohortOperator");
                         if ((cohortInput !== null && cohortInput.value !== "") || (operator !== null && operator.value !== "<")) {
                             operator = operator.value;
-                            let study = this.study.alias;
+                            let study = this.opencgaSession.study.alias;
                             // to be removed!!
                             if (study === "BRIDGE") {
                                 study = "bridge";
@@ -858,12 +859,12 @@
                 }
 
                 // Studies - This section is not renderer when only study exists
-                let studies = [this.project.alias + ":" + this.study.alias];
+                let studies = [this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias];
                 let selectedStudies = PolymerUtils.querySelectorAll("input:checked", this.prefix + "DifferentStudies");
                 if (UtilsNew.isNotUndefinedOrNull(selectedStudies)) {
                     for (let i = 0; i < selectedStudies.length; i++) {
-                        if (studies.indexOf(this.project.alias + ':' + selectedStudies[i].value) === -1) {
-                            studies.push(this.project.alias + ':' + selectedStudies[i].value);
+                        if (studies.indexOf(this.opencgaSession.project.alias + ':' + selectedStudies[i].value) === -1) {
+                            studies.push(this.opencgaSession.project.alias + ':' + selectedStudies[i].value);
                         }
                     }
                     switch (PolymerUtils.getElementById(this.prefix + "includeOtherStudy").value) {
@@ -875,7 +876,7 @@
                             break;
                         case "not in":
                             let notInStudies = [];
-                            let currentStudy = this.project.alias + ':' + this.study.alias;
+                            let currentStudy = this.opencgaSession.project.alias + ':' + this.opencgaSession.study.alias;
                             for (let j = 0; j < studies.length; j++) {
                                 if (currentStudy === studies[j]) {
                                     // Always add the study that we are browsing currently
@@ -1445,7 +1446,7 @@
             }
 
             _getCohortHtml(cohorts, prefix) {
-                let projectFields = this.project.alias.split("@");
+                let projectFields = this.opencgaSession.project.alias.split("@");
                 let projectId = (projectFields.length > 0) ? projectFields[1] : projectFields[0];
                 let cohortsPerStudy = cohorts[projectId];
 
@@ -1507,9 +1508,9 @@
 
                     <div id="${prefix}DifferentStudies" class="form-group">
                         <br>
-                        <input type="checkbox" value="${this.study.alias}" data-id="${this.study.id}" checked disabled>
+                        <input type="checkbox" value="${this.opencgaSession.study.alias}" data-id="${this.opencgaSession.study.id}" checked disabled>
                         <span style="font-weight: bold;font-style: italic;color: darkred">
-                            ${this.study.alias}
+                            ${this.opencgaSession.study.alias}
                         </span>
                         ${options}
                     </div>
@@ -2006,7 +2007,7 @@
                 for (let section of this.config.filter.sections) {
                     for (let subsection of section.subsections) {
                         if (subsection.id === "cohort") {
-                            let projectFields = this.project.alias.split("@");
+                            let projectFields = this.opencgaSession.project.alias.split("@");
                             let projectId = (projectFields.length > 0) ? projectFields[1] : projectFields[0];
 
                             if (UtilsNew.isNotUndefinedOrNull(subsection.cohorts[projectId])) {
