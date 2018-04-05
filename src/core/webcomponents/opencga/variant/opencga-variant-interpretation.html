@@ -122,7 +122,7 @@
                         <div id="{{prefix}}TableResult" class="variant-interpretation-content">
                             <template is="dom-if" if="{{interactive}}">
                                 <!-- Variant Browser Grid -->
-                                <variant-browser-grid study="{{opencgaSession.study}}" project="{{opencgaSession.project}}" samples="{{samples}}"
+                                <variant-browser-grid opencga-session="{{opencgaSession}}" samples="{{samples}}"
                                                       opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
                                                       population-frequencies="{{populationFrequencies}}"
                                                       protein-substitution-scores="{{proteinSubstitutionScores}}"
@@ -156,7 +156,7 @@
                                         <div class="tab-content" >
                                             <div role="tabpanel" class="tab-pane active" id="{{prefix}}TAB_A">
                                                 <!-- Variant Browser Grid -->
-                                                <variant-browser-grid study="{{opencgaSession.study}}" project="{{opencgaSession.project}}" samples="{{samples}}"
+                                                <variant-browser-grid opencga-session="{{opencgaSession}}" samples="{{samples}}"
                                                                       opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
                                                                       population-frequencies="{{populationFrequencies}}"
                                                                       protein-substitution-scores="{{proteinSubstitutionScores}}"
@@ -168,7 +168,7 @@
                                             </div>
                                             <div id="{{prefix}}TAB_B" role="tabpanel" class="tab-pane">
                                                 <!-- Variant Browser Grid -->
-                                                <variant-browser-grid study="{{opencgaSession.study}}" project="{{opencgaSession.project}}" samples="{{samples}}"
+                                                <variant-browser-grid opencga-session="{{opencgaSession}}" samples="{{samples}}"
                                                                       opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
                                                                       population-frequencies="{{populationFrequencies}}"
                                                                       protein-substitution-scores="{{proteinSubstitutionScores}}"
@@ -180,7 +180,7 @@
                                             </div>
                                             <div role="tabpanel" class="tab-pane" id="{{prefix}}TAB_C">
                                                 <!-- Variant Browser Grid -->
-                                                <variant-browser-grid study="{{opencgaSession.study}}" project="{{opencgaSession.project}}" samples="{{samples}}"
+                                                <variant-browser-grid opencga-session="{{opencgaSession}}" samples="{{samples}}"
                                                                       opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
                                                                       population-frequencies="{{populationFrequencies}}"
                                                                       protein-substitution-scores="{{proteinSubstitutionScores}}"
