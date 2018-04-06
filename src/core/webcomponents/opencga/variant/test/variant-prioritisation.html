@@ -20,30 +20,27 @@
     <meta charset="UTF-8">
     <title>Variant Prioritization Test</title>
 
-    <script type="text/javascript" src="config.js"></script>
-    <script type="text/javascript" src="tools.js"></script>
-    <script type="text/javascript" src="../../clinical/test/interpretation.js"></script>
 
     <!-- CSS links -->
-    <link rel="stylesheet" href="../../../../../../node_modules/bootstrap/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="../../../../../../node_modules/bootstrap-table/dist/bootstrap-table.min.css">
-    <link rel="stylesheet" href="../../../../../../node_modules/bootstrap-select/dist/css/bootstrap-select.min.css">
-    <link rel="stylesheet" href="../../../../../../node_modules/font-awesome/css/font-awesome.min.css">
-    <link rel="stylesheet" href="../../../../../../node_modules/qtip2/dist/jquery.qtip.min.css">
+    <link rel="stylesheet" href="../../../../../../../../node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../../../../../../../../node_modules/bootstrap-table/dist/bootstrap-table.min.css">
+    <link rel="stylesheet" href="../../../../../../../../node_modules/bootstrap-select/dist/css/bootstrap-select.min.css">
+    <link rel="stylesheet" href="../../../../../../../../node_modules/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../../../../../../../../node_modules/qtip2/dist/jquery.qtip.min.css">
 
     <!-- JS links-->
-    <script type="text/javascript" src="../../../../../../node_modules/@webcomponents/webcomponentsjs/webcomponents-lite.js"></script>
-    <script type="text/javascript" src="../../../../../../node_modules/jquery/dist/jquery.min.js"></script>
-    <script type="text/javascript" src="../../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="../../../../../../node_modules/bootstrap-table/dist/bootstrap-table.min.js"></script>
-    <script type="text/javascript" src="../../../../../../node_modules/bootstrap-select/dist/js/bootstrap-select.min.js"></script>
-    <script type="text/javascript" src="../../../../../../node_modules/underscore/underscore-min.js"></script>
-    <script type="text/javascript" src="../../../../../../node_modules/backbone/backbone-min.js"></script>
-    <script type="text/javascript" src="../../../../../../node_modules/moment/min/moment.min.js"></script>
-    <script type="text/javascript" src="../../../../../../node_modules/highcharts/highcharts.js"></script>
-    <script type="text/javascript" src="../../../../../../node_modules/qtip2/dist/jquery.qtip.min.js"></script>
-    <script type="text/javascript" src="../../../../../../node_modules/urijs/src/URI.min.js"></script>
-    <script type="text/javascript" src="../../../../../../node_modules/cookies-js/dist/cookies.min.js"></script>
+    <script type="text/javascript" src="../../../../../../../../node_modules/@webcomponents/webcomponentsjs/webcomponents-lite.js"></script>
+    <script type="text/javascript" src="../../../../../../../../node_modules/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="../../../../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../../../../../../../node_modules/bootstrap-table/dist/bootstrap-table.min.js"></script>
+    <script type="text/javascript" src="../../../../../../../../node_modules/bootstrap-select/dist/js/bootstrap-select.min.js"></script>
+    <script type="text/javascript" src="../../../../../../../../node_modules/underscore/underscore-min.js"></script>
+    <script type="text/javascript" src="../../../../../../../../node_modules/backbone/backbone-min.js"></script>
+    <script type="text/javascript" src="../../../../../../../../node_modules/moment/min/moment.min.js"></script>
+    <script type="text/javascript" src="../../../../../../../../node_modules/highcharts/highcharts.js"></script>
+    <script type="text/javascript" src="../../../../../../../../node_modules/qtip2/dist/jquery.qtip.min.js"></script>
+    <script type="text/javascript" src="../../../../../../../../node_modules/urijs/src/URI.min.js"></script>
+    <script type="text/javascript" src="../../../../../../../../node_modules/cookies-js/dist/cookies.min.js"></script>
     <!--<script type="text/javascript" src="../../../../../../node_modules/crypto-js/core.js"></script>-->
     <!--<script type="text/javascript" src="../../../../../../node_modules/crypto-js/sha256.js"></script>-->
     <script type="text/javascript" src="../../../../utilsNew.js"></script>
@@ -58,11 +55,11 @@
     <link rel="stylesheet" href="../../../../../../styles/css/style.css">
 
     <!-- Polymer links -->
-    <link rel="import" href="../../../../../../node_modules/@polymer/polymer/polymer-element.html">
-    <link rel="import" href="../../../../../../node_modules/@polymer/polymer/lib/elements/dom-repeat.html">
-    <link rel="import" href="../../../../../../node_modules/@polymer/polymer/lib/elements/dom-if.html">
-    <link rel="import" href="../../../../../../node_modules/@polymer/polymer/lib/elements/array-selector.html">
-    <link rel="import" href="../../../../../../node_modules/@polymer/polymer/lib/elements/custom-style.html">
+    <link rel="import" href="../../../../../../../../node_modules/@polymer/polymer/polymer-element.html">
+    <link rel="import" href="../../../../../../../../node_modules/@polymer/polymer/lib/elements/dom-repeat.html">
+    <link rel="import" href="../../../../../../../../node_modules/@polymer/polymer/lib/elements/dom-if.html">
+    <link rel="import" href="../../../../../../../../node_modules/@polymer/polymer/lib/elements/array-selector.html">
+    <link rel="import" href="../../../../../../../../node_modules/@polymer/polymer/lib/elements/custom-style.html">
     <link rel="import" href="../../../cellbase/variation/cellbase-variantannotation-view.html">
 
     <script type="text/javascript" src="../../../../../genome-browser/genome-browser.js"></script>
@@ -91,24 +88,37 @@
     <script type="text/javascript" src="../../../../../core/data-adapter/feature-adapter.js"></script>
     <script type="text/javascript" src="../../../../../core/data-adapter/cellbase-adapter.js"></script>
     <script type="text/javascript" src="../../../../../core/data-adapter/opencga-adapter.js"></script>
+    <script type="text/javascript" src="config.js"></script>
+    <script type="text/javascript" src="tools.js"></script>
+    <script type="text/javascript" src="../../clinical/test/interpretation.js"></script>
 
     <link rel="import" href="../opencga-variant-interpretation.html">
 </head>
 <body>
 <dom-module id="opencga-variant-interpretation-test">
     <template>
-        <opencga-variant-interpretation mode="prioritization" title="Prioritization" host="{{opencga.host}}"
-                                opencga-session="{{opencgaSession}}" samples="{{samples}}" clinical-analysis="{{clinicalAnalysis}}"
-                                config="{{config.tools.prioritization}}" config-opencga="{{config.opencga}}" biotypes="{{config.biotypes}}"
-                                population-frequencies="{{populationFrequencies}}"
-                                protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                consequence-types="{{consequenceTypes}}"
-                                opencga-client="{{opencgaClient}}"
-                                cellbase-client="{{cellbaseClient}}"
-                                active="{{config.tools.prioritization.active}}" ebi-config="{{config.ebiWS}}"
-                                beacon-hosts="{{config.tools.beacon.hosts}}" on-gene="geneSelected"
-                                samples="{{samples}}"
-                                style="font-size: 12px">
+        <!--<opencga-variant-interpretation mode="prioritization" title="Prioritization" host="{{opencga.host}}"-->
+                                <!--opencga-session="{{opencgaSession}}" samples="{{samples}}" clinical-analysis="{{clinicalAnalysis}}"-->
+                                <!--config="{{config.tools.prioritization}}" config-opencga="{{config.opencga}}" biotypes="{{config.biotypes}}"-->
+                                <!--population-frequencies="{{populationFrequencies}}"-->
+                                <!--protein-substitution-scores="{{proteinSubstitutionScores}}"-->
+                                <!--consequence-types="{{consequenceTypes}}"-->
+                                <!--opencga-client="{{opencgaClient}}"-->
+                                <!--cellbase-client="{{cellbaseClient}}"-->
+                                <!--active="{{config.tools.prioritization.active}}" ebi-config="{{config.ebiWS}}"-->
+                                <!--beacon-hosts="{{config.tools.beacon.hosts}}" on-gene="geneSelected"-->
+                                <!--samples="{{samples}}"-->
+                                <!--style="font-size: 12px">-->
+        <!--</opencga-variant-interpretation>-->
+        <opencga-variant-interpretation opencga-session="{{opencgaSession}}" config="[[config.tools.interpretation]]"
+                                        opencga-client="{{opencgaSession.opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+                                        biotypes="{{config.biotypes}}"
+                                        active="{{config.tools.interpretation.active}}" ebi-config="{{config.ebiWS}}"
+                                        population-frequencies="{{populationFrequencies}}"
+                                        protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                        consequence-types="{{consequenceTypes}}"
+                                        beacon-hosts="{{config.tools.beacon.hosts}}" on-gene="geneSelected"
+                                        on-samplechange="onSampleChange" style="font-size: 12px" >
         </opencga-variant-interpretation>
     </template>
 
@@ -133,22 +143,8 @@
 
                     this.opencgaClientConfig = new OpenCGAClientConfig(this.config.opencga.host, this.config.opencga.version, true, this.config.opencga.cookie.prefix);
                     this.opencgaClient = new OpenCGAClient(this.opencgaClientConfig);
-                    this.opencgaSession = this.opencgaClient.createAnonymousSession();
                     this.cellBaseClientConfig = new CellBaseClientConfig(this.config.cellbase.hosts, this.config.cellbase.version, "hsapiens");
                     this.cellbaseClient = new CellBaseClient(this.cellBaseClientConfig);
-
-                    this.project = {
-                        id: 4,
-                        name: "Platinum",
-                        alias: "hgvauser@platinum"
-                    };
-
-                    this.study = {
-                        id: 14434,
-                        name: "Illumina Platinum",
-                        alias: "illumina_platinum"
-                    };
-
                     this.clinicalAnalysis = interpretationJson.clinicalAnalysis;
 //                    this.clinicalAnalysis.family = undefined;
 
@@ -179,6 +175,54 @@
                 // Element class can define custom element reactions
                 connectedCallback() {
                     super.connectedCallback();
+                    this._createOpencgaSessionFromConfig();
+
+                }
+
+                _createOpencgaSessionFromConfig() {
+                    // Create a private opencga-session to avoid calling to the Observer
+                    let opencgaSession = this.opencgaClient.createAnonymousSession();
+
+                    // If 'config.opencga.anonymous' exists and contains either 'user' or 'projects'
+                    if (UtilsNew.isNotUndefinedOrNull(this.config.opencga.anonymous) && Object.keys(this.config.opencga.anonymous).length > 0) {
+                        // If 'projects' is defined we only load those projects
+                        if (UtilsNew.isNotEmptyArray(this.config.opencga.anonymous.projects)) {
+                            // TODO we must query projects/info URL to get the whole object
+                            opencgaSession.projects = this.config.opencga.anonymous.projects;
+                            if (UtilsNew.isNotEmptyArray(opencgaSession.projects[0].studies)) {
+                                opencgaSession.project = opencgaSession.projects[0];
+                                opencgaSession.study = opencgaSession.projects[0].studies[0];
+                            }
+
+                            // This triggers the event and call to opencgaSessionObserver
+                            this.set("opencgaSession", opencgaSession);
+                        } else {
+                            // When no 'projects' is defined we fetch all public projects
+                            if (UtilsNew.isNotEmptyArray(this.config.opencga.anonymous.user)) {
+                                let _this = this;
+                                this.opencgaClient.users().getProjects(this.config.opencga.anonymous.user, {})
+                                    .then(function (response) {
+                                        // _this._setup(_projects);
+
+                                        opencgaSession.projects = response.response[0].result;
+                                        if (UtilsNew.isNotEmptyArray(opencgaSession.projects) && UtilsNew.isNotEmptyArray(opencgaSession.projects[0].studies)) {
+                                            // this sets the current active project and study
+                                            opencgaSession.project = opencgaSession.projects[0];
+                                            opencgaSession.study = opencgaSession.projects[0].studies[0];
+                                        }
+
+                                        // This triggers the event and call to opencgaSessionObserver
+                                        _this.set("opencgaSession", opencgaSession);
+                                    })
+                                    .catch(function (response) {
+                                        console.log("An error when getting projects: ", response);
+                                    });
+                            }
+                        }
+                    } else {
+                        // This triggers the event and call to opencgaSessionObserver
+                        this.set("opencgaSession", opencgaSession);
+                    }
                 }
             }
 
