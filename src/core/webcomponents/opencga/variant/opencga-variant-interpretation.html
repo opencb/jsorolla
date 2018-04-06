@@ -44,7 +44,7 @@
             }
         </style>
 
-        <template is="dom-if" if="{{!checkPermissions}}">
+        <template is="dom-if" if="{{checkProjects}}">
             <div class="panel" style="margin-bottom: 15px">
                 <h3 style="margin: 10px 10px 10px 15px">
                      <span on-click="onCollapse" style="cursor: pointer;margin: 0px 30px 0px 0px">
@@ -393,7 +393,7 @@
             </div>
         </template>
 
-        <template is="dom-if" if="{{checkPermissions}}">
+        <template is="dom-if" if="{{!checkProjects}}">
             <span style="text-align: center"><h3>No public projects available to browse. Please login to continue</h3></span>
         </template>
 
@@ -455,9 +455,9 @@
                     biotypes: {
                         type: Array
                     },
-                    checkPermissions: {
+                    checkProjects: {
                         type: Boolean,
-                        computed: '_checkPermissions(opencgaSession.project)'
+                        computed: '_checkProjects()'
                     },
                     interactive: {
                         type: Boolean,
@@ -579,8 +579,11 @@
             }
 
 
-            _checkPermissions(project) {
-                return UtilsNew.checkPermissions(project);
+            _checkProjects() {
+                if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.projects)) {
+                    return this.opencgaSession.projects.length !== 0;
+                }
+                return false;
             }
 
 

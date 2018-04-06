@@ -45,7 +45,7 @@
             }
         </style>
 
-        <template is="dom-if" if="{{!checkPermissions}}">
+        <template is="dom-if" if="{{checkProjects}}">
 
             <div class="panel" style="margin-bottom: 15px">
                 <h3 style="margin: 10px 10px 10px 15px">
@@ -254,7 +254,7 @@
             </div>
         </template>
 
-        <template is="dom-if" if="{{checkPermissions}}">
+        <template is="dom-if" if="{{!checkProjects}}">
             <span style="text-align: center"><h3>No public projects available to browse. Please login to continue</h3></span>
         </template>
     </template>
@@ -310,9 +310,9 @@
                     biotypes: {
                         type: Array
                     },
-                    checkPermissions: {
+                    checkProjects: {
                         type: Boolean,
-                        computed: '_checkPermissions(opencgaSession.project)'
+                        computed: '_checkProjects()'
                     },
                     variant: {
                         type: String,
@@ -385,15 +385,17 @@
             }
 
             onStudyUpdate() {
-                // Update cohorts from config, this updates the Cohort filter MAF
-                for (let section of this.config.filter.sections) {
-                    for (let subsection of section.subsections) {
-                        if (subsection.id === "cohort") {
-                            let projectFields = this.opencgaSession.project.alias.split("@");
-                            let projectId = (projectFields.length > 0) ? projectFields[1] : projectFields[0];
-                            this.cohorts = subsection.cohorts[projectId];
+                if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.project)) {
+                    // Update cohorts from config, this updates the Cohort filter MAF
+                    for (let section of this.config.filter.sections) {
+                        for (let subsection of section.subsections) {
+                            if (subsection.id === "cohort") {
+                                let projectFields = this.opencgaSession.project.alias.split("@");
+                                let projectId = (projectFields.length > 0) ? projectFields[1] : projectFields[0];
+                                this.cohorts = subsection.cohorts[projectId];
 //                            for (let study of Object.keys(subsection.cohorts[projectId])) {
 //                            }
+                            }
                         }
                     }
                 }
@@ -414,8 +416,11 @@
                 this.dispatchEvent(new CustomEvent("samplechange", {detail: {samples: this.samples}, bubbles: true, composed: true}));
             }
 
-            _checkPermissions(project) {
-                return UtilsNew.checkPermissions(project);
+            _checkProjects() {
+                if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.projects)) {
+                    return this.opencgaSession.projects.length !== 0;
+                }
+                return false;
             }
 
 
