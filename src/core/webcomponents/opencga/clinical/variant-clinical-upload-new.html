@@ -395,17 +395,25 @@
                 <!--</div>-->
 
                 <!-- MODAL HPO TERM (ONTOLOGY) -->
-                <variant-modal-ontology prefix="{{prefix}}" ebi-config="{{ebiConfig}}" on-propagateok="_propagateOkHPO"
-                                        ontology-filter="{{ontologyFilter}}" term="{{ontologyTerm}}" selected-terms="{{selectedTermsOntology}}"></variant-modal-ontology>
+                <variant-modal-ontology on-propagateok="_propagateOkHPO" ontology-filter="{{ontologyFilter}}" term="{{ontologyTerm}}"
+                                        selected-terms="{{selectedTermsOntology}}">
+                </variant-modal-ontology>
 
                 <!-- Modal dialog for ICD-10 diagnosis selector-->
-                <variant-modal-icd10 prefix="{{prefix}}" icd10="{{config.icd10}}"  on-propagateokicd10="_propagateOkICD10"></variant-modal-icd10>
+                <variant-modal-icd10 prefix="{{prefix}}" icd10="{{config.icd10}}" on-propagateokicd10="_propagateOkICD10"></variant-modal-icd10>
             </div>
         </div>
     </template>
 
     <script>
         class VariantClinicalUploadNew extends Polymer.Element {
+
+            constructor() {
+                super();
+
+                this.prefix = "upload-new" + Utils.randomString(6);
+            }
+
             static get is() {
                 return 'variant-clinical-upload-new';
             }
@@ -422,9 +430,6 @@
                     config: {
                         type: Object
                     },
-                    ebiConfig: {
-                        type: Object
-                    },
                     minYearBirth: {
                         type: Number,
                         value: 1920
@@ -436,21 +441,13 @@
                 }
             }
 
-            constructor() {
-                super();
-                this.prefix = "upload-new" + Utils.randomString(6);
-            }
-
             _attachDom(dom) {
                 this.appendChild(dom);
             }
 
-            ready() {
-                super.ready();
-            }
-
             connectedCallback() {
                 super.connectedCallback();
+
                 this._initForm();
             }
 

@@ -110,20 +110,17 @@
         <div>
             <div style="width: 60%;margin: 0 auto">
                 <button type="button" class="btn btn-primary btn-lg" style="width: 100%" on-click="onSearch">
-                    <i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px"></i>
-                    {{config.filter.searchButtonText}}
+                    <i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px"></i> {{config.filter.searchButtonText}}
                 </button>
             </div>
-
 
             <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true" style="padding-top: 20px">
                 <div id="FilterMenu"></div>
             </div>
-
         </div>
 
-        <variant-modal-ontology prefix="{{prefix}}" ebi-config="{{ebiConfig}}" on-propagateok="propagateOkHPO"
-                                ontology-filter="{{ontologyFilter}}" term="{{ontologyTerm}}" selected-terms="{{selectedTermsOntology}}">
+        <variant-modal-ontology prefix={{prefix}} on-propagateok="propagateOkHPO" ontology-filter="{{ontologyFilter}}" term="{{ontologyTerm}}"
+                                selected-terms="{{selectedTermsOntology}}">
         </variant-modal-ontology>
 
         <!-- Modal dialog for Sample Browser in prioritization-->
@@ -202,9 +199,6 @@
                     },
                     consequenceTypes: {
                         type: Object
-                    },
-                    biotypes: {
-                        type: Array
                     },
                     // segregation: {
                     //     type: String,
@@ -489,6 +483,7 @@
             }
 
             openModalGo() {
+                debugger
                 this.openHPO = false;
                 this.ontologyFilter = "go";
                 this.ontologyTerm = "GO";
@@ -1317,7 +1312,7 @@
                         content = this._getGeneDiseasePanelsHtml(this.prefix);
                         break;
                     case "biotype":
-                        content = this._getBiotypeHtml(this.prefix);
+                        content = this._getBiotypeHtml(subsection.biotypes, this.prefix);
                         break;
                     case "type":
                         content = this._getVariantTypeHtml(this.prefix);
@@ -1565,9 +1560,9 @@
                 }
             }
 
-            _getBiotypeHtml(prefix) {
+            _getBiotypeHtml(biotypes, prefix) {
                 let options = "";
-                for (let biotype of this.biotypes) {
+                for (let biotype of biotypes) {
                     options += `<option value="${biotype}">${biotype}</option>`;
                 }
                 return `

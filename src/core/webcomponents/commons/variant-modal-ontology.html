@@ -1,15 +1,15 @@
 <dom-module id="variant-modal-ontology">
     <template>
-        <style include="jso-styles">
-        </style>
+        <style include="jso-styles"></style>
 
         <div class="modal fade" id="{{prefix}}ontologyModal" tabindex="-1" role="dialog"
              aria-labelledby="ontologyLabel" data-backdrop="static" data-keyboard="false">
             <div class="modal-dialog modal-sm" role="document" style="width: 1300px;">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                                aria-hidden="true">&times;</span></button>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                         <h4 class="modal-title" id="{{prefix}}EditorLabel">{{term}} terms selector</h4>
                     </div>
                     <div class="modal-body" style="height: 500px">
@@ -22,22 +22,16 @@
                                    class$="form-control {{prefix}}TextInput"
                                    placeholder="{{term}} term" on-change="selectTerm" on-input="selectTerm">
 
-                            <datalist id="list_browser" style="height:auto; max-height:100px; overflow-x:hidden;">
-
-                            </datalist>
-
+                            <datalist id="list_browser" style="height:auto; max-height:100px; overflow-x:hidden;"></datalist>
 
                             <template is="dom-if" if="{{selectedTerm}}">
                                 <ul class="list-group infoHpo">
                                     <li class="list-group-item"><strong>Label: </strong>{{selectedTerm.label}}</li>
-                                    <li class="list-group-item"><strong>Short form: </strong>{{selectedTerm.short_form}}
-                                    </li>
+                                    <li class="list-group-item"><strong>Short form: </strong>{{selectedTerm.short_form}}</li>
                                     <li class="list-group-item"><strong>Obo Id: </strong>{{selectedTerm.obo_id}}</li>
                                     <li class="list-group-item"><strong>IRI: </strong>{{selectedTerm.iri}}</li>
-                                    <li class="list-group-item"><strong>Description: </strong>{{selectedTerm.description}}
-                                    </li>
-                                    <li class="list-group-item">  <button type="button" class="btn btn-info" on-click="addSelectedTermToList" data-selected-term$="{{selectedTerm}}">Add Term</button>
-                                    </li>
+                                    <li class="list-group-item"><strong>Description: </strong>{{selectedTerm.description}}</li>
+                                    <li class="list-group-item"><button type="button" class="btn btn-info" on-click="addSelectedTermToList" data-selected-term$="{{selectedTerm}}">Add Term</button></li>
                                 </ul>
                             </template>
 
@@ -46,12 +40,13 @@
                                     <li class="list-group-item">{{item.label}}({{item.obo_id}}) <button type="button" class="btn danger" on-click="deletedTermFromList" data-selected-term$="{{item}}">X</button></li>
                                 </template>
                             </ul>
-
                         </div>
+
                         <div class="col-sm-6" style="overflow-y: auto; height:400px;">
                             <div id="{{prefix}}TermsTree"></div>
                         </div>
                     </div>
+
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" on-click="clickOkModal">OK</button>
                     </div>
@@ -65,6 +60,9 @@
 
             constructor() {
                 super();
+
+                // Set status and init private properties
+                this._init();
             }
 
             static get is() {
@@ -73,14 +71,14 @@
 
             static get properties() {
                 return {
-                    prefix: {
-                        type: String
-                    },
                     ontologyFilter:{
                         type: String,
-                        observer: "init"
+                        observer: "ontologyFilterObserver"
                     },
                     term:{
+                        type: String
+                    },
+                    prefix: {
                         type: String
                     }
                 };
@@ -90,16 +88,29 @@
                 this.appendChild(dom);
             }
 
-            ready() {
-                super.ready();
-            }
-
-            connectedCallback(){
+            connectedCallback() {
                 super.connectedCallback();
+
                 PolymerUtils.getElementById(this.prefix + "autoInputOntology").addEventListener('keyup', e => this.searchTerm(e));
             }
 
-            init (){
+            _init() {
+                // this.prefix = "var-browser-filter-" + Utils.randomString(6);
+
+                this.ebiConfig = {
+                    root: "https://www.ebi.ac.uk/ols/api",
+                    tree: {
+                        "hp": ["/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0012823", "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0040279",
+                            "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0000005", "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0040006",
+                            "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0000118", "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FUPHENO_0001002"],
+                        "go": ["/ontologies/go/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FGO_0008150", "/ontologies/go/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FGO_0005575",
+                            "/ontologies/go/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FGO_0003674"]
+                    },
+                    search: "/search"
+                };
+            }
+
+            ontologyFilterObserver() {
                 this.loadTermsTree();
                 this.parseSearchTerms = [];
                 this.selectedTerm = {};
@@ -132,7 +143,6 @@
 
             deletedTermFromList(e){
                 let deletedTerm = JSON.parse(e.target.getAttribute("data-selected-term"));
-
                 let listWithoutDeletedTerm = this.listCurrentSelected.filter((element) => {
                         return element.label !== deletedTerm.label;
                 });
@@ -146,7 +156,6 @@
                     result = this.listCurrentSelected.map((element) => {
                             return element.obo_id ;
                     });
-
                 }
 
                 this.dispatchEvent(new CustomEvent("propagateok", {
@@ -159,7 +168,7 @@
             searchTerm(e) {
                 let rowsPerPage = 15;
                 let _this = this;
-                var queryEncoded = encodeURI(e.target.value);
+                let queryEncoded = encodeURI(e.target.value);
 
                 fetch(this.ebiConfig.root + this.ebiConfig.search + "?q=*" + queryEncoded + "*&ontology=" + this.ontologyFilter + "&rows=" + rowsPerPage + "&queryFields=label,obo_id")
                     .then((response) => {
@@ -182,7 +191,6 @@
                                 PolymerUtils.innerHTML("resultsSearch", "Exists more results for search: " + e.target.value + ". Showing 15 of " + json.response.numFound);
                             }  else {
                                 PolymerUtils.innerHTML("resultsSearch", "Showing "+json.response.numFound +" results.");
-
                             }
                         });
                     })
@@ -193,7 +201,6 @@
 
             drawTree(data) {
                 let _this = this;
-
                 $(PolymerUtils.getElementById(this.prefix + "TermsTree")).treeview({
                     data: data,
                     onNodeSelected: function (event, node) {
@@ -233,17 +240,15 @@
                                         });
                                         currentNodeInTree.state.expanded = true;
                                         _this.drawTree(data);
-
                                     });
                                 })
                                 .catch((error) => {
-                                        console.error("ERROR");
+                                        console.error("ERROR: ", error);
                                 });
                         }
                     }
                 });
             }
-
 
             loadTermsTree() {
                 this.rootTree = [{text: "All", nodes: [], selectable: false}];
@@ -251,7 +256,7 @@
 
                 let _this = this;
                 let defaultsNodes = this.ebiConfig.tree[this.ontologyFilter];
-                if(UtilsNew.isNotEmptyArray(defaultsNodes)){
+                if (UtilsNew.isNotEmptyArray(defaultsNodes)){
                     defaultsNodes.forEach((nodeUrl) => {
                         fetch(this.ebiConfig.root + nodeUrl)
                             .then((response) => {
@@ -274,19 +279,15 @@
                                 });
                             })
                             .catch((error) => {
-                                    console.error("ERROR");
+                                    console.error("ERROR: ", error);
                             });
                     });
                 }
 
-
                 return [];
             }
-
         }
 
         customElements.define(VariantModalOntology.is, VariantModalOntology);
-
     </script>
-
 </dom-module>

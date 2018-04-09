@@ -29,8 +29,7 @@
 
             <div class="col-md-2">
                 <opencga-variant-filter opencga-session={{opencgaSession}} opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
-                                        population-frequencies="{{populationFrequencies}}" biotypes="{{biotypes}}"
-                                        consequence-types="{{consequenceTypes}}"
+                                        population-frequencies="{{populationFrequencies}}" consequence-types="{{consequenceTypes}}"
                                         query="{{query}}" search="{{search}}" config="{{config}}" style="font-size: 12px">
                 </opencga-variant-filter>
             </div>
@@ -348,9 +347,6 @@
                     },
                     consequenceTypes: {
                         type: Object
-                    },
-                    biotypes: {
-                        type: Array
                     },
                     proteinSubstitutionScores: {
                         type: Object

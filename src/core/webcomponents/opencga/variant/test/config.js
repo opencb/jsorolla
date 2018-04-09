@@ -53,18 +53,6 @@ const opencga = {
     },
 };
 
-const ebiWS = {
-    root: "https://www.ebi.ac.uk/ols/api",
-    tree: {
-        "hp": ["/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0012823", "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0040279",
-            "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0000005", "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0040006",
-            "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0000118", "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FUPHENO_0001002"],
-        "go": ["/ontologies/go/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FGO_0008150", "/ontologies/go/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FGO_0005575",
-            "/ontologies/go/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FGO_0003674"]
-    },
-    search: "/search"
-};
-
 const application = {
     title: "IVA",
     version: "v0.9.0",
@@ -201,13 +189,6 @@ const application = {
         maxRemainingTime: 600000
     }
 };
-
-
-const biotypes = ["3prime_overlapping_ncrna", "IG_C_gene", "IG_C_pseudogene", "IG_D_gene", "IG_J_gene", "IG_J_pseudogene", "IG_V_gene",
-    "IG_V_pseudogene", "Mt_rRNA", "Mt_tRNA", "TR_C_gene", "TR_D_gene", "TR_J_gene", "TR_J_pseudogene", "TR_V_gene", "TR_V_pseudogene",
-    "antisense", "lincRNA", "miRNA", "misc_RNA", "polymorphic_pseudogene", "processed_transcript", "protein_coding", "pseudogene",
-    "rRNA", "sense_intronic", "sense_overlapping", "snRNA", "snoRNA"
-];
 
 const beacon = {
     hosts: [

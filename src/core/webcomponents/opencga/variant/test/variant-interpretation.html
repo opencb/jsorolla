@@ -97,23 +97,9 @@
 <body>
 <dom-module id="opencga-variant-interpretation-test">
     <template>
-        <!--<opencga-variant-interpretation mode="prioritization" title="Prioritization" host="{{opencga.host}}"-->
-                                <!--opencga-session="{{opencgaSession}}" samples="{{samples}}" clinical-analysis="{{clinicalAnalysis}}"-->
-                                <!--config="{{config.tools.prioritization}}" config-opencga="{{config.opencga}}" biotypes="{{config.biotypes}}"-->
-                                <!--population-frequencies="{{populationFrequencies}}"-->
-                                <!--protein-substitution-scores="{{proteinSubstitutionScores}}"-->
-                                <!--consequence-types="{{consequenceTypes}}"-->
-                                <!--opencga-client="{{opencgaClient}}"-->
-                                <!--cellbase-client="{{cellbaseClient}}"-->
-                                <!--active="{{config.tools.prioritization.active}}" ebi-config="{{config.ebiWS}}"-->
-                                <!--beacon-hosts="{{config.tools.beacon.hosts}}" on-gene="geneSelected"-->
-                                <!--samples="{{samples}}"-->
-                                <!--style="font-size: 12px">-->
-        <!--</opencga-variant-interpretation>-->
         <opencga-variant-interpretation opencga-session="{{opencgaSession}}" config="[[config.tools.interpretation]]"
                                         opencga-client="{{opencgaSession.opencgaClient}}" cellbase-client="{{cellbaseClient}}"
-                                        biotypes="{{config.biotypes}}"
-                                        active="{{config.tools.interpretation.active}}" ebi-config="{{config.ebiWS}}"
+                                        active="{{config.tools.interpretation.active}}"
                                         population-frequencies="{{populationFrequencies}}"
                                         protein-substitution-scores="{{proteinSubstitutionScores}}"
                                         consequence-types="{{consequenceTypes}}"
@@ -136,7 +122,6 @@
                     this.config.tools = tools;
                     this.config.opencga = opencga;
                     this.config.cellbase = cellbase;
-                    this.config.biotypes = biotypes;
                     this.populationFrequencies = populationFrequencies;
                     this.proteinSubstitutionScores = proteinSubstitutionScores;
                     this.consequenceTypes = consequenceTypes;

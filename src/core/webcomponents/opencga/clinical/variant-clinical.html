@@ -153,7 +153,7 @@
                 <template is="dom-if" if="{{activesTab.uploadTab}}">
                     <div class$="analysis-content" id="{{prefix}}UploadButtonDiv">
                         <variant-clinical-upload-new opencga-client="{{opencgaClient}}" opencga-session="{{opencgaSession}}" config="{{config}}"
-                                                 ebi-config="{{ebiConfig}}" event-notify-name="{{eventNotifyName}}">
+                                                     event-notify-name="{{eventNotifyName}}">
                         </variant-clinical-upload-new>
                     </div>
                 </template>
@@ -251,13 +251,12 @@
                     <template is="dom-if" if="{{activePrioritization}}">
                         <div style="margin: auto">
                             <opencga-variant-interpretation opencga-session="{{opencgaSession}}" samples="{{samples}}"
-                                                    config="{{config}}" biotypes="{{biotypes}}"
+                                                    config="{{config}}"
                                                     population-frequencies="{{populationFrequencies}}"
                                                     protein-substitution-scores="{{proteinSubstitutionScores}}"
                                                     consequence-types="{{consequenceTypes}}"
                                                     opencga-client="{{opencgaClient}}"
                                                     cellbase-client="{{cellbaseClient}}"
-                                                    ebi-config="{{ebiConfig}}"
                                                     beacon-hosts="{{config.tools.beacon.hosts}}" on-gene="geneSelected"
                                                     clinical-analysis="{{clinicalAnalysis}}" on-backtoselectanalysis="changeTool" event-notify-name="{{eventNotifyName}}"
                                                     interactive="{{interactive}}" panel-examples="{{panelExamples}}">
@@ -389,12 +388,6 @@
                         type: Object
                     },
                     config: {
-                        type: Object
-                    },
-                    biotypes:{
-                        type: Array
-                    },
-                    ebiConfig: {
                         type: Object
                     },
                     proteinSubstitutionScores: {

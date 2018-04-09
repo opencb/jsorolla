@@ -61,9 +61,8 @@
                     <opencga-variant-filter opencga-session="{{opencgaSession}}"
                                             samples="[[samplesForMenuFilter]]" family="[[family]]"
                                             opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"
-                                            population-frequencies="{{populationFrequencies}}" biotypes="{{biotypes}}"
+                                            population-frequencies="{{populationFrequencies}}"
                                             consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}"
-                                            ebi-config="{{ebiConfig}}"
                                             on-samplechange="onSampleChange" genotype-samples="{{genotypeSamples}}"
                                             on-inheritancemode="_onInheritanceMode" mode-inheritance="{{modeInheritance}}">
                     </opencga-variant-filter>
@@ -451,9 +450,6 @@
                     },
                     consequenceTypes: {
                         type: Object
-                    },
-                    biotypes: {
-                        type: Array
                     },
                     checkProjects: {
                         type: Boolean,
