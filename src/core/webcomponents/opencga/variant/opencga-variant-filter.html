@@ -1866,66 +1866,37 @@
                 if (UtilsNew.isNotEmptyArray(consequenceTypes.categories)) {
 
                     consequenceTypes.categories.forEach((category) => {
-
-                        categoriesCheckbox += `<li id="${category.title}" class="form-check" style="margin-top: 10px;">`;
-                        if (UtilsNew.isNotUndefinedOrNull(category.title)) {
-                            if (category.isCategory) {
-
-                                categoriesCheckbox += `
-                                                 <label class="form-check-label notbold">
-                                                    <input id="${prefix}${category.title}input" type="checkbox"
-                                                    class="${prefix}FilterCheckBox"> ${category.title}
-                                                </label>`;
-                            } else {
-                                categoriesCheckbox += `
-                                                <input id="${prefix}${category.title}input" type="checkbox"
-                                                data-id="${category.name}" class="soTermCheckBox ${prefix}FilterCheckBox">
-                                                <span title="${category.description}">
-                                                    ${category.title} (<a href="http://www.sequenceontology.org/browser/current_svn/term/${category.id}"
-                                                    target="_blank">${category.id}</a>)
-                                                </span>`;
-                            }
+                        let id = (category.title !== undefined) ? category.title : category.name;
+                        categoriesCheckbox += `<li id="${id}" class="form-check" style="margin-top: 10px;">`;
+                        if (UtilsNew.isNotEmptyArray(category.terms)) {
+                            categoriesCheckbox += `<label class="form-check-label notbold">
+                                                       <input id="${prefix}${category.title}input" type="checkbox" class="${prefix}FilterCheckBox"> ${category.title}
+                                                   </label>`;
                         } else {
-                            if (category.isCategory) {
-                                categoriesCheckbox += `
-                                                <div class="form-check" style="margin-top: 10px;">
-                                                    <label class="form-check-label notbold">
-                                                        <input id="${prefix}${category.title}input" type="checkbox"
-                                                        class="${prefix}FilterCheckBox"> ${category.name}
-                                                    </label>
-                                                </div>`;
-                            } else {
-                                categoriesCheckbox += `
-                                                <div class="form-check" style="margin-top: 10px;">
-                                                    <label class="form-check-label notbold">
-                                                        <input id="${prefix}${category.title}input" type="checkbox"
+                            categoriesCheckbox += `<input id="${prefix}${category.name}input" type="checkbox"
                                                         data-id="${category.name}" class="soTermCheckBox ${prefix}FilterCheckBox">
-                                                        <span title="${category.description}">
-                                                            ${category.name} (<a
-                                                            href="http://www.sequenceontology.org/browser/current_svn/term/${category.id}$"
-                                                            target="_blank">${category.id}</a>)
-                                                        </span>
-                                                    </label>
-                                                </div>`;
-                            }
+                                                    <span title="${category.description}">
+                                                        ${category.name} (<a href="http://www.sequenceontology.org/browser/current_svn/term/${category.id}"
+                                                        target="_blank">${category.id}</a>)
+                                                    </span>`;
                         }
 
                         if (UtilsNew.isNotEmptyArray(category.terms)) {
+                            categoriesCheckbox += "<ul>";
                             category.terms.forEach((item) => {
-                                categoriesCheckbox += ` <ul>
-                                                     <li class="form-check">
-                                                        <label class="form-check-label notbold">
-                                                            <input id="${prefix}${item.id}checkbox" type="checkbox" data-id="${item.name}"
-                                                                class="soTermCheckBox ${prefix}FilterCheckBox">
-                                                            <span title="${item.description}">${item.name} (<a
-                                                                href="http://www.sequenceontology.org/browser/current_svn/term/${item.id}"
-                                                                target="_blank">${item.id}</a>)
-                                                            </span>
-                                                        </label>
-                                                     </li>
-                                                 </ul>
+                                categoriesCheckbox += `<li class="form-check">
+                                                            <label class="form-check-label notbold">
+                                                                <input id="${prefix}${item.id}checkbox" type="checkbox" data-id="${item.name}"
+                                                                    class="soTermCheckBox ${prefix}FilterCheckBox">
+                                                                <span title="${item.description}">${item.name} (<a
+                                                                    href="http://www.sequenceontology.org/browser/current_svn/term/${item.id}"
+                                                                    target="_blank">${item.id}</a>)
+                                                                </span>
+                                                            </label>
+                                                        </li>
                                                    `;
                             });
+                            categoriesCheckbox += "</ul>";
                         }
 
                         categoriesCheckbox += `</li>`;
@@ -2059,13 +2030,13 @@
                 PolymerUtils.getElementById(this.prefix + "LossOfFunctionCheckBox").addEventListener('change', this.updateConsequenceTypeFilter.bind(this));
                 if (UtilsNew.isNotEmptyArray(consequenceTypes.categories)) {
                     consequenceTypes.categories.forEach((category) => {
-                        PolymerUtils.getElementById(this.prefix + category.title + "input").addEventListener('change', this.updateConsequenceTypeFilter.bind(this));
+                        let title = (category.title !== undefined) ? category.title : category.name;
+                        PolymerUtils.getElementById(this.prefix + title + "input").addEventListener('change', this.updateConsequenceTypeFilter.bind(this));
                         if (UtilsNew.isNotEmptyArray(category.terms)) {
                             category.terms.forEach((item) => {
                                 PolymerUtils.getElementById(this.prefix + item.id + "checkbox").addEventListener('change', this.updateConsequenceTypeFilter.bind(this));
                             });
                         }
-
                     });
                 }
 
