@@ -17,6 +17,7 @@
 <link rel="import" href="opencga-variant-filter.html">
 <link rel="import" href="../opencga-active-filters.html">
 <link rel="import" href="opencga-variant-grid.html">
+<link rel="import" href="opencga-variant-cohort-stats.html">
 <link rel="import" href="variant-beacon-network.html">
 <link rel="import" href="variant-genome-browser.html">
 <link rel="import" href="../../cellbase/variation/cellbase-variantannotation-view.html">
@@ -128,7 +129,7 @@
                                     </ul>
 
                                     <div class="tab-content" style="height: 680px">
-                                        <!--Annotation Tab-->
+                                        <!-- Annotation Tab -->
                                         <div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">
                                             <cellbase-variantannotation-view data="{{variant}}" assembly={{opencgaSession.project.organism.assembly}} prefix="{{prefix}}"
                                                                              cellbase-client="{{cellbaseClient}}" mode="vertical"
@@ -139,67 +140,17 @@
                                             </cellbase-variantannotation-view>
                                         </div>
 
-                                        <!--Genotypes & Files Tab-->
+                                        <!-- Cohort Stats Tab -->
                                         <div role="tabpanel" class="tab-pane" id="{{prefix}}Genotype">
-                                            <template is="dom-repeat" items="{{variantStudies}}" as="study" id="variantStudies">
-                                                <div class="col-md-10" style="padding-top: 8px">
-                                                    <h4 style="font-weight: bold;padding: 20px 0px 0px 0px">
-                                                        <i class="fa fa-minus-circle" on-click="handleCollapseAction"
-                                                           data-id="{{getStudy(study.alias)}}" style="cursor: pointer;"></i>&nbsp;{{getStudy(study.studyId)}}
-                                                    </h4>
-
-                                                    <div id="{{getStudy(study.alias)}}">
-                                                        <div hidden$="{{!checkStatsAvailable(study.stats)}}">
-                                                            <table class="table table-bordered" style="width: 70%">
-                                                                <thead style="background-color: #eee;">
-                                                                <tr>
-                                                                    <th scope="col" rowspan="2">Cohort</th>
-                                                                    <th scope="col" rowspan="2">Reference</th>
-                                                                    <th scope="col" rowspan="2">Alternate</th>
-                                                                    <th scope="col" rowspan="2">MAF (allele)</th>
-                                                                    <th colspan="2" scope="colgroup">Allele Frequencies</th>
-                                                                    <th colspan="3" scope="colgroup">Genotype Frequencies</th>
-                                                                </tr>
-                                                                <tr>
-                                                                    <th scope="col">Reference</th>
-                                                                    <th scope="col">Alternate</th>
-                                                                    <th scope="col">0/0</th>
-                                                                    <th scope="col">0/1</th>
-                                                                    <th scope="col">1/1</th>
-                                                                </tr>
-                                                                </thead>
-                                                                <tbody>
-                                                                <template is="dom-repeat" items="{{study.stats}}" as="cohort">
-                                                                    <tr>
-                                                                        <td>{{cohort.name}}</td>
-                                                                        <td>{{cohort.value.refAllele}}</td>
-                                                                        <td>{{cohort.value.altAllele}}</td>
-                                                                        <td>{{cohort.value.maf}} ({{cohort.value.mafAllele}})</td>
-                                                                        <td>{{cohort.value.refAlleleFreq}}</td>
-                                                                        <td>{{cohort.value.altAlleleFreq}}</td>
-                                                                        <td>{{cohort.value.genotypesFreq.homref}}</td>
-                                                                        <td>{{cohort.value.genotypesFreq.het}}</td>
-                                                                        <td>{{cohort.value.genotypesFreq.homalt}}</td>
-                                                                    </tr>
-                                                                </template>
-                                                                </tbody>
-                                                            </table>
-                                                        </div>
-                                                        <div hidden$="{{checkStatsAvailable(study.stats)}}">
-                                                            No Genotypes statistics available
-                                                        </div>
-                                                    </div>
-                                                    <br>
-                                                </div>
-                                            </template>
+                                            <div style="width: 75%;padding-top: 8px">
+                                                <opencga-variant-cohort-stats opencga-session="{{opencgaSession}}" variant="{{variant}}"></opencga-variant-cohort-stats>
+                                            </div>
                                         </div>
 
-                                        <!--Beacon network-->
+                                        <!-- Beacon network Tab-->
                                         <div role="tabpanel" class="tab-pane" id="{{prefix}}Beacon">
                                             <br>
-                                            <button class="btn btn-primary" type="button" on-click="triggerBeacon">Search Beacon
-                                                Network
-                                            </button>
+                                            <button class="btn btn-primary" type="button" on-click="triggerBeacon">Search Beacon Network</button>
                                             <a data-toggle="tooltip"
                                                title="Beacon Network is a search engine across the world's public beacons. You can find it here - https://beacon-network.org/#/">
                                                 <i class="fa fa-info-circle" aria-hidden="true"></i>
@@ -312,8 +263,7 @@
                     },
                     variant: {
                         type: String,
-                        value: "No variant selected",
-                        observer: 'variantChanged'
+                        value: "No variant selected"
                     },
                     config: {
                         type: Object
@@ -444,77 +394,6 @@
                 this.dispatchEvent(new CustomEvent('propagate', {gene: e.detail.gene}));
             }
 
-            checkStatsAvailable(stats) {
-                if (stats !== undefined) {
-                    return stats.length > 0;
-                } else {
-                    return false;
-                }
-            }
-
-            variantChanged(e) {
-                // debugger
-                if (this.variant.split(':').length > 2) {
-                    let [chromosome, start, ref, alt] = this.variant.split(":");
-                    this.region = new Region(chromosome + ":" + start);
-                    let params = {
-                        id: this.variant,
-                        studies: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
-                        includeStudy: "all",
-                        exclude: "annotation,studies.files,studies.samplesData",
-                        useSearchIndex: "no"
-                    };
-                    let _this = this;
-                    this.opencgaClient.variants().query(params)
-                        .then(function (response) {
-                            if (typeof response.response[0].result[0] !== "undefined") {
-                                let _variantStudies = response.response[0].result[0].studies;
-                                for (let i = 0; i < _variantStudies.length; i++) {
-                                    let study = _variantStudies[i].studyId.split(':')[1];
-                                    let statsObject = _variantStudies[i].stats;
-                                    let statsArray = [];
-                                    Object.keys(statsObject).map(key => {
-                                        if (typeof statsObject[key].mafAllele !== "undefined" && statsObject[key].mafAllele !== -1) {
-                                            statsObject[key].maf = _this._freqFormatter(statsObject[key].maf || 0);
-                                            statsObject[key].mafAllele = statsObject[key].mafAllele || '-';
-
-                                            statsObject[key].refAlleleFreq = _this._freqFormatter(statsObject[key].refAlleleFreq || 0);
-                                            statsObject[key].altAlleleFreq = _this._freqFormatter(statsObject[key].altAlleleFreq || 0);
-
-                                            statsObject[key].genotypesFreq.homref = _this._freqFormatter(statsObject[key].genotypesFreq["0/0"] || statsObject[key].genotypesFreq["0|0"] || 0);
-                                            statsObject[key].genotypesFreq.het = _this._freqFormatter(statsObject[key].genotypesFreq["0/1"] || statsObject[key].genotypesFreq["0|1"] || 0);
-                                            statsObject[key].genotypesFreq.homalt = _this._freqFormatter(statsObject[key].genotypesFreq["1/1"] || statsObject[key].genotypesFreq["1|1"] || 0);
-
-                                            statsObject[key].genotypesCount.homref = statsObject[key].genotypesCount["0/0"] || statsObject[key].genotypesCount["0|0"] || 0;
-                                            statsObject[key].genotypesCount.het = statsObject[key].genotypesCount["0/1"] || statsObject[key].genotypesCount["0|1"] || 0;
-                                            statsObject[key].genotypesCount.homalt = statsObject[key].genotypesCount["1/1"] || statsObject[key].genotypesCount["1|1"] || 0;
-
-                                            if (key === "ALL") {
-                                                statsArray.unshift({
-                                                    name: key,
-                                                    value: statsObject[key],
-                                                    study: study
-                                                })
-                                            } else {
-                                                statsArray.push({
-                                                    name: key,
-                                                    value: statsObject[key],
-                                                    study: study
-                                                })
-                                            }
-                                        }
-                                    });
-                                    _variantStudies[i].stats = statsArray;
-                                }
-                                _this.set("variantStudies", _variantStudies);
-                            }
-                        })
-                        .catch(function (reason) {
-                            console.error(reason)
-                        });
-                }
-            }
-
             fetchFacets() {
                 let queryParams = {
                     sid: this.opencgaClient._config.sessionId,
@@ -594,13 +473,6 @@
                 }, 250);
             }
 
-            _freqFormatter(value) {
-                if (value !== 0 && value !== 1) {
-                    return Number(value).toFixed(5);
-                }
-                return value;
-            }
-
             // This observer is needed when pie charts are rendered instead of table. This is where the data needed for high charts is prepared
             variantStudiesChanged() {
                 this.$.variantStudies.render();
@@ -641,17 +513,6 @@
 
             checkForSampleData(samplesData) {
                 return samplesData.length > 0;
-            }
-
-            handleCollapseAction(e) {
-                let id = e.target.dataId;
-                let elem = $('#' + id)[0];
-                elem.hidden = !elem.hidden;
-                if (elem.hidden) {
-                    e.target.className = "fa fa-plus-circle";
-                } else {
-                    e.target.className = "fa fa-minus-circle";
-                }
             }
 
             _changeView(e) {
