@@ -118,7 +118,6 @@
                 <div id="FilterMenu"></div>
             </div>
         </div>
-
         <variant-modal-ontology prefix={{prefix}} on-propagateok="propagateOkHPO" ontology-filter="{{ontologyFilter}}" term="{{ontologyTerm}}"
                                 selected-terms="{{selectedTermsOntology}}">
         </variant-modal-ontology>
@@ -438,7 +437,7 @@
                 }
 
                 this.renderGenotypes();
-                if (!(UtilsNew.isNotUndefinedOrNull(this.query) && UtilsNew.isNotEmpty(this.query.genotype))) {
+                if ((UtilsNew.isUndefinedOrNull(this.query) || UtilsNew.isEmptyArray(this.query.genotype))) {
                     this.genotypesChanged();
                 }
 
@@ -625,8 +624,8 @@
 
                 // Panel - annot-panel
                 if (typeof this.query["gene"] !== "undefined") {
-                    PolymerUtils.setValue(this.prefix + "FeatureTextarea", this.query.gene);
-                    let geneTextarea = PolymerUtils.getElementById(this.prefix + "FeatureTextarea");
+                    PolymerUtils.setValue(this.prefix + "PanelAppsTextarea", this.query.gene);
+                    let geneTextarea = PolymerUtils.getElementById(this.prefix + "PanelAppsTextarea");
                     if (UtilsNew.isNotUndefinedOrNull(geneTextarea)) {
                         geneTextarea.value = this.query.gene;
                     }
@@ -682,8 +681,8 @@
                                 } else {
                                     PolymerUtils.setValue(this.prefix + "SiftValues", value.split('==')[1]);
                                 }
-                                this.$$("#" + this.prefix + "SiftInput").disabled = !(value.startsWith("<") || value.startsWith(">"));
-                                this.$$("#" + this.prefix + "SiftOperator").disabled = !(value.startsWith("<") || value.startsWith(">"));
+                                PolymerUtils.getElementById(this.prefix + "SiftInput").disabled = !(value.startsWith("<") || value.startsWith(">"));
+                                PolymerUtils.getElementById(this.prefix + "SiftOperator").disabled = !(value.startsWith("<") || value.startsWith(">"));
                             } else if (pss[i].startsWith("polyphen")) {
                                 let value = pss[i].split("polyphen")[1];
                                 if (value.startsWith("<") || value.startsWith(">")) {
@@ -692,8 +691,8 @@
                                 } else {
                                     PolymerUtils.setValue(this.prefix + "PolyphenValues", value.split('==')[1]);
                                 }
-                                this.$$("#" + this.prefix + "PolyphenInput").disabled = !(value.startsWith("<") || value.startsWith(">"));
-                                this.$$("#" + this.prefix + "PolyphenOperator").disabled = !(value.startsWith("<") || value.startsWith(">"));
+                                PolymerUtils.getElementById(this.prefix + "PolyphenInput").disabled = !(value.startsWith("<") || value.startsWith(">"));
+                                PolymerUtils.getElementById(this.prefix + "PolyphenOperator").disabled = !(value.startsWith("<") || value.startsWith(">"));
                             }
                         }
                     }
@@ -740,19 +739,20 @@
                 }
 
                 // Consequence Type
+                let ct = [];
                 if (typeof this.query["annot-ct"] !== "undefined") {
                     let types = this.query["annot-ct"].split(",");
                     let checkBoxes = PolymerUtils.querySelectorAll("li input", this.prefix + "consequenceTypeFilter");
                     for (let i = 0; i < types.length; i++) {
                         for (let j = 0; j < checkBoxes.length; j++) {
-                            if (checkBoxes[j].dataId === types[i]) {
+                            if (UtilsNew.isNotUndefinedOrNull(checkBoxes[j]) && checkBoxes[j].getAttribute("data-id") === types[i]) {
                                 checkBoxes[j].checked = true;
+                                ct.push(types[i]);
                             }
                         }
                     }
-                } else {
-                    this.set('ct', []); // Clearing the consequence type that is taken by this.query
                 }
+                this.set('ct', ct);
 
                 // Gene Ontology and Human Phenotype Ontology
                 if (typeof this.query["annot-go"] !== "undefined") {
@@ -770,6 +770,10 @@
                     $("#" + this.prefix + "vcfFilterSelect").selectpicker('val', this.query["filter"].split(","));
                 }
 
+                if (typeof this.query["traits"] !== "undefined") {
+                    PolymerUtils.setValue(this.prefix + "TraitsTextarea", this.query.traits);
+                }
+
                 // Sample Genotypes
                 this.renderSampleGenotypesTable();
             }
@@ -785,8 +789,6 @@
                 }
                 this.updateQueryFilters();
             }
-
-
 
             updateQueryFilters() {
                 if (!this._initialised) {
