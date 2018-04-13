@@ -17,113 +17,158 @@
 <dom-module id="variant-report-view">
     <template>
         <style include="jso-styles">
-            #variantTablebody,#variantTablebody td{
-                border:1px solid #dadada;
-                border-collapse:collapse
+            #variantTablebody,
+            #variantTablebody td {
+                border: 1px solid #dadada;
+                border-collapse: collapse
             }
-            .clinical-input-group-addon{
-                min-width:200px;
-                text-align:left
+
+            .clinical-input-group-addon {
+                min-width: 200px;
+                text-align: left
             }
-            #variantTable,#variantTable th,.tablaGenes,.tablaGenes th{
-                text-align:center
+
+            #variantTable,
+            #variantTable th,
+            .tablaGenes,
+            .tablaGenes th {
+                text-align: center
             }
-            .form-control:disabled{
-                background-color:#fff;
-                cursor:default
+
+            .form-control:disabled {
+                background-color: #fff;
+                cursor: default
             }
-            h3{
-                color:#337ab7
+
+            h3 {
+                color: #337ab7
             }
-            textarea{
-                width:95%;
-                height:100px;
-                margin-top:5px;
-                resize:none;
-                border:1px solid #d0d0d0
+
+            textarea {
+                width: 95%;
+                height: 100px;
+                margin-top: 5px;
+                resize: none;
+                border: 1px solid #d0d0d0
             }
-            #variantTable{
-                width:95%;
-                font-size:14px
+
+            #variantTable {
+                width: 95%;
+                font-size: 14px
             }
-            #variantTablebody td{
-                padding:10px 0 0
+
+            #variantTablebody td {
+                padding: 10px 0 0
             }
-            .centerHeader{
-                margin:0;
-                font-size:16px;
-                font-weight:600;
-                padding-bottom:30px;
-                text-transform:uppercase
+
+            .centerHeader {
+                margin: 0;
+                font-size: 16px;
+                font-weight: 600;
+                padding-bottom: 30px;
+                text-transform: uppercase
             }
-            .titlesAnalysis{
-                font-size:larger;
-                font-weight:550
+
+            .titlesAnalysis {
+                font-size: larger;
+                font-weight: 550
             }
-            .fontBody,.tablaGenes,span.col-form-control{
-                font-size:14px
+
+            .fontBody,
+            .tablaGenes,
+            span.col-form-control {
+                font-size: 14px
             }
-            .hrReport{
-                border:1px solid #555;
-                width:89%;
-                margin-bottom:22px
+
+            .hrReport {
+                border: 1px solid #555;
+                width: 89%;
+                margin-bottom: 22px
             }
-            .tablaGenes td,.tablaGenes th{
-                border:1px solid #000
+
+            .tablaGenes td,
+            .tablaGenes th {
+                border: 1px solid #000
             }
-            .divSection{
-                margin:-24px 0 5px 11px
+
+            .divSection {
+                margin: -24px 0 5px 11px
             }
-            .tablaGenes{
-                width:300px;
-                float:left;
-                margin-top:10px;
-                margin-right:5px
+
+            .tablaGenes {
+                width: 300px;
+                float: left;
+                margin-right: 7px;
+                margin-top: 2px;
+                margin-bottom: 15px
             }
-            .tablaGenes th{
-                background-color:#a9a9a9
+
+            .tablaGenes th {
+                background-color: #a9a9a9
             }
-            .clean{
-                clear:left
+
+            .clean {
+                clear: left
             }
-            label.col-form-label{
-                font-weight:600;
-                font-size:14px;
-                margin-bottom:0
+
+            label.col-form-label {
+                font-weight: 600;
+                font-size: 14px;
+                margin-bottom: 0
             }
-            .marginbreak{
-                margin-bottom:25.5px
+
+            .marginbreak {
+                margin-bottom: 25.5px
             }
-            .sampleMargin{
-                margin:0 0 0 30px
+
+            .sampleMargin {
+                margin: 0 0 0 30px
             }
-            .logoSas{
-                height:100px;
-                margin:0 0 0 72px
+
+            .logoSas {
+                height: 100px;
+                margin: 0 0 0 72px
             }
-            .infoPos,.posContent{
-                margin-left:55px
+
+            .infoPos,
+            .posContent {
+                margin-left: 55px
             }
-            table{
-                page-break-inside:auto
+
+            table {
+                page-break-inside: auto
             }
-            tr{
-                page-break-inside:avoid;
-                page-break-after:auto
+
+            tr {
+                page-break-inside: avoid;
+                page-break-after: auto
             }
-            @media all{
-                .page-break{
-                    display:none
+
+            @media all {
+                .infoFooter,
+                .page-break {
+                    display: none
                 }
             }
-            @media print{
-                .page-break{
-                    display:block;
-                    page-break-before:always
+
+            @media print {
+                .page-break {
+                    display: block;
+                    page-break-before: always
+                }
+                .infoFooter {
+                    display: -webkit-box;
+                    display: -ms-flexbox;
+                    display: flex;
+                    -webkit-box-pack: justify;
+                    -ms-flex-pack: justify;
+                    justify-content: space-between;
+                    width: 100%;
+                    position: fixed;
+                    bottom: 0
                 }
             }
         </style>
-
         <br>
         <div id="{{prefix}}reportDiv" class="panel panel-default">
             <div class="panel-body">
@@ -269,12 +314,7 @@
                     <h3 class="titlesAnalysis">{{loadi18n('reasonConsultation')}}</h3>
                     <p style="margin-left: 13px;">{{dataFields.reasonConsultation}}</p>
                 </div>
-
                 <br><br><br><br><br><div class="clean"></div><br>
-
-                <div class="page-break marginbreak">
-                    <img src="[[importPath]]images/logosas.svg" class="logoSas">
-                </div>
 
                 <!-- Prioritization Information -->
                 <div class="divSection prioritization-information infoPos col-sm-12" id="{{prefix}}prioritizationInformationDiv">
@@ -325,7 +365,7 @@
                                             <template is="dom-repeat" items="{{interpretation.reportedVariants}}">
                                                 <!--let variantId  = data[j].chromosome + ":" + data[j].start + ":" + data[j].reference + ":" + data[j].alternate;-->
                                                 <li>{{dataFields.patient}} presenta la mutación {{item.chromosome}}:{{item.start}}:{{item.reference}}:{{item.alternate}}
-                                                    del gen {{genesRow(item)}} en {{zigosityResult(item.studies)}}</li>
+                                                    del gen <i>{{genesRow(item)}}</i> en {{zigosityResult(item.studies)}}</li>
                                             </template>
                                         </td>
                                     </template>
@@ -359,6 +399,10 @@
                     </div>
                 </div>
 
+                <div class="page-break marginbreak">
+                        <img src="[[importPath]]images/logosas.svg" class="logoSas">
+                    </div>
+
                 <!-- Interpretation -->
                 <template is="dom-if" if="{{!interpretation.attributes.panelInfo.positive}}">
                     <div class="divSection other-information posContent col-sm-12" id="{{prefix}}interpretationDiv" style="margin-top:20px;">
@@ -377,8 +421,9 @@
 
                 <!-- Info positive -->
                 <template is="dom-if" if="{{interpretation.attributes.panelInfo.positive}}">
-                    <div class="divSection other-information col-sm-12 marginbreak" id="{{prefix}}interpretationDiv">
-                        <h3 class="titlesAnalysis">{{loadi18n('interpretationHeader')}}</h3>
+                    <div class="divSection other-information posContent col-sm-12 marginbreak" id="{{prefix}}interpretationDiv">
+
+                        <h3 class="titlesAnalysis" style="padding-top: 12px;">{{loadi18n('interpretationHeader')}}</h3>
                         <ul>
                             <li>{{dataFields.extraInterpretation}}</li>
                             <li>{{dataFields.extraInterpretationComments}}</li>
@@ -392,7 +437,7 @@
                 </template>
 
                 <!-- Sign -->
-                <div class="divSection other-information col-sm-12" id="{{prefix}}signDiv" style="margin-top:30px; padding-bottom:100px;">
+                <div class="divSection other-information posContent col-sm-12" id="{{prefix}}signDiv" style="margin-top:30px; padding-bottom:100px;">
                     <div class="row">
                         <div class="marginbreak" style="padding-top:50px;"></div>
 
@@ -420,39 +465,27 @@
                         <li>{{loadi18n('methodologyText3')}}</li>
                         <li>{{loadi18n('methodologyText3_0')}} {{dataFields.PCRAmp}}</li>
                         <li>{{loadi18n('methodologyText3_4_0')}}</li>
-
                         <ul>
-                                <li>{{loadi18n('methodologyText3_1')}}</li>
-                                <li>{{loadi18n('methodologyText3_2')}}</li>
-                                <li>{{loadi18n('methodologyText3_3')}}</li>
-                                <li>{{loadi18n('methodologyText3_4')}}</li>
-                            </ul>
-                        </li>
+                            <li>{{loadi18n('methodologyText3_1')}}</li>
+                            <li>{{loadi18n('methodologyText3_2')}}</li>
+                            <li>{{loadi18n('methodologyText3_3')}}</li>
+                            <li>{{loadi18n('methodologyText3_4')}}</li>
+                        </ul>
                         <li>{{loadi18n('methodologyText4')}}</li>
                     </ul>
                     <p>{{loadi18n('methodologyText5')}}</p>
-                    <p>{{loadi18n('methodologyText6')}}
-
-                        {{patientArticleTxtde}}
-
-                        <!-- del... -->
-
-
-                        {{loadi18n('methodologyText6_1')}}
-                       
-                        {{patientArticleTxt}}
-                       
-                        {{loadi18n('methodologyText6_2')}}
-                    </p>
+                    <p>{{loadi18n('methodologyText6')}}{{patientArticleTxtde}}{{loadi18n('methodologyText6_1')}}{{patientArticleTxt}}{{loadi18n('methodologyText6_2')}}</p>
                 </div>
+
+                <div class="page-break">
+                        <img src="[[importPath]]images/logosas.svg" class="logoSas">
+                    </div>
 
                 <!-- Analysis Information -->
                 <div class="divSection analysis-information infoPos col-sm-12" id="{{prefix}}analysisInformationDiv" hidden>
 
                     <br>
                     <h3 class="titlesAnalysis">{{loadi18n('otherInformation')}}</h3>
-                    <!-- <h3 class="titlesAnalysis">{{loadi18n('headerAnalysis')}}</h3> -->
-
                     <div style="margin: 0px 0px 30px 0px" class="analysis-information col-sm-10" id="{{prefix}}analysisInformationContent">
                         <div class="row" id="{{prefix}}analysisInformation" hidden>
                             <div class="col-xs-6" id="{{prefix}}analysisInformationID">
@@ -480,8 +513,6 @@
 
                 <!-- Interpretation Information -->
                 <div class="divSection posContent col-sm-12 marginbreak" id="{{prefix}}interpretationInformationDiv">
-                    <!-- <h3 class="titlesAnalysis">{{loadi18n('interpretationInfo')}}</h3> -->
-
                     <div style="margin: 0px 0px 20px 0px" class="col-sm-10" id="{{prefix}}interpretationInformationContent">
                         <div class="row">
 
@@ -499,11 +530,13 @@
 
                 <!-- Additional Info -->
                 <div class="divSection other-information posContent col-sm-12" id="{{prefix}}conclusionsDiv" hidden>
-                    <div style="padding-top:20px;"></div>
+                    <div style="padding-top:3px;"></div>
                     <div class="col-sm-10">
+                        <label>Otros comentarios:</label>
+                        <!-- <h5 class="titlesAnalysis">Otros comentarios:</h5> -->
                         <textarea type="text" class$="form-control {{prefix}}TextInput autoExpand" id="{{prefix}}conclusions" name="conclusions"
-                            placeholder="{{loadi18n('otherInformation')}}" rows="5" on-input="updateTextArea" on-focus="calculateHeightTextArea"
-                            data-min-rows="5"></textarea>
+                            placeholder="{{loadi18n('otherInformation')}}" rows="4" on-input="updateTextArea" on-focus="calculateHeightTextArea"
+                            data-min-rows="4"></textarea>
                     </div>
                 </div>
 
@@ -532,9 +565,7 @@
                 <div class="divSection prioritization-information col-sm-12" id="{{prefix}}attached2Div" style="margin-top:50px;" hidden>
                     <div class="page-break"></div>
                     <h3 class="titlesAnalysis">{{loadi18n('attached2')}} - {{loadi18n('filterSummary')}}</h3>
-
                     <div class="prioritization-summary col-sm-12" id="{{prefix}}filterResumeDiv">
-                        <!-- <h4>{{loadi18n('filterSummary')}}</h4> -->
                         <template is="dom-if" if="{{filters}}">
                             <div>
                                 <br>
@@ -551,6 +582,12 @@
                             {{loadi18n('noFiltersApplied')}}
                         </template>
                     </div>
+                </div>
+                <!-- Info footer only visible when printing -->
+                <div class="infoFooter">
+                    <p style="margin: 0 auto 0;">{{dataFields.patient}},
+                        <b> FN </b>{{dataFields.birthYear}},
+                        <b> ADN </b>{{dataFieldsFixed.sampleName}}</p>
                 </div>
             </div>
         </div>
@@ -667,7 +704,7 @@
                 if (UtilsNew.isEmpty(this.prefix)) {
                 }
                 let date = new Date();
-                let fecha  = date.toLocaleString('es-ES', { timeZone: 'UTC' });
+                let fecha = date.toLocaleString('es-ES', { timeZone: 'UTC' });
                 this.requestDate = fecha.substring(0, fecha.length - 8);
                 this.fitlerPrioritization = {};
             }
@@ -719,22 +756,26 @@
                         let sex = this.interpretation.clinicalAnalysis.subjects[0].sex;
                         let sampleType = this.interpretation.clinicalAnalysis.subjects[0].samples[0].type;
                         let sampleName = this.interpretation.clinicalAnalysis.subjects[0].samples[0].name;
+
+                        let resFormat = sampleName.split("-");
+                        let dnaNumber = resFormat[1]; //DNA sample number correct format 
+
                         this.dataFieldsFixed.hospital = this.getValueVariableSet('hospital');
                         this.dataFieldsFixed.birthYear = birthYear;
                         this.dataFieldsFixed.affectationStatus = affectationStatus;
                         this.dataFieldsFixed.sex = sex;
                         this.dataFieldsFixed.sampleType = sampleType;
-                        this.dataFieldsFixed.sampleName = sampleName;
+                        this.dataFieldsFixed.sampleName = dnaNumber;
 
                         let patientSex = this.dataFieldsFixed.sex = sex;
-                        this.patientArticle= "";
-                        this.patientArticleTxt= "";
+                        this.patientArticle = "";
+                        this.patientArticleTxt = "";
 
-                        if (patientSex == "MALE"){
+                        if (patientSex == "MALE") {
                             this.patientArticle = this.loadi18n('articleM');
                             this.patientArticleTxt = this.loadi18n('articleMtxt');
                             this.patientArticleTxtde = this.loadi18n('articleMtxtdel');
-                        }else{
+                        } else {
                             this.patientArticle = this.loadi18n('articleF');
                             this.patientArticleTxt = this.loadi18n('articleFtxt');
                             this.patientArticleTxtde = this.loadi18n('articleFtxtdela');
@@ -829,9 +870,9 @@
                     let rows = "";
                     for (let j = 0; j < data.length; j++) {
                         let variantId = data[j].chromosome + ":" + data[j].start + ":" + data[j].reference + ":" + data[j].alternate;
-
+                        console.log(this.genesRow(data[j]));
                         rows += '<tr><td>' + variantId + '</td><td>' + this._variantParamValue(data[j].id)
-                            + '</td><td>' + this.genesRow(data[j]) + '</td><td>' + this._variantParamValue(data[j].type)
+                            + '</td><td><i>' + this.genesRow(data[j]) + '</i></td><td>' + this._variantParamValue(data[j].type)
                             + '</td></tr>';
                     }
                     table.innerHTML = rows;
@@ -875,7 +916,7 @@
                     });
 
                     Promise.all(promises).then((pum) => {
-                        $(function () { splitTable($(".tablaGenes"), 800); });
+                        $(function () { splitTable($(".tablaGenes"), 1189); });
                     });
                 }
             }
@@ -1071,7 +1112,8 @@
             genesRow(row) {
                 let genes = [];
                 for (let o in row.annotation.consequenceTypes) {
-                    if (UtilsNew.isNotUndefined(row.annotation.consequenceTypes[o].geneName) && !genes.includes(row.annotation.consequenceTypes[o].geneName)) {
+                    if (UtilsNew.isNotUndefined(row.annotation.consequenceTypes[o].geneName) && !UtilsNew.isEmpty(row.annotation.consequenceTypes[o].geneName)  
+                    && !genes.includes(row.annotation.consequenceTypes[o].geneName)) {
                         genes.push(row.annotation.consequenceTypes[o].geneName);
                     }
                 }
