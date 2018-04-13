@@ -570,7 +570,7 @@
             }
 
             onFilterChange(e) {
-                this.query = e.detail;
+                this.query = Object.assign({},e.detail);
                 this.search = e.detail;
             }
 
