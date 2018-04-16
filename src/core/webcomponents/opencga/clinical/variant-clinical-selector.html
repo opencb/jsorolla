@@ -94,7 +94,7 @@
                 this.resetVariables();
                 if (this.opencgaClient instanceof OpenCGAClient) {
                     let params = {
-                        study: this.project.alias + ":" + this.study.alias,
+                        study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
 
                     };
                     let _this = this;
@@ -151,7 +151,7 @@
             renderAnalysisTable() {
                 let _this = this;
                 let params = {
-                    study: this.study.alias
+                    study: this.opencgaSession.study.alias
                 };
                 $(PolymerUtils.getElementById(this.prefix + "tableAnalysis")).bootstrapTable('destroy');
                 $(PolymerUtils.getElementById(this.prefix + "tableAnalysis")).bootstrapTable({
@@ -186,6 +186,8 @@
                             });
                         }
                         _this.analysisSelected.sampleList = _samplesSelected;
+                        console.log("tremen");
+                        console.log(_this.analysisSelected.sampleList.length)
                     }
                 });
             }
