@@ -3,7 +3,7 @@ network-browser widget README
 
 Metabolic Graphs Visualization Networks
 
-Projet status
+Project status
 -------------
 
 Early development. Only for internal use.
@@ -17,6 +17,16 @@ Overview
 --------
 
 blah blah <to_do>
+
+
+Widget testing
+--------------
+1- Navigate to the main parent folder (where package.json is located) and run: 
+ 
+    $ npm install
+
+2 - Open the file ./src/network-browser/test/network-browser.html on a new browser window.
+
 
 Code Structure
 --------------
@@ -71,7 +81,7 @@ Renderer                       browser                   manager
 ~~~
 
 
-Milestone 1
+Milestone 1 [x]
 ----------------
 
 * Representing graphs data with different shapes given tags
@@ -83,25 +93,29 @@ Milestone 1
   * Allow combining and changing behaviours 
   * Write a test app
 
-Milestone 2
------------
+Milestone 2 [x]
+----------------
 
 * Behaviours
   * Register double click
   * transient behaviours when a node is clicked (shake, pulse..) to attract attention
     * add more action:
     * freeze a node
-    * Highlight selected nodes (e.g.:change color of all the nodes in a path when they are being moved)
-    * Show tooltip
+
 * Graphs
   * implement basic shapes by label and play with real biological pathways
   * define how to grow  a path from a node
   * define how to navigate the graph (limits, display filters.....)
 
-Widget testing
---------------
-1- Navigate to the main parent folder (where package.json is located) and run: 
- 
-    $ npm install
+Milestone 3 [ ]
+----------------
 
-2 - Open the file ./src/network-browser/test/network-browser.html on a new browser window.
+* Behaviours
+  * Define different views
+  * Refine API
+  * Add the db adapter for the graph database
+  * transient behaviours when a node is clicked (shake, pulse..) to attract attention
+    * Highlight selected nodes (e.g.:change color of all the nodes in a path when they are being moved)
+    * Show tooltip
+* Graphs
+  *  define collapse, expand.
