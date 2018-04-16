@@ -1,5 +1,44 @@
+/**
+ *
+ * new API mapping
+ *  Network
+ * x  nb.loadNetwork(network)
+ *    nb.saveNetwork()
+ *    nb.saveNetworkImage()
+ * X Network diagram display
+ * x  nb.zoom(scale)
+ * x  nb.zoomIn()
+ * x  nb.zoomOut()
+ * x  nb.zoomReset()
+ * x  nb.move(dx, dy)
+ * x  nb.moveReset()
+ *  Nodes
+ *    nb.addNode(node)
+ *    nb.getNode(uid)
+ *    nb.showNode(uid)
+ *    nb.hideNode(uid)
+ *    nb.fixNodePosition(uid)
+ *    nb.unfixNodePosition(uid)
+ *    nb.moveNode(uid, dx, dy)
+ *    nb.setNodeStyle(uid, style)
+ *    nb.setNodeSize(uid, size)
+ *    nb.setNodeColor(uid, color)
+ *    nb.setNodeCharge(uid, charge)
+ *  Nodes selection
+ *  Relations
+ *    nb.addRelation(relation)
+ * X Force layout
+ * x   nb.forceLayoutStart()
+ * x   nb.forceLayoutStop()
+ * x   nb.forceLayoutStatus()
+ *  analysis
+ *    registerAnalysis
+ *
+ *
+ */
+
 class NetworkBrowser {
-    constructor(parent, data, config) {
+    constructor(parent, config) {
         Object.assign(this, Backbone.Events);
 
         if (typeof config !== "object" || config === null) {
@@ -9,11 +48,11 @@ class NetworkBrowser {
         //Initialize the network renderer
         this.renderer = config.renderer;
         this.renderer.init(parent, config);
-        let center = this.renderer.getCenter();
+        //let center = this.renderer.getCenter();
 
         //Initialize the network manager
-        this.manager = new NetworkManager(data);
-        this.manager.init(center);
+        this.manager = new NetworkManager();
+        //this.manager.init(center);
 
         this.selectedNodes = [];
 
@@ -37,7 +76,12 @@ class NetworkBrowser {
         return this.init();
     }
 
+    _init() {
+        return this.init();
+    }
+
     init() {
+        // <TODO> deprecate in favour of _init() 
         let self = this;
         //Register the svg mouse down event listener.
         //This event is only fired when the user press the mouse left button in a node.
@@ -45,7 +89,7 @@ class NetworkBrowser {
             let nodes = [];
             //Click behavior --> move ths subpath
             if (self.clickBehavior.current === "MOVE_PATH") {
-                nodes = (nodeID === null) ? [] : self.manager.getPathById(nodeID);
+                nodes = (nodeID === null) ? [] : self.manager.getPath(nodeID);
             }
             //Click behavior --> move this single node
             else if (self.clickBehavior.current === "MOVE_NODE") {
@@ -67,7 +111,7 @@ class NetworkBrowser {
             let dy = (click.currentY - click.initialY) / scale;
             //Move all selected nodes
             self.selectedNodes.forEach(function (nodeID) {
-                let node = self.manager.getNodeById(nodeID);
+                let node = self.manager.getNode(nodeID);
                 node.display.x = node.display.ox + dx;
                 node.display.y = node.display.oy + dy;
                 self.renderer.moveNode(node);
@@ -91,10 +135,35 @@ class NetworkBrowser {
         });
     }
 
+    loadNetwork(data) {
+        let self = this;
+        //Reset the current network
+        this.manager.reset();
+        this.renderer.reset();
+        //Parse the nodes in the new network
+        if (typeof data.nodes === "object" && Array.isArray(data.nodes)) {
+            data.nodes.forEach(function (node) {
+                self.nodeAdd(node);
+            });
+        }
+        //Parse the relations in the new network
+        if (typeof data.relations === "object" && Array.isArray(data.relations)) {
+            data.relations.forEach(function (relation) {
+                self.relationAdd(relation);
+            });
+        }
+    }
+
+    nodeAdd(node) {
+        let center = this.renderer.getCenter(); 
+        this.manager.addNode(node, center);
+        return this;
+    }
+
     addSelectedNodes(nodes) {
         let self = this;
         nodes.forEach(function (id) {
-            let node = self.manager.getNodeById(id);
+            let node = self.manager.getNode(id);
             node.display.ox = node.display.x;
             node.display.oy = node.display.y;
             node.display.selected = true;
@@ -108,25 +177,40 @@ class NetworkBrowser {
         let self = this;
         //Reset the selected nodes
         this.selectedNodes.forEach(function (nodeID) {
-            let node = self.manager.getNodeById(nodeID);
+            let node = self.manager.getNode(nodeID);
             node.display.selected = false;
         });
         this.selectedNodes = [];
     }
 
+    relationAdd(relation) {
+        this.manager.addRelation(relation);
+        return this;
+    }
+
+    _draw() {
+        this.draw();
+    }
+
     draw() {
+        // <TODO> deprecate in favour of _draw()
         let self = this;
         //Draw all nodes
-        this.manager.getNodes().forEach(function (node) {
+        this.manager.getAllNodes().forEach(function (node) {
             self.renderer.drawNode(node);
         });
         //Draw all relations
-        this.manager.getRelations().forEach(function (relation) {
+        this.manager.getAllRelations().forEach(function (relation) {
             self.renderer.drawRelation(relation);
         });
     }
 
+    forceLayoutStart(){
+        return this.startSimulation();
+    }
+
     startSimulation() {
+        // <TODO> deprecate next iteration and implement in forceLayoutStart
         let self = this;
         if (this.simulation.enabled === true) {
             if (this.simulation.interval === null) {
@@ -141,7 +225,12 @@ class NetworkBrowser {
         return this;
     }
 
+    forceLayoutStop(){
+        return this.stopSimulation();
+    }
+
     stopSimulation() {
+        // <TODO> deprecate next iteration and implement in forceLayoutStop
         if (this.simulation.interval !== null) {
             clearInterval(this.simulation.interval);
             this.simulation.interval = null;
@@ -151,11 +240,16 @@ class NetworkBrowser {
         return this;
     }
 
+    _forceLayoutStep() {
+        this.stepSimulation();
+    }
+
     stepSimulation() {
+        // <TODO> deprecate next iteration and implement in _forceLayoutStep
         let self = this;
         let s = this.simulation;
-        let nodes = this.manager.getNodes();
-        let relations = this.manager.getRelations();
+        let nodes = this.manager.getAllNodes();
+        let relations = this.manager.getAllRelations();
         //Calculate the new alpha value
         s.alpha = s.alpha + (s.alphaTarget - s.alpha) * s.alphaDecay;
         //Calculate the repulsion forces for each node
@@ -206,15 +300,9 @@ class NetworkBrowser {
         }
     }
 
-    setClickBehavior(value) {
-        if (this.clickBehavior.list.indexOf(value.toUpperCase()) === -1) {
-            throw new Error("Unknown behavior " + value);
-        }
-        this.clickBehavior.current = value.toUpperCase();
-        return this;
-    }
-
     enableSimulation() {
+        // <TODO> deprecate next iteration. Find where it is used and substitute the call
+        // with a direct call to forceLayoutStart
         this.simulation.enabled = true;
         this.trigger("simulation:enabled"); //Or simulation:enable ??
         this.startSimulation();
@@ -222,18 +310,31 @@ class NetworkBrowser {
     }
 
     disableSimulation() {
+        // <TODO> deprecate next iteration. Find where it is used and substitute the call
+        // with a direct call to forceLayoutStop
         this.simulation.enabled = false;
         this.trigger("simulation:disabled"); //Or simulation:disable ??
         this.stopSimulation();
         return this;
     }
 
+    forceLayoutSatuts() {
+        return this.getSimulationStatus();
+    }
+
     getSimulationStatus() {
+        // <TODO> deprecate next iteration
         //Return the current simulation status
         return {
             enabled: this.simulation.enabled,
             running: this.simulation.interval !== null
         }
+    }
+
+
+    zoom(scale) {
+        this.renderer.applyScale(scale);
+        return this;
     }
 
     zoomIn() {
@@ -242,7 +343,7 @@ class NetworkBrowser {
     }
 
     zoomOut() {
-        this.renderer.applyScale(0.6);
+        this.renderer.applyScale(0.666);
         return this;
     }
 
@@ -258,6 +359,14 @@ class NetworkBrowser {
 
     moveReset() {
         this.renderer.resetTranslation();
+        return this;
+    }
+
+    setClickBehavior(value) {
+        if (this.clickBehavior.list.indexOf(value.toUpperCase()) === -1) {
+            throw new Error("Unknown behavior " + value);
+        }
+        this.clickBehavior.current = value.toUpperCase();
         return this;
     }
 
