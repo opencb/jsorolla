@@ -11,7 +11,13 @@ class SvgNetworkRenderer {
         //Initial transformation matrix
         this.transMatrix = [1, 0, 0, 1, 0, 0];
         //Click event
-        this.clickEvent = {active: false, initialX: 0, initialY: 0, currentX: 0, currentY: 0};
+        this.clickEvent = {
+            active: false, 
+            initialX: 0, 
+            initialY: 0, 
+            currentX: 0, 
+            currentY: 0
+        };
     }
 
     init(parent, config) {
@@ -94,6 +100,17 @@ class SvgNetworkRenderer {
             //Disable the click event and emit the mouse leave event
             this.clickEvent.active = false;
             return this.trigger("mouseleave", event);
+        }
+    }
+
+    reset() {
+        //Remove all nodes 
+        while (this.nodesGroup.firstChild) {
+            this.nodesGroup.removeChild(this.nodesGroup.firstChild);
+        }
+        //Remove all relations 
+        while (this.relationsGroup.firstChild) {
+            this.relationsGroup.removeChild(this.relationsGroup.firstChild);
         }
     }
 
