@@ -25,8 +25,8 @@
                 <template is="dom-if" if="{{showTitle}}">
                     <div style="margin: 10px">
                         <span>
-                            <i id="{{prefix}}SummaryCollapseIcon" class="fa fa-minus-square-o" aria-hidden="true" on-click="_summaryOnClick" style="cursor: pointer"></i>
-                            <h4  on-click="_summaryOnClick" style="cursor: pointer; display: inline">&nbsp;{{title}}</h4>
+                            <!--<i id="{{prefix}}SummaryCollapseIcon" class="fa fa-minus-square-o" aria-hidden="true" on-click="_summaryOnClick" style="cursor: pointer"></i>-->
+                            <h4 style="display: inline">&nbsp;{{title}}</h4>
                         </span>
                     </div>
                 </template>
@@ -273,7 +273,7 @@
                                 _this.clinicalAnalysis = response.response[0].result[0];
                                 _this.clinicalAnalysisCreationDateFormat = moment(_this.clinicalAnalysis.creationDate, "YYYYMMDDHHmmss").format('D MMM YY');
                                 _this.showSummary = true;
-                                _this.title =  "Clinical Analysis Summary: " + _this.clinicalAnalysis.name;
+//                                _this.title =  "Clinical Analysis Summary: " + _this.clinicalAnalysis.name;
                                 _this.pedigreeRender();
                             }
 
