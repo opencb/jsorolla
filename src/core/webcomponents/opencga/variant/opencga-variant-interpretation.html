@@ -498,6 +498,7 @@
 
             clinicalAnalysisIdObserver() {
                 console.warn("Not tested yet");
+                debugger;
                 let _this = this;
                 this.opencgaClient.clinical().info(this.clinicalAnalysisId, {})
                     .then((response) => {
@@ -510,6 +511,7 @@
             }
 
             clinicalAnalysisObserver() {
+                debugger;
                 let _samples = [];
 
                 if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis) && UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.family) && UtilsNew.isNotEmptyArray(this.clinicalAnalysis.family.members)) {

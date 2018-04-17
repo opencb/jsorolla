@@ -260,7 +260,8 @@
             }
 
             searchAnalysis(){
-                if(UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysisId)){
+                if(UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysisId)) {
+                    debugger
                     let params = {
                         study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias
                     };
