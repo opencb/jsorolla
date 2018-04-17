@@ -195,9 +195,13 @@
                                             </button>
                                         </div>
                                     </div>
-
-                                    <template is="dom-if" if="{{showLastRecent}}">
+                                    <button id="{{prefix}}clearSelectedAnalysis" data-toggle="modal" role="button" data-placement="bottom"
+                                            on-click="clearSelectedAnalysis" class="btn btn-sm btn-primary" style="display: inline; float:right; margin-bottom: 5px;">
+                                        Clear...
+                                    </button>
+                                    <template is="dom-if" if="{{showLastRecent}}" restamp="true">
                                         <div id="{{prefix}}OpencgaClinicalAnalysisGrid">
+
                                             <opencga-clinical-analysis-grid opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}"
                                                                             query="{{clinicalAnalysisQuery}}" config="{{clinicalAnalysisGridConfig}}"
                                                                             on-analysis-selected="onRecentAnalysisSelected">
@@ -250,7 +254,7 @@
                                     <div style="padding-left: 20px">aaaaa</div>
                                     <select id="{{prefix}}PanelApps2" class="selectpicker show-tick" data-size="10" data-live-search="true"
                                             data-max-options="1" data-selected-text-format="count" multiple>
-                                        <template is="dom-repeat" items="{{panelList}}" as="panel">
+                                        <template is="dom-repeat" items="{{panelList}}" on-dom-change="updateSelectPicker"  as="panel">
                                             <option value="{{panel.name}}">{{panel.title}} ({{panel.genes.length}})</option>
                                         </template>
                                     </select>
@@ -485,10 +489,9 @@
                 this.clinicalAnalysisQuery = {sort: "id", limit: 5};
                 this.clinicalAnalysisGridConfig = {pagination: false, pageSize: 2, pageList: [1, 2]};
                 this.showLastRecent = true;
-
                 // TODO REMOVE IT!!!!!
                 if (typeof PANELS !== "undefined") {
-                    this.set('panelList', PANELS);
+                    this.set("panelList", PANELS.slice());
                 }
             }
 
@@ -617,8 +620,6 @@
             }
             onClickOkPrioritization() {
                 this.activePrioritization = true;
-
-
                 $('select.selectpicker').selectpicker('render');
             }
 
@@ -671,8 +672,14 @@
             }
 
             isAutomaticMode(mode) {
-                $('select.selectpicker').selectpicker('render');
                 return mode === "automatic";
+            }
+            updateSelectPicker(){
+                $('select.selectpicker').selectpicker('render');
+            }
+
+            clearSelectedAnalysis(){
+                this.showLastRecent = true;
             }
 
         }
