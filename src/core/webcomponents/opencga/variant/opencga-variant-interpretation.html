@@ -160,7 +160,7 @@
                                                                       population-frequencies="{{populationFrequencies}}"
                                                                       protein-substitution-scores="{{proteinSubstitutionScores}}"
                                                                       consequence-types="{{consequenceTypes}}"
-                                                                      query="[[query]]" search="[[search]]" variant="{{variant}}"
+                                                                      query="[[defaultAutomaticQuery]]" search="[[search]]" variant="{{variant}}"
                                                                       on-selected="selectedGene" on-selectvariant="onSelectVariant" on-checkvariant="onCheckVariant"
                                                                       show-select="{{config.grid.showSelect}}" style="font-size: 12px" config="{{config}}">
                                                 </opencga-variant-grid>
@@ -432,6 +432,10 @@
                         observer: 'clinicalAnalysisObserver',
                         notify: true
                     },
+                    diseasePanelId: {
+                        type: String,
+                        observer: "diseasePanelIdObserver"
+                    },
                     beaconHosts: {
                         type: Array
                     },
@@ -494,6 +498,10 @@
 
                 this.samples = [];
                 this.family = {};
+
+                this.defaultAutomaticQuery = {
+                    biotype: "protein_coding"
+                };
             }
 
             clinicalAnalysisIdObserver() {
@@ -511,7 +519,7 @@
             }
 
             clinicalAnalysisObserver() {
-                debugger;
+
                 let _samples = [];
 
                 if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis) && UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.family) && UtilsNew.isNotEmptyArray(this.clinicalAnalysis.family.members)) {
@@ -546,6 +554,21 @@
                     // Notify to all listeners of the new samples
                     this.dispatchEvent(new CustomEvent('samplechange', {detail: {samples: this.samples}}));
                 }
+            }
+
+            diseasePanelIdObserver() {
+                if (this.diseasePanelId !== undefined && PANELS !== undefined) {
+                    for (let panel of PANELS) {
+                        if (panel.id === this.diseasePanelId) {
+                            this.diseasePanel = panel;
+                            // TODO in theory we should do:
+                            // this.defaultAutomaticQuery.panel = this.diseasePanelId;
+                            this.defaultAutomaticQuery.gene = this.diseasePanel.genes.join(",");
+                            break;
+                        }
+                    }
+                }
+                debugger
             }
 
             propagateGeneEvent(e) {

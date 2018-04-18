@@ -242,9 +242,9 @@
                                             <template is="dom-if" if="{{isAutomaticMode(algorithm.id)}}">
                                                 <span style="padding-left: 20px">Select a disease panels </span>
                                                 <select id="{{prefix}}DiseasePanels" class="selectpicker show-tick" data-size="10" data-live-search="true"
-                                                        data-max-options="1" data-selected-text-format="count" multiple>
+                                                        data-max-options="1" data-selected-text-format="count" on-change="onDiseasePanelChange" multiple>
                                                     <template is="dom-repeat" items="{{panelList}}" as="panel" on-dom-change="updateSelectPicker">
-                                                        <option value="{{panel.name}}">{{panel.title}} ({{panel.genes.length}})</option>
+                                                        <option value="{{panel.id}}">{{panel.title}} ({{panel.genes.length}})</option>
                                                     </template>
                                                 </select>
                                             </template>
@@ -266,11 +266,10 @@
 
         <template is="dom-if" if="{{activePrioritization}}">
             <div style="margin: auto">
-                <opencga-variant-interpretation opencga-session="{{opencgaSession}}" samples="{{samples}}"
-                                                config="{{config}}"
+                <opencga-variant-interpretation opencga-session="{{opencgaSession}}" config="{{config.interpretation}}"
+                                                samples="{{samples}}" disease-panel-id="{{diseasePanelId}}"
                                                 population-frequencies="{{populationFrequencies}}"
-                                                protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                                consequence-types="{{consequenceTypes}}"
+                                                protein-substitution-scores="{{proteinSubstitutionScores}}" consequence-types="{{consequenceTypes}}"
                                                 opencga-client="{{opencgaClient}}"
                                                 cellbase-client="{{cellbaseClient}}"
                                                 beacon-hosts="{{config.tools.beacon.hosts}}" on-gene="geneSelected"
@@ -659,6 +658,10 @@
 
             clearSelectedAnalysis(){
                 this.showLastRecent = true;
+            }
+
+            onDiseasePanelChange(e) {
+                this.diseasePanelId = e.target.value;
             }
 
             checkTypeAnalysisSelected(analysis) {

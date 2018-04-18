@@ -58,7 +58,7 @@
         </div>
 
         <div id="{{prefix}}GridTableDiv" style="margin-top: 10px">
-            <table id="{{prefix}}VariantBrowserGrid" data-pagination="true" data-page-list="[10, 25, 50]" data-show-export="true" data-id-field="variant">
+            <table id="{{prefix}}VariantBrowserGrid">
                 <thead style="background-color: #eee"></thead>
             </table>
         </div>
@@ -90,13 +90,6 @@
                         type: Object,
                         observer: 'renderVariantTable'
                     },
-                    // project: {
-                    //     type: Object
-                    // },
-                    // study: {
-                    //     type: Object,
-                    //     observer: 'renderVariantTable'
-                    // },
                     data: {
                         type: Array,
                         value: [],
@@ -168,13 +161,23 @@
                 this.downloadRefreshIcon = $("#" + this.prefix + "DownloadRefresh");
                 this.downloadIcon = $("#" + this.prefix + "DownloadIcon");
 
+                // ...
+                this.defaultConfig.detailView = this.showSelect;
+
                 this._refreshTableColumns();
             }
 
             _init() {
+                this.prefix = "VarBrowserGrid-" + Utils.randomString(6);
+
                 this.analysisMode = "family";
 
-                this.prefix = "VarBrowserGrid-" + Utils.randomString(6);
+                this.defaultConfig = {
+                    pagination: true,
+                    pageSize: 10,
+                    pageList: [10, 25, 50],
+                    showExport: false
+                };
             }
 
             assignColors() {
@@ -210,6 +213,8 @@
             }
 
             renderVariantTable() {
+                let _config = Object.assign(this.defaultConfig, this.config.grid);
+
                 this.variant = ""; // Empty the variant every time the grid is loaded
 
                 this.from = 1;
@@ -219,7 +224,7 @@
                 let _table = $('#' + this.prefix + 'VariantBrowserGrid');
                 let _this = this;
                 if (typeof this.opencgaClient !== "undefined" && this.opencgaClient instanceof OpenCGAClient && typeof
-                        this.opencgaSession.project !== "undefined" && typeof this.opencgaSession.study !== "undefined" && typeof this.opencgaSession.study.alias !== "undefined") {
+                    this.opencgaSession.project !== "undefined" && typeof this.opencgaSession.study !== "undefined" && typeof this.opencgaSession.study.alias !== "undefined") {
 
                     let urlQueryParams = this._getUrlQueryParams();
                     let queryParams = urlQueryParams.queryParams;
@@ -230,6 +235,14 @@
                         columns: _this.cols,
                         method: 'get',
                         sidePagination: 'server',
+
+                        // Set table properties, these are read from config property
+                        pagination: _config.pagination,
+                        pageSize: _config.pageSize,
+                        pageList: _config.pageList,
+                        showExport: _config.showExport,
+                        detailView: _config.detailView,
+
                         queryParams: function (params) {
                             queryParams.limit = params.limit;
                             queryParams.skip = params.offset;
@@ -320,9 +333,11 @@
                             });
                         }
                     });
+
                     if (!this.showSelect) {
                         $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('hideColumn', "stateCheckBox");
                     }
+
                     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('showLoading');
                 }
 
@@ -804,15 +819,15 @@
                                             }
                                         } else if (UtilsNew.isNotEqual(referenceValue, "-") && referenceValue.length > 10) {
                                             // X/-
-                                                let substringReference = referenceValue.substring(0, 5) + "...";
-                                                referenceValueColText = substringReference;
-                                                alternateValueColText = "-";
+                                            let substringReference = referenceValue.substring(0, 5) + "...";
+                                            referenceValueColText = substringReference;
+                                            alternateValueColText = "-";
 //                                                tooltipText += "<br>" +   referenceValue +" / " + alternateValue;
                                         } else if (UtilsNew.isNotEqual(alternateValue, "-") && alternateValue.length > 10) {
                                             // -/X
-                                                let substringAlternate = alternateValue.substring(0, 5) + "...";
-                                                alternateValueColText = substringAlternate;
-                                                referenceValueColText = "-";
+                                            let substringAlternate = alternateValue.substring(0, 5) + "...";
+                                            alternateValueColText = substringAlternate;
+                                            referenceValueColText = "-";
 //                                                tooltipText += "<br>" +   referenceValue + " / " + alternateValue;
                                         }
                                         tooltipText += "<br>" +   referenceValue + " / " + alternateValue;
