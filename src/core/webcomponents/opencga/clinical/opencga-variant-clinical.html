@@ -24,7 +24,7 @@
 <link rel="import" href="../opencga-message-dialog.html">
 <link rel="import" href="../catalog/clinical/opencga-clinical-analysis-grid.html">
 
-<dom-module id="variant-clinical">
+<dom-module id="opencga-variant-clinical">
     <template>
         <style include="jso-styles">
             /* From http://code-chunk.com/chunks/543df4c394758/bootstrap-arrow-shaped-buttons */
@@ -108,7 +108,7 @@
             }
 
             div.bootstrap-select {
-                width:220px!important ;
+                width: 220px!important ;
             }
         </style>
 
@@ -367,7 +367,7 @@
     </template>
 
     <script>
-        class VariantClinical extends Polymer.Element {
+        class OpencgaVariantClinical extends Polymer.Element {
 
             constructor() {
                 super();
@@ -377,7 +377,7 @@
             }
 
             static get is() {
-                return 'variant-clinical';
+                return 'opencga-variant-clinical';
             }
 
             static get properties() {
@@ -661,26 +661,29 @@
                 this.showLastRecent = true;
             }
 
-            checkTypeAnalysisSelected (analysis) {
+            checkTypeAnalysisSelected(analysis) {
                 // Disabled by default Diseases Panel
                 PolymerUtils.setPropertyById(this.prefix+"DiseasePanels", "disabled", true);
+
                 // If analysis type selected is not single we disabled automatic mode completely and we checked interactive mode by default
-                if (analysis.type !== "SINGLE") {
-                    PolymerUtils.setPropertyById(this.prefix+"automaticMode", "disabled", true);
-                    PolymerUtils.setPropertyById(this.prefix+"automaticMode", "checked", false);
-                    PolymerUtils.setPropertyById(this.prefix+"interactiveMode", "checked", true);
-                    $(PolymerUtils.getElementById(this.prefix+"DiseasePanels")).val("default");
+                if (analysis.type.toLowerCase() !== "single") {
+                    PolymerUtils.setPropertyById(this.prefix + "automaticMode", "disabled", true);
+                    PolymerUtils.setPropertyById(this.prefix + "automaticMode", "checked", false);
+                    PolymerUtils.setPropertyById(this.prefix + "interactiveMode", "checked", true);
+                    // This remove the selected panel
+                    $(PolymerUtils.getElementById(this.prefix + "DiseasePanels")).val("default");
                     this.interactive = true;
                 } else {
-                    PolymerUtils.setPropertyById(this.prefix+"automaticMode", "disabled", false);
+                    PolymerUtils.setPropertyById(this.prefix + "automaticMode", "disabled", false);
                     if (!this.interactive) {
-                        PolymerUtils.setPropertyById(this.prefix+"DiseasePanels", "disabled", false);
+                        PolymerUtils.setPropertyById(this.prefix + "DiseasePanels", "disabled", false);
                     }
                 }
-                $(PolymerUtils.getElementById(this.prefix+"DiseasePanels")).selectpicker("refresh");
+                // Refresh Boostrap Select component
+                $(PolymerUtils.getElementById(this.prefix + "DiseasePanels")).selectpicker("refresh");
             }
-
         }
-        customElements.define(VariantClinical.is, VariantClinical);
+
+        customElements.define(OpencgaVariantClinical.is, OpencgaVariantClinical);
     </script>
 </dom-module>
