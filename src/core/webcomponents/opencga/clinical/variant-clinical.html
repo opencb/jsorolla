@@ -228,11 +228,11 @@
                                         <div id="{{prefix}}{{algorithm.id}}ModeDiv">
                                             <template is="dom-if" if="{{algorithm.checked}}">
                                                 <input id="{{prefix}}{{algorithm.id}}Mode" type="radio" name="analysisRadioButtons" value="{{algorithm.id}}" class$="{{prefix}}FilterRadio"
-                                                       checked on-change="selectAnalysisType" style="padding-left: 20px"> {{algorithm.title}}<br>
+                                                       checked on-change="selectAnalysisMode" style="padding-left: 20px"> {{algorithm.title}}<br>
                                             </template>
                                             <template is="dom-if" if="{{!algorithm.checked}}">
                                                 <input id="{{prefix}}{{algorithm.id}}Mode" type="radio" name="analysisRadioButtons" value="{{algorithm.id}}" class$="{{prefix}}FilterRadio"
-                                                       on-change="selectAnalysisType" style="padding-left: 20px"> {{algorithm.title}}<br>
+                                                       on-change="selectAnalysisMode" style="padding-left: 20px"> {{algorithm.title}}<br>
                                             </template>
 
                                             <template is="dom-if" if="{{isAutomaticMode(algorithm.id)}}">
@@ -578,25 +578,20 @@
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
                 this.clinicalAnalysis = e.detail;
                 this.clinicalAnalysisId = this.clinicalAnalysis.id;
+                this.checkTypeAnalysisSelected(this.clinicalAnalysis);
             }
 
             onAnalysisSelected(e) {
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
                 this.clinicalAnalysis = this.analysisSelected.analysis;
                 this.clinicalAnalysisId = this.analysisSelected.analysis.id;
-
                 this.showLastRecent = false;
+                this.checkTypeAnalysisSelected(this.clinicalAnalysis);
             }
 
-            selectAnalysisRecent(e) {
-                let analysisId = e.target.value;
-                if (UtilsNew.isNotUndefinedOrNull(analysisId)) {
-                    this.clinicalAnalysisId = analysisId;
-                }
-            }
-
-            selectAnalysisType(e) {
+            selectAnalysisMode(e) {
                 this.interactive = e.target.value === "interactive";
+                this.checkTypeAnalysisSelected(this.clinicalAnalysis);
             }
             onClickOkPrioritization() {
                 this.activePrioritization = true;
@@ -660,6 +655,25 @@
 
             clearSelectedAnalysis(){
                 this.showLastRecent = true;
+            }
+
+            checkTypeAnalysisSelected (analysis) {
+                // Disabled by default Diseases Panel
+                PolymerUtils.setPropertyById(this.prefix+"DiseasePanels", "disabled", true);
+                // If analysis type selected is not single we disabled automatic mode completely and we checked interactive mode by default
+                if (analysis.type !== "SINGLE") {
+                    PolymerUtils.setPropertyById(this.prefix+"automaticMode", "disabled", true);
+                    PolymerUtils.setPropertyById(this.prefix+"automaticMode", "checked", false);
+                    PolymerUtils.setPropertyById(this.prefix+"interactiveMode", "checked", true);
+                    $(PolymerUtils.getElementById(this.prefix+"DiseasePanels")).val("default");
+                    this.interactive = true;
+                } else {
+                    PolymerUtils.setPropertyById(this.prefix+"automaticMode", "disabled", false);
+                    if (!this.interactive) {
+                        PolymerUtils.setPropertyById(this.prefix+"DiseasePanels", "disabled", false);
+                    }
+                }
+                $(PolymerUtils.getElementById(this.prefix+"DiseasePanels")).selectpicker("refresh");
             }
 
         }
