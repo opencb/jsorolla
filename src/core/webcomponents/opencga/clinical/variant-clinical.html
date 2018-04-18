@@ -186,6 +186,10 @@
                                 <h3>Select Clinical Analysis</h3>
                                 <hr style="width: 80%; margin: 2px 0px;border-top: 2px solid #eee">
                                 <div style="padding: 10px 10px">
+                                    <button id="{{prefix}}clearSelectedAnalysis" data-toggle="modal" role="button" data-placement="bottom"
+                                            on-click="clearSelectedAnalysis" class="btn btn-sm btn-primary" style="display: inline; float:right; margin:0 25%;">
+                                        Clear
+                                    </button>
                                     <div class="form-group">
                                         <div class="">
                                             <span for="{{prefix}}SelectOtherAnalysis">Select a recent analysis from the table (last 5 analysis) or select a clinical analysis </span>
@@ -195,10 +199,6 @@
                                             </button>
                                         </div>
                                     </div>
-                                    <button id="{{prefix}}clearSelectedAnalysis" data-toggle="modal" role="button" data-placement="bottom"
-                                            on-click="clearSelectedAnalysis" class="btn btn-sm btn-primary" style="display: inline; float:right; margin-bottom: 5px;">
-                                        Clear...
-                                    </button>
                                     <template is="dom-if" if="{{showLastRecent}}" restamp="true">
                                         <div id="{{prefix}}OpencgaClinicalAnalysisGrid">
 
@@ -224,66 +224,39 @@
                                 <hr style="width: 80%; margin: 2px 0px;border-top: 2px solid #eee">
                                 <div class="form-group" style="padding: 10px 10px">
                                     <p>Several prioritization and interpretation algorithms are available, you can choose an <span style="font-weight: bold">interactive</span> tool:</p>
-                                    <!--<template is="dom-repeat" items="{{config.interpretation.algorithms}}" as="algorithm">-->
-                                        <!--<div id="{{prefix}}{{algorithm.id}}ModeDiv">-->
-                                            <!--<template is="dom-if" if="{{algorithm.checked}}">-->
-                                                <!--<input id="{{prefix}}{{algorithm.id}}Mode" type="radio" name="analysisRadioButtons" value="{{algorithm.id}}" class$="{{prefix}}FilterRadio"-->
-                                                       <!--checked on-change="selectAnalysisType" style="padding-left: 20px"> {{algorithm.title}}<br>-->
-                                            <!--</template>-->
-                                            <!--<template is="dom-if" if="{{!algorithm.checked}}">-->
-                                                <!--<input id="{{prefix}}{{algorithm.id}}Mode" type="radio" name="analysisRadioButtons" value="{{algorithm.id}}" class$="{{prefix}}FilterRadio"-->
-                                                       <!--on-change="selectAnalysisType" style="padding-left: 20px"> {{algorithm.title}}<br>-->
-                                            <!--</template>-->
+                                    <template is="dom-repeat" items="{{config.interpretation.algorithms}}" as="algorithm">
+                                        <div id="{{prefix}}{{algorithm.id}}ModeDiv">
+                                            <template is="dom-if" if="{{algorithm.checked}}">
+                                                <input id="{{prefix}}{{algorithm.id}}Mode" type="radio" name="analysisRadioButtons" value="{{algorithm.id}}" class$="{{prefix}}FilterRadio"
+                                                       checked on-change="selectAnalysisType" style="padding-left: 20px"> {{algorithm.title}}<br>
+                                            </template>
+                                            <template is="dom-if" if="{{!algorithm.checked}}">
+                                                <input id="{{prefix}}{{algorithm.id}}Mode" type="radio" name="analysisRadioButtons" value="{{algorithm.id}}" class$="{{prefix}}FilterRadio"
+                                                       on-change="selectAnalysisType" style="padding-left: 20px"> {{algorithm.title}}<br>
+                                            </template>
 
-                                            <!--<template is="dom-if" if="{{isAutomaticMode(algorithm.id)}}">-->
-                                                <!--<div style="padding-left: 20px">aaaaa</div>-->
-                                                <!--<select id="{{prefix}}PanelApps" class="selectpicker show-tick" data-size="10" data-live-search="true"-->
-                                                        <!--data-max-options="1" data-selected-text-format="count" multiple>-->
-                                                    <!--<template is="dom-repeat" items="{{panelList}}" as="panel">-->
-                                                        <!--<option value="{{panel.name}}">{{panel.title}} ({{panel.genes.length}})</option>-->
-                                                    <!--</template>-->
-                                                <!--</select>-->
-                                            <!--</template>-->
-                                        <!--</div>-->
-                                    <!--</template>-->
-
-
-                                    <input id="{{prefix}}{{algorithm.id}}Mode2" type="radio" name="analysisRadioButtons" value="{{algorithm.id}}" class$="{{prefix}}FilterRadio"
-                                           on-change="selectAnalysisType" style="padding-left: 20px"> aaa<br>
-
-                                    <div style="padding-left: 20px">aaaaa</div>
-                                    <select id="{{prefix}}PanelApps2" class="selectpicker show-tick" data-size="10" data-live-search="true"
-                                            data-max-options="1" data-selected-text-format="count" multiple>
-                                        <template is="dom-repeat" items="{{panelList}}" on-dom-change="updateSelectPicker"  as="panel">
-                                            <option value="{{panel.name}}">{{panel.title}} ({{panel.genes.length}})</option>
-                                        </template>
-                                    </select>
-                                    <!--<input id="automaticRadio" type="radio" name="analysisRadioButtons" value="manual" class$="{{prefix}}FilterRadio"-->
-                                    <!--checked on-change="selectAnalysisType" style="padding-left: 20px"> Automatic prioritization<br>-->
-                                    <!--<input id="interactiveRadio" type="radio" name="analysisRadioButtons" value="interactive" class$="{{prefix}}FilterRadio"-->
-                                    <!--on-change="selectAnalysisType" style="padding-left: 20px"> Interactive Prioritization (based on <a href="https://www.ncbi.nlm.nih.gov/pubmed/24861626" target="_blank" style="font-weight: bold">TEAM</a> paper)-->
+                                            <template is="dom-if" if="{{isAutomaticMode(algorithm.id)}}">
+                                                <span style="padding-left: 20px">Select a disease panels </span>
+                                                <select id="{{prefix}}DiseasePanels" class="selectpicker show-tick" data-size="10" data-live-search="true"
+                                                        data-max-options="1" data-selected-text-format="count" multiple>
+                                                    <template is="dom-repeat" items="{{panelList}}" as="panel" on-dom-change="updateSelectPicker">
+                                                        <option value="{{panel.name}}">{{panel.title}} ({{panel.genes.length}})</option>
+                                                    </template>
+                                                </select>
+                                            </template>
+                                        </div>
+                                    </template>
                                 </div>
                             </div>
 
                             <div class="col-md-12">
-                                <div style="margin:0 25%;">
-                                    <button id="clickOkPrioritization" type="button" class="btn btn-lg btn-primary" style="margin:0 25%;"
-                                            on-click="onClickOkPrioritization">
+                                <div style="float: right; margin:0 25%;">
+                                    <button id="clickOkPrioritization" type="button" class="btn btn-lg btn-primary" on-click="onClickOkPrioritization">
                                         Go to Interpretation
                                     </button>
                                 </div>
                             </div>
                         </div>
-
-                        <!--<template is="dom-if" if="{{checkExistsRecentAnalysis}}">-->
-                        <!--&lt;!&ndash; Clinical Analysis View &ndash;&gt;-->
-                        <!--<div class="col-md-12" style="padding: 25px 10px">-->
-                        <!--<clinical-analysis-view opencga-session="{{opencgaSession}}" config="{{config}}" opencga-client="[[opencgaClient]]"-->
-                        <!--clinical-analysis="{{clinicalAnalysis}}" clinical-analysis-id="{{clinicalAnalysisId}}" show-summary="{{showSummary}}"-->
-                        <!--active-prioritization="{{activePrioritization}}">-->
-                        <!--</clinical-analysis-view>-->
-                        <!--</div>-->
-                        <!--</template>-->
             </div>
         </template>
 
@@ -491,7 +464,14 @@
                 this.showLastRecent = true;
                 // TODO REMOVE IT!!!!!
                 if (typeof PANELS !== "undefined") {
-                    this.set("panelList", PANELS.slice());
+                    let panelList = PANELS.slice();
+                    panelList.sort((a, b) => {
+                        if (a.title === b.title) {
+                            return 0;
+                        }
+                        return a.title < b.title ? -1 : 1;
+                    });
+                    this.set("panelList", panelList);
                 }
             }
 

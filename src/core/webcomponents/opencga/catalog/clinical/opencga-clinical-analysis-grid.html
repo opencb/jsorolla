@@ -14,8 +14,6 @@
   ~ limitations under the License.
   -->
 
-<!--<link rel="import" href="../samples/opencga-sample-filter.html">-->
-<!--<link rel="import" href="../../opencga-message-dialog.html">-->
 <link rel="import" href="../../clinical/clinical-analysis-view.html">
 
 <dom-module id="opencga-clinical-analysis-grid">
@@ -56,17 +54,6 @@
                         type: Object,
                         observer: "queryObserver"
                     },
-                    // analysisSelected: {
-                    //     type: Object,
-                    //     notify: true
-                    // },
-                    // analysisModal: {
-                    //     type: Boolean,
-                    //     observer: "loadData"
-                    // },
-                    // showPedigree: {
-                    //     type: Boolean
-                    // },
                     config: {
                         type: Object
                     }
@@ -155,39 +142,12 @@
                         }
                     },
                     onCheck: function (row, elem) {
-                        // _this.resetVariables();
-                        // let _family = row.analysis.family;
-                        // let _samplesSelected = [];
                         _this.analysis = row;
                         _this.dispatchEvent(new CustomEvent("analysis-selected", {
                             detail: row,
                             bubbles: true,
                             composed: true
                         }));
-                        // To be modified -> take into account the case in which there are more than one sample per individual
-                        // Children
-
-                        // _this.analysisSelected = {
-                            // sampleList: _samplesSelected,
-                            // analysisID: row.analysisID,
-                            // analysisType: row.analysisType,
-                            // analysisDate: row.analysisDate,
-                            // analysis: row.analysis,
-//                            pedigree: copy_svg
-//                         };
-
-                        // if(UtilsNew.isNotUndefinedOrNull(_this.analysisSelected.analysis) && UtilsNew.isNotUndefinedOrNull(_this.analysisSelected.analysis.family)
-                        //     && UtilsNew.isNotUndefinedOrNull(_this.analysisSelected.analysis.family.members) && UtilsNew.isNotEmptyArray(_this.analysisSelected.analysis.family.members)){
-                        //     _this.analysisSelected.analysis.family.members.forEach(function(member) {
-                        //         if(UtilsNew.isNotEmptyArray(member.samples)) {
-                        //             let _sample = member.samples[0];
-                        //             if (UtilsNew.isNotUndefinedOrNull(_sample)) {
-                        //                 _samplesSelected.push(_sample);
-                        //             }
-                        //         }
-                        //     });
-                        // }
-                        // _this.analysisSelected.sampleList = _samplesSelected;
                     },
                     onPageChange: function (page, size) {
                         _this.from = (page - 1) * size + 1;
