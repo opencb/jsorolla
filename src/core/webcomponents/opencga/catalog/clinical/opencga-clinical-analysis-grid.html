@@ -100,7 +100,7 @@
                 let _config = Object.assign(this.defaultConfig, this.config);
 
                 this.from = 1;
-                this.to = Math.max(this.query.limit, this.config.pageSize);
+                this.to = Math.max(UtilsNew.isNotUndefinedOrNull(this.query.limit) ? this.query.limit : 0, this.config.pageSize);
 
                 let urlQueryParams = this._getUrlQueryParams();
                 let queryParams = urlQueryParams.queryParams;
@@ -120,7 +120,7 @@
                     pageList: _config.pageList,
 
                     queryParams: function (params) {
-                        if (queryParams.limit === undefined) {
+                        if ((queryParams.limit === undefined || params.limit !== queryParams.limit) && UtilsNew.isNotUndefinedOrNull(params.limit)) {
                             queryParams.limit = params.limit;
                         }
                         queryParams.skip = params.offset;

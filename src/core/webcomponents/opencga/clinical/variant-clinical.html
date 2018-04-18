@@ -352,7 +352,7 @@
                 </div>
                 <div class="modal-body" style="height: 780px">
                     <variant-clinical-selector opencga-client="{{opencgaClient}}" opencga-session="{{opencgaSession}}" analysis-selected="{{analysisSelected}}"
-                                               analysis-modal="{{analysisModal}}" show-pedigree="true">
+                                               analysis-modal="{{analysisModal}}">
                     </variant-clinical-selector>
                 </div>
                 <div class="modal-footer">
@@ -587,8 +587,8 @@
 
             onAnalysisSelected(e) {
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-                this.clinicalAnalysis = this.analysisSelected.analysis;
-                this.clinicalAnalysisId = this.analysisSelected.analysis.id;
+                this.clinicalAnalysis = this.analysisSelected;
+                this.clinicalAnalysisId = this.analysisSelected.id;
                 this.showLastRecent = false;
                 this.checkTypeAnalysisSelected(this.clinicalAnalysis);
             }

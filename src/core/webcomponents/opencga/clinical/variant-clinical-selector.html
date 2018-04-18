@@ -28,20 +28,11 @@
         </div>
         <div class="col-md-9">
             <br>
-            <!--<opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" filters="{{config.filters}}"-->
-                                    <!--filter-bioformat="VARIANT" alias="{{activeFilterAlias}}">-->
-            <!--</opencga-active-filters>-->
             <h3>Analysis results</h3>
-            <table id="{{prefix}}tableAnalysis" data-search="true" data-show-columns="true"
-                   data-pagination="true" data-page-size="5" data-page-list="[5, 10, 25]" data-checkbox-header="false"
-                   data-maintain-selected="true" style="cursor: pointer;">
-                <thead style="background-color: #eee"></thead>
-            </table>
-
-            <div>
-                <h4>{{pedigreeTitle}}</h4>
-                <div id="{{prefix}}PedigreeViewSelector" style="padding: 5px 5px;font-size: 10px"></div>
-            </div>
+            <opencga-clinical-analysis-grid opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}"
+                                            query="{{clinicalAnalysisQuery}}" config="{{clinicalAnalysisGridConfig}}"
+                                            on-analysis-selected="onAnalysisSelectedSelector">
+            </opencga-clinical-analysis-grid>
 
         </div>
     </template>
@@ -67,195 +58,28 @@
                     analysisModal: {
                         type: Boolean,
                         observer: "loadData"
-                    },
-                    showPedigree: {
-                        type: Boolean
                     }
                 }
             }
 
             constructor() {
                 super();
+                this._init();
             }
 
             _attachDom(dom) {
                 this.appendChild(dom);
             }
 
-            ready() {
-                super.ready();
-                if (UtilsNew.isEmpty(this.prefix)) {
-                    this.prefix = "anSelector" + Utils.randomString(6);
-                }
-                this.resetVariables();
+            _init() {
+                this.clinicalAnalysisQuery = {sort: "id"};
+                this.clinicalAnalysisGridConfig = {pagination: true, pageSize: 10, pageList: [5,10,25]};
             }
 
-            loadData() {
-                this.resetVariables();
-                if (this.opencgaClient instanceof OpenCGAClient) {
-                    let params = {
-                        study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
-
-                    };
-                    let _this = this;
-                    let _analysisObj = [];
-                    this.opencgaClient.clinical().search(params)
-                        .then(function (response) {
-                            let _analysis = response.response[0].result;
-                            let _filterAttr = "";
-                            for (let i = 0; i < _analysis.length; i++) {
-                                _analysisObj.push({
-                                    analysisID: _analysis[i].name,
-                                    description: _analysis[i].description,
-                                    analysisType: _analysis[i].type,
-                                    analysisDate: _this.dateFormatter(_analysis[i].creationDate),
-                                    filter: _this.filterFormatter(_analysis[i].attributes.filter),
-                                    analysis: _analysis[i]
-                                })
-                            }
-                            _this.analysis = _analysisObj;
-                            _this.renderAnalysisTable();
-                        })
-                        .catch(function (response) {
-                            _this.settingsMessageModal = {
-                                messageHeader: "Error",
-                                messageBody: [response.error],
-                                type: "danger",
-                                height: "100px",
-                                width: "500px"
-                            };
-
-                            _this.showMessageModal = true;
-                        });
-                }
+            onAnalysisSelectedSelector (e) {
+                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+                this.analysisSelected = e.detail;
             }
-
-            resetVariables() {
-                this.analysis = [];
-                this.analysisSelected = {};
-                this._affected = {};
-                this._deceased = {};
-                this.pedigreeSettings = {};
-                this.pedigree = {children: []};
-                this.pedigreeTitle = "";
-
-                // If pedigree exists from a previous opened window, remove it
-                let querySelector = PolymerUtils.getElementById(this.prefix + "PedigreeViewSelector");
-                if (UtilsNew.isNotUndefined(this.svg) && querySelector.hasChildNodes()) {
-                    querySelector.removeChild(this.svg);
-
-                }
-                this.svg = undefined;
-            }
-
-            renderAnalysisTable() {
-                let _this = this;
-                let params = {
-                    study: this.opencgaSession.study.alias
-                };
-                $(PolymerUtils.getElementById(this.prefix + "tableAnalysis")).bootstrapTable('destroy');
-                $(PolymerUtils.getElementById(this.prefix + "tableAnalysis")).bootstrapTable({
-                    columns: _this._getTableColumns(),
-                    data: this.analysis,
-                    onCheck: function (row, elem) {
-                        _this.resetVariables();
-                        let _family = row.analysis.family;
-                        let _samplesSelected = [];
-
-                        // To be modified -> take into account the case in which there are more than one sample per individual
-                        // Children
-
-                        _this.analysisSelected = {
-                            sampleList: _samplesSelected,
-                            analysisID: row.analysisID,
-                            analysisType: row.analysisType,
-                            analysisDate: row.analysisDate,
-                            analysis: row.analysis,
-//                            pedigree: copy_svg
-                        };
-
-                        if(UtilsNew.isNotUndefinedOrNull(_this.analysisSelected.analysis) && UtilsNew.isNotUndefinedOrNull(_this.analysisSelected.analysis.family)
-                            && UtilsNew.isNotUndefinedOrNull(_this.analysisSelected.analysis.family.members) && UtilsNew.isNotEmptyArray(_this.analysisSelected.analysis.family.members)){
-                            _this.analysisSelected.analysis.family.members.forEach(function(member) {
-                                if(UtilsNew.isNotEmptyArray(member.samples)) {
-                                    let _sample = member.samples[0];
-                                    if (UtilsNew.isNotUndefinedOrNull(_sample)) {
-                                        _samplesSelected.push(_sample);
-                                    }
-                                }
-                            });
-                        }
-                        _this.analysisSelected.sampleList = _samplesSelected;
-                    }
-                });
-            }
-
-            dateFormatter(date) {
-                return date.slice(6, 8) + "/" + date.slice(4, 6) + "/" + date.slice(0, 4);
-            }
-
-            filterFormatter(filter) {
-                return (filter === true) ? "YES" : "NO";
-            }
-
-            _getTableColumns() {
-                this._columns = [
-                    [
-                        {
-                            field: 'state',
-                            radio: true,
-                            align: 'center',
-                            valign: 'middle'
-                        },
-                        {
-                            field: 'analysisID',
-                            title: 'Analysis ID'
-                        },
-                        {
-                            field: 'description',
-                            title: 'Description'
-                        },
-                        {
-                            field: 'analysisType',
-                            title: 'Analysis type'
-                        },
-                        {
-                            field: 'analysisDate',
-                            title: 'Date'
-                        },
-                        {
-                            field: 'filter',
-                            title: 'Filter'
-                        },
-                        {
-                            field: 'analysis',
-                            visible: false
-                        }
-                    ]
-                ];
-                return this._columns;
-            }
-//            pedigreeRender(family) {
-//                // Remove SVG before render new one
-//                if(this.showPedigree){
-//                    if (UtilsNew.isNotUndefined(this.svg)) {
-//                        PolymerUtils.getElementById(this.prefix + "PedigreeViewSelector").removeChild(this.svg);
-//                    }
-//                    let body = Object.assign({}, family);
-//                    let membersNew =[];
-//                    body.members.forEach((member) => {
-//                        let newMember = Object.assign({},member);
-//                        membersNew.push(newMember);
-//                    });
-//                    body.members = membersNew;
-//
-//                    // Render new Pedigree
-//                    let querySelector = PolymerUtils.getElementById(this.prefix + "PedigreeViewSelector");
-//                    let pedigree = new Pedigree(body, {selectShowSampleNames: true});
-//                    this.svg = pedigree.pedigreeFromFamily(pedigree.pedigree);
-//                    querySelector.appendChild(this.svg);
-//                }
-//            }
         }
 
         customElements.define(VariantClinicalSelector.is, VariantClinicalSelector);
