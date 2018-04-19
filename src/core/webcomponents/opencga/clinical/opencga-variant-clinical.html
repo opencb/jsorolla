@@ -675,6 +675,7 @@
                     PolymerUtils.setPropertyById(this.prefix + "interactiveMode", "checked", true);
                     // This remove the selected panel
                     $(PolymerUtils.getElementById(this.prefix + "DiseasePanels")).val("default");
+                    this.diseasePanelId = undefined;
                     this.interactive = true;
                 } else {
                     PolymerUtils.setPropertyById(this.prefix + "automaticMode", "disabled", false);
