@@ -56,17 +56,18 @@
 
             <!--<div class="row">-->
             <div>
-
-                <div id="{{prefix}}FilterMenu" class="col-md-2" >
-                    <opencga-variant-filter opencga-session="{{opencgaSession}}"
-                                            samples="[[samplesForMenuFilter]]" family="[[family]]"
-                                            opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"
-                                            population-frequencies="{{populationFrequencies}}"
-                                            consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}"
-                                            on-samplechange="onSampleChange" genotype-samples="{{genotypeSamples}}"
-                                            on-inheritancemode="_onInheritanceMode" mode-inheritance="{{modeInheritance}}">
-                    </opencga-variant-filter>
-                </div>
+                <template is="dom-if" if="interactive" on-dom-change="onCollapse">
+                    <div id="{{prefix}}FilterMenu" class="col-md-2" >
+                        <opencga-variant-filter opencga-session="{{opencgaSession}}"
+                                                samples="[[samplesForMenuFilter]]" family="[[family]]"
+                                                opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"
+                                                population-frequencies="{{populationFrequencies}}"
+                                                consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}"
+                                                on-samplechange="onSampleChange" genotype-samples="{{genotypeSamples}}"
+                                                on-inheritancemode="_onInheritanceMode" mode-inheritance="{{modeInheritance}}">
+                        </opencga-variant-filter>
+                    </div>
+                </template>
 
                 <div id="{{prefix}}MainWindow" class="col-md-10">
 
@@ -411,7 +412,8 @@
                     },
                     interactive: {
                         type: Boolean,
-                        value: true
+                        value: true,
+                        observer: "interactiveObserver"
                     },
                     config: {
                         type: Object
@@ -518,7 +520,10 @@
                         }
                     }
                 }
-                debugger
+            }
+
+            interactiveObserver() {
+                this.onCollapse();
             }
 
             propagateGeneEvent(e) {
@@ -526,15 +531,16 @@
             }
 
             onCollapse() {
-                if (this._collapsed) {
+                if (!this._collapsed && this.interactive) {
                     $("#" + this.prefix + "FilterMenu").show(400);
                     $("#" + this.prefix + "MainWindow").removeClass("prioritization-center").addClass("col-md-10");
+                    this._collapsed = true;
                 } else {
                     $("#" + this.prefix + "FilterMenu").hide(400);
                     $("#" + this.prefix + "MainWindow").removeClass("col-md-10").addClass("prioritization-center");
+                    this._collapsed = false;
                 }
 
-                this._collapsed = !this._collapsed;
             }
 
             onClear() {
