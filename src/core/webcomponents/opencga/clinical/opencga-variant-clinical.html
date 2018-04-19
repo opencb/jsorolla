@@ -416,6 +416,10 @@
                     search: {
                         type: Object
                     },
+                    analysisSelected: {
+                        type: Object,
+                        observer: "changedAnalysisSelected"
+                    },
                     clinicalAnalysis: {
                         type: Object,
                         observer: "getRecentInterpretations"
@@ -592,13 +596,30 @@
                 this.checkTypeAnalysisSelected(this.clinicalAnalysis);
             }
 
+            changedAnalysisSelected() {
+                this.clinicalAnalysis = null;
+                this.clinicalAnalysisId = null;
+            }
+
             selectAnalysisMode(e) {
                 this.interactive = e.target.value === "interactive";
                 this.checkTypeAnalysisSelected(this.clinicalAnalysis);
             }
             onClickOkPrioritization() {
-                this.activePrioritization = true;
-                $('select.selectpicker').selectpicker('render');
+                if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
+                    this.activePrioritization = true;
+                    $('select.selectpicker').selectpicker('render');
+                } else {
+                    let _message = "You must select an analysis to continue.";
+                    this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+                        detail: {
+                            message: _message,
+                            type: UtilsNew.MESSAGE_INFO
+                        },
+                        bubbles: true,
+                        composed: true
+                    }));
+                }
             }
 
             getRecentInterpretations() {
@@ -611,6 +632,7 @@
                     this.checkExistsRecentInterpretations = !UtilsNew.isEmptyArray(this.recentInterpretations);
                 }
             }
+
 
             selectInterpretationRecent(e) {
                 if (UtilsNew.isNotUndefinedOrNull(this.recentAnalysis) && UtilsNew.isNotUndefinedOrNull(e.target.value)) {
