@@ -56,7 +56,7 @@
 
             <!--<div class="row">-->
             <div>
-                <template is="dom-if" if="interactive" on-dom-change="onCollapse">
+                <template is="dom-if" if="{{interactive}}" on-dom-change="interactiveObserver">
                     <div id="{{prefix}}FilterMenu" class="col-md-2" >
                         <opencga-variant-filter opencga-session="{{opencgaSession}}"
                                                 samples="[[samplesForMenuFilter]]" family="[[family]]"
@@ -69,7 +69,7 @@
                     </div>
                 </template>
 
-                <div id="{{prefix}}MainWindow" class="col-md-10">
+                <div id="{{prefix}}MainWindow" class="col-md-12">
 
                     <opencga-active-filters opencga-client="{{opencgaClient}}" query="[[query]]" filters="{{config.filters}}" on-filterchange="onFilterChange" on-clear="onClear"
                                             filter-bioformat="VARIANT" default-study="{{opencgaSession.study.alias}}" alias="{{activeFilterAlias}}" refresh="{{search}}" genotype-samples="{{genotypeSamples}}"
@@ -412,7 +412,6 @@
                     },
                     interactive: {
                         type: Boolean,
-                        value: true,
                         observer: "interactiveObserver"
                     },
                     config: {
@@ -432,7 +431,7 @@
             _init() {
                 this.prefix = "varPrior-" + Utils.randomString(6);
 
-                this._collapsed = false;
+                this._collapsed = true;
                 this.resultsViewActive = true;
                 this.activeFilterAlias = {
                     "annot-xref": "XRef",
@@ -523,7 +522,11 @@
             }
 
             interactiveObserver() {
-                this.onCollapse();
+                if (!this.interactive) {
+                    this.collapseFilter();
+                } else {
+                    this.unCollapseFilter();
+                }
             }
 
             propagateGeneEvent(e) {
@@ -531,16 +534,28 @@
             }
 
             onCollapse() {
-                if (!this._collapsed && this.interactive) {
-                    $("#" + this.prefix + "FilterMenu").show(400);
-                    $("#" + this.prefix + "MainWindow").removeClass("prioritization-center").addClass("col-md-10");
-                    this._collapsed = true;
+                if (this._collapsed) {
+                    this.unCollapseFilter();
                 } else {
-                    $("#" + this.prefix + "FilterMenu").hide(400);
-                    $("#" + this.prefix + "MainWindow").removeClass("col-md-10").addClass("prioritization-center");
-                    this._collapsed = false;
+                    this.collapseFilter();
+
                 }
 
+            }
+
+            collapseFilter(){
+                // Always collapsed by default
+                $("#" + this.prefix + "FilterMenu").hide(400);
+                $("#" + this.prefix + "MainWindow").removeClass("col-md-10").addClass("prioritization-center");
+                this._collapsed = true;
+            }
+
+            unCollapseFilter() {
+                if (this.interactive) {
+                    $("#" + this.prefix + "FilterMenu").show(400);
+                    $("#" + this.prefix + "MainWindow").removeClass("prioritization-center").addClass("col-md-10");
+                    this._collapsed = false;
+                }
             }
 
             onClear() {
