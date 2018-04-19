@@ -52,21 +52,21 @@
                                 <label>Select</label>
                                 <br>
                                 <input type="radio" name="selectionButtons" id="allRadio" value="all"
-                                       class$="{{prefix}}FilterRadio" checked on-change="calculateFilters"
+                                       class$="{{prefix}}FilterRadio" checked on-change="calculateFilterDate"
                                        style="padding-left: 20px"> All<br>
-                                <input type="radio" name="selectionButtons" id="recentlyRadio" value="recently"
-                                       class$="{{prefix}}FilterRadio" on-change="calculateFilters"
-                                       style="padding-left: 20px"> Recently Created<br>
+                                <!--<input type="radio" name="selectionButtons" id="recentlyRadio" value="recently"-->
+                                       <!--class$="{{prefix}}FilterRadio" on-change="calculateFilters"-->
+                                       <!--style="padding-left: 20px"> Recently Created<br>-->
                                 <input type="radio" name="selectionButtons" id="rangeRadio" value="range"
-                                       class$="{{prefix}}FilterRadio" on-change="calculateFilters"
+                                       class$="{{prefix}}FilterRadio" on-change="calculateFilterDate"
                                        style="padding-left: 20px"> Date (Year-Month-Day)
                             </form>
                             <div style="padding: 15px 0px 0px 25px">
                                 <form class="form-inline">
                                     <div class="form-group row">
                                         <select class$="form-control {{prefix}}SelectInput codeDis input-sm"
-                                                id="{{prefix}}YearSelect" name="birthYear" required
-                                                on-change="checkYears" disabled>
+                                                id="{{prefix}}YearSelect" name="yearInput" required
+                                                on-change="calculateFilters" disabled>
                                             <template is="dom-repeat" items="{{yearsToSearch}}">
                                                 <option value="{{item}}">{{item}}</option>
                                             </template>
@@ -74,8 +74,8 @@
 
                                         <label style="padding: 0px 2px">-</label>
                                         <select class$="form-control {{prefix}}SelectInput codeDis input-sm"
-                                                id="{{prefix}}MonthSelect" name="birthYear" required
-                                                on-change="checkYears" disabled>
+                                                id="{{prefix}}MonthSelect" name="monthInput" required
+                                                on-change="calculateFilters" disabled>
                                             <option></option>
                                             <template is="dom-repeat" items="{{monthToSearch}}">
                                                 <option value="{{item}}">{{item}}</option>
@@ -83,8 +83,8 @@
                                         </select>
                                         <label style="padding: 0px 2px">-</label>
                                         <select class$="form-control {{prefix}}SelectInput codeDis input-sm"
-                                                id="{{prefix}}DaySelect" name="birthYear" required
-                                                on-change="checkYears" disabled>
+                                                id="{{prefix}}DaySelect" name="dayInput" required
+                                                on-change="calculateFilters" disabled>
                                             <option></option>
                                             <template is="dom-repeat" items="{{daysToSearch}}">
                                                 <option value="{{item}}">{{item}}</option>
@@ -155,14 +155,18 @@
             }
             constructor() {
                 super();
+                this._init();
             }
 
             _attachDom(dom) {
                 this.appendChild(dom);
             }
 
-            ready() {
-                super.ready();
+            connectedCallback() {
+                super.connectedCallback();
+            }
+
+            _init() {
                 if (UtilsNew.isEmpty(this.prefix)) {
                     this.prefix = "anFilter" + Utils.randomString(6);
                 }
@@ -191,19 +195,54 @@
                 this.daysToSearch = _days;
             }
 
-            calculateFilters(e) {
-                let _query = {};
-
+            calculateFilterDate(e) {
                 // Active/disable
+                this.customDate = false;
                 if (e.target.defaultValue === "range" && e.target.checked) {
                     PolymerUtils.removeAttributebyclass("codeDis", "disabled");
+                    this.customDate = true;
                 } else {
                     PolymerUtils.setAttributeByClassName("codeDis", "disabled", true)
                 }
 
-                _query.name = PolymerUtils.getElementById(this.prefix + "analysisID").value;
+            }
+            calculateFilters() {
+                let _query = {};
+                let analysisID = PolymerUtils.getElementById(this.prefix + "analysisID").value;
+                let sampleID = PolymerUtils.getElementById(this.prefix + "sampleID").value;
+                let analysisType = PolymerUtils.getElementById(this.prefix + "analysisType").value;
+                let yearInput = PolymerUtils.getElementById(this.prefix + "YearSelect").value;
+                let monthInput = PolymerUtils.getElementById(this.prefix + "MonthSelect").value;
+                let dayInput = PolymerUtils.getElementById(this.prefix + "DaySelect").value;
+                if (this.customDate && UtilsNew.isNotEmpty(yearInput) && UtilsNew.isNotEmpty(monthInput) && UtilsNew.isNotEmpty(dayInput) ) {
+                    let monthNumber = 0;
+                    this.monthToSearch.forEach((month,index) => {
+                        if (month === monthInput) {
+                            monthNumber = index;
+                        }
+                    });
+                    _query.creationDate = new Date(yearInput, monthNumber, dayInput).getTime();
+                }
 
-                this.query = _query;
+
+
+                if (UtilsNew.isNotEmpty(analysisID)) {
+                    _query.name = analysisID;
+                }
+
+                if (UtilsNew.isNotEmpty(sampleID)) {
+                    _query.sample = sampleID;
+                }
+
+                if (UtilsNew.isNotEmpty(analysisType)) {
+                    _query.type = analysisType;
+                }
+                this._query = _query;
+
+            }
+
+            onSearch() {
+                this.query = this._query;
             }
 
 

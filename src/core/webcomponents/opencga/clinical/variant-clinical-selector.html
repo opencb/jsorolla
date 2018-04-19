@@ -58,6 +58,10 @@
                     analysisModal: {
                         type: Boolean,
                         observer: "loadData"
+                    },
+                    query:{
+                        type: Object,
+                        observer: "queryObserver"
                     }
                 }
             }
@@ -72,6 +76,7 @@
             }
 
             _init() {
+                this.clinicalDefaultAnalysisQuery = {sort: "id"};
                 this.clinicalAnalysisQuery = {sort: "id"};
                 this.clinicalAnalysisGridConfig = {pagination: true, pageSize: 10, pageList: [5,10,25]};
             }
@@ -79,6 +84,10 @@
             onAnalysisSelectedSelector (e) {
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
                 this.analysisSelected = e.detail;
+            }
+
+            queryObserver() {
+                this.clinicalAnalysisQuery = Object.assign({}, this.clinicalDefaultAnalysisQuery, this.query);
             }
         }
 
