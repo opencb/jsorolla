@@ -681,6 +681,10 @@
                     PolymerUtils.setPropertyById(this.prefix + "automaticMode", "disabled", false);
                     if (!this.interactive) {
                         PolymerUtils.setPropertyById(this.prefix + "DiseasePanels", "disabled", false);
+                    } else {
+                        $(PolymerUtils.getElementById(this.prefix + "DiseasePanels")).val("default");
+                        this.diseasePanelId = undefined;
+                        this.interactive = true;
                     }
                 }
                 // Refresh Boostrap Select component
