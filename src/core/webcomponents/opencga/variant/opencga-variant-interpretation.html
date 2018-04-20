@@ -56,19 +56,20 @@
 
             <!--<div class="row">-->
             <div>
+                <template is="dom-if" if="{{interactive}}" on-dom-change="interactiveObserver">
+                    <div id="{{prefix}}FilterMenu" class="col-md-2" >
+                        <opencga-variant-filter opencga-session="{{opencgaSession}}"
+                                                samples="[[samplesForMenuFilter]]" family="[[family]]"
+                                                opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"
+                                                population-frequencies="{{populationFrequencies}}"
+                                                consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}"
+                                                on-samplechange="onSampleChange" genotype-samples="{{genotypeSamples}}"
+                                                on-inheritancemode="_onInheritanceMode" mode-inheritance="{{modeInheritance}}">
+                        </opencga-variant-filter>
+                    </div>
+                </template>
 
-                <div id="{{prefix}}FilterMenu" class="col-md-2" >
-                    <opencga-variant-filter opencga-session="{{opencgaSession}}"
-                                            samples="[[samplesForMenuFilter]]" family="[[family]]"
-                                            opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"
-                                            population-frequencies="{{populationFrequencies}}"
-                                            consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}"
-                                            on-samplechange="onSampleChange" genotype-samples="{{genotypeSamples}}"
-                                            on-inheritancemode="_onInheritanceMode" mode-inheritance="{{modeInheritance}}">
-                    </opencga-variant-filter>
-                </div>
-
-                <div id="{{prefix}}MainWindow" class="col-md-10">
+                <div id="{{prefix}}MainWindow" class="col-md-12">
 
                     <opencga-active-filters opencga-client="{{opencgaClient}}" query="[[query]]" filters="{{config.filters}}" on-filterchange="onFilterChange" on-clear="onClear"
                                             filter-bioformat="VARIANT" default-study="{{opencgaSession.study.alias}}" alias="{{activeFilterAlias}}" refresh="{{search}}" genotype-samples="{{genotypeSamples}}"
@@ -132,66 +133,16 @@
                                 </opencga-variant-grid>
                             </template>
                             <template is="dom-if" if="{{!interactive}}">
-                                <div style="padding-top: 20px">
-                                    <div style="padding-top: 20px">
-                                        <ul id="{{prefix}}ManualTabs" class="nav nav-tabs" role="tablist">
-                                            <li role="presentation" class="active">
-                                                <a href="#{{prefix}}TAB_A" role="tab" data-toggle="tab" class="prioritization-variant-tab-title">
-                                                    TAB A
-                                                </a>
-                                            </li>
-                                            <li role="presentation">
-                                                <a href="#{{prefix}}TAB_B" role="tab" data-toggle="tab" class="prioritization-variant-tab-title">
-                                                    TAB B
-                                                </a>
-                                            </li>
-                                            <li role="presentation">
-                                                <a href="#{{prefix}}TAB_C" role="tab" data-toggle="tab" class="prioritization-variant-tab-title">
-                                                    TAB C
-                                                </a>
-                                            </li>
-                                        </ul>
-
-                                        <div class="tab-content" >
-                                            <div role="tabpanel" class="tab-pane active" id="{{prefix}}TAB_A">
                                                 <!-- Variant Browser Grid -->
-                                                <opencga-variant-grid opencga-session="{{opencgaSession}}" samples="{{samples}}"
-                                                                      opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
-                                                                      population-frequencies="{{populationFrequencies}}"
-                                                                      protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                                                      consequence-types="{{consequenceTypes}}"
-                                                                      query="[[defaultAutomaticQuery]]" search="[[search]]" variant="{{variant}}"
-                                                                      on-selected="selectedGene" on-selectvariant="onSelectVariant" on-checkvariant="onCheckVariant"
-                                                                      show-select="{{config.grid.showSelect}}" style="font-size: 12px" config="{{config}}">
-                                                </opencga-variant-grid>
-                                            </div>
-                                            <div id="{{prefix}}TAB_B" role="tabpanel" class="tab-pane">
-                                                <!-- Variant Browser Grid -->
-                                                <opencga-variant-grid opencga-session="{{opencgaSession}}" samples="{{samples}}"
-                                                                      opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
-                                                                      population-frequencies="{{populationFrequencies}}"
-                                                                      protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                                                      consequence-types="{{consequenceTypes}}"
-                                                                      query="[[query]]" search="[[search]]" variant="{{variant}}"
-                                                                      on-selected="selectedGene" on-selectvariant="onSelectVariant" on-checkvariant="onCheckVariant"
-                                                                      show-select="{{config.grid.showSelect}}" style="font-size: 12px" config="{{config}}">
-                                                </opencga-variant-grid>
-                                            </div>
-                                            <div role="tabpanel" class="tab-pane" id="{{prefix}}TAB_C">
-                                                <!-- Variant Browser Grid -->
-                                                <opencga-variant-grid opencga-session="{{opencgaSession}}" samples="{{samples}}"
-                                                                      opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
-                                                                      population-frequencies="{{populationFrequencies}}"
-                                                                      protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                                                      consequence-types="{{consequenceTypes}}"
-                                                                      query="[[query]]" search="[[search]]" variant="{{variant}}"
-                                                                      on-selected="selectedGene" on-selectvariant="onSelectVariant" on-checkvariant="onCheckVariant"
-                                                                      show-select="{{config.grid.showSelect}}" style="font-size: 12px" config="{{config}}">
-                                                </opencga-variant-grid>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                <opencga-variant-grid opencga-session="{{opencgaSession}}" samples="{{samples}}"
+                                                      opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+                                                      population-frequencies="{{populationFrequencies}}"
+                                                      protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                      consequence-types="{{consequenceTypes}}"
+                                                      query="[[defaultAutomaticQuery]]" search="[[search]]" variant="{{variant}}"
+                                                      on-selected="selectedGene" on-selectvariant="onSelectVariant" on-checkvariant="onCheckVariant"
+                                                      show-select="{{config.grid.showSelect}}" style="font-size: 12px" config="{{config}}">
+                                </opencga-variant-grid>
                             </template>
 
                             <!-- Bottom tabs with specific variant information -->
@@ -461,7 +412,7 @@
                     },
                     interactive: {
                         type: Boolean,
-                        value: true
+                        observer: "interactiveObserver"
                     },
                     config: {
                         type: Object
@@ -480,7 +431,7 @@
             _init() {
                 this.prefix = "varPrior-" + Utils.randomString(6);
 
-                this._collapsed = false;
+                this._collapsed = true;
                 this.resultsViewActive = true;
                 this.activeFilterAlias = {
                     "annot-xref": "XRef",
@@ -568,7 +519,14 @@
                         }
                     }
                 }
-                debugger
+            }
+
+            interactiveObserver() {
+                if (!this.interactive) {
+                    this.collapseFilter();
+                } else {
+                    this.unCollapseFilter();
+                }
             }
 
             propagateGeneEvent(e) {
@@ -577,14 +535,27 @@
 
             onCollapse() {
                 if (this._collapsed) {
-                    $("#" + this.prefix + "FilterMenu").show(400);
-                    $("#" + this.prefix + "MainWindow").removeClass("prioritization-center").addClass("col-md-10");
+                    this.unCollapseFilter();
                 } else {
-                    $("#" + this.prefix + "FilterMenu").hide(400);
-                    $("#" + this.prefix + "MainWindow").removeClass("col-md-10").addClass("prioritization-center");
+                    this.collapseFilter();
+
                 }
 
-                this._collapsed = !this._collapsed;
+            }
+
+            collapseFilter(){
+                // Always collapsed by default
+                $("#" + this.prefix + "FilterMenu").hide(400);
+                $("#" + this.prefix + "MainWindow").removeClass("col-md-10").addClass("prioritization-center");
+                this._collapsed = true;
+            }
+
+            unCollapseFilter() {
+                if (this.interactive) {
+                    $("#" + this.prefix + "FilterMenu").show(400);
+                    $("#" + this.prefix + "MainWindow").removeClass("prioritization-center").addClass("col-md-10");
+                    this._collapsed = false;
+                }
             }
 
             onClear() {

@@ -416,6 +416,10 @@
                     search: {
                         type: Object
                     },
+                    analysisSelected: {
+                        type: Object,
+                        observer: "analysisSelectedObserver"
+                    },
                     clinicalAnalysis: {
                         type: Object,
                         observer: "getRecentInterpretations"
@@ -592,13 +596,45 @@
                 this.checkTypeAnalysisSelected(this.clinicalAnalysis);
             }
 
+            analysisSelectedObserver() {
+                this.clinicalAnalysis = null;
+                this.clinicalAnalysisId = null;
+            }
+
             selectAnalysisMode(e) {
                 this.interactive = e.target.value === "interactive";
                 this.checkTypeAnalysisSelected(this.clinicalAnalysis);
             }
             onClickOkPrioritization() {
-                this.activePrioritization = true;
-                $('select.selectpicker').selectpicker('render');
+                if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
+
+                    if (!this.interactive && UtilsNew.isUndefinedOrNull(this.diseasePanelId)) {
+                        let _message = "You must select a panel to continue.";
+
+                        this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+                            detail: {
+                                message: _message,
+                                type: UtilsNew.MESSAGE_INFO
+                            },
+                            bubbles: true,
+                            composed: true
+                        }));
+                    } else {
+                        this.activePrioritization = true;
+                        $('select.selectpicker').selectpicker('render');
+                    }
+                } else {
+                    let _message = "You must select an analysis to continue.";
+
+                    this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+                        detail: {
+                            message: _message,
+                            type: UtilsNew.MESSAGE_INFO
+                        },
+                        bubbles: true,
+                        composed: true
+                    }));
+                }
             }
 
             getRecentInterpretations() {
@@ -611,6 +647,7 @@
                     this.checkExistsRecentInterpretations = !UtilsNew.isEmptyArray(this.recentInterpretations);
                 }
             }
+
 
             selectInterpretationRecent(e) {
                 if (UtilsNew.isNotUndefinedOrNull(this.recentAnalysis) && UtilsNew.isNotUndefinedOrNull(e.target.value)) {
@@ -675,11 +712,16 @@
                     PolymerUtils.setPropertyById(this.prefix + "interactiveMode", "checked", true);
                     // This remove the selected panel
                     $(PolymerUtils.getElementById(this.prefix + "DiseasePanels")).val("default");
+                    this.diseasePanelId = undefined;
                     this.interactive = true;
                 } else {
                     PolymerUtils.setPropertyById(this.prefix + "automaticMode", "disabled", false);
                     if (!this.interactive) {
                         PolymerUtils.setPropertyById(this.prefix + "DiseasePanels", "disabled", false);
+                    } else {
+                        $(PolymerUtils.getElementById(this.prefix + "DiseasePanels")).val("default");
+                        this.diseasePanelId = undefined;
+                        this.interactive = true;
                     }
                 }
                 // Refresh Boostrap Select component

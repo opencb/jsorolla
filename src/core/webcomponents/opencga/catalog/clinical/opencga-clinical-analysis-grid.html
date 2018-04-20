@@ -137,7 +137,7 @@
                     onLoadSuccess: function (data) {
                         // The first time we mark as selected the first row
                         let _table = $('#' + _this.prefix + 'tableAnalysis');
-                        if (UtilsNew.isNotUndefinedOrNull(_table)) {
+                        if (UtilsNew.isNotUndefinedOrNull(_table) && data.total > 0) {
                             _table.bootstrapTable('check', 0);
                         }
                     },
@@ -228,8 +228,7 @@
             _getTableColumns() {
                 return [
                     [
-                        {
-                            field: 'state',
+                        {   field: 'state',
                             radio: true,
                             align: 'center',
                             valign: 'middle'
