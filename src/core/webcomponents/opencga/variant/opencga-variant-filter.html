@@ -482,7 +482,6 @@
             }
 
             openModalGo() {
-                debugger
                 this.openHPO = false;
                 this.ontologyFilter = "go";
                 this.ontologyTerm = "GO";
@@ -568,6 +567,9 @@
             setQueryFilters() {
                 // Empty everything before rendering
                 this._clearHtmlDom();
+
+                // TODO
+                // this.renderGenotypes();
 
                 // If this,query is null or empty there is nothing else to do
                 if (UtilsNew.isUndefinedOrNull(this.query) || Object.keys(this.query).length === 0) {
@@ -896,7 +898,7 @@
                 // Panel - annot-panel
                 let panelsDropdown = PolymerUtils.getElementById(this.prefix + "PanelApps");
                 let panelsTextArea = PolymerUtils.getElementById(this.prefix + "PanelAppsTextarea");
-                if (UtilsNew.isNotUndefinedOrNull(panelsDropdown) && (panelsDropdown.value !== "none" || panelsTextArea.value !== "")) {
+                if (UtilsNew.isNotUndefinedOrNull(panelsDropdown) && (panelsDropdown.value !== "none" && panelsTextArea.value !== "")) {
                     _filters["gene"] = panelsTextArea.value;
                 }
 
@@ -1127,6 +1129,16 @@
                     tableBody.deleteRow(0);
                 }
 
+                // TODO implement something like this
+                // let genotypeSamples = {};
+                // if (UtilsNew.isNotUndefinedOrNull(this.query.genotype)) {
+                //     let sampleGenotypes = this.query.genotype.split(";")
+                //     for (let sampleGenotype of sampleGenotypes) {
+                //         let sample = sampleGenotype.split(":")[0];
+                //         let genotypes = sampleGenotype.split(":")[1].split(",");
+                //         genotypeSamples[sample] = genotypes;
+                //     }
+                // }
                 for (let sample of this.samples) {
                     let tr = tableBody.insertRow(-1);
                     tr.setAttribute("id", sample.name);
@@ -1226,6 +1238,8 @@
                 this._addEventListeners();
                 this._addAllTooltips();
 
+                console.log(this.samples)
+                debugger
                 // Now we can render the sample genotype table, this is an external function to allow some dynamism
                 this.renderSampleGenotypesTable();
 

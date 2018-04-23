@@ -55,9 +55,10 @@
             </div>
 
             <!--<div class="row">-->
-            <div>
-                <template is="dom-if" if="{{interactive}}" on-dom-change="interactiveObserver">
-                    <div id="{{prefix}}FilterMenu" class="col-md-2" >
+            <div class="row" style="padding: 0px 5px">
+                <div>
+                    <!--<template is="dom-if" if="{{interactive}}" on-dom-change="interactiveObserver">-->
+                    <div id="{{prefix}}FilterMenu" class$="{{filterClass}}">
                         <opencga-variant-filter opencga-session="{{opencgaSession}}"
                                                 samples="[[samplesForMenuFilter]]" family="[[family]]"
                                                 opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"
@@ -67,275 +68,276 @@
                                                 on-inheritancemode="_onInheritanceMode" mode-inheritance="{{modeInheritance}}">
                         </opencga-variant-filter>
                     </div>
-                </template>
+                    <!--</template>-->
 
-                <div id="{{prefix}}MainWindow" class="col-md-12">
+                    <div id="{{prefix}}MainWindow" class$="{{gridClass}}">
 
-                    <opencga-active-filters opencga-client="{{opencgaClient}}" query="[[query]]" filters="{{config.filters}}" on-filterchange="onFilterChange" on-clear="onClear"
-                                            filter-bioformat="VARIANT" default-study="{{opencgaSession.study.alias}}" alias="{{activeFilterAlias}}" refresh="{{search}}" genotype-samples="{{genotypeSamples}}"
-                                            mode-inheritance="[[modeInheritance]]">
-                    </opencga-active-filters>
+                        <opencga-active-filters opencga-client="{{opencgaClient}}" query="[[query]]" filters="{{config.filters}}" on-filterchange="onFilterChange" on-clear="onClear"
+                                                filter-bioformat="VARIANT" default-study="{{opencgaSession.study.alias}}" alias="{{activeFilterAlias}}" refresh="{{search}}" genotype-samples="{{genotypeSamples}}"
+                                                mode-inheritance="[[modeInheritance]]">
+                        </opencga-active-filters>
 
 
-                    <div class="col-md-12" style="padding: 5px 0px 5px 0px">
-                        <div class="btn-toolbar" role="toolbar" aria-label="..." style="padding: 10px 0px">
-                            <div class="btn-group" role="group" aria-label="..." >
-                                <button type="button" class="btn btn-success variant-interpretation-view-buttons active" data-view="TableResult" on-click="_changeView">
-                                    <i class="fa fa-table icon-padding" aria-hidden="true" data-view="TableResult" on-click="_changeView"></i>Table Result
-                                </button>
-                                <button type="button" class="btn btn-success variant-interpretation-view-buttons" data-view="GenomeBrowser" on-click="_changeView">
-                                    <i class="fa fa-list-alt icon-padding" aria-hidden="true" data-view="GenomeBrowser" on-click="_changeView"></i>Genome Browser (Beta)
-                                </button>
-                            </div>
-
-                            <div style="float: right">
-                                <div class="btn-group" role="group" aria-label="..." style="padding: 0px 5px">
-                                    <button type="button" class="hidden btn btn-success variant-interpretation-view-buttons" data-view="ClinicalData" on-click="_changeView">
-                                        <i class="fa fa-user-md icon-padding" aria-hidden="true" data-view="ClinicalData" on-click="_changeView"></i>Analysis and Clinical Data
+                        <div class="col-md-12" style="padding: 5px 0px 5px 0px">
+                            <div class="btn-toolbar" role="toolbar" aria-label="..." style="padding: 10px 0px">
+                                <div class="btn-group" role="group" aria-label="..." >
+                                    <button type="button" class="btn btn-success variant-interpretation-view-buttons active" data-view="TableResult" on-click="_changeView">
+                                        <i class="fa fa-table icon-padding" aria-hidden="true" data-view="TableResult" on-click="_changeView"></i>Table Result
+                                    </button>
+                                    <button type="button" class="btn btn-success variant-interpretation-view-buttons" data-view="GenomeBrowser" on-click="_changeView">
+                                        <i class="fa fa-list-alt icon-padding" aria-hidden="true" data-view="GenomeBrowser" on-click="_changeView"></i>Genome Browser (Beta)
                                     </button>
                                 </div>
 
-                                <div class="btn-group" role="group" aria-label="...">
-                                    <template is="dom-if" if="{{clinicalAnalysis}}">
-                                        <div class="btn-group" role="group" aria-label="...">
-                                            <button id="{{prefix}}BackToAnalysisSelector" type="button" class="btn btn-primary variant-interpretation-view-buttons"
-                                                    data-view="OpenClinicalAnalysis" on-click="_backToSelectAnalysis">
-                                                <i class="fa fa-arrow-left icon-padding" aria-hidden="true" data-view="OpenClinicalAnalysis" on-click="_backToSelectAnalysis"></i>Back to Clinical Analysis Selector
-                                            </button>
-                                        </div>
-                                    </template>
-                                    <button id="{{prefix}}OpenClinicalButton" type="button" class="hidden btn btn-primary variant-interpretation-view-buttons"
-                                            data-view="OpenClinicalAnalysis" on-click="_changeView">
-                                        <i class="fa fa-search icon-padding" aria-hidden="true" data-view="OpenClinicalAnalysis" on-click="_changeView"></i>Clinical Analysis
-                                    </button>
-                                    <button id="{{prefix}}SaveInterpretationButton" type="button" class="btn btn-primary variant-interpretation-view-buttons"
-                                            data-view="SaveInterpretation" on-click="_changeView" disabled>
-                                        <i class="fa fa-floppy-o icon-padding" aria-hidden="true" data-view="SaveInterpretation" on-click="_changeView"></i>Save Interpretation...
-                                    </button>
+                                <div style="float: right">
+                                    <div class="btn-group" role="group" aria-label="..." style="padding: 0px 5px">
+                                        <button type="button" class="hidden btn btn-success variant-interpretation-view-buttons" data-view="ClinicalData" on-click="_changeView">
+                                            <i class="fa fa-user-md icon-padding" aria-hidden="true" data-view="ClinicalData" on-click="_changeView"></i>Analysis and Clinical Data
+                                        </button>
+                                    </div>
+
+                                    <div class="btn-group" role="group" aria-label="...">
+                                        <template is="dom-if" if="{{clinicalAnalysis}}">
+                                            <div class="btn-group" role="group" aria-label="...">
+                                                <button id="{{prefix}}BackToAnalysisSelector" type="button" class="btn btn-primary variant-interpretation-view-buttons"
+                                                        data-view="OpenClinicalAnalysis" on-click="_backToSelectAnalysis">
+                                                    <i class="fa fa-arrow-left icon-padding" aria-hidden="true" data-view="OpenClinicalAnalysis" on-click="_backToSelectAnalysis"></i>Back to Clinical Analysis Selector
+                                                </button>
+                                            </div>
+                                        </template>
+                                        <button id="{{prefix}}OpenClinicalButton" type="button" class="hidden btn btn-primary variant-interpretation-view-buttons"
+                                                data-view="OpenClinicalAnalysis" on-click="_changeView">
+                                            <i class="fa fa-search icon-padding" aria-hidden="true" data-view="OpenClinicalAnalysis" on-click="_changeView"></i>Clinical Analysis
+                                        </button>
+                                        <button id="{{prefix}}SaveInterpretationButton" type="button" class="btn btn-primary variant-interpretation-view-buttons"
+                                                data-view="SaveInterpretation" on-click="_changeView" disabled>
+                                            <i class="fa fa-floppy-o icon-padding" aria-hidden="true" data-view="SaveInterpretation" on-click="_changeView"></i>Save Interpretation...
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div>
-                        <!-- TABLE RESULT -->
-                        <div id="{{prefix}}TableResult" class="variant-interpretation-content">
-                            <template is="dom-if" if="{{interactive}}">
-                                <!-- Variant Browser Grid -->
-                                <opencga-variant-grid opencga-session="{{opencgaSession}}" samples="{{samples}}"
-                                                      opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
-                                                      population-frequencies="{{populationFrequencies}}"
-                                                      protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                                      consequence-types="{{consequenceTypes}}"
-                                                      query="[[query]]" search="[[search]]" variant="{{variant}}"
-                                                      on-selected="selectedGene" on-selectvariant="onSelectVariant" on-checkvariant="onCheckVariant"
-                                                      show-select="{{config.grid.showSelect}}" style="font-size: 12px" config="{{config}}">
-                                </opencga-variant-grid>
-                            </template>
-                            <template is="dom-if" if="{{!interactive}}">
-                                                <!-- Variant Browser Grid -->
-                                <opencga-variant-grid opencga-session="{{opencgaSession}}" samples="{{samples}}"
-                                                      opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
-                                                      population-frequencies="{{populationFrequencies}}"
-                                                      protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                                      consequence-types="{{consequenceTypes}}"
-                                                      query="[[defaultAutomaticQuery]]" search="[[search]]" variant="{{variant}}"
-                                                      on-selected="selectedGene" on-selectvariant="onSelectVariant" on-checkvariant="onCheckVariant"
-                                                      show-select="{{config.grid.showSelect}}" style="font-size: 12px" config="{{config}}">
-                                </opencga-variant-grid>
-                            </template>
+                        <div>
+                            <!-- TABLE RESULT -->
+                            <div id="{{prefix}}TableResult" class="variant-interpretation-content">
+                                <template is="dom-if" if="{{interactive}}">
+                                    <!-- Variant Browser Grid -->
+                                    <opencga-variant-grid opencga-session="{{opencgaSession}}" samples="{{samples}}"
+                                                          opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+                                                          population-frequencies="{{populationFrequencies}}"
+                                                          protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                          consequence-types="{{consequenceTypes}}"
+                                                          query="[[query]]" search="[[search]]" variant="{{variant}}"
+                                                          on-selected="selectedGene" on-selectvariant="onSelectVariant" on-checkvariant="onCheckVariant"
+                                                          show-select="{{config.grid.showSelect}}" style="font-size: 12px" config="{{config}}">
+                                    </opencga-variant-grid>
+                                </template>
+                                <template is="dom-if" if="{{!interactive}}">
+                                    <!-- Variant Browser Grid -->
+                                    <opencga-variant-grid opencga-session="{{opencgaSession}}" samples="{{samples}}"
+                                                          opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+                                                          population-frequencies="{{populationFrequencies}}"
+                                                          protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                          consequence-types="{{consequenceTypes}}"
+                                                          query="[[defaultAutomaticQuery]]" search="[[search]]" variant="{{variant}}"
+                                                          on-selected="selectedGene" on-selectvariant="onSelectVariant" on-checkvariant="onCheckVariant"
+                                                          show-select="{{config.grid.showSelect}}" style="font-size: 12px" config="{{config}}">
+                                    </opencga-variant-grid>
+                                </template>
 
-                            <!-- Bottom tabs with specific variant information -->
-                            <div style="padding-top: 20px" hidden$="{{!checkVariant(variant)}}">
-                                <h3>Variant: {{variant}}</h3>
-                                <div style="padding-top: 20px">
-                                    <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
-                                        <li role="presentation" class="active">
-                                            <a href="#{{prefix}}Annotation" role="tab" data-toggle="tab" class="prioritization-variant-tab-title">
-                                                Advanced Annotation
-                                            </a>
-                                        </li>
-                                        <li role="presentation">
-                                            <a href="#{{prefix}}FileMetrics" role="tab" data-toggle="tab" class="prioritization-variant-tab-title">
-                                                File Metrics
-                                            </a>
-                                        </li>
-                                        <li role="presentation">
-                                            <a href="#{{prefix}}Beacon" role="tab" data-toggle="tab" class="prioritization-variant-tab-title">
-                                                Beacon Network
-                                            </a>
-                                        </li>
-                                    </ul>
+                                <!-- Bottom tabs with specific variant information -->
+                                <div style="padding-top: 20px" hidden$="{{!checkVariant(variant)}}">
+                                    <h3>Variant: {{variant}}</h3>
+                                    <div style="padding-top: 20px">
+                                        <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
+                                            <li role="presentation" class="active">
+                                                <a href="#{{prefix}}Annotation" role="tab" data-toggle="tab" class="prioritization-variant-tab-title">
+                                                    Advanced Annotation
+                                                </a>
+                                            </li>
+                                            <li role="presentation">
+                                                <a href="#{{prefix}}FileMetrics" role="tab" data-toggle="tab" class="prioritization-variant-tab-title">
+                                                    File Metrics
+                                                </a>
+                                            </li>
+                                            <li role="presentation">
+                                                <a href="#{{prefix}}Beacon" role="tab" data-toggle="tab" class="prioritization-variant-tab-title">
+                                                    Beacon Network
+                                                </a>
+                                            </li>
+                                        </ul>
 
-                                    <div class="tab-content" style="height: 680px">
-                                        <!--Annotation Tab-->
-                                        <div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">
-                                            <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}"
-                                                                             cellbase-client="{{cellbaseClient}}"
-                                                                             mode="vertical"
-                                                                             hash-fragment-credentials="{{hashFragmentCredentials}}"
-                                                                             consequence-types="{{consequenceTypes}}"
-                                                                             protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                                                             style="font-size: 12px">
-                                            </cellbase-variantannotation-view>
-                                        </div>
+                                        <div class="tab-content" style="height: 680px">
+                                            <!--Annotation Tab-->
+                                            <div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">
+                                                <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}"
+                                                                                 cellbase-client="{{cellbaseClient}}"
+                                                                                 mode="vertical"
+                                                                                 hash-fragment-credentials="{{hashFragmentCredentials}}"
+                                                                                 consequence-types="{{consequenceTypes}}"
+                                                                                 protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                                                 style="font-size: 12px">
+                                                </cellbase-variantannotation-view>
+                                            </div>
 
-                                        <!-- File Metrics Tab -->
-                                        <div id="{{prefix}}FileMetrics" role="tabpanel" class="tab-pane">
-                                            <div class="col-md-8 col-md-offset-1" style="padding-top: 20px;overflow: auto;">
-                                                <table class="table table-hover">
-                                                    <thead>
-                                                    <tr>
-                                                        <th>VCF Attribute</th>
-                                                        <template is="dom-repeat" items="{{clinicalAnalysis.family.members}}" as="member">
-                                                            <th>{{member.name}}</th>
-                                                        </template>
-                                                    </tr>
-                                                    </thead>
-                                                    <tbody id="{{prefix}}TableTBody">
-                                                    <template is="dom-repeat" items="{{_getFileMetricsArray(variantObj.studies.0.files)}}" as="attrs">
-                                                        <tr id="{{attrs.name}}" class$="file-metrics-table-{{attrs.name}}">
-                                                            <td><span style="font-weight: bold">{{attrs.name}}</span></td>
-                                                            <template is="dom-repeat" items="{{attrs.values}}" as="attr">
-                                                                <td>{{attr}}</td>
+                                            <!-- File Metrics Tab -->
+                                            <div id="{{prefix}}FileMetrics" role="tabpanel" class="tab-pane">
+                                                <div class="col-md-8 col-md-offset-1" style="padding-top: 20px;overflow: auto;">
+                                                    <table class="table table-hover">
+                                                        <thead>
+                                                        <tr>
+                                                            <th>VCF Attribute</th>
+                                                            <template is="dom-repeat" items="{{clinicalAnalysis.family.members}}" as="member">
+                                                                <th>{{member.name}}</th>
                                                             </template>
                                                         </tr>
-                                                    </template>
-                                                    </tbody>
-                                                </table>
+                                                        </thead>
+                                                        <tbody id="{{prefix}}TableTBody">
+                                                        <template is="dom-repeat" items="{{_getFileMetricsArray(variantObj.studies.0.files)}}" as="attrs">
+                                                            <tr id="{{attrs.name}}" class$="file-metrics-table-{{attrs.name}}">
+                                                                <td><span style="font-weight: bold">{{attrs.name}}</span></td>
+                                                                <template is="dom-repeat" items="{{attrs.values}}" as="attr">
+                                                                    <td>{{attr}}</td>
+                                                                </template>
+                                                            </tr>
+                                                        </template>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
                                             </div>
-                                        </div>
 
-                                        <!--Beacon network-->
-                                        <div role="tabpanel" class="tab-pane" id="{{prefix}}Beacon">
-                                            <br>
-                                            <button class="btn btn-primary" type="button" on-click="triggerBeacon">Search Beacon
-                                                Network
-                                            </button>
-                                            <a data-toggle="tooltip"
-                                               title="Beacon Network is a search engine across the world's public beacons. You can find it here - https://beacon-network.org/#/"><i
-                                                    class="fa fa-info-circle" aria-hidden="true"></i></a>
-                                            <br><br>
-                                            <variant-beacon-network hosts="{{beaconHosts}}" clear="{{variant}}"variant="{{variantToBeacon}}"></variant-beacon-network>
+                                            <!--Beacon network-->
+                                            <div role="tabpanel" class="tab-pane" id="{{prefix}}Beacon">
+                                                <br>
+                                                <button class="btn btn-primary" type="button" on-click="triggerBeacon">Search Beacon
+                                                    Network
+                                                </button>
+                                                <a data-toggle="tooltip"
+                                                   title="Beacon Network is a search engine across the world's public beacons. You can find it here - https://beacon-network.org/#/"><i
+                                                        class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                                <br><br>
+                                                <variant-beacon-network hosts="{{beaconHosts}}" clear="{{variant}}"variant="{{variantToBeacon}}"></variant-beacon-network>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- GENOME BROWSER -->
-                        <div id="{{prefix}}GenomeBrowser" class="variant-interpretation-content" style="display: none">
-                            <br>
-                            <br>
-                            <variant-genome-browser opencga-session="{{opencgaSession}}"  samples="{{samples}}" opencga-client="{{opencgaClient}}"
-                                                    cellbase-client="{{cellbaseClient}}" query={{query}} search={{search}} region="{{region}}"
-                                                    active="{{_genomeBrowserActive}}" full-screen="{{fullScreen}}">
-                            </variant-genome-browser>
-                        </div>
-
-                        <!-- ANALYSIS AND CLINICAL DATA -->
-                        <div id="{{prefix}}ClinicalData" class="variant-interpretation-content" style="display: none">
-                            <br>
-                            <!--<opencga-sample-comparator opencga-client="{{opencgaClient}}" samples="{{samples}}"-->
-                            <!--variable-sets="{{variableSets}}">-->
-                            <!--</opencga-sample-comparator>-->
-                            <clinical-analysis-view clinical-analysis={{clinicalAnalysis}} opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}" config="{{config}}"
-                                                    class="col-md-10 col-md-offset-1" style="font-size: 12px">
-                            </clinical-analysis-view>
-                        </div>
-
-                        <!-- SAVE INTERPRETATION TAB -->
-                        <div id="{{prefix}}SaveInterpretation" class="variant-interpretation-content" style="display: none">
-                            <div class="col-md-12">
-                                <h2 class="clinical-title">Save Interpretation</h2>
-                                <hr style="margin-top: 5px">
-                                <template is="dom-if" if="{{messageError}}">
-                                    <div class="alert alert-danger" role="alert" id="{{prefix}}messageError" style="margin:5px auto;">{{messageErrorText}}</div>
-                                </template>
-                                <template is="dom-if" if="{{messageSuccess}}">
-                                    <div class="alert alert-success" role="alert" id="{{prefix}}messageSuccess" style="margin:5px auto;">{{messageSuccessText}}</div>
-                                </template>
-                            </div>
-                            <div class="col-md-12">
-                                <form id="{{prefix}}uploadForm" class="form-horizontal" data-toggle="validator" data-feedback='{"success": "fa-check", "error": "fa-times"}' role="form">
-                                    <!-- GENERAL INFORMATION -->
-                                    <!-- ID -->
-                                    <div class="form-group has-feedback">
-                                        <label for="{{prefix}}IDInterpretation" class="col-md-2 col-form-label">ID</label>
-                                        <div class="col-md-8">
-                                            <div class="input-group">
-                                                <input type="text" class$="form-control {{prefix}}TextInput codeDis"
-                                                       id="{{prefix}}IDInterpretation" name="ID" placeholder="ID of this interpretation ..."
-                                                       maxlength="50" required data-error="" pattern=".+" style="width: 240px">
-                                                <!--<span class="input-group-addon btn btn-primary" on-click="searchIndividual">-->
-                                                <!--<i class="fa fa-search" aria-hidden="true"></i>-->
-                                                <!--</span>-->
-                                            </div>
-                                            <span class="fa form-control-feedback" aria-hidden="true" style="padding-right:60px; z-index:5"></span>
-                                            <div class="help-block with-errors"></div>
-                                        </div>
-                                    </div>
-
-                                    <!-- NAME -->
-                                    <div class="form-group has-feedback">
-                                        <label for="{{prefix}}NameInterpretation" class="col-md-2 col-form-label">Name</label>
-                                        <div class="col-md-8">
-                                            <div class="input-group">
-                                                <input type="text" class$="form-control {{prefix}}TextInput codeDis"
-                                                       id="{{prefix}}NameInterpretation" name="Name" placeholder="Name of this interpretation ..."
-                                                       maxlength="50" required data-error="" pattern=".+" style="width: 240px">
-                                                <!--<span class="input-group-addon btn btn-primary" on-click="searchIndividual">-->
-                                                <!--<i class="fa fa-search" aria-hidden="true"></i>-->
-                                                <!--</span>-->
-                                            </div>
-                                            <span class="fa form-control-feedback" aria-hidden="true" style="padding-right:60px; z-index:5"></span>
-                                            <div class="help-block with-errors"></div>
-                                        </div>
-                                    </div>
-
-                                    <!-- DESCRIPTION -->
-                                    <div class="form-group has-feedback">
-                                        <label for="{{prefix}}DescriptionInterpretation" class="col-md-2 col-form-label">Description</label>
-                                        <div class="col-md-8">
-                                            <div class="input-group">
-                                                <input type="text" class$="form-control {{prefix}}TextInput codeDis"
-                                                       id="{{prefix}}DescriptionInterpretation" name="Name" placeholder="Description of this interpretation ..."
-                                                       maxlength="250" required data-error="" pattern=".+" style="width: 480px">
-                                            </div>
-                                            <span class="fa form-control-feedback" aria-hidden="true" style="padding-right:60px; z-index:5"></span>
-                                            <div class="help-block with-errors"></div>
-                                        </div>
-                                    </div>
-
-                                    <!-- COMMENT -->
-                                    <div class="form-group has-feedback">
-                                        <label for="{{prefix}}CommentInterpretation" class="col-md-2 col-form-label">Comment</label>
-                                        <div class="col-md-8">
-                                            <div class="input-group">
-                                                <input type="text" class$="form-control {{prefix}}TextInput codeDis"
-                                                       id="{{prefix}}CommentInterpretation" name="Name" placeholder="Add a comment ..."
-                                                       maxlength="250" required data-error="" pattern=".+" style="width: 480px">
-                                            </div>
-                                            <span class="fa form-control-feedback" aria-hidden="true" style="padding-right:60px; z-index:5"></span>
-                                            <div class="help-block with-errors"></div>
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group row" style="padding-left: 240px;">
-                                        <button type="button" class="btn btn-primary" on-click="onViewInterpretation">View</button>
-                                        <button type="button" class="btn btn-primary" on-click="onSaveInterpretation">Save</button>
-                                    </div>
-
-                                </form>
+                            <!-- GENOME BROWSER -->
+                            <div id="{{prefix}}GenomeBrowser" class="variant-interpretation-content" style="display: none">
+                                <br>
+                                <br>
+                                <variant-genome-browser opencga-session="{{opencgaSession}}"  samples="{{samples}}" opencga-client="{{opencgaClient}}"
+                                                        cellbase-client="{{cellbaseClient}}" query={{query}} search={{search}} region="{{region}}"
+                                                        active="{{_genomeBrowserActive}}" full-screen="{{fullScreen}}">
+                                </variant-genome-browser>
                             </div>
 
-                            <div class="col-md-12">
-                                <template is="dom-if" if="{{interpretationView}}">
-                                    <clinical-interpretation-view id="id" interpretation="{{interpretationView}}" opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
-                                                                  consequence-types="{{consequenceTypes}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                                                  style="font-size: 12px">
-                                    </clinical-interpretation-view>
-                                </template>
+                            <!-- ANALYSIS AND CLINICAL DATA -->
+                            <div id="{{prefix}}ClinicalData" class="variant-interpretation-content" style="display: none">
+                                <br>
+                                <!--<opencga-sample-comparator opencga-client="{{opencgaClient}}" samples="{{samples}}"-->
+                                <!--variable-sets="{{variableSets}}">-->
+                                <!--</opencga-sample-comparator>-->
+                                <clinical-analysis-view clinical-analysis={{clinicalAnalysis}} opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}" config="{{config}}"
+                                                        class="col-md-10 col-md-offset-1" style="font-size: 12px">
+                                </clinical-analysis-view>
+                            </div>
+
+                            <!-- SAVE INTERPRETATION TAB -->
+                            <div id="{{prefix}}SaveInterpretation" class="variant-interpretation-content" style="display: none">
+                                <div class="col-md-12">
+                                    <h2 class="clinical-title">Save Interpretation</h2>
+                                    <hr style="margin-top: 5px">
+                                    <template is="dom-if" if="{{messageError}}">
+                                        <div class="alert alert-danger" role="alert" id="{{prefix}}messageError" style="margin:5px auto;">{{messageErrorText}}</div>
+                                    </template>
+                                    <template is="dom-if" if="{{messageSuccess}}">
+                                        <div class="alert alert-success" role="alert" id="{{prefix}}messageSuccess" style="margin:5px auto;">{{messageSuccessText}}</div>
+                                    </template>
+                                </div>
+                                <div class="col-md-12">
+                                    <form id="{{prefix}}uploadForm" class="form-horizontal" data-toggle="validator" data-feedback='{"success": "fa-check", "error": "fa-times"}' role="form">
+                                        <!-- GENERAL INFORMATION -->
+                                        <!-- ID -->
+                                        <div class="form-group has-feedback">
+                                            <label for="{{prefix}}IDInterpretation" class="col-md-2 col-form-label">ID</label>
+                                            <div class="col-md-8">
+                                                <div class="input-group">
+                                                    <input type="text" class$="form-control {{prefix}}TextInput codeDis"
+                                                           id="{{prefix}}IDInterpretation" name="ID" placeholder="ID of this interpretation ..."
+                                                           maxlength="50" required data-error="" pattern=".+" style="width: 240px">
+                                                    <!--<span class="input-group-addon btn btn-primary" on-click="searchIndividual">-->
+                                                    <!--<i class="fa fa-search" aria-hidden="true"></i>-->
+                                                    <!--</span>-->
+                                                </div>
+                                                <span class="fa form-control-feedback" aria-hidden="true" style="padding-right:60px; z-index:5"></span>
+                                                <div class="help-block with-errors"></div>
+                                            </div>
+                                        </div>
+
+                                        <!-- NAME -->
+                                        <div class="form-group has-feedback">
+                                            <label for="{{prefix}}NameInterpretation" class="col-md-2 col-form-label">Name</label>
+                                            <div class="col-md-8">
+                                                <div class="input-group">
+                                                    <input type="text" class$="form-control {{prefix}}TextInput codeDis"
+                                                           id="{{prefix}}NameInterpretation" name="Name" placeholder="Name of this interpretation ..."
+                                                           maxlength="50" required data-error="" pattern=".+" style="width: 240px">
+                                                    <!--<span class="input-group-addon btn btn-primary" on-click="searchIndividual">-->
+                                                    <!--<i class="fa fa-search" aria-hidden="true"></i>-->
+                                                    <!--</span>-->
+                                                </div>
+                                                <span class="fa form-control-feedback" aria-hidden="true" style="padding-right:60px; z-index:5"></span>
+                                                <div class="help-block with-errors"></div>
+                                            </div>
+                                        </div>
+
+                                        <!-- DESCRIPTION -->
+                                        <div class="form-group has-feedback">
+                                            <label for="{{prefix}}DescriptionInterpretation" class="col-md-2 col-form-label">Description</label>
+                                            <div class="col-md-8">
+                                                <div class="input-group">
+                                                    <input type="text" class$="form-control {{prefix}}TextInput codeDis"
+                                                           id="{{prefix}}DescriptionInterpretation" name="Name" placeholder="Description of this interpretation ..."
+                                                           maxlength="250" required data-error="" pattern=".+" style="width: 480px">
+                                                </div>
+                                                <span class="fa form-control-feedback" aria-hidden="true" style="padding-right:60px; z-index:5"></span>
+                                                <div class="help-block with-errors"></div>
+                                            </div>
+                                        </div>
+
+                                        <!-- COMMENT -->
+                                        <div class="form-group has-feedback">
+                                            <label for="{{prefix}}CommentInterpretation" class="col-md-2 col-form-label">Comment</label>
+                                            <div class="col-md-8">
+                                                <div class="input-group">
+                                                    <input type="text" class$="form-control {{prefix}}TextInput codeDis"
+                                                           id="{{prefix}}CommentInterpretation" name="Name" placeholder="Add a comment ..."
+                                                           maxlength="250" required data-error="" pattern=".+" style="width: 480px">
+                                                </div>
+                                                <span class="fa form-control-feedback" aria-hidden="true" style="padding-right:60px; z-index:5"></span>
+                                                <div class="help-block with-errors"></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group row" style="padding-left: 240px;">
+                                            <button type="button" class="btn btn-primary" on-click="onViewInterpretation">View</button>
+                                            <button type="button" class="btn btn-primary" on-click="onSaveInterpretation">Save</button>
+                                        </div>
+
+                                    </form>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <template is="dom-if" if="{{interpretationView}}">
+                                        <clinical-interpretation-view id="id" interpretation="{{interpretationView}}" opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+                                                                      consequence-types="{{consequenceTypes}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                                      style="font-size: 12px">
+                                        </clinical-interpretation-view>
+                                    </template>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -391,8 +393,7 @@
                         type: Array
                     },
                     query: {
-                        type: Object,
-                        value: {}
+                        type: Object
                     },
                     search: {
                         type: Object
@@ -426,10 +427,19 @@
 
             connectedCallback() {
                 super.connectedCallback();
+
+                if (!this.interactive) {
+                    this.collapseFilter();
+                }
             }
 
             _init() {
                 this.prefix = "varPrior-" + Utils.randomString(6);
+
+                this.interactive = true;
+                this.filterClass = "col-md-2";
+                this.gridClass = "col-md-10";
+
 
                 this._collapsed = true;
                 this.resultsViewActive = true;
@@ -456,13 +466,12 @@
             }
 
             clinicalAnalysisIdObserver() {
-                console.warn("Not tested yet");
-                debugger;
                 let _this = this;
                 this.opencgaClient.clinical().info(this.clinicalAnalysisId, {})
                     .then((response) => {
                         // this must call to clinicalAnalysisObserver function
                         _this.clinicalAnalysis = response.response[0].result[0];
+                        debugger
                     })
                     .catch((response) => {
                         console.error("An error occurred fetching clinicalAnalysis: ", response)
@@ -470,7 +479,6 @@
             }
 
             clinicalAnalysisObserver() {
-
                 let _samples = [];
 
                 if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis) && UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.family) && UtilsNew.isNotEmptyArray(this.clinicalAnalysis.family.members)) {
@@ -493,14 +501,14 @@
                         console.warn("A Clinical Analysis with no subjects or family has been passed");
                     }
                 }
-
+debugger
                 if (UtilsNew.isNotEmptyArray(_samples)) {
                     // Set samples array and notify, this must be done using Polymer API
                     this.set("samples", _samples);
 
                     // We need a different private property for variant-browser-filter to avoid circular calls
-                    this.set("samplesForMenuFilter", _samples);
                     this._initGenotypeSamples(_samples);
+                    this.set("samplesForMenuFilter", _samples);
 
                     // Notify to all listeners of the new samples
                     this.dispatchEvent(new CustomEvent('samplechange', {detail: {samples: this.samples}}));
@@ -529,31 +537,24 @@
                 }
             }
 
-            propagateGeneEvent(e) {
-                this.fire('gene', {gene: e.detail.gene});
-            }
-
             onCollapse() {
                 if (this._collapsed) {
                     this.unCollapseFilter();
                 } else {
                     this.collapseFilter();
-
                 }
-
             }
 
-            collapseFilter(){
-                // Always collapsed by default
-                $("#" + this.prefix + "FilterMenu").hide(400);
-                $("#" + this.prefix + "MainWindow").removeClass("col-md-10").addClass("prioritization-center");
+            collapseFilter() {
+                this.filterClass = "hidden";
+                this.gridClass = "prioritization-center";
                 this._collapsed = true;
             }
 
             unCollapseFilter() {
                 if (this.interactive) {
-                    $("#" + this.prefix + "FilterMenu").show(400);
-                    $("#" + this.prefix + "MainWindow").removeClass("prioritization-center").addClass("col-md-10");
+                    this.filterClass = "col-md-2";
+                    this.gridClass = "col-md-10";
                     this._collapsed = false;
                 }
             }
@@ -598,10 +599,6 @@
                 } else {
                     PolymerUtils.setAttribute(this.prefix + 'SaveInterpretationButton', 'disabled', true);
                 }
-            }
-
-            selectedGene(e) {
-                this.fire('propagate', {gene: e.detail.gene});
             }
 
             onSampleChange(e) {
@@ -747,7 +744,7 @@
                                     interpretation.clinicalAnalysis.interpretations = [];
                                 } else {
                                     interpretation.clinicalAnalysis.interpretations = interpretation.clinicalAnalysis.interpretations.map((interpretation) => {
-                                       return { id: interpretation.id, name: interpretation.name, file:  interpretation.file.id };
+                                        return { id: interpretation.id, name: interpretation.name, file:  interpretation.file.id };
                                     });
                                 }
                                 interpretation.clinicalAnalysis.interpretations.push({
