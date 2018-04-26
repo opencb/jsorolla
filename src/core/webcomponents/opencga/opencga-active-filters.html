@@ -167,10 +167,6 @@
                     refresh: {
                         type: Object,
                         observer: "searchClicked"
-                    },
-                    genotypeSamples: {
-                        type: Object,
-                        notify: true
                     }
                 }
             }
@@ -295,6 +291,11 @@
 
                 if (UtilsNew.isEmpty(value)) {
                     delete _queryList[name];
+                    if (UtilsNew.isEqual(name, "genotype")){
+                        if (this.modeInheritance === "xLinked" || this.modeInheritance === "yLinked"){
+                            delete _queryList["region"];
+                        }
+                    }
                 } else {
 //                    let filterFields = _queryList[name].split(new RegExp("[,;]"));
                     let filterFields;
@@ -304,12 +305,11 @@
                         filterFields = _queryList[name].split(new RegExp("[,;]"));
                     }
 
-//                    debugger
                     let indexOfValue = filterFields.indexOf(value);
                     filterFields.splice(indexOfValue, 1);
 
                     if (_queryList[name].indexOf("/") !== -1) {
-                        _queryList[name] = filterFields.join(";");
+                        // _queryList[name] = filterFields.join(";");
                     } else {
                         if (_queryList[name].indexOf(',') !== -1) {
                             _queryList[name] = filterFields.join(",");
@@ -324,25 +324,7 @@
                     //TODO Refactor
                     $("#filtersList option[value='none']").prop('selected', true);
                 }
-                let genotypeSamples = {};
-                if (UtilsNew.isNotUndefinedOrNull(_queryList.genotype)){
-                    _queryList.genotype.split(";").forEach((nameGeno) => {
-                        let name_Genotype = nameGeno.split(":");
-                        let genotypes = name_Genotype[1].split(",");
-                        genotypeSamples[name_Genotype[0]] = {};
-                        genotypes.forEach((genotype) => {
-                            genotypeSamples[name_Genotype[0]][genotype] = true;
-                        })
-                    });
-                }
 
-                if (name === "genotype"){
-                    genotypeSamples["resetMode"] = true;
-                    if (this.modeInheritance === "xLinked" || this.modeInheritance === "yLinked"){
-                        delete _queryList["region"];
-                    }
-                }
-                this.genotypeSamples = genotypeSamples;
                 this.dispatchEvent(new CustomEvent("filterchange", {detail: _queryList, bubbles: true, composed: true}));
             }
 

@@ -60,11 +60,11 @@
                     <!--<template is="dom-if" if="{{interactive}}" on-dom-change="interactiveObserver">-->
                     <div id="{{prefix}}FilterMenu" class$="{{filterClass}}">
                         <opencga-variant-filter opencga-session="{{opencgaSession}}"
-                                                samples="[[samplesForMenuFilter]]" family="[[family]]"
+                                                family="[[family]]"
                                                 opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"
                                                 population-frequencies="{{populationFrequencies}}"
                                                 consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}"
-                                                on-samplechange="onSampleChange" genotype-samples="{{genotypeSamples}}"
+                                                on-samplechange="onSampleChange"
                                                 on-inheritancemode="_onInheritanceMode" mode-inheritance="{{modeInheritance}}">
                         </opencga-variant-filter>
                     </div>
@@ -501,7 +501,6 @@
                         console.warn("A Clinical Analysis with no subjects or family has been passed");
                     }
                 }
-debugger
                 if (UtilsNew.isNotEmptyArray(_samples)) {
                     // Set samples array and notify, this must be done using Polymer API
                     this.set("samples", _samples);
@@ -560,14 +559,18 @@ debugger
             }
 
             onClear() {
-                this._initGenotypeSamples(this.samples,true);
                 this.modeInheritance = "none";
                 this.query = {studies: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias};
+                this._initGenotypeSamples(this.samples,true);
                 this.search = {};
             }
 
             onFilterChange(e) {
                 this.query = Object.assign({},e.detail);
+                if (UtilsNew.isUndefinedOrNull(this.query.genotype)) {
+                    this.modeInheritance = "none";
+                    this._initGenotypeSamples(this.samples, true)
+                }
                 this.search = e.detail;
             }
 
@@ -594,7 +597,7 @@ debugger
                 this.checkedVariants = e.detail.variants;
 
                 // We set/remove disable status to Save button
-                if (this.checkedVariants.length > 0) {
+                if (this.checkedVariants.length > 0 && UtilsNew.isNotEmptyArray(this.samples)) {
                     PolymerUtils.removeAttribute(this.prefix + 'SaveInterpretationButton', 'disabled');
                 } else {
                     PolymerUtils.setAttribute(this.prefix + 'SaveInterpretationButton', 'disabled', true);
@@ -621,6 +624,7 @@ debugger
                         this.genotypeSamples[sample.name]["./."] = UtilsNew.isNotUndefinedOrNull(value)? value : true;
                     }
                 });
+                this.query = Object.assign({}, this.query, {genotype: this.getGenotypeFilter(this.genotypeSamples)});
             }
 
             _changeView(e) {
@@ -858,6 +862,32 @@ debugger
                 return result;
             }
 
+            getGenotypeFilter(genotypeSamples) {
+                let genotype = "";
+                debugger;
+                this.samples.forEach((sample) => {
+                    if (UtilsNew.isNotUndefinedOrNull(genotypeSamples[sample.name])) {
+                        genotype += sample.name+ ":"
+                        let gt = [];
+                        if (genotypeSamples[sample.name]["0/0"]) {
+                            gt.push("0/0");
+                        }
+                        if (genotypeSamples[sample.name]["0/1"]) {
+                            gt.push("0/1");
+                        }
+                        if (genotypeSamples[sample.name]["1/1"]) {
+                            gt.push("1/1");
+                        }
+                        if (genotypeSamples[sample.name]["./."]) {
+                            gt.push("./.");
+                        }
+                        genotype += gt.join(",") + ";"
+                    }
+                });
+
+
+                return genotype;
+            }
 
             /*
             * Inheritance Mode Methods
@@ -877,8 +907,8 @@ debugger
                 this._initGenotypeSamples(this.samples, true, false);
                 // Get genotype values
                 this.genotypeSamples = Segregations.inheritanceMode(this.modeInheritance, this.clinicalAnalysis, this.genotypeSamples, this.samples);
+                this.query = Object.assign({}, this.query, {genotype: this.getGenotypeFilter(this.genotypeSamples)});
             }
-
         }
 
         customElements.define(OpencgaVariantInterpretation.is, OpencgaVariantInterpretation);
