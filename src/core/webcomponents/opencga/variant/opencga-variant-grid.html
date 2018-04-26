@@ -278,6 +278,13 @@
                                 }
                             }));
                         },
+                        onCheckAll: function (rows) {
+                            _this.dispatchEvent(new CustomEvent('checkvariant', {
+                                detail: {
+                                    variants: $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('getAllSelections'),
+                                }
+                            }));
+                        },
                         onUncheck: function (row, $element) {
 //                            $('.success').removeClass('success');
 //                            $($element).addClass('success');
