@@ -703,7 +703,7 @@
 
             checkTypeAnalysisSelected(analysis) {
                 // Disabled by default Diseases Panel
-                PolymerUtils.setPropertyById(this.prefix+"DiseasePanels", "disabled", true);
+                PolymerUtils.setPropertyById(this.prefix + "DiseasePanels", "disabled", true);
 
                 // If analysis type selected is not single we disabled automatic mode completely and we checked interactive mode by default
                 if (analysis.type.toLowerCase() !== "single") {

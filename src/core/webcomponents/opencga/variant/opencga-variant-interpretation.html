@@ -471,7 +471,6 @@
                     .then((response) => {
                         // this must call to clinicalAnalysisObserver function
                         _this.clinicalAnalysis = response.response[0].result[0];
-                        debugger
                     })
                     .catch((response) => {
                         console.error("An error occurred fetching clinicalAnalysis: ", response)
@@ -507,7 +506,9 @@
 
                     // We need a different private property for variant-browser-filter to avoid circular calls
                     this._initGenotypeSamples(_samples);
-                    this.set("samplesForMenuFilter", _samples);
+                    this.search = Object.assign({}, this.query);
+
+                    // this.set("samplesForMenuFilter", _samples);
 
                     // Notify to all listeners of the new samples
                     this.dispatchEvent(new CustomEvent('samplechange', {detail: {samples: this.samples}}));

@@ -98,8 +98,7 @@
                     },
                     samples: {
                         type: Array,
-//                        value: []
-//                        observer: '_refreshTableColumns'
+                        value: []
                     },
                     cohorts: {
                         type: Object,
@@ -120,7 +119,6 @@
                     },
                     query: {
                         type: Object
-                        // observer: 'renderVariantTable'
                     },
                     search: {
                         type: Object,
@@ -166,6 +164,7 @@
                 // this.defaultConfig.detailView = this.showSelect;
 
                 this._refreshTableColumns();
+                this.renderVariantTable();
             }
 
             _init() {
@@ -1034,7 +1033,7 @@
                             break;
                     }
                 }
-                this.renderVariantTable();
+                // this.renderVariantTable();
             }
 
             _createDefaultColumns() {
