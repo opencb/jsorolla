@@ -323,10 +323,15 @@ class CellBaseClient {
 
 
     _createRestUrl(host, version, species, category, subcategory, ids, resource, params) {
-        let url = host + `/webservices/rest/${version}/${species}/`;
+        let _host = host;
+        // Remove trailing '/'
+        if (_host.endsWith("/")) {
+            _host = _host.slice(0, -1);
+        }
+        let url = _host + `/webservices/rest/${version}/${species}/`;
         // By default we assume https protocol instead of http
         if (!url.startsWith("https://") && !url.startsWith("http://")) {
-            url = `https://${host}/webservices/rest/${version}/${species}/`;
+            url = `https://${_host}/webservices/rest/${version}/${species}/`;
         }
 
         // Some web services do not need IDs
@@ -338,7 +343,7 @@ class CellBaseClient {
 
         // We add the query params formatted in URL
         let queryParamsUrl = this._createSuffixKey(params, false);
-        if (typeof queryParamsUrl !== "undefined" && queryParamsUrl != null && queryParamsUrl != "") {
+        if (typeof queryParamsUrl !== "undefined" && queryParamsUrl != null && queryParamsUrl !== "") {
             url += `?${queryParamsUrl}`;
         }
         return url;
