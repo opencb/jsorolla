@@ -72,7 +72,7 @@
                 </span>
 
                 <!-- TODO we probably need a new property for this -->
-                <template is="dom-if" if="{{checkSid(opencgaClient._config)}}">
+                <template is="dom-if" if="{{showSelectFilters(opencgaClient._config)}}">
                     <div class="btn-group" style="float: right">
                         <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class="fa fa-filter" aria-hidden="true" style="padding-right: 5px"></i> Filters <span class="caret"></span>
@@ -84,10 +84,12 @@
                                     <a data-filter-name$="{{item.name}}" style="cursor: pointer" on-click="onServerFilterChange" class="filtersLink">&nbsp;&nbsp;{{item.name}}</a>
                                 </li>
                             </template>
-                            <li role="separator" class="divider"></li>
-                            <li>
-                                <a style="cursor: pointer" on-click="launchModal"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save...</a>
-                            </li>
+                            <template is="dom-if" if="{{checkSid(opencgaClient._config)}}">
+                                <li role="separator" class="divider"></li>
+                                <li>
+                                    <a style="cursor: pointer" on-click="launchModal"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save...</a>
+                                </li>
+                            </template>
                         </ul>
                     </div>
                 </template>
@@ -133,7 +135,7 @@
             constructor() {
                 super();
 
-                this.prefix = "activeFilter_" + Utils.randomString(6);
+                this.prefix = "oaf" + Utils.randomString(6);
             }
 
             static get is() {
@@ -179,10 +181,6 @@
                 this.appendChild(dom);
             }
 
-            ready() {
-                super.ready();
-            }
-
             connectedCallback() {
                 super.connectedCallback();
 
@@ -210,8 +208,12 @@
                 $(PolymerUtils.getElementById(this.prefix + 'SaveModal')).modal('show');
             }
 
+            showSelectFilters(config) {
+                return (this.filters !== undefined && this.filters.length > 0) || !UtilsNew.isEmpty(config.sessionId);
+            }
+
             checkSid(config) {
-                return !UtilsNew.isEmpty(config.sessionId);
+                return UtilsNew.isNotEmpty(config.sessionId);
             }
 
             checkFilters(config) {

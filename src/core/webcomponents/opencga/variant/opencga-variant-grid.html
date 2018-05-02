@@ -425,7 +425,7 @@
                 // Init queryParams with default and config values plus query object
                 let queryParams;
                 if (UtilsNew.isNotUndefinedOrNull(this.config)) {
-                    queryParams = Object.assign({sid: this.opencgaClient._config.sessionId}, this.config.queryParams, this.query);
+                    queryParams = Object.assign({sid: this.opencgaClient._config.sessionId}, this.config.grid.queryParams, this.query);
                 } else {
                     queryParams = Object.assign({sid: this.opencgaClient._config.sessionId}, this.query);
                 }
@@ -442,7 +442,7 @@
                     queryParams.summary = true;
                 }
 
-                if (typeof this.config !== "undefined" && typeof this.config.missing !== "undefined" && this.config.missing) {
+                if (typeof this.config !== "undefined" && typeof this.config.grid.includeMissing !== "undefined" && this.config.grid.includeMissing) {
                     let keys = Object.keys(queryParams);
                     for (let i = 0; i < keys.length; i++) {
                         let val = queryParams[keys[i]];
@@ -879,9 +879,8 @@
 
             _refreshTableColumns() {
                 this.cols = this._createDefaultColumns();
-//                debugger
                 if (typeof this.cols !== "undefined" && typeof this.cohorts !== "undefined" && Object.keys(this.cohorts).length > 0
-                    && this.config.filter.skipSubsections !== undefined && !this.config.filter.skipSubsections.includes("cohort")) {
+                    && this.config.filter.menu.skipSubsections !== undefined && !this.config.filter.menu.skipSubsections.includes("cohort")) {
                     let cohortIdx = 6;
                     let cohortStudies = Object.keys(this.cohorts);
                     this.cols[0].splice(8, 0, {
@@ -912,7 +911,7 @@
                     let popIdx = 8;
                     let subPopIdx = 6;
                     if (typeof this.cohorts !== "undefined" && Object.keys(this.cohorts).length > 0
-                        && this.config.filter.skipSubsections !== undefined && !this.config.filter.skipSubsections.includes("cohort")) {
+                        && this.config.filter.menu.skipSubsections !== undefined && !this.config.filter.menu.skipSubsections.includes("cohort")) {
                         popIdx++;
                         subPopIdx += Object.keys(this.cohorts).length;
                     }
