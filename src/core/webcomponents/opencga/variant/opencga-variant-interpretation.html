@@ -61,7 +61,7 @@
                     <div id="{{prefix}}FilterMenu" class$="{{filterClass}}">
                         <opencga-variant-filter opencga-session="{{opencgaSession}}"
                                                 family="[[family]]"
-                                                opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config}}"
+                                                opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config.filter}}"
                                                 population-frequencies="{{populationFrequencies}}"
                                                 consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}"
                                                 on-samplechange="onSampleChange"
@@ -72,7 +72,7 @@
 
                     <div id="{{prefix}}MainWindow" class$="{{gridClass}}">
 
-                        <opencga-active-filters opencga-client="{{opencgaClient}}" query="[[query]]" filters="{{config.filters}}" on-filterchange="onFilterChange" on-clear="onClear"
+                        <opencga-active-filters opencga-client="{{opencgaClient}}" query="[[query]]" filters="{{config.filter.examples}}" on-filterchange="onFilterChange" on-clear="onClear"
                                                 filter-bioformat="VARIANT" default-study="{{opencgaSession.study.alias}}" alias="{{activeFilterAlias}}" refresh="{{search}}" genotype-samples="{{genotypeSamples}}"
                                                 mode-inheritance="[[modeInheritance]]">
                         </opencga-active-filters>

@@ -110,7 +110,7 @@
         <div>
             <div style="width: 60%;margin: 0 auto">
                 <button type="button" class="btn btn-primary btn-lg" style="width: 100%" on-click="onSearch">
-                    <i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px"></i> {{config.filter.searchButtonText}}
+                    <i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px"></i> {{config.menu.searchButtonText}}
                 </button>
             </div>
 
@@ -271,9 +271,9 @@
                     }
 
                     // Update cohorts from config, this updates the Cohort filter MAF
-                    if (typeof this.config !== "undefined" && typeof this.config.filter.sections !== "undefined") {
+                    if (typeof this.config !== "undefined" && typeof this.config.menu.sections !== "undefined") {
                         this._cohorts = [];
-                        for (let section of this.config.filter.sections) {
+                        for (let section of this.config.menu.sections) {
                             for (let subsection of section.subsections) {
                                 if (subsection.id === "cohort") {
                                     let projectFields = this.opencgaSession.project.alias.split("@");
@@ -1149,7 +1149,7 @@
             // This method is only executed one time from connectedCallback function
             _renderFilterMenu() {
                 let html = "";
-                for (let section of this.config.filter.sections) {
+                for (let section of this.config.menu.sections) {
                     html += this._createSection(section, this.prefix);
                 }
 
@@ -1190,7 +1190,7 @@
                 let content = "";
                 for (let subsection of section.subsections) {
                     // We check if this subsection is not disabled in the configuration file
-                    if (UtilsNew.isEmptyArray(this.config.filter.skipSubsections) || !this.config.filter.skipSubsections.includes(subsection.id)) {
+                    if (UtilsNew.isEmptyArray(this.config.menu.skipSubsections) || !this.config.menu.skipSubsections.includes(subsection.id)) {
                         content += this._createSubSection(subsection);
                     }
                 }
@@ -1358,7 +1358,7 @@
 
             _getCohortHtml(cohorts, prefix) {
                 let projectFields = this.opencgaSession.project.alias.split("@");
-                let projectId = (projectFields.length > 0) ? projectFields[1] : projectFields[0];
+                let projectId = (projectFields.length > 1) ? projectFields[1] : projectFields[0];
                 let cohortsPerStudy = cohorts[projectId];
 
                 if (UtilsNew.isNotUndefinedOrNull(cohortsPerStudy)) {
@@ -1885,8 +1885,8 @@
                 }
 
                 // Add events for Cohort
-//                let cohorts = this.config.filter.sections.forEach(section => section.subsections.forEach(subsection => {if (subsection.id === "cohort") return subsection}));
-                for (let section of this.config.filter.sections) {
+//                let cohorts = this.config.menu.sections.forEach(section => section.subsections.forEach(subsection => {if (subsection.id === "cohort") return subsection}));
+                for (let section of this.config.menu.sections) {
                     for (let subsection of section.subsections) {
                         if (subsection.id === "cohort") {
                             let projectFields = this.opencgaSession.project.alias.split("@");
@@ -1975,7 +1975,7 @@
             }
 
             _addAllTooltips() {
-                for (let section of this.config.filter.sections) {
+                for (let section of this.config.menu.sections) {
                     for (let subsection of section.subsections) {
                         if (UtilsNew.isNotEmpty(subsection.tooltip)) {
                             let tooltipIcon = $("#" + subsection.id + "Tooltip");
@@ -2003,7 +2003,7 @@
                     style: {
                         width: true,
 //                        classes:  "ocb-tooltip-font" + "  ui-tooltip ui-tooltip-shadow"},
-                        classes: this.config.filter.tooltip.classes
+                        classes: this.config.menu.tooltip.classes
                     },
                     show: {
                         delay: 200
