@@ -424,7 +424,7 @@
 
                 // Init queryParams with default and config values plus query object
                 let queryParams;
-                if (UtilsNew.isNotUndefinedOrNull(this.config)) {
+                if (UtilsNew.isNotUndefinedOrNull(this.config) && UtilsNew.isNotUndefinedOrNull(this.config.grid)) {
                     queryParams = Object.assign({sid: this.opencgaClient._config.sessionId}, this.config.grid.queryParams, this.query);
                 } else {
                     queryParams = Object.assign({sid: this.opencgaClient._config.sessionId}, this.query);
@@ -442,7 +442,8 @@
                     queryParams.summary = true;
                 }
 
-                if (typeof this.config !== "undefined" && typeof this.config.grid.includeMissing !== "undefined" && this.config.grid.includeMissing) {
+                if (typeof this.config !== "undefined" && UtilsNew.isNotUndefinedOrNull(this.config.grid)
+                    && typeof this.config.grid.includeMissing !== "undefined" && this.config.grid.includeMissing) {
                     let keys = Object.keys(queryParams);
                     for (let i = 0; i < keys.length; i++) {
                         let val = queryParams[keys[i]];
@@ -514,11 +515,11 @@
                         let visited = {};
                         let geneLinks = [];
                         for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
-                            if (typeof row.annotation.consequenceTypes[i].geneName !== "undefined" && row.annotation.consequenceTypes[i].geneName != ""
+                            if (typeof row.annotation.consequenceTypes[i].geneName !== "undefined" && row.annotation.consequenceTypes[i].geneName !== ""
                                 && typeof visited[row.annotation.consequenceTypes[i].geneName] === "undefined") {
-                                if (typeof this.field.context.project !== "undefined" && typeof this.field.context.study !== "undefined") {
-                                    geneLinks.push('<a style="cursor: pointer;white-space: nowrap" href="#gene/' + this.field.context.project.alias +'/' +
-                                        this.field.context.study.alias + '/' + row.annotation.consequenceTypes[i].geneName + '">' + row.annotation.consequenceTypes[i].geneName + '</a>');
+                                if (typeof this.field.context.opencgaSession.project !== "undefined" && typeof this.field.context.opencgaSession.study !== "undefined") {
+                                    geneLinks.push('<a style="cursor: pointer;white-space: nowrap" href="#gene/' + this.field.context.opencgaSession.project.alias +'/' +
+                                        this.field.context.opencgaSession.study.alias + '/' + row.annotation.consequenceTypes[i].geneName + '">' + row.annotation.consequenceTypes[i].geneName + '</a>');
                                 } else {
                                     geneLinks.push('<a style="cursor: pointer;white-space: nowrap">' + row.annotation.consequenceTypes[i].geneName + '</a>')
                                 }
@@ -1216,6 +1217,7 @@
                         _this.downloadIcon.css('display', 'inline-block');
                     });
             }
+
             _downloadJsonFile() {
                 let urlQueryParams = this._getUrlQueryParams();
                 let params = urlQueryParams.queryParams;
@@ -1236,7 +1238,7 @@
                         let file = window.URL.createObjectURL(data);
                         let a = document.createElement("a");
                         a.href = file;
-                        a.download = _this.study.alias + ".json";
+                        a.download = _this.opencgaSession.study.alias + ".json";
                         document.body.appendChild(a);
                         a.click();
                         setTimeout(function() {
@@ -1248,6 +1250,7 @@
                         _this.downloadIcon.css('display', 'inline-block');
                     });
             }
+
             _shareLink() {
                 let _this = this;
                 $("[data-toggle=popover]").popover({

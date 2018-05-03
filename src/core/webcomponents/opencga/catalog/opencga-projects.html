@@ -78,8 +78,8 @@
 
             ready() {
                 super.ready();
-                this._studies = [];
 
+                this._studies = [];
             }
 
             connectedCallback() {
@@ -100,9 +100,9 @@
                 let colors = Highcharts.getOptions().colors;
 
 //                    let categories = ['MSIE', 'Firefox', 'Chrome', 'Safari', 'Opera'];
-                    let categories = this.projects.map((element) => {
-                        return element.name;
-                    });
+                let categories = this.projects.map((element) => {
+                    return element.name;
+                });
                 let data = [];
                 let _this = this;
                 let total = 0
