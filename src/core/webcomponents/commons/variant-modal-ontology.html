@@ -16,14 +16,14 @@
                         <div class="col-sm-12">
                             <label>Introduce an {{term}} term</label>
                         </div>
-                        <div class="col-sm-6" style="overflow-y: auto; height:400px;">
-                            <label id="resultsSearch"></label>
-                            <input id="{{prefix}}autoInputOntology" list="list_browser"
-                                   class$="form-control {{prefix}}TextInput"
-                                   placeholder="{{term}} term" on-change="selectTerm" on-input="selectTerm">
-
-                            <datalist id="list_browser" style="height:auto; max-height:100px; overflow-x:hidden;"></datalist>
-
+                        <div class="col-sm-6" style="overflow-y: auto; height:400px;" id="{{prefix}}divDatalist">
+                            <form>
+                                <fieldset>
+                                    <div class="form-group">
+                                        <input matcher="{{searchTerm}}" class="form-control typeahead" name="query"  id="{{prefix}}typeahead" data-provide="typeahead" placeholder="Start typing something to search..." type="text">
+                                    </div>
+                                </fieldset>
+                            </form>
                             <template is="dom-if" if="{{selectedTerm}}">
                                 <ul class="list-group infoHpo">
                                     <li class="list-group-item"><strong>Label: </strong>{{selectedTerm.label}}</li>
@@ -81,6 +81,7 @@
                     prefix: {
                         type: String
                     }
+
                 };
             }
 
@@ -90,13 +91,25 @@
 
             connectedCallback() {
                 super.connectedCallback();
-
-                PolymerUtils.getElementById(this.prefix + "autoInputOntology").addEventListener('keyup', e => this.searchTerm(e));
+                let _this = this;
+                $('#' + this.prefix + "typeahead").typeahead('destroy');
+                $('#' + this.prefix + "typeahead").typeahead({
+                    source: function (query, process) {
+                        return _this.searchTerm(query, process);
+                    },
+                    hint: true,
+                    highlight: true,
+                    minLength: 1,
+                    autoSelect: true,
+                    items: 15,
+                    afterSelect: this.selectTerm.bind(_this)
+                });
             }
 
+            process(data) {
+                return data;
+            }
             _init() {
-                // this.prefix = "var-browser-filter-" + Utils.randomString(6);
-
                 this.ebiConfig = {
                     root: "https://www.ebi.ac.uk/ols/api",
                     tree: {
@@ -108,20 +121,24 @@
                     },
                     search: "/search"
                 };
+
+
             }
 
             ontologyFilterObserver() {
                 this.loadTermsTree();
-                this.parseSearchTerms = [];
                 this.selectedTerm = {};
-                PolymerUtils.setValue(this.prefix + "autoInputOntology", "");
-                this.listCurrentSelected = this.selectedTerms;
+                this.listCurrentSelected = [];
+                PolymerUtils.setValue(this.prefix + "typeahead", "");
+                if (UtilsNew.isNotEmptyArray(this.selectedTerms)) {
+                    this.listCurrentSelected = this.selectedTerms.slice();
+                }
             }
 
-            selectTerm(e) {
+            selectTerm(selected) {
                 if (UtilsNew.isNotUndefinedOrNull(this.fullTerms)) {
                     this.selectedTerm = this.fullTerms.find((elem) => {
-                        return elem.label == e.target.value
+                        return elem.label == selected.label;
                     });
                 }
             }
@@ -165,38 +182,27 @@
                 }));
             }
 
-            searchTerm(e) {
+            searchTerm(query, process) {
+
+                debugger;
                 let rowsPerPage = 15;
                 let _this = this;
-                let queryEncoded = encodeURI(e.target.value);
-
-                fetch(this.ebiConfig.root + this.ebiConfig.search + "?q=*" + queryEncoded + "*&ontology=" + this.ontologyFilter + "&rows=" + rowsPerPage + "&queryFields=label,obo_id")
+                let queryEncoded = query;
+                return fetch(this.ebiConfig.root + this.ebiConfig.search + "?q=*" + queryEncoded + "*&ontology=" + this.ontologyFilter + "&rows=" + rowsPerPage + "&queryFields=label,obo_id")
                     .then((response) => {
-                        response.json().then((json) => {
-                            let list_browser = PolymerUtils.getElementById("list_browser");
-                            PolymerUtils.innerHTML("list_browser", "");
-                            _this.parseSearchTerms = json.response.docs.map((elem) => {
-                                return elem.label + "(" + elem.obo_id + ")"
-                            });
+                        return response.json().then((json) => {
                             _this.fullTerms = json.response.docs;
-
+                            let arraySearch = [];
                             json.response.docs.forEach((elem) => {
-                                let el = document.createElement("option");
-                                el.label = elem.obo_id;
-                                el.value = elem.label;
-                                list_browser.appendChild(el);
+                                arraySearch.push({ name: elem.label + " - (" + elem.obo_id  + ")", label: elem.label, id: elem.obo_id });
                             });
-
-                            if (json.response.numFound > rowsPerPage) {
-                                PolymerUtils.innerHTML("resultsSearch", "Exists more results for search: " + e.target.value + ". Showing 15 of " + json.response.numFound);
-                            }  else {
-                                PolymerUtils.innerHTML("resultsSearch", "Showing "+json.response.numFound +" results.");
-                            }
+                            process(arraySearch);
                         });
                     })
                     .catch((error) => {
                         console.error(error);
                     });
+
             }
 
             drawTree(data) {
@@ -208,7 +214,7 @@
                             return elem.label == node.text
                         });
                         if (UtilsNew.isNotUndefinedOrNull(_this.selectedTerm)) {
-                            PolymerUtils.setValue(_this.prefix + "autoInputOntology", node.text);
+                            PolymerUtils.setValue(_this.prefix + "typeahead", node.text);
                         }
                     },
                     onNodeUnselected: function (event, node) {

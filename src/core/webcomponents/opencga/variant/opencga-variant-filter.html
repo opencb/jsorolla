@@ -399,21 +399,22 @@
             }
 
             openModalOntology() {
-                this.selectedTermsOntology = this.selectedTermsHPO;
                 $("#" + this.prefix + "ontologyModal").modal('show');
             }
 
             openModalHpo() {
                 this.openHPO = true;
-                this.ontologyFilter = "hp";
                 this.ontologyTerm = "HPO";
+                this.selectedTermsOntology = this.selectedTermsHPO;
+                this.ontologyFilter = "hp";
                 this.openModalOntology();
             }
 
             openModalGo() {
                 this.openHPO = false;
-                this.ontologyFilter = "go";
                 this.ontologyTerm = "GO";
+                this.selectedTermsOntology = this.selectedTermsGO;
+                this.ontologyFilter = "go";
                 this.openModalOntology();
             }
 
