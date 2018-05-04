@@ -56,6 +56,10 @@
                     },
                     config: {
                         type: Object
+                    },
+                    analysis: {
+                        type: Object,
+                        observer: "analysisObserver"
                     }
                 }
             }
@@ -135,14 +139,17 @@
                         return {total: _numTotal, rows: resp.response[0].result}
                     },
                     onLoadSuccess: function (data) {
-                        // The first time we mark as selected the first row
-                        let _table = $('#' + _this.prefix + 'tableAnalysis');
-                        if (UtilsNew.isNotUndefinedOrNull(_table) && data.total > 0) {
-                            _table.bootstrapTable('check', 0);
+                        if (UtilsNew.isUndefinedOrNull(_this.analysis)) {
+                            // The first time we mark as selected the first row
+                            let _table = $('#' + _this.prefix + 'tableAnalysis');
+                            if (UtilsNew.isNotUndefinedOrNull(_table) && data.total > 0) {
+                                _table.bootstrapTable('check', 0);
+                            }
+                        } else {
+                            _this.analysisObserver();
                         }
                     },
                     onCheck: function (row, elem) {
-                        _this.analysis = row;
                         _this.dispatchEvent(new CustomEvent("analysis-selected", {
                             detail: row,
                             bubbles: true,
@@ -189,6 +196,15 @@
                     }, this.query);
 
                 return {host: host, queryParams: queryParams};
+            }
+
+            analysisObserver() {
+                if (UtilsNew.isNotUndefinedOrNull(this.analysis)) {
+                    $('#' + this.prefix + 'tableAnalysis').bootstrapTable("checkBy", {
+                        field: "name",
+                        values: [this.analysis.name]
+                    })
+                }
             }
 
             detailFormatter(index, row) {

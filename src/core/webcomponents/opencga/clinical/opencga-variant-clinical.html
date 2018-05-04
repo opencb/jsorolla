@@ -208,7 +208,7 @@
 
                                             <opencga-clinical-analysis-grid opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}"
                                                                             query="{{clinicalAnalysisQuery}}" config="{{clinicalAnalysisGridConfig}}"
-                                                                            on-analysis-selected="onRecentAnalysisSelected">
+                                                                            on-analysis-selected="onRecentAnalysisSelected" analysis="{{clinicalAnalysis}}">
                                             </opencga-clinical-analysis-grid>
                                         </div>
                                     </template>
@@ -286,17 +286,36 @@
             <div class="col-md-offset-1 col-md-10 ">
                 <div class="analysis-content" id="{{prefix}}ReportButtonDiv">
                     <h3>Clinical Analysis {{clinicalAnalysis.name}}</h3>
-                    <div class="col-md-12" style="padding: 10px 15px">
-                        <div class="form-group col-md-12">
+                    <div style="padding: 10px 10px">
+                        <button id="{{prefix}}clearSelectedAnalysisInterpretation" data-toggle="modal" role="button" data-placement="bottom"
+                                on-click="clearSelectedAnalysis" class="btn btn-sm btn-primary" style="display: inline; float:right; margin:0 25%;">
+                            Clear
+                        </button>
+                        <div class="form-group">
                             <div class="">
-                                <h4>Select analysis:</h4>
-                                <button  data-toggle="modal" role="button"
-                                         data-placement="bottom" on-click="showClinicalSelector"
-                                         class="btn btn-primary" style="display: inline">
+                                <span for="{{prefix}}SelectOtherAnalysisInterpretation">Select a recent analysis from the table (last 5 analysis) or select a clinical analysis </span>
+                                <button id="{{prefix}}SelectOtherAnalysisInterpretation" data-toggle="modal" role="button" data-placement="bottom"
+                                        on-click="showClinicalSelector" class="btn btn-sm btn-primary" style="display: inline">
                                     Browse...
                                 </button>
                             </div>
                         </div>
+                        <template is="dom-if" if="{{showLastRecentInterpretation}}" restamp="true">
+                            <div id="{{prefix}}OpencgaClinicalAnalysisGridInterpretation">
+                                <opencga-clinical-analysis-grid opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}"
+                                                                query="{{clinicalAnalysisQuery}}" config="{{clinicalAnalysisGridConfig}}"
+                                                                on-analysis-selected="onRecentAnalysisSelected" analysis="{{clinicalAnalysis}}">
+                                </opencga-clinical-analysis-grid>
+                            </div>
+                        </template>
+
+                        <template is="dom-if" if="{{!showLastRecentInterpretation}}">
+                            <div id="{{prefix}}OpencgaClinicalAnalysisGrid2Interpretation" style="padding: 5px 10px">
+                                <clinical-analysis-view opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}"
+                                                        clinical-analysis-id="{{clinicalAnalysisId}}" title="Clinical analysis selected">
+                                </clinical-analysis-view>
+                            </div>
+                        </template>
                     </div>
                     <h3>Clinical Interpretation</h3>
                     <div class="col-md-12" style="padding: 10px 15px">
@@ -469,6 +488,7 @@
                 this.clinicalAnalysisQuery = {sort: "id", limit: 5};
                 this.clinicalAnalysisGridConfig = {pagination: false, pageSize: 2, pageList: [1, 2]};
                 this.showLastRecent = true;
+                this.showLastRecentInterpretation = true;
                 // TODO REMOVE IT!!!!!
                 if (typeof PANELS !== "undefined") {
                     let panelList = PANELS.slice();
@@ -585,6 +605,7 @@
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
                 this.clinicalAnalysis = e.detail;
                 this.clinicalAnalysisId = this.clinicalAnalysis.id;
+
                 this.checkTypeAnalysisSelected(this.clinicalAnalysis);
             }
 
@@ -593,6 +614,7 @@
                 this.clinicalAnalysis = this.analysisSelected;
                 this.clinicalAnalysisId = this.analysisSelected.id;
                 this.showLastRecent = false;
+                this.showLastRecentInterpretation = false;
                 this.checkTypeAnalysisSelected(this.clinicalAnalysis);
             }
 
@@ -695,6 +717,8 @@
 
             clearSelectedAnalysis(){
                 this.showLastRecent = true;
+                this.showLastRecentInterpretation = true;
+                this.analysisSelectedObserver();
             }
 
             onDiseasePanelChange(e) {
