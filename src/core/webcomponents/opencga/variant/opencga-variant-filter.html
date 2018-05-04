@@ -1733,7 +1733,7 @@
 
             _getGoAccessionsHtml(prefix) {
                 return `
-                    <textarea id="${prefix}GeneOntologyTextarea" readonly class="form-control clearable ${prefix}FilterTextInput"
+                    <textarea id="${prefix}GeneOntologyTextarea" class="form-control clearable ${prefix}FilterTextInput"
                                 rows="3" name="geneOntology" placeholder="GO:0000145"></textarea>
                     <span class="input-group-addon btn btn-primary searchingSpan" id="${prefix}buttonOpenGoAccesions">
                         <strong style="color: white">Add GO Term</strong>
@@ -1744,7 +1744,7 @@
 
             _getHpoAccessionsHtml(prefix) {
                 return `
-                    <textarea id="${prefix}HumanPhenotypeOntologyTextarea" readonly class="form-control clearable ${prefix}FilterTextInput"
+                    <textarea id="${prefix}HumanPhenotypeOntologyTextarea" class="form-control clearable ${prefix}FilterTextInput"
                                 rows="3" name="hpo" placeholder="HP:0000001, HP:3000079"></textarea>
                     <span class="input-group-addon btn btn-primary searchingSpan" id="${prefix}buttonOpenHpoAccesions">
                         <strong style="color: white">Add HPO Term</strong>
