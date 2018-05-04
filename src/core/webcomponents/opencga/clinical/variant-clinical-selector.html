@@ -84,9 +84,8 @@
             _init() {
                 this.clinicalDefaultAnalysisQuery = {sort: "id"};
                 this.clinicalAnalysisQuery = {sort: "id"};
+                this.search = Object.assign({}, this.clinicalAnalysisQuery);
                 this.clinicalAnalysisGridConfig = {pagination: true, pageSize: 10, pageList: [5,10,25]};
-
-                this.search = {};
             }
 
             onAnalysisSelectedSelector (e) {
