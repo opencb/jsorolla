@@ -104,9 +104,11 @@
         </div>
 
         <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
-            <li role="presentation" class="active"><a href="#{{prefix}}Variants" role="tab" data-toggle="tab"
-                                                      class="gene-variant-tab-title">Variants</a></li>
-            <li role="presentation"><a href="#{{prefix}}Protein" role="tab" data-toggle="tab" class="gene-variant-tab-title">Protein</a>
+            <li role="presentation" class="active">
+                <a href="#{{prefix}}Variants" role="tab" data-toggle="tab" class="gene-variant-tab-title">Variants</a>
+            </li>
+            <li role="presentation">
+                <a href="#{{prefix}}Protein" role="tab" data-toggle="tab" class="gene-variant-tab-title">Protein (Beta)</a>
             </li>
         </ul>
 
@@ -124,7 +126,7 @@
                     </button>
                 </div>
 
-                <br>
+                <!--<br>-->
                 <br>
                 <opencga-variant-grid opencga-session="{{opencgaSession}}" config="{{config}}"
                                       opencga-client="{{opencgaClient}}"
@@ -155,8 +157,7 @@
             </div>
 
             <div role="tabpanel" class="tab-pane" id="{{prefix}}Protein">
-                <variant-protein-view opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
-                                      project="{{project}}" study="{{study}}"
+                <variant-protein-view opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
                                       gene="{{gene}}" config="{{config.protein}}" summary="{{summary}}">
                 </variant-protein-view>
             </div>
@@ -186,12 +187,6 @@
                         type: Object
                     },
                     opencgaClient: {
-                        type: Object
-                    },
-                    project: {
-                        type: Object
-                    },
-                    study: {
                         type: Object
                     },
                     gene: {
@@ -229,11 +224,11 @@
             }
 
             projectStudyObtained(project, study) {
-                if (UtilsNew.isNotUndefined(this.project) && UtilsNew.isNotEmpty(this.project.alias)
-                    && UtilsNew.isNotUndefined(this.study) && UtilsNew.isNotEmpty(this.study.alias)) {
+                if (UtilsNew.isNotUndefined(this.opencgaSession.project) && UtilsNew.isNotEmpty(this.opencgaSession.project.alias)
+                    && UtilsNew.isNotUndefined(this.opencgaSession.study) && UtilsNew.isNotEmpty(this.opencgaSession.study.alias)) {
                     this.hashFragmentCredentials = {
-                        project: this.project.alias,
-                        study: this.study.alias
+                        project: this.opencgaSession.project.alias,
+                        study: this.opencgaSession.study.alias
                     }
                 }
             }

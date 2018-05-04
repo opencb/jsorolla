@@ -135,13 +135,13 @@
 
                 <br>
                 <br>
-                <variant-browser-grid project="{{project}}" study="{{study}}" opencga-client="{{opencgaClient}}"
+                <opencga-variant-grid opencga-session="{{opencgaSession}}" project="{{project}}" study="{{study}}" opencga-client="{{opencgaClient}}"
                                       population-frequencies="{{populationFrequencies}}"
                                       protein-substitution-scores="{{proteinSubstitutionScores}}"
                                       consequence-types="{{consequenceTypes}}" search="{{query}}" query="{{query}}"
                                       variant="{{variant}}"
                                       on-selectvariant="onSelectVariant" style="font-size: 12px" summary="{{summary}}">
-                </variant-browser-grid>
+                </opencga-variant-grid>
 
                 <div hidden$="{{checkVariant(variant)}}">
                     <br>
@@ -179,6 +179,10 @@
 
             static get properties() {
                 return {
+                    opencgaSession: {
+                        type: Object,
+                        observer: 'geneChanged'
+                    },
                     cellbaseClient: {
                         type: Object
                     },
@@ -212,7 +216,8 @@
                         type: Object
                     },
                     summary: {
-                        type: Boolean
+                        type: Boolean,
+                        value: true
                     }
                 }
             }
@@ -294,7 +299,7 @@
                                     study: _this.project.alias + ":" + _this.study.alias,
                                     includeStudy: _this.project.alias + ":" + _this.study.alias,
                                     summary: _this.summary,
-                                    exclude: "studies.samplesData,studies.files"
+                                    // exclude: "studies.samplesData,studies.files"
                                 };
 
                                 _this.opencgaClient.variants().query(params)
