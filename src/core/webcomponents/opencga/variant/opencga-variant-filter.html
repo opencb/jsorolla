@@ -968,7 +968,18 @@
 
                 inputTextArea = PolymerUtils.getElementById(this.prefix + "HumanPhenotypeOntologyTextarea");
                 if (UtilsNew.isNotUndefinedOrNull(inputTextArea) && UtilsNew.isNotEmpty(inputTextArea.value)) {
-                    _filters["annot-hpo"] = inputTextArea.value;
+                    let hpoValues = inputTextArea.value.split(",");
+
+                    if (UtilsNew.isNotEmptyArray(hpoValues)) {
+                        $("input:radio[name=hpoRadio]").attr('disabled', false);
+                        let filter = $('input:radio[name=hpoRadio]:checked').val();
+                        if (filter === "and") {
+                            _filters["annot-hpo"] = hpoValues.join(';');
+                        } else {
+                            _filters["annot-hpo"] = hpoValues.join(',');
+                        }
+                    }
+                    // _filters["annot-hpo"] = inputTextArea.value;
                 }
 
                 inputTextArea = PolymerUtils.getElementById(this.prefix + "ClinVarTextarea");
@@ -1750,6 +1761,13 @@
                         <strong style="color: white">Add HPO Term</strong>
                         <i class="fa fa-search searchingButton" aria-hidden="true"></i>
                     </span>
+                     <form style="padding-top: 15px">
+                        <label style="font-weight: normal;">Logical Operator</label>
+                        <input type="radio" name="hpoRadio" id="${prefix}hpoOrRadio" value="or" class="${prefix}FilterRadio"
+                                checked style="margin-left: 10px"> OR<br>
+                        <input type="radio" name="hpoRadio" id="${prefix}hpoAndRadio" value="and"
+                                class="${prefix}FilterRadio" style="margin-left: 102px"> AND  <br>
+                    </form>
                 `;
             }
 
@@ -1858,7 +1876,8 @@
                 }
 
                 let changeEvents = ["includeOtherStudy", "GenotypeQueryOptions", "GeneBiotypes", "Type", "CaddRawOperator", "CaddScaledOperator", "SiftOperator", "PolyphenOperator",
-                    "pssOrRadio", "pssAndRadio", "PhylopOperator", "PhastconsOperator", "GerpOperator", "conservationAndRadio", "conservationOrRadio", "vcfFilterSelect"];
+                    "pssOrRadio", "pssAndRadio", "PhylopOperator", "PhastconsOperator", "GerpOperator", "conservationAndRadio", "conservationOrRadio", "vcfFilterSelect",
+                    "hpoOrRadio", "hpoAndRadio"];
                 for (let id of changeEvents) {
                     let element = PolymerUtils.getElementById(this.prefix + id);
                     if (UtilsNew.isNotUndefinedOrNull(element)) {
