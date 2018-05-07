@@ -433,6 +433,17 @@
                 }
             }
 
+            keyUpAllPopFreq(e) {
+                let studyId = e.target.getAttribute("data-study");
+                let study = this.populationFrequencies.studies.find((study) => {
+                   return study.id === studyId;
+                });
+
+                study.populations.forEach((popFreq) => {
+                    PolymerUtils.setValue(this.prefix + studyId +  popFreq.id, e.target.value);
+                });
+            }
+
 
             updateConsequenceTypeFilter(e) {
                 // Select LoF term checkboxes
@@ -1531,6 +1542,13 @@
                                     class="fa fa-plus" style="cursor: pointer;padding-right: 10px"></i>
                             <strong>${study.title}</strong>
                             <div id="${prefix}${study.id}" class="form-horizontal" hidden>
+                                <div class="row" style="margin: 5px 0px">
+                                     <span class="col-md-7 control-label" data-toggle="tooltip" data-placement="top" style="text-align: left;">Set all</span>
+                                         <div class="col-md-5" style="padding: 0px 10px">
+                                            <input id="${prefix}${study.id}Input" type="text" data-study="${study.id}" value="" class="form-control input-sm ${prefix}FilterTextInput"
+                                                            name="${study.id}Input">
+                                         </div>
+                                </div>
                     `;
 
                     for (let popFreq of study.populations) {
@@ -1952,8 +1970,13 @@
                 // Add events for Population Frequency
                 for (let study of this.populationFrequencies.studies) {
                     let element = PolymerUtils.getElementById(this.prefix + study.id + "Icon");
+                    let inputAll = PolymerUtils.getElementById(this.prefix + study.id + "Input");
                     if (UtilsNew.isNotUndefinedOrNull(element)) {
                         element.addEventListener('click', this.handleCollapseAction.bind(this));
+                    }
+
+                    if (UtilsNew.isNotUndefinedOrNull(inputAll)) {
+                        inputAll.addEventListener('keyup', this.keyUpAllPopFreq.bind(this));
                     }
 
                     for (let pop of study.populations) {
