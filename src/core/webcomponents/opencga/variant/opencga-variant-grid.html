@@ -1205,7 +1205,7 @@
                         let file = window.URL.createObjectURL(data);
                         let a = document.createElement("a");
                         a.href = file;
-                        a.download = _this.study.alias + ".txt";
+                        a.download = _this.opencgaSession.study.alias + ".txt";
                         document.body.appendChild(a);
                         a.click();
                         setTimeout(function() {
