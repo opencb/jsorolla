@@ -1977,6 +1977,7 @@
 
                     if (UtilsNew.isNotUndefinedOrNull(inputAll)) {
                         inputAll.addEventListener('keyup', this.keyUpAllPopFreq.bind(this));
+                        inputAll.addEventListener('change', this.updateQueryFilters.bind(this));
                     }
 
                     for (let pop of study.populations) {
