@@ -301,20 +301,21 @@
             addAlignmentTrack(settings = {}) {
                 let resTracks = [];
 
-                if (UtilsNew.isNotUndefinedOrNull(settings.files) && settings.files.size > 0) {
+                if (UtilsNew.isNotUndefinedOrNull(settings.files) && settings.files.length > 0) {
                     let _this = this;
                     settings.files.forEach(function (file) {
                         let mySettings = {
                             data: {
-                                fileId: file,
+                                fileId: file.path,
+                                name: file.name,
                                 study: _this.opencgaSession.study.id
                             }
                         };
 
-                        if (UtilsNew.isNotEmptyArray(settings.filesName) && settings.filesName.length > 0) {
-                            mySettings.data.name = settings.filesName[file];
-
-                        }
+                        // if (UtilsNew.isNotEmptyArray(settings.filesName) && settings.filesName.length > 0) {
+                        //     mySettings.data.name = settings.filesName[file];
+                        //
+                        // }
 
                         Object.assign(settings, mySettings);
                         let track = _this.getAlignmentTrack(settings);

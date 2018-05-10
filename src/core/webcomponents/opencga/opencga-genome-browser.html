@@ -1,0 +1,417 @@
+<!--
+  ~ Copyright 2015-2016 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<link rel="import" href="../../../genome-browser/webcomponent/genome-browser.html">
+
+<dom-module id="opencga-genome-browser">
+    <template>
+        <style include="jso-styles">
+        </style>
+
+        <div class="container-fluid" style="margin: 25px">
+
+            <span style="font-weight: bold; text-decoration: underline">Sample search:</span>
+
+            <div class="row" style="margin: 5px">
+                <div class="col-md-1">
+                    Search by ID:
+                </div>
+                <div class="col-md-3">
+                    <input id="{{prefix}}AutocompleteSearchInput" type="text"
+                           placeholder="HG01879..." list="AutocompleteSearchDataList"
+                           on-keyup="_autocompleteSampleSearch">
+                    <datalist id="AutocompleteSearchDataList"></datalist>
+
+                    <button type="button" id="{{prefix}}addSampleButton" class="btn btn-primary btn-sm"
+                            on-click="addSample">
+                        +
+                    </button>
+                </div>
+            </div>
+
+            <div class="row" style="margin: 5px">
+                <div class="col-md-1">
+                    or select:
+                </div>
+                <div class="col-md-3">
+                    <button type="button" id="{{prefix}}sampleBrowser" class="btn btn-primary btn-sm"
+                            on-click="showSampleBrowser">
+                        Sample Browser
+                    </button>
+                </div>
+                <div class="col-md-8"></div>
+            </div>
+        </div>
+
+        <div style="margin: 25px">
+            <div class="row" style="margin: 5px">
+
+                <div class="col-md-10">
+
+                    <!--List of available files to browse -->
+                    <div style="max-height: 300px; overflow-y: auto">
+                        <template is="dom-repeat" items="{{_availableFiles}}" as="sample">
+                            <div>
+                                <div style="font-weight: bold; text-decoration: underline; display: inline-block">
+                                    Sample <span>{{sample.name}}</span>
+                                </div>
+                                <button type="button" id="{{prefix}}deleteSampleButton" class="btn btn-danger btn-xs"
+                                        on-click="deleteSample" data-sample="{{sample.name}}">
+                                    <i class="fa fa-times" aria-hidden="true"> Delete</i>
+                                </button>
+                            </div>
+                            <template is="dom-repeat" items="{{sample.files}}" as="file">
+                                <input type="checkbox" style="margin-left: 15px;" on-change="checkSelectionChanged"
+                                       name="file-checkbox" value="{{file.name}}" data="{{file}}">
+                                <span style="word-wrap:break-word;">{{file.name}}</span><br>
+                            </template>
+                            <br>
+                        </template>
+                    </div>
+
+                </div>
+                <div class="col-md-2">
+                    <button type="button" id="{{prefix}}RunGenomeBrowser" class="btn btn-primary"
+                            on-click="showSelectionInGenomeBrowser" style="float: right;">
+                        Show Genome Browser
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!--Genome browser-->
+        <div style="margin: 25px">
+            <genome-browser id="{{prefix}}gb" opencga-session={{opencgaSession}} cellbase-client="{{cellbaseClient}}"
+                            opencga-client="{{opencgaClient}}" region="{{region}}" tracks="{{tracks}}">
+            </genome-browser>
+        </div>
+
+
+    </template>
+
+    <script>
+        class OpencgaGenomeBrowser extends Polymer.Element {
+
+            constructor() {
+                super();
+
+                // Set status and init private properties
+                this._init();
+            }
+
+            static get is() {
+                return 'opencga-genome-browser';
+            }
+
+            static get properties() {
+                return {
+                    opencgaSession: {
+                        type: Object,
+                        observer: "onStudyUpdate"
+                    },
+                    cellbaseClient: {
+                        type: Object
+//                        observer: "init"
+                    },
+                    opencgaClient: {
+                        type: Object
+                    },
+                    region: {
+                        type: Object,
+                        observer: "_setRegion"
+                    },
+                    species: {
+                        type: Object,
+                        value: {
+                            id: "hsapiens",
+                            scientificName: "Homo sapiens",
+                            assembly: {name: "GRCh37"}
+                        }
+                    },
+                    tracks: {
+                        type: Object,
+                        value: {
+                            sequence: {type: "sequence"},
+                            gene: {type: "gene"},
+                            variant: {type: "variant", config: {}},
+                            alignment: {type: "alignment", config: {}}
+                        },
+                        observer: "init"
+                    },
+                    width: {
+                        type: Number,
+//                        value: 1400,
+                        observer: "_updateWidth"
+                    },
+                    active: {
+                        type: Boolean,
+                        value: false,
+                        observer: "_setActive"
+                    },
+                    settings: {
+                        type: Object
+                    },
+                    selectedFeatures: {
+                        type: Object,
+                        value: {
+                            sample: new Set(),
+                            file: new Set()
+                        },
+                        observer: "_selectedFeaturesChanged"
+                    }
+                }
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            _init() {
+                this.prefix = "OpencgaGenomeBrowser" + Utils.randomString(6);
+
+                this._availableFiles = [];
+
+                this._collapsed = false;
+                if (!UtilsNew.isNotUndefinedOrNull(this.region)) {
+                    this.region = new Region({chromosome: "11", start: 68177378, end: 68177510});
+                }
+            }
+
+            onStudyUpdate() {
+                if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.study)) {
+
+                }
+            }
+
+            addSample(e) {
+                let value = PolymerUtils.getElementById(this.prefix  + "AutocompleteSearchInput").value;
+                let _this = this;
+
+                for (let i in _this._availableFiles) {
+                    let sample = _this._availableFiles[i].name;
+                    if (sample === value) {
+                        // The sample is already in the shown list
+                        return;
+                    }
+                }
+
+                let query = {};
+                query["include"] = "path,name,format,bioformat";
+                query["study"] = this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias;
+                query["format"] = "VCF,BAM";
+                query["sample"] = value;
+
+                this.opencgaClient.files().search(query)
+                    .then(values => {
+                        _this.push("_availableFiles", {
+                            name: value,
+                            files: values.response[0].result
+                        });
+                    })
+                    .catch(function (response) {
+                        _this.showErrorAlert(response.error);
+                    });
+            }
+
+            deleteSample(e) {
+                let sample = e.currentTarget.dataSample;
+
+                // We make a copy of the list of available files excluding the selected sample
+                let availableFiles = [];
+                for (let i in this._availableFiles) {
+                    let item = this._availableFiles[i];
+                    if (item.name !== sample) {
+                        availableFiles.push(item);
+                    }
+                }
+
+                this._availableFiles = availableFiles;
+            }
+
+            _addSelectedFeature(e) {
+                let value = PolymerUtils.getElementById(this.prefix  + "AutocompleteSearchInput").value;
+                this.selectedFeatures.sample.add(value);
+                // To notify of the changes
+                var newSelectedFeatures = {}
+                Object.assign(newSelectedFeatures, this.selectedFeatures);
+                this.selectedFeatures = newSelectedFeatures;
+            }
+
+            _autocompleteSampleSearch(e) {
+                // Only gene symbols are going to be searched and not Ensembl IDs
+                let sampleNamePrefix = PolymerUtils.getElementById(this.prefix  + "AutocompleteSearchInput").value;
+                if (UtilsNew.isNotUndefinedOrNull(sampleNamePrefix) && sampleNamePrefix.length >= 4) {
+                    let _this = this;
+                    this.opencgaClient.samples()
+                        .search({
+                            study: _this.opencgaSession.project.alias + ":" + _this.opencgaSession.study.alias,
+                            name: "~^" + sampleNamePrefix,
+                            include: "id,name",
+                            includeIndividual: false,
+                            limit: 20}, {})
+                        .then(function (response) {
+//                            _this.autocompleteSampleData = response.response[0].result;
+                            let options = "";
+                            for (let sample of response.response[0].result) {
+                                let sampleStr = JSON.stringify(sample);
+                                options += `<option id="${_this.prefix}Sample${sample.name}" value="${sample.name}" data-sample='` + sampleStr + "'>";
+                            }
+                            PolymerUtils.innerHTML("AutocompleteSearchDataList", options);
+                        });
+                }
+            }
+
+            _selectedFeaturesChanged() {
+                let filterTextArea = PolymerUtils.getElementById(this.prefix  + "filters");
+                if (UtilsNew.isNotUndefinedOrNull(filterTextArea)) {
+                    let text = [];
+                    if (this.selectedFeatures.sample.size > 0) {
+                        text.push("Samples:" + Array.from(this.selectedFeatures.sample).join(","));
+                    }
+                    if (this.selectedFeatures.file.size > 0) {
+                        text.push("Files:" + Array.from(this.selectedFeatures.file).join(","));
+                    }
+                    filterTextArea.value = text.join(";");
+                }
+            }
+
+            fetchListOfFiles() {
+                let samples = Array.from(this.selectedFeatures.sample);
+
+                let query = {};
+                query["include"] = "path,name,format,bioformat";
+                query["study"] = this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias;
+                query["format"] = "VCF,BAM";
+                query["sample"] = samples.join(",");
+
+                let _this = this;
+
+                this.opencgaClient.files().search(query)
+                    .then(values => {
+                        _this.updateAvailableFiles(values);
+                    })
+                    .catch(function (response) {
+                        _this.showErrorAlert(response.error);
+                    });
+
+
+                // let promiseArray = [];
+                //
+                // let _this = this;
+                // for (let i = 0; i < samples.length; i++) {
+                //     let sample = samples[i];
+                //     query["sample"] = sample;
+                //
+                //     let internalPromiseArray = [];
+                //
+                //     internalPromiseArray.push(
+                //         this.opencgaClient.files().search(query).catch(function (response) {
+                //             _this.showErrorAlert(response.error);
+                //         })
+                //     );
+                //
+                //     promiseArray.push(
+                //         Promise.all(internalPromiseArray).then(values => {
+                //             if (values.length === 2) {
+                //                 // We concat the VCF, BAM results
+                //                 myResults = values[0].response[0].result.concat(values[1].response[0].result);
+                //                 values[0].response[0].result = myResults;
+                //             }
+                //             return values[0];
+                //         })
+                //     );
+                // }
+                //
+                // Promise.all(promiseArray).then(values => {
+                //     _this.updateAvailableFiles(values);
+                // });
+            }
+
+            updateAvailableFiles(response) {
+                // let myVariantFiles = [];
+                // let myAlignmentFiles = [];
+                //
+                // for (let i = 0; i < response.length; i++) {
+                //     response[i].response.forEach(function (response) {
+                //         response.result.forEach(function (file) {
+                //             if (file.format === "VCF") {
+                //                 myVariantFiles.push(file);
+                //             } else if (file.format === "BAM") {
+                //                 myAlignmentFiles.push(file);
+                //             }
+                //         });
+                //     });
+                // }
+
+                let study = this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias;
+                let mySamples = [];
+
+                let formats = {};
+                response.response.forEach(function (response) {
+                    response.result.forEach(function (file) {
+                        if (!formats.hasOwnProperty(file.format)) {
+                            formats[file.format] = [];
+                        }
+                        file["_study"] = study;
+                        formats[file.format].push(file);
+                    });
+                });
+                let myFiles = [];
+                Object.keys(formats).forEach(function (format) {
+                    myFiles.push({
+                        name: format,
+                        files: formats[format]
+                    });
+                });
+                mySamples.push({
+                    name: study,
+                    results: myFiles
+                });
+
+                this._availableFiles = mySamples;
+            }
+
+            showSelectionInGenomeBrowser() {
+                let inputArray = document.querySelectorAll('input[name=file-checkbox]:checked');
+
+                let myVariantFiles = [];
+                let myAlignmentFiles = [];
+                inputArray.forEach(function(input) {
+                    let file = input.data;
+                    if (file.format === "VCF") {
+                        myVariantFiles.push(file);
+                    } else if (file.format === "BAM") {
+                        myAlignmentFiles.push(file);
+                    }
+                });
+
+                this.tracks.variant.config.samples = myVariantFiles;
+                this.tracks.alignment.config.files = myAlignmentFiles;
+
+                // In order to notify of the changes to the genome browser, we make a copy of the tracks object
+                let tracks = {};
+                Object.assign(tracks, this.tracks);
+                this.tracks = tracks;
+
+                let gbrowser = PolymerUtils.getElementById(this.prefix  + "gb");
+                // Activate genome browser
+                gbrowser.active = true;
+            }
+
+        }
+
+        customElements.define(OpencgaGenomeBrowser.is, OpencgaGenomeBrowser);
+    </script>
+</dom-module>
