@@ -1138,14 +1138,16 @@
                     // If there is more than one sample we make visible the Segregation dropdown
                     if (samples.length > 0) {
                         PolymerUtils.setAttribute(this.prefix + "SampleSegregation", "style", "display: inline");
-                        let allContainsIndividual = this.samples.every((sample) => {
-                            return UtilsNew.isNotUndefinedOrNull(sample.attributes) && UtilsNew.isNotUndefinedOrNull(sample.attributes.individual);
-                        });
-
-                        if (!allContainsIndividual) {
-                            PolymerUtils.setPropertyById(this.prefix + "SegregationOperator", "disabled", true)
-                        } else {
-                            PolymerUtils.removeAttribute(this.prefix + "SegregationOperator", "disabled")
+                        let allContainsIndividual = false;
+                        if (UtilsNew.isNotUndefinedOrNull(this.samples) && UtilsNew.isNotEmptyArray(this.samples)) {
+                            let allContainsIndividual = this.samples.every((sample) => {
+                                return UtilsNew.isNotUndefinedOrNull(sample.attributes) && UtilsNew.isNotUndefinedOrNull(sample.attributes.individual);
+                            });
+                            if (allContainsIndividual) {
+                                PolymerUtils.setPropertyById(this.prefix + "SegregationOperator", "disabled", true)
+                            } else {
+                                PolymerUtils.removeAttribute(this.prefix + "SegregationOperator", "disabled")
+                            }
                         }
                     }
                 } else {

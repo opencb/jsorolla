@@ -577,7 +577,8 @@
 
                     ]
                 ];
-                if (this.config.grid.downloadQcSample) {
+
+                if (typeof this.config !== "undefined" && this.config.grid.downloadQcSample) {
                     this._columns[0].push({
                         title: 'QC',
                         field: 'download',
