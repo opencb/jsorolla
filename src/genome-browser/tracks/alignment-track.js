@@ -91,6 +91,7 @@ class AlignmentTrack extends FeatureTrack {
         this.renderedArea = {}; //<- this is only in Alignments
         this.renderer.render(features, {
             config: this.config.display,
+            covHeight: this.dataType === "features" ? 50 : 500,
             cacheItems: event.items,
             svgCanvasFeatures: this.svgCanvasFeatures,
             featureTypes: this.featureTypes,
@@ -109,7 +110,6 @@ class AlignmentTrack extends FeatureTrack {
 
     draw() {
         let _this = this;
-
         this.svgCanvasOffset = (this.width * 3 / 2) / this.pixelBase;
         this.svgCanvasLeftLimit = this.region.start - this.svgCanvasOffset * 2;
         this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset * 2;
@@ -131,6 +131,7 @@ class AlignmentTrack extends FeatureTrack {
                     start: this.region.start - this.svgCanvasOffset * 2,
                     end: this.region.end + this.svgCanvasOffset * 2
                 }),
+                width: this.width,
                 params: {
                     histogram: this.histogram,
                     histogramLogarithm: this.histogramLogarithm,
@@ -182,6 +183,7 @@ class AlignmentTrack extends FeatureTrack {
                         start: parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset - 1),
                         end: this.svgCanvasLeftLimit - 1
                     }),
+                    width: this.width,
                     params: {
                         histogram: this.histogram,
                         histogramLogarithm: this.histogramLogarithm,
@@ -190,12 +192,12 @@ class AlignmentTrack extends FeatureTrack {
                     }
                 })
                     .then(function(response){
-                        _this._addNewAlignments(response, "left");
-                        // if(response.dataType === "histogram"){
-                        //     _this.getDataHandler(response);
-                        // }else {
-                        _this.getDataHandler(_this.retrievedAlignments);
-                        // }
+                        if(response.dataType === "histogram"){
+                            _this.getDataHandler(response);
+                        } else {
+                            _this._addNewAlignments(response, "left");
+                            _this.getDataHandler(_this.retrievedAlignments);
+                        }
                         _this.setLoading(false);
                     })
                     .catch(function(reason){
@@ -214,6 +216,7 @@ class AlignmentTrack extends FeatureTrack {
                         start: this.svgCanvasRightLimit + 1,
                         end: parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset + 1)
                     }),
+                    width: this.width,
                     params: {
                         histogram: this.histogram,
                         histogramLogarithm: this.histogramLogarithm,
@@ -222,8 +225,12 @@ class AlignmentTrack extends FeatureTrack {
                     }
                 })
                     .then(function(response){
-                        _this._addNewAlignments(response, "right");
-                        _this.getDataHandler(_this.retrievedAlignments);
+                        if(response.dataType === "histogram"){
+                            _this.getDataHandler(response);
+                        } else {
+                            _this._addNewAlignments(response, "right");
+                            _this.getDataHandler(_this.retrievedAlignments);
+                        }
                         _this.setLoading(false);
 
                     })
@@ -344,12 +351,11 @@ class AlignmentTrack extends FeatureTrack {
         modalBody.appendChild(modalContent);
 
         this.div.append(div);
-        
+
         this.modalSettings = div;
     }
 
     showModalSettings(event) {
-        debugger
         this.modalSettings.modal('show');
     }
 }

@@ -56,9 +56,9 @@
     /***************************************************************************/
 
     // We first set (and overwrite) CellBase Host and Version and Opencga params.
-    CELLBASE_HOST ="ws.babelomics.org/cellbase";
+    CELLBASE_HOST ="bioinfo.hpc.cam.ac.uk/cellbase";
     CELLBASE_VERSION = "v4";
-    OPENCGA_HOST = "bioinfo.hpc.cam.ac.uk/hgva";
+    OPENCGA_HOST = "bioinfodev.hpc.cam.ac.uk/hgva-1.3.2";
 
     let cellBaseClientConfig = new CellBaseClientConfig(hosts = CELLBASE_HOST, version = CELLBASE_VERSION);
     cellBaseClientConfig.cache.active = false;

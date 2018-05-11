@@ -47,7 +47,7 @@ class OpencgaAdapter extends FeatureAdapter {
     }
     // Deprecated method
     setSpecies(species) {
-            // this.species = species;
+        // this.species = species;
     }
 
     getData(args){
@@ -174,13 +174,13 @@ class OpencgaAdapter extends FeatureAdapter {
             }
             let chuncksByRegion =[];
 
-                // The query is similar to:
-                // _this.client.variants().query({
-                //     region: groupedRegions[i],
-                //     studies: studies,
-                //     //exclude: "studies, annotation"
-                //     //exclude: "studies.files,studies.stats,annotation"
-                // })
+            // The query is similar to:
+            // _this.client.variants().query({
+            //     region: groupedRegions[i],
+            //     studies: studies,
+            //     //exclude: "studies, annotation"
+            //     //exclude: "studies.files,studies.stats,annotation"
+            // })
 
             for (let i = 0; i < regions.length; i++) {
                 p["region"] = regions[i];
@@ -250,10 +250,11 @@ class OpencgaAdapter extends FeatureAdapter {
         let regions = [];
         args.webServiceCallCount = 0;
 
+        let auxStart = start;
         do {
-            regions.push(`chr${region.chromosome}:${start}-${start + this.options.chunkSize - 1}`);
-            start += this.options.chunkSize;
-        } while(start < region.end);
+            regions.push(`chr${region.chromosome}:${auxStart}-${auxStart + this.options.chunkSize - 1}`);
+            auxStart += this.options.chunkSize;
+        } while(auxStart < region.end);
 
         let groupedRegions = this._groupQueries(regions);
         args.regions = groupedRegions;
@@ -326,45 +327,39 @@ class OpencgaAdapter extends FeatureAdapter {
                 }
             } else { // histogram
 
-                let chunks = [];
-                for (let i = 0; i < groupedRegions.length; i++) {
-                    args.webServiceCallCount++;
+                let bpsPerPixel = region.length() / args.width;
 
-                    let coverage = _this.client.alignments().coverage(fileId,
-                        {
-                            region: groupedRegions[i],
-                            study: study,
-                            //windowSize: Math.round((region.end - region.start) / 500)
-                        })
-                        .then(function (response) {
-                            let aux = _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
-                            let auxArray = [];
-                            // Create object for renderer
-                            for (let i = 0; i < aux.length; i++) {
-                                let auxObject = {
-                                    region: aux[i].region,
-                                    chunkKey: aux[i].chunkKey,
-                                    alignments: [],
-                                    coverage: {
-                                        windowSize: aux[i].value[0].windowSize,
-                                        value: aux[i].value[0].values
-                                    }
-                                };
-                                auxArray.push(auxObject);
+                let regionLength = auxStart - start;
+                let widthInPixels = regionLength / bpsPerPixel;
 
+                // We will only want to draw 1 point for every 4 pixels
+                let totalPointsNeeded = widthInPixels / 4;
+
+                // Therefore, we will need a window size of...
+                let windowSize = Math.max(regionLength / totalPointsNeeded, 1);
+
+                _this.client.alignments().coverage(fileId,
+                    {
+                        region: `chr${region.chromosome}:${start}-${auxStart - 1}`,
+                        study: study,
+                        windowSize: Math.round(windowSize)
+                    })
+                    .then(function (response) {
+                        let auxArray = [{
+                            region: new Region(response.response[0].id),
+                            chunkKey: response.response[0].id,
+                            alignments: [],
+                            coverage: {
+                                windowSize: response.response[0].result[0].windowSize,
+                                value: response.response[0].result[0].values
                             }
-                            args.webServiceCallCount--;
-
-                            chunks = chunks.concat(auxArray);
-
-                            if (args.webServiceCallCount === 0) {
-                                resolve({
-                                    items: chunks, dataType: dataType, chunkSize: chunkSize, sender: _this
-                                });
-                            }
+                        }];
+                        resolve({
+                            items: auxArray, dataType: dataType, chunkSize: region.length(), sender: _this
                         });
+                    });
 
-                }
+
             }
         });
     }
