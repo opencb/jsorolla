@@ -1,0 +1,118 @@
+<!--
+  ~ Copyright 2015-2016 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<link rel="import" href="opencga-sample-filter.html">
+<link rel="import" href="../../opencga-active-filters.html">
+<link rel="import" href="../../variant/variant-sample-grid.html">
+
+<dom-module id="opencga-sample-browser">
+    <template>
+        <style include="jso-styles"></style>
+
+        <div class="row">
+            <div class="col-md-2">
+                <opencga-sample-filter opencga-session="{{opencgaSession}}" config="{{config}}" samples="{{samples}}"
+                                       opencga-client="{{opencgaSession.opencgaClient}}" query="{{query}}" search="{{search}}">
+                </opencga-sample-filter>
+            </div>
+
+            <div class="col-md-10">
+                <br>
+                <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" filters="{{config.filters}}" default-study="{{opencgaSession.study.alias}}"
+                                        alias="{{activeFilterAlias}}" refresh="{{search}}" on-clear="onClear" on-filterchange="onFilterChange">
+                </opencga-active-filters>
+
+                <h3>Sample Results</h3>
+                <variant-sample-grid opencga-client="{{opencgaSession.opencgaClient}}" opencga-session="{{opencgaSession}}" config="[[config]]"
+                                     event-notify-name="[[eventNotifyName]]" samples="{{samples}}" search="{{search}}">
+                </variant-sample-grid>
+
+                <br>
+                <h3>Tools?</h3>
+
+            </div>
+        </div>
+    </template>
+    <script>
+        class OpencgaSampleBrowser extends Polymer.Element {
+
+            constructor() {
+                super();
+
+                // Set status and init private properties
+                this._init();
+            }
+
+            static get is() {
+                return 'opencga-sample-browser';
+            }
+
+            static get properties() {
+                return {
+                    opencgaSession: {
+                        type: Object
+                    },
+                    opencgaClient: {
+                        type: Object,
+                        observer: "renderAnalysisTable"
+                    },
+                    filters: {
+                        type: Object,
+                        notify: true,
+                        observer: "onFilterUpdate"
+                    },
+                    search: {
+                        type: Object,
+                        notify: true
+                    },
+                    config: {
+                        type: Object
+                    }
+                }
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            _init() {
+                // this.prefix = "osb" + Utils.randomString(6);
+
+                this.samples = [];
+            }
+
+            static get observers() {
+                return ['calculateFilters(filteredVariables.variables.*)', 'sampleObserver(samples.*)'];
+            }
+
+            sampleObserver() {
+                this.dispatchEvent(new CustomEvent("samplechange", {
+                    detail: {
+                        samples: this.samples
+                    },
+                    bubbles: true, composed: true
+                }));
+            }
+
+            onClear() {
+                this.query = {studies: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias};
+                this.search = {};
+            }
+        }
+
+        customElements.define(OpencgaSampleBrowser.is, OpencgaSampleBrowser);
+    </script>
+</dom-module>
