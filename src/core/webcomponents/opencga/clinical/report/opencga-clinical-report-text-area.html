@@ -1,0 +1,66 @@
+<!--
+  ~ Copyright 2015 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<dom-module id="opencga-clinical-report-text-area">
+    <template>
+        <style include="jso-styles"></style>
+        <template is="dom-if" if="{{isDisabled}}" >
+            <textarea id="{{prefix}}textArea" disabled rows="2"></textarea>
+        </template>
+        <template is="dom-if" if="{{!isDisabled}}" >
+            <textarea id="{{prefix}}textArea" rows="2"></textarea>
+        </template>
+    </template>
+
+    <script>
+        class OpencgaClinicalReportTextArea extends Polymer.Element {
+            static get is() {
+                return 'opencga-clinical-report-text-area'
+            }
+
+            static get properties() {
+                return {
+                    text: {
+                        type: String,
+                        default: ""
+                    },
+                    isDisabled:  {
+                        type: Boolean,
+                        default: true
+                    },
+                }
+            }
+
+            constructor() {
+                super();
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            ready() {
+                super.ready();
+            }
+
+            _init() {
+                this.prefix = "report-field-text-area" + Utils.randomString(6);
+            }
+        }
+
+        customElements.define(OpencgaClinicalReportTextArea.is, OpencgaClinicalReportTextArea);
+    </script>
+</dom-module>

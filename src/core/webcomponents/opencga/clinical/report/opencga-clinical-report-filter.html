@@ -14,10 +14,10 @@
   ~ limitations under the License.
   -->
 
-<link rel="import" href="../catalog/clinical/opencga-clinical-analysis-browser.html">
-<link rel="import" href="../opencga-message-dialog.html">
+<link rel="import" href="../../catalog/clinical/opencga-clinical-analysis-browser.html">
+<link rel="import" href="../../opencga-message-dialog.html">
 
-<dom-module id="variant-report-filter">
+<dom-module id="opencga-clinical-report-filter">
     <template>
         <style include="jso-styles">
             label {
@@ -183,28 +183,28 @@
 
         <!--&lt;!&ndash; Modal dialog for Analysis Browser&ndash;&gt;-->
         <!--<div class="modal fade" id="{{prefix}}AnalysisBrowser" tabindex="-1" role="dialog"-->
-             <!--aria-labelledby="sampleBrowserLabel">-->
-            <!--<div class="modal-dialog modal-lg" role="document" style="width: 1024px;">-->
-                <!--<div class="modal-content">-->
-                    <!--<div class="modal-header">-->
-                        <!--<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span-->
-                                <!--aria-hidden="true">&times;</span></button>-->
-                        <!--<h4 class="modal-title" id="{{prefix}}AnalysisBrowserLabel">Analysis Selector</h4>-->
-                    <!--</div>-->
-                    <!--<div class="modal-body" style="height: 650px">-->
-                        <!--&lt;!&ndash;<variant-clinical-selector opencga-client="{{opencgaClient}}" analysis="{{analysis}}" analysis-selected="{{analysisSelected}}"></variant-clinical-selector>&ndash;&gt;-->
-                        <!--<variant-clinical-selector opencga-client="{{opencgaClient}}"-->
-                                                   <!--analysis-selected="{{analysisSelected}}" study="{{study}}"-->
-                                                   <!--analysis-modal="{{analysisModal}}"-->
-                                                   <!--show-pedigree="{{showPedigree}}"></variant-clinical-selector>-->
-                    <!--</div>-->
-                    <!--<div class="modal-footer">-->
-                        <!--<button type="button" class="btn btn-primary" data-dismiss="modal" on-click="showReportOptions">-->
-                            <!--OK-->
-                        <!--</button>-->
-                    <!--</div>-->
-                <!--</div>-->
-            <!--</div>-->
+        <!--aria-labelledby="sampleBrowserLabel">-->
+        <!--<div class="modal-dialog modal-lg" role="document" style="width: 1024px;">-->
+        <!--<div class="modal-content">-->
+        <!--<div class="modal-header">-->
+        <!--<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span-->
+        <!--aria-hidden="true">&times;</span></button>-->
+        <!--<h4 class="modal-title" id="{{prefix}}AnalysisBrowserLabel">Analysis Selector</h4>-->
+        <!--</div>-->
+        <!--<div class="modal-body" style="height: 650px">-->
+        <!--&lt;!&ndash;<variant-clinical-selector opencga-client="{{opencgaClient}}" analysis="{{analysis}}" analysis-selected="{{analysisSelected}}"></variant-clinical-selector>&ndash;&gt;-->
+        <!--<variant-clinical-selector opencga-client="{{opencgaClient}}"-->
+        <!--analysis-selected="{{analysisSelected}}" study="{{study}}"-->
+        <!--analysis-modal="{{analysisModal}}"-->
+        <!--show-pedigree="{{showPedigree}}"></variant-clinical-selector>-->
+        <!--</div>-->
+        <!--<div class="modal-footer">-->
+        <!--<button type="button" class="btn btn-primary" data-dismiss="modal" on-click="showReportOptions">-->
+        <!--OK-->
+        <!--</button>-->
+        <!--</div>-->
+        <!--</div>-->
+        <!--</div>-->
         <!--</div>-->
         <div style="width: 60%;margin: 0 auto">
             <button type="button" class="btn btn-primary btn-md" style="width: 100%" on-click="onSave">
@@ -225,9 +225,9 @@
     </template>
 
     <script>
-        class VariantReportFilter extends Polymer.Element {
+        class OpencgaClinicalReportFilter extends Polymer.Element {
             static get is() {
-                return 'variant-report-filter'
+                return 'opencga-clinical-report-filter'
             }
 
             static get properties() {
@@ -442,7 +442,7 @@
 //            }
         }
 
-        customElements.define(VariantReportFilter.is, VariantReportFilter);
+        customElements.define(OpencgaClinicalReportFilter.is, OpencgaClinicalReportFilter);
 
     </script>
 </dom-module>

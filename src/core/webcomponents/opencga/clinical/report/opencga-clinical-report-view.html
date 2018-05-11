@@ -1,0 +1,149 @@
+<!--
+  ~ Copyright 2015 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<link rel="import" href="opencga-clinical-report-text.html">
+<link rel="import" href="opencga-clinical-report-text-area.html">
+
+<dom-module id="opencga-clinical-report-view">
+    <template>
+        <style include="jso-styles"></style>
+        <div>
+            <h2 id="{{prefix}}titleReport" style="margin: 10px 5px 15px 25px">{{config.setUp.title}}</h2>
+            <div style="float: right; padding: 0px 0px 10px 5px">
+                <span>{{requestDate}}</span>
+            </div>
+
+            <div id="{{prefix}}dynamicFieldsReport">
+
+            </div>
+
+        </div>
+    </template>
+
+    <script>
+        class OpencgaClinicalReportView extends Polymer.Element {
+            static get is() {
+                return 'opencga-clinical-report-view'
+            }
+
+            static get properties() {
+                return {
+                    opencgaSession: {
+                        type: Object
+                    },
+                    opencgaClient: {
+                        type: Object
+                    },
+                    config: {
+                        type: Object
+                    },
+                    interpretation: {
+                        type: Object,
+                        observer: 'loadDynamicValues'
+                    }
+                }
+
+            }
+
+            constructor() {
+                super();
+                this._init();
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            ready() {
+                super.ready();
+            }
+
+            connectedCallback() {
+                super.connectedCallback();
+                this.loadDynamicValues();
+            }
+
+            _init() {
+                this.prefix = "repView" + Utils.randomString(6);
+                let date = new Date();
+                this.requestDate = date.toLocaleString();
+            }
+
+            loadDynamicValues() {
+                let res = {};
+                res.clinicalAnalysisId = this.interpretation.clinicalAnalysis.id;
+                res.clinicalAnalysisDescription = this.interpretation.clinicalAnalysis.description;
+                this.dynamicValues = res;
+                this.loadDynamicFields();
+            }
+
+            loadDynamicFields() {
+                this.config.setUp.sections.forEach((row) => {
+                    // div row
+                    let divRow = document.createElement("div");
+                    divRow.setAttribute('class', 'row');
+
+                    // h3 title section
+                    let h3 = document.createElement("h3");
+                    h3.innerText = row.title;
+
+                    //hr
+                    let hr = document.createElement("hr");
+
+                    divRow.appendChild(h3);
+                    divRow.appendChild(hr);
+                    row.fields.forEach((fieldsRow) => {
+                        // div-col-md-12
+                        let div = document.createElement("div");
+                        div.style = "padding: 5px 20px 10px 20px";
+                        div.setAttribute('class', 'col-md-12');
+
+                        fieldsRow.forEach((field) => {
+                            // div col-md
+                            let divField = document.createElement("div");
+                            divField.setAttribute('class', 'col-md-5');
+
+                            //label
+                            let label = document.createElement("label");
+                            label.innerText = field.label + ": "
+                            label.setAttribute('class', 'col-form-label');
+
+                            // component value
+                            let componentValue = document.createElement(field.component);
+                            //text property
+                            componentValue.text = UtilsNew.isNotEmpty(this.dynamicValues[field.value]) ? this.dynamicValues[field.value] : "-";
+                            //isDisabled property
+                            if (UtilsNew.isNotUndefinedOrNull(field.isDisabled)) {
+                                componentValue.isDisabled = field.isDisabled;
+                            }
+
+                            divField.appendChild(label);
+                            divField.appendChild(componentValue);
+                            div.appendChild(divField);
+                        });
+                        divRow.appendChild(div);
+                    });
+                    //append section
+                    if (UtilsNew.isNotUndefinedOrNull(PolymerUtils.getElementById(this.prefix + "dynamicFieldsReport"))) {
+                        PolymerUtils.getElementById(this.prefix + "dynamicFieldsReport").appendChild(divRow);
+                    }
+                });
+            }
+        }
+
+        customElements.define(OpencgaClinicalReportView.is, OpencgaClinicalReportView);
+
+    </script>
+</dom-module>

@@ -14,17 +14,17 @@
   ~ limitations under the License.
   -->
 
-<link rel="import" href="../catalog/samples/opencga-sample-filter.html">
-<link rel="import" href="../opencga-active-filters.html">
-<link rel="import" href="../opencga-message-dialog.html">
-<link rel="import" href="../catalog/samples/opencga-analysis-filter.html">
+<link rel="import" href="../samples/opencga-sample-filter.html">
+<link rel="import" href="../../opencga-active-filters.html">
+<link rel="import" href="../../opencga-message-dialog.html">
+<link rel="import" href="opencga-clinical-analysis-filter.html">
 
-<dom-module id="variant-clinical-selector">
+<dom-module id="opencga-clinical-analysis-browser">
     <template>
         <style include="jso-styles"></style>
 
         <div class="col-md-3">
-            <opencga-analysis-filter opencga-client="{{opencgaClient}}" opencga-session="{{opencgaSession}}" query="{{query}}" on-search="onSearch"></opencga-analysis-filter>
+            <opencga-clinical-analysis-filter opencga-client="{{opencgaClient}}" opencga-session="{{opencgaSession}}" query="{{query}}" on-search="onSearch"></opencga-clinical-analysis-filter>
         </div>
         <div class="col-md-9">
             <br>
@@ -44,9 +44,9 @@
     </template>
     <script>
 
-        class VariantClinicalSelector extends Polymer.Element {
+        class OpencgaClinicalAnalysisBrowser extends Polymer.Element {
             static get is() {
-                return 'variant-clinical-selector';
+                return 'opencga-clinical-analysis-browser';
             }
 
             static get properties() {
@@ -107,6 +107,6 @@
             }
         }
 
-        customElements.define(VariantClinicalSelector.is, VariantClinicalSelector);
+        customElements.define(OpencgaClinicalAnalysisBrowser.is, OpencgaClinicalAnalysisBrowser);
     </script>
 </dom-module>

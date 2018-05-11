@@ -17,8 +17,8 @@
 <link rel="import" href="variant-clinical-upload-new.html">
 <link rel="import" href="variant-clinical-samples.html">
 <link rel="import" href="../variant/opencga-variant-interpretation.html">
-<link rel="import" href="variant-clinical-report.html">
-<link rel="import" href="variant-clinical-selector.html">
+<link rel="import" href="report/opencga-clinical-report.html">
+<link rel="import" href="../catalog/clinical/opencga-clinical-analysis-browser.html">
 <link rel="import" href="clinical-analysis-view.html">
 <link rel="import" href="clinical-interpretation-view.html">
 <link rel="import" href="../opencga-message-dialog.html">
@@ -352,9 +352,9 @@
 
         </template>
         <template is="dom-if" if="{{activeReport}}" restamp="true">
-            <variant-clinical-report opencga-client="{{opencgaClient}}" opencga-session="{{opencgaSession}}" config="{{config}}"
+            <opencga-clinical-report opencga-client="{{opencgaClient}}" opencga-session="{{opencgaSession}}" config="{{config}}"
                                      tool-title="Report of {{clinicalAnalysis.name}}" interpretation="{{interpretationReport}}" analysis="{{clinicalAnalysis}}" expReport="true">
-            </variant-clinical-report>
+            </opencga-clinical-report>
         </template>
     </template>
     </div>
@@ -369,9 +369,9 @@
                     <h4 class="modal-title" id="{{prefix}}AnalysisBrowserLabel">Analysis Selector</h4>
                 </div>
                 <div class="modal-body" style="height: 780px">
-                    <variant-clinical-selector opencga-client="{{opencgaClient}}" opencga-session="{{opencgaSession}}" analysis-selected="{{analysisSelected}}"
+                    <opencga-clinical-analysis-browser opencga-client="{{opencgaClient}}" opencga-session="{{opencgaSession}}" analysis-selected="{{analysisSelected}}"
                                                analysis-modal="{{analysisModal}}">
-                    </variant-clinical-selector>
+                    </opencga-clinical-analysis-browser>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="onAnalysisSelected">
