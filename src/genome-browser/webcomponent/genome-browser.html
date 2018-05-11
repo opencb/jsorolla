@@ -84,7 +84,8 @@
             }
 
             init() {
-                if (typeof this.cellbaseClient === "undefined" || typeof this.opencgaClient === "undefined" || typeof this.region === "undefined") {
+                if (typeof this.cellbaseClient === "undefined" || typeof  this.opencgaSession === "undefined"
+                    || typeof this.opencgaClient === "undefined" || typeof this.region === "undefined") {
                     return;
                 }
 
@@ -132,7 +133,7 @@
 
                 let _tracks = [];
 
-                for(let track of Object.values(this.tracks)){
+                for (let track of Object.values(this.tracks)){
                     switch (track.type) {
                         case 'sequence':
                             _tracks.push(this._addSequenceTrack(track.config));

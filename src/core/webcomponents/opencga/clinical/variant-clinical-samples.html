@@ -33,7 +33,7 @@
 
             <div class="col-md-10">
                 <br>
-                <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" filters="{{config.filters}}" default-study="{{opencgaSession.study.alias}}"
+                <opencga-active-filters opencga-client="{{opencgaSession.opencgaClient}}" query="{{query}}" filters="{{config.filters}}" default-study="{{opencgaSession.study.alias}}"
                                         alias="{{activeFilterAlias}}" refresh="{{search}}" on-clear="onClear" on-filterchange="onFilterChange">
                 </opencga-active-filters>
 

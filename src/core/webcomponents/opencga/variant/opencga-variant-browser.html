@@ -83,9 +83,9 @@
                                     <button type="button" class="btn btn-success variant-browser-view-buttons" data-view="Summary" on-click="_changeView">
                                         <i class="fa fa-line-chart icon-padding" aria-hidden="true" data-view="Summary" on-click="_changeView"></i> Summary (Beta)
                                     </button>
-                                    <!--<button type="button" class="btn btn-success variant-browser-view-buttons" data-view="GenomeBrowser" on-click="_changeView">-->
-                                    <!--<i class="fa fa-list-alt icon-padding" aria-hidden="true" data-view="GenomeBrowser" on-click="_changeView"></i> Genome Browser (Beta)-->
-                                    <!--</button>-->
+                                    <button type="button" class="btn btn-success variant-browser-view-buttons" data-view="GenomeBrowser" on-click="_changeView">
+                                        <i class="fa fa-list-alt icon-padding" aria-hidden="true" data-view="GenomeBrowser" on-click="_changeView"></i> Genome Browser (Beta)
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -182,6 +182,17 @@
                                 <h4>Studies</h4>
                                 <div id="{{prefix}}studies"></div>
                             </div>
+                        </div>
+
+                        <!-- Third TAB -->
+                        <div id="{{prefix}}GenomeBrowser" class="variant-browser-content" style="display: none">
+                            <br>
+                            <br>
+                            <variant-genome-browser opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}"
+                                                    cellbase-client="{{cellbaseClient}}"
+                                                    query={{query}} search={{search}} species={{config.species}}
+                                                    region="{{region}}" active="{{_genomeBrowserActive}}" full-screen="{{fullScreen}}">
+                            </variant-genome-browser>
                         </div>
                     </div>
 
