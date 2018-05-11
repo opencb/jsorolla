@@ -349,7 +349,6 @@ class AlignmentTrack extends FeatureTrack {
     }
 
     showModalSettings(event) {
-        debugger
         this.modalSettings.modal('show');
     }
 }
