@@ -48,10 +48,6 @@ class AlignmentRenderer extends Renderer {
             class: "bamCoverage",
             cursor: "pointer",
         });
-        const bamReadGroup = SVG.addChild(args.svgCanvasFeatures, "g", {
-            class: "bamReads",
-            cursor: "pointer",
-        });
 
         // This other object will contain the strings needed to build the whole polyline to draw the different rows of reads
         const polyDrawing = {};
@@ -64,44 +60,51 @@ class AlignmentRenderer extends Renderer {
             }
         }
 
-        // Remove old SVGs
-        if (args.svgCanvasFeatures.childElementCount > 2) {
-            args.svgCanvasFeatures.removeChild(args.svgCanvasFeatures.firstChild);
-            args.svgCanvasFeatures.removeChild(args.svgCanvasFeatures.firstChild);
-        }
+        if (response.dataType === "features") {
+            // Remove old SVGs
+            if (args.svgCanvasFeatures.childElementCount > 2) {
+                args.svgCanvasFeatures.removeChild(args.svgCanvasFeatures.firstChild);
+                args.svgCanvasFeatures.removeChild(args.svgCanvasFeatures.firstChild);
+            }
 
-        const keys = Object.keys(polyDrawing);
-        for (let i = 0; i < keys.length; i++) {
-            const features = args.renderedArea[keys[i]];
+            const bamReadGroup = SVG.addChild(args.svgCanvasFeatures, "g", {
+                class: "bamReads",
+                cursor: "pointer",
+            });
 
-            this._renderReadsAndToolTips(bamReadGroup, polyDrawing[keys[i]].reads, 1, features, args);
-            this._renderReadsAndToolTips(bamReadGroup, polyDrawing[keys[i]].lowQualityReads, this.lowQualityOpacity, features, args);
+            const keys = Object.keys(polyDrawing);
+            for (let i = 0; i < keys.length; i++) {
+                const features = args.renderedArea[keys[i]];
 
-            // Render differences
-            this._addDifferencesSVG(bamReadGroup, polyDrawing[keys[i]].differences.A, "#009900");
-            this._addDifferencesSVG(bamReadGroup, polyDrawing[keys[i]].differences.T, "#aa0000");
-            this._addDifferencesSVG(bamReadGroup, polyDrawing[keys[i]].differences.C, "#0000ff");
-            this._addDifferencesSVG(bamReadGroup, polyDrawing[keys[i]].differences.G, "#857a00");
-            this._addDifferencesSVG(bamReadGroup, polyDrawing[keys[i]].differences.N, "#888");
-            this._addDifferencesSVG(bamReadGroup, polyDrawing[keys[i]].differences.D, "#000");
-            if (polyDrawing[keys[i]].differences.I.length > 0) {
-                const text = SVG.addChild(bamReadGroup, "text", {
-                    y: parseInt(keys[i]) + polyDrawing[keys[i]].config.height,
-                    class: "ocb-font-ubuntumono ocb-font-size-15",
-                });
-                for (let j = 0; j < polyDrawing[keys[i]].differences.I.length; j++) {
-                    const diff = polyDrawing[keys[i]].differences.I[j];
-                    const t = SVG.addChild(text, "tspan", {
-                        x: diff.pos - (diff.size / 2),
-                        // "font-weight": 'bold',
-                        textLength: diff.size,
+                this._renderReadsAndToolTips(bamReadGroup, polyDrawing[keys[i]].reads, 1, features, args);
+                this._renderReadsAndToolTips(bamReadGroup, polyDrawing[keys[i]].lowQualityReads, this.lowQualityOpacity, features, args);
+
+                // Render differences
+                this._addDifferencesSVG(bamReadGroup, polyDrawing[keys[i]].differences.A, "#009900");
+                this._addDifferencesSVG(bamReadGroup, polyDrawing[keys[i]].differences.T, "#aa0000");
+                this._addDifferencesSVG(bamReadGroup, polyDrawing[keys[i]].differences.C, "#0000ff");
+                this._addDifferencesSVG(bamReadGroup, polyDrawing[keys[i]].differences.G, "#857a00");
+                this._addDifferencesSVG(bamReadGroup, polyDrawing[keys[i]].differences.N, "#888");
+                this._addDifferencesSVG(bamReadGroup, polyDrawing[keys[i]].differences.D, "#000");
+                if (polyDrawing[keys[i]].differences.I.length > 0) {
+                    const text = SVG.addChild(bamReadGroup, "text", {
+                        y: parseInt(keys[i]) + polyDrawing[keys[i]].config.height,
+                        class: "ocb-font-ubuntumono ocb-font-size-15",
                     });
-                    t.textContent = "|";
-                    $(t).qtip({
-                        content: { text: diff.seq, title: "Insertion" },
-                        position: { target: "mouse", adjust: { x: 25, y: 15 } },
-                        style: { classes: `${this.toolTipfontClass} qtip-dark qtip-shadow` },
-                    });
+                    for (let j = 0; j < polyDrawing[keys[i]].differences.I.length; j++) {
+                        const diff = polyDrawing[keys[i]].differences.I[j];
+                        const t = SVG.addChild(text, "tspan", {
+                            x: diff.pos - (diff.size / 2),
+                            // "font-weight": 'bold',
+                            textLength: diff.size,
+                        });
+                        t.textContent = "|";
+                        $(t).qtip({
+                            content: {text: diff.seq, title: "Insertion"},
+                            position: {target: "mouse", adjust: {x: 25, y: 15}},
+                            style: {classes: `${this.toolTipfontClass} qtip-dark qtip-shadow`},
+                        });
+                    }
                 }
             }
         }
@@ -235,6 +238,7 @@ class AlignmentRenderer extends Renderer {
 
     _drawCoverage(svgGroup, chunk, args) {
         let coverageList = chunk.coverage.value;
+        let windowSize = chunk.coverage.windowSize;
 
         const start = parseInt(chunk.region.start);
         const end = parseInt(chunk.region.end);
@@ -242,10 +246,10 @@ class AlignmentRenderer extends Renderer {
 
         const middle = args.width / 2;
 
-        const covHeight = 50;
+        const covHeight = args.covHeight;
 
         const histogram = [];
-        const length = coverageList.length;
+        const length = end - start;
         const maximumValue = Math.max.apply(null, coverageList);
         let points = "";
 
@@ -257,26 +261,28 @@ class AlignmentRenderer extends Renderer {
             const startPoint = args.pixelPosition + middle - ((args.position - start) * args.pixelBase);
             histogram.push(`${startPoint},${covHeight}`);
             // eslint-disable-next-line no-plusplus
-            for (let i = 0; i < length; i++) {
+            for (let i in coverageList) {
+                let pos = i * windowSize;
+
                 if (coverageList[i] !== previousCoverage) {
                     previousCoverage = coverageList[i];
                     if (previousPosition + 1 < i) {
                         // We need to add the previous position as well to make a flat line between positions with equal coverage
-                        const x = args.pixelPosition + middle - ((args.position - (start + (i - 1))) * args.pixelBase);
+                        const x = args.pixelPosition + middle - ((args.position - (start + (pos - 1))) * args.pixelBase);
                         const y = covHeight - (coverageList[i - 1] * maxValueRatio);
 
                         histogram.push(`${x},${y}`);
                     }
                     previousPosition = i;
 
-                    const x = args.pixelPosition + middle - ((args.position - (start + i)) * args.pixelBase);
+                    const x = args.pixelPosition + middle - ((args.position - (start + pos)) * args.pixelBase);
                     const y = covHeight - (coverageList[i] * maxValueRatio);
                     histogram.push(`${x},${y}`);
                 }
             }
 
             const x = args.pixelPosition + middle - ((args.position - (start + length)) * args.pixelBase);
-            const y = covHeight - (coverageList[length - 1] * maxValueRatio);
+            const y = covHeight - (coverageList[coverageList.length - 1] * maxValueRatio);
             histogram.push(`${x},${y}`);
             histogram.push(`${x},${covHeight}`);
             points = histogram.join(" ");
@@ -305,7 +311,7 @@ class AlignmentRenderer extends Renderer {
 
 
         args.trackListPanel.on("mousePosition:change", (e) => {
-            const pos = e.mousePos - parseInt(start);
+            const pos = Math.floor((e.mousePos - parseInt(start)) / windowSize);
             if (pos < 0 || pos >= coverageList.length) {
                 return;
             }
