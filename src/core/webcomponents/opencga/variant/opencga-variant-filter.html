@@ -568,8 +568,8 @@
                 }
 
                 // Biotype
-                if (typeof this.query["annot-biotype"] !== "undefined") {
-                    $("#" + this.prefix + "GeneBiotypes").selectpicker('val', this.query["annot-biotype"].split(","));
+                if (typeof this.query["biotype"] !== "undefined") {
+                    $("#" + this.prefix + "GeneBiotypes").selectpicker('val', this.query["biotype"].split(","));
                 }
 
                 // Panel - annot-panel
@@ -853,7 +853,7 @@
                     let types = PolymerUtils.querySelectorAll("option:checked", biotypeDropdown);
                     let biotypes = [];
                     types.forEach(option => biotypes.push(option.value));
-                    _filters["annot-biotype"] = biotypes.join(",");
+                    _filters["biotype"] = biotypes.join(",");
                 }
 
                 // Type
