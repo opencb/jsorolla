@@ -81,7 +81,12 @@
                             <li><a style="font-weight: bold">Saved Filters</a></li>
                             <template is="dom-repeat" items="{{filters}}">
                                 <li>
-                                    <a data-filter-name$="{{item.name}}" style="cursor: pointer" on-click="onServerFilterChange" class="filtersLink">&nbsp;&nbsp;{{item.name}}</a>
+                                    <template is="dom-if" if="{{!item.active}}">
+                                        <a data-filter-name$="{{item.name}}" style="cursor: pointer" on-click="onServerFilterChange" class="filtersLink">&nbsp;&nbsp;{{item.name}}</a>
+                                    </template>
+                                    <template is="dom-if" if="{{item.active}}">
+                                        <a data-filter-name$="{{item.name}}" style="cursor: pointer;color: green" on-click="onServerFilterChange" class="filtersLink">&nbsp;&nbsp;{{item.name}}</a>
+                                    </template>
                                 </li>
                             </template>
                             <template is="dom-if" if="{{checkSid(opencgaClient._config)}}">
@@ -186,6 +191,17 @@
 
                 // We need to init _previousQuery with query in order to work before executing any search
                 this._previousQuery = this.query;
+
+                // If there is any active filter we set the first one in the initialisation
+                if (typeof this.filters !== "undefined") {
+                    for (let filter of this.filters) {
+                        if (filter.active) {
+                            let _queryList = Object.assign({}, filter.query);
+                            this.dispatchEvent(new CustomEvent("filterchange", {detail: _queryList, bubbles: true, composed: true}));
+                            break;
+                        }
+                    }
+                }
             }
 
             clear() {
@@ -270,12 +286,12 @@
             onServerFilterChange(e) {
                 if (!UtilsNew.isUndefinedOrNull(this.filters)) {
                     // We look for the filter name in the filters array
-                    for (let f of this.filters) {
-                        if (f.name === e.target.dataset.filterName) {
+                    for (let filter of this.filters) {
+                        if (filter.name === e.target.dataset.filterName) {
                             PolymerUtils.addStyleByClass('filtersLink', 'color', 'black');
                             e.target.style.color = "green";
 
-                            let _queryList = Object.assign({}, f.query);
+                            let _queryList = Object.assign({}, filter.query);
                             this.dispatchEvent(new CustomEvent("filterchange", {detail: _queryList, bubbles: true, composed: true}));
                             break;
                         }
