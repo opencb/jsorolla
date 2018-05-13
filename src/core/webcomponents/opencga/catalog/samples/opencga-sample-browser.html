@@ -15,33 +15,41 @@
   -->
 
 <link rel="import" href="opencga-sample-filter.html">
+<link rel="import" href="opencga-sample-grid.html">
 <link rel="import" href="../../opencga-active-filters.html">
-<link rel="import" href="../../variant/variant-sample-grid.html">
 
 <dom-module id="opencga-sample-browser">
     <template>
         <style include="jso-styles"></style>
 
-        <div class="row">
+        <template is="dom-if" if="{{_config.showTitle}}">
+            <div class="panel" style="margin-bottom: 15px">
+                <h3 style="margin: 10px 10px 10px 15px">
+                    <i class="fa fa-users" aria-hidden="true"></i> &nbsp;{{_config.title}}
+                </h3>
+            </div>
+        </template>
+
+        <div class="row" style="padding: 0px 5px">
             <div class="col-md-2">
-                <opencga-sample-filter opencga-session="{{opencgaSession}}" config="{{config}}" samples="{{samples}}"
+                <opencga-sample-filter opencga-session="{{opencgaSession}}" config="{{_config}}" samples="{{samples}}"
                                        opencga-client="{{opencgaSession.opencgaClient}}" query="{{query}}" search="{{search}}">
                 </opencga-sample-filter>
             </div>
 
             <div class="col-md-10">
-                <br>
-                <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" filters="{{config.filters}}" default-study="{{opencgaSession.study.alias}}"
-                                        alias="{{activeFilterAlias}}" refresh="{{search}}" on-clear="onClear" on-filterchange="onFilterChange">
+                <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" filters="{{_config.filters}}" default-study="{{opencgaSession.study.alias}}"
+                                        alias="{{activeFilterAlias}}" refresh="{{search}}" on-clear="onClear" on-filterchange="onActiveFilterChange">
                 </opencga-active-filters>
 
-                <h3>Sample Results</h3>
-                <variant-sample-grid opencga-client="{{opencgaSession.opencgaClient}}" opencga-session="{{opencgaSession}}" config="[[config]]"
-                                     event-notify-name="[[eventNotifyName]]" samples="{{samples}}" search="{{search}}">
-                </variant-sample-grid>
-
+                <!--<h3>Sample Results</h3>-->
+                <div style="padding: 5px 0px">
+                    <opencga-sample-grid opencga-client="{{opencgaSession.opencgaClient}}" opencga-session="{{opencgaSession}}" config="[[_config]]"
+                                         event-notify-name="[[eventNotifyName]]" samples="{{samples}}" search="{{search}}">
+                    </opencga-sample-grid>
+                </div>
                 <br>
-                <h3>Tools?</h3>
+                <!--<h3>Tools?</h3>-->
 
             </div>
         </div>
@@ -79,7 +87,8 @@
                         notify: true
                     },
                     config: {
-                        type: Object
+                        type: Object,
+                        observer: "configObserver"
                     }
                 }
             }
@@ -98,6 +107,10 @@
                 return ['calculateFilters(filteredVariables.variables.*)', 'sampleObserver(samples.*)'];
             }
 
+            configObserver() {
+                this._config = Object.assign(this.getDefaultConfig(), this.config);
+            }
+
             sampleObserver() {
                 this.dispatchEvent(new CustomEvent("samplechange", {
                     detail: {
@@ -108,8 +121,27 @@
             }
 
             onClear() {
+                this.config = Object.assign(this.getDefaultConfig(), this.config);
                 this.query = {studies: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias};
                 this.search = {};
+            }
+
+            onActiveFilterChange(e) {
+                this.query = e.detail;
+                this.search = e.detail;
+            }
+
+            getDefaultConfig() {
+                return {
+                    title: "Sample Browser",
+                    showTitle: true,
+                    filter: {
+
+                    },
+                    grid: {
+                        showSelect: true,
+                    }
+                };
             }
         }
 
