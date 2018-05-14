@@ -299,7 +299,7 @@
 
                     // In order to notify of the changes to the genome browser, we make a copy of the tracks object
                     let _tracks = this.tracks;
-                    _tracks.variant.config.samples = myVariantFiles;
+                    _tracks.variant.config.files = myVariantFiles;
                     _tracks.alignment.config.files = myAlignmentFiles;
                     this.tracks = Object.assign({}, _tracks);
 

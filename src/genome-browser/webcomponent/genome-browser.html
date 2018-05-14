@@ -132,7 +132,6 @@
                 this.genomeBrowser = new GenomeBrowser(settings);
 
                 let _tracks = [];
-
                 for (let track of Object.values(this.tracks)){
                     switch (track.type) {
                         case 'sequence':
@@ -252,6 +251,17 @@
                     mySettings.opencga.samples = _samples;
                 } else {
                     mySettings.opencga.samples = [];
+                }
+
+                if (settings.files !== undefined && settings.files.length > 0) {
+                    let _files = [];
+                    for (let s of settings.files) {
+                        _files.push(s.name);
+                    }
+
+                    mySettings.opencga.files = _files;
+                } else {
+                    mySettings.opencga.files = [];
                 }
 
                 //mySettings = Object.assign(mySettings, settings);

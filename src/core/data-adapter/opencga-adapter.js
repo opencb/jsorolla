@@ -149,7 +149,7 @@ class OpencgaAdapter extends FeatureAdapter {
             params.exclude = "studies.files,studies.stats,annotation";// For sample-genotype mode less exclusive than browse mode
         }
         /** 6 check type data **/
-        if (UtilsNew.isNotUndefinedOrNull(params.returnedSamples)){   //When there are samples not display histogram
+        if (UtilsNew.isNotUndefinedOrNull(params.returnedSamples)){   //When there are samples do not display histogram
             dataType = "features";
             params["histogram"]= "undefined";
             params["histogramLogarithm"] = "undefined";
