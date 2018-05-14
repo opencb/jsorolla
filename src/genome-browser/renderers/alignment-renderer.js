@@ -44,6 +44,7 @@ class AlignmentRenderer extends Renderer {
         if (response.dataType === "features") {
             args.covHeight = 50;
         } else {
+            // let height = args.svgCanvasFeatures.parentElement.clientHeight;
             args.covHeight = args.svgCanvasFeatures.height.animVal.value;
         }
 
@@ -224,6 +225,10 @@ class AlignmentRenderer extends Renderer {
     }
 
     _addChunks(chunk, polyDrawing, args) {
+        if (typeof chunk.alignments === "undefined" || chunk.alignments.length === 0) {
+            return;
+        }
+
         const alignments = chunk.alignments;
         if (this.asPairs) {
             const alignmentHash = this._pairReads(alignments);
@@ -244,6 +249,10 @@ class AlignmentRenderer extends Renderer {
     }
 
     _drawCoverage(svgGroup, chunk, args) {
+        if (typeof chunk.coverage === "undefined") {
+            return;
+        }
+
         let coverageList = chunk.coverage.value;
         let windowSize = chunk.coverage.windowSize;
 
@@ -288,7 +297,7 @@ class AlignmentRenderer extends Renderer {
                 }
             }
 
-            const x = args.pixelPosition + middle - ((args.position - (start + length)) * args.pixelBase);
+            const x = args.pixelPosition + middle - ((args.position - (start + length + 1)) * args.pixelBase);
             const y = covHeight - (coverageList[coverageList.length - 1] * maxValueRatio);
             histogram.push(`${x},${y}`);
             histogram.push(`${x},${covHeight}`);
