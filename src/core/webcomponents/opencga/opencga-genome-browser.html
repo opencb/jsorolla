@@ -76,7 +76,7 @@
                                     </button>
                                 </div>
                                 <template is="dom-repeat" items="{{sample.files}}" as="file">
-                                    <input type="checkbox" style="margin-left: 15px;" on-change="checkSelectionChanged"
+                                    <input type="checkbox" style="margin-left: 15px;"
                                            name="file-checkbox" value="{{file.name}}" data="{{file}}">
                                     <span style="word-wrap:break-word;">{{file.name}}</span><br>
                                 </template>
@@ -145,44 +145,10 @@
                         type: Object,
                         observer: "_setRegion"
                     },
-                    species: {
-                        type: Object,
-                        value: {
-                            id: "hsapiens",
-                            scientificName: "Homo sapiens",
-                            assembly: {name: "GRCh37"}
-                        }
-                    },
-                    tracks: {
-                        type: Object,
-                        value: {
-                            sequence: {type: "sequence"},
-                            gene: {type: "gene"},
-                            variant: {type: "variant", config: {}},
-                            alignment: {type: "alignment", config: {}}
-                        },
-                        observer: "init"
-                    },
-                    width: {
-                        type: Number,
-//                        value: 1400,
-                        observer: "_updateWidth"
-                    },
                     active: {
                         type: Boolean,
                         value: false,
                         observer: "_setActive"
-                    },
-                    settings: {
-                        type: Object
-                    },
-                    selectedFeatures: {
-                        type: Object,
-                        value: {
-                            sample: new Set(),
-                            file: new Set()
-                        },
-                        observer: "_selectedFeaturesChanged"
                     }
                 }
             }
@@ -198,6 +164,13 @@
                 if (!UtilsNew.isNotUndefinedOrNull(this.region)) {
                     this.region = new Region({chromosome: "11", start: 68177378, end: 68177510});
                 }
+
+                this.tracks = {
+                    sequence: {type: "sequence"},
+                    gene: {type: "gene"},
+                    variant: {type: "variant", config: {}},
+                    alignment: {type: "alignment", config: {}}
+                };
 
                 this.displayGenomeBrowserMessage = "inline";
             }
@@ -255,15 +228,6 @@
                 this._availableFiles = availableFiles;
             }
 
-            _addSelectedFeature(e) {
-                let value = PolymerUtils.getElementById(this.prefix  + "AutocompleteSearchInput").value;
-                this.selectedFeatures.sample.add(value);
-                // To notify of the changes
-                let newSelectedFeatures = {};
-                Object.assign(newSelectedFeatures, this.selectedFeatures);
-                this.selectedFeatures = newSelectedFeatures;
-            }
-
             _autocompleteSampleSearch(e) {
                 // Only gene symbols are going to be searched and not Ensembl IDs
                 let sampleNamePrefix = PolymerUtils.getElementById(this.prefix  + "AutocompleteSearchInput").value;
@@ -286,115 +250,6 @@
                             PolymerUtils.innerHTML(_this.prefix + "AutocompleteSearchDataList", options);
                         });
                 }
-            }
-
-            _selectedFeaturesChanged() {
-                let filterTextArea = PolymerUtils.getElementById(this.prefix  + "filters");
-                if (UtilsNew.isNotUndefinedOrNull(filterTextArea)) {
-                    let text = [];
-                    if (this.selectedFeatures.sample.size > 0) {
-                        text.push("Samples:" + Array.from(this.selectedFeatures.sample).join(","));
-                    }
-                    if (this.selectedFeatures.file.size > 0) {
-                        text.push("Files:" + Array.from(this.selectedFeatures.file).join(","));
-                    }
-                    filterTextArea.value = text.join(";");
-                }
-            }
-
-            fetchListOfFiles() {
-                let samples = Array.from(this.selectedFeatures.sample);
-                let queryParams = {
-                    study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
-                    sample: samples.join(","),
-                    format: "VCF,BAM",
-                    include: "path,name,format,bioformat",
-                };
-
-                let _this = this;
-                this.opencgaClient.files().search(queryParams)
-                    .then(values => {
-                        _this.updateAvailableFiles(values);
-                    })
-                    .catch(function (response) {
-                        _this.showErrorAlert(response.error);
-                    });
-
-
-                // let promiseArray = [];
-                //
-                // let _this = this;
-                // for (let i = 0; i < samples.length; i++) {
-                //     let sample = samples[i];
-                //     query["sample"] = sample;
-                //
-                //     let internalPromiseArray = [];
-                //
-                //     internalPromiseArray.push(
-                //         this.opencgaClient.files().search(query).catch(function (response) {
-                //             _this.showErrorAlert(response.error);
-                //         })
-                //     );
-                //
-                //     promiseArray.push(
-                //         Promise.all(internalPromiseArray).then(values => {
-                //             if (values.length === 2) {
-                //                 // We concat the VCF, BAM results
-                //                 myResults = values[0].response[0].result.concat(values[1].response[0].result);
-                //                 values[0].response[0].result = myResults;
-                //             }
-                //             return values[0];
-                //         })
-                //     );
-                // }
-                //
-                // Promise.all(promiseArray).then(values => {
-                //     _this.updateAvailableFiles(values);
-                // });
-            }
-
-            updateAvailableFiles(response) {
-                // let myVariantFiles = [];
-                // let myAlignmentFiles = [];
-                //
-                // for (let i = 0; i < response.length; i++) {
-                //     response[i].response.forEach(function (response) {
-                //         response.result.forEach(function (file) {
-                //             if (file.format === "VCF") {
-                //                 myVariantFiles.push(file);
-                //             } else if (file.format === "BAM") {
-                //                 myAlignmentFiles.push(file);
-                //             }
-                //         });
-                //     });
-                // }
-
-                let study = this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias;
-                let mySamples = [];
-
-                let formats = {};
-                response.response.forEach(function (response) {
-                    response.result.forEach(function (file) {
-                        if (!formats.hasOwnProperty(file.format)) {
-                            formats[file.format] = [];
-                        }
-                        file["_study"] = study;
-                        formats[file.format].push(file);
-                    });
-                });
-                let myFiles = [];
-                Object.keys(formats).forEach(function (format) {
-                    myFiles.push({
-                        name: format,
-                        files: formats[format]
-                    });
-                });
-                mySamples.push({
-                    name: study,
-                    results: myFiles
-                });
-
-                this._availableFiles = mySamples;
             }
 
             showSelectionInGenomeBrowser() {
