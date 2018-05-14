@@ -327,7 +327,7 @@ class OpencgaAdapter extends FeatureAdapter {
                 }
             } else { // histogram
 
-                let bpsPerPixel = region.length() / args.width;
+                let bpsPerPixel = args.visibleWindowLength / args.width;
 
                 let regionLength = auxStart - start;
                 let widthInPixels = regionLength / bpsPerPixel;

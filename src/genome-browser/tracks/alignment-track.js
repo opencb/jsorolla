@@ -91,7 +91,7 @@ class AlignmentTrack extends FeatureTrack {
         this.renderedArea = {}; //<- this is only in Alignments
         this.renderer.render(features, {
             config: this.config.display,
-            covHeight: this.dataType === "features" ? 50 : 500,
+            // covHeight: this.dataType === "features" ? 50 : 500,
             cacheItems: event.items,
             svgCanvasFeatures: this.svgCanvasFeatures,
             featureTypes: this.featureTypes,
@@ -132,6 +132,7 @@ class AlignmentTrack extends FeatureTrack {
                     end: this.region.end + this.svgCanvasOffset * 2
                 }),
                 width: this.width,
+                visibleWindowLength: this.region.length(),
                 params: {
                     histogram: this.histogram,
                     histogramLogarithm: this.histogramLogarithm,
@@ -184,6 +185,7 @@ class AlignmentTrack extends FeatureTrack {
                         end: this.svgCanvasLeftLimit - 1
                     }),
                     width: this.width,
+                    visibleWindowLength: this.region.length(),
                     params: {
                         histogram: this.histogram,
                         histogramLogarithm: this.histogramLogarithm,
@@ -217,6 +219,7 @@ class AlignmentTrack extends FeatureTrack {
                         end: parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset + 1)
                     }),
                     width: this.width,
+                    visibleWindowLength: this.region.length(),
                     params: {
                         histogram: this.histogram,
                         histogramLogarithm: this.histogramLogarithm,

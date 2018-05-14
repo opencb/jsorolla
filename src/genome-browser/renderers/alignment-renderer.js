@@ -40,6 +40,13 @@ class AlignmentRenderer extends Renderer {
             console.log("right click");
         });
 
+        // Define the height of the coverage track
+        if (response.dataType === "features") {
+            args.covHeight = 50;
+        } else {
+            args.covHeight = args.svgCanvasFeatures.height.animVal.value;
+        }
+
         console.time(`BamRender ${response.params.resource}`);
 
         const chunkList = response.items;
