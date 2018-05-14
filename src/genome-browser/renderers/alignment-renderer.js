@@ -44,8 +44,7 @@ class AlignmentRenderer extends Renderer {
         if (response.dataType === "features") {
             args.covHeight = 50;
         } else {
-            // let height = args.svgCanvasFeatures.parentElement.clientHeight;
-            args.covHeight = args.svgCanvasFeatures.height.animVal.value;
+            args.covHeight  = args.svgCanvasFeatures.parentElement.clientHeight;
         }
 
         console.time(`BamRender ${response.params.resource}`);

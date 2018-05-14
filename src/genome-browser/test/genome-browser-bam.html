@@ -219,19 +219,19 @@
             }
         });
 
-//        let gene = new FeatureTrack({
-////        title: 'Gene overview',
-//            minHistogramRegionSize: 20000000,
-//            maxLabelRegionSize: 10000000,
-//            height: 80,
-//
-//            renderer: renderer,
-//            dataAdapter: new CellBaseAdapter(cellbaseClient, "genomic", "region", "gene", {
-//                exclude: 'transcripts,chunkIds'
-//            }, {
-//                chunkSize: 100000
-//            })
-//        });
+       let gene = new FeatureTrack({
+//        title: 'Gene overview',
+           minHistogramRegionSize: 20000000,
+           maxLabelRegionSize: 10000000,
+           height: 80,
+
+           renderer: renderer,
+           dataAdapter: new CellBaseAdapter(cellbaseClient, "genomic", "region", "gene", {
+               exclude: 'transcripts,chunkIds'
+           }, {
+               chunkSize: 100000
+           })
+       });
 //        genomeBrowser.addOverviewTrack(gene);
 
         /***************************************************************************/
@@ -262,190 +262,11 @@
                 "version": CELLBASE_VERSION,
                 "species": "hsapiens"
             }
-//            renderer: new GeneRenderer({
-//                handlers: {
-//                    'feature:click': function(e) {
-//                        console.log(e)
-//                    }
-//                }
-//            })
-//            dataAdapter: new CellBaseAdapter(cellbaseClient, "genomic", "region", "gene", {
-//                exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence'
-//            }, {
-//                chunkSize: 100000
-//            })
         });
-        tracks.push(this.gene);
-
-        /***************************************************************************/
-        /*****   Demo SNP Track using FeatureTrack and Cellbase adapter          ***/
-        /***************************************************************************/
-
-//        this.snp = new FeatureTrack({
-//            title: 'Variation',
-//            featureType: 'SNP',
-//            minHistogramRegionSize: 12000,
-//            maxLabelRegionSize: 3000,
-//            height: 120,
-//            exclude: 'annotation.populationFrequencies,annotation.additionalAttributes,transcriptVariations,xrefs,samples',
-//
-//            renderer: new FeatureRenderer(FEATURE_TYPES.snp),
-//
-//            dataAdapter: new CellBaseAdapter(cellbaseClient, "genomic", "region", "snp", {
-//                exclude: 'annotation.populationFrequencies,annotation.additionalAttributes,transcriptVariations,xrefs,samples'
-//            }, {
-//                chunkSize: 10000
-//            })
-//        });
-//        tracks.push(this.snp);
-
-        /***************************************************************************/
-        /*****   Demo Variant Track using VariantTrack and Opencga adapter       ***/
-        /***     Using FeatureRender; Visualization of variants individually     ***/
-        /***************************************************************************/
-
-//        let variant = new VariantTrack({
-//            title: "Variant",
-//            closable: true,
-//            minHistogramRegionSize: 20000000,
-//            maxLabelRegionSize: 10000000,
-//            minTranscriptRegionSize: 200000,
-//            visibleRegionSize: 100000000,
-//            height: 300,
-//            opencga: {
-////                host: OPENCGA_HOST,
-////                version: "v1",
-//                client: opencgaClient,
-////                studies: "reference_grch37:1kG_phase3"
-//                studies: "platinum:illumina_platinum"
-//                samples: ["HG00096", "HG00097", "HG00099"]
-//                samples: []
-//            },
-//            samples: {
-//                names: { "reference_grch37:1kG_phase3": ["HG00096", "HG00097", "HG00099"]}
-//            },
-//            renderer: new FeatureRenderer(FEATURE_TYPES.variant),
-            ////////////////////////////////////////////////////////////////////////////////////////////////////
-            //You can define a particular dataAdapter, if not defined, the track will pick up the default one.//
-            ///////////////////////////////////////////////////////////////////////////////////////////////////
-//            dataAdapter: new OpencgaAdapter(opencgaClient, "analysis/variant", undefined, "query",
-//                    {
-//                        studies: "reference_grch37:1kG_phase3",
-////                      exclude: "studies.files,studies.stats,annotation" //Exclude for samples mode
-//                        exclude: "studies,annotation" //Exclude for individual variation mode
-//                    }, {
-//                        chunkSize: 100000
-//                    })
-//        });
-//        tracks.push(variant);
-        /*******************/
-
+        // tracks.push(this.gene);
 
         /****************************************************************************/
-        /***** Demo Variant Track using FeatureTrack and Feature-Template adapter ***/
-        /****************************************************************************/
-
-//        var objectVariant ={sampleNames:[]};
-//        _.extend(objectVariant, FEATURE_TYPES.variant);
-//        var request = new XMLHttpRequest();
-//        var url = "http://bioinfo.hpc.cam.ac.uk/hgva/webservices/rest/v1/analysis/variant/query?studies=reference_grch37:1kG_phase3&samplesMetadata=true&region=false";
-//        request.onload = function () {
-//            objectVariant.sampleNames = JSON.parse(this.response).response[0].samples;
-//            console.log(objectVariant.sampleNames);
-//            var t = new FeatureTrack({
-//                title: 'Variant',
-//                closable: true,
-//                minHistogramRegionSize: 20000000,
-//                maxLabelRegionSize: 10000000,
-//                minTranscriptRegionSize: 200000,
-//                histogramColor: '#92de47',
-//                height: 100,
-////            renderer: new FeatureRenderer(),
-//                renderer: new VariantRenderer(objectVariant),
-//                dataAdapter: new FeatureTemplateAdapter({
-//                    multiRegions: false,
-//                    histogramMultiRegions: false,
-//                    uriTemplate: "http://bioinfo.hpc.cam.ac.uk/hgva/webservices/rest/v1/analysis/variant/query?region={region}&studies={studies}&exclude={exclude}",
-//                    templateVariables: {
-//                        studies: "reference_grch37:1kG_phase3",
-//                        exclude: "studies.files,studies.stats,annotation"
-//                    },
-//                    species: genomeBrowser.species,
-//                    cacheConfig: {
-//                        chunkSize: 100000
-//                    },
-//                    parse: function(response) {
-//                        var chunks = [];
-//                        for(var i = 0; i< response.response.length; i++){
-//                            var res = response.response[i].result;
-////                        res._sampleNames = response.response[i].samples;
-////
-////                        for(var j = 0; j < res.length; j++){
-////                            res[j]["samples"] = response.response[i].samples;
-////                        }
-//                            chunks.push(res);
-//                        }
-//                        console.log("Los chunks son:");
-//                        console.log(chunks);
-//                        return chunks;
-//                    }
-//                })
-//            });
-//            tracks.push(t);
-//        };
-//        request.onerror = function () {
-//            console.log('Server error');
-//        };
-//        request.open('GET', url, false);
-//        console.log(url);
-//        request.send();
-
-
-        //        var t = new FeatureTrack({
-        //            title: 'test',
-        //            closable: true,
-        //            minHistogramRegionSize: 20000000,
-        //            maxLabelRegionSize: 10000000,
-        //            minTranscriptRegionSize: 200000,
-        //            histogramColor: '#92de47',
-        //            height: 100,
-        ////            renderer: new FeatureRenderer(),
-        //            renderer: new VariantRenderer(objectVariant),
-        //            dataAdapter: new FeatureTemplateAdapter({
-        //                multiRegions: false,
-        //                histogramMultiRegions: false,
-        //                uriTemplate: "http://bioinfo.hpc.cam.ac.uk/hgva/webservices/rest/v1/analysis/variant/query?region={region}&studies={studies}",
-        //                templateVariables: {
-        //                    studies: "reference_grch37:1kG_phase3"
-        //                },
-        //                species: genomeViewer.species,
-        //                cacheConfig: {
-        //                    chunkSize: 100000
-        //                },
-        //                parse: function(response) {
-        //                    var chunks = [];
-        //                    for(var i = 0; i< response.response.length; i++){
-        //                        var res = response.response[i].result;
-        ////                        res._sampleNames = response.response[i].samples;
-        ////
-        ////
-        ////                        for(var j = 0; j < res.length; j++){
-        ////                            res[j]["samples"] = response.response[i].samples;
-        ////                        }
-        //                        chunks.push(res);
-        //                    }
-        //                    console.log("Los chunks son:");
-        //                    console.log(chunks);
-        //                    return chunks;
-        //                }
-        //            })
-        //        });
-        //tracks.push(t);
-        /*******************/
-
-
-        /****************************************************************************/
-        /***** Demo Alignment Track using AlignmentTrack and Opencga adapter      ***/
+        /***** Test Alignment Track using AlignmentTrack and Opencga adapter      ***/
         /****************************************************************************/
 
         /*******************/
@@ -456,17 +277,44 @@
             maxLabelRegionSize: 3000,
             visibleRegionSize: 100000000,
             height: 300,
-            // opencga: {
-            //     client: opencgaClient,
-            //     study: "platinum:illumina_platinum",
-            //     file: "NA12877_S1.bam"
-            // }
            renderer: new AlignmentRenderer(FEATURE_TYPES.alignment),
            dataAdapter: new OpencgaAdapter(opencgaClient, "analysis/alignment", undefined, "query",
                    {
                        fileId: "NA12877_S1.bam",
                        study: "platinum:illumina_platinum"
                    })
+        });
+        tracks.push(alignment);
+
+        alignment = new AlignmentTrack({
+            title: "Alignment",
+            closable: true,
+            minHistogramRegionSize: 5000,
+            maxLabelRegionSize: 3000,
+            visibleRegionSize: 100000000,
+            height: 300,
+            renderer: new AlignmentRenderer(FEATURE_TYPES.alignment),
+            dataAdapter: new OpencgaAdapter(opencgaClient, "analysis/alignment", undefined, "query",
+                {
+                    fileId: "NA12878_S1.bam",
+                    study: "platinum:illumina_platinum"
+                })
+        });
+        tracks.push(alignment);
+
+        alignment = new AlignmentTrack({
+            title: "Alignment",
+            closable: true,
+            minHistogramRegionSize: 5000,
+            maxLabelRegionSize: 3000,
+            visibleRegionSize: 100000000,
+            height: 300,
+            renderer: new AlignmentRenderer(FEATURE_TYPES.alignment),
+            dataAdapter: new OpencgaAdapter(opencgaClient, "analysis/alignment", undefined, "query",
+                {
+                    fileId: "NA12879_S1.bam",
+                    study: "platinum:illumina_platinum"
+                })
         });
         tracks.push(alignment);
 
