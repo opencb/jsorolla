@@ -14,7 +14,7 @@
   ~ limitations under the License.
   -->
 
-<dom-module id="opencga-analysis-filter">
+<dom-module id="opencga-clinical-analysis-filter">
     <template>
         <style include="jso-styles"></style>
 
@@ -132,9 +132,9 @@
         </div>
     </template>
     <script>
-        class OpencgaAnalysisFilter extends Polymer.Element {
+        class OpencgaClinicalAnalysisFilter extends Polymer.Element {
             static get is() {
-                return 'opencga-analysis-filter';
+                return 'opencga-clinical-analysis-filter';
             }
 
             static get properties() {
@@ -272,7 +272,7 @@
 
         }
 
-        customElements.define(OpencgaAnalysisFilter.is, OpencgaAnalysisFilter);
+        customElements.define(OpencgaClinicalAnalysisFilter.is, OpencgaClinicalAnalysisFilter);
 
     </script>
 </dom-module>
