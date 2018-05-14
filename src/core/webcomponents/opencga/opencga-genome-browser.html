@@ -119,11 +119,10 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title" id="{{prefix}}SampleBrowserLabel">Sample Selector</h4>
+                        <h4 class="modal-title" id="{{prefix}}SampleBrowserLabel">Sample Browser</h4>
                     </div>
                     <div class="modal-body" style="height: 780px">
-                        <opencga-sample-browser opencga-client="{{opencgaClient}}" opencga-session="{{opencgaSession}}">
-                        </opencga-sample-browser>
+                        <opencga-sample-browser opencga-client="{{opencgaClient}}" opencga-session="{{opencgaSession}}" config="{{sampleBrowserConfig}}"></opencga-sample-browser>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="onAnalysisSelected">
@@ -181,6 +180,11 @@
 
             _init() {
                 this.prefix = "OpencgaGenomeBrowser" + Utils.randomString(6);
+
+                this.sampleBrowserConfig = {
+                    showTitle: false,
+                    compact: true
+                };
 
                 this._availableFiles = [];
                 if (!UtilsNew.isNotUndefinedOrNull(this.region)) {
