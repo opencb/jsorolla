@@ -15,7 +15,7 @@
   -->
 
 <link rel="import" href="variant-sample-selector.html">
-<link rel="import" href="variant-sample-grid.html">
+<link rel="import" href="../catalog/samples/opencga-sample-grid.html">
 <link rel="import" href="../catalog/clinical/opencga-clinical-analysis-browser.html">
 <link rel="import" href="../../commons/variant-modal-ontology.html">
 
@@ -109,7 +109,7 @@
 
         <div>
             <div style="width: 60%;margin: 0 auto">
-                <button type="button" class="btn btn-primary btn-lg" style="width: 100%" on-click="onSearch">
+                <button type="button" class="btn btn-lg btn-primary" style="width: 100%" on-click="onSearch">
                     <i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px"></i> {{config.menu.searchButtonText}}
                 </button>
             </div>
@@ -568,8 +568,8 @@
                 }
 
                 // Biotype
-                if (typeof this.query["annot-biotype"] !== "undefined") {
-                    $("#" + this.prefix + "GeneBiotypes").selectpicker('val', this.query["annot-biotype"].split(","));
+                if (typeof this.query["biotype"] !== "undefined") {
+                    $("#" + this.prefix + "GeneBiotypes").selectpicker('val', this.query["biotype"].split(","));
                 }
 
                 // Panel - annot-panel
@@ -853,7 +853,7 @@
                     let types = PolymerUtils.querySelectorAll("option:checked", biotypeDropdown);
                     let biotypes = [];
                     types.forEach(option => biotypes.push(option.value));
-                    _filters["annot-biotype"] = biotypes.join(",");
+                    _filters["biotype"] = biotypes.join(",");
                 }
 
                 // Type

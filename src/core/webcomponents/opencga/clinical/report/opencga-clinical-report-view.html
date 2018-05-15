@@ -83,10 +83,47 @@
 
             loadDynamicValues() {
                 let res = {};
+                // Clinical Analysis
                 res.clinicalAnalysisId = this.interpretation.clinicalAnalysis.id;
                 res.clinicalAnalysisDescription = this.interpretation.clinicalAnalysis.description;
-                this.dynamicValues = res;
+                res.clinicalAnalysisType = this.interpretation.clinicalAnalysis.type;
+                res.clinicalAnalysisDate =  moment(this.interpretation.clinicalAnalysis.creationDate, "YYYYMMDDHHmmss").format('D MMM YY');
+
+                // Interpretation
+                res.interpretationId = this.interpretation.id;
+                res.interpretationName = this.interpretation.name;
+
+                // Proband
+                res.probandPatientId = this.interpretation.clinicalAnalysis.subjects[0].name;
+                res.probandSampleId = this.interpretation.clinicalAnalysis.subjects[0].samples[0].name;
+                res.probandChromosomalGender = this.interpretation.clinicalAnalysis.subjects[0].karyotypicSex;
+                res.probandAffectationStatus = this.interpretation.clinicalAnalysis.subjects[0].affectationStatus;
+                res.probandEthnicity = this.interpretation.clinicalAnalysis.subjects[0].ethnicity;
+                res.probandYearOfBirth = this.interpretation.clinicalAnalysis.subjects[0].dateOfBirth;
+                res.probandParentalConsanguinity = this.interpretation.clinicalAnalysis.subjects[0].parentalConsanguinity ? "Yes" : "No";
+                res.probandSampleType = this.interpretation.clinicalAnalysis.subjects[0].samples[0].type;
+                res.probandCellLine = this.interpretation.clinicalAnalysis.subjects[0].samples[0].somatic ? "Somatic" : "Germline";
+                let HPODiseases = this.interpretation.clinicalAnalysis.subjects[0].phenotypes.filter((hpo) =>{
+                    return hpo.source === "HPO";
+                }).map((hpo) => hpo.name).join(",");
+                res.probandHPO = HPODiseases;
+
+                let ICD10Diseases = this.interpretation.clinicalAnalysis.subjects[0].phenotypes.filter((icd) =>{
+                    return icd.source === "ICD10";
+                }).map((icd) => icd.name).join(",");
+                res.probandICD10 = ICD10Diseases;
+
+                let variableSetValues = this.loadVariableSet();
+                this.dynamicValues = Object.assign({}, res, variableSetValues);
                 this.loadDynamicFields();
+            }
+            loadVariableSet(){
+                let variableSetMap = {};
+                let _this = this;
+                this.interpretation.clinicalAnalysis.subjects[0].samples[0].annotationSets[0].annotations.forEach((annotation) => {
+                    variableSetMap["proband" + annotation.name] = annotation.value;
+                });
+                return variableSetMap;
             }
 
             loadDynamicFields() {
@@ -111,27 +148,29 @@
                         div.setAttribute('class', 'col-md-12');
 
                         fieldsRow.forEach((field) => {
-                            // div col-md
-                            let divField = document.createElement("div");
-                            divField.setAttribute('class', 'col-md-5');
+                            if (field.visible) {
+                                // div col-md
+                                let divField = document.createElement("div");
+                                divField.setAttribute('class', 'col-md-5');
 
-                            //label
-                            let label = document.createElement("label");
-                            label.innerText = field.label + ": "
-                            label.setAttribute('class', 'col-form-label');
+                                //label
+                                let label = document.createElement("label");
+                                label.innerText = field.label + ": "
+                                label.setAttribute('class', 'col-form-label');
 
-                            // component value
-                            let componentValue = document.createElement(field.component);
-                            //text property
-                            componentValue.text = UtilsNew.isNotEmpty(this.dynamicValues[field.value]) ? this.dynamicValues[field.value] : "-";
-                            //isDisabled property
-                            if (UtilsNew.isNotUndefinedOrNull(field.isDisabled)) {
-                                componentValue.isDisabled = field.isDisabled;
+                                // component value
+                                let componentValue = document.createElement(field.component);
+                                //text property
+                                componentValue.text = UtilsNew.isNotEmpty(this.dynamicValues[field.value]) ? this.dynamicValues[field.value] : "-";
+                                //isDisabled property
+                                if (UtilsNew.isNotUndefinedOrNull(field.isDisabled)) {
+                                    componentValue.isDisabled = field.isDisabled;
+                                }
+
+                                divField.appendChild(label);
+                                divField.appendChild(componentValue);
+                                div.appendChild(divField);
                             }
-
-                            divField.appendChild(label);
-                            divField.appendChild(componentValue);
-                            div.appendChild(divField);
                         });
                         divRow.appendChild(div);
                     });

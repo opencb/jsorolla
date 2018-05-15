@@ -14,7 +14,7 @@
   ~ limitations under the License.
   -->
 
-<dom-module id="variant-sample-grid">
+<dom-module id="opencga-sample-grid">
     <template>
         <style include="jso-styles"></style>
 
@@ -24,14 +24,14 @@
             </div>
 
             <table id="{{prefix}}SampleSelector" data-test-id="variant-sample-grid-sample-selector" data-show-columns="true" data-show-export="true" data-show-pagination-switch="true"
-                   data-pagination="true" data-page-size="5" data-show-refresh="true" data-page-list="[5, 10]" style="cursor: pointer">
+                   data-pagination="true" data-page-size="10" data-show-refresh="true" data-page-list="[5, 10]" style="cursor: pointer">
                 <thead style="background-color: #eee"></thead>
             </table>
         </div>
     </template>
 
     <script>
-        class VariantSampleGrid extends Polymer.Element {
+        class OpencgaSampleGrid extends Polymer.Element {
 
             constructor() {
                 super();
@@ -40,7 +40,7 @@
             }
 
             static get is() {
-                return 'variant-sample-grid';
+                return 'opencga-sample-grid';
             }
 
             static get properties() {
@@ -52,9 +52,6 @@
                     opencgaClient: {
                         type: Object,
                         observer: 'renderTable'
-                    },
-                    config: {
-                        type: Object
                     },
                     samples: {
                         type: Array,
@@ -71,7 +68,10 @@
                     eventNotifyName: {
                         type: String,
                         value: "messageevent"
-                    }
+                    },
+                    config: {
+                        type: Object
+                    },
                 }
             }
 
@@ -101,7 +101,7 @@
                 let filters = this.search;
 
                 this.from = 1;
-                this.to = 5;
+                this.to = 10;
 
                 if (UtilsNew.isNotUndefined(this.opencgaClient) && UtilsNew.isNotUndefined(this.opencgaSession.study) && this.opencgaSession.study.id > 0) {
                     // Make a copy of the samples (if they exist), we will use this private copy until it is assigned to this.samples
@@ -592,6 +592,6 @@
 
         }
 
-        customElements.define(VariantSampleGrid.is, VariantSampleGrid);
+        customElements.define(OpencgaSampleGrid.is, OpencgaSampleGrid);
     </script>
 </dom-module>

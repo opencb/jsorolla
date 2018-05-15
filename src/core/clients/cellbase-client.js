@@ -90,7 +90,13 @@ class CellBaseClient {
         let version = options.version || this._config.version;
         let count = 0;
         // let response;
-        let url = `http://${hosts[count]}/webservices/rest/${version}/` + "meta" + `/${param}`;
+        let url = `${hosts[count]}/webservices/rest/${version}/` + "meta" + `/${param}`;
+
+        // By default we assume https protocol instead of http
+        if (!url.startsWith("https://") && !url.startsWith("http://")) {
+            url = `https://${url}`;
+        }
+
         // options.error = function() {
         //     if (++count < hosts.length) {
         //         // we need a new URL

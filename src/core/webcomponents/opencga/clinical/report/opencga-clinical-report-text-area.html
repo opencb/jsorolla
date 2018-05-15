@@ -18,10 +18,10 @@
     <template>
         <style include="jso-styles"></style>
         <template is="dom-if" if="{{isDisabled}}" >
-            <textarea id="{{prefix}}textArea" disabled rows="2"></textarea>
+            <textarea id="{{prefix}}textArea" disabled rows="2">[[text]]</textarea>
         </template>
         <template is="dom-if" if="{{!isDisabled}}" >
-            <textarea id="{{prefix}}textArea" rows="2"></textarea>
+            <textarea id="{{prefix}}textArea" rows="2">[[text]]</textarea>
         </template>
     </template>
 
