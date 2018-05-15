@@ -56,9 +56,10 @@ class GenomeBrowser {
         //set instantiation args, must be last
         Object.assign(this, args);
 
-        this.defaultRegion = new Region(this.region);
-
         this.sidePanelWidth = (this.sidePanel) ? 25 : 0;
+
+        this._checkAndSetMinimumRegion(this.region, this.getSVGCanvasWidth());
+        this.defaultRegion = new Region(this.region);
 
         //events attachments
         this.on(this.handlers);
@@ -134,7 +135,7 @@ class GenomeBrowser {
 
     _init() {
         let _this = this;
-        this._checkAndSetMinimumRegion(this.region, this.getSVGCanvasWidth());
+        // this._checkAndSetMinimumRegion(this.region, this.getSVGCanvasWidth());
         this.zoom = this._calculateZoomByRegion(this.region);
 
         this._updateSpecies(this.species);
