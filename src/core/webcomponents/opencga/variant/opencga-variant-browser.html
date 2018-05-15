@@ -20,6 +20,7 @@
 <link rel="import" href="opencga-variant-cohort-stats.html">
 <link rel="import" href="variant-beacon-network.html">
 <link rel="import" href="variant-genome-browser.html">
+<link rel="import" href="../opencga-genome-browser.html">
 <link rel="import" href="../../cellbase/variation/cellbase-variantannotation-view.html">
 
 <dom-module id="opencga-variant-browser">
@@ -83,7 +84,7 @@
                                     <button type="button" class="btn btn-success variant-browser-view-buttons" data-view="Summary" on-click="_changeView">
                                         <i class="fa fa-line-chart icon-padding" aria-hidden="true" data-view="Summary" on-click="_changeView"></i> Summary (Beta)
                                     </button>
-                                    <button type="button" class="btn btn-success variant-browser-view-buttons" data-view="GenomeBrowser" on-click="_changeView">
+                                    <button id="{{prefix}}GenomeBrowserButton" type="button" class="btn btn-success variant-browser-view-buttons" data-view="GenomeBrowser" on-click="_changeView">
                                         <i class="fa fa-list-alt icon-padding" aria-hidden="true" data-view="GenomeBrowser" on-click="_changeView"></i> Genome Browser (Beta)
                                     </button>
                                 </div>
@@ -102,7 +103,7 @@
                                                   consequence-types="{{consequenceTypes}}" query="[[query]]" search="{{search}}"
                                                   variant="{{variant}}" on-selected="selectedGene"
                                                   on-selectvariant="onSelectVariant" style="font-size: 12px" config="{{config}}"
-                                                  summary="{{summary}}" samples="{{samples}}">
+                                                  summary="{{summary}}" samples="{{samples}}" on-setgenomebrowserposition="onGenomeBrowserPositionChange">
                             </opencga-variant-grid>
 
 
@@ -188,11 +189,11 @@
                         <div id="{{prefix}}GenomeBrowser" class="variant-browser-content" style="display: none">
                             <br>
                             <br>
-                            <variant-genome-browser opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}"
+                            <opencga-genome-browser opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}"
                                                     cellbase-client="{{cellbaseClient}}"
                                                     query={{query}} search={{search}} species={{config.species}}
                                                     region="{{region}}" active="{{_genomeBrowserActive}}" full-screen="{{fullScreen}}">
-                            </variant-genome-browser>
+                            </opencga-genome-browser>
                         </div>
                     </div>
 
@@ -371,6 +372,19 @@
             onSampleChange(e) {
                 this.set('samples', e.detail.samples);
                 this.dispatchEvent(new CustomEvent("samplechange", {detail: {samples: this.samples}, bubbles: true, composed: true}));
+            }
+
+            onGenomeBrowserPositionChange(e) {
+                $('.variant-browser-content').hide(); // hides all content divs
+                $("#" + this.prefix + "GenomeBrowser").show(); // get the href and use it find which div to show
+
+                // Show the active button
+                $('.variant-browser-view-buttons').removeClass("active");
+                PolymerUtils.addClass(this.prefix + "GenomeBrowserButton", "active");
+
+                this._genomeBrowserActive = true;
+
+                this.region = e.detail.genomeBrowserPosition;
             }
 
             _checkProjects() {

@@ -19,7 +19,7 @@
 <link rel="import" href="opencga-variant-grid.html">
 <link rel="import" href="../../cellbase/variation/cellbase-variantannotation-view.html">
 <link rel="import" href="variant-beacon-network.html">
-<link rel="import" href="variant-genome-browser.html">
+<link rel="import" href="../opencga-genome-browser.html">
 <link rel="import" href="../clinical/clinical-analysis-view.html">
 <link rel="import" href="../clinical/clinical-interpretation-view.html">
 
@@ -86,7 +86,7 @@
                                     <button type="button" class="btn btn-success variant-interpretation-view-buttons active" data-view="TableResult" on-click="_changeView">
                                         <i class="fa fa-table icon-padding" aria-hidden="true" data-view="TableResult" on-click="_changeView"></i>Table Result
                                     </button>
-                                    <button type="button" class="btn btn-success variant-interpretation-view-buttons" data-view="GenomeBrowser" on-click="_changeView">
+                                    <button id="{{prefix}}GenomeBrowserButton" type="button" class="btn btn-success variant-interpretation-view-buttons" data-view="GenomeBrowser" on-click="_changeView">
                                         <i class="fa fa-list-alt icon-padding" aria-hidden="true" data-view="GenomeBrowser" on-click="_changeView"></i>Genome Browser (Beta)
                                     </button>
                                 </div>
@@ -132,7 +132,8 @@
                                                           consequence-types="{{consequenceTypes}}"
                                                           query="[[query]]" search="[[search]]" variant="{{variant}}"
                                                           on-selected="selectedGene" on-selectvariant="onSelectVariant" on-checkvariant="onCheckVariant"
-                                                          show-select="{{config.grid.showSelect}}" style="font-size: 12px" config="{{config}}">
+                                                          show-select="{{config.grid.showSelect}}" style="font-size: 12px"  on-setgenomebrowserposition="onGenomeBrowserPositionChange"
+                                                          config="{{config}}">
                                     </opencga-variant-grid>
                                 </template>
                                 <template is="dom-if" if="{{!interactive}}">
@@ -144,7 +145,8 @@
                                                           consequence-types="{{consequenceTypes}}"
                                                           query="[[defaultAutomaticQuery]]" search="[[search]]" variant="{{variant}}"
                                                           on-selected="selectedGene" on-selectvariant="onSelectVariant" on-checkvariant="onCheckVariant"
-                                                          show-select="{{config.grid.showSelect}}" style="font-size: 12px" config="{{config}}">
+                                                          show-select="{{config.grid.showSelect}}" style="font-size: 12px"  on-setgenomebrowserposition="onGenomeBrowserPositionChange"
+                                                          config="{{config}}">
                                     </opencga-variant-grid>
                                 </template>
 
@@ -230,10 +232,10 @@
                             <div id="{{prefix}}GenomeBrowser" class="variant-interpretation-content" style="display: none">
                                 <br>
                                 <br>
-                                <variant-genome-browser opencga-session="{{opencgaSession}}"  samples="{{samples}}" opencga-client="{{opencgaClient}}"
-                                                        cellbase-client="{{cellbaseClient}}" query={{query}} search={{search}} region="{{region}}"
-                                                        active="{{_genomeBrowserActive}}" full-screen="{{fullScreen}}">
-                                </variant-genome-browser>
+                                <opencga-genome-browser opencga-session="{{opencgaSession}}" samples="{{samples}}" opencga-client="{{opencgaClient}}"
+                                                        cellbase-client="{{cellbaseClient}}" query={{query}} search={{search}} region="{{search.region}}"
+                                                        active="{{_genomeBrowserActive}}" full-screen="{{fullScreen}}" config="{{genomeBrowserConfig}}">
+                                </opencga-genome-browser>
                             </div>
 
                             <!-- ANALYSIS AND CLINICAL DATA -->
@@ -465,6 +467,10 @@
                 this.defaultAutomaticQuery = {
                     biotype: "protein_coding"
                 };
+
+                this.genomeBrowserConfig = {
+                    showTitle: false,
+                };
             }
 
             clinicalAnalysisIdObserver() {
@@ -612,6 +618,20 @@
                 this.set('samples', _samples.slice());
                 this.dispatchEvent(new CustomEvent("samplechange", {detail: e.detail, bubbles: true, composed: true}));
                 this._initGenotypeSamples(this.samples);
+            }
+
+            onGenomeBrowserPositionChange(e) {
+                $('.variant-interpretation-content').hide(); // hides all content divs
+                $("#" + this.prefix + "GenomeBrowser").show(); // get the href and use it find which div to show
+
+                // Show the active button
+                $('.variant-interpretation-view-buttons').removeClass("active");
+                // $(e.target).addClass("active");
+                PolymerUtils.addClass(this.prefix + "GenomeBrowserButton", "active");
+
+                this._genomeBrowserActive = true;
+
+                this.region = e.detail.genomeBrowserPosition;
             }
 
             _initGenotypeSamples(samples, force, value) {
@@ -867,7 +887,6 @@
 
             getGenotypeFilter(genotypeSamples) {
                 let genotype = "";
-                debugger;
                 this.samples.forEach((sample) => {
                     if (UtilsNew.isNotUndefinedOrNull(genotypeSamples[sample.name])) {
                         genotype += sample.name+ ":"

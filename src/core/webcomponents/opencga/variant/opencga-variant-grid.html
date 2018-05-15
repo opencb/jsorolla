@@ -20,11 +20,17 @@
             span.redText, span.orangeText {
                 margin-left: 0;
             }
+
             span.redText {
                 color: red;
             }
+
             span.orangeText {
                 color: orange;
+            }
+
+            .variant-link-dropdown:hover .dropdown-menu {
+                display: block;
             }
         </style>
 
@@ -304,6 +310,17 @@
                                 PolymerUtils.querySelector(_table.selector).rows[2].setAttribute('class', 'success');
                                 _this._onSelectVariant(data.rows[0]);
 
+                                let elementsByClassName = PolymerUtils.getElementsByClassName("genome-browser-option");
+                                for (let elem of elementsByClassName) {
+                                    elem.addEventListener('click', function(e) {
+                                        // _this.genomeBrowserPosition = e.target.dataset.variantPosition;
+                                        _this.dispatchEvent(new CustomEvent('setgenomebrowserposition', {
+                                            detail: {
+                                                genomeBrowserPosition: e.target.dataset.variantPosition,
+                                            }, bubbles: true, composed: true
+                                        }));
+                                    });
+                                }
                             }
                         },
                         onPageChange: function (page, size) {
@@ -485,8 +502,38 @@
             variantFormatter(value, row, index) {
                 let ref = (row.reference !== "") ? row.reference : "-";
                 let alt = (row.alternate !== "") ? row.alternate : "-";
-                return "<span style='white-space: nowrap'>" + row.chromosome + ':' + row.start + " " + ref + '/' + alt + "</span>";
+
+                let id = row.id;
+                if (typeof row.annotation !== "undefined" && typeof row.annotation.xrefs !== "undefined" && row.annotation.xrefs.length > 0) {
+                    row.annotation.xrefs.find(function (element) {
+                        if (element.source === "dbSNP") {
+                            id = element.id;
+                        }
+                    });
+                }
+
+                // return "<span style='white-space: nowrap'>" + row.chromosome + ':' + row.start + " " + ref + '/' + alt + "</span>";
+                return `<div class="dropdown variant-link-dropdown" style="white-space: nowrap">
+                            <a id="${this.field.context.prefix}dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                class="genome-browser-option" data-variant-position="${row.chromosome}:${row.start}-${row.end}" style="cursor: pointer">
+                                    ${row.chromosome}:${row.start} ${ref}/${alt}
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="${this.field.context.prefix}dropdownMenu1" style="font-size: 1.25rem;margin-top: 0px">
+                                <li class="dropdown-header">Internal Links</li>
+                                <li>
+                                    <a class="genome-browser-option" data-variant-position="${row.chromosome}:${row.start}-${row.end}" style="cursor: pointer">
+                                        <i class="fa fa-list" aria-hidden="true"></i> Genome Browser
+                                    </a>
+                                </li>
+                                <li class="dropdown-header">External Links</li>
+                                <li><a target='_blank' href="https://www.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=${id}">Ensembl</a></li>
+                                <li><a target='_blank' href="https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?searchType=adhoc_search&type=rs&rs=${id}">dbSNP</a></li>
+                                <li><a target='_blank' href="https://www.snpedia.com/index.php/${id}">SNPedia</a></li>
+                            </ul>
+                        </div>
+                        `;
             }
+
             snpFormatter(value, row, index) {
                 /*
                     We try first to read SNP ID from the identifier of the variant (this identifier comes from the file).
@@ -1050,8 +1097,8 @@
                         },
                         {
                             title: 'Variant',
-                            field: 'variant',
-//                            sortable: true,
+                            // field: 'variant',
+                            field: {context: this},
                             colspan: 1,
                             rowspan: 2,
                             formatter: this.variantFormatter,

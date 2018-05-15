@@ -20,11 +20,13 @@
     <template>
         <style include="jso-styles"></style>
 
-        <div class="panel" style="margin-bottom: 15px">
-            <h3 style="margin: 10px 10px 10px 15px">
-                <i class="fa fa-list" aria-hidden="true"></i> &nbsp;Genome Browser
-            </h3>
-        </div>
+        <template is="dom-if" if="{{_config.showTitle}}">
+            <div class="panel" style="margin-bottom: 15px">
+                <h3 style="margin: 10px 10px 10px 15px">
+                    <i class="fa fa-list" aria-hidden="true"></i> &nbsp;{{_config.title}}
+                </h3>
+            </div>
+        </template>
 
         <div style="margin: 20px">
             <div class="col-md-12">
@@ -108,7 +110,7 @@
 
                 <div style="padding: 20px 5px">
                     <genome-browser id="{{prefix}}gb" opencga-session={{opencgaSession}} cellbase-client="{{cellbaseClient}}"
-                                    opencga-client="{{opencgaClient}}" region="{{region}}" tracks="{{tracks}}">
+                                    opencga-client="{{opencgaClient}}" region="{{genomeBrowserRegion}}" tracks="{{tracks}}">
                     </genome-browser>
                 </div>
             </div>
@@ -162,14 +164,22 @@
                     opencgaClient: {
                         type: Object
                     },
+                    samples: {
+                        type: Array,
+                        observer: "samplesObserver"
+                    },
                     region: {
-                        type: Object,
-                        observer: "_setRegion"
+                        type: String,
+                        observer: "regionObserver"
                     },
                     active: {
                         type: Boolean,
                         value: false,
                         observer: "_setActive"
+                    },
+                    config: {
+                        type: Object,
+                        observer: "configObserver"
                     }
                 }
             }
@@ -201,6 +211,14 @@
                 this.displayGenomeBrowserMessage = "inline";
             }
 
+            configObserver() {
+                this._config = Object.assign(this.getDefaultConfig(), this.config);
+            }
+
+            regionObserver() {
+                this.genomeBrowserRegion = new Region(this.region);
+            }
+
             onStudyUpdate() {
                 if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.study)) {
                     this._availableFiles = [];
@@ -210,16 +228,26 @@
 
             showSampleBrowser(e) {
                 e.preventDefault();
+
                 this.sampleBrowserModal = UtilsNew.isUndefined(this.sampleBrowserModal) ? true : !this.sampleBrowserModal;
                 $("#" + this.prefix + "SampleBrowser").modal('show');
             }
 
-            addSample(e) {
-                let value = PolymerUtils.getElementById(this.prefix  + "AutocompleteSearchInput").value;
+            samplesObserver() {
+                for (let sample of this.samples) {
+                    this._addSample(sample.name);
+                }
+            }
 
+            addSample(e) {
+                let sample = PolymerUtils.getElementById(this.prefix  + "AutocompleteSearchInput").value;
+                this._addSample(sample);
+            }
+
+            _addSample(sample) {
                 for (let i in this._availableFiles) {
-                    let sample = this._availableFiles[i].name;
-                    if (sample === value) {
+                    let existingSample = this._availableFiles[i].name;
+                    if (existingSample === sample) {
                         // The sample is already in the shown list
                         return;
                     }
@@ -227,7 +255,7 @@
 
                 let queryParams = {
                     study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
-                    sample: value,
+                    sample: sample,
                     format: "VCF,BAM",
                     include: "path,name,format,bioformat",
                 };
@@ -235,10 +263,12 @@
                 let _this = this;
                 this.opencgaClient.files().search(queryParams)
                     .then(values => {
-                        _this.push("_availableFiles", {
-                            name: value,
-                            files: values.response[0].result
-                        });
+                        if (values.response[0].result !== undefined && values.response[0].result.length > 0) {
+                            _this.push("_availableFiles", {
+                                name: sample,
+                                files: values.response[0].result
+                            });
+                        }
                     })
                     .catch(function (response) {
                         _this.showErrorAlert(response.error);
@@ -314,6 +344,13 @@
                         genomeBrowser.active = true;
                     }
                 }
+            }
+
+            getDefaultConfig() {
+                return {
+                    title: "Genome Browser",
+                    showTitle: true,
+                };
             }
         }
 
