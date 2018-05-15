@@ -245,7 +245,7 @@
                 this.modalHpoActive = false;
                 this.modalGoActive = false;
 
-                this._genotypes = ["0/0", "0/1", "1/1", "./."];
+                this._genotypes = ["0/0", "0/1", "1/1"];
             }
 
             studyObserver() {
@@ -1095,7 +1095,9 @@
                             samples.push(sample);
                             let genotypes = sampleGenotype.split(":")[1].split(",");
                             genotypes.forEach(genotype => {
-                                genotypeSamples[sample][genotype] = true;
+                                if (genotype !== "./.") {
+                                    genotypeSamples[sample][genotype] = true;
+                                }
                             });
                         }
                     }
@@ -1330,7 +1332,7 @@
                 let approxCountCheckbox = "";
                 if (subsection.showApproximateCount) {
                     // approxCountCheckbox = `<input id="${prefix}ApproxCountCheckbox" type="checkbox" value="approximateCount" class="${prefix}FilterCheckBox" checked> Approximate Count<br>`;
-                    approxCountCheckbox = '<input id="${prefix}ApproxCountCheckbox" type="checkbox" value="approximateCount" class="${prefix}FilterCheckBox" checked> Approximate Count<br>';
+                    approxCountCheckbox = '<input id="${prefix}ApproxCountCheckbox" type="checkbox" value="approximateCount" class="${prefix}FilterCheckBox" style="display: none;" checked> Approximate Count<br>';
                 }
                 return `
                     <div id="${prefix}AutocompleteSampleSelect" style="margin: 15px 0px">
@@ -1369,7 +1371,7 @@
                                 <table id="${prefix}SampleGenotypeTable" class="table table-hover" style="margin-bottom: 10px">
                                     <thead>
                                         <tr>
-                                            <th>Sample</th><th>0/0</th><th>0/1</th><th>1/1</th><th>./.</th>
+                                            <th>Sample</th><th>0/0</th><th>0/1</th><th>1/1</th>
                                             <!--<th>Sample</th><th>HOM_REF</th><th>HET</th><th>HOM_ALT</th><th>MISS</th>-->
                                         </tr>
                                     </thead>

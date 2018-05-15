@@ -641,10 +641,10 @@
                 samples.forEach((sample) => {
                     if (UtilsNew.isUndefinedOrNull(this.genotypeSamples[sample.name]) || force){
                         this.genotypeSamples[sample.name] = {};
-                        this.genotypeSamples[sample.name]["0/0"] = UtilsNew.isNotUndefinedOrNull(value)? value : true;
-                        this.genotypeSamples[sample.name]["1/1"] = UtilsNew.isNotUndefinedOrNull(value)? value : true;
+                        // this.genotypeSamples[sample.name]["0/0"] = UtilsNew.isNotUndefinedOrNull(value)? value : true;
                         this.genotypeSamples[sample.name]["0/1"] = UtilsNew.isNotUndefinedOrNull(value)? value : true;
-                        this.genotypeSamples[sample.name]["./."] = UtilsNew.isNotUndefinedOrNull(value)? value : true;
+                        this.genotypeSamples[sample.name]["1/1"] = UtilsNew.isNotUndefinedOrNull(value)? value : true;
+                        // this.genotypeSamples[sample.name]["./."] = UtilsNew.isNotUndefinedOrNull(value)? value : true;
                     }
                 });
                 this.query = Object.assign({}, this.query, {genotype: this.getGenotypeFilter(this.genotypeSamples)});
