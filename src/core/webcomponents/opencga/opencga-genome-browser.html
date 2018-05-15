@@ -30,71 +30,92 @@
 
         <div style="margin: 20px">
             <div class="col-md-12">
-                <h4>Select Samples and Files</h4>
-                <hr style="width: 80%; margin: 2px 0px;border-top: 2px solid #eee">
-
-                <div class="col-md-12" style="padding: 10px">
-                    <div class="col-md-2">
-                        Search samples by ID:
-                    </div>
-                    <div class="col-md-2">
-                        <input id="{{prefix}}AutocompleteSearchInput" type="text" class="form-control form-control-sm" placeholder="HG01879..."
-                               list$="{{prefix}}AutocompleteSearchDataList" on-keyup="_autocompleteSampleSearch">
-                        <datalist id="{{prefix}}AutocompleteSearchDataList"></datalist>
-                    </div>
-                    <div class="col-md-2">
-                        <button type="button" id="{{prefix}}addSampleButton" class="btn btn-sm btn-primary" on-click="addSample">
-                            +
-                        </button>
-                    </div>
+                <div style="display: block; cursor:pointer;" on-click="toggleCollapsedFilter"
+                     data-toggle="collapse" href$="#{{prefix}}collapsibleFilter">
+                    <h4>
+                        <template is="dom-if" if="{{_filtersCollapsed}}">
+                            <i class="fa fa-caret-right" aria-hidden="true"></i>
+                        </template>
+                        <template is="dom-if" if="{{!_filtersCollapsed}}">
+                            <i class="fa fa-caret-down" aria-hidden="true"></i>
+                        </template>
+                        Select Samples and Files
+                    </h4>
+                    <hr style="width: 80%; margin: 2px 0px;border-top: 2px solid #eee">
                 </div>
 
-                <div class="col-md-12" style="padding: 0px 10px">
-                    <div class="col-md-2">
-                        or browse samples:
-                    </div>
-                    <div class="col-md-2">
-                        <button type="button" class="btn btn-primary btn-sm"
-                                on-click="showSampleBrowser" on-click="showSampleBrowser" data-toggle="modal">
-                            Sample Browser...
-                        </button>
-                    </div>
-                </div>
-
-                <div class="col-md-12" style="padding: 25px 10px 10px 10px">
-                    <div class="col-md-12">
-                        <span>Samples selected:</span>
-                    </div>
-                    <!--List of available files to browse -->
-                    <div class="col-md-12">
-                        <div style="padding: 5px;max-height: 300px; overflow-y: auto">
-                            <template is="dom-repeat" items="{{_availableFiles}}" as="sample">
-                                <div>
-                                    <div style="font-weight: bold; text-decoration: underline; display: inline-block;padding: 5px 10px">
-                                        <span>{{sample.name}}</span>
-                                    </div>
-                                    <button type="button" id="{{prefix}}deleteSampleButton" class="btn btn-xs btn-danger"
-                                            on-click="deleteSample" data-sample="{{sample.name}}">
-                                        <i class="fa fa-times" aria-hidden="true"> Delete</i>
-                                    </button>
-                                </div>
-                                <template is="dom-repeat" items="{{sample.files}}" as="file">
-                                    <input type="checkbox" style="margin-left: 15px;"
-                                           name="file-checkbox" value="{{file.name}}" data="{{file}}">
-                                    <span style="word-wrap:break-word;">{{file.name}}</span><br>
-                                </template>
-                                <br>
-                            </template>
+                <div class="collapse in" id="{{prefix}}collapsibleFilter">
+                    <div class="col-md-12" style="padding: 10px">
+                        <div class="col-md-2">
+                            Search samples by ID:
+                        </div>
+                        <div class="col-md-2">
+                            <input id="{{prefix}}AutocompleteSearchInput" type="text" class="form-control form-control-sm" placeholder="HG01879..."
+                                   list$="{{prefix}}AutocompleteSearchDataList" on-keyup="_autocompleteSampleSearch">
+                            <datalist id="{{prefix}}AutocompleteSearchDataList"></datalist>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" id="{{prefix}}addSampleButton" class="btn btn-sm btn-primary" on-click="addSample">
+                                +
+                            </button>
                         </div>
                     </div>
+
+                    <div class="col-md-12" style="padding: 0px 10px">
+                        <div class="col-md-2">
+                            or browse samples:
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-primary btn-sm"
+                                    on-click="showSampleBrowser" on-click="showSampleBrowser" data-toggle="modal">
+                                Sample Browser...
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12" style="padding: 25px 10px 10px 10px">
+                        <div class="col-md-12">
+                            <span>Samples selected:</span>
+                        </div>
+                        <!--List of available files to browse -->
+                        <div class="col-md-12">
+                            <div style="padding: 5px;max-height: 300px; overflow-y: auto">
+                                <template is="dom-repeat" items="{{_availableFiles}}" as="sample">
+                                    <div>
+                                        <div style="font-weight: bold; text-decoration: underline; display: inline-block;padding: 5px 10px">
+                                            <span>{{sample.name}}</span>
+                                        </div>
+                                        <button type="button" id="{{prefix}}deleteSampleButton" class="btn btn-xs btn-danger"
+                                                on-click="deleteSample" data-sample="{{sample.name}}">
+                                            <i class="fa fa-times" aria-hidden="true"> Delete</i>
+                                        </button>
+                                    </div>
+                                    <template is="dom-repeat" items="{{sample.files}}" as="file">
+                                        <input type="checkbox" style="margin-left: 15px;"
+                                               name="{{prefix}}file-checkbox" value="{{file.name}}" data="{{file}}">
+                                        <span style="word-wrap:break-word;">{{file.name}}</span><br>
+                                    </template>
+                                    <br>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
 
-                <div class="col-md-6">
-                    <button id="{{prefix}}RunGenomeBrowser" type="button" class="btn btn-primary"
-                            on-click="showSelectionInGenomeBrowser" style="float: right">
-                        Show Genome Browser
-                    </button>
-                </div>
+                <!--<div class="col-md-6" style="margin-top: 15px;">-->
+                <!--<button id="{{prefix}}RunGenomeBrowser" type="button" class="btn btn-primary"-->
+                <!--on-click="showSelectionInGenomeBrowser" style="float: right">-->
+                <!--Show Genome Browser-->
+                <!--</button>-->
+                <!--</div>-->
+            </div>
+
+            <div class="col-md-6" style="margin-top: 15px;">
+                <button id="{{prefix}}RunGenomeBrowser" type="button" class="btn btn-primary"
+                        on-click="showSelectionInGenomeBrowser" style="float: right">
+                    Show Genome Browser
+                </button>
             </div>
 
             <!-- Genome browser -->
@@ -191,11 +212,6 @@
             _init() {
                 this.prefix = "OpencgaGenomeBrowser" + Utils.randomString(6);
 
-                this.sampleBrowserConfig = {
-                    showTitle: false,
-                    compact: true
-                };
-
                 this._availableFiles = [];
                 if (!UtilsNew.isNotUndefinedOrNull(this.region)) {
                     this.region = new Region({chromosome: "11", start: 68177378, end: 68177510});
@@ -208,11 +224,19 @@
                     alignment: {type: "alignment", config: {}}
                 };
 
+                this._config = this.getDefaultConfig();
+
+                this._filtersCollapsed = false;
+
                 this.displayGenomeBrowserMessage = "inline";
             }
 
             configObserver() {
                 this._config = Object.assign(this.getDefaultConfig(), this.config);
+            }
+
+            toggleCollapsedFilter() {
+                this.set("_filtersCollapsed", !this._filtersCollapsed);
             }
 
             regionObserver() {
@@ -318,7 +342,7 @@
                 let genomeBrowser = PolymerUtils.getElementById(this.prefix  + "gb");
 
                 if (genomeBrowser !== undefined && genomeBrowser !== null) {
-                    let inputArray = document.querySelectorAll('input[name=file-checkbox]:checked');
+                    let inputArray = document.querySelectorAll('input[name=' + this.prefix + 'file-checkbox]:checked');
 
                     let myVariantFiles = [];
                     let myAlignmentFiles = [];
@@ -338,18 +362,18 @@
                     this.tracks = Object.assign({}, _tracks);
 
                     // Activate genome browser
-                    if (myVariantFiles.length > 0 || myAlignmentFiles.length > 0) {
-                        // Hide Genome Browser initial message
-                        this.displayGenomeBrowserMessage = "none";
-                        genomeBrowser.active = true;
-                    }
+                    // if (myVariantFiles.length > 0 || myAlignmentFiles.length > 0) {
+                    // Hide Genome Browser initial message
+                    this.displayGenomeBrowserMessage = "none";
+                    genomeBrowser.active = true;
+                    // }
                 }
             }
 
             getDefaultConfig() {
                 return {
                     title: "Genome Browser",
-                    showTitle: true,
+                    showTitle: true
                 };
             }
         }

@@ -207,7 +207,6 @@ class TrackListPanel { //parent is a DOM div element
         let mid = this.width / 2;
         this._setTextPosition();
 
-
         this.centerLine = $(`<div id="${this.id}centerLine"></div>`)[0];
         $(panelDiv).append(this.centerLine);
         $(this.centerLine).css({

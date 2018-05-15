@@ -190,7 +190,7 @@
                             <br>
                             <br>
                             <opencga-genome-browser opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}"
-                                                    cellbase-client="{{cellbaseClient}}"
+                                                    cellbase-client="{{cellbaseClient}}" config="{{_config.genomeBrowser}}"
                                                     query={{query}} search={{search}} species={{config.species}}
                                                     region="{{region}}" active="{{_genomeBrowserActive}}" full-screen="{{fullScreen}}">
                             </opencga-genome-browser>
@@ -314,6 +314,8 @@
                     "annot-go": "GO",
                     "annot-hpo": "HPO"
                 };
+
+                this._config = this.getDefaultConfig();
             }
 
             onCollapse() {
@@ -376,7 +378,9 @@
 
             onGenomeBrowserPositionChange(e) {
                 $('.variant-browser-content').hide(); // hides all content divs
-                $("#" + this.prefix + "GenomeBrowser").show(); // get the href and use it find which div to show
+
+                // Show genome browser div
+                PolymerUtils.getElementById(this.prefix + "GenomeBrowser").style.display = "block";
 
                 // Show the active button
                 $('.variant-browser-view-buttons').removeClass("active");
@@ -606,6 +610,14 @@
 
             triggerBeacon(e) {
                 this.variantToBeacon = this.variant;
+            }
+
+            getDefaultConfig() {
+                return {
+                    genomeBrowser: {
+                        showTitle: false
+                    }
+                }
             }
         }
 
