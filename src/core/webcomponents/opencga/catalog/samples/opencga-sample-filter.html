@@ -791,7 +791,7 @@
             }
 
             isVisible(myVar) {
-                if (this.config.variableSet !== undefined) {
+                if (UtilsNew.isNotUndefinedOrNull(this.config) && UtilsNew.isNotUndefinedOrNull(this.config.variableSet)) {
                     let excludeArray = this.config.variableSet.exclude;
                     for (let index in excludeArray) {
                         if (excludeArray[index].webComponent === this.localName) {

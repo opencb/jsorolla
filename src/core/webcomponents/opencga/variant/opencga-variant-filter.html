@@ -309,7 +309,7 @@
                     PolymerUtils.addStyle(this.prefix + "SampleGenotypeMessage", "display", "inline");
                 }
 
-                // this._calculateFilesSamples();
+                this._calculateFilesSamples();
                 this.updateQueryFilters();
             }
 
@@ -1102,7 +1102,21 @@
                         }
                     }
                 }
+
+                // Loading samples when we are passing just genotypes to filter.
+                if (UtilsNew.isUndefinedOrNull(this.samples) || UtilsNew.isNotUndefinedOrNull(this.samples) && samples.length > 0 && samples.length !== this.samples.length) {
+                    let _this = this;
+                    this.opencgaClient.samples().info(samples.join(',')).then(function (response) {
+                        let _samples = [];
+                        for (let i in response.response) {
+                            _samples.push(response.response[i].result[0]);
+                        }
+                        _this.samples = _samples;
+                    });
+                }
+
                 for (let sample of samples) {
+
                     let tr = tableBody.insertRow(-1);
                     tr.setAttribute("id", sample);
 
@@ -1196,10 +1210,10 @@
                 this._addAllTooltips();
 
                 // If Samples or Family properties have been passed then we hide the Sample selector
-                if (UtilsNew.isNotEmptyArray(this.samples)) {
-                    PolymerUtils.hide(this.prefix + "AutocompleteSampleSelect");
-                    PolymerUtils.addStyle(this.prefix + "SampleGenotypeMessage", "display", "none");
-                }
+                // if (UtilsNew.isNotEmptyArray(this.samples)) {
+                //     PolymerUtils.hide(this.prefix + "AutocompleteSampleSelect");
+                //     PolymerUtils.addStyle(this.prefix + "SampleGenotypeMessage", "display", "none");
+                // }
             }
 
             _createSection(section, prefix) {
