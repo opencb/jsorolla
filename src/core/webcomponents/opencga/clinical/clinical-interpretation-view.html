@@ -359,8 +359,8 @@
                                 <div class="tab-content" style="height: 680px">
                                     <!-- Current Annotation Tab -->
                                     <div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">
-                                        <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}"
-                                                                         cellbase-client="{{cellbaseClient}}"
+                                        <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-variantannotation-view
+                                                                         cellbase-client="{{cellbaseClient}}" assembly={{opencgaSession.project.organism.assembly}}
                                                                          mode="vertical"
                                                                          hash-fragment-credentials="{{hashFragmentCredentials}}"
                                                                          consequence-types="{{consequenceTypes}}"

@@ -895,7 +895,7 @@
                 let pss = [];
                 let numFilters = 0;
                 let subsScores = ["Sift", "Polyphen"];
-                for (let subsScore of subsScores) {
+                subsScores.forEach((subsScore) => {
                     let dropdownValues = PolymerUtils.getElementById(this.prefix + subsScore + "Values");
                     let textboxInput = PolymerUtils.getElementById(this.prefix + subsScore + "Input");
                     let operator = PolymerUtils.getElementById(this.prefix + subsScore + "Operator");
@@ -911,7 +911,7 @@
                         pss.push(subsScore.toLowerCase() + "==" + dropdownValues.value);
                         numFilters++;
                     }
-                }
+                });
                 // If both Sift and Polyphen are selected then we activate the AND/OR control
                 if (numFilters === 2) {
                     $("input:radio[name=pss]").attr('disabled', false);
@@ -1114,7 +1114,6 @@
                         _this.samples = _samples;
                     });
                 }
-
                 for (let sample of samples) {
 
                     let tr = tableBody.insertRow(-1);
