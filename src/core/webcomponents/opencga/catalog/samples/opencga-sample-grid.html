@@ -24,7 +24,7 @@
             </div>
 
             <table id="{{prefix}}SampleSelector" data-test-id="variant-sample-grid-sample-selector" data-show-columns="true" data-show-export="true" data-show-pagination-switch="true"
-                   data-pagination="true" data-page-size="10" data-show-refresh="true" data-page-list="[5, 10]" style="cursor: pointer">
+                   data-pagination="true" data-page-size="10" data-show-refresh="true" data-page-list="[5, 10]" data-icons-prefix="fa" data-icons="icons" style="cursor: pointer">
                 <thead style="background-color: #eee"></thead>
             </table>
         </div>
@@ -36,7 +36,8 @@
             constructor() {
                 super();
 
-                this.prefix = "VarSampleGrid" + Utils.randomString(6);
+                this._init();
+
             }
 
             static get is() {
@@ -79,6 +80,16 @@
                 return ['calculateFilters(filteredVariables.variables.*)'];
             }
 
+            _init() {
+                this.prefix = "VarSampleGrid" + Utils.randomString(6);
+                window.icons = {
+                    refresh: 'fa-refresh',
+                    columns: 'fa-th',
+                    paginationSwitchDown: 'fa-caret-square-o-down',
+                    paginationSwitchUp: 'fa-caret-square-o-up'
+                };
+            }
+
             ready() {
                 super.ready();
 
@@ -95,6 +106,7 @@
 
                 this.table = PolymerUtils.getElementById(this.prefix + "SampleSelector");
                 this.search = {};
+
             }
 
             renderTable() {

@@ -88,7 +88,7 @@
 
                     <table id="{{prefix}}tableAnalysis" data-toolbar="#toolbar" data-show-columns="true" data-show-export="true"
                            data-show-pagination-switch="true" data-pagination="true" data-page-size="5" data-page-list="[5, 10, 25]"
-                           data-checkbox-header="false" data-maintain-selected="true" style="cursor: pointer;">
+                           data-checkbox-header="false" data-maintain-selected="true" data-icons-prefix="fa" data-icons="icons" style="cursor: pointer;">
                         <thead style="background-color: #eee"></thead>
                     </table>
                 </div>
@@ -154,8 +154,7 @@
 
             constructor() {
                 super();
-
-                this.prefix = "sample" + Utils.randomString(6);
+                this._init();
             }
 
             static get is() {
@@ -209,6 +208,16 @@
                 }
             }
 
+
+            _init() {
+                this.prefix = "sample" + Utils.randomString(6);
+                window.icons = {
+                    refresh: 'fa-refresh',
+                    columns: 'fa-th',
+                    paginationSwitchDown: 'fa-caret-square-o-down',
+                    paginationSwitchUp: 'fa-caret-square-o-up'
+                };
+            }
             _attachDom(dom) {
                 this.appendChild(dom);
             }
