@@ -344,7 +344,7 @@
                         .search({
                             study: _this.opencgaSession.project.alias + ":" + _this.opencgaSession.study.alias,
                             name: "~^" + sampleNamePrefix,
-                            include: "id,name",
+                            include: "id,name,source",
                             includeIndividual: true,
                             limit: 20}, {})
                         .then(function (response) {
