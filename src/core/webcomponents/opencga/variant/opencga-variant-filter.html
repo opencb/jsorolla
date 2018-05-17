@@ -1106,7 +1106,10 @@
                 // Loading samples when we are passing just genotypes to filter.
                 if (UtilsNew.isUndefinedOrNull(this.samples) || UtilsNew.isNotUndefinedOrNull(this.samples) && samples.length > 0 && samples.length !== this.samples.length) {
                     let _this = this;
-                    this.opencgaClient.samples().info(samples.join(',')).then(function (response) {
+                    let params = {
+                        study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias
+                    };
+                    this.opencgaClient.samples().info(samples.join(','), params).then(function (response) {
                         let _samples = [];
                         for (let i in response.response) {
                             _samples.push(response.response[i].result[0]);
