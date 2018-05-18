@@ -1104,7 +1104,7 @@
                 }
 
                 // Loading samples when we are passing just genotypes to filter.
-                if (UtilsNew.isUndefinedOrNull(this.samples) || UtilsNew.isNotUndefinedOrNull(this.samples) && samples.length > 0 && samples.length !== this.samples.length) {
+                if (samples.length && (UtilsNew.isUndefinedOrNull(this.samples) || (UtilsNew.isNotUndefinedOrNull(this.samples) && samples.length !== this.samples.length))) {
                     let _this = this;
                     let params = {
                         study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias
