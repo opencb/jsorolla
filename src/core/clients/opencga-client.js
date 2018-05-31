@@ -510,6 +510,8 @@ class Users extends OpenCGAParentClass {
             Cookies.expire(this._config.cookiePassword);
             Cookies.expire(this._config.cookieLoginResponse);
         }
+
+        return Promise.resolve();
     }
 
     changeEmail(newMail) {

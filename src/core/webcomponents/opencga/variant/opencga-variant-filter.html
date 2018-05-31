@@ -309,7 +309,7 @@
                     PolymerUtils.addStyle(this.prefix + "SampleGenotypeMessage", "display", "inline");
                 }
 
-                // this._calculateFilesSamples();
+                this._calculateFilesSamples();
                 this.updateQueryFilters();
             }
 
@@ -344,7 +344,7 @@
                         .search({
                             study: _this.opencgaSession.project.alias + ":" + _this.opencgaSession.study.alias,
                             name: "~^" + sampleNamePrefix,
-                            include: "id,name",
+                            include: "id,name,source",
                             includeIndividual: true,
                             limit: 20}, {})
                         .then(function (response) {
@@ -895,7 +895,7 @@
                 let pss = [];
                 let numFilters = 0;
                 let subsScores = ["Sift", "Polyphen"];
-                for (let subsScore of subsScores) {
+                subsScores.forEach((subsScore) => {
                     let dropdownValues = PolymerUtils.getElementById(this.prefix + subsScore + "Values");
                     let textboxInput = PolymerUtils.getElementById(this.prefix + subsScore + "Input");
                     let operator = PolymerUtils.getElementById(this.prefix + subsScore + "Operator");
@@ -911,7 +911,7 @@
                         pss.push(subsScore.toLowerCase() + "==" + dropdownValues.value);
                         numFilters++;
                     }
-                }
+                });
                 // If both Sift and Polyphen are selected then we activate the AND/OR control
                 if (numFilters === 2) {
                     $("input:radio[name=pss]").attr('disabled', false);
@@ -1102,7 +1102,23 @@
                         }
                     }
                 }
+
+                // Loading samples when we are passing just genotypes to filter.
+                if (samples.length && (UtilsNew.isUndefinedOrNull(this.samples) || (UtilsNew.isNotUndefinedOrNull(this.samples) && samples.length !== this.samples.length))) {
+                    let _this = this;
+                    let params = {
+                        study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias
+                    };
+                    this.opencgaClient.samples().info(samples.join(','), params).then(function (response) {
+                        let _samples = [];
+                        for (let i in response.response) {
+                            _samples.push(response.response[i].result[0]);
+                        }
+                        _this.samples = _samples;
+                    });
+                }
                 for (let sample of samples) {
+
                     let tr = tableBody.insertRow(-1);
                     tr.setAttribute("id", sample);
 
@@ -1177,7 +1193,7 @@
                 // Deselect bootstrap-select dropdowns
                 $("#" + this.prefix + "PanelApps").selectpicker('val', []);
                 $("#" + this.prefix + "GeneBiotypes").selectpicker('val', []);
-                $("#" + this.prefix + "VCFFilter").selectpicker('val', []);
+                $("#" + this.prefix + "vcfFilterSelect").selectpicker('val', []);
             }
 
 
@@ -1196,10 +1212,10 @@
                 this._addAllTooltips();
 
                 // If Samples or Family properties have been passed then we hide the Sample selector
-                if (UtilsNew.isNotEmptyArray(this.samples)) {
-                    PolymerUtils.hide(this.prefix + "AutocompleteSampleSelect");
-                    PolymerUtils.addStyle(this.prefix + "SampleGenotypeMessage", "display", "none");
-                }
+                // if (UtilsNew.isNotEmptyArray(this.samples)) {
+                //     PolymerUtils.hide(this.prefix + "AutocompleteSampleSelect");
+                //     PolymerUtils.addStyle(this.prefix + "SampleGenotypeMessage", "display", "none");
+                // }
             }
 
             _createSection(section, prefix) {

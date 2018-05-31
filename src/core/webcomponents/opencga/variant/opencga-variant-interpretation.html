@@ -175,7 +175,7 @@
                                         <div class="tab-content" style="height: 680px">
                                             <!--Annotation Tab-->
                                             <div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">
-                                                <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}"
+                                                <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" assembly="{{opencgaSession.project.organism.assembly}}"
                                                                                  cellbase-client="{{cellbaseClient}}"
                                                                                  mode="vertical"
                                                                                  hash-fragment-credentials="{{hashFragmentCredentials}}"
@@ -435,6 +435,15 @@
                 if (!this.interactive) {
                     this.collapseFilter();
                 }
+                // cellbase version
+                this.cellbaseClient.getMeta("about").then(response => {
+                    if (UtilsNew.isNotUndefinedOrNull(response) && UtilsNew.isNotEmptyArray(response.response)) {
+                        if (UtilsNew.isNotUndefinedOrNull(response.response[0].result) && UtilsNew.isNotEmptyArray(response.response[0].result)) {
+                            this.cellbaseVersion =response.response[0].result[0]["Version: "];
+                        }
+                    }
+                    debugger;
+                });
             }
 
             _init() {
@@ -740,7 +749,7 @@
                     };
                     interpretation.versions = [
                         {
-                            id: "cellbase", name: "CellBase", type: "DDBB", version: "4.5.0"
+                            id: "cellbase", name: "CellBase", type: "DDBB", version: this.cellbaseVersion
                         }
                     ];
                     interpretation.filters = this.query;
