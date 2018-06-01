@@ -21,12 +21,13 @@
         <style include="jso-styles"></style>
 
         <!--<template is="dom-if" if="{{checkProjects}}">-->
-            <div class="panel" style="margin-bottom: 15px">
-                <h3 style="margin: 10px 10px 10px 15px">
-                    <i class="fa fa-bar-chart" aria-hidden="true"></i> &nbsp;{{config.title}}
-                </h3>
-            </div>
+        <div class="panel" style="margin-bottom: 15px">
+            <h3 style="margin: 10px 10px 10px 15px">
+                <i class="fa fa-bar-chart" aria-hidden="true"></i> &nbsp;{{config.title}}
+            </h3>
+        </div>
 
+        <div class="row" style="padding: 0px 10px">
             <div class="col-md-2">
                 <opencga-variant-filter opencga-session={{opencgaSession}} opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
                                         population-frequencies="{{populationFrequencies}}" consequence-types="{{consequenceTypes}}"
@@ -310,6 +311,7 @@
                     </div>
                 </div>
             </div>
+        </div>
         <!--</template>-->
 
         <template is="dom-if" if="{{!checkProjects}}">
