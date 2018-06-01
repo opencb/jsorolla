@@ -499,6 +499,7 @@
 //                this.fire('selected', {gene: geneName});
                 this.dispatchEvent(new CustomEvent('selected', {detail: {gene: geneName}}));
             }
+
             variantFormatter(value, row, index) {
                 let ref = (row.reference !== "") ? row.reference : "-";
                 let alt = (row.alternate !== "") ? row.alternate : "-";
@@ -512,6 +513,16 @@
                     });
                 }
 
+                let genomeBrowserMenuLink = "";
+                if (this.field.context.config.showGenomeBrowser) {
+                    genomeBrowserMenuLink = `<li class="dropdown-header">Internal Links</li>
+                                                <li>
+                                                    <a class="genome-browser-option" data-variant-position="${row.chromosome}:${row.start}-${row.end}" style="cursor: pointer">
+                                                        <i class="fa fa-list" aria-hidden="true"></i> Genome Browser
+                                                    </a>
+                                            </li>`;
+                }
+
                 // return "<span style='white-space: nowrap'>" + row.chromosome + ':' + row.start + " " + ref + '/' + alt + "</span>";
                 return `<div class="dropdown variant-link-dropdown" style="white-space: nowrap">
                             <a id="${this.field.context.prefix}dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
@@ -519,12 +530,7 @@
                                     ${row.chromosome}:${row.start} ${ref}/${alt}
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="${this.field.context.prefix}dropdownMenu1" style="font-size: 1.25rem;margin-top: 0px">
-                                <li class="dropdown-header">Internal Links</li>
-                                <li>
-                                    <a class="genome-browser-option" data-variant-position="${row.chromosome}:${row.start}-${row.end}" style="cursor: pointer">
-                                        <i class="fa fa-list" aria-hidden="true"></i> Genome Browser
-                                    </a>
-                                </li>
+                               ${genomeBrowserMenuLink}
                                 <li class="dropdown-header">External Links</li>
                                 <li><a target='_blank' href="https://www.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=${id}">Ensembl</a></li>
                                 <li><a target='_blank' href="https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?searchType=adhoc_search&type=rs&rs=${id}">dbSNP</a></li>
@@ -556,6 +562,7 @@
                 }
                 return '-';
             }
+
             geneFormatter(value, row, index) {
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
                     if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined" && row.annotation.consequenceTypes.length > 0) {
@@ -578,6 +585,7 @@
                 }
                 return '-';
             }
+
             consequenceTypeFormatter(value, row, index) {
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
                     if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined" && row.annotation.consequenceTypes.length > 0) {
@@ -637,6 +645,7 @@
                 }
                 return '-';
             }
+
             proteinScoreFormatter(value, row, index) {
                 var min = 10;
                 var max = 0;
@@ -668,6 +677,7 @@
                         }
                     }
                 }
+
                 if (this.field.source === 'sift' && min !== 10) {
                     return '<span style="color: ' + this.field.context.pssColor.get(description.sift) + '" title="' + min + '">' + description.sift + '</span>';
                 } else if (this.field.source == 'polyphen' && max >= 0) {
@@ -684,6 +694,7 @@
                 }
                 return '-';
             }
+
             caddScaledFormatter(value, row, index) {
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined" && typeof row.annotation.functionalScore !== "undefined") {
                     for (let i = 0; i < row.annotation.functionalScore.length; i++) {
@@ -699,6 +710,7 @@
                 }
                 return '-';
             }
+
             conservationFormatter(value, row, index) {
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined" && typeof row.annotation.conservation !== "undefined") {
                     for (let i = 0; i < row.annotation.conservation.length; i++) {
@@ -711,7 +723,6 @@
             }
             cohortFormatter(value, row, index) {
                 if (typeof this.field.cohorts !== "undefined" && this.field.cohorts.length > 0) {
-
                     let data = new Map();
                     for (let i in row.studies) {
                         // to be removed!!
@@ -814,6 +825,7 @@
                 }
                 return '-';
             }
+
             sampleFormatter(value, row, index) {
                 let res = "-";
                 if (typeof row !== "undefined" && typeof row.studies !== "undefined" && row.studies.length > 0) {
