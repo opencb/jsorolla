@@ -68,7 +68,7 @@
                     <!--Gene Trait Association Tab-->
                     <div role="tabpanel" class="tab-pane" id="{{prefix}}VariantAnnotationGTA">
                         <table id="{{prefix}}GTATable" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
-                               data-show-pagination-switch="true" data-show-export="true">
+                               data-show-pagination-switch="true" data-show-export="true" data-icons-prefix="fa" data-icons="icons">
                             <thead style="background-color: #eee"></thead>
                         </table>
                     </div>
@@ -159,6 +159,7 @@
 
             constructor() {
                 super();
+                this._init();
             }
 
             static get is() {
@@ -201,6 +202,14 @@
                 }
             }
 
+            _init() {
+                window.icons = {
+                    refresh: 'fa-refresh',
+                    columns: 'fa-th',
+                    paginationSwitchDown: 'fa-caret-square-o-down',
+                    paginationSwitchUp: 'fa-caret-square-o-up'
+                };
+            }
             _attachDom(dom) {
                 this.appendChild(dom);
             }
