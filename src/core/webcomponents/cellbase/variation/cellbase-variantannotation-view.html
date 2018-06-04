@@ -258,6 +258,10 @@
                     this.cellbaseClient.get('genomic', 'variant', this.data, 'annotation', {assembly: this.assembly}, {})
                         .then(function (response) {
                             _this.variantAnnotation = response.response[0].result[0];
+                            _this.numberConsequenceTypes = 0;
+                            _this.numberPopulationFrequencies = 0;
+                            _this.numberVTA = 0;
+                            _this.numberGTA = 0;
 
                             if (_this.variantAnnotation.geneTraitAssociation != null) {
                                 _this.numberConsequenceTypes = _this.variantAnnotation.consequenceTypes.length;

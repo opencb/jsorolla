@@ -23,7 +23,7 @@
         <span>Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> analysis</span>
         <table id="{{prefix}}tableAnalysis"
                data-detail-view="true"
-               data-detail-formatter="detailFormatter">
+               data-detail-formatter="detailFormatter"  data-icons-prefix="fa" data-icons="icons">
             <thead style="background-color: #eee"></thead>
         </table>
     </template>
@@ -91,6 +91,14 @@
                     pagination: true,
                     pageSize: 5,
                     pageList: [5, 10]
+                };
+                window.icons = {
+                    refresh: 'fa-refresh',
+                    columns: 'fa-th',
+                    paginationSwitchDown: 'fa-caret-square-o-down',
+                    paginationSwitchUp: 'fa-caret-square-o-up',
+                    detailOpen: 'fa-plus',
+                    detailClose: 'fa-minus'
                 };
             }
 
