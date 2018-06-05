@@ -544,9 +544,9 @@
             _openModalICD10() {
                 $("#" + this.prefix + "icd").modal('show');
             }
-            _propagateOkICD10 (e){
+            _propagateOkICD10(e){
                 this.ICD10Value = e.detail.result.join(",");
-                this.selectedTermsICD = e.detail.originalResult;
+                this.selectedTermsICD = e.detail.result;
                 $("#" + this.prefix + "icd").modal('hide');
             }
 
