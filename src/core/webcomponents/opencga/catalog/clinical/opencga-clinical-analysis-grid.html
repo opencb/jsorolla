@@ -45,7 +45,8 @@
             static get properties() {
                 return {
                     opencgaSession: {
-                        type: Object
+                        type: Object,
+                        observer: "renderTable"
                     },
                     opencgaClient: {
                         type: Object
