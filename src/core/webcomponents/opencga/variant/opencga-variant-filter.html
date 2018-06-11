@@ -1350,8 +1350,13 @@
                     // approxCountCheckbox = `<input id="${prefix}ApproxCountCheckbox" type="checkbox" value="approximateCount" class="${prefix}FilterCheckBox" checked> Approximate Count<br>`;
                     approxCountCheckbox = '<input id="${prefix}ApproxCountCheckbox" type="checkbox" value="approximateCount" class="${prefix}FilterCheckBox" style="display: none;" checked> Approximate Count<br>';
                 }
-                return `
-                    <div id="${prefix}AutocompleteSampleSelect" style="margin: 15px 0px">
+                let res = ``;
+                console.log("Probing");
+                console.log(subsection.showSelectSamples);
+
+
+                if (subsection.showSelectSamples) {
+                    res = `<div id="${prefix}AutocompleteSampleSelect" style="margin: 15px 0px">
                         <span>Select Sample:</span>
 
                         <div class="row">
@@ -1366,7 +1371,10 @@
                                 </button>
                             </div>
                         </div>
-                    </div>
+                    </div>`
+                }
+                return `
+                    ${res}
                     <div style="margin: 15px 0px">
                         <span>Select Sample Genotypes:</span>
                         <div id="${prefix}SampleGenotypeMessage">

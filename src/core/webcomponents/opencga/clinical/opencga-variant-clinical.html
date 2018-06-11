@@ -519,6 +519,16 @@
                 }
 
                 $('select.selectpicker').selectpicker('render');
+                this.config.interpretation = JSON.parse(JSON.stringify(this.config.interpretation));
+                this.config.interpretation.filter.menu.sections = this.config.interpretation.filter.menu.sections.map((section) => {
+                    section.subsections = section.subsections.map((subsection) => {
+                        if (subsection.id === "sample") {
+                            subsection.showSelectSamples = false;
+                        }
+                        return subsection
+                    })
+                    return section;
+                });
                 // if (UtilsNew.isNotUndefinedOrNull(this.panelList)) {
                 //     let options = "";
                 //     this.panelList.sort((a, b) => {
