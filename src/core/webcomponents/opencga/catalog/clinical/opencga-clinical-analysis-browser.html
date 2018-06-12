@@ -45,6 +45,11 @@
     <script>
 
         class OpencgaClinicalAnalysisBrowser extends Polymer.Element {
+            constructor() {
+                super();
+                this._init();
+            }
+
             static get is() {
                 return 'opencga-clinical-analysis-browser';
             }
@@ -72,11 +77,6 @@
                 }
             }
 
-            constructor() {
-                super();
-                this._init();
-            }
-
             _attachDom(dom) {
                 this.appendChild(dom);
             }
@@ -85,7 +85,7 @@
                 this.clinicalDefaultAnalysisQuery = {sort: "id"};
                 this.clinicalAnalysisQuery = {sort: "id"};
                 this.search = Object.assign({}, this.clinicalAnalysisQuery);
-                this.clinicalAnalysisGridConfig = {pagination: true, pageSize: 10, pageList: [5,10,25]};
+                this.clinicalAnalysisGridConfig = this.getDefaultConfig();
             }
 
             onAnalysisSelectedSelector (e) {
@@ -104,6 +104,10 @@
 
             onSearch(e) {
                 this.search = Object.assign({}, this.clinicalDefaultAnalysisQuery, e.detail.query);
+            }
+
+            getDefaultConfig() {
+                return {pagination: true, pageSize: 10, pageList: [5,10,25]};
             }
         }
 

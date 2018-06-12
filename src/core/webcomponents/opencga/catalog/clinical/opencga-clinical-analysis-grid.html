@@ -55,12 +55,12 @@
                         type: Object,
                         observer: "queryObserver"
                     },
-                    config: {
-                        type: Object
-                    },
                     analysis: {
                         type: Object,
                         observer: "analysisObserver"
+                    },
+                    config: {
+                        type: Object
                     }
                 }
             }
@@ -88,11 +88,8 @@
             _init() {
                 this.prefix = "ocag" + Utils.randomString(6);
 
-                this.defaultConfig = {
-                    pagination: true,
-                    pageSize: 5,
-                    pageList: [5, 10]
-                };
+                this.defaultConfig = this.getDefaultConfig();
+
                 window.icons = {
                     refresh: 'fa-refresh',
                     columns: 'fa-th',
@@ -288,6 +285,9 @@
                         }
                     ]
                 ];
+            }
+            getDefaultConfig() {
+                return {pagination: true, pageSize: 5, pageList: [5,10]};
             }
         }
 

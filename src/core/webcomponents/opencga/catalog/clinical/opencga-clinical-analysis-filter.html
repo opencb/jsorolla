@@ -133,15 +133,18 @@
     </template>
     <script>
         class OpencgaClinicalAnalysisFilter extends Polymer.Element {
+
+            constructor() {
+                super();
+                this._init();
+            }
+
             static get is() {
                 return 'opencga-clinical-analysis-filter';
             }
 
             static get properties() {
                 return {
-                    opencgaClient: {
-                        type: Object
-                    },
                     query: {
                         type: Object,
                         notify: true,
@@ -153,10 +156,6 @@
                     }
                 }
             }
-            constructor() {
-                super();
-                this._init();
-            }
 
             _attachDom(dom) {
                 this.appendChild(dom);
@@ -167,9 +166,7 @@
             }
 
             _init() {
-                if (UtilsNew.isEmpty(this.prefix)) {
-                    this.prefix = "anFilter" + Utils.randomString(6);
-                }
+                this.prefix = "anFilter" + Utils.randomString(6);
                 let _years = [];
                 let fullDate = new Date()
                 let limitYear = fullDate.getFullYear();
