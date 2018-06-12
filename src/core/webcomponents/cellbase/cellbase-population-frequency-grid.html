@@ -1,0 +1,162 @@
+<dom-module id="cellbase-population-frequency-grid">
+    <template>
+        <style include="jso-styles"></style>
+
+        <div style="padding: 10px; ">
+            <table id="{{prefix}}populationFreqTable" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[5, 15, 30]"
+                   data-show-pagination-switch="true" data-show-export="true" data-icons-prefix="fa" data-icons="icons">
+                <thead style="background-color: #eee"></thead>
+            </table>
+            <div id="{{prefix}}Container"></div>
+        </div>
+    </template>
+
+    <script>
+        class PopulationFrequencyGrid extends Polymer.Element {
+
+            constructor() {
+                super();
+            }
+
+            static get is() {
+                return "cellbase-population-frequency-grid";
+            }
+
+            static get properties() {
+                return {
+                    data: {
+                        type: Array,
+                        value: [],
+                        observer: 'render'
+                    },
+                    prefix: {
+                        type: String
+                    }
+                }
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            ready() {
+                super.ready();
+            }
+
+            render() {
+                let popArray = [];
+                let mafArray = [];
+                if (typeof this.data !== "undefined") {
+                    for (let i = 0; i < this.data.length; i++) {
+                        popArray.push(this.data[i].study + "-" + this.data[i].population);
+                        mafArray.push(Math.min(Number(this.data[i].refAlleleFreq).toFixed(3), Number(this.data[i].altAlleleFreq).toFixed(3)));
+                    }
+                }
+
+                $('#' + this.prefix + 'Container').highcharts({
+                    chart: {
+                        type: 'bar'
+                    },
+                    title: {
+                        text: 'Population Frequencies'
+                    },
+                    xAxis: {
+                        categories: popArray,
+                        title: {
+                            text: null
+                        }
+                    },
+                    yAxis: {
+                        min: 0,
+                        title: {
+                            text: 'Minor Allele Frequency (MAF)',
+                            align: 'high'
+                        },
+                        labels: {
+                            overflow: 'justify'
+                        },
+                        max: 0.5
+                    },
+//                        tooltip: {
+//                            valueSuffix: ' millions'
+//                        },
+                    plotOptions: {
+                        bar: {
+                            dataLabels: {
+                                enabled: true
+                            }
+                        }
+                    },
+                    legend: {
+                        layout: 'vertical',
+                        align: 'right',
+                        verticalAlign: 'top',
+                        x: -40,
+                        y: 80,
+                        floating: true,
+                        borderWidth: 1,
+                        backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
+                        shadow: true
+                    },
+                    credits: {
+                        enabled: false
+                    },
+                    series: [{
+                        name: 'Minor Allele Frequency (MAF)',
+                        data: mafArray
+                    }]
+                });
+
+                // Population grid definition
+                $('#' + this.prefix + 'populationFreqTable').bootstrapTable('destroy');
+                $('#' + this.prefix + 'populationFreqTable').bootstrapTable({
+                    data: this.data,
+                    pageSize: 5,
+                    columns: [
+                        [
+                            {
+                                title: 'Study',
+                                field: 'study',
+                                sortable: true
+                            },
+                            {
+                                title: 'Population',
+                                field: 'population'
+                            },
+                            {
+                                title: 'Ref/Alt',
+                                formatter: this.alleleFormatter
+                            },
+                            {
+                                title: 'RefAlleleFreq',
+                                field: 'refAlleleFreq',
+                                sortable: true,
+                                formatter: this.numFormatter
+                            },
+                            {
+                                title: 'AltAlleleFreq',
+                                field: 'altAlleleFreq',
+                                sortable: true,
+                                formatter: this.numFormatter
+                            }
+                        ]
+                    ]
+                });
+            }
+
+            alleleFormatter(value, row, index) {
+                return row.refAllele + "/" + row.altAllele;
+            }
+
+            numFormatter(value, row, index) {
+                if (this.field === "refAlleleFreq") {
+                    return Number(row.refAlleleFreq).toFixed(3);
+                } else if (this.field === "altAlleleFreq") {
+                    return Number(row.altAlleleFreq).toFixed(3);
+                }
+            }
+        }
+
+        customElements.define(PopulationFrequencyGrid.is, PopulationFrequencyGrid);
+    </script>
+</dom-module>

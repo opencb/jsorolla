@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>&lt;table&gt;</title>
+
+    <!-- Importing Web Component's Polyfill -->
+    <script src="../../../../bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
+    <link rel="import" href="../../../../bower_components/polymer/polymer.html">
+    <link rel="import" href="../../../../bower_components/iron-flex-layout/classes/iron-flex-layout.html">
+    <script src="../../utils.js"></script>
+    <script src="../../utilsNew.js"></script>
+
+    <link href='../../../../bower_components/fontawesome/css/font-awesome.min.css' rel='stylesheet' type='text/css'>
+
+    <!-- Importing Custom Elements -->
+    <link rel="import" href="jso-table.html">
+    <style>
+        jso-table {
+            border: 1px solid lightgrey;
+        }
+    </style>
+</head>
+<body>
+
+
+<script>
+    var columns = [{
+        name: 'i',
+        title: 'i',
+        width: 50
+    }];
+    for (var i = 0; i < 5; i++) {
+        var name = Utils.randomString(Utils.getRandomInt(10, 30));
+        columns.push({
+            name: "col_" + i,
+            title: "col_" + i,
+            width: 100,
+            type: 'text'
+        });
+    }
+    for (var i = 0; i < 5; i++) {
+        var name = Utils.randomString(Utils.getRandomInt(10, 30));
+        columns.push({
+            name: "col_" + i,
+            title: "col_" + i,
+            width: 50,
+            type: 'select',
+            options: ['a', 'b']
+        });
+    }
+    var column;
+    var data = [];
+    for (var i = 0; i < 25; i++) {
+        var obj = {};
+        obj['i'] = i + 1;
+        for (var j = 1; j < columns.length; j++) {
+            column = columns[j];
+            obj[column.name] = Utils.randomString(Utils.getRandomInt(1, 10));
+        }
+        data.push(obj)
+    }
+    console.log(columns.length);
+    console.log(data.length);
+
+    var table = document.createElement('jso-table');
+    table.setAttribute("enable-filter", "");
+    table.setAttribute("enable-select", "");
+    table.setAttribute("enable-paging", "");
+    //    table.style.height = "500px";
+    table.style.width = "700px";
+    table.data = data;
+    table.columns = columns;
+
+    table.dataChanged();
+    document.body.appendChild(table);
+
+</script>
+
+
+</body>
+</html>

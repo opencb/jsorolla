@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<!--
+  ~ Copyright 2015-2016 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Variant Prioritization Test</title>
+
+
+    <!-- CSS links -->
+    <link rel="stylesheet" href="../../../../../../../../node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../../../../../../../../node_modules/bootstrap-table/dist/bootstrap-table.min.css">
+    <link rel="stylesheet" href="../../../../../../../../node_modules/bootstrap-select/dist/css/bootstrap-select.min.css">
+    <link rel="stylesheet" href="../../../../../../../../node_modules/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../../../../../../../../node_modules/qtip2/dist/jquery.qtip.min.css">
+
+    <!-- JS links-->
+    <script type="text/javascript" src="../../../../../../../../node_modules/@webcomponents/webcomponentsjs/webcomponents-lite.js"></script>
+    <script type="text/javascript" src="../../../../../../../../node_modules/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="../../../../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../../../../../../../node_modules/bootstrap-table/dist/bootstrap-table.min.js"></script>
+    <script type="text/javascript" src="../../../../../../../../node_modules/bootstrap-select/dist/js/bootstrap-select.min.js"></script>
+    <script type="text/javascript" src="../../../../../../../../node_modules/underscore/underscore-min.js"></script>
+    <script type="text/javascript" src="../../../../../../../../node_modules/backbone/backbone-min.js"></script>
+    <script type="text/javascript" src="../../../../../../../../node_modules/moment/min/moment.min.js"></script>
+    <script type="text/javascript" src="../../../../../../../../node_modules/highcharts/highcharts.js"></script>
+    <script type="text/javascript" src="../../../../../../../../node_modules/qtip2/dist/jquery.qtip.min.js"></script>
+    <script type="text/javascript" src="../../../../../../../../node_modules/urijs/src/URI.min.js"></script>
+    <script type="text/javascript" src="../../../../../../../../node_modules/cookies-js/dist/cookies.min.js"></script>
+    <!--<script type="text/javascript" src="../../../../../../node_modules/crypto-js/core.js"></script>-->
+    <!--<script type="text/javascript" src="../../../../../../node_modules/crypto-js/sha256.js"></script>-->
+    <script type="text/javascript" src="../../../../utilsNew.js"></script>
+    <script type="text/javascript" src="../../../../utils.js"></script>
+    <script type="text/javascript" src="../../../../region.js"></script>
+    <script type="text/javascript" src="../../../../visualisation/pedigree.js"></script>
+    <script type="text/javascript" src="../../../PolymerUtils.js"></script>
+    <script type="text/javascript" src="../../../../clients/rest-client.js"></script>
+    <script type="text/javascript" src="../../../../clients/cellbase-client.js"></script>
+    <script type="text/javascript" src="../../../../clients/opencga-client.js"></script>
+
+    <link rel="stylesheet" href="../../../../../../styles/css/style.css">
+
+    <!-- Polymer links -->
+    <link rel="import" href="../../../../../../../../node_modules/@polymer/polymer/polymer-element.html">
+    <link rel="import" href="../../../../../../../../node_modules/@polymer/polymer/lib/elements/dom-repeat.html">
+    <link rel="import" href="../../../../../../../../node_modules/@polymer/polymer/lib/elements/dom-if.html">
+    <link rel="import" href="../../../../../../../../node_modules/@polymer/polymer/lib/elements/array-selector.html">
+    <link rel="import" href="../../../../../../../../node_modules/@polymer/polymer/lib/elements/custom-style.html">
+    <link rel="import" href="../../../cellbase/variation/cellbase-variantannotation-view.html">
+
+    <script type="text/javascript" src="../../../../../genome-browser/genome-browser.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/navigation-bar.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/chromosome-panel.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/karyotype-panel.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/status-bar.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/feature-binary-search-tree.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/config.js"></script>
+    <script type="text/javascript" src="../../../../../core/svg.js"></script>
+
+    <script type="text/javascript" src="../../../../../genome-browser/tracks/tracklist-panel.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/tracks/feature-track.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/tracks/gene-track.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/tracks/alignment-track.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/tracks/variant-track.js"></script>
+
+    <script type="text/javascript" src="../../../../../genome-browser/renderers/renderer.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/renderers/feature-renderer.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/renderers/sequence-renderer.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/renderers/histogram-renderer.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/renderers/gene-renderer.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/renderers/alignment-renderer.js"></script>
+    <script type="text/javascript" src="../../../../../genome-browser/renderers/variant-renderer.js"></script>
+
+    <script type="text/javascript" src="../../../../../core/data-adapter/feature-adapter.js"></script>
+    <script type="text/javascript" src="../../../../../core/data-adapter/cellbase-adapter.js"></script>
+    <script type="text/javascript" src="../../../../../core/data-adapter/opencga-adapter.js"></script>
+    <script type="text/javascript" src="config.js"></script>
+    <script type="text/javascript" src="tools.js"></script>
+    <script type="text/javascript" src="../../clinical/test/interpretation.js"></script>
+
+    <link rel="import" href="../opencga-variant-interpretation.html">
+</head>
+<body>
+<dom-module id="opencga-variant-interpretation-test">
+    <template>
+        <opencga-variant-interpretation opencga-session="{{opencgaSession}}" config="[[config.tools.interpretation]]"
+                                        opencga-client="{{opencgaSession.opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+                                        active="{{config.tools.interpretation.active}}"
+                                        population-frequencies="{{populationFrequencies}}"
+                                        protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                        consequence-types="{{consequenceTypes}}"
+                                        beacon-hosts="{{config.tools.beacon.hosts}}" on-gene="geneSelected"
+                                        on-samplechange="onSampleChange" style="font-size: 12px" >
+        </opencga-variant-interpretation>
+    </template>
+
+    <script>
+        HTMLImports.whenReady(function() {
+
+            class OpencgaVariantInterpretationTest extends Polymer.Element {
+
+                constructor(){
+                    super();
+
+                    this.interpretationJson = interpretationJson;
+
+                    this.config = application;
+                    this.config.tools = tools;
+                    this.config.opencga = opencga;
+                    this.config.cellbase = cellbase;
+                    this.populationFrequencies = populationFrequencies;
+                    this.proteinSubstitutionScores = proteinSubstitutionScores;
+                    this.consequenceTypes = consequenceTypes;
+
+                    this.opencgaClientConfig = new OpenCGAClientConfig(this.config.opencga.host, this.config.opencga.version, true, this.config.opencga.cookie.prefix);
+                    this.opencgaClient = new OpenCGAClient(this.opencgaClientConfig);
+                    this.cellBaseClientConfig = new CellBaseClientConfig(this.config.cellbase.hosts, this.config.cellbase.version, "hsapiens");
+                    this.cellbaseClient = new CellBaseClient(this.cellBaseClientConfig);
+                    this.clinicalAnalysis = interpretationJson.clinicalAnalysis;
+//                    this.clinicalAnalysis.family = undefined;
+
+                    this.region = new Region({chromosome: "21", start: 22859462, end: 22859610});
+
+//                    this.samples = [{id: "1", name: "aaa"}, {id: "2", name: "bbb"}];
+                }
+
+                static get is() {
+                    return 'opencga-variant-interpretation-test';
+                }
+
+                static get properties(){
+                    return {
+
+                    }
+                }
+
+                _attachDom(dom) {
+                    this.appendChild(dom);
+                }
+
+                ready() {
+                    super.ready();
+
+                }
+
+                // Element class can define custom element reactions
+                connectedCallback() {
+                    super.connectedCallback();
+                    this._createOpencgaSessionFromConfig();
+
+                }
+
+                _createOpencgaSessionFromConfig() {
+                    // Create a private opencga-session to avoid calling to the Observer
+                    let opencgaSession = this.opencgaClient.createAnonymousSession();
+
+                    // If 'config.opencga.anonymous' exists and contains either 'user' or 'projects'
+                    if (UtilsNew.isNotUndefinedOrNull(this.config.opencga.anonymous) && Object.keys(this.config.opencga.anonymous).length > 0) {
+                        // If 'projects' is defined we only load those projects
+                        if (UtilsNew.isNotEmptyArray(this.config.opencga.anonymous.projects)) {
+                            // TODO we must query projects/info URL to get the whole object
+                            opencgaSession.projects = this.config.opencga.anonymous.projects;
+                            if (UtilsNew.isNotEmptyArray(opencgaSession.projects[0].studies)) {
+                                opencgaSession.project = opencgaSession.projects[0];
+                                opencgaSession.study = opencgaSession.projects[0].studies[0];
+                            }
+
+                            // This triggers the event and call to opencgaSessionObserver
+                            this.set("opencgaSession", opencgaSession);
+                        } else {
+                            // When no 'projects' is defined we fetch all public projects
+                            if (UtilsNew.isNotEmptyArray(this.config.opencga.anonymous.user)) {
+                                let _this = this;
+                                this.opencgaClient.users().getProjects(this.config.opencga.anonymous.user, {})
+                                    .then(function (response) {
+                                        // _this._setup(_projects);
+
+                                        opencgaSession.projects = response.response[0].result;
+                                        if (UtilsNew.isNotEmptyArray(opencgaSession.projects) && UtilsNew.isNotEmptyArray(opencgaSession.projects[0].studies)) {
+                                            // this sets the current active project and study
+                                            opencgaSession.project = opencgaSession.projects[0];
+                                            opencgaSession.study = opencgaSession.projects[0].studies[0];
+                                        }
+
+                                        // This triggers the event and call to opencgaSessionObserver
+                                        _this.set("opencgaSession", opencgaSession);
+                                    })
+                                    .catch(function (response) {
+                                        console.log("An error when getting projects: ", response);
+                                    });
+                            }
+                        }
+                    } else {
+                        // This triggers the event and call to opencgaSessionObserver
+                        this.set("opencgaSession", opencgaSession);
+                    }
+                }
+            }
+
+            customElements.define(OpencgaVariantInterpretationTest.is, OpencgaVariantInterpretationTest);
+        });
+
+    </script>
+</dom-module>
+
+<opencga-variant-interpretation-test></opencga-variant-interpretation-test>
+
+</body>
+</html>

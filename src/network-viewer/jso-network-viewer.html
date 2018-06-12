@@ -1,5 +1,5 @@
-<script src="../lib/utils.js"></script>
-<script src="../lib/svg.js"></script>
+<script src="../core/utils.js"></script>
+<script src="../core/svg.js"></script>
 
 <script src="../../node_modules/d3/d3.min.js"></script>
 <script src="../../bower_components/cytoscape/dist/cytoscape.min.js"></script>
@@ -19,33 +19,33 @@
 <script src="../../node_modules/backbone/backbone.js"></script>
 
 
-<link rel="import" href="../lib/components/network/jso-graph.html">
+<link rel="import" href="../core/components/network/jso-graph.html">
 
-<script src="../lib/network/point.js"></script>
-<script src="../lib/network/edge.js"></script>
-<script src="../lib/network/vertex.js"></script>
+<script src="../core/network/point.js"></script>
+<script src="../core/network/edge.js"></script>
+<script src="../core/network/vertex.js"></script>
 <!--<script src="../lib/network/default-vertex-renderer.js"></script>-->
-<script src="../lib/network/circos-vertex-renderer.js"></script>
-<script src="../lib/network/default-edge-renderer.js"></script>
-<script src="../lib/network/graph-layout.js"></script>
+<script src="../core/network/circos-vertex-renderer.js"></script>
+<script src="../core/network/default-edge-renderer.js"></script>
+<script src="../core/network/graph-layout.js"></script>
 
-<script src="../lib/data-adapter/network/attribute-network-data-adapter.js"></script>
-<script src="../lib/data-adapter/network/json-network-data-adapter.js"></script>
-<script src="../lib/data-adapter/network/sif-network-data-adapter.js"></script>
-<script src="../lib/data-adapter/network/text-network-data-adapter.js"></script>
-<script src="../lib/data-adapter/network/xlsx-network-data-adapter.js"></script>
+<script src="../core/data-adapter/network/attribute-network-data-adapter.js"></script>
+<script src="../core/data-adapter/network/json-network-data-adapter.js"></script>
+<script src="../core/data-adapter/network/sif-network-data-adapter.js"></script>
+<script src="../core/data-adapter/network/text-network-data-adapter.js"></script>
+<script src="../core/data-adapter/network/xlsx-network-data-adapter.js"></script>
 
-<script src="../lib/data-source/data-source.js"></script>
-<script src="../lib/data-source/file-data-source.js"></script>
-<script src="../lib/data-source/string-data-source.js"></script>
+<script src="../core/data-source/data-source.js"></script>
+<script src="../core/data-source/file-data-source.js"></script>
+<script src="../core/data-source/string-data-source.js"></script>
 
 
-<link rel="import" href="../lib/components/jso-panel.html">
-<link rel="import" href="../lib/components/table/jso-table.html">
-<link rel="import" href="../lib/components/jso-color-picker.html">
-<link rel="import" href="../lib/components/jso-color-menu.html">
-<link rel="import" href="../lib/components/jso-select-box.html">
-<link rel="import" href="../lib/components/jso-select.html">
+<link rel="import" href="../core/components/jso-panel.html">
+<link rel="import" href="../core/components/table/jso-table.html">
+<link rel="import" href="../core/components/jso-color-picker.html">
+<link rel="import" href="../core/components/jso-color-menu.html">
+<link rel="import" href="../core/components/jso-select-box.html">
+<link rel="import" href="../core/components/jso-select.html">
 
 <link rel="import" href="jso-nv-bar.html">
 <link rel="import" href="jso-nv-tool-bar.html">
@@ -54,40 +54,40 @@
 <link rel="import" href="jso-nv-layout.html">
 <link rel="import" href="jso-nv-session-manager.html">
 
-<link rel="import" href="../lib/components/network/jso-sif-network-file-open.html">
-<link rel="import" href="../lib/components/network/jso-text-network-file-open.html">
-<link rel="import" href="../lib/components/network/jso-xlsx-network-file-open.html">
-<link rel="import" href="../lib/components/network/jso-attribute-network-file-open.html">
-<link rel="import" href="../lib/components/network/jso-network-edit.html">
-<link rel="import" href="../lib/components/network/jso-attribute-edit.html">
-<link rel="import" href="../lib/components/network/jso-nv-select-filter.html">
-<link rel="import" href="../lib/components/network/render-settings/jso-attribute-node-render.html">
-<link rel="import" href="../lib/components/network/render-settings/jso-attribute-edge-render.html">
-<link rel="import" href="../lib/components/network/render-settings/jso-attribute-render-number-table.html">
-<link rel="import" href="../lib/components/network/render-settings/jso-attribute-render-color-table.html">
-<link rel="import" href="../lib/components/network/render-settings/jso-attribute-render-select-table.html">
+<link rel="import" href="../core/components/network/jso-sif-network-file-open.html">
+<link rel="import" href="../core/components/network/jso-text-network-file-open.html">
+<link rel="import" href="../core/components/network/jso-xlsx-network-file-open.html">
+<link rel="import" href="../core/components/network/jso-attribute-network-file-open.html">
+<link rel="import" href="../core/components/network/jso-network-edit.html">
+<link rel="import" href="../core/components/network/jso-attribute-edit.html">
+<link rel="import" href="../core/components/network/jso-nv-select-filter.html">
+<link rel="import" href="../core/components/network/render-settings/jso-attribute-node-render.html">
+<link rel="import" href="../core/components/network/render-settings/jso-attribute-edge-render.html">
+<link rel="import" href="../core/components/network/render-settings/jso-attribute-render-number-table.html">
+<link rel="import" href="../core/components/network/render-settings/jso-attribute-render-color-table.html">
+<link rel="import" href="../core/components/network/render-settings/jso-attribute-render-select-table.html">
 
-<link rel="import" href="../lib/components/network/jso-cellbase-xref-import.html">
-<link rel="import" href="../lib/components/network/jso-cellbase-functionalities-import.html">
-<link rel="import" href="../lib/components/network/jso-cellbase-drugs-import.html">
-<link rel="import" href="../lib/components/network/jso-cellbase-diseases-import.html">
-<link rel="import" href="../lib/components/network/jso-intact-import.html">
-<link rel="import" href="../lib/components/network/jso-communities-structure-detection.html">
-<link rel="import" href="../lib/components/network/jso-topological-study.html">
-<link rel="import" href="../lib/components/network/jso-kegg.html">
-<link rel="import" href="../lib/components/network/jso-reactome.html">
-<link rel="import" href="../lib/components/network/jso-configure-force-directed.html">
-<link rel="import" href="../lib/components/network/jso-configure-spring-embedder.html">
-<link rel="import" href="../lib/components/network/jso-configure-concentric.html">
+<link rel="import" href="../core/components/network/jso-cellbase-xref-import.html">
+<link rel="import" href="../core/components/network/jso-cellbase-functionalities-import.html">
+<link rel="import" href="../core/components/network/jso-cellbase-drugs-import.html">
+<link rel="import" href="../core/components/network/jso-cellbase-diseases-import.html">
+<link rel="import" href="../core/components/network/jso-intact-import.html">
+<link rel="import" href="../core/components/network/jso-communities-structure-detection.html">
+<link rel="import" href="../core/components/network/jso-topological-study.html">
+<link rel="import" href="../core/components/network/jso-kegg.html">
+<link rel="import" href="../core/components/network/jso-reactome.html">
+<link rel="import" href="../core/components/network/jso-configure-force-directed.html">
+<link rel="import" href="../core/components/network/jso-configure-spring-embedder.html">
+<link rel="import" href="../core/components/network/jso-configure-concentric.html">
 
-<link rel="import" href="../lib/components/opencga/files/jso-opencga-file-origin.html">
+<link rel="import" href="../core/components/opencga/files/jso-opencga-file-origin.html">
 <link rel="import" href="jso-nv-snow.html">
 <link rel="import" href="jso-nv-network-miner.html">
 <link rel="import" href="jso-nv-fatigo.html">
 <!--<link rel="import" href="jso-nv-reactome-fi.html">-->
 
-<script src="../lib/cellbase-manager.js"></script>
-<script src="../lib/opencga-manager.js"></script>
+<script src="../core/cellbase-manager.js"></script>
+<script src="../core/opencga-manager.js"></script>
 
 <dom-module id="jso-network-viewer">
     <style>

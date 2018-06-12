@@ -1,8 +1,9 @@
-class GenomeBrowser{
-    constructor(args){
+
+class GenomeBrowser {
+
+    constructor(args) {
         Object.assign(this, Backbone.Events);
 
-        let _this = this;
         this.id = Utils.genId("GenomeBrowser");
 
         //set default args
@@ -10,8 +11,8 @@ class GenomeBrowser{
         this.version = 'Powered by <a target="_blank" href="http://www.opencb.org/">OpenCB</a>';
         this.target;
 
-        this.width;
-        this.height;
+        this.width = 1;
+        this.height = 1;
 
         this.client;
         this.cellBaseHost = "http://bioinfo.hpc.cam.ac.uk/cellbase";
@@ -43,23 +44,22 @@ class GenomeBrowser{
         this.navigationBarConfig = {};
         this.drawStatusBar = true;
         this.resizable = true;
-        this.sidePanel = true;//enable or disable sidePanel at construction
+        this.sidePanel = false;//enable or disable sidePanel at construction
         this.trackListTitle = "Detailed information";//enable or disable sidePanel at construction
         this.trackPanelScrollWidth = 18;
 
-        this.zoom;
+        this.zoom = 1;
 
         this.chromosomes = [];
-        this.chromosomeList;
+        this.chromosomeList = [];
 
         //set instantiation args, must be last
         Object.assign(this, args);
 
-        this.getChromosomes();
-
-        this.defaultRegion = new Region(this.region);
-
         this.sidePanelWidth = (this.sidePanel) ? 25 : 0;
+
+        this._checkAndSetMinimumRegion(this.region, this.getSVGCanvasWidth());
+        this.defaultRegion = new Region(this.region);
 
         //events attachments
         this.on(this.handlers);
@@ -126,22 +126,26 @@ class GenomeBrowser{
         this.tracksDiv.setAttribute("class", "ocb-gv-detailed");
         this.trackListPanelsDiv.appendChild(this.tracksDiv);
 
-        this._init();
-
-        this.rendered = true;
+        if (this.drawOverviewTrackListPanel) {
+            this.overviewTrackListPanel = this._createOverviewTrackListPanel(this.regionDiv);
+        }
+        this.trackListPanel = this._createTrackListPanel(this.tracksDiv);
+        this.getChromosomes();
     }
 
     _init() {
         let _this = this;
-        this._checkAndSetMinimumRegion(this.region, this.getSVGCanvasWidth());
+        // this._checkAndSetMinimumRegion(this.region, this.getSVGCanvasWidth());
         this.zoom = this._calculateZoomByRegion(this.region);
+
+        this._updateSpecies(this.species);
 
         /* Navigation Bar */
         if (this.drawNavigationBar) {
             this.navigationBar = this._createNavigationBar(this.navigationbarDiv);
         }
 
-        /*karyotype Panel*/
+        /* karyotype Panel */
         if (this.drawKaryotypePanel) {
             this.karyotypePanel = this._drawKaryotypePanel(this.karyotypeDiv);
         }
@@ -152,11 +156,11 @@ class GenomeBrowser{
         }
 
         /* Region Panel, is a TrackListPanel Class */
-        if (this.drawOverviewTrackListPanel) {
-            this.overviewTrackListPanel = this._createOverviewTrackListPanel(this.regionDiv);
-        }
+        // if (this.drawOverviewTrackListPanel) {
+        //     this.overviewTrackListPanel = this._createOverviewTrackListPanel(this.regionDiv);
+        // }
         /*TrackList Panel*/
-        this.trackListPanel = this._createTrackListPanel(this.tracksDiv);
+        // this.trackListPanel = this._createTrackListPanel(this.tracksDiv);
 
         /*Status Bar*/
         if (this.drawStatusBar) {
@@ -178,14 +182,14 @@ class GenomeBrowser{
 
         $("html").bind("keydown.genomeViewer", function (e) {
             switch (e.keyCode) {
-                case 40://down arrow
-                case 109://minus key
+                case 40:    // down arrow
+                case 109:   // minus key
                     if (e.shiftKey) {
                         _this.increaseZoom(-10);
                     }
                     break;
-                case 38://up arrow
-                case 107://plus key
+                case 38:    // up arrow
+                case 107:   // plus key
                     if (e.shiftKey) {
                         _this.increaseZoom(10);
                     }
@@ -225,7 +229,7 @@ class GenomeBrowser{
             return chromosomes;
         };
 
-        if (typeof this.chromosomeList !== "undefined") {
+        if (typeof this.chromosomeList !== 'undefined' && this.chromosomeList !== null && this.chromosomeList.length > 0) {
             this.chromosomes = saveChromosomes(this.chromosomeList);
             this.species.chromosomes = this.chromosomes;
         } else {
@@ -236,11 +240,8 @@ class GenomeBrowser{
                     let chromosomesOld = _this.chromosomes;
                     _this.chromosomes = saveChromosomes(response.response[0].result[0].chromosomes);
                     if (chromosomesOld !== undefined && chromosomesOld.length === 0) {
-                        // If it's the first time we get the chromosomes...
-                        _this._checkAndSetMinimumRegion(_this.region, _this.getSVGCanvasWidth());
-                        _this.zoom = _this._calculateZoomByRegion(_this.region);
-                        _this._updateSpecies(_this.species);
-                        console.log("Recalculating sizes...");
+                        _this._init();
+                        _this.rendered = true;
                     }
                 });
         }
@@ -395,7 +396,6 @@ class GenomeBrowser{
 
     _drawChromosomePanel(target) {
         let _this = this;
-
         let chromosomePanel = new ChromosomePanel({
             target: target,
             client: this.client,

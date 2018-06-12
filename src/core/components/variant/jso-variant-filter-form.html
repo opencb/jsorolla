@@ -1,0 +1,1507 @@
+<link rel="import" href="../cellbase/jso-cellbase-search-field.html">
+<link rel="import" href="../opencga/files/jso-opencga-import-file.html">
+<link rel="import" href="../jso-form-box.html">
+<link rel="import" href="../filters/jso-filter-position.html">
+<link rel="import" href="../filters/jso-filter-scores.html">
+<link rel="import" href="../filters/jso-filter-conservation.html">
+<link rel="import" href="../filters/jso-filter-consequencetypes.html">
+<link rel="import" href="../ontology/jso-go.html">
+<link rel="import" href="../ontology/jso-hpo.html">
+<link rel="import" href="../../../../../../bower_components/paper-slider/paper-slider.html">
+<dom-module id="jso-variant-filter-form">
+    <style is="custom-style" include="iron-flex iron-flex-reverse iron-flex-alignment iron-flex-factors iron-positioning">
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+            width: 260px;
+            padding-left: 10px;
+        }
+
+        #filter_form {
+            overflow-y: auto;
+            height: 100%;
+            margin: 0px;
+        }
+
+        .title {
+            font-size: 22px;
+            border-bottom: thin solid #edebe3;
+            margin: 7px 5px;
+        }
+
+        #bar {
+            padding: 0 3px 5px 0;
+        }
+
+        #bar > .jso-btn {
+            margin: 0px 2px;
+        }
+
+        .input_container {
+            margin: 0px;
+            width: 175px;
+            right: auto;
+            top: 0px;
+            left: 5px;
+            padding: 4px 6px 3px 20px;
+        }
+
+        .input_container label {
+            padding-bottom: 5px;
+            padding-left: 1px;
+        }
+
+        #headerTitle {
+            background: #e4e7e9;
+            font-size: 16px;
+            line-height: 22px;
+            margin: 10px;
+            padding: 5px;
+        }
+
+        .segregation.sampleName {
+            width: 100px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        input.segregation,
+        .segregationValue {
+            margin-left: 3px;
+        }
+
+        input#consequence_type {
+            width: 30px;
+        }
+
+        #consequenceTypes {
+            height: 250px;
+            overflow-y: auto;
+        }
+
+        textarea {
+            resize: none;
+            width: 100%;
+        }
+
+        jso-tooltip::shadow #messageInfo::shadow {
+            height: 200px;
+            width: 500px;
+            background-color: #e2e9e9;
+            border: 1px solid #e2e9e9;
+            color: black;
+            font-style: normal;
+        }
+
+        jso-tooltip::shadow .closeInfo::shadow {
+            margin-left: 490px;
+        }
+
+        #filterHistoryTable > div:hover {
+            background-color: #8ba7a7;
+            border: 1px solid #8ba7a7;
+        }
+
+        #filter-name {
+            text-overflow: ellipsis;
+            width: 300px;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .tit {
+            margin-top: 10px;
+            border-bottom: 1px solid #445D76;
+            font-weight: bold;
+        }
+
+        .name {
+            width: 300px;
+        }
+
+        .num {
+            width: 100px;
+        }
+
+        .clear-but {
+            width: 100px;
+            background-color: #f0f4f4 !important;
+        }
+
+        .searchBut {
+            width: 100px;
+            font-size: 12px;
+            color: #445D76;
+            margin: 3px;
+        }
+
+        jso-form-box {
+            width: 250px;
+        }
+
+        .minus {
+            color: #2F65F4;
+            font-size: 12px;
+            padding: 0 2px;
+            cursor: pointer;
+        }
+
+        .minus:hover {
+            color: #445D76;
+            font-weight: bold;
+        }
+
+        .inputValue {
+            width: 170px;
+            margin-left: 4px;
+        }
+
+        .popus {
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        #hpoPanel,
+        #goPanel {
+            min-width: 700px;
+            min-height: 500px;
+            height: calc(100vh - 300px);
+            width: 60%;
+            font-size: 12px;
+        }
+
+        .exclude {
+            color: #666;
+            margin-bottom: 5px;
+        }
+        /*
+        jso-form-box .header{
+            font-size: 13px;
+        }
+        jso-form-box .container {
+            font-size: 12px;
+        }*/
+
+        .butstyle {
+            border-radius: 4px;
+            width: 100px;
+            background-color: var(--dark-button-color) !important;
+            color: var(--text-primary-color) !important;
+        }
+
+        .butstyle:hover {
+            background-color: var(--light-button-color) !important;
+        }
+
+        #filterHistoryTooltip {
+            border-radius: 4px;
+            background-color: var(--dark-button-color) !important;
+            color: var(--text-primary-color) !important;
+        }
+
+        #filterHistoryTooltip:hover {
+            background: var(--accent-color) !important;
+        }
+
+        jso-select {
+            width: 45px;
+            margin-right: 3px;
+            align-self: center;
+        }
+
+        paper-slider.sliderBar {
+            color: #a0a0a0;
+            --paper-slider-knob-color: #445D76;
+            --paper-slider-active-color: #445D76;
+            --paper-slider-pin-color: #445D76;
+            --paper-input-container-focus-color: #445D76;
+            width: 125%;
+        }
+
+        paper-slider::shadow #input {
+            width: calc(20vh - 40px);
+            font-size: 13px;
+        }
+    </style>
+    <template>
+        <form id="filter_form">
+            <!--<div class="title">-->
+            <!--Filters-->
+            <!--</div>-->
+            <div id="bar" class="horizontal layout">
+                <jso-tooltip id="filterHistoryTooltip" class="jso-btn jso-btn-shdw" title="Filters History" icon="filter">
+                    <div class="jso-btn jso-btn-shdw clear-but" title="Clear Filters History" on-click="clearFiltersHistory">
+                        Clear
+                    </div>
+                    <div class="horizontal layout flex">
+                        <span class="tit num"> Date </span>
+                        <span class="name tit"> Name </span>
+                        <span class="tit num"> Found</span>
+                    </div>
+                    <div id="filterHistoryTable">
+                        <template is="dom-repeat" items="{{historyFilters}}">
+                            <div class="horizontal layout flex" on-click="loadFilter" data-filter="{{item.filter}}" title="{{item.name}}">
+                                <span class="num">{{item.date}} </span>
+                                <span id="filter-name" class="name">{{item.name}} </span>
+                                <span class="num">{{item.found}}</span>
+                            </div>
+                        </template>
+                    </div>
+                </jso-tooltip>
+                <div class="jso-btn jso-btn-shdw flex butstyle" on-click="clearForm">Clear</div>
+                <div class="jso-btn jso-btn-shdw flex butstyle" on-click="submitForm">Search</div>
+                <!-- <div class="jso-btn jso-btn-shdw flex butstyle" on-click="handleSubmitClick">Search</div> -->
+            </div>
+            <jso-form-box collapsible id="segregationForm">
+                <div class="header">
+                    Segregation
+                </div>
+                <div class="container" style="overflow-y:auto;max-height:300px;min-height:200px">
+                    <div id="segregationHeader" class="horizontal layout">
+                        <div class="segregation sampleName"></div>
+                        <div class="segregation segregationValue flex">0/0</div>
+                        <div class="segregation segregationValue flex">0/1</div>
+                        <div class="segregation segregationValue flex">1/1</div>
+                        <div class="segregation segregationValue flex">. / .</div>
+                    </div>
+                    <div id="segregation" class="vertical layout">
+                        <template is="dom-repeat" items="{{samples}}">
+                            <div class="horizontal layout">
+                                <div class="segregation sampleName" title="{{item.name}}">{{item.name}}</div>
+                                <label class="jso-control flex">
+                                    <input type="checkbox" name="{{item.name}}" value="0/0,0|0">
+                                    <span></span>
+                                </label>
+                                <label class="jso-control flex">
+                                    <input type="checkbox" name="{{item.name}}" value="0/1,0|1,1/0,1|0">
+                                    <span></span>
+                                </label>
+                                <label class="jso-control flex">
+                                    <input type="checkbox" name="{{item.name}}" value="1/1,1|1">
+                                    <span></span>
+                                </label>
+                                <label class="jso-control flex">
+                                    <input type="checkbox" name="{{item.name}}" value="-1/-1,-1|-1">
+                                    <span></span>
+                                </label>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </jso-form-box>
+
+            <jso-form-box collapsible collapsed>
+                <div class="header">
+                    Somatic Filter
+                </div>
+                <div class="container">
+                    <div class="horizontal layout">
+                        <div class="segregation sampleName"></div>
+                        <div class="segregation segregationValue flex">Somatic</div>
+                        <div class="segregation segregationValue flex" style="margin-left:15px;">Germinal</div>
+                    </div>
+                    <div id="somatic" class="vertical layout">
+                        <template is="dom-repeat" items="{{samples}}">
+                            <div class="horizontal layout">
+                                <div class="segregation sampleName" title="{{item.name}}">{{item.name}}</div>
+                                <label class="jso-control flex">
+                                    <input class="jso" type="radio" name="{{item.name}}" data-file$="{{item.source}}" value="somatic">
+                                    <span style="margin-left:15px;"></span>
+                                </label>
+                                <label class="jso-control flex">
+                                    <input class="jso" type="radio" name="{{item.name}}" data-file$="{{item.source}}" value="germinal">
+                                    <span style="margin-left:15px;"></span>
+                                </label>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </jso-form-box>
+
+            <jso-filter-position id="filterPosition" collapsible enable-importbed enable-snpid style="font-size:12px"></jso-filter-position>
+
+            <jso-form-box collapsible collapsed>
+                <div class="header">
+                    Type
+                </div>
+                <div id="type_op" class="container">
+                    <div style="margin-left:5px" class="horizontal layout">
+                        <label class="jso-control">
+                            <input class="jso" value="SNV,SNP" type="checkbox">
+                            <span>SNV</span>
+                        </label>
+                        <label class="jso-control" style="margin-left:14px">
+                            <input class="jso" value="MNV" type="checkbox">
+                            <span>MNV</span>
+                        </label>
+                    </div>
+                    <div style="margin-left:5px" class="horizontal layout">
+                        <label class="jso-control">
+                            <input class="jso" value="INDEL" type="checkbox">
+                            <span>INDEL</span>
+                        </label>
+                        <label class="jso-control" style="margin-left:2px">
+                            <input class="jso" value="SV" type="checkbox">
+                            <span>SV</span>
+                        </label>
+                    </div>
+                    <div style="margin-left:5px" class="horizontal layout">
+                        <label class="jso-control">
+                            <input class="jso" value="CNV" type="checkbox">
+                            <span>CNV</span>
+                        </label>
+                    </div>
+                </div>
+            </jso-form-box> 
+
+            <jso-form-box collapsible collapsed>
+                <div class="header">
+                    Population Freqs.
+                </div>
+                <div class="container">
+                    <i class$="{{phase_3}}" on-click="handleCollapseAction" data-type="phase_3"></i>
+                    <label class="jso popus" on-click="handleCollapseAction" data-type="phase_3">1000 Genomes population phase 3</label>
+                    <div id="phase_3" hidden>
+                        <label class="jso">All populations MAF [ALL]</label>
+                        <div class="horizontal layout">
+                            <jso-select name="1000GENOMES_phase_3_ALL_op" id="1000GENOMES_phase_3_ALL_op">
+                                <jso-option value="<" selected>
+                                    <</jso-option>
+                                        <jso-option value="<=">
+                                            <=</jso-option>
+                                                <jso-option value=">">></jso-option>
+                                                <jso-option value=">=">>=</jso-option>
+                            </jso-select>
+                            <paper-slider pin min="0" max="1" step="0.000001" value="0" class="sliderBar" id="1000GENOMES_phase_3_ALL" editable on-value-change="sliderChange"></paper-slider>
+                        </div>
+                        <label class="jso">American MAF [AMR]</label>
+                        <div class="horizontal layout">
+                            <jso-select name="1000GENOMES_phase_3_AMR_op" id="1000GENOMES_phase_3_AMR_op">
+                                <jso-option value="<" selected>
+                                    <</jso-option>
+                                        <jso-option value="<=">
+                                            <=</jso-option>
+                                                <jso-option value=">">></jso-option>
+                                                <jso-option value=">=">>=</jso-option>
+                            </jso-select>
+                            <paper-slider pin min="0" max="1" step="0.000001" value="0" class="sliderBar" id="1000GENOMES_phase_3_AMR" editable on-value-change="sliderChange"></paper-slider>
+                        </div>
+                        <label class="jso">South Asian MAF [SAS]</label>
+                        <div class="horizontal layout">
+                            <jso-select name="1000GENOMES_phase_3_SAS_op" id="1000GENOMES_phase_3_SAS_op">
+                                <jso-option value="<" selected>
+                                    <</jso-option>
+                                        <jso-option value="<=">
+                                            <=</jso-option>
+                                                <jso-option value=">">></jso-option>
+                                                <jso-option value=">=">>=</jso-option>
+                            </jso-select>
+                            <paper-slider pin min="0" max="1" step="0.000001" value="0" class="sliderBar" id="1000GENOMES_phase_3_SAS" editable on-value-change="sliderChange"></paper-slider>
+                        </div>
+                        <label class="jso">East Asian MAF [EAS]</label>
+                        <div class="horizontal layout">
+                            <jso-select name="1000GENOMES_phase_3_EAS_op" id="1000GENOMES_phase_3_EAS_op">
+                                <jso-option value="<" selected>
+                                    <</jso-option>
+                                        <jso-option value="<=">
+                                            <=</jso-option>
+                                                <jso-option value=">">></jso-option>
+                                                <jso-option value=">=">>=</jso-option>
+                            </jso-select>
+                            <paper-slider pin min="0" max="1" step="0.000001" value="0" class="sliderBar" id="1000GENOMES_phase_3_EAS" editable on-value-change="sliderChange"></paper-slider>
+                        </div>
+                        <label class="jso">African MAF [AFR]</label>
+                        <div class="horizontal layout">
+                            <jso-select name="1000GENOMES_phase_3_AFR_op" id="1000GENOMES_phase_3_AFR_op">
+                                <jso-option value="<" selected>
+                                    <</jso-option>
+                                        <jso-option value="<=">
+                                            <=</jso-option>
+                                                <jso-option value=">">></jso-option>
+                                                <jso-option value=">=">>=</jso-option>
+                            </jso-select>
+                            <paper-slider pin min="0" max="1" step="0.000001" value="0" class="sliderBar" id="1000GENOMES_phase_3_AFR" editable on-value-change="sliderChange"></paper-slider>
+                        </div>
+                        <label class="jso">European MAF [EUR]</label>
+                        <div class="horizontal layout">
+                            <jso-select name="1000GENOMES_phase_3_EUR_op" id="1000GENOMES_phase_3_EUR_op">
+                                <jso-option value="<" selected>
+                                    <</jso-option>
+                                        <jso-option value="<=">
+                                            <=</jso-option>
+                                                <jso-option value=">">></jso-option>
+                                                <jso-option value=">=">>=</jso-option>
+                            </jso-select>
+                            <paper-slider pin min="0" max="1" step="0.000001" value="0" class="sliderBar" id="1000GENOMES_phase_3_EUR" editable on-value-change="sliderChange"></paper-slider>
+                        </div>
+                    </div>
+                    <br>
+                    <i class$="{{esp_6500}}" on-click="handleCollapseAction" data-type="esp_6500"></i>
+                    <label class="jso popus" on-click="handleCollapseAction" data-type="esp_6500">ESP 6500</label>
+                    <div id="esp_6500" hidden>
+                        <label class="jso">European american MAF</label>
+                        <div class="horizontal layout">
+                            <jso-select name="ESP_6500_EA_op" id="ESP_6500_EA_op">
+                                <jso-option value="<" selected>
+                                    <</jso-option>
+                                        <jso-option value="<=">
+                                            <=</jso-option>
+                                                <jso-option value=">">></jso-option>
+                                                <jso-option value=">=">>=</jso-option>
+                            </jso-select>
+                            <paper-slider pin min="0" max="1" step="0.000001" value="0" class="sliderBar" id="ESP_6500_EA" editable on-value-change="sliderChange"></paper-slider>
+                        </div>
+                        <label class="jso">African american MAF</label>
+                        <div class="horizontal layout">
+                            <jso-select name="ESP_6500_AA_op" id="ESP_6500_AA_op">
+                                <jso-option value="<" selected>
+                                    <</jso-option>
+                                        <jso-option value="<=">
+                                            <=</jso-option>
+                                                <jso-option value=">">></jso-option>
+                                                <jso-option value=">=">>=</jso-option>
+                            </jso-select>
+                            <paper-slider pin min="0" max="1" step="0.000001" value="0" class="sliderBar" id="ESP_6500_AA" editable on-value-change="sliderChange"></paper-slider>
+                        </div>
+                    </div>
+                    <br>
+                    <i class$="{{exac}}" on-click="handleCollapseAction" data-type="exac"></i>
+                    <label class="jso popus" on-click="handleCollapseAction" data-type="exac">EXAC</label>
+                    <div id="exac" hidden>
+                        <label class="jso">EXAC MAF</label>
+                        <div class="horizontal layout">
+                            <jso-select name="EXAC_ALL_op" id="EXAC_ALL_op">
+                                <jso-option value="<" selected>
+                                    <</jso-option>
+                                        <jso-option value="<=">
+                                            <=</jso-option>
+                                                <jso-option value=">">></jso-option>
+                                                <jso-option value=">=">>=</jso-option>
+                            </jso-select>
+                            <paper-slider pin min="0" max="1" step="0.000001" value="0" class="sliderBar" id="EXAC_ALL" editable on-value-change="sliderChange"></paper-slider>
+                        </div>
+                    </div>
+                </div>
+            </jso-form-box> 
+
+            <jso-filter-scores id="filterScores" collapsible collapsed style="font-size:12px"></jso-filter-scores>
+
+            <jso-filter-conservation id="filterConservation" collapsible collapsed style="font-size:12px"></jso-filter-conservation>
+
+            <jso-filter-consequencetypes id="filterCT" collapsible collapsed style="font-size:12px"></jso-filter-consequencetypes>
+
+            <jso-form-box collapsible collapsed>
+                <div class="header">
+                    Gene Ontology
+                </div>
+                <div class="container">
+                    <label class="jso">Filter by GO id:</label>
+                    <div class="horizontal layout" hidden>
+                        <span class="exclude">Exclude Selected</span>
+                        <input id="goExclude" value="exclude" type="checkbox">
+                    </div>
+                    <textarea class="jso" id="go" name="go" value="{{goSearch::change}}" rows="3" placeholder="GO:0000001,GO:0001177" disabled>
+                    </textarea>
+                    <div class="horizontal layout" style="color: #666;margin-top:2px;line-height:28px;">
+                        Search GO: &nbsp;
+                        <div class="jso-btn jso-btn-shdw searchBut" on-click="showGO" title="Search GO"><i class="fa fa-search" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                </div>
+            </jso-form-box>
+            <jso-form-box collapsible collapsed>
+                <div class="header">
+                    Human Phenotype Ontology
+                </div>
+                <div class="container">
+                    <label class="jso">Filter by HPO id:</label>
+                    <div class="horizontal layout" hidden>
+                        <span class="exclude">Exclude Selected</span>
+                        <input id="hpoExclude" value="exclude" type="checkbox">
+                    </div>
+                    <textarea class="jso" id="hpo" name="hpo" value="{{hpoSearch::change}}" rows="3" placeholder="HP:0000001,HP:3000079" disabled>
+                    </textarea>
+                    <div class="horizontal layout" style="color: #666;margin-top:2px;line-height:28px;">
+                        Search HPO: &nbsp;
+                        <div class="jso-btn jso-btn-shdw searchBut" on-click="showHPO" title="Search HPO"><i class="fa fa-search" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                </div>
+            </jso-form-box>
+
+            <jso-panel id="importComponent" modal closable hidden>
+                <div class="header">
+                    <i class="fa fa-plus-square-o"></i> Import File
+                </div>
+                <jso-opencga-import-file id="importFile" class="container" on-end="handleImportFile" bioformat="{{bedBioformat}}"></jso-opencga-import-file>
+            </jso-panel>
+            <jso-panel id="goPanel" modal closable hidden>
+                <div class="header">
+                    <i class="fa fa-search" aria-hidden="true"></i> Gene Ontology
+                </div>
+                <div class="container" style="width:100%">
+                    <jso-go go-value="{{goValue}}" on-added="showGO"></jso-go>
+                </div>
+            </jso-panel>
+            <jso-panel id="hpoPanel" modal closable hidden>
+                <div class="header">
+                    <i class="fa fa-search" aria-hidden="true"></i> Human Phenotype Ontology
+                </div>
+                <div class="container" style="width:100%">
+                    <jso-hpo hpo-value="{{hpoValue}}" on-added="showHPO"></jso-hpo>
+                </div>
+            </jso-panel>
+        </form>
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-variant-filter-form",
+        properties: {
+            url: {
+                type: String,
+                notify: true,
+                value: ''
+            },
+            study: {
+                type: Object,
+                value: function() {
+                    return {};
+                },
+                observer: 'studyChanged'
+            },
+            samples: {
+                type: Array,
+                notify: true,
+                value: function() {
+                    return [];
+                },
+                observer: 'samplesChanged'
+            },
+            regionValue: {
+                type: String,
+                notify: true,
+                value: ''
+            },
+            geneValue: {
+                type: String,
+                notify: true,
+                value: ''
+            },
+            snpIdValue: {
+                type: String,
+                notify: true,
+                value: ''
+            },
+            goValue: {
+                type: Array,
+                notify: true,
+                value: function() {
+                    return [];
+                },
+                observer: 'goValueChanged'
+            },
+            goSearch: {
+                type: String,
+                notify: true,
+                value: '',
+            },
+            hpoValue: {
+                type: Array,
+                notify: true,
+                value: function() {
+                    return [];
+                },
+                observer: 'hpoValueChanged'
+            },
+            hpoSearch: {
+                type: String,
+                notify: true,
+                value: '',
+            },
+            fileName: {
+                type: String,
+                notify: true,
+                value: 'Choose file...'
+            },
+            consequenceTypes: {
+                type: Array,
+                value: function() {
+                    return CONSEQUENCE_TYPES;
+                }
+            },
+            historyFilters: {
+                type: Array,
+                value: function() {
+                    return [];
+                },
+            },
+            hash: {
+                type: Object,
+                value: function() {
+                    return {};
+                },
+            },
+            numTotalResults: {
+                type: Object,
+                observer: "resultsChanged"
+            },
+            bedBioformat: {
+                type: Object,
+                value: {
+                    text: "BED",
+                    value: "BED",
+                    validator: BEDValidator
+                }
+            },
+            query: {
+                type: Object,
+                notify: true,
+                value: function() {
+                    return {};
+                },
+            },
+            phase_3: {
+                type: String,
+                value: "fa fa-angle-double-right minus"
+            },
+            esp_6500: {
+                type: String,
+                value: "fa fa-angle-double-right minus"
+            },
+            exac: {
+                type: String,
+                value: "fa fa-angle-double-right minus"
+            },
+            filesId: {
+                type: Array,
+                value: function() {
+                    return [];
+                },
+                observer: "filesIdChanged"
+            }
+        },
+        ready: function() {
+            if (localStorage.bioinfo_bierApp_filter_history) {
+                this.hash = JSON.parse(localStorage.bioinfo_bierApp_filter_history);
+                if (Array.isArray(this.hash)) {
+                    localStorage.bioinfo_bierApp_filter_history = "";
+                    this.hash = {};
+                }
+            } else {
+                localStorage.bioinfo_bierApp_filter_history = [];
+            }
+        },
+        studyChanged: function(neo, old) {
+            if (neo && neo.id != null) {
+                if (this.study.type == "CASE_CONTROL") {
+                    this.$.segregationForm.hidden = true;
+                } else {
+                    this.$.segregationForm.hidden = false;
+                }
+                this.historyFilters = this.hash[neo.id];
+                this.clearForm();
+            }
+        },
+        samplesChanged: function(neo, old) {
+            this.clearForm();
+        },
+        resultsChanged: function(neo, old) {
+            if (neo != -1) {
+                var query = this.query;
+                var numTotalResults = neo;
+                /* Filter History */
+                var filterHistory = [];
+                if (this.study.id in this.hash) {
+                    filterHistory = this.hash[this.study.id];
+                }
+                this.set("historyFilters", filterHistory);
+
+                var newFilter = JSON.stringify(query);
+                var _load = -1;
+                for (var i = 0; i < this.historyFilters.length && _load == -1; i++) { // Check if the fitler has been selected from the history
+                    var elem = this.historyFilters[i];
+                    if (elem != null) {
+                        var oldFilter = JSON.stringify(this.historyFilters[i].filter);
+                        if (newFilter == oldFilter) {
+                            _load = i;
+                        }
+                    }
+                }
+
+                if (_load == -1) { // This filter is new (has not been selected from the history)
+                    if (query.genotype != null || query.region != null || query.gene != null || query.ids != null || query.type != "" || query['alternate_frequency'] != null || query.sift != null || query.polyphen != null || query.functional != null || query.hpo != null || query.go != null || query.conservation != null || query["annot-ct"] != null) {
+                        var dateAux = new Date();
+                        var minAux = dateAux.getMinutes();
+                        if (minAux < 10) {
+                            minAux = "0" + minAux;
+                        }
+                        var date = dateAux.getDate() + '/' + (dateAux.getMonth() + 1) + ' ' + dateAux.getHours() + ':' + minAux;
+                        name = this.loadForm(query);
+                        var found = numTotalResults;
+                        var hf = {};
+                        hf = {
+                            date: date,
+                            name: name,
+                            filter: query,
+                            found: found
+                        };
+
+                        var filters = new FilterHistory(5, filterHistory);
+                        filters.unshift(hf);
+                        this.set("historyFilters", filters);
+                        this.hash[this.study.id] = this.historyFilters;
+
+                        localStorage.bioinfo_bierApp_filter_history = JSON.stringify(this.hash);
+                    }
+                } else { // HistoryFilter contains this filter. We need to change the date and push to top
+                    var pos = _load;
+
+                    var filters = new FilterHistory(5, this.historyFilters);
+                    var filter = filters[pos];
+                    var dateAux = new Date();
+                    var minAux = dateAux.getMinutes();
+                    if (minAux < 10) this
+                    minAux = "0" + minAux;
+
+                    var date = dateAux.getDate() + '/' + (dateAux.getMonth() + 1) + ' ' + dateAux.getHours() + ':' + minAux;
+
+                    filter.date = date;
+
+                    var aux = filters[pos];
+                    filters[pos] = filters[0];
+                    filters[0] = aux;
+
+                    this.set("historyFilters", filters);
+                    this.hash[this.study.id] = this.historyFilters;
+
+                    localStorage.bioinfo_bierApp_filter_history = JSON.stringify(this.hash);
+                    this.clearForm();
+                    this.loadForm(query);
+                }
+            }
+        },
+        goValueChanged: function(neo, old) {
+            if (neo) {
+                var goName = [];
+                for (var i = 0; i < neo.length; i++) {
+                    goName.push(neo[i].n);
+                }
+                this.goSearch = goName.join(",");
+            }
+        },
+        hpoValueChanged: function(neo, old) {
+            if (neo) {
+                var hpoName = [];
+                for (var i = 0; i < neo.length; i++) {
+                    hpoName.push(neo[i].n);
+                }
+                this.hpoSearch = hpoName.join(",");
+            }
+        },
+        handleFeatureSelected: function(e) {
+            var item = e.detail;
+            if (item) {
+                var values = this.$.gene.value.split(',').filter(function(el) {
+                    return el.length != 0
+                });
+                values.push(item.name);
+                values = values.filter(function(item, index, inputArray) {
+                    return inputArray.indexOf(item) == index;
+                });
+                this.$.gene.value = values.join(",");
+            }
+        },
+        clearForm: function() {
+            // this.url = "";
+            /* samples */
+            for (var i = 0; i < this.samples.length; i++) {
+                var sampleName = this.samples[i].name;
+                var els = this.$.segregation.querySelectorAll("input:checked");
+                for (var j = 0; j < els.length; j++) {
+                    var el = els[j];
+                    el.checked = false;
+                }
+            }
+
+            //SomaticVsGerminal
+            var els = this.$.somatic.querySelectorAll("input");
+            for (var i = 0; i < els.length; i++) {
+                els[i].checked = false;
+            }
+
+            // GO
+            this.$.go.value = "";
+            this.goValue = "";
+            this.goSearch = "";
+            this.$.goExclude.checked = false;
+            // HPO
+            this.$.hpo.value = "";
+            this.hpoValue = "";
+            this.hpoSearch = "";
+            this.$.hpoExclude.checked = false;
+
+            this.$.filterPosition.clear();
+
+            // Type
+            var types = this.$.type_op.querySelectorAll("input:checked");
+            for (var i = 0; i < types.length; i++) {
+                var type = types[i];
+                type.checked = false;
+            }
+
+            // Freqs
+
+            this.$["1000GENOMES_phase_3_ALL"].value = 0;
+            this["1000GENOMES_phase_3_ALL"] = "";
+            this.$["1000GENOMES_phase_3_ALL_op"].value = "<";
+            this.$["1000GENOMES_phase_3_AMR"].value = 0;
+            this["1000GENOMES_phase_3_AMR"] = "";
+            this.$["1000GENOMES_phase_3_AMR_op"].value = "<";
+            this.$["1000GENOMES_phase_3_SAS"].value = 0;
+            this["1000GENOMES_phase_3_SAS"] = "";
+            this.$["1000GENOMES_phase_3_SAS_op"].value = "<";
+            this.$["1000GENOMES_phase_3_EAS"].value = 0;
+            this["1000GENOMES_phase_3_EAS"] = "";
+            this.$["1000GENOMES_phase_3_EAS_op"].value = "<";
+            this.$["1000GENOMES_phase_3_AFR"].value = 0;
+            this["1000GENOMES_phase_3_AFR"] = "";
+            this.$["1000GENOMES_phase_3_AFR_op"].value = "<";
+            this.$["1000GENOMES_phase_3_EUR"].value = 0;
+            this["1000GENOMES_phase_3_EUR"] = "";
+            this.$["1000GENOMES_phase_3_EUR_op"].value = "<";
+
+            this.$["ESP_6500_EA"].value = 0;
+            this["ESP_6500_EA"] = "";
+            this.$["ESP_6500_EA_op"].value = "<";
+            this.$["ESP_6500_AA"].value = 0;
+            this["ESP_6500_AA"] = "";
+            this.$["ESP_6500_AA_op"].value = "<";
+            this.$["EXAC_ALL"].value = 0;
+            this["EXAC_ALL"] = "";
+            this.$["EXAC_ALL_op"].value = "<";
+
+            // Sift
+            // Polyphen
+            // cadd
+            this.$.filterScores.clear();
+
+            // // Phylop
+            // // Phastcons
+            this.$.filterConservation.clear();
+
+            /* Consequence Types */
+            this.$.filterCT.clear();
+        },
+        handleSubmitClick: function() {
+            var me = this;
+            this.$.filterPosition.checkGene(function(geneQuery) {
+                me.submitForm(geneQuery);
+            });
+        },
+        submitForm: function(geneQuery) {
+            var query = {};
+
+            // Region
+            var regionQuery = this.$.filterPosition.checkRegion();
+            if (regionQuery == -1) {
+                return;
+            } else if (regionQuery != null) {
+                query["region"] = regionQuery;
+            }
+
+            // SNPId
+            var idsQuery = this.$.filterPosition.checkSNPId();
+            if (idsQuery != null) {
+                query["ids"] = idsQuery;
+            }
+
+            // Genes
+            var geneQuery = this.$.filterPosition.checkGene();
+            if (geneQuery == -1) {
+                return;
+            } else if (geneQuery != null) {
+                query["gene"] = geneQuery;
+            }
+
+            //SomaticVsGerminal
+            var els = this.$.somatic.querySelectorAll("input");
+            var querySom = [];
+            var queryaux = [];
+            for (var i = 0; i < els.length; i++) {
+                var el = els[i];
+                if (el.checked == true) {
+                    if (el.value == "germinal") {
+                        queryaux.push(el.name + ":germinal");
+                        querySom.push(el.name + ":" + "0/0,0|0");
+                    } else if (el.value == "somatic") {
+                        queryaux.push(el.name + ":somatic");
+                        querySom.push(el.name + ":" + "0/1,0|1,1/0,1|0,1/1,1|1");
+                    }
+                }
+            }
+            if (querySom.length > 0) {
+                query['somatic'] = queryaux.join(";");
+                query.genotype = querySom.join(";");
+            }
+
+            // GO
+            var gosMap = {};
+            for (var i = 0; i < this.goValue.length; i++) {
+                if (this.goValue[i].id.indexOf('GO:') >= 0) {
+                    gosMap[this.goValue[i].id] = true;
+                } else {
+                    gosMap['GO:' + this.goValue[i].id] = true;
+                }
+                if (this.goValue[i].f != null) {
+                    if (Object.keys(this.goValue[i].f).length > 0) {
+                        for (var j = 0; j < this.goValue[i].f.length; j++) {
+                            this.goValue.push(this.goValue[i].f[j]);
+                        }
+                    }
+                }
+            }
+
+            var gosAux = [];
+            if (this.$.goExclude.checked == true) {
+                var gosArray = [];
+                for (var i = 0; i < GO_ONTOLOGY.length; i++) {
+                    gosArray.push(GO_ONTOLOGY[i].id);
+                }
+                for (var i = 0; i < gosArray.length; i++) {
+                    if (gosMap[gosArray[i]] == null) {
+                        gosAux.push(gosArray[i]);
+                    }
+                }
+            } else {
+                gosAux = Object.keys(gosMap);
+            }
+            var genes = {};
+            for (var i = 0; i < gosAux.length; i++) {
+                if (GO_GENE[gosAux[i]] != null) {
+                    for (var j = 0; j < GO_GENE[gosAux[i]].length; j++) {
+                        var gene = GO_GENE[gosAux[i]][j];
+                        genes[gene] = true;
+                    }
+                }
+            }
+            if (this.goSearch != "") {
+              if(this.goValue==""){
+                query["go"] = this.goSearch;
+              }else{
+                query["go"] = Object.keys(gosMap).join(",");
+              }
+            }
+            if (query["gene"] != null && Object.keys(genes).length > 0) {
+                query["gene"] += "," + Object.keys(genes).join(",");
+            } else if (query["gene"] == null && Object.keys(genes).length > 0) {
+                query["gene"] = Object.keys(genes).join(",");
+                alert("Selected GOs have these associated genes: " + Object.keys(genes).join(","));
+            } else if (Object.keys(genes).length == 0 && this.goValue.length > 0) {
+                alert("Selected GOs have not associated genes");
+            }
+
+            // HPO
+            var hposMap = {};
+            for (var i = 0; i < this.hpoValue.length; i++) {
+                if (this.hpoValue[i].id.indexOf('HP:') >= 0) {
+                    hposMap[this.hpoValue[i].id] = true;
+                } else {
+                    hposMap['HP:' + this.hpoValue[i].id] = true;
+                }
+                if (this.hpoValue[i].f != null) {
+                    if (Object.keys(this.hpoValue[i].f).length > 0) {
+                        for (var j = 0; j < this.hpoValue[i].f.length; j++) {
+                            this.hpoValue.push(this.hpoValue[i].f[j]);
+                        }
+                    }
+                }
+            }
+            if (this.hpoSearch != "") {
+              if(this.hpoValue==""){
+                query["hpo"] = this.hpoSearch;
+              }else{
+                query["hpo"] = Object.keys(hposMap).join(",");
+              }
+            }
+
+            // Genotypes
+            var genotypes = [];
+            for (var i = 0; i < this.samples.length; i++) {
+                var sampleName = this.samples[i].name;
+                var els = this.$.segregation.querySelectorAll("input[name='" + sampleName + "']:checked");
+
+                var gtValues = [];
+                for (var j = 0; j < els.length; j++) {
+                    var el = els[j].value.split(",");
+                    for (var k = 0; k < el.length; k++) {
+                        gtValues.push(el[k]);
+                    }
+                }
+                if (gtValues.length > 0) {
+                    var aux = sampleName + ":" + gtValues.join(",");
+                    genotypes.push(aux);
+                }
+            }
+
+            if (genotypes.length > 0) {
+                query.genotype = genotypes.join(";");
+            }
+
+            // Consequence Types
+            var cts = this.$.filterCT.checkConsequenceTypes(1);
+            if (cts != null) {
+                query["annot-ct"] = cts.join(",");
+            }
+
+            // Protein Substitution Scores
+            var sift = this.$.filterScores.checkSift();
+            if (sift == -1) {
+                return;
+            } else if (sift != null) {
+                query["sift"] = sift;
+            }
+            var polyphen = this.$.filterScores.checkPolyphen();
+            if (polyphen == -1) {
+                return;
+            } else if (polyphen != null) {
+                query["polyphen"] = polyphen;
+            }
+            var cadd = this.$.filterScores.checkCADD();
+            if (cadd == -1) {
+                return;
+            } else if (cadd != null) {
+                query["functional"] = "cadd_raw" + cadd;
+            }
+
+            var phastcons = this.$.filterConservation.checkPhastcons(1);
+            var phylop = this.$.filterConservation.checkPhylop(1);
+            var gerp = this.$.filterConservation.checkGerp();
+            if (phastcons != null || phylop != null || gerp != null) {
+                var conservation = [];
+                if (phastcons != null) {
+                    conservation.push(phastcons);
+                }
+                if (phylop != null) {
+                    conservation.push(phylop);
+                }
+
+                if (gerp != null) {
+                    conservation.push("gerp" + gerp);
+                }
+                query["conservation"] = conservation.join(",");
+            }
+
+            // Population Frequencies
+
+            // Population minor allele frequency: {study}:{population}[<|>|<=|>=]{number}
+            var popFreq = [];
+
+            // 1000GENOMES_phase_3
+            if (this.$["1000GENOMES_phase_3_ALL"].value != "") {
+                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "ALL", "phase3"));
+            }
+            if (this.$["1000GENOMES_phase_3_AMR"].value != "") {
+                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "AMR", "phase3"));
+            }
+            if (this.$["1000GENOMES_phase_3_SAS"].value != "") {
+                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "SAS", "phase3"));
+            }
+            if (this.$["1000GENOMES_phase_3_EAS"].value != "") {
+                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "EAS", "phase3"));
+            }
+            if (this.$["1000GENOMES_phase_3_AFR"].value != "") {
+                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "AFR", "phase3"));
+            }
+            if (this.$["1000GENOMES_phase_3_EUR"].value != "") {
+                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "EUR", "phase3"));
+            }
+
+            //ESP_6500
+            if (this.$["ESP_6500_EA"].value != "") {
+                popFreq.push(this._getPopulationQuery("ESP_6500", "EA", "ESP"));
+            }
+            if (this.$["ESP_6500_AA"].value != "") {
+                popFreq.push(this._getPopulationQuery("ESP_6500", "AA", "ESP"));
+            }
+
+            if (this.$["EXAC_ALL"].value != "") {
+                popFreq.push(this._getPopulationQuery("EXAC", "ALL", "exac"));
+            }
+
+            if (popFreq.length > 0) {
+                query['alternate_frequency'] = popFreq.join(";");
+                if (query['alternate_frequency'].indexOf("error") >= 0) {
+                    return;
+                }
+            }
+
+            // Type
+            var types = this.$.type_op.querySelectorAll("input:checked");
+            var typesAux = [];
+            if (types != "") {
+                for (var i = 0; i < types.length; i++) {
+                    typesAux.push(types[i].value);
+                }
+                query["type"] = typesAux;
+            }
+
+            // Samples
+            var sampleNames = [];
+            for (var i = 0; i < this.samples.length; i++) {
+                var sample = this.samples[i];
+                sampleNames.push(sample.name);
+
+            }
+
+            var sampleQuery = sampleNames.join(",");
+            query.returnedSamples = sampleQuery;
+
+            query.timeout = 30000;
+
+            this.set('query', query);
+
+            console.log(query);
+            this.search(query);
+            // this.clearForm();
+
+        },
+
+        _getPopulationQuery: function(study, population, type) {
+            var value = parseFloat(this.$[study + "_" + population].value);
+            var value_op = this.$[study + "_" + population + "_op"].value;
+            value = study + ":" + population + value_op + value;
+            return value;
+        },
+        _setPopulationValue: function(population, value) {
+            var aux = value.split("");
+            var n = 0;
+            var pop = "";
+            for (i = 0; i < 5; i++) {
+                if (isNaN(aux[i]) && aux[i] != '.') {
+                    pop += aux[i];
+                    n++;
+                }
+            }
+            var val = "";
+            if (pop.length == 4) {
+                this.$[population + "_op"].value = aux[3];
+            } else if (pop.length == 5) {
+                this.$[population + "_op"].value = aux[3] + aux[4];
+            }
+            for (var i = n; i < aux.length; i++) {
+                val += aux[i];
+            }
+            this.$[population].value = val;
+        },
+
+        search: function(query) {
+            query.sid = Cookies("bioinfo_sid");
+            query.skipCount = false;
+            query.sort = true;
+
+            //****//
+            var sampleFiles = {};
+            var filesIdAux = [];
+            var me = this;
+            var n = 0;
+
+            for (var i = 0; i < this.samples.length; i++) {
+                var sample = this.samples[i];
+                if (sample.status == 'READY') {
+                    if (sampleFiles[sample.source] == null) {
+                        sampleFiles[sample.source] = 1;
+                        n++;
+                    }
+                }
+            }
+            if (n > 0) {
+                var studyId = this.study.id;
+                OpencgaManager.studies.files({
+                    id: studyId,
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                    },
+                    request: {
+                        async: true,
+                        success: function(response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                var result = response.response[0].result;
+                                for (var i = 0; i < result.length; i++) {
+                                    if (result[i].type == "FILE") {
+                                        if (sampleFiles[result[i].name] != null && result[i].index != null && result[i].index.status == 'READY') {
+                                            filesIdAux.push(result[i].id);
+                                        }
+                                    }
+                                }
+                                me.set('filesId', filesIdAux);
+                            } else {
+                                console.log(response.response[0].errorMsg);
+                            }
+                        },
+                        error: function() {
+                            console.log('Server error, try again later.');
+                        }
+                    }
+                });
+            }
+
+        },
+        filesIdChanged: function(neo, old) {
+            if (neo.length > 0) {
+                this.query.files = neo.join(',');
+                this.query.returnedStudies = this.study.id;
+                //TODO fsalavert: fix
+                //            query.sessionId = Cookies("bioinfo_sid");
+                var url = OpencgaManager.studies.variants({
+                    id: this.study.id,
+                    query: this.query,
+                    request: {
+                        url: true
+                    }
+                });
+
+                console.log(url.length);
+                if (url.length < 8000) {
+                    this.url = url;
+                    console.log(url);
+                } else {
+                    alert('Url too long');
+                }
+            }
+        },
+        loadForm: function(hf) {
+            var filterName = [];
+
+            // Samples
+            if (hf.genotype != "" && hf.genotype != null) {
+                var gtName = {};
+                var sample_op = this.$.segregation.querySelectorAll("input");
+                var gts = hf.genotype.split(";");
+                for (var i = 0; i < gts.length; i++) {
+                    var gt = gts[i].split(":");
+                    var sampleName = gt[0];
+                    var sample = gt[1].split(",");
+                    for (var j = 0; j < sample_op.length; j++) {
+                        if (sample_op[j].name == sampleName) {
+                            for (var k = 0; k < sample.length; k++) {
+                                if (sample_op[j].value.indexOf(sample[k]) >= 0) {
+                                    sample_op[j].checked = true;
+                                    if (gtName[sampleName] == null) {
+                                        gtName[sampleName] = [];
+                                    }
+                                    gtName[sampleName].push(sample[k]);
+                                }
+                            }
+                        }
+                    }
+                }
+                filterName.push("Genotype: " + JSON.stringify(gtName).replace("{", "").replace("}", "").replace(/"/gi, "") + " ");
+            }
+            if (hf.somatic != "" && hf.somatic != null) {
+                var els = this.$.somatic.querySelectorAll("input");
+                var som = hf.somatic.split(";");
+                for (var i = 0; i < som.length; i++) {
+                    var n = som[i].split(":")
+                    for (var j = 0; j < els.length; j++) {
+                        if (els[j].name == n[0] && els[j].value == n[1]) {
+                            els[j].checked = true;
+                        }
+                    }
+                }
+                filterName.push("Somatic: " + hf.somatic);
+            }
+
+            if (hf.go != "" && hf.go != null) {
+                this.set('goSearch', hf.go);
+                filterName.push("GO: " + hf.go);
+            }
+            if (hf.hpo != "" && hf.hpo != null) {
+                this.set('hpoSearch', hf.hpo);
+                filterName.push("HPO: " + hf.hpo);
+            }
+
+            // Region
+            // Genes
+            // SNPId
+            var fP = this.$.filterPosition.load(hf);
+            if (fP.length > 0) {
+                for (var i = 0; i < fP.length; i++) {
+                    filterName.push(fP[i]);
+                }
+            }
+
+            // Types
+            if (hf.type != "" && hf.type != null) {
+                var type_op = this.$.type_op.querySelectorAll("input");
+                for (var i = 0; i < hf.type.length; i++) {
+                    var type = hf.type[i];
+                    for (var j = 0; j < type_op.length; j++) {
+                        if (type_op[j].value.search(type) >= 0) {
+                            type_op[j].checked = true;
+                        }
+                    }
+                }
+                filterName.push("Type: " + hf.type.join(",") + " ");
+            }
+
+            //Populaions
+            if (hf['alternate_frequency'] != "" && hf['alternate_frequency'] != null) {
+                var pops = hf['alternate_frequency'].split(";");
+                for (var i = 0; i < pops.length; i++) {
+                    var type = pops[i].split(":");
+                    if (type[0] == "1000GENOMES_phase_3") {
+                        if (pops[i].indexOf("ALL") >= 0) {
+                            this._setPopulationValue("1000GENOMES_phase_3_ALL", type[1]);
+                        } else if (pops[i].indexOf("AMR") >= 0) {
+                            this._setPopulationValue("1000GENOMES_phase_3_AMR", type[1]);
+                        } else if (pops[i].indexOf("SAS") >= 0) {
+                            this._setPopulationValue("1000GENOMES_phase_3_SAS", type[1]);
+                        } else if (pops[i].indexOf("EAS") >= 0) {
+                            this._setPopulationValue("1000GENOMES_phase_3_EAS", type[1]);
+                        } else if (pops[i].indexOf("AFR") >= 0) {
+                            this._setPopulationValue("1000GENOMES_phase_3_AFR", type[1]);
+                        } else if (pops[i].indexOf("EUR") >= 0) {
+                            this._setPopulationValue("1000GENOMES_phase_3_EUR", type[1]);
+                        }
+                    } else if (type[0] == "EXAC") {
+                        this._setPopulationValue("EXAC_ALL", type[1]);
+                    } else if (type[0] == "ESP_6500") {
+                        if (pops[i].indexOf("EA") >= 0) {
+                            this._setPopulationValue("ESP_6500_EA", type[1]);
+                        } else if (pops[i].indexOf("AA") >= 0) {
+                            this._setPopulationValue("ESP_6500_AA", type[1]);
+                        }
+                    }
+                }
+                filterName.push("Population: " + hf['alternate_frequency'] + " ");
+            }
+
+            // Sift
+            // Polyphen
+            // cadd
+            var fS = this.$.filterScores.load(hf);
+            if (fS.length > 0) {
+                for (var i = 0; i < fS.length; i++) {
+                    filterName.push(fS[i]);
+                }
+            }
+
+            // Phylop, Phastcons y Gerp
+            var fC = this.$.filterConservation.load(hf, 1);
+            if (fC.length > 0) {
+                for (var i = 0; i < fC.length; i++) {
+                    filterName.push(fC[i]);
+                }
+            }
+            // Consequence Types
+            var fCT = this.$.filterCT.load(hf, 1);
+            if (fCT.length > 0) {
+                for (var i = 0; i < fCT.length; i++) {
+                    filterName.push(fCT[i]);
+                }
+            }
+
+            return filterName.join(" AND ");
+        },
+        loadFilter: function(e) {
+            e.stopPropagation();
+            this.clearForm();
+            this.loadForm(e.currentTarget.dataFilter);
+            this.$.filterHistoryTooltip.handleClose(e);
+            this.submitForm();
+            // this.handleSubmitClick();
+
+        },
+        clearFiltersHistory: function(e) {
+            e.stopPropagation();
+            this.historyFilters = [];
+            delete(this.hash[this.study.id]);
+            localStorage.bioinfo_bierApp_filter_history = JSON.stringify(this.hash);
+
+        },
+        handleGenesImportBed: function(bed_file) {
+            var me = this;
+
+            var log = [];
+            var line = 0;
+
+            if (bed_file != null) {
+
+                var _navigator = new FileNavigator(bed_file);
+
+                var indexToStartWith = 0;
+
+                _navigator.readSomeLines(indexToStartWith, function linesReadHandler(err, index, lines, eof, progress) {
+                    if (err) {
+                        return;
+                    }
+                    console.log(lines.length);
+
+                    for (var i = 0; i < lines.length; i++) {
+                        var line = lines[i];
+
+                        if ((line.indexOf("#") < 0 && line.indexOf("browser") < 0 && line.indexOf("track") < 0) && line != '') {
+                            var fields = line.split("\t");
+                            var chr = fields[0];
+                            var start = fields[1];
+                            var end = fields[2];
+                            var gene = {
+                                name: chr + ":" + start + "-" + end,
+                                chr: chr,
+                                start: start,
+                                end: end
+                            };
+
+                            me.regionValue += gene.name + ",";
+                        }
+
+                        line++;
+                    }
+
+                    if (eof) {
+                        return;
+                    }
+
+                    _navigator.readSomeLines(index + lines.length, linesReadHandler);
+
+                })
+
+            }
+        },
+        handleImportFile: function() {
+            var file = this.$.importFile.$.fileInput.files[0];
+
+            if (!(this.$.importFile.$.validator.errorCount > 0)) {
+                this.handleGenesImportBed(file);
+                this.$.importComponent.hidden = true;
+            }
+        },
+        showImportComponent: function() {
+            this.$.importComponent.hidden = false;
+        },
+        handleCollapseAction: function(e) {
+            var id = e.currentTarget.dataset.type;
+            this.$[id].hidden = !this.$[id].hidden;
+            if (this.$[id].hidden) {
+                this[id] = "fa fa-angle-double-right minus";
+            } else {
+                this[id] = "fa fa-angle-double-down minus";
+            }
+        },
+        showGO: function() {
+            this.$.goPanel.hidden = !this.$.goPanel.hidden;
+            // this.$.goPanel.handleClearSelected();
+        },
+        showHPO: function() {
+            this.$.hpoPanel.hidden = !this.$.hpoPanel.hidden;
+            // this.$.hpoPanel.handleClearSelected();
+        },
+        sliderChange: function(e) {
+            var id = e.currentTarget.id + "Value";
+            this.set(id, e.currentTarget.value);
+        }
+    });
+</script>

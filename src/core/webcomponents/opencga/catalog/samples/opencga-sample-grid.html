@@ -1,0 +1,595 @@
+<!--
+  ~ Copyright 2015-2016 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<dom-module id="opencga-sample-grid">
+    <template>
+        <style include="jso-styles"></style>
+
+        <div>
+            <div id="{{prefix}}ToolbarLeft" style="float: left;margin: 20px 0px 0px 0px">
+                <span style="font-size: 14px">Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> samples</span>
+            </div>
+
+            <table id="{{prefix}}SampleSelector" data-test-id="variant-sample-grid-sample-selector" data-show-columns="true" data-show-export="true" data-show-pagination-switch="true"
+                   data-pagination="true" data-page-size="10" data-show-refresh="true" data-page-list="[5, 10]" data-icons-prefix="fa" data-icons="icons" style="cursor: pointer">
+                <thead style="background-color: #eee"></thead>
+            </table>
+        </div>
+    </template>
+
+    <script>
+        class OpencgaSampleGrid extends Polymer.Element {
+
+            constructor() {
+                super();
+
+                this._init();
+
+            }
+
+            static get is() {
+                return 'opencga-sample-grid';
+            }
+
+            static get properties() {
+                return {
+                    opencgaSession: {
+                        type: Object,
+                        observer: "renderTable"
+                    },
+                    opencgaClient: {
+                        type: Object,
+                        observer: 'renderTable'
+                    },
+                    samples: {
+                        type: Array,
+                        notify: true
+                    },
+                    filters: {
+                        type: Object,
+                        observer: "onFilterUpdate"
+                    },
+                    search: {
+                        type: Object,
+                        observer: 'renderTable'
+                    },
+                    eventNotifyName: {
+                        type: String,
+                        value: "messageevent"
+                    },
+                    config: {
+                        type: Object
+                    },
+                }
+            }
+
+            static get observers() {
+                return ['calculateFilters(filteredVariables.variables.*)'];
+            }
+
+            _init() {
+                this.prefix = "VarSampleGrid" + Utils.randomString(6);
+            }
+
+            ready() {
+                super.ready();
+
+                this._initTableColumns();
+                this.dispatchEvent(new CustomEvent('clear', {detail: {}, bubbles: true, composed: true}));
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            connectedCallback() {
+                super.connectedCallback();
+
+                this.table = PolymerUtils.getElementById(this.prefix + "SampleSelector");
+                this.search = {};
+
+            }
+
+            renderTable() {
+                let filters = this.search;
+
+                this.from = 1;
+                this.to = 10;
+
+                if (UtilsNew.isNotUndefined(this.opencgaClient) && UtilsNew.isNotUndefined(this.opencgaSession.study) && this.opencgaSession.study.id > 0) {
+                    // Make a copy of the samples (if they exist), we will use this private copy until it is assigned to this.samples
+                    if (UtilsNew.isNotUndefined(this.samples)) {
+                        this._samples = this.samples;
+                    } else {
+                        this._samples = [];
+                    }
+
+                    // Check that HTTP protocol is present and complete the URL
+                    let opencgaHostUrl = this.opencgaClient.getConfig().host;
+                    if (!opencgaHostUrl.startsWith("http://") && !opencgaHostUrl.startsWith("https://")) {
+                        opencgaHostUrl = 'http://' + opencgaHostUrl;
+                    }
+                    opencgaHostUrl += '/webservices/rest/v1/samples/search';
+
+                    let _this = this;
+                    $("#" + this.prefix + 'SampleSelector').bootstrapTable('destroy');
+                    $("#" + this.prefix + 'SampleSelector').bootstrapTable({
+                        url: opencgaHostUrl,
+                        columns: _this._columns,
+                        method: 'get',
+                        sidePagination: 'server',
+                        queryParams: function (params) {
+                            let auxParams = {
+                                studyId: _this.opencgaSession.study.id,
+//                                lazy: "false",
+                                sid: Cookies.get(_this.opencgaClient.getConfig().cookieSessionId),
+                                order: params.order,
+                                sort: params.sort,
+                                limit: params.limit,
+                                skip: params.offset,
+                                includeIndividual: true
+                            };
+
+                            if (UtilsNew.isUndefined(filters)) {
+                                filters = {};
+                            }
+                            return Object.assign(filters, auxParams);
+                        },
+                        responseHandler: function (response) {
+                            if (!_this.hasOwnProperty("numTotalResults")) {
+                                _this.numTotalResults = 0;
+                            }
+                            if (_this.numTotalResults !== response.response[0].numTotalResults
+                                && response.queryOptions.skip === 0) {
+                                _this.numTotalResults = response.response[0].numTotalResults;
+                            }
+
+                            _this.numTotalResultsText = _this.numTotalResults.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+                            if(response.queryOptions.skip === 0 && _this.numTotalResults < response.queryOptions.limit){
+                                _this.from = 1;
+                                _this.to = _this.numTotalResults;
+                            }
+
+                            return {
+                                total: _this.numTotalResults,
+                                rows: response.response[0].result
+                            };
+                        },
+                        onClickRow: function (row, element, field) {
+                            let index = element[0].getAttribute("data-index");
+                            // Check and uncheck actions trigger events that are captured below
+                            if (row.state) {
+                                $(PolymerUtils.getElementById(_this.prefix + 'SampleSelector')).bootstrapTable('uncheck', index);
+                            } else {
+                                $(PolymerUtils.getElementById(_this.prefix + "SampleSelector")).bootstrapTable('check', index);
+                            }
+                        },
+                        onCheck: function (row, elem) {
+                            // check sample is not already selected
+                            for (let i in _this._samples) {
+                                if (_this._samples[i].name === row.name) {
+                                    return;
+                                }
+                            }
+
+                            // we add samples to selected samples
+                            _this.push("_samples", row);
+                            _this.set('samples', _this._samples.slice());
+
+                        },
+                        onUncheck: function (row, elem) {
+                            let sampleToDeleteIdx = -1;
+                            for (let i in _this.samples) {
+                                if (_this.samples[i].name === row.name) {
+                                    sampleToDeleteIdx = i;
+                                    break;
+                                }
+                            }
+
+                            if (sampleToDeleteIdx === -1) {
+                                return;
+                            }
+
+                            _this.splice('_samples', sampleToDeleteIdx, 1);
+                            _this.set('samples', _this._samples.slice());
+                        },
+                        onCheckAll: function (rows) {
+                            let newSamples = _this._samples.slice();
+                            // check sample is not already selected
+                            rows.forEach((sample) => {
+                                let existsNewSelected = _this._samples.some((sampleSelected) => {
+                                   return  sampleSelected.name === sample.name;
+                                });
+
+                                if(!existsNewSelected) {
+                                    newSamples.push(sample);
+                                }
+                            });
+
+                            // we add samples to selected samples
+                            _this._samples = newSamples;
+                            _this.set('samples', newSamples.slice());
+
+                        },
+                        onUncheckAll: function (rows) {
+                            // check sample is not already selected
+                            rows.forEach((sample) => {
+                                _this._samples = _this._samples.filter((sampleSelected) => {
+                                    return sampleSelected.name !== sample.name;
+                                });
+
+                            });
+
+                            // we add samples to selected samples
+//                            _this.push("_samples", row);
+                            _this.set('samples', _this._samples.slice());
+
+                        },
+                        onLoadSuccess: function (data) {
+                            // Check all already selected rows. Selected samples are stored in this.samples array
+                            if (_this.samples !== "undefined") {
+                                for (let idx in _this.samples) {
+                                    for (let j in data.rows) {
+                                        if (_this.samples[idx].name === data.rows[j].name) {
+                                            $(PolymerUtils.getElementById(_this.prefix + 'SampleSelector')).bootstrapTable('check', j);
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        onPageChange: function (page, size) {
+                            _this.from = (page - 1) * size + 1;
+                            _this.to = page * size;
+                        },
+                        onPostBody: function() {
+                            if(PolymerUtils.getElementsByClassName(_this.prefix + 'Download')) {
+                                PolymerUtils.querySelectorAll("." + _this.prefix + "Download").forEach(elem => elem.addEventListener("click", _this.downloadQCFile.bind(_this), true));
+
+//                                PolymerUtils.getElementById(_this.prefix + 'Download').addEventListener('click', _this.downloadQCFile.bind(_this));
+                            }
+                        }
+                    });
+
+                    this.opencgaClient.studies().info(this.opencgaSession.study.id)
+                        .then(function (response) {
+                            _this.variableSets = response.response[0].result[0].variableSets;
+                        })
+                        .catch(function () {
+                            console.log("Could not obtain the variable sets of the study " + _this.opencgaSession.study.id);
+                        });
+                } else {
+                    // Delete table
+                    $(PolymerUtils.getElementById(this.prefix + 'SampleSelector')).bootstrapTable('destroy');
+                    this.numTotalResults = 0;
+                }
+            }
+
+            /**
+             * If filters have been removed, clean the values from the forms.
+             */
+            onFilterUpdate() {
+                this.updateForms(this.filters);
+            }
+
+            updateForms(filters) {
+                // This is just to avoid entering here when it has just been initialized
+                if (UtilsNew.isUndefined(this.prefix)) {
+                    return;
+                }
+
+                let sampleName = PolymerUtils.getValue(this.prefix + "NameTextarea");
+                if (!filters.hasOwnProperty("name") && UtilsNew.isNotUndefined(sampleName) && sampleName.length > 0) {
+                    PolymerUtils.getElementById(this.prefix + "NameTextarea").value = "";
+                }
+
+                let individual = PolymerUtils.getValue(this.prefix + "IndividualTextarea");
+                if (!filters.hasOwnProperty("individual.id") && UtilsNew.isNotUndefined(individual) && individual.length > 0) {
+
+                    PolymerUtils.setValue(this.prefix + "IndividualTextarea", "");
+                }
+
+                if (this.filteredVariables.variables.length > 0) {
+                    if (!filters.hasOwnProperty("annotation")) {
+                        // Remove the filter variableSetId as it won't make more sense.
+                        this.set("filteredVariables.variables", []);
+
+                    } else if (filters.annotation.length < this.filteredVariables.variables.length) {
+                        let tmpVariables = [];
+                        filters.annotation.forEach(function (variable) {
+                            tmpVariables.push(variable);
+                        });
+
+                        this.set("filteredVariables.variables", tmpVariables);
+                    }
+                }
+            }
+
+            /**
+             * Read from the values in the forms, and sets the filters.
+             */
+            calculateFilters() {
+                let filters = {};
+                let sampleName = "";
+                let individual = "";
+
+                if (PolymerUtils.getElementById(this.prefix + "NameTextarea") !== null) {
+                    sampleName = PolymerUtils.getElementById(this.prefix + "NameTextarea").value;
+                }
+                if (PolymerUtils.getElementById(this.prefix + "IndividualTextarea") !== null) {
+                    individual = PolymerUtils.getElementById(this.prefix + "IndividualTextarea").value;
+                }
+
+                if (UtilsNew.isNotUndefined(sampleName) && sampleName.length > 0) {
+                    filters["name"] = "~" + sampleName;
+                }
+
+                if (UtilsNew.isNotUndefined(individual) && individual.length > 0) {
+                    filters["individual.id"] = "~" + individual;
+                }
+
+                if (UtilsNew.isNotUndefined(this.filteredVariables.variables) && this.filteredVariables.variables.length > 0) {
+//                    filters["variableSetId"] = this.filteredVariables.variableSet;
+                    let annotations = [];
+                    this.filteredVariables.variables.forEach(function (variable) {
+                        annotations.push(variable);
+                    });
+                    filters["annotation"] = annotations;
+                }
+                this.filters = filters;
+            }
+
+            onSearch() {
+                // Convert the filters to an objectParam that can be directly send to the sample search
+                let filterParams = {};
+
+                let keys = Object.keys(this.filters);
+                for (let i = 0; i < keys.length; i++) {
+                    // Some filters can come as an array of things.
+                    // annotation = [{name: name, value: Smith}, {name: age, value: >5}]
+                    if (Array.isArray(this.filters[keys[i]])) {
+                        let myArray = this.filters[keys[i]];
+
+                        let myArrayFilter = [];
+
+                        // The elements in the array can be either an object
+                        if (Object.getPrototypeOf(myArray[0]) === Object.prototype) {
+                            let myArray = this.filters[keys[i]];
+                            for (let j = 0; j < myArray.length; j++) {
+                                // TODO: We have to check if the value already has an operand
+                                myArrayFilter.push(myArray[j].name + "=" + myArray[j].value);
+                            }
+                        } else {
+                            // Or an array of strings or numbers
+                            myArrayFilter = this.filters[keys[i]];
+                        }
+
+                        filterParams[keys[i]] = myArrayFilter.join(";");
+                    } else {
+                        filterParams[keys[i]] = this.filters[keys[i]];
+                    }
+                }
+
+                if (this.filters.hasOwnProperty("annotation")) {
+                    // Add the variable set whose annotations will be queried
+                    filterParams["variableSetId"] = this.filteredVariables.variableSet;
+                }
+
+                this.search = filterParams;
+            }
+
+
+            stateFormatter(value, row, index) {
+                if (typeof this.field.context.samples != "undefined") {
+                    for (let idx in this.field.context.samples) {
+                        if (this.field.context.samples[idx].name == row.name) {
+                            break;
+                        }
+                    }
+                }
+            }
+
+            individualFormatter(value, row) {
+                if (UtilsNew.isNotUndefined(row.attributes.individual) && UtilsNew.isNotUndefined(row.attributes.individual.name)) {
+                    return row.attributes.individual.name;
+                } else {
+                    return '-'
+                }
+            }
+
+            dateFormatter(value, row) {
+                let pattern = /^(\d\d\d\d)(\d\d)(\d\d)/;
+                let matches = pattern.exec(value);
+                if (matches) {
+                    let [year, month, day] = [matches[1], matches[2] - 1, matches[3]];
+                    return year + "-" + month + "-" + day;
+                } else {
+                    return "Invalid date: '" + value + "'";
+                }
+            }
+
+            diagnosisFormatter(value, row) {
+                if (UtilsNew.isNotUndefined(row.attributes.individual) && UtilsNew.isNotEmptyArray(row.attributes.individual.phenotypes)) {
+                    let diagnosisPhenotypes = row.attributes.individual.phenotypes.filter((disease) => {
+                        return disease.source === "ICD10";
+                    }).map((icd10disease) => {
+                        return icd10disease.name;
+                    });
+                    if (UtilsNew.isNotEmptyArray(diagnosisPhenotypes)) {
+                        return diagnosisPhenotypes.join(",");
+                    }
+                }
+                return '-';
+            }
+
+            hpoFormatter(value, row) {
+                if (UtilsNew.isNotUndefined(row.attributes.individual) && UtilsNew.isNotEmptyArray(row.attributes.individual.phenotypes)) {
+                    let hpoPhenotypes = row.attributes.individual.phenotypes.filter((disease) => {
+                        return disease.source === "HPO";
+                    }).map((hpoDisease) => {
+                        return hpoDisease.name;
+                    });
+                    if (UtilsNew.isNotEmptyArray(hpoPhenotypes)) {
+                        return hpoPhenotypes.join(",");
+                    }
+                }
+                return '-';
+            }
+
+            fatherFormatter(value, row) {
+                if (UtilsNew.isNotUndefined(row.attributes.individual) && row.attributes.individual.fatherId > 0) {
+                    return row.attributes.individual.fatherId;
+                } else {
+                    return '-';
+                }
+            }
+
+            motherFormatter(value, row) {
+                if (UtilsNew.isNotUndefined(row.attributes.individual) && row.attributes.individual.motherId > 0) {
+                    return row.attributes.individual.motherId;
+                } else {
+                    return '-';
+                }
+            }
+
+            cellTypeFormatter(value, row) {
+                return (row.somatic) ? "Somatic" : "Germline";
+            }
+
+            downloadFormatter(value, row) {
+                return '<a role="button" type="button" class="'+this.prefix + 'Download btn btn-sm btn-primary" data-sample-name="'+row.name +'" ><i class="fa fa-download" aria-hidden="true"></i>&nbsp;Download</a>';
+            }
+
+            downloadQCFile(e) {
+                let name = e.target.getAttribute('data-sample-name') + ".QC.tar.gz";
+                let study = this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias;
+                let sid =  Cookies.get(this.opencgaClient.getConfig().cookieSessionId);
+                let opencgaHostUrl = this.opencgaClient.getConfig().host;
+                if (!opencgaHostUrl.startsWith("http://") && !opencgaHostUrl.startsWith("https://")) {
+                    opencgaHostUrl = 'http://' + opencgaHostUrl;
+                }
+                opencgaHostUrl += '/webservices/rest/v1/files/';
+
+                let paramsInfo= {
+                    study: study
+                };
+
+                this.opencgaClient.files().info(name, paramsInfo)
+                    .then((response) => {
+                        if (response.response.length > 0) {
+                            let url = opencgaHostUrl + name + "/download?sid=" + sid + "&study=" + study;
+                            let a = document.createElement("a");
+                            a.href = url;
+                            a.download = name;
+                            document.body.appendChild(a);
+                            a.click();
+                        } else {
+                            this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+                                detail: {
+                                    message: name + " not found.",
+                                    type: UtilsNew.MESSAGE_ERROR
+                                },
+                                bubbles: true,
+                                composed: true
+                            }));
+                        }
+                    })
+                    .catch((response) => {
+                        this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+                            detail: {
+                                message: name + " not found.",
+                                type: UtilsNew.MESSAGE_ERROR
+                            },
+                            bubbles: true,
+                            composed: true
+                        }));
+                    });
+
+            }
+
+            _initTableColumns() {
+                this._columns = [
+                    [
+                        {
+                            field: {source: 'state', context: this},
+                            checkbox: true,
+                            formatter: this.stateFormatter
+                        },
+                        {
+                            title: 'Sample',
+                            field: 'name'
+                        },
+                        {
+                            title: 'Individual ID',
+                            field: 'individual.id',
+                            formatter: this.individualFormatter
+                        },
+                        {
+                            title: 'Date',
+                            field: 'creationDate',
+                            formatter: this.dateFormatter
+                        },
+                        {
+                            title: 'Status',
+                            field: 'status.name'
+                        },
+                        {
+                            title: 'Sex',
+                            field: 'individual.sex'
+                        },
+                        {
+                            title: 'Diagnosis',
+                            formatter: this.diagnosisFormatter
+                        },
+                        {
+                            title: 'HPO',
+                            formatter: this.hpoFormatter
+                        },
+                        {
+                            title: 'Father',
+                            formatter: this.fatherFormatter
+                        },
+                        {
+                            title: 'Mother',
+                            formatter: this.motherFormatter
+                        },
+                        {
+                            title: 'Cell Line',
+                            formatter: this.cellTypeFormatter
+                        },
+                        {
+                            title: 'Type',
+                            visible: false,
+                            field: 'type'
+                        }
+                    ]
+                ];
+
+                if (typeof this.config !== "undefined" && this.config.grid.downloadQcSample) {
+                    this._columns[0].push({
+                        title: 'QC',
+                        field: 'download',
+                        formatter: this.downloadFormatter.bind(this)
+                    });
+                }
+                return this._columns;
+            }
+        }
+
+        customElements.define(OpencgaSampleGrid.is, OpencgaSampleGrid);
+    </script>
+</dom-module>

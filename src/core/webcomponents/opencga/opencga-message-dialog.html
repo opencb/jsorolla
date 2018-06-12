@@ -1,0 +1,111 @@
+<!--
+  ~ Copyright 2015 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<dom-module id="opencga-message-dialog">
+    <template>
+        <style include="jso-styles"></style>
+
+        <div class="modal fade" id="{{prefix}}messageModal" tabindex="-1" role="dialog"
+             aria-labelledby="messageLabel" data-backdrop="static" data-keyboard="false">
+            <div id="{{prefix}}modalDiv" class="modal-dialog modal-sm" role="document">
+                <div class="modal-content">
+                    <div id="{{prefix}}headerDiv" class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="{{prefix}}messageLabel">{{messageHeader}}</h4>
+                    </div>
+                    <div id="{{prefix}}bodyDiv" class="modal-body">
+                        <div id="{{prefix}}contentDiv" class="col-sm-12">
+                            <template is="dom-repeat" items="{{settingsMessageModal.messageBody}}">
+                                <div>{{item}}</div>
+                            </template>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+    <script>
+        class OpencgaMessageDialog extends Polymer.Element {
+            static get is() {
+                return 'opencga-message-dialog';
+            }
+            static get properties() {
+                return {
+                    opencgaClient: {
+                        type: Object
+                    },
+                    showMessageModal: {
+                        type: Boolean,
+                        observer: "modalEvent",
+                        notify: true
+                    },
+                    settingsMessageModal: {
+                        type: Object
+                    }
+                }
+            }
+            constructor() {
+                super();
+            }
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+            ready() {
+                super.ready();
+                if (UtilsNew.isEmpty(this.prefix)) {
+                    this.prefix = "dialog" + Utils.randomString(6);
+                }
+            }
+            modalEvent() {
+                if (this.showMessageModal === true && !UtilsNew.isUndefined(this.settingsMessageModal)) {
+                    // Type of modal
+                    switch (this.settingsMessageModal.type) {
+                        case 'success':
+                            PolymerUtils.addClass(this.prefix + "headerDiv", "alert alert-success".split(" "));
+                            break;
+                        case 'warning':
+                            PolymerUtils.addClass(this.prefix + "headerDiv", "alert alert-warning".split(" "));
+                            break;
+                        case 'info':
+                            PolymerUtils.addClass(this.prefix + "headerDiv", "alert alert-info".split(" "));
+                            break;
+                        case 'danger':
+                            PolymerUtils.addClass(this.prefix + "headerDiv", "alert alert-danger".split(" "));
+                            break;
+                    }
+
+                    // Width and height of modal
+                    PolymerUtils.addStyle(this.prefix + "modalDiv", "width", this.settingsMessageModal.width);
+                    PolymerUtils.addStyle(this.prefix + "bodyDiv", "height", this.settingsMessageModal.height);
+
+                    // Body message
+                    this.messageHeader = this.settingsMessageModal.messageHeader;
+
+                    // Show modal
+                    $(PolymerUtils.getElementById(this.prefix + "messageModal")).modal("show");
+
+                    this.showMessageModal = false;
+                }
+            }
+        }
+        customElements.define(OpencgaMessageDialog.is, OpencgaMessageDialog);
+    </script>
+</dom-module>

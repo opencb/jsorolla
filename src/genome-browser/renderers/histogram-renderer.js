@@ -1,3 +1,13 @@
+/**
+  @param  args example:
+        {
+            height: number, <- height of div
+            histogramColor: String
+            histogramHeight: number <- height of histogram
+            histogramMaxFreqValue: number
+            ...
+        }
+ */
 class HistogramRenderer extends Renderer {
 
     constructor(args) {
@@ -7,19 +17,18 @@ class HistogramRenderer extends Renderer {
 
         //set default args
         this.histogramHeight = 75;
-        this.histogramColor = '#428bca';
-        //    this.multiplier = 7;
+        this.histogramColor = "#428bca";
 
         this.maxValue = 10;
         this.updateScale(args);
         //set instantiation args
         Object.assign(this, args);
+
     }
 
     _checkFeatureValue(feature) {
-        if (feature.features_count == null) {
-            //            var height = Math.log(features[i].absolute);
-            if (feature.absolute != 0 && feature.absolute > 0) {
+        if (feature.features_count === null) {
+            if (feature.absolute !== 0 && feature.absolute > 0) {
                 // take care of feature.absolute==1 counts and set scaled value to 0.2 as log(2) ~= 0.3
                 feature.features_count = Math.max(0.2, Math.log(feature.absolute));
             } else {
@@ -33,18 +42,31 @@ class HistogramRenderer extends Renderer {
      * @param args
      */
     updateScale(args) {
-        if (args != null) {
-            if (args.height != null) {
+        if (args !== null) {
+            if (UtilsNew.isNotUndefinedOrNull(args.height)) {
                 this.histogramHeight = args.height * 0.95;
             }
-            if (args.histogramMaxFreqValue != null) {
+            if (UtilsNew.isNotUndefinedOrNull(args.histogramMaxFreqValue)) {
                 this.maxValue = args.histogramMaxFreqValue;
             }
         }
-        //this.multiplier = 7;
         this.multiplier = this.histogramHeight / this.maxValue;
     }
+    /**
+    @param features  Array containing chunks example
+            [   {chunkKey:"13:3298_histogram_10000"
+                 region: Region{chromosome: "13", start:329800000, end:32980016}
+                 value:{_id: 1940000, chromosome:"13", start: 32980000, end: 32980016, features_count:0},
+                 ...
+                 }
+            ]
+     @param args example
+                {pixelPosition: number,
+                position: number,
+                svgCanvasFeatures
+                }
 
+     */
     render(features, args) {
         features.sort(function (a, b) {
             return a.value.start - b.value.start;
@@ -52,7 +74,7 @@ class HistogramRenderer extends Renderer {
 
         let middle = args.width / 2;
         //console.log(middle);
-        let points = '';
+        let points = "";
 
         this.updateScale(args);
 
@@ -64,8 +86,8 @@ class HistogramRenderer extends Renderer {
             this._checkFeatureValue(firstFeature);
             let height = firstFeature.features_count * this.multiplier;
 
-            points = (x - (width / 2)).toFixed(1) + ',' + this.histogramHeight.toFixed(1) + ' ';
-            points += (x - (width / 2)).toFixed(1) + ',' + (this.histogramHeight - height).toFixed(1) + ' ';
+            points = (x - (width / 2)).toFixed(1) + "," + this.histogramHeight.toFixed(1) + " ";
+            points += (x - (width / 2)).toFixed(1) + "," + (this.histogramHeight - height).toFixed(1) + " ";
         }
         for (let i = 0, len = features.length; i < len; i++) {
             let feature = features[i].value;
@@ -87,15 +109,13 @@ class HistogramRenderer extends Renderer {
             this._checkFeatureValue(lastFeature);
             let height = lastFeature.features_count * this.multiplier;
 
-            points += (x + (width)).toFixed(1) + ',' + (this.histogramHeight - height).toFixed(1) + ' ';
-            points += (x + (width)).toFixed(1) + ',' + this.histogramHeight.toFixed(1) + ' ';
+            points += (x + (width)).toFixed(1) + "," + (this.histogramHeight - height).toFixed(1) + " ";
+            points += (x + (width)).toFixed(1) + "," + this.histogramHeight.toFixed(1) + " ";
         }
 
-        if (points !== '') {
+        if (points !== "") {
             SVG.addChild(args.svgCanvasFeatures, "polyline", {
                 "points": points,
-                //        "stroke": "#000000",
-                //        "stroke-width": 0.2,
                 "fill": this.histogramColor,
                 "cursor": "pointer"
             });

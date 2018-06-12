@@ -1,0 +1,241 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Genome Browser demo</title>
+
+    <!--<script type="text/javascript" src="../config.js"></script>-->
+
+    <!-- links for use to src -->
+    <link rel="stylesheet" href="../../../node_modules/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../../../node_modules/qtip2/dist/jquery.qtip.min.css">
+    <link rel="stylesheet" href="../../../dist/css/style.css">
+
+    <script type="text/javascript" src="../../../node_modules/underscore/underscore-min.js"></script>
+    <script type="text/javascript" src="../../../node_modules/backbone/backbone-min.js"></script>
+    <script type="text/javascript" src="../../../node_modules/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="../../../node_modules/qtip2/dist/jquery.qtip.min.js"></script>
+    <script type="text/javascript" src="../../../node_modules/urijs/src/URI.min.js"></script>
+    <script type="text/javascript" src="../../../node_modules/cookies-js/src/cookies.js"></script>
+    <script type="text/javascript" src="../../../node_modules/crypto-js/crypto-js.js"></script>
+
+    <script type="text/javascript" src="../../../dist/js/core/core.js"></script>
+    <script type ="text/javascript" src="../../../dist/js/genome-browser/genome-browser.js"></script>
+
+    <style type="text/css">
+        html {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow-x: hidden;
+        }
+        body {
+            margin: 0px;
+        }
+        #application {
+            box-sizing: border-box;
+            margin: 0 auto;
+            width: 1500px;
+            border: 1px solid lightgray;
+        }
+        #title {
+            margin: 20px auto;
+            width: 1500px;
+            font-size: 35px;
+            color: gray;
+        }
+    </style>
+</head>
+
+<body class="ocb">
+<div id="title">Genome Browser</div>
+<div id="application"></div>
+
+<script type="text/javascript">
+
+    /***************************************************************************/
+    /***** Setting Defaults Params                                           ***/
+    /***************************************************************************/
+
+    // We first parse URL to check (and overwrite) if a CellBase Host and Version have been provided
+    //if we do not provide the CellbaseHost then you will get those configured in the file "config.js"
+
+    let queryParams = URI.parseQuery(window.location.search);
+    if (typeof queryParams.CELLBASE_HOST !== "undefined") {
+        CELLBASE_HOST = queryParams.CELLBASE_HOST;
+    }
+    CELLBASE_HOST ="ws.babelomics.org/cellbase";
+
+    if (typeof queryParams.CELLBASE_VERSION !== "undefined") {
+        CELLBASE_VERSION = queryParams.CELLBASE_VERSION;
+    }
+
+    console.log("CellBase Host: " + CELLBASE_HOST, " - CellBase Version: " + CELLBASE_VERSION)
+    let cellBaseClientConfig = new CellBaseClientConfig(hosts = CELLBASE_HOST, version = CELLBASE_VERSION);
+    cellBaseClientConfig.cache.active = false;
+    let cellbaseClient = new CellBaseClient(cellBaseClientConfig);
+
+
+    //GenomeBrowser, Region and Species:
+    let genomeBrowser;
+    let region = new Region({chromosome: "13", start: 32996311, end: 32996450}); //initial region
+
+    getSpecies(function(s) {
+        AVAILABLE_SPECIES = s;
+        run();
+    });
+
+    function getSpecies(callback) {
+        cellbaseClient.getMeta("species").then(function(r) {
+            let taxonomies = r.response[0].result[0];
+            for (let taxonomy in taxonomies) {
+                let newSpecies = [];
+                for (let i = 0; i < taxonomies[taxonomy].length; i++) {
+                    let species = taxonomies[taxonomy][i];
+                    for (let j = 0; j < species.assemblies.length; j++) {
+                        let s = Utils.clone(species)
+                        s.assembly = species.assemblies[j];
+                        delete s.assemblies;
+                        newSpecies.push(s)
+                    }
+                }
+                taxonomies[taxonomy] = newSpecies;
+            }
+            callback(taxonomies);
+        });
+    }
+
+    function run() {
+        let species = AVAILABLE_SPECIES.vertebrates[0];
+        genomeBrowser = new GenomeBrowser({
+            client: cellbaseClient,
+            cellBaseHost: CELLBASE_HOST,
+            cellBaseVersion: CELLBASE_VERSION,
+            target: 'application',
+            width: document.querySelector('#application').getBoundingClientRect().width,
+            region: region,
+            species: species,
+            autoRender: true,
+            resizable: true,
+            karyotypePanelConfig: {
+                collapsed: false,
+                collapsible: true
+            },
+            chromosomePanelConfig: {
+                collapsed: false,
+                collapsible: true
+            },
+//            navigationBarConfig: {
+//                componentsConfig: {
+//                }
+//            },
+            handlers: {
+                'region:change': function(e) {
+                    console.log(e)
+                }
+            }
+        });
+
+        let tracks = [];
+
+        /***************************************************************************/
+        /***** Demo Gene overview Track using FeatureTrack and Cellbase adapter  ***/
+        /***************************************************************************/
+
+        let renderer = new FeatureRenderer(FEATURE_TYPES.gene);
+        renderer.on({
+            'feature:click': function(event) {
+                // feature click event example
+                console.log(event)
+            }
+        });
+
+        let gene = new FeatureTrack({
+        title: 'Gene overview',
+            minHistogramRegionSize: 20000000,
+            maxLabelRegionSize: 10000000,
+            height: 80,
+            renderer: renderer,
+            dataAdapter: new CellBaseAdapter(cellbaseClient, "genomic", "region", "gene", {
+                exclude: 'transcripts,chunkIds'
+            }, {
+                chunkSize: 100000
+            })
+        });
+        genomeBrowser.addOverviewTrack(gene);
+
+        /***************************************************************************/
+        /***** Demo Sequence Track using FeatureTrack and Cellbase adapter       ***/
+        /***************************************************************************/
+
+        this.sequence = new FeatureTrack({
+            title: 'Sequence',
+            height: 20,
+            visibleRegionSize: 200,
+            renderer: new SequenceRenderer(),
+            dataAdapter: new CellBaseAdapter(cellbaseClient, "genomic", "region", "sequence", {}, { chunkSize: 100})
+        });
+        tracks.push(this.sequence);
+
+        /**************************************************************************/
+        /***** Demo Gene Track using GeneTrack and Cellbase adapter             ***/
+        /**************************************************************************/
+
+        this.gene = new GeneTrack({
+            title: 'Gene',
+            minHistogramRegionSize: 20000000,
+            maxLabelRegionSize: 10000000,
+            minTranscriptRegionSize: 200000,
+            height: 120,
+            cellbase: {
+                "host": CELLBASE_HOST,
+                "version": CELLBASE_VERSION,
+                "species": "hsapiens"
+            }
+//            renderer: new GeneRenderer({
+//                handlers: {
+//                    'feature:click': function(e) {
+//                        console.log(e)
+//                    }
+//                }
+//            })
+//            dataAdapter: new CellBaseAdapter(cellbaseClient, "genomic", "region", "gene", {
+//                exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence'
+//            }, {
+//                chunkSize: 100000
+//            })
+        });
+        tracks.push(this.gene);
+
+        //The user can change the render and adapter as in the commented example
+
+        /***************************************************************************/
+        /*****   Demo SNP Track using FeatureTrack and Cellbase adapter          ***/
+        /***************************************************************************/
+
+        this.snp = new FeatureTrack({
+            title: 'Variation',
+            featureType: 'SNP',
+            minHistogramRegionSize: 12000,
+            maxLabelRegionSize: 3000,
+            height: 120,
+            exclude: 'annotation.populationFrequencies,annotation.additionalAttributes,transcriptVariations,xrefs,samples',
+
+            renderer: new FeatureRenderer(FEATURE_TYPES.snp),
+
+            dataAdapter: new CellBaseAdapter(cellbaseClient, "genomic", "region", "snp", {
+                exclude: 'annotation.populationFrequencies,annotation.additionalAttributes,transcriptVariations,xrefs,samples'
+            }, {
+                chunkSize: 10000
+            })
+        });
+        tracks.push(this.snp);
+
+
+        genomeBrowser.addTrack(tracks);
+        genomeBrowser.draw();
+    }
+</script>
+
+</body>
+</html>

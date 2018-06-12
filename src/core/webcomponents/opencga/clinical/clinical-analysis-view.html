@@ -1,0 +1,332 @@
+<!--
+  ~ Copyright 2015-2016 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!--<link rel="import" href="opencga-clinical-analysis-browser.html">-->
+
+<dom-module id="clinical-analysis-view">
+    <template>
+
+        <template is="dom-if" if="{{showSummary}}">
+
+            <div class="row">
+                <template is="dom-if" if="{{showTitle}}">
+                    <div style="margin: 10px">
+                        <span>
+                            <!--<i id="{{prefix}}SummaryCollapseIcon" class="fa fa-minus-square-o" aria-hidden="true" on-click="_summaryOnClick" style="cursor: pointer"></i>-->
+                            <h4 style="display: inline">&nbsp;{{title}}</h4>
+                        </span>
+                    </div>
+                </template>
+
+                <div id="{{prefix}}ClinicalAnalysisViewPanel" class="col-md-12" style="padding: 10px 15px">
+                    <div class="col-md-4">
+                        <label>Clinical Analysis</label>
+                        <hr style="margin: 2px 0px;border-top: 2px solid #eee">
+                        <form class="form-horizontal">
+                            <div class="form-group" style="margin: 0px 2px">
+                                <label class="col-md-4">Name:</label>
+                                <span class="col-md-8">{{clinicalAnalysis.name}}</span>
+                            </div>
+                            <!--<div class="form-group" style="margin: 0px 5px">-->
+                            <!--<label class="col-md-2">Subject:</label>-->
+                            <!--<span class="col-md-10">NA0001</span>-->
+                            <!--</div>-->
+                            <div class="form-group" style="margin: 0px 2px">
+                                <label class="col-md-4">Disease:</label>
+                                <span class="col-md-8">{{clinicalAnalysis.disease.name}} ({{clinicalAnalysis.disease.id}})</span>
+                            </div>
+                            <div class="form-group" style="margin: 0px 2px">
+                                <label class="col-md-4">Type:</label>
+                                <span class="col-md-8">{{clinicalAnalysis.type}}</span>
+                            </div>
+                            <div class="form-group" style="margin: 0px 2px">
+                                <label class="col-md-4">Date:</label>
+                                <span class="col-md-8">{{clinicalAnalysisCreationDateFormat}}</span>
+                            </div>
+                            <template is="dom-if" if="{{clinicalAnalysis.description}}">
+                                <div class="form-group" style="margin: 0px 2px">
+                                    <label class="col-md-4">Description:</label>
+                                    <span class="col-md-8">{{clinicalAnalysis.description}}</span>
+                                </div>
+                            </template>
+                        </form>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Sample</label>
+                        <hr style="margin: 2px 0px;border-top: 2px solid #eee">
+                        <form class="form-horizontal">
+                            <div class="form-group" style="margin: 0px 2px">
+                                <label class="col-md-4">Name:</label>
+                                <span class="col-md-8">
+                                {{clinicalAnalysis.subjects.0.samples.0.name}}
+                            </span>
+                            </div>
+                            <!--<div class="form-group" style="margin: 0px 2px">-->
+                                <!--<label class="col-md-4">File:</label>-->
+                                <!--<span class="col-md-8">{{clinicalAnalysis.germline.name}}</span>-->
+                            <!--</div>-->
+                            <!--<div class="form-group" style="margin: 0px 2px">-->
+                                <!--<label class="col-md-4">Genome Assembly:</label>-->
+                                <!--<span class="col-md-8">{{clinicalAnalysis.germline.assembly}}</span>-->
+                            <!--</div>-->
+                            <div class="form-group" style="margin: 0px 2px">
+                                <label class="col-md-4">Somatic:</label>
+                                <span class="col-md-8">{{clinicalAnalysis.subjects.0.samples.0.somatic}}</span>
+                            </div>
+                            <div class="form-group" style="margin: 0px 2px">
+                                <label class="col-md-4">Phenotypes:</label>
+                                <span class="col-md-8">
+                                <template is="dom-repeat" items="{{clinicalAnalysis.subjects.0.samples.0.phenotypes}}">
+                                    <span>{{item.name}} (<a href="http://compbio.charite.de/hpoweb/showterm?id={{item.id}}" target="_blank">{{item.id}}</a>)</span>
+                                    <br>
+                                </template>
+                            </span>
+                            </div>
+                            <!--<div class="form-group" style="margin: 0px 2px">-->
+                                <!--<label class="col-md-4">Description:</label>-->
+                                <!--<span class="col-md-8">{{clinicalAnalysis.subjects.0.samples.0.description}}</span>-->
+                            <!--</div>-->
+                        </form>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Subject</label>
+                        <hr style="margin: 2px 0px;border-top: 2px solid #eee">
+                        <form class="form-horizontal">
+                            <div class="form-group" style="margin: 0px 2px">
+                                <label class="col-md-4">Name:</label>
+                                <span class="col-md-8">
+                                {{clinicalAnalysis.subjects.0.name}}
+                            </span>
+                            </div>
+                            <div class="form-group" style="margin: 0px 2px">
+                                <label class="col-md-4">Sex (karyotype):</label>
+                                <span class="col-md-8">{{clinicalAnalysis.subjects.0.sex}} &nbsp;&nbsp; ({{clinicalAnalysis.subjects.0.karyotypicSex}})</span>
+                            </div>
+                            <div class="form-group" style="margin: 0px 2px">
+                                <label class="col-md-4">Date of Birth:</label>
+                                <span class="col-md-8">{{clinicalAnalysis.subjects.0.dateOfBirth}} &nbsp;&nbsp; ({{clinicalAnalysis.subjects.0.lifeStatus}})</span>
+                            </div>
+                            <div class="form-group" style="margin: 0px 2px">
+                                <label class="col-md-4">Pedigree:</label>
+                                    <div class="col-md-12">
+                                         <div id="{{prefix}}PedigreeView"></div>
+                                    </div>
+                            </div>
+                            <div class="form-group" style="margin: 0px 2px">
+                                <label class="col-md-4">Phenotypes:</label>
+                                <span class="col-md-8">
+                                <template is="dom-repeat" items="{{clinicalAnalysis.subjects.0.phenotypes}}">
+                                    <span>{{item.name}} (<a href="http://compbio.charite.de/hpoweb/showterm?id={{item.id}}" target="_blank">{{item.id}}</a>)</span>
+                                    <br>
+                                </template>
+                            </span>
+                            </div>
+                            <!--<div class="form-group" style="margin: 0px 2px">-->
+                                <!--<label class="col-md-4">Description:</label>-->
+                                <!--<span class="col-md-8">{{clinicalAnalysis.subjects.0.description}}</span>-->
+                            <!--</div>-->
+                        </form>
+                    </div>
+                </div>
+
+                <!--<div id="{{prefix}}OtherPrioritisationsPanel" class="col-md-12" style="padding: 10px 15px">-->
+                    <!--<div class="col-md-12">-->
+                        <!--<label>Other prioritisations</label>-->
+                        <!--<div style="padding: 10px 5px">-->
+                            <!--<table class="table">-->
+                                <!--<thead>-->
+                                <!--<tr>-->
+                                    <!--<th colspan="1">Name</th>-->
+                                    <!--<th colspan="1">Tool</th>-->
+                                    <!--<th colspan="1">Date</th>-->
+                                    <!--<th colspan="1">No. of Reported Variants</th>-->
+                                    <!--<th colspan="1">No. of Affected Genes</th>-->
+                                    <!--<th colspan="1">View</th>-->
+                                <!--</tr>-->
+                                <!--</thead>-->
+                                <!--<tbody>-->
+                                <!--<tr>-->
+                                    <!--<td>Prioritizaton-1</td>-->
+                                    <!--<td>TEAM</td>-->
+                                    <!--<td>5-9-2017</td>-->
+                                    <!--<td>26</td>-->
+                                    <!--<td>6</td>-->
+                                    <!--<td><a href="">Pending</a></td>-->
+                                <!--</tr>-->
+                                <!--<tr>-->
+                                    <!--<td>Tiering-1</td>-->
+                                    <!--<td>Tiering</td>-->
+                                    <!--<td>6-9-2017</td>-->
+                                    <!--<td>66</td>-->
+                                    <!--<td>12</td>-->
+                                    <!--<td><a href="">Pending</a></td>-->
+                                <!--</tr>-->
+                                <!--</tbody>-->
+                            <!--</table>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                <!--</div>-->
+            </div>
+        </template>
+    </template>
+
+    <script>
+        class ClinicalAnalysisView extends Polymer.Element {
+
+            constructor() {
+                super();
+
+                this.prefix = "clinical-analysis-view-" + Utils.randomString(6);
+            }
+
+            static get is() {
+                return 'clinical-analysis-view'
+            }
+
+            static get properties() {
+                return {
+                    opencgaSession: {
+                        type: Object
+                    },
+                    opencgaClient: {
+                        type: Object
+                    },
+                    clinicalAnalysisId: {
+                        type: Number,
+                        observer: "searchAnalysis"
+                    },
+                    clinicalAnalysis: {
+                        type: Object,
+                        notify: true
+                    },
+                    title: {
+                        type: String,
+                        value: "Clinical Analysis Summary"
+                    },
+                    showTitle: {
+                        type: Boolean,
+                        value: true
+                    },
+                    showSummary: {
+                        type: Boolean,
+                        value: true,
+                        notify: true
+                    },
+                    config: {
+                        type: Object
+                    }
+                }
+            }
+
+            ready() {
+                super.ready();
+                this._summaryCollapsed = false;
+
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            connectedCallback() {
+                super.connectedCallback();
+//                this.pedigreeRender();
+            }
+
+            _summaryOnClick() {
+                if (this._summaryCollapsed) {
+                    $("#" + this.prefix + "SummaryCollapseIcon").removeClass("fa-plus-square-o").addClass("fa-minus-square-o");
+                    PolymerUtils.show(this.prefix + "ClinicalAnalysisViewPanel");
+                    PolymerUtils.show(this.prefix + "OtherPrioritisationsPanel");
+                } else {
+                    $("#" + this.prefix + "SummaryCollapseIcon").removeClass("fa-minus-square-o").addClass("fa-plus-square-o");
+                    PolymerUtils.hide(this.prefix + "ClinicalAnalysisViewPanel");
+                    PolymerUtils.hide(this.prefix + "OtherPrioritisationsPanel");
+                }
+                this._summaryCollapsed = !this._summaryCollapsed;
+            }
+
+            searchAnalysis(){
+                if(UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysisId)) {
+                    debugger
+                    let params = {
+                        study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias
+                    };
+                    let _this = this;
+                    this.opencgaClient.clinical().info(this.clinicalAnalysisId, params, {})
+                        .then(function(response){
+                            _this.showSummary = false;
+                            if (response.response[0].numResults === 1) {
+                                _this.clinicalAnalysis = response.response[0].result[0];
+                                _this.clinicalAnalysisCreationDateFormat = moment(_this.clinicalAnalysis.creationDate, "YYYYMMDDHHmmss").format('D MMM YY');
+                                _this.showSummary = true;
+//                                _this.title =  "Clinical Analysis Summary: " + _this.clinicalAnalysis.name;
+                                _this.pedigreeRender();
+                            }
+
+                        });
+                }
+            }
+
+            pedigreeRender() {
+                if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis) && UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.family)) {
+                    if (UtilsNew.isNotUndefined(this.svg) && PolymerUtils.getElementById(this.prefix + "PedigreeView").hasChildNodes()) {
+                        PolymerUtils.getElementById(this.prefix + "PedigreeView").removeChild(this.svg);
+                    }
+                    let body = Object.assign({},this.clinicalAnalysis.family);
+                    let membersNew =[];
+                    if (UtilsNew.isNotUndefinedOrNull(body) && UtilsNew.isNotEmpty(body.members)) {
+                        body.members.forEach((member) => {
+                            let newMember = Object.assign({}, member);
+                            if (UtilsNew.isNotUndefinedOrNull(newMember.father) && UtilsNew.isNotUndefinedOrNull(newMember.father.id)) {
+                                let newFather = body.members.find((member) => {
+                                    return member.id === newMember.father.id;
+                                });
+                                if (UtilsNew.isNotUndefinedOrNull(newFather)) {
+                                    newMember.father = newFather.name;
+                                }
+                            }
+
+                            if (UtilsNew.isNotUndefinedOrNull(newMember.mother) && UtilsNew.isNotUndefinedOrNull(newMember.mother.id)) {
+                                let newMother = body.members.find((member) => {
+                                    return member.id === newMember.mother.id;
+                                });
+                                if (UtilsNew.isNotUndefinedOrNull(newMother)) {
+                                    newMember.mother = newMother.name;
+                                }
+                            }
+                            membersNew.push(newMember);
+                        });
+                        body.members = membersNew;
+                        // Render new Pedigree
+                        let querySelector = PolymerUtils.getElementById(this.prefix + "PedigreeView");
+                        let pedigree = new Pedigree(body, {selectShowSampleNames: true});
+                        this.svg = pedigree.pedigreeFromFamily(pedigree.pedigree, {
+                            width: 200,
+                            height: 180
+                        });
+                        querySelector.appendChild(this.svg);
+                    }
+
+                }
+            }
+
+
+        }
+
+        customElements.define(ClinicalAnalysisView.is, ClinicalAnalysisView);
+    </script>
+</dom-module>

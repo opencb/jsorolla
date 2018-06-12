@@ -1,0 +1,40 @@
+
+build/
+bower_components/
+grunt/
+
+npm-debug.log
+
+## IntelliJ
+*.iml
+*.ipr
+*.iws
+.idea/
+
+*~
+
+## Eclipse
+*.pydevproject
+.project
+.metadata
+bin/**
+tmp/**
+tmp/**/*
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.classpath
+.settings/
+.loadpath
+
+# External tool builders
+.externalToolBuilders/
+
+# CDT-specific
+.cproject
+
+# PDT-specific
+.buildpath
+

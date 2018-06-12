@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pedigree Test</title>
+
+    <link rel="stylesheet" href="../../../../node_modules/qtip2/dist/jquery.qtip.min.css">
+
+    <script type="text/javascript" src="../../../../node_modules/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="../../../../node_modules/qtip2/dist/jquery.qtip.min.js"></script>
+
+    <script type="text/javascript" src="../../svg.js"></script>
+    <script type="text/javascript" src="../pedigree.js"></script>
+
+</head>
+
+<body onload="render()">
+<script>
+
+    let familyTest = {
+        id: 23,
+        name: "Martinez Pujalte",
+        description: "",
+        release: 1,
+        version: 2,
+        diseases: [
+            {
+                id: "HP:001233",
+                name: "Aaaa",
+                source: "HPO"
+            },
+            {
+                id: "OMIM:056789",
+                name: "Cccc",
+                source: "OMIM"
+            },
+            {
+                id: "ddddd",
+                name: "Ddddd",
+                source: ""
+            }
+        ],
+        members: [
+            {
+                name: "luis",
+                sex: "male",
+                father: "pepe",
+                mother: "mari",
+                diseases: ["OMIM:056789", "HP:001233"],
+                carrier: ["OMIM:056789"],
+                parentalConsaguinity: true,
+                multiples: {"type": "mellizo", "siblings": ["pepe"]}
+            },
+            {
+                name: "laura",
+                sex: "female",
+                father: "pepe",
+                mother: "mari",
+                diseases: [],
+                carrier: [{id: "OMIM:056789"}],
+                parentalConsaguinity: true,
+                multiples: {"type": "mellizo", "siblings": ["pepe"]}
+            },
+            {
+                name: "pepe",
+                sex: "male",
+                lifeStatus: "deceased",
+                father: undefined,
+                mother: undefined,
+                diseases: ["HP:001233"],
+                carrier: ["OMIM:056789"],
+                parentalConsaguinity: false,
+                multiples: {"type": "mellizo", "siblings": ["luis"]}
+            },
+            {
+                name: "mari",
+                sex: "female",
+                father:  undefined,
+                mother:  undefined,
+                diseases: ["ddddd"],
+                carrier: ["OMIM:056789"],
+                parentalConsaguinity: false,
+                multiples: {"type": "mellizo", "siblings": ["luis"]}
+            }
+        ],
+        annotation: [],
+        creationDate: "",
+        attributes: {}
+    };
+
+    function render() {
+        let pedigree = new Pedigree(familyTest, {selectShowSampleNames: true});
+        let svg = pedigree.pedigreeFromFamily(pedigree.pedigree);
+        document.getElementById("simpleFamilyTestDiv").appendChild(svg);
+    }
+</script>
+
+<h2>Simple family</h2>
+<div id="simpleFamilyTestDiv" style=""></div>
+
+<!--<h2>Complex family</h2>-->
+<!--<div id="complexFamilyTestDiv"></div>-->
+
+</body>
+</html>

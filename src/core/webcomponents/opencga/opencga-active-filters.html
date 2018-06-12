@@ -1,0 +1,439 @@
+<!--
+  ~ Copyright 2015-2016 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<dom-module id="opencga-active-filters">
+    <template>
+        <style include="jso-styles">
+            .active-filter-button:hover {
+                text-decoration: line-through;
+            }
+        </style>
+
+        <div class="alert alert-warning" role="alert" id="{{prefix}}Warning" style="display: none;padding: 12px;margin-bottom: 10px">
+            <span style="font-weight: bold;font-size: 1.20em">Warning!</span>&nbsp;&nbsp;Filters changed, please click on Search button to update the results.
+        </div>
+
+        <div class="panel panel-default" style="margin-bottom: 5px">
+            <div class="panel-body" style="padding: 10px">
+                <button type="button" class="btn btn-primary" on-click="clear">
+                    <i class="fa fa-refresh" aria-hidden="true" style="padding-right: 5px"></i> Clear
+                </button>
+
+                <span style="padding: 0px 20px">
+                    <template is="dom-if" if="{{_isQueryListEmpty(queryList)}}">
+                        <label>No filters selected</label>
+                    </template>
+
+                    <template is="dom-repeat" items="{{queryList}}">
+                        <!-- No multi=valued fitlers -->
+                        <template is="dom-if" if="{{!_isMultiValued(item)}}">
+                            <button type="button" class$="btn btn-warning btn-sm {{item.name}}" data-filter-name$="{{item.name}}" data-filter-value=""
+                                    on-click="onQueryFilterDelete" on-mouseover="_onMouseOver" on-mouseout="_onMouseOut">
+                                {{item.text}}
+                            </button>
+                        </template>
+
+                        <!-- Multi-valued filters -->
+                        <template is="dom-if" if="{{_isMultiValued(item)}}">
+                            <div class="btn-group">
+                                <button type="button" class$="btn btn-warning btn-sm {{item.name}}" data-filter-name$="{{item.name}}" data-filter-value=""
+                                        on-click="onQueryFilterDelete" on-mouseover="_onMouseOver" on-mouseout="_onMouseOut">
+                                    {{item.text}}
+                                </button>
+                                <button type="button" class="btn btn-warning btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <span class="caret"></span>
+                                    <span class="sr-only">Toggle Dropdown</span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <template is="dom-repeat" items="{{item.items}}" as="filterItem">
+                                        <li class="small active-filter-button" style="cursor: pointer">
+                                            <a on-click="onQueryFilterDelete" data-filter-name$="{{item.name}}" data-filter-value$="{{filterItem}}">
+                                                {{filterItem}}
+                                            </a>
+                                        </li>
+                                    </template>
+                                </ul>
+                            </div>
+                        </template>
+                    </template>
+                </span>
+
+                <!-- TODO we probably need a new property for this -->
+                <template is="dom-if" if="{{showSelectFilters(opencgaClient._config)}}">
+                    <div class="btn-group" style="float: right">
+                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fa fa-filter" aria-hidden="true" style="padding-right: 5px"></i> Filters <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li><a style="font-weight: bold">Saved Filters</a></li>
+                            <template is="dom-repeat" items="{{filters}}">
+                                <li>
+                                    <template is="dom-if" if="{{!item.active}}">
+                                        <a data-filter-name$="{{item.name}}" style="cursor: pointer" on-click="onServerFilterChange" class="filtersLink">&nbsp;&nbsp;{{item.name}}</a>
+                                    </template>
+                                    <template is="dom-if" if="{{item.active}}">
+                                        <a data-filter-name$="{{item.name}}" style="cursor: pointer;color: green" on-click="onServerFilterChange" class="filtersLink">&nbsp;&nbsp;{{item.name}}</a>
+                                    </template>
+                                </li>
+                            </template>
+                            <template is="dom-if" if="{{checkSid(opencgaClient._config)}}">
+                                <li role="separator" class="divider"></li>
+                                <li>
+                                    <a style="cursor: pointer" on-click="launchModal"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save...</a>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div class="modal fade" id="{{prefix}}SaveModal" tabindex="-1" role="dialog"
+             aria-labelledby="{{prefix}}SaveModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title" id="{{prefix}}SaveModalLabel">Filter</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group row">
+                            <label for="filterName" class="col-xs-2 col-form-label">Name</label>
+                            <div class="col-xs-10">
+                                <input class="form-control" type="text" id="filterName">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{prefix}}filterDescription" class="col-xs-2 col-form-label">Description</label>
+                            <div class="col-xs-10">
+                                <input class="form-control" type="text" id="{{prefix}}filterDescription">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="save">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        class OpencgaActiveFilters extends Polymer.Element {
+
+            constructor() {
+                super();
+
+                this.prefix = "oaf" + Utils.randomString(6);
+            }
+
+            static get is() {
+                return 'opencga-active-filters';
+            }
+
+            static get properties() {
+                return {
+                    opencgaClient: {
+                        type: Object,
+                        value: function () {
+                            return {'_config': {}};
+                        }
+                    },
+                    query: {
+                        type: Object,
+                        observer: 'queryObserver'
+                    },
+                    filters: {
+                        type: Array
+                    },
+                    filterBioformat: {
+                        type: String
+                    },
+                    alias: {
+                        type: Object,
+                    },
+                    defaultStudy: {
+                        type: String
+                    },
+                    refresh: {
+                        type: Object,
+                        observer: "searchClicked"
+                    }
+                }
+            }
+
+            static get observers() {
+                return ['checkFilters(opencgaClient._config.*)']
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            connectedCallback() {
+                super.connectedCallback();
+
+                // We need to init _previousQuery with query in order to work before executing any search
+                this._previousQuery = this.query;
+
+                // If there is any active filter we set the first one in the initialisation
+                if (typeof this.filters !== "undefined") {
+                    for (let filter of this.filters) {
+                        if (filter.active) {
+                            let _queryList = Object.assign({}, filter.query);
+                            this.dispatchEvent(new CustomEvent("filterchange", {detail: _queryList, bubbles: true, composed: true}));
+                            break;
+                        }
+                    }
+                }
+            }
+
+            clear() {
+                PolymerUtils.addStyleByClass('filtersLink', 'color', 'black');
+
+                // Trigger clear event
+                this.dispatchEvent(new CustomEvent('clear', {detail: {}, bubbles: true, composed: true}));
+            }
+
+            _onMouseOver(e) {
+                PolymerUtils.addStyleByClass(e.target.dataset.filterName, "text-decoration", "line-through");
+            }
+
+            _onMouseOut(e) {
+                PolymerUtils.addStyleByClass(e.target.dataset.filterName, "text-decoration", "none");
+            }
+
+            launchModal() {
+                //TODO Refactor
+                $(PolymerUtils.getElementById(this.prefix + 'SaveModal')).modal('show');
+            }
+
+            showSelectFilters(config) {
+                return (this.filters !== undefined && this.filters.length > 0) || !UtilsNew.isEmpty(config.sessionId);
+            }
+
+            checkSid(config) {
+                return UtilsNew.isNotEmpty(config.sessionId);
+            }
+
+            checkFilters(config) {
+                let _this = this;
+                if (this.opencgaClient instanceof OpenCGAClient && UtilsNew.isNotUndefined(config.value.sessionId)) {
+                    this.opencgaClient.users().getFilters({}, {})
+                        .then(function (response) {
+                            let result = response.response[0].result;
+                            if (result.length > 0) {
+                                if (UtilsNew.isUndefined(_this.filters)) {
+                                    _this.filters = [];
+                                }
+                                for (let obj of result) {
+                                    _this.push("filters", obj);
+                                }
+                            }
+                        });
+                }
+            }
+
+            save() {
+                let params = {};
+                params.name = this.$.filterName.value;
+                params.description = this.$.filterDescription.value;
+                params.bioformat = this.filterBioformat;
+                params.query = this.query;
+                params.options = {};
+                let _this = this;
+                this.opencgaClient.users().getFilter(this.$.filterName.value, {}, {})
+                    .then(function (response) {
+                        if (response.response[0].result.length > 0) {
+                            delete params.name;
+                            _this.opencgaClient.users().updateFilter(_this.$.filterName.value, params, {})
+                                .then(function (response) {
+                                    for (let i in _this.filters) {
+                                        if (_this.filters[i].name === _this.$.filterName.value) {
+                                            _this.filters[i] = response.response[0].result[0];
+                                        }
+                                    }
+                                    _this.$.filterName.value = "";
+                                    _this.$.filterDescription.value = "";
+                                });
+                        } else {
+                            _this.opencgaClient.users().createFilter(params, {})
+                                .then(function (response) {
+                                    _this.push("filters", params);
+                                    _this.$.filterName.value = "";
+                                    _this.$.filterDescription.value = "";
+                                });
+                        }
+                    });
+            }
+
+            onServerFilterChange(e) {
+                if (!UtilsNew.isUndefinedOrNull(this.filters)) {
+                    // We look for the filter name in the filters array
+                    for (let filter of this.filters) {
+                        if (filter.name === e.target.dataset.filterName) {
+                            PolymerUtils.addStyleByClass('filtersLink', 'color', 'black');
+                            e.target.style.color = "green";
+
+                            let _queryList = Object.assign({}, filter.query);
+                            this.dispatchEvent(new CustomEvent("filterchange", {detail: _queryList, bubbles: true, composed: true}));
+                            break;
+                        }
+                    }
+                }
+            }
+
+            onQueryFilterDelete(e) {
+                let _queryList = Object.assign({}, this.query);
+                // Reset selected filters to none
+                PolymerUtils.addStyleByClass('filtersLink', 'color', 'black');
+
+                let name = e.target.dataset.filterName;
+                let value = e.target.dataset.filterValue;
+
+                if (UtilsNew.isEmpty(value)) {
+                    delete _queryList[name];
+                    if (UtilsNew.isEqual(name, "genotype")){
+                        if (this.modeInheritance === "xLinked" || this.modeInheritance === "yLinked"){
+                            delete _queryList["region"];
+                        }
+                    }
+                } else {
+//                    let filterFields = _queryList[name].split(new RegExp("[,;]"));
+                    let filterFields;
+                    if (value.indexOf("/") !== -1) {
+                        filterFields = _queryList[name].split(new RegExp(";"));
+                    } else {
+                        filterFields = _queryList[name].split(new RegExp("[,;]"));
+                    }
+
+                    let indexOfValue = filterFields.indexOf(value);
+                    filterFields.splice(indexOfValue, 1);
+
+                    if (_queryList[name].indexOf("/") !== -1) {
+                        // _queryList[name] = filterFields.join(";");
+                    } else {
+                        if (_queryList[name].indexOf(',') !== -1) {
+                            _queryList[name] = filterFields.join(",");
+                        } else {
+                            _queryList[name] = filterFields.join(";");
+                        }
+                    }
+                }
+
+                // When you delete any query filter we are not longer using any known Filter
+                if (UtilsNew.isNotUndefined(PolymerUtils.getElementById('filtersList'))) {
+                    //TODO Refactor
+                    $("#filtersList option[value='none']").prop('selected', true);
+                }
+
+                this.dispatchEvent(new CustomEvent("filterchange", {detail: _queryList, bubbles: true, composed: true}));
+            }
+
+            queryObserver() {
+                let _queryList = [];
+                let keys = Object.keys(this.query);
+                for (let keyIdx in keys) {
+                    let key = keys[keyIdx];
+                    if (UtilsNew.isNotEmpty(this.query[key])) {
+                        if (JSON.stringify(this.query) !== JSON.stringify(this._previousQuery)) {
+                            PolymerUtils.show(this.prefix + 'Warning');
+                        } else {
+                            PolymerUtils.hide(this.prefix + 'Warning');
+                        }
+
+                        // We use the alias to rename the key
+                        let title = key;
+                        if (UtilsNew.isNotUndefinedOrNull(this.alias) && UtilsNew.isNotUndefinedOrNull(this.alias[key])) {
+                            title = this.alias[key];
+                        }
+
+                        // We convert the Query entry object into an array of small objects (queryList)
+                        let value = this.query[key];
+
+                        // Only genotypes contain the character '/', this must be split by semi-colon
+                        let filterFields = [];
+                        if (value.indexOf("/") !== -1) {
+                            filterFields = value.split(new RegExp(";"));
+                        } else {
+                            filterFields = value.split(new RegExp("[,;]"));
+                        }
+
+                        // We fist have need to remove defaultStudy from 'filterFields' and 'value'
+                        if (key === "studies") {
+                            let otherStudies = [];
+                            for (let study of filterFields) {
+                                if (!study.includes(this.defaultStudy)) {
+                                    otherStudies.push(study);
+                                }
+                            }
+
+                            if (otherStudies.length === 0) {
+                                // defaultStudy was the only one present so no need to render anything
+                                continue;
+                            } else {
+                                // defaultStudy was just one of the studies selected, we need to set filterFields and value
+                                filterFields = otherStudies;
+                                if (value.indexOf(",") !== -1) {
+                                    value = filterFields.join(",");
+                                } else {
+                                    value = filterFields.join(";");
+                                }
+                            }
+                        }
+
+                        // Just in case one is a flag
+                        if (filterFields.length === 0) {
+                            _queryList.push({name: key, text: title});
+                        } else {
+                            if (filterFields.length === 1) {
+                                if (value.indexOf(">") !== -1 || value.indexOf("<") !== -1 || value.indexOf("=") !== -1) {
+                                    _queryList.push({name: key, text: title + ": " + value});
+                                } else {
+                                    _queryList.push({name: key, text: title + " = " + value});
+                                }
+//                                }
+                            } else {
+                                _queryList.push({name: key, text: title, items: filterFields});
+                            }
+                        }
+                    }
+                }
+
+                this.queryList = _queryList;
+            }
+
+            searchClicked() {
+                PolymerUtils.hide(this.prefix + "Warning");
+                this._previousQuery = this.query;
+            }
+
+            _isQueryListEmpty(item) {
+                // here item is this.queryList object
+                return item.length === 0
+            }
+
+            _isMultiValued(item) {
+                return UtilsNew.isNotUndefined(item.items);
+            }
+        }
+
+        customElements.define(OpencgaActiveFilters.is, OpencgaActiveFilters);
+    </script>
+</dom-module>

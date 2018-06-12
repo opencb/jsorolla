@@ -1,9 +1,9 @@
 
 build/
+dist/
 *node_modules/
 bower_components/
 grunt/
-bower_components/
 
 npm-debug.log
 
@@ -43,4 +43,3 @@ local.properties
 # PDT-specific
 .buildpath
 
-example.db

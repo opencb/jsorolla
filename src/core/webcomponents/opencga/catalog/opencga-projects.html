@@ -1,0 +1,307 @@
+<dom-module id="opencga-projects">
+    <template>
+        <style include="jso-styles">
+            .center {
+                margin: auto;
+                text-align: justify;
+            }
+        </style>
+        <div id="containerChart"></div>
+        <div>
+            <!--<br>-->
+            <table class="table">
+                <thead class="thead-inverse">
+                <tr>
+                    <th colspan="5">Project</th>
+                    <th>Study</th>
+                    <th>Date</th>
+                    <th>Files</th>
+                    <th>Samples</th>
+                    <!--<th>Jobs</th>-->
+                    <!--<th>Individuals</th>-->
+                </tr>
+                </thead>
+                <tbody>
+                <template is="dom-repeat" items="{{_studies}}" as="summaries">
+                    <tr>
+                        <td rowspan$="{{summaries.rowspan}}" colspan="5">
+                            {{summaries.name}}
+                        </td>
+                    </tr>
+                    <template is="dom-repeat" items="{{summaries.studies}}" index-as="indexStudy">
+
+                        <tr>
+                            <td>{{item.name}}</td>
+                            <td>{{item.creationDate}}</td>
+                            <td>{{item.files}}</td>
+                            <td>{{item.samples}}</td>
+                            <!--<td>{{item.jobs}}</td>-->
+                            <!--<td>{{item.individuals}}</td>-->
+                </tr>
+
+                    </template>
+                </template>
+                </tbody>
+            </table>
+        </div>
+    </template>
+    <script>
+        class OpencgaProjects extends Polymer.Element {
+
+            static get is() {
+                return 'opencga-projects';
+            }
+
+            static get properties() {
+                return {
+                    opencgaClient: {
+                        type: Object
+                    },
+                    projects: {
+                        type: Array,
+                        observer: 'projectsChanged'
+                    },
+                    studySummaries: {
+                        type: Array,
+                        observer: 'summariesChanged'
+                    },
+                }
+            }
+
+            constructor() {
+                super();
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            ready() {
+                super.ready();
+
+                this._studies = [];
+            }
+
+            connectedCallback() {
+                super.connectedCallback();
+                this.loadHighcharts();
+            }
+
+            _isFirstRow(indexStudy){
+                if(UtilsNew.isNotUndefinedOrNull(indexStudy) && indexStudy === 0){
+                    return "block";
+                }
+
+                return "none";
+            }
+
+            loadHighcharts(){
+
+                let colors = Highcharts.getOptions().colors;
+
+//                    let categories = ['MSIE', 'Firefox', 'Chrome', 'Safari', 'Opera'];
+                let categories = this.projects.map((element) => {
+                    return element.name;
+                });
+                let data = [];
+                let _this = this;
+                let total = 0
+                let numberOfStudies = this.projects.reduce((total,element) => {
+                    return total + element.studies.length;
+                }, 0);
+
+                this.projects.forEach((element, index) => {
+                    let studies = element.studies.map((study) => {
+                        return study.name;
+                    });
+                    let creationDate = element.studies.map((study) => {
+                        return study.creationDate;
+                    });
+
+                    let projectPercent = studies.length * 100 / numberOfStudies;
+                    data.push({
+                        y: projectPercent,
+                        color: colors[index],
+                        drilldown:{
+                            name: element.name,
+                            categories: studies,
+                            color: colors[0],
+                            data: element.studies.map((study) => {return projectPercent / studies.length}),
+                            creationDate:creationDate
+                        }
+                    })
+                });
+                    let browserData = [];
+                    let versionsData = [];
+                    let i;
+                    let j;
+                    let dataLen = categories.length;
+                    let drillDataLen;
+                    let brightness;
+
+
+// Build the data arrays
+                for (i = 0; i < dataLen; i += 1) {
+
+                    // add browser data
+                    browserData.push({
+                        name: categories[i],
+                        y: data[i].y,
+                        color: data[i].color
+                    });
+
+                    // add version data
+                    drillDataLen = data[i].drilldown.data.length;
+                    for (j = 0; j < drillDataLen; j += 1) {
+                        brightness = 0.2 - (j / drillDataLen) / 5;
+                        versionsData.push({
+                            name: data[i].drilldown.categories[j],
+                            y: data[i].drilldown.data[j],
+                            color: Highcharts.Color(data[i].color).brighten(brightness).get(),
+                            creationDate: data[i].drilldown.creationDate[j],
+                        });
+                    }
+                }
+
+// Create the chart
+                Highcharts.chart('containerChart', {
+                    chart: {
+                        type: 'pie'
+                    },
+                    title: {
+                        text: 'Iva Projects'
+                    },
+                    subtitle: {
+                        text: '<a href="https://github.com/opencb">OpenCB</a>'
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Total percent market share'
+                        }
+                    },
+                    plotOptions: {
+                        pie: {
+                            shadow: false,
+                            center: ['50%', '50%'],
+                            size: 100
+                        }
+                    },
+                    tooltip: {
+                            valueSuffix: '%',
+                            formatter: function () {
+                                var s = "<b>" + this.key + "</b>";
+
+                                s += "<br/>" + this.percentage.toFixed(2) + "%";
+                                if(UtilsNew.isNotUndefinedOrNull(this.point.creationDate)){
+                                s += "<br/>" + moment(this.point.creationDate, "YYYYMMDDHHmmss").format("HH:mm:ss MMM/D/YY");
+                                }
+
+
+                                return s;
+                            },
+                            footerFormat: true
+
+                        },
+                    series: [{
+                        name: 'Browsddders',
+                        data: browserData,
+                        size: '60%',
+                        dataLabels: {
+                            formatter: function () {
+                                return this.y > 5 ? this.point.name : null;
+                            },
+                            color: '#ffffff',
+                            distance: -30
+                        }
+                    }, {
+                        name: 'Versions',
+                        data: versionsData,
+                        size: '80%',
+                        innerSize: '60%',
+                        dataLabels: {
+                            formatter: function () {
+                                // display only if larger than 1
+                                return this.y > 1 ? '<b>' + this.point.name + '</b> ': null;
+                            }
+                        },
+                        id: 'versions'
+                    }],
+                    responsive: {
+                        rules: [{
+                            condition: {
+                                maxWidth: 800
+                            },
+                            chartOptions: {
+                                series: [{
+                                    id: 'versions',
+                                    dataLabels: {
+                                        enabled: false
+                                    }
+                                }]
+                            }
+                        }]
+                    }
+                });
+            }
+
+            projectsChanged() {
+                if (UtilsNew.isNotUndefined(this.opencgaClient) && this.opencgaClient instanceof OpenCGAClient
+                        && UtilsNew.isNotUndefined(this.projects) && this.projects.length > 0) {
+                    let _this = this;
+
+                    if (true) {
+                        let projectPromises = [];
+                        this.projects.forEach(function (project) {
+                            let studyPromises = [];
+                            project.studies.forEach(function (study) {
+                                let studyPromise = _this.opencgaClient.studies().summary(project.alias + ":" + study.alias)
+                                        .then(function (response) {
+                                            // We add the id to the summary
+                                            response.response[0].result[0].id = this.studyId;
+                                            response.response[0].result[0].acl = study.acl;
+                                            return response;
+                                        }.bind({studyId: study.id}));
+                                studyPromises.push(studyPromise);
+                            });
+                            projectPromises.push(Promise.all(studyPromises)
+                                    .then(function (responses) {
+                                        let studies = [];
+                                        responses.forEach(function (response) {
+                                            let study = response.response[0].result[0];
+                                            study.creationDate = moment(study.creationDate, "YYYYMMDDHHmmss").format('D MMM YY');
+                                            studies.push(study);
+                                        });
+                                        return studies;
+                                    }));
+                        });
+
+                        let _studySummaries = [];
+                        Promise.all(projectPromises)
+                                .then(function (responses) {
+                                    for (let i = 0; i < responses.length; i++) {
+                                        _studySummaries.push({
+                                            id: _this.projects[i].id,
+                                            alias: _this.projects[i].alias,
+                                            name: _this.projects[i].name,
+                                            rowspan: responses[i].length + 1,
+                                            studies: responses[i]
+                                        });
+                                    }
+                                    _this.loadHighcharts();
+                                    _this.renderTable(_studySummaries);
+                                });
+                    }
+                }
+            }
+
+            renderTable(studySummaries){
+                this._studies = studySummaries;
+            }
+
+        }
+
+        customElements.define(OpencgaProjects.is, OpencgaProjects);
+
+
+    </script>
+</dom-module>

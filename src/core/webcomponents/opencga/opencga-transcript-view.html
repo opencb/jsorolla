@@ -1,0 +1,319 @@
+<link rel="import" href="variant/opencga-variant-grid.html">
+<link rel="import" href="variant/variant-protein-view.html">
+
+<dom-module id="opencga-transcript-view">
+    <template>
+        <style include="jso-styles">
+            .transcript-variant-tab-title {
+                font-size: 150%;
+                font-weight: bold;
+            }
+
+            .transcript-summary-title {
+                font-weight: bold;
+            }
+        </style>
+
+        <div>
+            <div style="float: right;padding: 10px 5px 10px 5px">
+                <button type="button" class="btn btn-primary" on-click="showBrowser">
+                    <i class="fa fa-hand-o-left" aria-hidden="true"></i> Variant Browser
+                </button>
+            </div>
+
+            <h2>{{transcriptObj.name}}</h2>
+
+            <div class="row" style="padding: 5px 0px 25px 0px">
+                <div class="col-md-5">
+                    <h3>Summary</h3>
+                    <table width="100%">
+                        <tr>
+                            <td class="transcript-summary-title" width="20%">Name</td>
+                            <td width="80%">{{transcriptObj.name}} ({{transcriptObj.id}})</td>
+                        </tr>
+                        <tr>
+                            <td class="transcript-summary-title" width="20%">Biotype</td>
+                            <td width="80%">{{transcriptObj.biotype}}</td>
+                        </tr>
+                        <tr>
+                            <td class="transcript-summary-title">Location</td>
+                            <td>{{transcriptObj.chromosome}}:{{transcriptObj.start}}-{{transcriptObj.end}}
+                                ({{transcriptObj.strand}})
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="transcript-summary-title">Gene</td>
+                            <td><a href="#gene/{{project.alias}}/{{study.alias}}/{{gene}}">{{gene}}</a></td>
+                        </tr>
+                        <tr>
+                            <td class="transcript-summary-title">Genome Browser</td>
+                            <td>
+                                <a target="_blank"
+                                   href="http://genomemaps.org/?region={{transcriptObj.chromosome}}:{{transcriptObj.start}}-{{transcriptObj.end}}">
+                                    {{transcriptObj.chromosome}}:{{transcriptObj.start}}-{{transcriptObj.end}}
+                                </a>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+
+        <div id="{{prefix}}TranscriptSvg"></div>
+
+        <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active">
+                <a href="#{{prefix}}Variants" role="tab" data-toggle="tab" class="transcript-variant-tab-title">
+                    Variants
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="#{{prefix}}Protein" role="tab" data-toggle="tab" class="transcript-variant-tab-title">
+                    Protein
+                </a>
+            </li>
+        </ul>
+
+        <div class="tab-content" style="height: 1024px">
+            <div role="tabpanel" class="tab-pane active" id="{{prefix}}Variants">
+                <div class="btn-group btn-group" role="group" aria-label="..." style="padding: 15px;float: right">
+                    <button id="{{prefix}}AllConsTypeButton" type="button" class="btn btn-default btn-warning transcript-ct-buttons active" on-click="updateQuery">
+                        All
+                    </button>
+                    <button id="{{prefix}}MissenseConsTypeButton" type="button" class="btn btn-default btn-warning transcript-ct-buttons" on-click="updateQuery">
+                        Missense
+                    </button>
+                    <button id="{{prefix}}LoFConsTypeButton" type="button" class="btn btn-default btn-warning transcript-ct-buttons" on-click="updateQuery">
+                        LoF
+                    </button>
+                </div>
+
+                <br>
+                <br>
+                <variant-browser-grid project="{{project}}" study="{{study}}" prefix="{{prefix}}"
+                                      opencga-client="{{opencgaClient}}"
+                                      population-frequencies="{{populationFrequencies}}"
+                                      protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                      consequence-types="{{consequenceTypes}}" search="{{query}}" query="{{query}}"
+                                      variant="{{variant}}"
+                                      on-selectvariant="onSelectVariant" style="font-size: 12px">
+                </variant-browser-grid>
+
+                <div hidden$="{{checkVariant(variant)}}">
+                    <br>
+                    <h3>Please select a variant to view variant's detailed annotation</h3>
+                </div>
+
+                <!-- Bottom tabs with specific variant information -->
+                <div style="padding-top: 20px; height: 400px" hidden$="{{!checkVariant(variant)}}">
+                    <h3>Advanced Annotation for Variant: {{variant}}</h3>
+                    <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}"
+                                                     cellbase-client="{{cellbaseClient}}" assembly={{project.organism.assembly}}
+                                                     hash-fragment-credentials="{{hashFragmentCredentials}}"
+                                                     style="font-size: 12px"
+                                                     population-frequencies="{{populationFrequencies}}"
+                                                     protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                     consequence-types="{{consequenceTypes}}">
+                    </cellbase-variantannotation-view>
+                </div>
+            </div>
+
+            <div role="tabpanel" class="tab-pane" id="{{prefix}}Protein">
+                <variant-protein-view opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+                                      project="{{project}}" study="{{study}}" ids="{{transcriptObj.id}}" config="{{config.protein}}">
+                </variant-protein-view>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        class OpencgaTranscriptView extends Polymer.Element {
+
+            constructor() {
+                super();
+
+                this.prefix = "transcript" + Utils.randomString(6);
+            }
+
+            static get is() {
+                return 'opencga-transcript-view';
+            }
+
+            static get properties() {
+                return {
+                    cellbaseClient: {
+                        type: Object
+                    },
+                    opencgaClient: {
+                        type: Object
+                    },
+                    project: {
+                        type: Object
+                    },
+                    study: {
+                        type: Object
+                    },
+                    transcript: {
+                        type: String,
+                        observer: 'transcriptChanged'
+                    },
+                    gene: {
+                        type: String
+                    },
+                    populationFrequencies: {
+                        type: Array
+                    },
+                    proteinSubstitutionScores: {
+                        type: Object
+                    },
+                    consequenceTypes: {
+                        type: Object
+                    },
+                    variant: {
+                        type: String,
+                        value: ""
+                    },
+                    config: {
+                        type: Object
+                    }
+                }
+            }
+
+            static get observers() {
+                return ['projectStudyObtained(project, study)']
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            projectStudyObtained(project, study) {
+                if (UtilsNew.isNotUndefined(this.project) && UtilsNew.isNotEmpty(this.project.alias)
+                    && UtilsNew.isNotUndefined(this.study) && UtilsNew.isNotEmpty(this.study.alias)) {
+                    this.hashFragmentCredentials = {
+                        project: this.project.alias,
+                        study: this.study.alias
+                    }
+                }
+            }
+
+            transcriptChanged() {
+                // Remove the previously added SVG
+                let svg = PolymerUtils.querySelector("svg");
+                if (svg !== null) {
+                    let proteinSvgDiv = PolymerUtils.getElementById(this.prefix + "TranscriptSvg");
+                    if (UtilsNew.isNotUndefinedOrNull(proteinSvgDiv)) {
+                        // proteinSvgDiv.removeChild(svg);
+                    }
+                }
+
+                let query = {};
+                let _this = this;
+                if (UtilsNew.isNotEmpty(this.transcript)) {
+                    query["annot-xref"] = this.transcript;
+                    this.cellbaseClient.getTranscriptClient(this.transcript, 'info', {exclude: "xrefs, exons.sequence"}, {})
+                        .then(function (response) {
+                            _this.transcriptObj = response.response[0].result[0];
+                            // FIXME We need to improve how the transcript is rendered
+                            // let svg = _this._createSvgTranscript(_this.transcriptObj);
+                            // let querySelector = PolymerUtils.getElementById(_this.prefix + "TranscriptSvg");
+                            // querySelector.appendChild(svg);
+                        });
+                    _this.query = query;
+                }
+            }
+
+            updateQuery(e) {
+                PolymerUtils.removeClass(".transcript-ct-buttons", "active");
+                PolymerUtils.addClass(e.target.id, "active");
+                let query = this.query;
+                switch (e.target.innerText) {
+                    case "Missense":
+                        query["ct"] = "missense_variant";
+                        break;
+                    case "LoF":
+                        query["ct"] = this.consequenceTypes.lof.join(",");
+                        break;
+                    default:
+                        if (UtilsNew.isNotUndefined(query["ct"])) {
+                            delete query["ct"];
+                        }
+                        break;
+                }
+                this.query = Object.assign({}, query);
+            }
+
+            checkVariant(variant) {
+                return variant.split(':').length > 2;
+            }
+
+            showBrowser() {
+                let hash = window.location.hash.split('/');
+                let newHash = '#browser/' + hash[1] + '/' + hash[2];
+                window.location.hash = newHash;
+            }
+
+            onSelectVariant(e) {
+                this.variant = e.detail.id;
+            }
+
+            _createSvgTranscript(transcriptObject) {
+                let length = transcriptObject.end - transcriptObject.start;
+                let svg = SVG.create('svg', {
+                    width: length + 40,
+                    height: 140,
+                    viewBox: "0 0 " + (length + 40) + " " + 140,
+                    style: "fill: white"
+                });
+                SVG.addChild(svg, 'rect', {width: length + 40, height: 140, style: "fill: white;stroke: black"});
+
+                let center = (140) / 2;
+                SVG.addChild(svg, 'line', {
+                    x1: 20,
+                    y1: center,
+                    x2: length,
+                    y2: center,
+                    style: "stroke: red"
+                });
+
+                let exons = transcriptObject.exons;
+                let gExons = SVG.create('g', {});
+                for (let i = 0; i < exons.length; i++) {
+                    let exon = SVG.addChild(gExons, 'rect', {
+                        x: 20 + (exons[i].start - transcriptObject.start),
+                        y: center - 7,
+                        rx: 2,
+                        ry: 2,
+                        width: exons[i].end - exons[i].start,
+                        height: 15,
+                        style: "fill: lightblue"
+                    });
+                    $(exon).qtip({
+                        content: {
+                            title: exons[i].id,
+                            text: "<b>ID</b>: " + exons[i].id + "<br>"
+                            + "<b>Chromosome</b>: " + exons[i].chromosome + "<br>"
+                            + "<b>Start</b>: " + exons[i].start + "<br>"
+                            + "<b>End</b>: " + exons[i].end + "<br>"
+                            + "<b>Strand</b>: " + exons[i].strand
+                        },
+                        position: {viewport: $(window), target: "mouse", adjust: {x: 25, y: 15}},
+                        style: {width: true, classes: ' ui-tooltip ui-tooltip-shadow'},
+                        show: {delay: 250},
+                        hide: {delay: 200}
+                    })
+                }
+                svg.appendChild(gExons);
+
+                let lollipop = new Lollipop();
+                let ruleSVG = lollipop._createSvgRuleBar(length, {ratio: 1});
+                svg.appendChild(ruleSVG);
+
+                return svg;
+            }
+        }
+
+        customElements.define(OpencgaTranscriptView.is, OpencgaTranscriptView);
+    </script>
+</dom-module>

@@ -16,6 +16,7 @@ class FeatureTrack {
         this.visible = true;
         this.contentVisible = true;
         this.closable = false;
+        this.showSettings = false;
         this.fontClass = "ocb-font-roboto ocb-font-size-14";
         this.externalLink = "";
         this.autoRender = false;
@@ -48,7 +49,7 @@ class FeatureTrack {
         this.chunksDisplayed = {}; //used to avoid painting multiple times features contained in more than 1 chunk
 
         if ("handlers" in this) {
-            for (eventName in this.handlers) {
+            for (let eventName in this.handlers) {
                 this.on(eventName, this.handlers[eventName]);
             }
         }
@@ -129,6 +130,10 @@ class FeatureTrack {
         } else {
             this.showContent();
         }
+    }
+
+    settingsContent() {
+        this.trigger("track:settings", { sender: this });
     }
 
     close() {
@@ -312,6 +317,10 @@ class FeatureTrack {
                     <span class="ocb-gv-track-title-up"><i class="fa fa-chevron-up"></i></span>
         `;
 
+        if (this.showSettings === true) {
+            titleBarHtml += '           <span class="ocb-gv-track-title-settings"><i class="fa fa-cog"></i></span>';
+        }
+
         if (this.closable === true) {
             titleBarHtml += '           <span class="ocb-gv-track-title-close"><i class="fa fa-times"></i></span>';
         }
@@ -339,6 +348,7 @@ class FeatureTrack {
         this.toggleEl = titleBardiv.querySelector(".ocb-gv-track-title-toggle");
         this.iToggleEl = this.toggleEl.querySelector("i");
         this.loadingEl = titleBardiv.querySelector(".ocb-gv-track-title-loading");
+        this.settingsEl = titleBardiv.querySelector(".ocb-gv-track-title-settings");
         this.closeEl = titleBardiv.querySelector(".ocb-gv-track-title-close");
         this.upEl = titleBardiv.querySelector(".ocb-gv-track-title-up");
         this.downEl = titleBardiv.querySelector(".ocb-gv-track-title-down");
@@ -372,6 +382,9 @@ class FeatureTrack {
 
         $(this.toggleEl).click(function(e) {
             _this.toggleContent();
+        });
+        $(this.settingsEl).click(function(e) {
+            _this.settingsContent();
         });
         $(this.closeEl).click(function(e) {
             _this.close();
@@ -481,11 +494,9 @@ class FeatureTrack {
     }
 
     getDataHandler(event) {
-        // debugger
-        console.time("Total FeatureTrack -> getDataHandler " + event.sender.category)
+        console.time("Total FeatureTrack -> getDataHandler " + event.sender.category);
 
-        console.time("Chunks() FeatureTrack -> getDataHandler " + event.sender.category)
-
+        console.time("Chunks() FeatureTrack -> getDataHandler " + event.sender.category);
         let renderer;
         let features;
         if (event.dataType !== "histogram") {
@@ -495,9 +506,9 @@ class FeatureTrack {
             renderer = this.histogramRenderer;
             features = event.items;
         }
-        console.timeEnd("Chunks() FeatureTrack -> getDataHandler " + event.sender.category)
+        console.timeEnd("Chunks() FeatureTrack -> getDataHandler " + event.sender.category);
 
-        console.time("render() FeatureTrack -> getDataHandler " + event.sender.category)
+        console.time("render() FeatureTrack -> getDataHandler " + event.sender.category);
         renderer.render(features, {
             cacheItems: event.items,
             svgCanvasFeatures: this.svgCanvasFeatures,
@@ -513,9 +524,10 @@ class FeatureTrack {
             species: this.species,
             featureType: this.featureType
         });
+        console.timeEnd("render() FeatureTrack -> getDataHandler " + event.sender.category);
+
         this.updateHeight();
-        console.timeEnd("render() FeatureTrack -> getDataHandler " + event.sender.category)
-        console.timeEnd("Total FeatureTrack -> getDataHandler " + event.sender.category)
+        console.timeEnd("Total FeatureTrack -> getDataHandler " + event.sender.category);
     }
 
     draw(adapter, renderer) {
@@ -554,6 +566,9 @@ class FeatureTrack {
             //     interval: this.interval,
             //     exclude: this.exclude
             // };
+            if(UtilsNew.isUndefined(adapter.params)){
+                adapter.params = {};
+            }
             let params = Object.assign(adapter.params, {
                 histogram: this.histogram,
                 histogramLogarithm: this.histogramLogarithm,
@@ -568,9 +583,9 @@ class FeatureTrack {
                     _this.setLoading(false);
                 })
                 .catch(function(reason) {
-                    console.log("Feature Track draw error: " + reason)
+                    console.log("Feature Track draw error: " + reason);
                 });
-            console.timeEnd("SuperTotal FeatureTrack -> getDataHandler")
+            console.timeEnd("SuperTotal FeatureTrack -> getDataHandler");
         } else {
             //        this.invalidZoomText.setAttribute("visibility", "visible");
         }

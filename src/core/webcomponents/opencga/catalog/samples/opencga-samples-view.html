@@ -1,0 +1,305 @@
+<!--
+  ~ Copyright 2015-2016 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<link rel="import" href="../../opencga-active-filters.html">
+<link rel="import" href="opencga-sample-comparator.html">
+<dom-module id="opencga-samples-view">
+    <template>
+        <style include="jso-styles">
+            .container > .row > .table tr.active td {
+                background-color: #1f9cda;
+            }
+
+        </style>
+        <br>
+        <!--<variant-active-filters opencga-client="{{opencgaClient}}" query="{{filters}}" search="{{search}}"></variant-active-filters>-->
+        <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{filters}}" filters="{{config.filters}}"></opencga-active-filters>
+
+        <table id="samplestable" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
+               data-checkbox-header="false" data-maintain-selected="true" style="cursor: pointer;">
+            <thead style="background-color: #eee"></thead>
+        </table>
+
+        <h4><b>Samples:</b> {{sampleString}}</h4>
+        <div style="padding: 10px;height: 530px" class="row">
+
+            <ul id="sampleViewTabs" class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active"><a href="#sampleViewClinicalData" role="tab" data-toggle="tab">Clinical data</a></li>
+                <li role="presentation"><a href="#sampleViewIndividual" role="tab" data-toggle="tab">Individuals</a></li>
+                <li role="presentation"><a href="#sampleViewAcl" role="tab" data-toggle="tab">ACL</a></li>
+            </ul>
+
+            <div class="tab-content">
+                <div id="sampleViewClinicalData" role="tabpanel" class="tab-pane active">
+                    <opencga-sample-comparator opencga-client="{{opencgaClient}}" samples="{{samples}}" variable-sets="{{variableSets}}">
+
+                    </opencga-sample-comparator>
+                </div>
+
+                <div id="sampleViewIndividual" role="tabpanel" class="tab-pane">
+                    Pending...
+                </div>
+
+                <div id="sampleViewAcl" role="tabpanel" class="tab-pane">
+                    Pending...
+                </div>
+            </div>
+        </div>
+
+    </template>
+    <script>
+        Polymer({
+            is: 'opencga-samples-view',
+
+            properties: {
+                opencgaClient: {
+                    type: Object
+                },
+                data: {
+                    type: Array,
+                    value: [],
+                    observer: 'renderLocally'
+                },
+                studyId: {
+                    type: Number,
+                    observer: 'renderFromServer'
+                },
+                filters: {
+                    type: Object,
+                    notify: true
+                },
+                search: {
+                    type: Object,
+                    value: {},
+                    observer: 'renderFromServer'
+                },
+                samples: {
+                    type: Array,
+                    notify: true
+                }
+            },
+//            observers: [
+//                'renderFromServer(search, studyId)'
+//            ],
+
+            ready: function () {
+                this.filtersEmpty = true;
+                // Columns that will be represented
+                this._columns = [
+                    [
+                        {
+                            field: 'state',
+                            checkbox: true
+                        },
+                        {
+                            title: 'Name',
+                            field: 'name',
+                            sortable: true
+                        },
+                        {
+                            title: 'File',
+                            field: 'source',
+                            sortable: true
+                        },
+                        {
+                            title: 'Description',
+                            field: 'description'
+                        }
+                    ]
+                ];
+            },
+            clear: function () {
+                this.filters = {};
+//                this.fire("update", {filter : this.filters});
+                this.filtersList = [];
+                this.filtersEmpty = true;
+            },
+            renderFromServer: function () {
+                let filters = this.search;
+
+                this._samples = [];
+                let _this = this;
+                if (this.opencgaClient instanceof OpenCGAClient && this.studyId > 0) {
+
+                    if (this.opencgaClient.getConfig().host.startsWith("https://")) {
+                        this._url = this.opencgaClient.getConfig().host;
+                    } else {
+                        this._url = 'http://' + this.opencgaClient.getConfig().host;
+                    }
+
+                    this._url = this._url + '/webservices/rest/v1/samples/search';
+
+                    $('#samplestable').bootstrapTable('destroy');
+                    $('#samplestable').bootstrapTable({
+                        url: this._url,
+                        sidePagination: 'server',
+                        queryParams: function (params) {
+                            let auxParams = {
+                                studyId: _this.studyId,
+                                sid: Cookies.get(_this.opencgaClient.getConfig().cookieSessionId),
+                                order: params.order,
+                                sort: params.sort,
+                                limit: params.limit,
+                                skip: params.offset
+                            };
+//                            if (params.search !== undefined && params.search.length > 0) {
+//                                auxParams["name"] = "~" + params.search;
+//                            }
+                            return $.extend({}, filters, auxParams);
+                        },
+                        responseHandler: function (response) {
+                            if (!_this.hasOwnProperty("numTotalResults")) {
+                                _this.numTotalResults = 0;
+                            }
+                            if (_this.numTotalResults !== response.response[0].numTotalResults
+                                    && response.response[0].numTotalResults > response.queryOptions.limit) {
+                                _this.numTotalResults = response.response[0].numTotalResults;
+                            }
+
+                            return {
+                                total: _this.numTotalResults,
+                                rows: response.response[0].result
+                            }
+                        },
+                        columns: this._columns,
+
+                        onClickRow: function (row, element) {
+                            let index = element[0].getAttribute("data-index");
+                            if (row.state) {
+                                $('#samplestable').bootstrapTable('uncheck', index);
+                            } else {
+                                $('#samplestable').bootstrapTable('check', index);
+                            }
+                        },
+
+                        onCheck: function (row, elem) {
+                            _this.push("_samples", row);
+                            _this.set('samples', _this._samples.slice());
+
+                            // Map each sample to its associated individual
+                            if (typeof row.individual !== "undefined" && typeof row.individual.id !== "undefined"
+                                    && row.individual.id != "-1") {
+                                if (typeof _this.individuals[row.individual.id] === "undefined") {
+                                    _this.individuals[row.individual.id] = [row];
+                                } else {
+                                    _this.individuals[row.individual.id].push(row);
+                                }
+                            }
+                        },
+
+                        onUncheck: function (row, elem) {
+                            let sampleToDeleteIdx;
+                            for (let sampleIdx in _this.samples) {
+                                if (row.name == _this.samples[sampleIdx].name) {
+                                    sampleToDeleteIdx = sampleIdx;
+                                    break;
+                                }
+                            }
+                            if (typeof row.individual !== "undefined" && typeof row.individual.id !== "undefined"
+                                    && row.individual.id != "-1") {
+                                if (row.individual.id in  _this.individuals) {
+                                    let samples = _this.individuals[row.individual.id];
+                                    for (let i in samples) {
+                                        if (row.name == samples[i].name) {
+                                            samples.splice(i, 1);
+                                            break;
+                                        }
+                                    }
+                                    _this.individuals[row.individual.id] = samples;
+                                }
+                            }
+
+                            _this.splice('_samples', sampleToDeleteIdx, 1);
+                            _this.set('samples', _this._samples.slice());
+                        }
+                    });
+
+                    this.opencgaClient.studies().info(this.studyId).then(function (response) {
+                        _this.variableSets = response.response[0].result[0].variableSets;
+                    }).catch(function () {
+                        console.log("Could not obtain the variable sets of the study " + _this.studyId);
+                    });
+                } else {
+                    // Delete table
+                    $('#fileTable').bootstrapTable('destroy');
+                    this.numTotalResults = 0;
+                }
+            },
+            renderLocally: function () {
+                let _this = this;
+                this._samples = [];
+                if (this.data != null && this.data.length > 0) {
+                    $('#samplestable').bootstrapTable('destroy');
+                    $('#samplestable').bootstrapTable({
+                        data: this.data,
+                        columns: this._columns,
+                        onCheck: function (row, elem) {
+                            _this.push("_samples", row);
+                            _this.set('samples', _this._samples.slice());
+                        },
+
+                        onUncheck: function (row, elem) {
+                            let sampleToDeleteIdx;
+                            for (sampleIdx in _this.samples) {
+                                if (row.name == _this.samples[sampleIdx].name) {
+                                    sampleToDeleteIdx = sampleIdx;
+                                    break;
+                                }
+                            }
+
+                            _this.splice('_samples', sampleToDeleteIdx, 1);
+                            _this.set('samples', _this._samples.slice());
+                        }
+                    });
+                }
+            },
+            onFilterDelete: function (e) {
+                let _filterList = this.filters;
+                let category = e.target.dataFilterCategory;
+                let name = e.target.dataFilterName;
+                switch (category) {
+                    case "annotation":
+                        let annotations = _filterList[category];
+                        for (let i = 0; i < annotations.length; i++) {
+                            if (annotations[i].name == name) {
+                                annotations.splice(i, 1);
+                            }
+                        }
+                        if (annotations.length > 0) {
+                            _filterList[category] = annotations.slice();
+                        } else {
+                            delete _filterList[category];
+                        }
+                        break;
+                    default:
+                        delete _filterList[category];
+                        break;
+                }
+                this.filters = Object.assign({}, _filterList);
+                this.fire("update", {filter : this.filters});
+            },
+            sampleChanged: function () {
+                let sampleString = "";
+                for (let i = 0, count = 0; i < this.samples.length; i++) {
+                    sampleString += this.samples[i].name;
+                    if (++count != this.samples.length) {
+                        sampleString += ", ";
+                    }
+                }
+                this.sampleString = sampleString;
+            }
+        });
+    </script>
+</dom-module>

@@ -1,0 +1,691 @@
+<link rel="import" href="../../opencga-message-dialog.html">
+
+<dom-module id="opencga-family-editor-new">
+    <template>
+        <style include="jso-styles">
+            .form-control, .button-form{
+                width: 100%!important;
+            }
+            .list-group-item {
+                border: none!important;
+            }
+
+        </style>
+
+        <template is="dom-if" if="{{!_sampleExists}}">
+            <div class="alert alert-warning" role="alert"><h4>No samples selected, please select some samples. {{_sampleExists}}</h4>
+            </div>
+        </template>
+        <template is="dom-if" if="{{_sampleExists}}">
+                <template is="dom-repeat" items="{{messageError}}">
+                    <div class="alert alert-danger" role="alert">
+                        {{item}}
+                    </div>
+                </template>
+
+            <div id="{{prefix}}FilterMenu1" class="col-md-12">
+                <form class="form-inline">
+                    <div class="row" style="padding: 15px 10px">
+                        <div class="col-md-3">
+                            <label>Name </label>
+                            <input type="text" class="form-control" id="{{prefix}}FamilyName" placeholder="Family name" maxlength="100"
+                                   on-change="_changeName" value="{{data.name}}">
+                        </div>
+                        <div class="col-md-9">
+                            <label class="labels">Description </label>
+                            <input class="form-control" id="{{prefix}}FamilyDescription"
+                                   on-change="_changeDescription" value="{{data.description}}" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="row">
+                            <h4>Diseases</h4>
+                        </div>
+                        <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                            <div class="panel panel-default">
+                                <div class="panel-heading" role="tab" id="headingTwo">
+                                    <h4 class="panel-title">
+                                        <a role="button" class="collapsed" data-toggle="collapse" data-parent="#accordion"
+                                           href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo" on-click="_summaryOnClick">
+                                            <i id="{{prefix}}SummaryCollapseIcon" class="fa fa-plus-square-o" aria-hidden="true"></i> Add custom disease
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+                                    <div class="col-md-12">
+                                        <div class="row" style="padding: 15px 10px">
+                                            <div class="col-md-2">
+                                                <label>ID </label>
+                                                <input type="text" class="form-control" id="{{prefix}}idDisease" placeholder="" maxlength="50" type="number">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label>Name </label>
+                                                <input type="text" class="form-control" id="{{prefix}}nameDisease" placeholder="" maxlength="100" type="text">
+                                            </div>
+                                            <div class="col-md-2">
+                                                <label>Source </label>
+                                                <input type="text" class="form-control" id="{{prefix}}srcDisease" placeholder="" maxlength="100" type="text">
+                                            </div>
+                                            <div class="col-md-2">
+                                                <label>Add to diseases</label>
+                                                <button  class="button-form" type="button" class="btn btn-secondary" on-click="addDisease">Add</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="row">
+                                <ul class="list-group">
+                                    <template is="dom-repeat" items="{{data.ontologyTermsDiseases}}">
+                                        <li class="list-group-item">{{item.name}}({{item.id}})</li>
+                                    </template>
+                                </ul>
+                            </div>
+                            <div class="row">
+                                <ul class="list-group">
+                                    <template is="dom-repeat" items="{{data.customDiseases}}" >
+                                        <li class="list-group-item">{{item.name}}({{item.id}}) <button type="button" class="btn danger" on-click="deletedTermFromList" data-selected-term$="{{item}}">X</button></li>
+                                    </template>
+                                </ul>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                </form>
+            </div>
+
+            <div class="col-md-12">
+
+                <table class="table hover">
+                    <thead>
+                    <tr class="active">
+                        <th>Sample ID</th>
+                        <th>Father</th>
+                        <th>Mother</th>
+                        <th>Phenotypes</th>
+                        <th>Deceased</th>
+                        <th>Parental Consanguinity</th>
+                        <th>Sex</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <template id="samplesTable" is="dom-repeat" items="{{data.samples}}" as="sample">
+                        <tr>
+                            <td>{{sample.name}} ({{sample.attributes.individual.name}})</td>
+
+                            <td>
+                                <template is="dom-if" if="{{data.showSelectParents}}">
+                                    <div class="dropdown">
+                                        <select class="form-control" id="{{prefix}}{{sample.name}}Father"
+                                                data-sample-id$="{{sample.id}}" data-is-father="true"
+                                                on-change="_selectParent">
+                                            <option value="none">Select a sample...</option>
+                                            <template is="dom-repeat" items="{{samples}}" as="sampleFather">
+                                                <template is="dom-if" if="{{isSelectedParent(0, sampleFather.id, sample.id)}}">
+                                                    <option value="{{sampleFather.id}}" selected>
+                                                        {{sampleFather.name}}
+                                                    </option>
+                                                </template>
+                                                <template is="dom-if" if="{{!isSelectedParent(0, sampleFather.id, sample.id)}}">
+                                                    <template is="dom-if" if="{{isDisabledParent(0, sampleFather.id, sample.id)}}">
+                                                        <option disabled value="{{sampleFather.id}}">
+                                                            {{sampleFather.name}}
+                                                        </option>
+                                                    </template>
+                                                    <template is="dom-if" if="{{!isDisabledParent(0, sampleFather.id, sample.id)}}">
+                                                        <option value="{{sampleFather.id}}">
+                                                            {{sampleFather.name}}
+                                                        </option>
+                                                    </template>
+                                                </template>
+                                            </template>
+                                        </select>
+                                    </div>
+                                </template>
+                                <template is="dom-if" if="{{!data.showSelectParents}}">
+                                    <span>Unknown</span>
+                                </template>
+                            </td>
+                            <td>
+                                <template is="dom-if" if="{{data.showSelectParents}}">
+                                    <div class="dropdown">
+                                        <select class="form-control" id="{{prefix}}{{sample.name}}Mother"
+                                                data-sample-id$="{{sample.id}}" data-is-mother="true"
+                                                on-change="_selectParent">
+                                            <option value="none">Select a sample...</option>
+                                            <template is="dom-repeat" items="{{data.samples}}" as="sampleMother">
+                                                <template is="dom-if" if="{{isSelectedParent(1, sampleMother.id, sample.id)}}">
+                                                    <option value="{{sampleMother.id}}" selected>
+                                                        {{sampleMother.name}}
+                                                    </option>
+                                                </template>
+                                                <template is="dom-if" if="{{!isSelectedParent(1, sampleMother.id, sample.id)}}">
+                                                    <template is="dom-if" if="{{isDisabledParent(1, sampleMother.id, sample.id)}}">
+                                                        <option disabled value="{{sampleMother.id}}">
+                                                            {{sampleMother.name}}
+                                                        </option>
+                                                    </template>
+                                                    <template is="dom-if" if="{{!isDisabledParent(1, sampleMother.id, sample.id)}}">
+                                                        <option value="{{sampleMother.id}}">
+                                                            {{sampleMother.name}}
+                                                        </option>
+                                                    </template>
+                                                </template>
+                                            </template>
+                                        </select>
+                                    </div>
+                                </template>
+                                <template is="dom-if" if="{{!data.showSelectParents}}">
+                                    <span>Unknown</span>
+                                </template>
+                            </td>
+
+                            <td style="width: 150px;">
+                                <template is="dom-repeat" items="{{data.phenotypes}}" as="disease">
+                                    <input id="{{prefix}}{{disease.id}}Affected" data-sample-id$="{{sample.id}}"
+                                           data-disease-id$="{{disease.id}}"
+                                           checked$="{{isCheckedDisease(sample.id, disease.id)}}"
+                                           type="checkbox" on-change="_selectAffected">
+                                    {{disease.id}}
+                                    <br>
+                                </template>
+                            </td>
+                            <td>
+                                <template is="dom-if" if="{{isCheckedDeceased(sample.id)}}">
+
+                                    <input id="{{prefix}}{{sample.name}}Deceased" data-sample-id$="{{sample.id}}"
+                                           type="checkbox" on-change="_selectDeceased" checked>
+                                </template>
+                                <template is="dom-if" if="{{!isCheckedDeceased(sample.id)}}">
+
+                                    <input id="{{prefix}}{{sample.name}}Deceased" data-sample-id$="{{sample.id}}"
+                                           type="checkbox" on-change="_selectDeceased">
+                                </template>
+
+                            </td>
+                            <td>
+                                <template is="dom-if" if="{{isCheckedParentalConsanguinity(sample.id)}}">
+
+                                    <input id="{{prefix}}{{sample.name}}ParentalConsanguinity"
+                                           data-sample-id$="{{sample.id}}" checked
+                                           type="checkbox" on-change="_selectParentalConsanguinity">
+                                </template>
+
+                                <template is="dom-if" if="{{!isCheckedParentalConsanguinity(sample.id)}}">
+                                    <input id="{{prefix}}{{sample.name}}ParentalConsanguinity"
+                                           data-sample-id$="{{sample.id}}"
+                                           type="checkbox" on-change="_selectParentalConsanguinity">
+                                </template>
+                            </td>
+                            <td>
+                                <span>{{sample.member.sex}}</span>
+                            </td>
+                        </tr>
+                    </template>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-12">
+                <div id="{{prefix}}PedigreeView"></div>
+            </div>
+
+            <opencga-message-dialog opencga-client="{{opencgaClient}}" show-message-modal="{{showMessageModal}}"
+                                    settings-message-modal="{{settingsMessageModal}}"></opencga-message-dialog>
+        </template>
+
+
+
+    </template>
+
+    <script>
+        class OpencgaFamilyEditorNew extends Polymer.Element {
+
+            constructor() {
+                super();
+                this.prefix = "FamEditor" + Utils.randomString(6);
+            }
+
+            static get is() {
+                return 'opencga-family-editor-new';
+            }
+
+            static get properties() {
+                return {
+                    opencgaSession: {
+                        type: Object
+                    },
+                    opencgaClient: {
+                        type: Object
+                    },
+                    samples: {
+                        type: Array,
+                        observer: '_updateSamples'
+                    },
+                    family: {
+                        type: Object
+                    },
+                    messageErrorFamily: {
+                        type: Array,
+                        observer: 'updateError'
+
+                    }
+                }
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            ready() {
+                super.ready();
+            }
+
+            connectedCallback() {
+                super.connectedCallback();
+                this.newDisease = {};
+                this._summaryCollapsed = true;
+            }
+
+            initData() {
+                this.data = {};
+                this.data.showSelectParents = false;
+                if(PolymerUtils.getElementById("samplesTable") != null) {
+                    PolymerUtils.getElementById("samplesTable").render();
+                }
+                if (UtilsNew.isNotUndefinedOrNull(this.samples)) {
+                    this.data.showSelectParents = this.samples.length > 1;
+                    this.data.name = this.family.name;
+                    this.data.description = this.family.description;
+                    this.data.phenotypes = this.family.phenotypes;
+                    // This are the set of ontology terms name of all member of the family
+                    this.data.ontologyTermsDiseases = [];
+                    this.data.customDiseases = [];
+
+                    let _samples = [];
+                    let params = {
+                        study: this.opencgaSession.study.alias
+                    };
+                    let _this = this;
+                    this.samples.forEach((sample) => {
+                        sample.member = _this.family.members[sample.id];
+
+                        if (UtilsNew.isNotUndefinedOrNull(sample.attributes) && UtilsNew.isNotUndefinedOrNull(sample.attributes.individual)
+                            && sample.attributes.individual.id > 0) {
+                            // Fetch every individual from Webservices to get every ontologyTerm and create array of custom diseases and array of selected diseases from create individual form.
+                            this.opencgaClient.individuals().info(sample.attributes.individual.id, params, {method: "GET"})
+                                .then(function (response) {
+                                    if (response.response[0].numResults >= 1) {
+                                        sample.attributes.individual = response.response[0].result[0];
+                                    }
+                                    // Union of all ontologyTerms of every sample and we save it in diseases.
+                                    if(UtilsNew.isNotUndefinedOrNull(sample.attributes.individual.phenotypes
+                                            && UtilsNew.isNotEmptyArray(sample.attributes.individual.phenotypes))){
+                                        sample.attributes.individual.phenotypes.forEach((term) => {
+                                            if (UtilsNew.isNotEmpty(term.id)) {
+                                                // check if exists already this term in data.diseases
+                                                let existsTerm = _this.data.phenotypes.find((element) => {
+                                                    return element.id === term.id;
+                                                });
+
+                                                let existsTermOntology = _this.data.ontologyTermsDiseases.find((element) => {
+                                                    return element.id === term.id;
+                                                });
+
+                                                if(UtilsNew.isUndefinedOrNull(existsTermOntology)) {
+                                                    // save ontologyTerms from individual in data.ontologyTermsDiseases
+                                                    _this.data.ontologyTermsDiseases.push(term);
+                                                }
+
+                                                if(UtilsNew.isUndefinedOrNull(existsTerm)){
+                                                    _this.data.phenotypes.push(term);
+                                                }
+                                            }
+                                        });
+                                    }
+
+                                    // Difference between ontologyTermsDiseases and diseases are the custom diseases
+                                    _this.data.customDiseases = _this.data.phenotypes.filter(disease => !_this.data.ontologyTermsDiseases.some(ar2 => ar2.id === disease.id));
+                                    // Made this to update dom-repeat in from the component prioritization-view
+                                    _this.set("data.customDiseases", _this.data.customDiseases.slice());
+                                    _this.set("data.ontologyTermsDiseases", _this.data.ontologyTermsDiseases.slice());
+
+                                    // Save in family members[sample.id] the member object using individual data
+                                    _this.family.members[sample.id] = Object.assign(_this.family.members[sample.id], {name: sample.attributes.individual.name, sex: sample.attributes.individual.sex});
+
+                                    // Update samples selected
+                                    _samples.push(sample);
+                                    _this.data.samples = _samples;
+
+                                    // Made this to update dom-repeat in from the component prioritization-view
+                                    _this.set('data.samples', _samples.slice());
+                                })
+                                .catch(function (response) {
+                                    _this.settingsMessageModal = {
+                                        messageHeader: "Error",
+                                        messageBody: [response.error],
+                                        type: "danger",
+                                        height: "100px",
+                                        width: "500px"
+                                    };
+                                    _this.set('settingsMessageModal', _this.settingsMessageModal);
+                                    _this.showMessageModal = true;
+                                });
+                        } else {
+                            _samples.push(sample);
+                        }
+                    });
+
+                    this._sampleExists = UtilsNew.isNotUndefinedOrNull(this.samples);
+
+                    _this.data.samples = _samples;
+
+                }
+                this.data = Object.assign({}, this.data);
+            }
+
+            findSample(sampleId) {
+                if (UtilsNew.isNotUndefinedOrNull(this.data) && UtilsNew.isNotUndefinedOrNull(this.data.samples)) {
+                    return this.data.samples.find((sample) => {
+                        return parseInt(sampleId) === sample.id;
+                    });
+                }
+                return null;
+            }
+
+            isCheckedDisease(sampleId, diseaseId) {
+                let sampleSelected = this.findSample(sampleId);
+                if (UtilsNew.isNotUndefinedOrNull(sampleSelected) && UtilsNew.isNotUndefinedOrNull(sampleSelected.member)
+                    && UtilsNew.isNotUndefinedOrNull(sampleSelected.member.phenotypes)) {
+
+                    let existsSelectedDisease = sampleSelected.member.phenotypes.find((disease) => {
+                        return disease.id === diseaseId;
+                    });
+
+                    return UtilsNew.isNotUndefinedOrNull(existsSelectedDisease);
+                }
+                return false;
+            }
+
+            isCheckedParentalConsanguinity(sampleId) {
+                let sampleSelected = this.findSample(sampleId);
+                if(UtilsNew.isNotUndefinedOrNull(sampleSelected) && UtilsNew.isNotUndefinedOrNull(sampleSelected.member)
+                    && UtilsNew.isNotUndefinedOrNull(sampleSelected.member.parentalConsanguinity)) {
+                    return sampleSelected.member.parentalConsanguinity;
+                }
+
+                return false;
+            }
+
+            isCheckedDeceased(sampleId) {
+                let sampleSelected = this.findSample(sampleId);
+                if(UtilsNew.isNotUndefinedOrNull(sampleSelected) && UtilsNew.isNotUndefinedOrNull(sampleSelected.member)
+                    && UtilsNew.isNotUndefinedOrNull(sampleSelected.member.lifeStatus)) {
+                    return sampleSelected.member.lifeStatus === "DECEASED";
+                }
+
+                return false;
+            }
+
+            isSelectedParent(isMother, sampleParentId, sampleId) {
+                let sampleSelected = this.findSample(sampleId);
+                let sampleCurrentParent = this.findSample(sampleParentId);
+                let parentSelected = false;
+
+                if(UtilsNew.isNotUndefinedOrNull(sampleSelected) && UtilsNew.isNotUndefinedOrNull(sampleCurrentParent) &&
+                    UtilsNew.isNotUndefinedOrNull(sampleCurrentParent.individual) && UtilsNew.isNotUndefinedOrNull(sampleCurrentParent.individual.name)) {
+                    if (isMother) {
+                        parentSelected = sampleSelected.member.mother === sampleCurrentParent.individual.name;
+                    } else {
+                        parentSelected = sampleSelected.member.father === sampleCurrentParent.individual.name;
+                    }
+                }
+
+                return parentSelected;
+            }
+
+            isDisabledParent(isMother, sampleParentId, sampleId) {
+                let sampleSelected = this.findSample(sampleId);
+                let sampleCurrentParent = this.findSample(sampleParentId);
+                let parentSelected = false;
+
+                let gender = isMother ? "FEMALE" : "MALE";
+                if(UtilsNew.isNotUndefinedOrNull(sampleSelected) && UtilsNew.isNotUndefinedOrNull(sampleCurrentParent) &&
+                    UtilsNew.isNotUndefinedOrNull(sampleCurrentParent.individual) && UtilsNew.isNotUndefinedOrNull(sampleCurrentParent.individual.name)) {
+                        parentSelected = sampleSelected.id === sampleCurrentParent.id || sampleCurrentParent.individual.sex !== gender;
+                }
+                return parentSelected;
+            }
+
+            _updateSamples() {
+                this.initData();
+
+                if (UtilsNew.isNotUndefinedOrNull(this.samples)) {
+                    this._sampleExists = true;
+                } else {
+                    this._sampleExists = false;
+                }
+
+                if (UtilsNew.isNotUndefinedOrNull(PolymerUtils.getElementById("samplesTable"))) {
+                    PolymerUtils.getElementById("samplesTable").render();
+                }
+            }
+
+            _changeName(e) {
+                this.data.name = e.target.value;
+                this.family.name = this.data.name;
+                this._updateFamily();
+            }
+
+            _changeDescription(e) {
+                this.data.description = e.target.value;
+                this.family.description = this.data.description;
+                this._updateFamily();
+            }
+
+            _selectAffected(e) {
+                let sampleId = e.target.getAttribute("data-sample-id");
+                let diseaseId = e.target.getAttribute("data-disease-id");
+                let sampleSelected = this.findSample(sampleId);
+                if(UtilsNew.isNotUndefinedOrNull(sampleSelected)) {
+                    let existsSelectedDisease = sampleSelected.member.phenotypes.find((disease) => {
+                        return disease.id === diseaseId;
+                    });
+                    if (UtilsNew.isUndefinedOrNull(existsSelectedDisease)) {
+                        let selectedDisease = this.data.phenotypes.find((disease) => {
+                            return disease.id === diseaseId;
+                        });
+                        sampleSelected.member.phenotypes.push(selectedDisease);
+                    } else {
+                        sampleSelected.member.phenotypes = sampleSelected.member.phenotypes.filter((disease) => {
+                            return disease.id !== diseaseId;
+                        });
+                    }
+
+                    this.family.members[sampleId].phenotypes = sampleSelected.member.phenotypes;
+                    this._updateFamily();
+                }
+            }
+
+            _selectDeceased(e) {
+                let sampleId = e.target.getAttribute("data-sample-id");
+                let sampleSelected = this.findSample(sampleId);
+                if(UtilsNew.isNotUndefinedOrNull(sampleSelected)) {
+
+                    if(e.target.checked){
+                        sampleSelected.member.lifeStatus = "DECEASED";
+                    } else {
+                        sampleSelected.member.lifeStatus = "UNKNOWN";
+                    }
+                    this.family.members[sampleId].lifeStatus = sampleSelected.member.lifeStatus;
+                    this._updateFamily();
+                }
+            }
+
+
+            _selectParentalConsanguinity(e) {
+                let sampleId = e.target.getAttribute("data-sample-id");
+                let sampleSelected = this.findSample(sampleId);
+                if(UtilsNew.isNotUndefinedOrNull(sampleSelected)) {
+                    sampleSelected.member.parentalConsanguinity = e.target.checked;
+                    this.family.members[sampleId].parentalConsanguinity = sampleSelected.member.parentalConsanguinity;
+                    this._updateFamily();
+                }
+            }
+
+            _selectParent(e) {
+                let sampleId = e.target.getAttribute("data-sample-id");
+                let isFather = e.target.getAttribute("data-is-father");
+                let isMother = e.target.getAttribute("data-is-mother");
+
+                // Search the sample which is parent selected
+                let sampleSelectedParent = this.samples.find((sample) => {
+                    return sample.id === parseInt(e.target.value);
+                });
+
+                // Search the sample which we are selecting a parent.
+                let sampleSelected = this.samples.find((sample) => {
+                    return sample.id === parseInt(sampleId);
+                });
+
+                let parent = null;
+                if (UtilsNew.isNotUndefinedOrNull(sampleSelectedParent)) {
+                    parent = {
+                        name: sampleSelectedParent.individual.name,
+                        sex: sampleSelectedParent.individual.sex
+                    };
+
+                }
+                if (UtilsNew.isNotUndefinedOrNull(sampleSelected)) {
+
+                    // If selected individual sex is undefined
+                    if(UtilsNew.isUndefinedOrNull(sampleSelected.member.sex)){
+                        sampleSelected.member.sex = "UNKNOWN";
+                        this.family.members[sampleId].sex = "UNKNOWN";
+                    }
+
+                    // Set the sex of the parent
+                    if (isMother === "true") {
+                        if(UtilsNew.isNotUndefinedOrNull(parent)) {
+                            parent.sex = "FEMALE";
+                        }
+                        if (UtilsNew.isNotUndefinedOrNull(parent)) {
+                            sampleSelected.member.mother = parent.name;
+                            this.family.members[sampleId].mother = parent.name;
+                        } else {
+                            sampleSelected.member.mother = null;
+                            this.family.members[sampleId].mother = null;
+                        }
+
+                    } else if (isFather === "true") {
+                        if(UtilsNew.isNotUndefinedOrNull(parent)) {
+                            parent.sex = "MALE";
+                        }
+                        if (UtilsNew.isNotUndefinedOrNull(parent)) {
+                            sampleSelected.member.father = parent.name;
+                            this.family.members[sampleId].father = parent.name;
+                        } else {
+                            sampleSelected.member.father = null;
+                            this.family.members[sampleId].father = null;
+                        }
+                    }
+                    this._updateFamily();
+                }
+            }
+
+            addDisease(e){
+                this.newDisease.id = PolymerUtils.getValue(this.prefix + "idDisease");
+                PolymerUtils.setValue(this.prefix + "idDisease", "");
+                this.newDisease.name = PolymerUtils.getValue(this.prefix + "nameDisease");
+                PolymerUtils.setValue(this.prefix + "nameDisease", "");
+                this.newDisease.src = PolymerUtils.getValue(this.prefix + "srcDisease");
+                PolymerUtils.setValue(this.prefix + "srcDisease", "");
+
+                // Add by polymer array pushing a new disease to the family diseases array and to the custom diseases
+                this.push("data.phenotypes",{
+                    id: this.newDisease.id.toString(),
+                    name: this.newDisease.name,
+                    source: this.newDisease.src
+                });
+                this.push("data.customDiseases",{
+                    id: this.newDisease.id.toString(),
+                    name: this.newDisease.name,
+                    source: this.newDisease.src
+                });
+
+                this.newDisease = {};
+                this.family.phenotypes = this.data.phenotypes;
+                this._updateFamily();
+            }
+
+            _updateFamily() {
+                // Updating family in parents sending an event.
+                let _this = this;
+                this.dispatchEvent(new CustomEvent('familychange', {
+                    detail: { _family: _this.family, _samples: _this.samples},
+                    bubbles: true,
+                    composed: true
+                }));
+                this.pedigreeRender();
+            }
+
+
+            pedigreeRender() {
+                if(this.data.showSelectParents){
+                    if (UtilsNew.isNotUndefined(this.svg)) {
+                        PolymerUtils.getElementById(this.prefix + "PedigreeView").removeChild(this.svg);
+                    }
+                    let body = Object.assign({},this.family);
+                    let membersNew =[];
+                    body.members.forEach((member) => {
+                        let newMember = Object.assign({},member);
+                        membersNew.push(newMember);
+                    });
+                    body.members = membersNew;
+
+                    // Render new Pedigree
+                    let querySelector = PolymerUtils.getElementById(this.prefix + "PedigreeView");
+                    let pedigree = new Pedigree(body, {selectShowSampleNames: true});
+                    this.svg = pedigree.pedigreeFromFamily(pedigree.pedigree);
+                    querySelector.appendChild(this.svg);
+                }
+            }
+
+            deletedTermFromList(e){
+                let deletedTerm = JSON.parse(e.target.getAttribute("data-selected-term"));
+
+                let diseasesWithoutElement = this.data.phenotypes.filter((element) => {
+                    return element.id !== deletedTerm.id;
+                });
+                let customDiseasesWithoutElement = this.data.customDiseases.filter((element) => {
+                    return element.id !== deletedTerm.id;
+                });
+                this.set('data.phenotypes', diseasesWithoutElement);
+                this.set('data.customDiseases', customDiseasesWithoutElement);
+                this.family.phenotypes = this.data.phenotypes;
+                this.push("data.phenotypes");
+                this._updateFamily();
+            }
+
+            _summaryOnClick() {
+                if (this._summaryCollapsed) {
+                    $("#" + this.prefix + "SummaryCollapseIcon").removeClass("fa-plus-square-o").addClass("fa-minus-square-o");
+                } else {
+                    $("#" + this.prefix + "SummaryCollapseIcon").removeClass("fa-minus-square-o").addClass("fa-plus-square-o");
+                }
+                this._summaryCollapsed = !this._summaryCollapsed;
+            }
+
+            updateError(){
+                this.messageError = this.messageErrorFamily.slice();
+            }
+        }
+
+        customElements.define(OpencgaFamilyEditorNew.is, OpencgaFamilyEditorNew);
+    </script>
+</dom-module>

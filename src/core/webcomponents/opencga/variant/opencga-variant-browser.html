@@ -1,0 +1,630 @@
+<!--
+  ~ Copyright 2015 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<link rel="import" href="opencga-variant-filter.html">
+<link rel="import" href="../opencga-active-filters.html">
+<link rel="import" href="opencga-variant-grid.html">
+<link rel="import" href="opencga-variant-cohort-stats.html">
+<link rel="import" href="variant-beacon-network.html">
+<link rel="import" href="variant-genome-browser.html">
+<link rel="import" href="../opencga-genome-browser.html">
+<link rel="import" href="../../cellbase/variation/cellbase-variantannotation-view.html">
+
+<dom-module id="opencga-variant-browser">
+    <template>
+        <style include="jso-styles">
+            .browser-center {
+                margin: auto;
+                text-align: justify;
+                width: 95%;
+            }
+
+            .browser-variant-tab-title {
+                font-size: 115%;
+                font-weight: bold;
+            }
+
+            th {
+                text-align: center
+            }
+
+            .icon-padding {
+                padding-left: 4px;
+                padding-right: 8px;
+            }
+        </style>
+
+        <template is="dom-if" if="{{checkProjects}}">
+
+            <div class="panel" style="margin-bottom: 15px">
+                <h3 style="margin: 10px 10px 10px 15px">
+                <span on-click="onCollapse" style="cursor: pointer;margin: 0px 30px 0px 0px">
+                    <i class="fa fa-bars" aria-hidden="true"></i>
+                </span>
+                    <i class="fa fa-search" aria-hidden="true"></i>&nbsp;{{config.title}}
+                </h3>
+            </div>
+
+            <div class="row" style="padding: 0px 10px">
+                <div id="{{prefix}}FilterMenu" class="col-md-2">
+                    <opencga-variant-filter opencga-session="{{opencgaSession}}" config="{{config.filter}}"
+                                            cohorts="[[cohorts]]" samples="[[samples]]" opencga-client="{{opencgaClient}}"
+                                            cellbase-client="{{cellbaseClient}}"
+                                            population-frequencies="{{populationFrequencies}}"
+                                            consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}"
+                                            on-samplechange="onSampleChange">
+                    </opencga-variant-filter>
+                </div>
+
+                <div id="{{prefix}}MainWindow" class="col-md-10">
+                    <opencga-active-filters opencga-client="{{opencgaClient}}" query="[[query]]" filters="{{config.filter.examples}}" on-filterchange="onActiveFilterChange" on-clear="onClear"
+                                            filter-bioformat="VARIANT" default-study="{{opencgaSession.study.alias}}" alias="{{activeFilterAlias}}" refresh="[[search]]">
+                    </opencga-active-filters>
+
+                    <div class="col-md-12" style="padding: 5px 0px 5px 0px">
+                        <div class="btn-toolbar" role="toolbar" aria-label="..." style="padding: 10px 0px;margin-left: 0px">
+                            <div id="{{prefix}}LeftToolbar" style="padding-bottom: 0px">
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-success variant-browser-view-buttons active" data-view="TableResult" on-click="_changeView">
+                                        <i class="fa fa-table icon-padding" aria-hidden="true" data-view="TableResult" on-click="_changeView"></i> Table Result
+                                    </button>
+                                    <template is="dom-if" if="{{config.showSummary}}">
+                                        <button type="button" class="btn btn-success variant-browser-view-buttons" data-view="Summary" on-click="_changeView">
+                                            <i class="fa fa-line-chart icon-padding" aria-hidden="true" data-view="Summary" on-click="_changeView"></i> Summary (Beta)
+                                        </button>
+                                    </template>
+                                    <template is="dom-if" if="{{config.showGenomeBrowser}}">
+                                        <button id="{{prefix}}GenomeBrowserButton" type="button" class="btn btn-success variant-browser-view-buttons" data-view="GenomeBrowser" on-click="_changeView">
+                                            <i class="fa fa-list-alt icon-padding" aria-hidden="true" data-view="GenomeBrowser" on-click="_changeView"></i> Genome Browser (Beta)
+                                        </button>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <!-- First TAB -->
+                        <div id="{{prefix}}TableResult" class="variant-browser-content">
+                            <!-- Variant Browser Grid -->
+                            <opencga-variant-grid opencga-session="{{opencgaSession}}" cohorts="[[cohorts]]"
+                                                  opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+                                                  population-frequencies="{{populationFrequencies}}" active="{{active}}"
+                                                  protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                  consequence-types="{{consequenceTypes}}" query="[[query]]" search="{{search}}"
+                                                  variant="{{variant}}" on-selected="selectedGene"
+                                                  on-selectvariant="onSelectVariant" style="font-size: 12px" config="{{config}}"
+                                                  summary="{{summary}}" samples="{{samples}}" on-setgenomebrowserposition="onGenomeBrowserPositionChange">
+                            </opencga-variant-grid>
+
+
+                            <!-- Bottom tabs with specific variant information -->
+                            <div style="padding-top: 20px" hidden$="{{!checkVariant(variant)}}">
+                                <h3>Variant: {{variant}}</h3>
+                                <div style="padding-top: 20px">
+                                    <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
+                                        <li role="presentation" class="active">
+                                            <a href="#{{prefix}}Annotation" role="tab" data-toggle="tab" class="browser-variant-tab-title">
+                                                Advanced Annotation
+                                            </a>
+                                        </li>
+                                        <li role="presentation">
+                                            <a href="#{{prefix}}Genotype" role="tab" data-toggle="tab" class="browser-variant-tab-title">
+                                                Genotype Stats
+                                            </a>
+                                        </li>
+                                        <li role="presentation">
+                                            <a href="#{{prefix}}Beacon" role="tab" data-toggle="tab" class="browser-variant-tab-title">
+                                                Beacon Network
+                                            </a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content" style="height: 680px">
+                                        <!-- Annotation Tab -->
+                                        <div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">
+                                            <cellbase-variantannotation-view data="{{variant}}" assembly={{opencgaSession.project.organism.assembly}} prefix="{{prefix}}"
+                                                                             cellbase-client="{{cellbaseClient}}" mode="vertical"
+                                                                             hash-fragment-credentials="{{hashFragmentCredentials}}"
+                                                                             consequence-types="{{consequenceTypes}}"
+                                                                             protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                                             style="font-size: 12px">
+                                            </cellbase-variantannotation-view>
+                                        </div>
+
+                                        <!-- Cohort Stats Tab -->
+                                        <div role="tabpanel" class="tab-pane" id="{{prefix}}Genotype">
+                                            <div style="width: 75%;padding-top: 8px">
+                                                <opencga-variant-cohort-stats opencga-session="{{opencgaSession}}" variant="{{variant}}"></opencga-variant-cohort-stats>
+                                            </div>
+                                        </div>
+
+                                        <!-- Beacon network Tab-->
+                                        <div role="tabpanel" class="tab-pane" id="{{prefix}}Beacon">
+                                            <br>
+                                            <button class="btn btn-primary" type="button" on-click="triggerBeacon">Search Beacon Network</button>
+                                            <a data-toggle="tooltip"
+                                               title="Beacon Network is a search engine across the world's public beacons. You can find it here - https://beacon-network.org/#/">
+                                                <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                            </a>
+                                            <br><br>
+                                            <variant-beacon-network hosts="{{beaconHosts}}" clear="{{variant}}" variant="{{variantToBeacon}}"></variant-beacon-network>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Second TAB -->
+                        <div id="{{prefix}}Summary" class="variant-browser-content" style="display: none">
+                            <br>
+                            <div class="col-md-6">
+                                <h4>Consequence Type</h4>
+                                <div id="{{prefix}}soAcc"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <h4>Gene</h4>
+                                <div id="{{prefix}}genes"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <h4>Variant Type</h4>
+                                <div id="{{prefix}}type"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <h4>Studies</h4>
+                                <div id="{{prefix}}studies"></div>
+                            </div>
+                        </div>
+
+                        <!-- Third TAB -->
+                        <div id="{{prefix}}GenomeBrowser" class="variant-browser-content" style="display: none">
+                            <br>
+                            <br>
+                            <opencga-genome-browser opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}"
+                                                    cellbase-client="{{cellbaseClient}}" config="{{_config.genomeBrowser}}"
+                                                    query={{query}} search={{search}} species={{config.species}}
+                                                    region="{{region}}" active="{{_genomeBrowserActive}}" full-screen="{{fullScreen}}">
+                            </opencga-genome-browser>
+                        </div>
+                    </div>
+
+                    <div class="modal fade" id="{{prefix}}LoadingModal" data-backdrop="static" data-keyboard="false" tabindex="-1"
+                         role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h3>Loading...</h3>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="progress progress-striped active">
+                                        <div class="progress-bar progress-bar-success" style="width: 100%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <template is="dom-if" if="{{!checkProjects}}">
+            <span style="text-align: center"><h3>No public projects available to browse. Please login to continue</h3></span>
+        </template>
+    </template>
+
+    <script>
+        class OpencgaVariantBrowser extends Polymer.Element {
+
+            constructor() {
+                super();
+
+                // Set status and init private properties
+                this._init();
+            }
+
+            static get is() {
+                return 'opencga-variant-browser';
+            }
+
+            static get properties() {
+                return {
+                    opencgaSession: {
+                        type: Object,
+                        observer: "onStudyUpdate"
+                    },
+                    samples: {
+                        type: Array
+                    },
+                    opencgaClient: {
+                        type: Object
+                    },
+                    cellbaseClient: {
+                        type: Object
+                    },
+                    populationFrequencies: {
+                        type: Object
+                    },
+                    consequenceTypes: {
+                        type: Object
+                    },
+                    proteinSubstitutionScores: {
+                        type: Object
+                    },
+                    beaconHosts: {
+                        type: Array
+                    },
+                    query: {
+                        type: Object
+                    },
+                    search: {
+                        type: Object,
+                        observer: 'renderHashQueryParams'
+                    },
+                    checkProjects: {
+                        type: Boolean,
+                        computed: '_checkProjects()'
+                    },
+                    variant: {
+                        type: String,
+                        value: "No variant selected"
+                    },
+                    config: {
+                        type: Object
+                    }
+                }
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            _init() {
+                this.prefix = "varbrowser" + Utils.randomString(6);
+
+                this._collapsed = false;
+                this.genotypeColor = {
+                    "0/0": "#6698FF",
+                    "0/1": "#FFA500",
+                    "1/0": "#FFA500",
+                    "1/1": "#FF0000",
+                    "./.": "#000000",
+                    "0|0": "#6698FF",
+                    "0|1": "#FFA500",
+                    "1|0": "#FFA500",
+                    "1|1": "#FF0000",
+                    ".|.": "#000000",
+                };
+
+                this.activeFilterAlias = {
+                    "annot-xref": "XRef",
+                    "biotype": "Biotype",
+                    "annot-ct": "Consequence Types",
+                    "alternate_frequency": "Population ALT Frequency",
+                    "annot-functional-score": "CADD",
+                    "protein_substitution": "Protein Substitution",
+                    "annot-go": "GO",
+                    "annot-hpo": "HPO"
+                };
+
+                this._config = this.getDefaultConfig();
+            }
+
+            onCollapse() {
+                if (this._collapsed) {
+                    $("#" + this.prefix + "FilterMenu").show(400);
+                    $("#" + this.prefix + "MainWindow").removeClass("browser-center").addClass("col-md-10");
+                } else {
+                    $("#" + this.prefix + "FilterMenu").hide(400);
+                    $("#" + this.prefix + "MainWindow").removeClass("col-md-10").addClass("browser-center");
+                }
+                this._collapsed = !this._collapsed;
+            }
+
+            // TODO send an event with the query, only iva-app.html should change the URL
+            renderHashQueryParams() {
+                let hashFrag = window.location.hash.split('?')[0];
+                if (typeof this.query !== "undefined" && Object.keys(this.query).length > 0) {
+                    let qArray = [];
+                    for (let key in this.query) {
+                        if (key !== "studies") {
+                            qArray.push(key + "=" + this.query[key]);
+                        }
+                    }
+                    hashFrag += "?" + qArray.join('&');
+                }
+                window.location.hash = hashFrag;
+            }
+
+            onStudyUpdate() {
+                if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.project)) {
+                    // Update cohorts from config, this updates the Cohort filter MAF
+                    for (let section of this.config.filter.menu.sections) {
+                        for (let subsection of section.subsections) {
+                            if (subsection.id === "cohort") {
+                                let projectFields = this.opencgaSession.project.alias.split("@");
+                                let projectId = (projectFields.length > 1) ? projectFields[1] : projectFields[0];
+                                this.cohorts = subsection.cohorts[projectId];
+                                // this.set('cohorts', subsection.cohorts[projectId]);
+                                // debugger
+                            }
+                        }
+                    }
+                }
+            }
+
+            onClear() {
+                this.query = {studies: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias};
+                this.search = {};
+            }
+
+            onActiveFilterChange(e) {
+                this.query = e.detail;
+                this.search = e.detail;
+            }
+
+            onSampleChange(e) {
+                this.set('samples', e.detail.samples);
+                this.dispatchEvent(new CustomEvent("samplechange", {detail: {samples: this.samples}, bubbles: true, composed: true}));
+            }
+
+            onGenomeBrowserPositionChange(e) {
+                $('.variant-browser-content').hide(); // hides all content divs
+
+                // Show genome browser div
+                PolymerUtils.getElementById(this.prefix + "GenomeBrowser").style.display = "block";
+
+                // Show the active button
+                $('.variant-browser-view-buttons').removeClass("active");
+                PolymerUtils.addClass(this.prefix + "GenomeBrowserButton", "active");
+
+                this._genomeBrowserActive = true;
+
+                this.region = e.detail.genomeBrowserPosition;
+            }
+
+            _checkProjects() {
+                if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.projects)) {
+                    return this.opencgaSession.projects.length !== 0;
+                }
+                return false;
+            }
+
+
+            projectStudyObtained(project, study) {
+                if (typeof this.opencgaSession.project !== "undefined" && this.opencgaSession.project.alias !== ""
+                    && typeof this.opencgaSession.study !== "undefined" && this.opencgaSession.study.alias !== "") {
+                    this.hashFragmentCredentials = {
+                        project: this.opencgaSession.project.alias,
+                        study: this.opencgaSession.study.alias
+                    };
+                }
+            }
+
+            checkVariant(variant) {
+                return variant.split(':').length > 2;
+            }
+
+            onSelectVariant(e) {
+                this.variant = e.detail.id;
+//                this.V = e.detail.variant;
+//                this.display3D();
+            }
+
+            selectedGene(e) {
+                this.dispatchEvent(new CustomEvent('propagate', {gene: e.detail.gene}));
+            }
+
+            fetchFacets() {
+                let queryParams = {
+                    sid: this.opencgaClient._config.sessionId,
+                    studies: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
+                    facet: "type;genes;soAcc;studies",
+                    timeout: 60000
+                };
+                Object.assign(queryParams, this.query);
+
+                if (typeof queryParams.sid === "undefined" || queryParams.sid === "") {
+                    delete queryParams["sid"];
+                }
+
+                let _this = this;
+
+                // Shows loading modal
+                $("#" + this.prefix + "LoadingModal").modal("show");
+
+                setTimeout(_ => {
+                    this.opencgaClient.variants().facet(queryParams, {})
+                        .then(function (queryResponse) {
+                            _this.facetResults = queryResponse.response[0].result[0].result.fields;
+                            for (let result of _this.facetResults) {
+                                let categories = [];
+                                let data = [];
+
+                                for (let countObj of result.counts) {
+                                    categories.push(countObj.value);
+                                    data.push(countObj.count);
+                                }
+
+                                $("#" + _this.prefix + result.name).highcharts({
+                                    credits: {enabled: false},
+                                    chart: {
+                                        type: "column"
+                                    },
+                                    title: {
+                                        text: result.name
+                                    },
+                                    xAxis: {
+                                        categories: categories
+                                    },
+                                    yAxis: {
+                                        min: 0,
+                                        title: {
+                                            text: 'Total number of Variants'
+                                        }
+                                    },
+                                    tooltip: {
+                                        headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                                        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                                        '<td style="padding:0"><b>{point.y:.1f} </b></td></tr>',
+                                        footerFormat: '</table>',
+                                        shared: true,
+                                        useHTML: true
+                                    },
+                                    plotOptions: {
+                                        column: {
+                                            pointPadding: 0.2,
+                                            borderWidth: 0
+                                        }
+                                    },
+                                    series: [{
+                                        name: result.name,
+                                        data: data
+                                    }]
+                                });
+                            }
+
+                            // Remove loading modal
+                            $("#" + _this.prefix + "LoadingModal").modal("hide");
+                        })
+                        .catch(function (e) {
+                            // Remove loading modal
+                            $("#" + _this.prefix + "LoadingModal").modal("hide");
+                        });
+                }, 250);
+            }
+
+            // This observer is needed when pie charts are rendered instead of table. This is where the data needed for high charts is prepared
+            variantStudiesChanged() {
+                this.$.variantStudies.render();
+                if (this.variantStudies.length > 0) {
+                    for (let i = 0; i < this.variantStudies.length; i++) {
+                        let statsArray = this.variantStudies[i].stats;
+                        for (let j = 0; j < statsArray.length; j++) {
+                            let genotypeCount = statsArray[j].value.genotypesCount;
+                            let data = [];
+                            if (Object.keys(genotypeCount).length > 0) {
+                                for (let k in genotypeCount) {
+                                    data.push({
+                                        name: k,
+                                        y: genotypeCount[k],
+                                        color: this.genotypeColor[k]
+                                    });
+                                }
+                                let params = {title: statsArray[j].name, data: data};
+                                this._updatePieChart("#" + statsArray[j].study + statsArray[j].name, params);
+                            }
+                        }
+                    }
+                }
+            }
+
+            getStudy(study) {
+                if (study !== undefined) {
+                    let fields = study.split(':');
+                    return fields[fields.length - 1];
+                }
+                return "";
+            }
+
+            checkForGenotypes(stat) {
+                let genotypesCount = stat.value.genotypesCount;
+                return Object.keys(genotypesCount).length > 0;
+            }
+
+            checkForSampleData(samplesData) {
+                return samplesData.length > 0;
+            }
+
+            _changeView(e) {
+                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+                $('.variant-browser-content').hide(); // hides all content divs
+                if (typeof e.target !== "undefined" && typeof e.target.dataset.view !== "undefined") {
+                    $("#" + this.prefix + e.target.dataset.view).show(); // get the href and use it find which div to show
+                }
+
+                // Show the active button
+                $('.variant-browser-view-buttons').removeClass("active");
+                $(e.target).addClass("active");
+
+                if (e.target.dataset.view === "Summary") {
+                    this.fetchFacets();
+                }
+
+                if (e.target.dataset.view === "GenomeBrowser") {
+//                    window.location.hash = "genomebrowser";
+                    this._genomeBrowserActive = true;
+                } else {
+                    this._genomeBrowserActive = false;
+                }
+            }
+
+            // This is the old Pie Chart implementation, not used right now
+            _updatePieChart(_id, params) {
+                // params = { title, data}
+                $(_id).highcharts({
+                    credits: {enabled: false},
+                    chart: {
+                        plotBackgroundColor: null,
+                        plotBorderWidth: null,
+                        plotShadow: false,
+                        type: 'pie',
+                        width: 220
+                    },
+                    title: {
+                        text: params.title
+                    },
+                    tooltip: {
+                        pointFormat: '{series.name}: <b>{point.percentage:.2f}%</b>'
+                    },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            minSize: 75,
+                            dataLabels: {
+                                padding: 4,
+                                connectorPadding: 4,
+                                enabled: true,
+                                format: '{point.name}: {point.percentage:.2f}%',
+                                style: {
+                                    color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                                }
+                            }
+                        }
+                    },
+                    series: [{
+                        name: 'Genotype Count',
+                        data: params.data
+                    }]
+                });
+            }
+
+            triggerBeacon(e) {
+                this.variantToBeacon = this.variant;
+            }
+
+            getDefaultConfig() {
+                return {
+                    genomeBrowser: {
+                        showTitle: false
+                    }
+                }
+            }
+        }
+
+        customElements.define(OpencgaVariantBrowser.is, OpencgaVariantBrowser);
+    </script>
+</dom-module>

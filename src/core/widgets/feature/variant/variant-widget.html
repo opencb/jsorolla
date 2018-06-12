@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="UTF-8">
+<title>Variant Widget Demo</title>
+
+
+<!-- build:style vendor -->
+<link type="text/css" rel="stylesheet" href="../../../../../vendor/ext-5/theme-babel/theme-babel-all.css">
+<link type="text/css" rel="stylesheet" href="../../../../../vendor/jquery.qtip.min.css"/>
+<link type="text/css" rel="stylesheet" href="../../../../../vendor/bootstrap-scoped-dist/css/bootstrap.min.css">
+<!-- /build -->
+
+
+<!-- build:style css -->
+<link type="text/css" rel="stylesheet" href="../../../../../styles/css/style.css"/>
+<!-- /build -->
+
+<script type="text/javascript" src="http://cdn.sencha.io/ext/gpl/5.0.0/build/ext-all.js"></script>
+<script type="text/javascript"
+        src="http://cdn.sencha.io/ext/gpl/5.0.0/build/packages/ext-charts/build/ext-charts.js"></script>
+
+
+<!-- build:script vendor -->
+<script type="text/javascript" src="../../../../../vendor/underscore-min.js"></script>
+<script type="text/javascript" src="../../../../../vendor/backbone-min.js"></script>
+<script type="text/javascript" src="../../../../../vendor/jquery.min.js"></script>
+
+<!-- These dependencies must go AFTER jquery -->
+<script type="text/javascript" src="../../../../../vendor/bootstrap-scoped-dist/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../../../../../vendor/jquery.cookie.js"></script>
+<script type="text/javascript" src="../../../../../vendor/jquery.sha1.js"></script>
+<script type="text/javascript" src="../../../../../vendor/purl.min.js"></script>
+<script type="text/javascript" src="../../../../../vendor/jquery.qtip.min.js"></script>
+<!-- /build -->
+
+<script type="text/javascript" src="../../../../genome-viewer/gv-config.js"></script>
+
+<!-- build:script js -->
+<script type="text/javascript" src="../../..//svg.js"></script>
+<script type="text/javascript" src="../../..//utils.js"></script>
+<script type="text/javascript" src="../../..//utilsNew.js"></script>
+<script type="text/javascript" src="../../..//utilsNew.js"></script>
+<script type="text/javascript" src="../../..//region.js"></script>
+<script type="text/javascript" src="../../../../genome-browser/feature-binary-search-tree.js"></script>
+<script type="text/javascript" src="../../..//cellbase-manager.js"></script>
+<script type="text/javascript" src="../../../obsolete/ensembl-manager.js"></script>
+
+<script type="text/javascript" src="../../..//cache/feature-chunk-cache.js"></script>
+<script type="text/javascript" src="../../..//cache/memory-store.js"></script>
+
+<script type="text/javascript" src="../../../data-adapter/feature/obsolete/cellbase-adapter.js"></script>
+<script type="text/javascript" src="../../..//data-adapter/feature/sequence-adapter.js"></script>
+<script type="text/javascript" src="../../..//data-adapter/feature/ensembl-adapter.js"></script>
+
+<script type="text/javascript" src="../../..//widgets/feature/info/info-widget.js"></script>
+<script type="text/javascript" src="../../..//widgets/feature/info/gene-info-widget.js"></script>
+<script type="text/javascript" src="../../..//widgets/feature/info/protein-info-widget.js"></script>
+<script type="text/javascript" src="../../..//widgets/feature/info/snp-info-widget.js"></script>
+<script type="text/javascript" src="../../..//widgets/feature/info/transcript-info-widget.js"></script>
+<script type="text/javascript" src="../../..//widgets/feature/info/vcf-variant-info-widget.js"></script>
+
+<script type="text/javascript" src="../../../../../check-deprecated/legend-panel.js"></script>
+<script type="text/javascript" src="../../../../../check-deprecated/legend-widget.js"></script>
+
+<script type="text/javascript" src="../../..//widgets/ux-window.js"></script>
+
+<!-- **** -->
+
+<script type="text/javascript" src="../../../../genome-viewer/navigation-bar.js"></script>
+<script type="text/javascript" src="../../../../genome-viewer/chr-panel.js"></script>
+<script type="text/javascript" src="../../../../genome-viewer/karyotype-panel.js"></script>
+<script type="text/javascript" src="../../../../genome-viewer/status-bar.js"></script>
+
+<script type="text/javascript" src="../../../../genome-viewer/tracks/tracklist-panel.js"></script>
+<script type="text/javascript" src="../../../../genome-viewer/tracks/track.js"></script>
+<script type="text/javascript" src="../../../../genome-viewer/tracks/feature-track.js"></script>
+<script type="text/javascript" src="../../../../genome-viewer/tracks/sequence-track.js"></script>
+<script type="text/javascript" src="../../../../genome-viewer/tracks/gene-track.js"></script>
+
+<script type="text/javascript" src="../../../../genome-viewer/renderers/renderer.js"></script>
+<script type="text/javascript" src="../../../../genome-viewer/renderers/feature-renderer.js"></script>
+<script type="text/javascript" src="../../../../genome-viewer/renderers/feature-cluster-renderer.js"></script>
+<script type="text/javascript" src="../../../../genome-viewer/renderers/sequence-renderer.js"></script>
+<script type="text/javascript" src="../../../../genome-viewer/renderers/histogram-renderer.js"></script>
+<script type="text/javascript" src="../../../../genome-viewer/renderers/gene-renderer.js"></script>
+
+
+<script type="text/javascript" src="../../../../genome-viewer/genome-viewer.js"></script>
+
+
+<script type="text/javascript" src="../../..//opencga-manager.js"></script>
+<script type="text/javascript" src="../../..//widgets/opencga/generic-form-panel.js"></script>
+<script type="text/javascript" src="../../..//widgets/opencga/check-browser.js"></script>
+<script type="text/javascript" src="../../..//widgets/opencga/header-widget.js"></script>
+<script type="text/javascript" src="../../..//widgets/opencga/job-list-widget.js"></script>
+<script type="text/javascript" src="../../..//widgets/opencga/login-widget.js"></script>
+<script type="text/javascript" src="../../..//widgets/opencga/opencga-browser-widget.js"></script>
+<script type="text/javascript" src="../../..//widgets/opencga/profile-widget.js"></script>
+<script type="text/javascript" src="../../..//widgets/opencga/result-widget.js"></script>
+<script type="text/javascript" src="../../..//widgets/opencga/result-table.js"></script>
+<script type="text/javascript" src="../../..//widgets/opencga/upload-widget.js"></script>
+
+<script type="text/javascript" src="variant-browser-grid.js"></script>
+<script type="text/javascript" src="variant-effect-grid.js"></script>
+<script type="text/javascript" src="variant-genotype-grid.js"></script>
+<script type="text/javascript" src="variant-stats-panel.js"></script>
+
+<script type="text/javascript" src="variant-widget.js"></script>
+
+
+<!-- /build -->
+
+<script type="text/javascript">
+    var url = OpencgaManager.getJobAnalysisUrl('aaleman', 'BiZeq0Mirq2uS5U') + '/variantsMongo';
+
+    var variantWidget;
+    Ext.onReady(function () {
+
+        var EXAMPLE_DATA = [
+            {
+                "type": "SNV",
+                "chr": "1",
+                "start": 1650807,
+                "end": 1650807,
+                "length": 1,
+                "reference": "T",
+                "alternate": "C",
+                "id": "rs1137005",
+                "hgvs": {
+                    "genomic": [
+                        "1:g.1650807T>C"
+                    ]
+                },
+                "files": {
+                    "test2": {
+                        "fileId": "test2",
+                        "studyId": "test",
+                        "format": "GT:DS:GL",
+                        "samplesData": {
+                            "NA19600": {
+                                "GT": "0|1"
+                            },
+                            "NA19660": {
+                                "GT": "0|1"
+                            },
+                            "NA19661": {
+                                "GT": "1|1"
+                            },
+                            "NA19685": {
+                                "GT": "0|0"
+                            }
+                        },
+                        "stats": {
+                            "chr": null,
+                            "position": -1,
+                            "refAllele": null,
+                            "altAllele": null,
+                            "refAlleleCount": -1,
+                            "altAlleleCount": -1,
+                            "genotypesCount": {
+                                "0|1": 2,
+                                "1|1": 1,
+                                "0|0": 1
+                            },
+                            "missingAlleles": 0,
+                            "missingGenotypes": 0,
+                            "refAlleleFreq": -1,
+                            "altAlleleFreq": -1,
+                            "genotypesFreq": { },
+                            "maf": 0.5,
+                            "mgf": 1,
+                            "mafAllele": "T",
+                            "mgfGenotype": "0|1",
+                            "pedigreeStatsAvailable": false,
+                            "mendelianErrors": -1,
+                            "casesPercentDominant": -1,
+                            "controlsPercentDominant": -1,
+                            "casesPercentRecessive": -1,
+                            "controlsPercentRecessive": -1,
+                            "transitionsCount": -1,
+                            "transversionsCount": -1,
+                            "quality": 0,
+                            "numSamples": 0
+                        },
+                        "attributes": {
+                            "QUAL": "100.0",
+                            "FILTER": "PASS"
+                        }
+                    }
+                },
+                "effect": [ ]
+            }
+
+        ];
+
+        variantWidget = new VariantWidget({
+            target: 'application',
+            title: 'Variant Widget',
+//                data: EXAMPLE_DATA,
+            url: url,
+            filters: {},
+            width: $('#application').width(),
+            defaultToolConfig: {effect: true, genomeViewer: true, genotype: true},
+            tools: []
+        }); //the div must exist
+        variantWidget.draw();
+        variantWidget.variantBrowserGrid.load(EXAMPLE_DATA);
+    });
+</script>
+
+<style type="text/css">
+    html {
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        overflow-x: hidden;
+    }
+
+    body {
+        margin: 0px;
+    }
+
+    #application {
+        margin: 0 auto;
+        width: 1500px;
+        /*border: 1px solid slateblue;*/
+    }
+
+    #title {
+        margin: 20px auto;
+        width: 1500px;
+        font-size: 35px;
+        color: gray;
+    }
+</style>
+</head>
+<body>
+<div id="title">Variant Widget</div>
+<div id="application"></div>
+</body>
+</html>
