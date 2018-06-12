@@ -360,7 +360,7 @@
                                     <!-- Current Annotation Tab -->
                                     <div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">
                                         <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}"
-                                                                         cellbase-client="{{cellbaseClient}}"
+                                                                         cellbase-client="{{cellbaseClient}}" assembly={{opencgaSession.project.organism.assembly}}
                                                                          mode="vertical"
                                                                          hash-fragment-credentials="{{hashFragmentCredentials}}"
                                                                          consequence-types="{{consequenceTypes}}"
@@ -420,7 +420,7 @@
                                             <!--</variant-genome-browser>-->
                                             <genome-browser cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}"
                                                             region="{{regionGenomeBrowser}}"
-                                                            study="{{study}}" project="{{project}}" active="{{_genomeBrowserActive}}" settings="{{settings}}">
+                                                            opencga-session="{{opencgaSession}}" active="{{_genomeBrowserActive}}" settings="{{settings}}">
                                             </genome-browser>
                                         </div>
                                     </div>
@@ -450,10 +450,7 @@
             }
             static get properties() {
                 return {
-                    project: {
-                        type: Object
-                    },
-                    study: {
+                    opencgaSession: {
                         type: Object
                     },
                     proteinSubstitutionScores: {
@@ -488,7 +485,7 @@
 
             static get observers() {
                 return [
-                    'projectStudyObtained(project, study)'
+                    'projectStudyObtained(opencgaSession)'
                 ]
             }
 
@@ -617,7 +614,7 @@
 
             onChangeId(e){
                  let params = {
-                    study: this.project.alias + ":" + this.study.alias
+                    study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias
                  };
                  let _this = this;
                 if (UtilsNew.isNotUndefinedOrNull(this.interpretationId)) {
@@ -738,10 +735,10 @@
                 }
             }
             projectStudyObtained(project, study) {
-                if (typeof this.project !== "undefined" && this.project.alias !== "" && typeof this.study !== "undefined" && this.study.alias !== "") {
+                if (typeof this.opencgaSession.project !== "undefined" && this.opencgaSession.project.alias !== "" && typeof this.opencgaSession.study !== "undefined" && this.opencgaSession.study.alias !== "") {
                     this.hashFragmentCredentials = {
-                        project: this.project.alias,
-                        study: this.study.alias
+                        project: this.opencgaSession.project.alias,
+                        study: this.opencgaSession.study.alias
                     };
                 }
             }

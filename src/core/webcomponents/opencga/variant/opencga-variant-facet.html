@@ -14,316 +14,328 @@
   ~ limitations under the License.
   -->
 
-<link rel="import" href="../opencga-active-filters.html">
+<link rel="import" href="opencga-variant-filter.html">
 
-<dom-module id="variant-facet-view">
+<dom-module id="opencga-variant-facet">
     <template>
         <style include="jso-styles"></style>
 
-        <div>
-            <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" alias="{{activeFilterAlias}}"
-                                    default-study="{{study.alias}}" refresh="{{search}}">
-            </opencga-active-filters>
+        <!--<template is="dom-if" if="{{checkProjects}}">-->
+        <div class="panel" style="margin-bottom: 15px">
+            <h3 style="margin: 10px 10px 10px 15px">
+                <i class="fa fa-bar-chart" aria-hidden="true"></i> &nbsp;{{config.title}}
+            </h3>
+        </div>
 
-            <div class="panel panel-default col-sm-12">
-                <!-- Facet Fields -->
-                <div class="col-sm-10">
-                    <h3>Fields</h3>
-                    <div class="form-group row">
-                        <div class="col-sm-2">
-                            <select id="{{prefix}}FacetField" class$="form-control {{prefix}}FilterSelect">
-                                <option value="none" selected>Select a field...</option>
-                                <template is="dom-repeat" items="{{config.fields}}">
-                                    <option value="{{item.value}}">{{item.name}}</option>
-                                </template>
-                                <template is="dom-repeat" items="{{facetFieldsName}}" filter="_isValidField">
-                                    <option value="{{item.value}}">{{item.name}}</option>
-                                </template>
-                            </select>
+        <div class="row" style="padding: 0px 10px">
+            <div class="col-md-2">
+                <opencga-variant-filter opencga-session={{opencgaSession}} opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+                                        population-frequencies="{{populationFrequencies}}" consequence-types="{{consequenceTypes}}"
+                                        query="{{query}}" search="{{search}}" config="{{config.filter}}" style="font-size: 12px">
+                </opencga-variant-filter>
+            </div>
+
+            <div class="col-md-10">
+                <div>
+                    <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" alias="{{activeFilterAlias}}"
+                                            default-study="{{opencgaSession.study.alias}}" refresh="{{search}}">
+                    </opencga-active-filters>
+
+                    <div class="panel panel-default col-sm-12">
+                        <!-- Facet Fields -->
+                        <div class="col-sm-10">
+                            <h3>Fields</h3>
+                            <div class="form-group row">
+                                <div class="col-sm-2">
+                                    <select id="{{prefix}}FacetField" class$="form-control {{prefix}}FilterSelect">
+                                        <option value="none" selected>Select a field...</option>
+                                        <template is="dom-repeat" items="{{config.fields}}">
+                                            <option value="{{item.value}}">{{item.name}}</option>
+                                        </template>
+                                        <template is="dom-repeat" items="{{facetFieldsName}}" filter="_isValidField">
+                                            <option value="{{item.value}}">{{item.name}}</option>
+                                        </template>
+                                    </select>
+                                </div>
+                                <div class="col-sm-2">
+                                    <textarea class="form-control" rows="1" id="{{prefix}}FieldIncludes" placeholder="Include values"></textarea>
+                                </div>
+                                <div class="col-sm-2">
+                                    <select id="{{prefix}}FacetFieldNested" class$="form-control {{prefix}}FilterSelect">
+                                        <option value="none" selected>Nested field...</option>
+                                        <template is="dom-repeat" items="{{config.fields}}">
+                                            <option value="{{item.value}}">{{item.name}}</option>
+                                        </template>
+                                    </select>
+                                </div>
+                                <div class="col-sm-2">
+                                    <textarea class="form-control" rows="1" id="{{prefix}}NestedFieldIncludes" placeholder="Include values"></textarea>
+                                </div>
+                                <button type="button" class="btn btn-primary" on-click="addFacets" style="cursor: pointer">Add</button>
+                            </div>
+
+                            <template is="dom-repeat" items="{{facetFieldsName}}">
+                                <span style="font-size: 14px">
+                                    <span title="Remove field" style="padding: 0px 0px 20px 20px">
+                                        <i class="fa fa-times fa-lg" aria-hidden="true" on-click="removeFacetField"
+                                           data-id="{{item.value}}" data-field="field" style="color: darkred;cursor: pointer"></i>
+                                    </span>&nbsp;{{item.name}}
+                                </span>
+                            </template>
                         </div>
-                        <div class="col-sm-2">
-                            <textarea class="form-control" rows="1" id="{{prefix}}FieldIncludes"
-                                      placeholder="Include values"></textarea>
+
+                        <!-- Facet Range -->
+                        <div class="col-sm-10">
+                            <h3>Ranges</h3>
+
+                            <!-- Chromosomes -->
+                            <label>Chromosome</label>
+                            <div class="form-group row">
+                                <div class="col-sm-2">
+                                    <input type="text" class="form-control" id="{{prefix}}ChromosomeInput" placeholder="1">
+                                </div>
+
+                                <div class="col-sm-2">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Chunk</span>
+                                        <select id="{{prefix}}ChromosomeRangeGap" class$="form-control {{prefix}}FilterSelect">
+                                            <option value="1000000" selected>1 Mb</option>
+                                            <option value="2000000">2 Mb</option>
+                                            <option value="5000000">5 Mb</option>
+                                            <option value="10000000">10 Mb</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <button type="button" class="btn btn-primary" id="{{prefix}}ChromosomeAdd" on-click="addFacets" style="cursor: pointer">Add</button>
+                            </div>
+
+                            <!-- Conservation & Deleteriousness -->
+                            <label>Conservation & Deleteriousness</label>
+                            <div class="form-group row">
+                                <div class="col-sm-2">
+                                    <select id="{{prefix}}FacetRangeField" class$="form-control {{prefix}}FilterSelect">
+                                        <option value="none" selected>Select a field...</option>
+                                        <template is="dom-repeat" items="{{config.ranges}}">
+                                            <option value="{{item.value}}">{{item.name}}</option>
+                                        </template>
+                                    </select>
+                                </div>
+
+                                <div class="col-sm-2">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Start</span>
+                                        <input type="text" class="form-control" id="{{prefix}}FacetRangeStart" value="0">
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-2">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">End</span>
+                                        <input type="text" class="form-control" id="{{prefix}}FacetRangeEnd" value="1">
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-2">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Interval</span>
+                                        <input type="text" class="form-control" id="{{prefix}}FacetRangeGap" value="0.1">
+                                    </div>
+                                </div>
+
+                                <button type="button" class="btn btn-primary" on-click="addFacets" style="cursor: pointer">Add</button>
+                            </div>
+
+                            <!-- Population frequency -->
+                            <label>Population frequency</label>
+                            <div class="form-group row">
+                                <div class="col-sm-2">
+                                    <select id="{{prefix}}PopFreqRangeField" class$="form-control {{prefix}}FilterSelect">
+                                        <option value="none" selected>Select a population...</option>
+                                        <template is="dom-repeat" items="{{populationFrequencies.studies}}" as="study">
+                                            <template is="dom-repeat" items="{{study.populations}}" as="population">
+                                                <option value="{{study.id}}_{{population.id}}">{{study.id}}_{{population.id}}
+                                                </option>
+                                            </template>
+                                        </template>
+                                    </select>
+                                </div>
+
+                                <div class="col-sm-2">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Start</span>
+                                        <input type="text" class="form-control" id="{{prefix}}PopFreqRangeStart" value="0">
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-2">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">End</span>
+                                        <input type="text" class="form-control" id="{{prefix}}PopFreqRangeEnd" value="1">
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-2">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Interval</span>
+                                        <input type="text" class="form-control" id="{{prefix}}PopFreqRangeGap" value="0.1">
+                                    </div>
+                                </div>
+
+                                <button type="button" class="btn btn-primary" on-click="addFacets" style="cursor: pointer">Add</button>
+                            </div>
+
+                            <template is="dom-repeat" items="{{facetRangeFields}}">
+                                <span style="font-size: 14px">
+                                    <span title="Remove field" style="padding: 0px 0px 20px 20px">
+                                        <i class="fa fa-times fa-lg" aria-hidden="true" on-click="removeFacetField"
+                                           data-id="{{item}}" data-field="range" style="color: darkred;cursor: pointer"></i>
+                                    </span>&nbsp;{{item}}
+                                </span>
+                            </template>
                         </div>
-                        <div class="col-sm-2">
-                            <select id="{{prefix}}FacetFieldNested" class$="form-control {{prefix}}FilterSelect">
-                                <option value="none" selected>Nested field...</option>
-                                <template is="dom-repeat" items="{{config.fields}}">
-                                    <option value="{{item.value}}">{{item.name}}</option>
-                                </template>
-                            </select>
+
+                        <div class="col-sm-12">
+                            <div style="float: right; padding: 0px 0px 10px 5px">
+                                <button type="button" class="btn btn-primary btn-lg" on-click="render">Refresh</button>
+                            </div>
+
+                            <div style="float: right; padding: 0px 0px 10px 0px">
+                                <button type="button" class="btn btn-primary btn-lg" on-click="clearAll">Clear</button>
+                            </div>
                         </div>
-                        <div class="col-sm-2">
-                            <textarea class="form-control" rows="1" id="{{prefix}}NestedFieldIncludes"
-                                      placeholder="Include values"></textarea>
-                        </div>
-                        <button type="button" class="btn btn-primary" on-click="addFacets" style="cursor: pointer">Add
-                        </button>
                     </div>
 
-                    <template is="dom-repeat" items="{{facetFieldsName}}">
-                        <span style="font-size: 14px">
-                            <span title="Remove field" style="padding: 0px 0px 20px 20px">
-                                <i class="fa fa-times fa-lg" aria-hidden="true" on-click="removeFacetField"
-                                   data-id="{{item.value}}" data-field="field"
-                                   style="color: darkred;cursor: pointer"></i>
-                            </span>&nbsp;{{item.name}}
-                        </span>
+
+                    <!-- RESULTS - Facet Plots -->
+                    <h2>Results</h2>
+
+                    <template is="dom-if" if="{{_showInitMessage}}">
+                        <h3>No facet filters selected</h3>
                     </template>
-                </div>
 
-                <!-- Facet Range -->
-                <div class="col-sm-10">
-                    <h3>Ranges</h3>
-
-                    <!-- Chromosomes -->
-                    <label>Chromosome</label>
-                    <div class="form-group row">
-                        <div class="col-sm-2">
-                            <input type="text" class="form-control" id="{{prefix}}ChromosomeInput" placeholder="1">
+                    <!--<h4>Total Number of Variants : {{totalVariants}}</h4>-->
+                    <template is="dom-repeat" items="{{results}}" id="resultsDiv">
+                        <h3>{{item.title}}</h3>
+                        <div class="btn-group" style="float: right">
+                            <span class="btn btn-primary plots active" on-click="onHistogramChart">
+                                <i class="fa fa-bar-chart" style="padding-right: 5px" title="Bar Chart" data-id="{{item.name}}"></i>
+                            </span>
+                            <template is="dom-if" if="{{item.renderPieChart}}">
+                                <span class="btn btn-primary plots" on-click="onPieChart">
+                                    <i class="fa fa-pie-chart" style="padding-right: 5px" title="Pie Chart" data-id="{{item.name}}"></i>
+                                </span>
+                            </template>
+                            <span class="btn btn-primary plots" on-click="onTabularView">
+                                <i class="fa fa-table" style="padding-right: 5px" title="Tabular View" data-id="{{item.name}}"></i>
+                            </span>
                         </div>
+                        <div id="{{prefix}}{{item.name}}Plot"></div>
 
-                        <div class="col-sm-2">
-                            <div class="input-group">
-                                <span class="input-group-addon">Chunk</span>
-                                <select id="{{prefix}}ChromosomeRangeGap" class$="form-control {{prefix}}FilterSelect">
-                                    <option value="1000000" selected>1 Mb</option>
-                                    <option value="2000000">2 Mb</option>
-                                    <option value="5000000">5 Mb</option>
-                                    <option value="10000000">10 Mb</option>
-                                </select>
-                            </div>
-                        </div>
+                        <!--Table-->
+                        <br>
+                        <table class="table table-bordered" id="{{prefix}}{{item.name}}Table" style="display: none;">
 
-                        <button type="button" class="btn btn-primary" id="{{prefix}}ChromosomeAdd" on-click="addFacets"
-                                style="cursor: pointer">Add
-                        </button>
-                    </div>
+                            <!-- Facet Field Table -->
+                            <template is="dom-if" if="{{checkField(item.category)}}">
+                                <thead class="table-header bg-primary">
+                                <tr>
+                                    <th>{{item.title}}</th>
+                                    <template is="dom-if" if="{{subFieldExists(item.subField)}}">
+                                        <th>{{item.subField}}</th>
+                                    </template>
+                                    <th>Number of Variants</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <template is="dom-repeat" items="{{item.counts}}" as="count">
+                                    <template is="dom-if" if="{{fieldExists(count)}}">
+                                        <tr>
+                                            <td rowspan$="{{countSubFields(count)}}">{{count.value}}</td>
+                                        </tr>
 
-                    <!-- Conservation & Deleteriousness -->
-                    <label>Conservation & Deleteriousness</label>
-                    <div class="form-group row">
-                        <div class="col-sm-2">
-                            <select id="{{prefix}}FacetRangeField" class$="form-control {{prefix}}FilterSelect">
-                                <option value="none" selected>Select a field...</option>
-                                <template is="dom-repeat" items="{{config.ranges}}">
-                                    <option value="{{item.value}}">{{item.name}}</option>
-                                </template>
-                            </select>
-                        </div>
+                                        <template is="dom-repeat" items="{{count.field.counts}}" as="subFieldCount">
+                                            <tr>
+                                                <td>{{subFieldCount.value}}</td>
+                                                <td>{{subFieldCount.count}}</td>
+                                            </tr>
+                                        </template>
+                                    </template>
 
-                        <div class="col-sm-2">
-                            <div class="input-group">
-                                <span class="input-group-addon">Start</span>
-                                <input type="text" class="form-control" id="{{prefix}}FacetRangeStart" value="0">
-                            </div>
-                        </div>
-
-                        <div class="col-sm-2">
-                            <div class="input-group">
-                                <span class="input-group-addon">End</span>
-                                <input type="text" class="form-control" id="{{prefix}}FacetRangeEnd" value="1">
-                            </div>
-                        </div>
-
-                        <div class="col-sm-2">
-                            <div class="input-group">
-                                <span class="input-group-addon">Interval</span>
-                                <input type="text" class="form-control" id="{{prefix}}FacetRangeGap" value="0.1">
-                            </div>
-                        </div>
-
-                        <button type="button" class="btn btn-primary" on-click="addFacets" style="cursor: pointer">Add
-                        </button>
-                    </div>
-
-                    <!-- Population frequency -->
-                    <label>Population frequency</label>
-                    <div class="form-group row">
-                        <div class="col-sm-2">
-                            <select id="{{prefix}}PopFreqRangeField" class$="form-control {{prefix}}FilterSelect">
-                                <option value="none" selected>Select a population...</option>
-                                <template is="dom-repeat" items="{{populationFrequencies.studies}}" as="study">
-                                    <template is="dom-repeat" items="{{study.populations}}" as="population">
-                                        <option value="{{study.id}}_{{population.id}}">{{study.id}}_{{population.id}}
-                                        </option>
+                                    <template is="dom-if" if="{{!fieldExists(count)}}">
+                                        <tr>
+                                            <td>{{count.value}}</td>
+                                            <td>{{count.count}}</td>
+                                        </tr>
                                     </template>
                                 </template>
-                            </select>
-                        </div>
-
-                        <div class="col-sm-2">
-                            <div class="input-group">
-                                <span class="input-group-addon">Start</span>
-                                <input type="text" class="form-control" id="{{prefix}}PopFreqRangeStart" value="0">
-                            </div>
-                        </div>
-
-                        <div class="col-sm-2">
-                            <div class="input-group">
-                                <span class="input-group-addon">End</span>
-                                <input type="text" class="form-control" id="{{prefix}}PopFreqRangeEnd" value="1">
-                            </div>
-                        </div>
-
-                        <div class="col-sm-2">
-                            <div class="input-group">
-                                <span class="input-group-addon">Interval</span>
-                                <input type="text" class="form-control" id="{{prefix}}PopFreqRangeGap" value="0.1">
-                            </div>
-                        </div>
-
-                        <button type="button" class="btn btn-primary" on-click="addFacets" style="cursor: pointer">Add
-                        </button>
-                    </div>
-
-                    <template is="dom-repeat" items="{{facetRangeFields}}">
-                        <span style="font-size: 14px">
-                            <span title="Remove field" style="padding: 0px 0px 20px 20px">
-                                <i class="fa fa-times fa-lg" aria-hidden="true" on-click="removeFacetField"
-                                   data-id="{{item}}" data-field="range" style="color: darkred;cursor: pointer"></i>
-                            </span>&nbsp;{{item}}
-                        </span>
-                    </template>
-                </div>
-
-                <div class="col-sm-12">
-                    <div style="float: right; padding: 0px 0px 10px 5px">
-                        <button type="button" class="btn btn-primary btn-lg" on-click="render">Refresh</button>
-                    </div>
-
-                    <div style="float: right; padding: 0px 0px 10px 0px">
-                        <button type="button" class="btn btn-primary btn-lg" on-click="clearAll">Clear</button>
-                    </div>
-                </div>
-            </div>
-
-
-            <!-- RESULTS - Facet Plots -->
-            <h2>Results</h2>
-
-            <template is="dom-if" if="{{_showInitMessage}}">
-                <h3>No facet filters selected</h3>
-            </template>
-
-            <!--<h4>Total Number of Variants : {{totalVariants}}</h4>-->
-            <template is="dom-repeat" items="{{results}}" id="resultsDiv">
-                <h3>{{item.title}}</h3>
-                <div class="btn-group" style="float: right">
-                    <span class="btn btn-primary plots active" on-click="onHistogramChart">
-                        <i class="fa fa-bar-chart" style="padding-right: 5px" title="Bar Chart"
-                           data-id="{{item.name}}"></i>
-                    </span>
-                    <template is="dom-if" if="{{item.renderPieChart}}">
-                        <span class="btn btn-primary plots" on-click="onPieChart">
-                            <i class="fa fa-pie-chart" style="padding-right: 5px" title="Pie Chart"
-                               data-id="{{item.name}}"></i>
-                        </span>
-                    </template>
-                    <span class="btn btn-primary plots" on-click="onTabularView">
-                        <i class="fa fa-table" style="padding-right: 5px" title="Tabular View"
-                           data-id="{{item.name}}"></i>
-                    </span>
-                </div>
-                <div id="{{prefix}}{{item.name}}Plot"></div>
-
-                <!--Table-->
-                <br>
-                <table class="table table-bordered" id="{{prefix}}{{item.name}}Table" style="display: none;">
-
-                    <!-- Facet Field Table -->
-                    <template is="dom-if" if="{{checkField(item.category)}}">
-                        <thead class="table-header bg-primary">
-                        <tr>
-                            <th>{{item.title}}</th>
-                            <template is="dom-if" if="{{subFieldExists(item.subField)}}">
-                                <th>{{item.subField}}</th>
+                                </tbody>
                             </template>
-                            <th>Number of Variants</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <template is="dom-repeat" items="{{item.counts}}" as="count">
-                            <template is="dom-if" if="{{fieldExists(count)}}">
-                                <tr>
-                                    <td rowspan$="{{countSubFields(count)}}">{{count.value}}</td>
-                                </tr>
 
-                                <template is="dom-repeat" items="{{count.field.counts}}" as="subFieldCount">
+                            <!-- Facet Range Table -->
+                            <template is="dom-if" if="{{!checkField(item.category)}}">
+                                <thead class="table-header bg-primary">
+                                <tr>
+                                    <th>Range</th>
+                                    <th>Number of Variants</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <template is="dom-repeat" items="{{item.data}}" as="data">
                                     <tr>
-                                        <td>{{subFieldCount.value}}</td>
-                                        <td>{{subFieldCount.count}}</td>
+                                        <td>{{data.range}}</td>
+                                        <td>{{data.count}}</td>
                                     </tr>
                                 </template>
+                                </tbody>
                             </template>
-
-                            <template is="dom-if" if="{{!fieldExists(count)}}">
-                                <tr>
-                                    <td>{{count.value}}</td>
-                                    <td>{{count.count}}</td>
-                                </tr>
-                            </template>
-                        </template>
-                        </tbody>
+                        </table>
+                        <br>
                     </template>
+                </div>
 
-                    <!-- Facet Range Table -->
-                    <template is="dom-if" if="{{!checkField(item.category)}}">
-                        <thead class="table-header bg-primary">
-                        <tr>
-                            <th>Range</th>
-                            <th>Number of Variants</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <template is="dom-repeat" items="{{item.data}}" as="data">
-                            <tr>
-                                <td>{{data.range}}</td>
-                                <td>{{data.count}}</td>
-                            </tr>
-                        </template>
-                        </tbody>
-                    </template>
-                </table>
-                <br>
-            </template>
-        </div>
-
-        <div class="modal fade" id="{{prefix}}LoadingModal" data-backdrop="static" data-keyboard="false" tabindex="-1"
-             role="dialog"
-             aria-hidden="true" style="padding-top:15%; overflow-y:visible;">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3>Loading...</h3>
-                    </div>
-                    <div class="modal-body">
-                        <div class="progress progress-striped active">
-                            <div class="progress-bar progress-bar-success" style="width: 100%"></div>
+                <div class="modal fade" id="{{prefix}}LoadingModal" data-backdrop="static" data-keyboard="false" tabindex="-1"
+                     role="dialog"
+                     aria-hidden="true" style="padding-top:15%; overflow-y:visible;">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3>Loading...</h3>
+                            </div>
+                            <div class="modal-body">
+                                <div class="progress progress-striped active">
+                                    <div class="progress-bar progress-bar-success" style="width: 100%"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        <!--</template>-->
 
+        <template is="dom-if" if="{{!checkProjects}}">
+            <span style="text-align: center"><h3>No public projects available to browse. Please login to continue</h3></span>
+        </template>
     </template>
-    <script>
 
-        class VariantFacetView extends Polymer.Element {
+    <script>
+        class OpencgaVariantFacet extends Polymer.Element {
+
+            constructor() {
+                super();
+
+                // Set status and init private properties
+                this._init();
+            }
 
             static get is() {
-                return 'variant-facet-view';
+                return 'opencga-variant-facet';
             }
 
             static get properties() {
                 return {
-                    project: {
-                        type: Object
-                    },
-                    study: {
-                        type: Object
-                    },
-                    config: {
+                    opencgaSession: {
                         type: Object
                     },
                     opencgaClient: {
@@ -335,33 +347,39 @@
                     populationFrequencies: {
                         type: Object
                     },
+                    consequenceTypes: {
+                        type: Object
+                    },
+                    proteinSubstitutionScores: {
+                        type: Object
+                    },
                     query: {
                         type: Object
                     },
                     search: {
                         type: Object,
                         observer: 'fetchVariants'
+                    },
+                    checkProjects: {
+                        type: Boolean,
+                        computed: '_checkProjects()'
+                    },
+                    config: {
+                        type: Object
                     }
                 }
-            }
-
-            constructor() {
-                super();
             }
 
             _attachDom(dom) {
                 this.appendChild(dom);
             }
 
-            ready() {
-                super.ready();
-                if (UtilsNew.isEmpty(this.prefix)) {
-                    this.prefix = "facet" + Utils.randomString(6);
-                }
+            _init() {
+                this.prefix = "facet" + Utils.randomString(6);
 
                 this.activeFilterAlias = {
                     "annot-xref": "XRef",
-                    "annot-biotype": "Biotype",
+                    "biotype": "Biotype",
                     "annot-ct": "Consequence Types",
                     "alternate_frequency": "Population Frequency",
                     "annot-functional-score": "CADD",
@@ -381,6 +399,23 @@
 
                 this.results = [];
                 this._showInitMessage = true;
+            }
+
+            onClear() {
+                this.query = {};
+                this.search = {};
+            }
+
+            onFilterChange(e) {
+                this.query = e.detail;
+                this.search = e.detail;
+            }
+
+            _checkProjects() {
+                if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.projects)) {
+                    return this.opencgaSession.projects.length !== 0;
+                }
+                return false;
             }
 
             addFacets() {
@@ -500,7 +535,6 @@
                             });
                     }
                 }
-
             }
 
             removeFacetField(e) {
@@ -513,8 +547,6 @@
                             facetFieldsName.splice(index, 1);
                         }
                     });
-
-
                 } else if (e.target.dataset.field === "range") {
                     let index = this.facetRangeFields.indexOf(e.target.dataId);
                     if (this.facetRanges[index].startsWith("start")) {
@@ -566,7 +598,7 @@
 //                }
 
                 if (UtilsNew.isEmpty(queryParams.studies) || queryParams.studies.split(new RegExp("[,;]")).length === 1) {
-                    queryParams.studies = this.project.alias + ":" + this.study.alias;
+                    queryParams.studies = this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias;
                 }
 
                 if (UtilsNew.isNotEmpty(this.chromosome)) {
@@ -582,81 +614,81 @@
                 let _this = this;
                 // Promise needs to be executed in a setTimeout to give time the browser to update the DOM and show the loading modal
                 setTimeout(() => {
-                    this.opencgaClient.variants().facet(queryParams, {})
-                    .then(function (queryResponse) {
-                        let response = queryResponse.response[0].result[0].result;
+                        this.opencgaClient.variants().facet(queryParams, {})
+                            .then(function (queryResponse) {
+                                let response = queryResponse.response[0].result[0].result;
 
-                        let _facetResults = {};
-                        let _results = [];
+                                let _facetResults = {};
+                                let _results = [];
 
-                        // Facet fields
-                        for (let field of response.fields) {
-                            let _name;
-                            let _subField = "";
-                            if (UtilsNew.isUndefined(field.counts[0].field)) {
-                                _name = field.name;
-                            } else {
-                                _name = field.name + "-" + field.counts[0].field.name;
-                                _subField = field.counts[0].field.name;
-                            }
-                            _facetResults[_name] = field;
-                            _facetResults[_name].title = _this.fieldNamesMap[field.name]; // Setting title before we modify name property
-                            _facetResults[_name].name = _name;
-                            _facetResults[_name].subField = _this.fieldNamesMap[_subField];
-                            _facetResults[_name].renderHistogramChart = true;
-                            _facetResults[_name].renderPieChart = true;
-                            _facetResults[_name].category = "field";
-                            _results.push(_facetResults[field.name]);
-                        }
-
-                        // Facet Ranges
-                        for (let range of response.ranges) {
-                            _facetResults[range.name] = range;
-                            _facetResults[range.name].title = _this.fieldNamesMap[range.name];
-                            _facetResults[range.name].renderHistogramChart = true;
-                            _facetResults[range.name].renderPieChart = false;
-                            _facetResults[range.name].category = "range";
-
-                            // Preparing data for table
-                            let data = [];
-                            let start = Number(range.start);
-                            for (let rangeCount of range.counts) {
-                                if (Math.round(start) !== start) {
-                                    start = Number(start.toFixed(1));
+                                // Facet fields
+                                for (let field of response.fields) {
+                                    let _name;
+                                    let _subField = "";
+                                    if (UtilsNew.isUndefined(field.counts[0].field)) {
+                                        _name = field.name;
+                                    } else {
+                                        _name = field.name + "-" + field.counts[0].field.name;
+                                        _subField = field.counts[0].field.name;
+                                    }
+                                    _facetResults[_name] = field;
+                                    _facetResults[_name].title = _this.fieldNamesMap[field.name]; // Setting title before we modify name property
+                                    _facetResults[_name].name = _name;
+                                    _facetResults[_name].subField = _this.fieldNamesMap[_subField];
+                                    _facetResults[_name].renderHistogramChart = true;
+                                    _facetResults[_name].renderPieChart = true;
+                                    _facetResults[_name].category = "field";
+                                    _results.push(_facetResults[field.name]);
                                 }
-                                let end = Number(start + range.gap);
-                                if (Math.round(end) !== end) {
-                                    end = Number(end.toFixed(1));
+
+                                // Facet Ranges
+                                for (let range of response.ranges) {
+                                    _facetResults[range.name] = range;
+                                    _facetResults[range.name].title = _this.fieldNamesMap[range.name];
+                                    _facetResults[range.name].renderHistogramChart = true;
+                                    _facetResults[range.name].renderPieChart = false;
+                                    _facetResults[range.name].category = "range";
+
+                                    // Preparing data for table
+                                    let data = [];
+                                    let start = Number(range.start);
+                                    for (let rangeCount of range.counts) {
+                                        if (Math.round(start) !== start) {
+                                            start = Number(start.toFixed(1));
+                                        }
+                                        let end = Number(start + range.gap);
+                                        if (Math.round(end) !== end) {
+                                            end = Number(end.toFixed(1));
+                                        }
+                                        data.push({
+                                            range: start + "-" + end,
+                                            count: rangeCount
+                                        });
+                                        start = end;
+                                    }
+                                    _facetResults[range.name].data = data;
+
+                                    _results.push(_facetResults[range.name]);
                                 }
-                                data.push({
-                                    range: start + "-" + end,
-                                    count: rangeCount
-                                });
-                                start = end;
-                            }
-                            _facetResults[range.name].data = data;
 
-                            _results.push(_facetResults[range.name]);
-                        }
+                                _this.facetResults = Object.assign({}, _facetResults);
+                                _this.results = _results;
 
-                        _this.facetResults = Object.assign({}, _facetResults);
-                        _this.results = _results;
+                                _this.$.resultsDiv.render();
+                                for (let result of _this.results) {
+                                    _this.renderHistogramChart("#" + _this.prefix + result.name + "Plot", result.name);
+                                }
 
-                        _this.$.resultsDiv.render();
-                        for (let result of _this.results) {
-                            _this.renderHistogramChart("#" + _this.prefix + result.name + "Plot", result.name);
-                        }
-
-                        // Remove loading modal
-                        $(PolymerUtils.getElementById(_this.prefix + "LoadingModal")).modal("hide");
-                        _this._showInitMessage = false;
-                    })
-                    .catch(function (e) {
-                        console.log(e);
-                        // Remove loading modal
-                        $(PolymerUtils.getElementById(_this.prefix + "LoadingModal")).modal("hide");
-                        _this._showInitMessage = false;
-                    });}
+                                // Remove loading modal
+                                $(PolymerUtils.getElementById(_this.prefix + "LoadingModal")).modal("hide");
+                                _this._showInitMessage = false;
+                            })
+                            .catch(function (e) {
+                                console.log(e);
+                                // Remove loading modal
+                                $(PolymerUtils.getElementById(_this.prefix + "LoadingModal")).modal("hide");
+                                _this._showInitMessage = false;
+                            });}
                     ,250);
 
             }
@@ -711,8 +743,8 @@
             }
 
             highlightActivePlot(button) {
-                PolymerUtils.removeClass(".plots", "active");
-                PolymerUtils.addClass(button, "active");
+                // PolymerUtils.removeClass(".plots", "active");
+                // PolymerUtils.addClass(button, "active");
             }
 
             renderHistogramChart(div, id) {
@@ -1017,7 +1049,7 @@
                     Object.assign(queryParams, this.query);
 
                     if (UtilsNew.isEmpty(queryParams.studies) || queryParams.studies.split(new RegExp("[,;]")).length == 1) {
-                        queryParams.studies = this.project.alias + ":" + this.study.alias;
+                        queryParams.studies = this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias;
                     }
 
                     let _this = this;
@@ -1054,8 +1086,6 @@
             }
         }
 
-        customElements.define(VariantFacetView.is, VariantFacetView);
-
-
+        customElements.define(OpencgaVariantFacet.is, OpencgaVariantFacet);
     </script>
 </dom-module>

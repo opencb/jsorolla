@@ -31,7 +31,7 @@ class Region {
 
     parse(str) {
         if (_.isObject(str)) {
-            this.load(obj);
+            this.load(str);
         }
         const pattern = /^([a-zA-Z0-9_])+\:([0-9])+\-([0-9])+$/;
         const pattern2 = /^([a-zA-Z0-9_])+\:([0-9])+$/;

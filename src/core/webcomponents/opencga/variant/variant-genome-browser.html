@@ -84,7 +84,7 @@
             <div class="" style="width: 80%;float: right;padding: 0px 5px">
                 <genome-browser cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}"
                                 species={{species}} region="{{region}}" tracks="[[tracks]]"
-                                study="{{study}}" project="{{project}}" active="{{active}}"
+                                study="{{opencgaSession.study}}" project="{{opencgaSession.project}}" active="{{active}}"
                                 width="{{genomeBrowserWidth}}">
                 </genome-browser>
             </div>
@@ -107,6 +107,10 @@
 
             static get properties() {
                 return {
+                    opencgaSession: {
+                        type: Object,
+                        observer: "render"
+                    },
                     opencgaClient: {
                         type: Object,
                     },
@@ -117,13 +121,6 @@
                         type: Object,
                     },
                     search: {
-                        type: Object,
-                        observer: "render",
-                    },
-                    project: {
-                        type: Object,
-                    },
-                    study: {
                         type: Object,
                         observer: "render",
                     },
@@ -207,7 +204,7 @@
                     });
                     const query = {
                         samples,
-                        study: this.study.id,
+                        study: this.opencgaSession.study.id,
                         format: "BAM",
                         include: "id,name,path,samples",
                     };
@@ -215,51 +212,52 @@
                     let _samplesWithFiles = [];
                     let currentFilesSelectedAlignment = new Set();
                     let currentFilesSelectedNameAlignment = [];
-                    this.opencgaClient.files().search(query)
-                            .then((response) => {
-                        if (UtilsNew.isNotEmptyArray(response.response[0].result)) {
+                    this.opencgaClient.files()
+                        .search(query)
+                        .then((response) => {
+                            if (UtilsNew.isNotEmptyArray(response.response[0].result)) {
 
-                            _this.samples.forEach((sampleSelected) => {
-                                const filesSamples = [];
-                                response.response[0].result.forEach((file) => {
-                                    const containSample = file.samples.some(sampleFile => sampleFile.id === sampleSelected.id);
-                                    if (containSample) {
-                                        file.checked = false;
-                                        if (_this._filesSelectedAlignment.has(file.id)) {
-                                            file.checked = true;
-                                            // this file id is which is selected from previous selection.
-                                            currentFilesSelectedAlignment.add(file.id);
-                                            currentFilesSelectedNameAlignment[file.id] = file.name
+                                _this.samples.forEach((sampleSelected) => {
+                                    const filesSamples = [];
+                                    response.response[0].result.forEach((file) => {
+                                        const containSample = file.samples.some(sampleFile => sampleFile.id === sampleSelected.id);
+                                        if (containSample) {
+                                            file.checked = false;
+                                            if (_this._filesSelectedAlignment.has(file.id)) {
+                                                file.checked = true;
+                                                // this file id is which is selected from previous selection.
+                                                currentFilesSelectedAlignment.add(file.id);
+                                                currentFilesSelectedNameAlignment[file.id] = file.name
 
+                                            }
+                                            filesSamples.push(file);
                                         }
-                                        filesSamples.push(file);
-                                    }
+                                    });
+                                    // Push linked filename list with sampleSelected using polymer array mutation method to update dom-repeat
+                                    _samplesWithFiles.push({name: sampleSelected.name, files: filesSamples});
                                 });
-                                // Push linked filename list with sampleSelected using polymer array mutation method to update dom-repeat
-                                _samplesWithFiles.push({name: sampleSelected.name, files: filesSamples});
-                            });
-                        }
+                            }
 
-                        // Re-assign selected files after select samples and update files to remove alignment track that are not selected after remove its samples
-                        _this._filesSelectedAlignment = currentFilesSelectedAlignment;
-                        _this._filesSelectedAlignmentName = currentFilesSelectedNameAlignment;
-                        _this.samplesWithFiles = _samplesWithFiles;
+                            // Re-assign selected files after select samples and update files to remove alignment track that are not selected after remove its samples
+                            _this._filesSelectedAlignment = currentFilesSelectedAlignment;
+                            _this._filesSelectedAlignmentName = currentFilesSelectedNameAlignment;
+                            _this.samplesWithFiles = _samplesWithFiles;
 
 //                            _this._files = currentFilesSelectedAlignment;
-                        _this.tracks.alignment.config.files = _this._filesSelectedAlignment
-                        _this.tracks.alignment.config.filesName = _this._filesSelectedAlignmentName
-                        _this.tracks.variant.config.samples = _this.samples;
+                            _this.tracks.alignment.config.files = _this._filesSelectedAlignment
+                            _this.tracks.alignment.config.filesName = _this._filesSelectedAlignmentName
+                            _this.tracks.variant.config.samples = _this.samples;
 
-                        _this.set("tracks", Object.assign({},_this.tracks));
-                        // Update sampleswithfiles to show in checkbox
+                            _this.set("tracks", Object.assign({},_this.tracks));
+                            // Update sampleswithfiles to show in checkbox
 
-                        // Update _samples to render variant track
+                            // Update _samples to render variant track
 //                            _this._samples = _this.samples;
 
-                    })
-                .catch((response) => {
-                        console.log(response);
-                    });
+                        })
+                        .catch((response) => {
+                            console.log(response);
+                        });
                 } else {
 //                    this._samples = [];
 //                    this._files = [];
@@ -271,14 +269,12 @@
                     };
                     this.set("tracks", _tracks);
                 }
-
             }
-
 
             render() {
                 this.variant = ""; // Empty the variant every time the grid is loaded
-                if (typeof this.opencgaClient !== "undefined" && this.opencgaClient instanceof OpenCGAClient
-                        && typeof this.project !== "undefined" && typeof this.study !== "undefined" && typeof this.study.alias !== "undefined") {
+                if (typeof this.opencgaClient !== "undefined" && this.opencgaClient instanceof OpenCGAClient && typeof this.opencgaSession !== "undefined"
+                        && typeof this.opencgaSession.project !== "undefined" && typeof this.opencgaSession.study !== "undefined" && typeof this.opencgaSession.study.alias !== "undefined") {
                     const urlQueryParams = this._getUrlQueryParams();
                     const queryParams = urlQueryParams.queryParams;
                     let _numTotal = -1;
@@ -347,19 +343,17 @@
                     return {host: "", queryParams: {}, url: ""};
                 }
 
-                let host = "";
-                if (this.opencgaClient.getConfig().host.startsWith("https://")) {
-                    host = this.opencgaClient.getConfig().host;
-                } else {
-                    host = `http://${this.opencgaClient.getConfig().host}`;
+                let host = this.opencgaClient.getConfig().host;
+                if (!host.startsWith("https://") && !host.startsWith("http://")) {
+                    host = `https://${host}`;
                 }
 
-                if (typeof this.project !== "undefined" && typeof this.study.alias !== "undefined") {
+                if (typeof this.opencgaSession.project !== "undefined" && typeof this.opencgaSession.study.alias !== "undefined") {
                     if (typeof this.query === "undefined") {
                         this.query = {};
                     }
                     if (typeof this.query.studies === "undefined" || this.query.studies === "" || this.query.studies.split(new RegExp("[,;]")).length === 1) {
-                        this.query.studies = `${this.project.alias}:${this.study.alias}`;
+                        this.query.studies = `${this.opencgaSession.project.alias}:${this.opencgaSession.study.alias}`;
                     }
                     host += "/webservices/rest/v1/analysis/variant/query";
                 } else {
@@ -381,7 +375,8 @@
                     }
                     queryParams.returnedSamples = sampleNames.join();
                 } else {
-                    queryParams.exclude = "studies,annotation.xrefs,annotation.populationFrequencies,annotation.conservation,annotation.geneTraitAssociation,annotation.geneDrugInteraction";
+                    // queryParams.exclude = "studies,annotation.xrefs,annotation.populationFrequencies,annotation.conservation,annotation.geneTraitAssociation,annotation.geneDrugInteraction";
+                    queryParams.include = "id,chromosome,start,end,type,annotation.consequenceTypes";
                 }
 
                 if (typeof this.config !== "undefined" && typeof this.config.missing !== "undefined" && this.config.missing) {
@@ -399,7 +394,7 @@
                 const query = ["limit=1000"];
                 for (const key in queryParams) {
                     // Check sid has a proper value. For public projects sid is undefined. In that case, sid must be removed from the url
-                    if (key == "sid" && queryParams[key] === undefined) {
+                    if (key === "sid" && queryParams[key] === undefined) {
                         delete queryParams.sid;
                     } else {
                         query.push(`${key}=${queryParams[key]}`);

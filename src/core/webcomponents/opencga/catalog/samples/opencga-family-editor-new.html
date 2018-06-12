@@ -257,10 +257,10 @@
 
             static get properties() {
                 return {
-                    opencgaClient: {
+                    opencgaSession: {
                         type: Object
                     },
-                    study: {
+                    opencgaClient: {
                         type: Object
                     },
                     samples: {
@@ -309,7 +309,7 @@
 
                     let _samples = [];
                     let params = {
-                        study: this.study.alias
+                        study: this.opencgaSession.study.alias
                     };
                     let _this = this;
                     this.samples.forEach((sample) => {

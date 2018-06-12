@@ -33,6 +33,11 @@ class VariantTrack extends FeatureTrack {
                     this.dataAdapter.params.exclude = "studies.files,studies.stats,annotation";
                     this.dataAdapter.params.returnedSamples = this.opencga.samples;
                 }
+
+                if (UtilsNew.isNotUndefinedOrNull(this.opencga.files) && this.opencga.files.length !== 0) {
+                    this.dataAdapter.params.exclude = "studies.files,studies.stats,annotation";
+                    this.dataAdapter.params.file = this.opencga.files;
+                }
             } else {
                 console.error("No 'dataAdapter' or 'opencga' object provided");
             }
@@ -43,7 +48,7 @@ class VariantTrack extends FeatureTrack {
             let customConfig = {};
             if (UtilsNew.isNotUndefinedOrNull(this.opencga)) {
                 customConfig = Object.assign(customConfig, this.opencga.config);
-                customConfig.sampleNames = this.opencga.samples;
+                customConfig.sampleNames = UtilsNew.isNotEmptyArray(this.opencga.samples) ? this.opencga.samples : this.opencga.files;
             }
 
             this.renderer = new VariantRenderer(

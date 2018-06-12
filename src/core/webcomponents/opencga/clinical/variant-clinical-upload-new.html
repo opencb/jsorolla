@@ -37,7 +37,7 @@
                         <select class="form-control" id="{{prefix}}chromosomalGender"
                                 name="chromosomalGender" required data-required-error="This field is required" value="{{chromosomalGenderValue::input}}">
                             <option value="">Select...</option>
-                            <template is="dom-repeat" items="{{config.chromosomal_gender}}">
+                            <template is="dom-repeat" items="{{config.kariotypicSex}}">
                                 <option value="{{item}}">{{item}}</option>
                             </template>
                         </select>
@@ -395,37 +395,39 @@
                 <!--</div>-->
 
                 <!-- MODAL HPO TERM (ONTOLOGY) -->
-                <variant-modal-ontology prefix="{{prefix}}" ebi-config="{{ebiConfig}}" on-propagateok="_propagateOkHPO"
-                                        ontology-filter="{{ontologyFilter}}" term="{{ontologyTerm}}" selected-terms="{{selectedTermsOntology}}"></variant-modal-ontology>
+                <variant-modal-ontology prefix="{{prefix}}" on-propagateok="_propagateOkHPO" ontology-filter="{{ontologyFilter}}" term="{{ontologyTerm}}"
+                                        selected-terms="{{selectedTermsOntology}}">
+                </variant-modal-ontology>
 
                 <!-- Modal dialog for ICD-10 diagnosis selector-->
-                <variant-modal-icd10 prefix="{{prefix}}" icd10="{{config.icd10}}"  on-propagateokicd10="_propagateOkICD10"></variant-modal-icd10>
+                <variant-modal-icd10 prefix="{{prefix}}" icd10="{{config.icd10}}" on-propagateokicd10="_propagateOkICD10"></variant-modal-icd10>
             </div>
         </div>
     </template>
 
     <script>
         class VariantClinicalUploadNew extends Polymer.Element {
+
+            constructor() {
+                super();
+
+                this.prefix = "upload-new" + Utils.randomString(6);
+            }
+
             static get is() {
                 return 'variant-clinical-upload-new';
             }
 
             static get properties() {
                 return {
+                    opencgaSession: {
+                        type: Object,
+                        observer: "_updateVariableSets"
+                    },
                     opencgaClient: {
                         type: Object
                     },
-                    study: {
-                        type: Number,
-                        observer: '_updateVariableSets'
-                    },
-                    project: {
-                        type: Object
-                    },
                     config: {
-                        type: Object
-                    },
-                    ebiConfig: {
                         type: Object
                     },
                     minYearBirth: {
@@ -439,21 +441,13 @@
                 }
             }
 
-            constructor() {
-                super();
-                this.prefix = "upload-new" + Utils.randomString(6);
-            }
-
             _attachDom(dom) {
                 this.appendChild(dom);
             }
 
-            ready() {
-                super.ready();
-            }
-
             connectedCallback() {
                 super.connectedCallback();
+
                 this._initForm();
             }
 
@@ -550,9 +544,9 @@
             _openModalICD10() {
                 $("#" + this.prefix + "icd").modal('show');
             }
-            _propagateOkICD10 (e){
+            _propagateOkICD10(e){
                 this.ICD10Value = e.detail.result.join(",");
-                this.selectedTermsICD = e.detail.originalResult;
+                this.selectedTermsICD = e.detail.result;
                 $("#" + this.prefix + "icd").modal('hide');
             }
 
@@ -796,7 +790,7 @@
                     });
 
                     let params = {
-                        study: this.project.alias + ":" +  this.study.alias
+                        study: this.opencgaSession.project.alias + ":" +  this.opencgaSession.study.alias
                     };
 
                     let sexIndividual = this.matchingKaryotypicSex.get(formFields.chromosomalGender);
@@ -858,7 +852,7 @@
                 if (this.opencgaClient instanceof OpenCGAClient) {
                     let _this = this;
                     let params = {
-                        study: this.project.alias + ":" + this.study.alias,
+                        study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
                         type: "FILE",
                         file: vcfFile,
                         fileFormat: "VCF",
@@ -900,7 +894,7 @@
                 // Index and annotate a VCF file in openCGA
                 let params = {
                     file: fileId,
-                    study: this.project.alias + ":" + this.study.alias,
+                    study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
                     outDir: fileId + "_index_annot",
                     calculateStats: true,
                     annotate: true
@@ -999,7 +993,7 @@
             _updateVariableSets() {
                 this.variables = [];
                 let _this = this;
-                this.opencgaClient.studies().info(this.study.id, {include: "variableSets"})
+                this.opencgaClient.studies().info(this.opencgaSession.study.id, {include: "variableSets"})
                     .then(function (response) {
                         _this.variableSets = response.response[0].result[0].variableSets;
                         if (_this.variableSets.length > 0) {
@@ -1017,7 +1011,7 @@
                         }
                     })
                     .catch(function (responseError) {
-                        console.log("Could not obtain the variable sets of the study " + _this.study);
+                        console.log("Could not obtain the variable sets of the study " + _this.opencgaSession.study);
                         this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
                             detail: {
                                 message: responseError.error,

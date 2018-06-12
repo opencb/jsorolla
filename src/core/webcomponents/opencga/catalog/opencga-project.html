@@ -65,7 +65,7 @@
                      */
                     auto: {
                         type: Boolean,
-                        value: false
+                        value: true
                     }
                 }
             }
@@ -100,7 +100,7 @@
 
             projectChanged() {
                 if (typeof this.opencgaClient !== "undefined" && typeof this.project !== "undefined"
-                        && Object.keys(this.project).length > 0) {
+                    && Object.keys(this.project).length > 0) {
                     let _this = this;
                     if (this.auto) {
                         // Obtain the summary of the studies

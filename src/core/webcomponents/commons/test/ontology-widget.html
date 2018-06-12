@@ -55,10 +55,8 @@
     <link rel="import" href="../../../../../../../node_modules/@polymer/polymer/lib/elements/array-selector.html">
     <link rel="import" href="../../../../../../../node_modules/@polymer/polymer/lib/elements/custom-style.html">
     <link rel="import" href="../variant-modal-ontology.html">
-
-
-
 </head>
+
 <body>
 <dom-module id="my-element">
     <template>
@@ -67,73 +65,65 @@
             Open modal
         </button>
 
-        <variant-modal-ontology prefix="{{prefix}}" ebi-config="{{ebiWS}}" on-propagateok="propagateOkHPO" ontology-filter="hp"
+        <variant-modal-ontology prefix="{{prefix}}" on-propagateok="propagateOkHPO" ontology-filter="hp"
                                 term="HPO" selected-terms="{{selectedTermsOntology}}"></variant-modal-ontology>
 
     </template>
     <script>
-    HTMLImports.whenReady(function() {
-    // define the element's class element
-    class MyElement extends Polymer.Element {
+        HTMLImports.whenReady(function() {
+            // define the element's class element
+            class MyElement extends Polymer.Element {
 
-        static get is() { return 'my-element'; }
-        static get properties(){
-            return {
-                prefix:{
-                    type: String
+                static get is() { return 'my-element'; }
+                static get properties(){
+                    return {
+                        prefix:{
+                            type: String
+                        }
+                    }
                 }
+                _attachDom(dom) {
+                    this.appendChild(dom);
+                }
+                constructor(){
+                    super();
+
+                    if (UtilsNew.isEmpty(this.prefix)) {
+                        this.prefix = "ff" + Utils.randomString(6);
+                    }
+                }
+                // Element class can define custom element reactions
+                connectedCallback() {
+                    super.connectedCallback();
+                    this.selectedTermsHPO = [];
+                    console.log('my-element created!');
+                }
+
+                ready() {
+                    super.ready();
+                }
+
+                openModalHpo(e){
+                    this.selectedTermsOntology = this.selectedTermsHPO;
+                    this.ontologyFilter = "hp";
+                    this.ontologyTerm = "HPO";
+                    $("#" + this.prefix + "ontologyModal").modal('show');
+                }
+
+                propagateOkHPO(e){
+                    //            PolymerUtils.setValue(this.prefix + "HPO", e.detail.result.join(","));
+                    this.selectedTermsHPO = e.detail.originalResult;
+                    $("#" + this.prefix + "ontologyModal").modal('hide');
+                }
+
+
             }
-        }
-        _attachDom(dom) {
-            this.appendChild(dom);
-        }
-        constructor(){
-            super();
-            this.ebiWS = {
-                root: "http://www.ebi.ac.uk/ols/api",
-                tree: {
-                    "hp": ["/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0012823", "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0040279",
-                        "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0000005", "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0040006",
-                        "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0000118", "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FUPHENO_0001002"],
-                    "go": ["/ontologies/go/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FGO_0008150", "/ontologies/go/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FGO_0005575",
-                        "/ontologies/go/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FGO_0003674"]
-                },
-                search: "/search"
-            };
-            if (UtilsNew.isEmpty(this.prefix)) {
-                this.prefix = "ff" + Utils.randomString(6);
-            }
-        }
-        // Element class can define custom element reactions
-        connectedCallback() {
-            super.connectedCallback();
-            this.selectedTermsHPO = [];
-            console.log('my-element created!');
-        }
-
-        ready() {
-            super.ready();
-        }
-
-            openModalHpo(e){
-                this.selectedTermsOntology = this.selectedTermsHPO;
-                this.ontologyFilter = "hp";
-                this.ontologyTerm = "HPO";
-                $("#" + this.prefix + "ontologyModal").modal('show');
-            }
-
-            propagateOkHPO(e){
-        //            PolymerUtils.setValue(this.prefix + "HPO", e.detail.result.join(","));
-                this.selectedTermsHPO = e.detail.originalResult;
-                $("#" + this.prefix + "ontologyModal").modal('hide');
-            }
-
-
-        }
-        customElements.define(MyElement.is, MyElement);
+            customElements.define(MyElement.is, MyElement);
         });
     </script>
 </dom-module>
+
 <my-element></my-element>
+
 </body>
 </html>

@@ -14,7 +14,7 @@
   ~ limitations under the License.
   -->
 
-<!--<link rel="import" href="variant-clinical-selector.html">-->
+<!--<link rel="import" href="opencga-clinical-analysis-browser.html">-->
 
 <dom-module id="clinical-analysis-view">
     <template>
@@ -25,8 +25,8 @@
                 <template is="dom-if" if="{{showTitle}}">
                     <div style="margin: 10px">
                         <span>
-                            <i id="{{prefix}}SummaryCollapseIcon" class="fa fa-minus-square-o" aria-hidden="true" on-click="_summaryOnClick" style="cursor: pointer"></i>
-                            <h4  on-click="_summaryOnClick" style="cursor: pointer; display: inline">&nbsp;{{title}}</h4>
+                            <!--<i id="{{prefix}}SummaryCollapseIcon" class="fa fa-minus-square-o" aria-hidden="true" on-click="_summaryOnClick" style="cursor: pointer"></i>-->
+                            <h4 style="display: inline">&nbsp;{{title}}</h4>
                         </span>
                     </div>
                 </template>
@@ -198,13 +198,10 @@
 
             static get properties() {
                 return {
+                    opencgaSession: {
+                        type: Object
+                    },
                     opencgaClient: {
-                        type: Object
-                    },
-                    project: {
-                        type: Object
-                    },
-                    study: {
                         type: Object
                     },
                     clinicalAnalysisId: {
@@ -263,9 +260,10 @@
             }
 
             searchAnalysis(){
-                if(UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysisId)){
+                if(UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysisId)) {
+                    debugger
                     let params = {
-                        study: this.project.alias + ":" + this.study.alias
+                        study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias
                     };
                     let _this = this;
                     this.opencgaClient.clinical().info(this.clinicalAnalysisId, params, {})
@@ -275,7 +273,7 @@
                                 _this.clinicalAnalysis = response.response[0].result[0];
                                 _this.clinicalAnalysisCreationDateFormat = moment(_this.clinicalAnalysis.creationDate, "YYYYMMDDHHmmss").format('D MMM YY');
                                 _this.showSummary = true;
-                                _this.title = _this.clinicalAnalysis.name + " Clinical Analysis Summary";
+//                                _this.title =  "Clinical Analysis Summary: " + _this.clinicalAnalysis.name;
                                 _this.pedigreeRender();
                             }
 

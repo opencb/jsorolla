@@ -49,7 +49,7 @@
                         <div role="tabpanel" class="tab-pane" id="{{prefix}}{{protein.id}}"></div>
                         <br>
                     </template>
-                    <a href="#protein/{{project.alias}}/{{study.alias}}/{{protein.id}}">Please click here for more details</a>
+                    <a href="#protein/{{opencgaSession.project.alias}}/{{opencgaSession.study.alias}}/{{protein.id}}">Please click here for more details</a>
                 </template>
             </div>
             <div hidden$="{{checkProteinsAvailable(proteins)}}" style="padding-left: 10px">
@@ -74,10 +74,7 @@
 
             static get properties() {
                 return {
-                    project: {
-                        type: Object
-                    },
-                    study: {
+                    opencgaSession: {
                         type: Object
                     },
                     config: {
@@ -108,10 +105,6 @@
                 this.appendChild(dom);
             }
 
-            ready() {
-                super.ready();
-            }
-
             checkProteinsAvailable(proteins) {
                 return proteins.length > 0;
             }
@@ -137,19 +130,23 @@
                             // This render the Bootstrap tabs with Nav pills
                             let _proteins = [];
                             for (let i = 0; i < proteinObjects.length; i++) {
-                                _proteins.push({id: proteinObjects[i].accession[0], active: (i == 0)});
+                                _proteins.push({id: proteinObjects[i].accession[0], active: (i === 0)});
                             }
                             _this.proteins = _proteins;
 
                             // DO NOT EVEN DARE TO TOUCH THIS LINE!
                             _this.$.proteinsDiv.render();
 
-                            if (proteinObjects.length > 0 && typeof _this.project !== "undefined" && typeof _this.study !== "undefined" && typeof _this.study.alias !== "undefined") {
+                            if (proteinObjects.length > 0 && typeof _this.opencgaSession.project !== "undefined"
+                                && typeof _this.opencgaSession.study !== "undefined" && typeof _this.opencgaSession.study.alias !== "undefined") {
                                 let params = {
-                                    "annot-ct": "missense_variant,transcript_ablation,splice_acceptor_variant,splice_donor_variant,stop_gained,frameshift_variant,stop_lost,start_lost," +
+                                    ct: "missense_variant,transcript_ablation,splice_acceptor_variant,splice_donor_variant,stop_gained,frameshift_variant,stop_lost,start_lost," +
                                     "transcript_amplification,inframe_insertion,inframe_deletion",
-                                    studies: _this.project.alias + ":" + _this.study.alias, returnedStudies: _this.project.alias + ":" + _this.study.alias,
-                                    exclude: "studies.samplesData,studies.files"};
+                                    studies: _this.opencgaSession.project.alias + ":" + _this.opencgaSession.study.alias,
+                                    returnedStudies: _this.opencgaSession.project.alias + ":" + _this.opencgaSession.study.alias,
+                                    summary: true,
+                                    // exclude: "studies.samplesData,studies.files"
+                                };
 
                                 if (typeof _this.gene !== "undefined" && _this.gene !== "") {
                                     params.gene = _this.gene;
@@ -161,7 +158,8 @@
                                         let lollipop = new Lollipop();
                                         for (let i = 0; i < proteinObjects.length; i++) {
                                             let svgSettings = {
-                                                width: proteinObjects[i].sequence.length,
+                                                // width: proteinObjects[i].sequence.length,
+                                                width: 1280,
                                                 height: 140,
                                                 proteinPositioningInterval: 3,
                                                 color: _this.config.color

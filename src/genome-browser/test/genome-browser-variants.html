@@ -96,7 +96,7 @@
 </head>
 
 <body class="ocb">
-<div id="title">Genome Browser</div>
+<div id="title">Genome Browser VCF test</div>
 <div id="application"></div>
 
 <script type="text/javascript">
@@ -265,58 +265,64 @@
         });
         // tracks.push(this.gene);
 
-        /****************************************************************************/
-        /***** Test Alignment Track using AlignmentTrack and Opencga adapter      ***/
-        /****************************************************************************/
-
-        /*******************/
-        let alignment = new AlignmentTrack({
-            title: "Alignment",
+        /***************************************************************************/
+        /*****   Demo Variant Track using VariantTrack and Opencga adapter       ***/
+        /***     Using FeatureRender; Visualization of variants individually     ***/
+        /***************************************************************************/
+        let variant = new VariantTrack({
+            title: "Variant for family",
             closable: true,
-            minHistogramRegionSize: 5000,
-            maxLabelRegionSize: 3000,
+            minHistogramRegionSize: 20000000,
+            maxLabelRegionSize: 10000000,
+            minTranscriptRegionSize: 200000,
             visibleRegionSize: 100000000,
             height: 300,
-           renderer: new AlignmentRenderer(FEATURE_TYPES.alignment),
-           dataAdapter: new OpencgaAdapter(opencgaClient, "analysis/alignment", undefined, "query",
-                   {
-                       fileId: "NA12877_S1.bam",
-                       study: "platinum:illumina_platinum"
-                   })
+            opencga: {
+                client: opencgaClient,
+                studies: "platinum:illumina_platinum",
+                // It can be used with samples or files indistinctly.
+                samples: ["NA12877", "NA12878", "NA12879"]
+                // files: ["platinum-genomes-vcf-NA12877_S1.genome.vcf.gz", "platinum-genomes-vcf-NA12878_S1.genome.vcf.gz",
+                //     "platinum-genomes-vcf-NA12879_S1.genome.vcf.gz"]
+            }
         });
-        tracks.push(alignment);
+        tracks.push(variant);
 
-        alignment = new AlignmentTrack({
-            title: "Alignment",
-            closable: true,
-            minHistogramRegionSize: 5000,
-            maxLabelRegionSize: 3000,
-            visibleRegionSize: 100000000,
-            height: 300,
-            renderer: new AlignmentRenderer(FEATURE_TYPES.alignment),
-            dataAdapter: new OpencgaAdapter(opencgaClient, "analysis/alignment", undefined, "query",
-                {
-                    fileId: "NA12878_S1.bam",
-                    study: "platinum:illumina_platinum"
-                })
-        });
-        tracks.push(alignment);
+//        let variant = new VariantTrack({
+//            title: "Variant",
+//            closable: true,
+//            minHistogramRegionSize: 20000000,
+//            maxLabelRegionSize: 10000000,
+//            minTranscriptRegionSize: 200000,
+//            visibleRegionSize: 100000000,
+//            height: 300,
+//            opencga: {
+////                host: OPENCGA_HOST,
+////                version: "v1",
+//                client: opencgaClient,
+////                studies: "reference_grch37:1kG_phase3"
+//                studies: "platinum:illumina_platinum"
+//                samples: ["HG00096", "HG00097", "HG00099"]
+//                samples: []
+//            },
+//            samples: {
+//                names: { "reference_grch37:1kG_phase3": ["HG00096", "HG00097", "HG00099"]}
+//            },
+//            renderer: new FeatureRenderer(FEATURE_TYPES.variant),
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        //You can define a particular dataAdapter, if not defined, the track will pick up the default one.//
+        ///////////////////////////////////////////////////////////////////////////////////////////////////
+//            dataAdapter: new OpencgaAdapter(opencgaClient, "analysis/variant", undefined, "query",
+//                    {
+//                        studies: "reference_grch37:1kG_phase3",
+////                      exclude: "studies.files,studies.stats,annotation" //Exclude for samples mode
+//                        exclude: "studies,annotation" //Exclude for individual variation mode
+//                    }, {
+//                        chunkSize: 100000
+//                    })
+//        });
+//        tracks.push(variant);
 
-        alignment = new AlignmentTrack({
-            title: "Alignment",
-            closable: true,
-            minHistogramRegionSize: 5000,
-            maxLabelRegionSize: 3000,
-            visibleRegionSize: 100000000,
-            height: 300,
-            renderer: new AlignmentRenderer(FEATURE_TYPES.alignment),
-            dataAdapter: new OpencgaAdapter(opencgaClient, "analysis/alignment", undefined, "query",
-                {
-                    fileId: "NA12879_S1.bam",
-                    study: "platinum:illumina_platinum"
-                })
-        });
-        tracks.push(alignment);
 
         genomeBrowser.addTrack(tracks);
         genomeBrowser.draw();

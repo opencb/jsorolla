@@ -123,8 +123,7 @@
                             _this.$.opencgaPassword.value = "";
                             let sessionId =  response.response[0].result[0].id;
                             let decoded = jwt_decode(sessionId);
-                            let dateExpired = new Date(null);
-                            dateExpired.setSeconds(decoded.exp);
+                            let dateExpired = new Date(decoded.exp * 1000);
                             let validTimeSessionId =  moment(dateExpired, "YYYYMMDDHHmmss").format('D MMM YY HH:mm:ss');
                             let _message = "Welcome " + user +". Your session is valid until " + validTimeSessionId;
 
@@ -151,7 +150,7 @@
                             }));
                         })
                         .catch(function(response) {
-                            let _message = this.errorMessage = response.error
+                            let _message = this.errorMessage = response.error;
                             this.dispatchEvent(new CustomEvent(_this.eventNotifyName, {
                                 detail: {
                                     message: _message, type: UtilsNew.MESSAGE_ERROR
@@ -166,7 +165,7 @@
 
             checkEnterKey(e) {
                 if (e.keyCode === 13) {
-                    this.login();
+                    // this.login();
                 }
             }
         }

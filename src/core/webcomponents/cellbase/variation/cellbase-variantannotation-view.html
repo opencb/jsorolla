@@ -30,9 +30,9 @@
                 <div class="col-xs-2">
                     <ul id="stackedPills" class="nav nav-pills nav-stacked" role="tablist">
                         <li role="presentation" class="active"><a href="#{{prefix}}VariantAnnotationSummary" role="tab" data-toggle="tab">Summary</a></li>
-                        <li role="presentation"><a href="#{{prefix}}VariantAnnotationConsequenceTypes" role="tab" data-toggle="tab">Consequence Types</a></li>
-                        <li role="presentation"><a href="#{{prefix}}VariantAnnotationPopulationFrequencies" role="tab" data-toggle="tab">Population Frequencies</a></li>
-                        <li role="presentation"><a href="#{{prefix}}VariantAnnotationVTA" role="tab" data-toggle="tab">Variant Trait Association</a></li>
+                        <li role="presentation"><a href="#{{prefix}}VariantAnnotationConsequenceTypes" role="tab" data-toggle="tab">Consequence Types ({{numberConsequenceTypes}})</a></li>
+                        <li role="presentation"><a href="#{{prefix}}VariantAnnotationPopulationFrequencies" role="tab" data-toggle="tab">Population Frequencies ({{numberPopulationFrequencies}})</a></li>
+                        <li role="presentation"><a href="#{{prefix}}VariantAnnotationVTA" role="tab" data-toggle="tab">Variant Trait Association ({{numberVTA}})</a></li>
                         <li role="presentation"><a href="#{{prefix}}VariantAnnotationGTA" role="tab" data-toggle="tab">Gene Trait Association ({{numberGTA}})</a></li>
                     </ul>
                 </div>
@@ -42,9 +42,9 @@
             <template is="dom-if" if="{{checkHorizontal(mode)}}">
                 <ul id="myTabs" class="nav nav-tabs" role="tablist">
                     <li role="presentation" class="active"><a href="#{{prefix}}VariantAnnotationSummary" role="tab" data-toggle="tab">Summary</a></li>
-                    <li role="presentation"><a href="#{{prefix}}VariantAnnotationConsequenceTypes" role="tab" data-toggle="tab">Consequence Types</a></li>
-                    <li role="presentation"><a href="#{{prefix}}VariantAnnotationPopulationFrequencies" role="tab" data-toggle="tab">Population Frequencies</a></li>
-                    <li role="presentation"><a href="#{{prefix}}VariantAnnotationVTA" role="tab" data-toggle="tab">Variant Trait Association</a></li>
+                    <li role="presentation"><a href="#{{prefix}}VariantAnnotationConsequenceTypes" role="tab" data-toggle="tab">Consequence Types ({{numberConsequenceTypes}})</a></li>
+                    <li role="presentation"><a href="#{{prefix}}VariantAnnotationPopulationFrequencies" role="tab" data-toggle="tab">Population Frequencies ({{numberPopulationFrequencies}})</a></li>
+                    <li role="presentation"><a href="#{{prefix}}VariantAnnotationVTA" role="tab" data-toggle="tab">Variant Trait Association ({{numberVTA}})</a></li>
                     <li role="presentation"><a href="#{{prefix}}VariantAnnotationGTA" role="tab" data-toggle="tab">Gene Trait Association ({{numberGTA}})</a></li>
                 </ul>
             </template>
@@ -68,7 +68,7 @@
                     <!--Gene Trait Association Tab-->
                     <div role="tabpanel" class="tab-pane" id="{{prefix}}VariantAnnotationGTA">
                         <table id="{{prefix}}GTATable" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
-                               data-show-pagination-switch="true" data-show-export="true">
+                               data-show-pagination-switch="true" data-show-export="true" data-icons-prefix="fa" data-icons="icons">
                             <thead style="background-color: #eee"></thead>
                         </table>
                     </div>
@@ -159,6 +159,7 @@
 
             constructor() {
                 super();
+                this._init();
             }
 
             static get is() {
@@ -201,6 +202,14 @@
                 }
             }
 
+            _init() {
+                window.icons = {
+                    refresh: 'fa-refresh',
+                    columns: 'fa-th',
+                    paginationSwitchDown: 'fa-caret-square-o-down',
+                    paginationSwitchUp: 'fa-caret-square-o-up'
+                };
+            }
             _attachDom(dom) {
                 this.appendChild(dom);
             }
@@ -245,13 +254,20 @@
 
             _variantChanged() {
                 let _this = this;
-                if (typeof this.cellbaseClient !== "undefined" && this.data !== "") {
+                if (typeof this.cellbaseClient !== "undefined" && this.data !== "" && !this.data.includes(" ")) {
                     this.cellbaseClient.get('genomic', 'variant', this.data, 'annotation', {assembly: this.assembly}, {})
                         .then(function (response) {
                             _this.variantAnnotation = response.response[0].result[0];
+                            _this.numberConsequenceTypes = 0;
+                            _this.numberPopulationFrequencies = 0;
+                            _this.numberVTA = 0;
+                            _this.numberGTA = 0;
 
                             if (_this.variantAnnotation.geneTraitAssociation != null) {
-                                _this.numberGTA = _this.variantAnnotation.geneTraitAssociation.length;
+                                _this.numberConsequenceTypes = _this.variantAnnotation.consequenceTypes.length;
+                                _this.numberPopulationFrequencies = _this.variantAnnotation.populationFrequencies.length;
+                                _this.numberVTA = UtilsNew.isNotUndefinedOrNull(_this.variantAnnotation.traitAssociation) ? _this.variantAnnotation.traitAssociation.length : 0;
+                                _this.numberGTA = UtilsNew.isNotUndefinedOrNull(_this.variantAnnotation.geneTraitAssociation) ? _this.variantAnnotation.geneTraitAssociation.length: 0;
                             }
 
                             // Gene Trait Association definition

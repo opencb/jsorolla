@@ -21,17 +21,14 @@
 
             static get properties() {
                 return {
+                    opencgaSession: {
+                        type: Object
+                    },
                     cellbaseClient: {
                         type: Object
 //                        observer: "init"
                     },
                     opencgaClient: {
-                        type: Object
-                    },
-                    project: {
-                        type: Object
-                    },
-                    study: {
                         type: Object
                     },
                     region: {
@@ -87,7 +84,8 @@
             }
 
             init() {
-                if (typeof this.cellbaseClient === "undefined" || typeof this.opencgaClient === "undefined" || typeof this.region === "undefined") {
+                if (typeof this.cellbaseClient === "undefined" || typeof  this.opencgaSession === "undefined"
+                    || typeof this.opencgaClient === "undefined" || typeof this.region === "undefined") {
                     return;
                 }
 
@@ -134,8 +132,7 @@
                 this.genomeBrowser = new GenomeBrowser(settings);
 
                 let _tracks = [];
-
-                for(let track of Object.values(this.tracks)){
+                for (let track of Object.values(this.tracks)){
                     switch (track.type) {
                         case 'sequence':
                             _tracks.push(this._addSequenceTrack(track.config));
@@ -237,7 +234,7 @@
                     height: 100,
                     opencga: {
                         client: this.opencgaClient,
-                        studies: `${this.project.alias}:${this.study.alias}`,
+                        studies: `${this.opencgaSession.project.alias}:${this.opencgaSession.study.alias}`,
                         config: {}
 //                        studies: "reference_grch37:1kG_phase3"
 //                        "HG00096", "HG00097", "HG00099"
@@ -254,6 +251,17 @@
                     mySettings.opencga.samples = _samples;
                 } else {
                     mySettings.opencga.samples = [];
+                }
+
+                if (settings.files !== undefined && settings.files.length > 0) {
+                    let _files = [];
+                    for (let s of settings.files) {
+                        _files.push(s.name);
+                    }
+
+                    mySettings.opencga.files = _files;
+                } else {
+                    mySettings.opencga.files = [];
                 }
 
                 //mySettings = Object.assign(mySettings, settings);
@@ -275,7 +283,7 @@
                     height: 300,
                     opencga: {
                         client: this.opencgaClient,
-                        studies: `${this.project.alias}:${this.study.alias}`,
+                        studies: `${this.opencgaSession.project.alias}:${this.opencgaSession.study.alias}`,
 //                        config: {height:1},
                         // By default no custom config
                         config: {},
@@ -304,20 +312,21 @@
             addAlignmentTrack(settings = {}) {
                 let resTracks = [];
 
-                if (UtilsNew.isNotUndefinedOrNull(settings.files) && settings.files.size > 0) {
+                if (UtilsNew.isNotUndefinedOrNull(settings.files) && settings.files.length > 0) {
                     let _this = this;
                     settings.files.forEach(function (file) {
                         let mySettings = {
                             data: {
-                                fileId: file,
-                                study: _this.study.id
+                                fileId: file.path,
+                                name: file.name,
+                                study: _this.opencgaSession.study.id
                             }
                         };
 
-                        if (UtilsNew.isNotEmptyArray(settings.filesName) && settings.filesName.length > 0) {
-                            mySettings.data.name = settings.filesName[file];
-
-                        }
+                        // if (UtilsNew.isNotEmptyArray(settings.filesName) && settings.filesName.length > 0) {
+                        //     mySettings.data.name = settings.filesName[file];
+                        //
+                        // }
 
                         Object.assign(settings, mySettings);
                         let track = _this.getAlignmentTrack(settings);

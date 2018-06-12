@@ -79,7 +79,7 @@ class UtilsNew {
     }
 
     static checkPermissions(project) {
-        return Object.keys(project).length === 0;
+        return UtilsNew.isUndefinedOrNull(project) || (UtilsNew.isNotUndefinedOrNull(project) && Object.keys(project).length === 0);
     }
 
     static isNotEqual(str, str2) {

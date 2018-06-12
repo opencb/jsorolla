@@ -1,43 +1,37 @@
 <dom-module id="variant-modal-ontology">
     <template>
-        <style include="jso-styles">
-        </style>
+        <style include="jso-styles"></style>
 
         <div class="modal fade" id="{{prefix}}ontologyModal" tabindex="-1" role="dialog"
              aria-labelledby="ontologyLabel" data-backdrop="static" data-keyboard="false">
             <div class="modal-dialog modal-sm" role="document" style="width: 1300px;">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                                aria-hidden="true">&times;</span></button>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                         <h4 class="modal-title" id="{{prefix}}EditorLabel">{{term}} terms selector</h4>
                     </div>
                     <div class="modal-body" style="height: 500px">
                         <div class="col-sm-12">
                             <label>Introduce an {{term}} term</label>
                         </div>
-                        <div class="col-sm-6" style="overflow-y: auto; height:400px;">
-                            <label id="resultsSearch"></label>
-                            <input id="{{prefix}}autoInputOntology" list="list_browser"
-                                   class$="form-control {{prefix}}TextInput"
-                                   placeholder="{{term}} term" on-change="selectTerm" on-input="selectTerm">
-
-                            <datalist id="list_browser" style="height:auto; max-height:100px; overflow-x:hidden;">
-
-                            </datalist>
-
-
+                        <div class="col-sm-6" style="overflow-y: auto; height:400px;" id="{{prefix}}divDatalist">
+                            <form>
+                                <fieldset>
+                                    <div class="form-group">
+                                        <input matcher="{{searchTerm}}" class="form-control typeahead" name="query"  id="{{prefix}}typeahead" data-provide="typeahead" placeholder="Start typing something to search..." type="text">
+                                    </div>
+                                </fieldset>
+                            </form>
                             <template is="dom-if" if="{{selectedTerm}}">
                                 <ul class="list-group infoHpo">
                                     <li class="list-group-item"><strong>Label: </strong>{{selectedTerm.label}}</li>
-                                    <li class="list-group-item"><strong>Short form: </strong>{{selectedTerm.short_form}}
-                                    </li>
+                                    <li class="list-group-item"><strong>Short form: </strong>{{selectedTerm.short_form}}</li>
                                     <li class="list-group-item"><strong>Obo Id: </strong>{{selectedTerm.obo_id}}</li>
                                     <li class="list-group-item"><strong>IRI: </strong>{{selectedTerm.iri}}</li>
-                                    <li class="list-group-item"><strong>Description: </strong>{{selectedTerm.description}}
-                                    </li>
-                                    <li class="list-group-item">  <button type="button" class="btn btn-info" on-click="addSelectedTermToList" data-selected-term$="{{selectedTerm}}">Add Term</button>
-                                    </li>
+                                    <li class="list-group-item"><strong>Description: </strong>{{selectedTerm.description}}</li>
+                                    <li class="list-group-item"><button type="button" class="btn btn-info" on-click="addSelectedTermToList" data-selected-term$="{{selectedTerm}}">Add Term</button></li>
                                 </ul>
                             </template>
 
@@ -46,12 +40,13 @@
                                     <li class="list-group-item">{{item.label}}({{item.obo_id}}) <button type="button" class="btn danger" on-click="deletedTermFromList" data-selected-term$="{{item}}">X</button></li>
                                 </template>
                             </ul>
-
                         </div>
+
                         <div class="col-sm-6" style="overflow-y: auto; height:400px;">
                             <div id="{{prefix}}TermsTree"></div>
                         </div>
                     </div>
+
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" on-click="clickOkModal">OK</button>
                     </div>
@@ -65,6 +60,9 @@
 
             constructor() {
                 super();
+
+                // Set status and init private properties
+                this._init();
             }
 
             static get is() {
@@ -73,16 +71,17 @@
 
             static get properties() {
                 return {
-                    prefix: {
-                        type: String
-                    },
                     ontologyFilter:{
                         type: String,
-                        observer: "init"
+                        observer: "ontologyFilterObserver"
                     },
                     term:{
                         type: String
+                    },
+                    prefix: {
+                        type: String
                     }
+
                 };
             }
 
@@ -90,27 +89,56 @@
                 this.appendChild(dom);
             }
 
-            ready() {
-                super.ready();
-            }
-
-            connectedCallback(){
+            connectedCallback() {
                 super.connectedCallback();
-                PolymerUtils.getElementById(this.prefix + "autoInputOntology").addEventListener('keyup', e => this.searchTerm(e));
+                let _this = this;
+                $('#' + this.prefix + "typeahead").typeahead('destroy');
+                $('#' + this.prefix + "typeahead").typeahead({
+                    source: function (query, process) {
+                        return _this.searchTerm(query, process);
+                    },
+                    hint: true,
+                    highlight: true,
+                    minLength: 1,
+                    autoSelect: true,
+                    items: 15,
+                    afterSelect: this.selectTerm.bind(_this)
+                });
             }
 
-            init (){
+            process(data) {
+                return data;
+            }
+            _init() {
+                this.ebiConfig = {
+                    root: "https://www.ebi.ac.uk/ols/api",
+                    tree: {
+                        "hp": ["/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0012823", "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0040279",
+                            "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0000005", "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0040006",
+                            "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0000118", "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FUPHENO_0001002"],
+                        "go": ["/ontologies/go/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FGO_0008150", "/ontologies/go/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FGO_0005575",
+                            "/ontologies/go/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FGO_0003674"]
+                    },
+                    search: "/search"
+                };
+
+
+            }
+
+            ontologyFilterObserver() {
                 this.loadTermsTree();
-                this.parseSearchTerms = [];
                 this.selectedTerm = {};
-                PolymerUtils.setValue(this.prefix + "autoInputOntology", "");
-                this.listCurrentSelected = this.selectedTerms;
+                this.listCurrentSelected = [];
+                PolymerUtils.setValue(this.prefix + "typeahead", "");
+                if (UtilsNew.isNotEmptyArray(this.selectedTerms)) {
+                    this.listCurrentSelected = this.selectedTerms.slice();
+                }
             }
 
-            selectTerm(e) {
+            selectTerm(selected) {
                 if (UtilsNew.isNotUndefinedOrNull(this.fullTerms)) {
                     this.selectedTerm = this.fullTerms.find((elem) => {
-                        return elem.label == e.target.value
+                        return elem.label == selected.label;
                     });
                 }
             }
@@ -132,7 +160,6 @@
 
             deletedTermFromList(e){
                 let deletedTerm = JSON.parse(e.target.getAttribute("data-selected-term"));
-
                 let listWithoutDeletedTerm = this.listCurrentSelected.filter((element) => {
                         return element.label !== deletedTerm.label;
                 });
@@ -146,7 +173,6 @@
                     result = this.listCurrentSelected.map((element) => {
                             return element.obo_id ;
                     });
-
                 }
 
                 this.dispatchEvent(new CustomEvent("propagateok", {
@@ -156,44 +182,31 @@
                 }));
             }
 
-            searchTerm(e) {
+            searchTerm(query, process) {
+
+                debugger;
                 let rowsPerPage = 15;
                 let _this = this;
-                var queryEncoded = encodeURI(e.target.value);
-
-                fetch(this.ebiConfig.root + this.ebiConfig.search + "?q=*" + queryEncoded + "*&ontology=" + this.ontologyFilter + "&rows=" + rowsPerPage + "&queryFields=label,obo_id")
+                let queryEncoded = query;
+                return fetch(this.ebiConfig.root + this.ebiConfig.search + "?q=*" + queryEncoded + "*&ontology=" + this.ontologyFilter + "&rows=" + rowsPerPage + "&queryFields=label,obo_id")
                     .then((response) => {
-                        response.json().then((json) => {
-                            let list_browser = PolymerUtils.getElementById("list_browser");
-                            PolymerUtils.innerHTML("list_browser", "");
-                            _this.parseSearchTerms = json.response.docs.map((elem) => {
-                                return elem.label + "(" + elem.obo_id + ")"
-                            });
+                        return response.json().then((json) => {
                             _this.fullTerms = json.response.docs;
-
+                            let arraySearch = [];
                             json.response.docs.forEach((elem) => {
-                                let el = document.createElement("option");
-                                el.label = elem.obo_id;
-                                el.value = elem.label;
-                                list_browser.appendChild(el);
+                                arraySearch.push({ name: elem.label + " - (" + elem.obo_id  + ")", label: elem.label, id: elem.obo_id });
                             });
-
-                            if (json.response.numFound > rowsPerPage) {
-                                PolymerUtils.innerHTML("resultsSearch", "Exists more results for search: " + e.target.value + ". Showing 15 of " + json.response.numFound);
-                            }  else {
-                                PolymerUtils.innerHTML("resultsSearch", "Showing "+json.response.numFound +" results.");
-
-                            }
+                            process(arraySearch);
                         });
                     })
                     .catch((error) => {
                         console.error(error);
                     });
+
             }
 
             drawTree(data) {
                 let _this = this;
-
                 $(PolymerUtils.getElementById(this.prefix + "TermsTree")).treeview({
                     data: data,
                     onNodeSelected: function (event, node) {
@@ -201,7 +214,7 @@
                             return elem.label == node.text
                         });
                         if (UtilsNew.isNotUndefinedOrNull(_this.selectedTerm)) {
-                            PolymerUtils.setValue(_this.prefix + "autoInputOntology", node.text);
+                            PolymerUtils.setValue(_this.prefix + "typeahead", node.text);
                         }
                     },
                     onNodeUnselected: function (event, node) {
@@ -233,17 +246,15 @@
                                         });
                                         currentNodeInTree.state.expanded = true;
                                         _this.drawTree(data);
-
                                     });
                                 })
                                 .catch((error) => {
-                                        console.error("ERROR");
+                                        console.error("ERROR: ", error);
                                 });
                         }
                     }
                 });
             }
-
 
             loadTermsTree() {
                 this.rootTree = [{text: "All", nodes: [], selectable: false}];
@@ -251,7 +262,7 @@
 
                 let _this = this;
                 let defaultsNodes = this.ebiConfig.tree[this.ontologyFilter];
-                if(UtilsNew.isNotEmptyArray(defaultsNodes)){
+                if (UtilsNew.isNotEmptyArray(defaultsNodes)){
                     defaultsNodes.forEach((nodeUrl) => {
                         fetch(this.ebiConfig.root + nodeUrl)
                             .then((response) => {
@@ -274,19 +285,15 @@
                                 });
                             })
                             .catch((error) => {
-                                    console.error("ERROR");
+                                    console.error("ERROR: ", error);
                             });
                     });
                 }
 
-
                 return [];
             }
-
         }
 
         customElements.define(VariantModalOntology.is, VariantModalOntology);
-
     </script>
-
 </dom-module>

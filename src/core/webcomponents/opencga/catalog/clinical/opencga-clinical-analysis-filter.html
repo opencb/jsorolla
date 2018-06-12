@@ -14,18 +14,17 @@
   ~ limitations under the License.
   -->
 
-<dom-module id="opencga-analysis-filter">
+<dom-module id="opencga-clinical-analysis-filter">
     <template>
         <style include="jso-styles"></style>
 
         <br>
         <div style="width: 60%;margin: 0 auto">
-            <button type="button" class="btn btn-primary" style="width: 100%" on-click="onSearch">
+            <button type="button" class="btn btn-primary" style="width: 100%" on-click="onSearchClick">
                 <i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px 0px 5px"></i>
                 Search
             </button>
         </div>
-        <br>
         <br>
         <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true">
             <!-- Analysis Selection -->
@@ -52,21 +51,21 @@
                                 <label>Select</label>
                                 <br>
                                 <input type="radio" name="selectionButtons" id="allRadio" value="all"
-                                       class$="{{prefix}}FilterRadio" checked on-change="calculateFilters"
+                                       class$="{{prefix}}FilterRadio" checked on-change="calculateFilterDate"
                                        style="padding-left: 20px"> All<br>
-                                <input type="radio" name="selectionButtons" id="recentlyRadio" value="recently"
-                                       class$="{{prefix}}FilterRadio" on-change="calculateFilters"
-                                       style="padding-left: 20px"> Recently Created<br>
+                                <!--<input type="radio" name="selectionButtons" id="recentlyRadio" value="recently"-->
+                                       <!--class$="{{prefix}}FilterRadio" on-change="updateQueryFilters"-->
+                                       <!--style="padding-left: 20px"> Recently Created<br>-->
                                 <input type="radio" name="selectionButtons" id="rangeRadio" value="range"
-                                       class$="{{prefix}}FilterRadio" on-change="calculateFilters"
+                                       class$="{{prefix}}FilterRadio" on-change="calculateFilterDate"
                                        style="padding-left: 20px"> Date (Year-Month-Day)
                             </form>
                             <div style="padding: 15px 0px 0px 25px">
                                 <form class="form-inline">
                                     <div class="form-group row">
                                         <select class$="form-control {{prefix}}SelectInput codeDis input-sm"
-                                                id="{{prefix}}YearSelect" name="birthYear" required
-                                                on-change="checkYears" disabled>
+                                                id="{{prefix}}YearSelect" name="yearInput" required
+                                                on-change="updateQueryFilters" disabled>
                                             <template is="dom-repeat" items="{{yearsToSearch}}">
                                                 <option value="{{item}}">{{item}}</option>
                                             </template>
@@ -74,8 +73,8 @@
 
                                         <label style="padding: 0px 2px">-</label>
                                         <select class$="form-control {{prefix}}SelectInput codeDis input-sm"
-                                                id="{{prefix}}MonthSelect" name="birthYear" required
-                                                on-change="checkYears" disabled>
+                                                id="{{prefix}}MonthSelect" name="monthInput" required
+                                                on-change="updateQueryFilters" disabled>
                                             <option></option>
                                             <template is="dom-repeat" items="{{monthToSearch}}">
                                                 <option value="{{item}}">{{item}}</option>
@@ -83,8 +82,8 @@
                                         </select>
                                         <label style="padding: 0px 2px">-</label>
                                         <select class$="form-control {{prefix}}SelectInput codeDis input-sm"
-                                                id="{{prefix}}DaySelect" name="birthYear" required
-                                                on-change="checkYears" disabled>
+                                                id="{{prefix}}DaySelect" name="dayInput" required
+                                                on-change="updateQueryFilters" disabled>
                                             <option></option>
                                             <template is="dom-repeat" items="{{daysToSearch}}">
                                                 <option value="{{item}}">{{item}}</option>
@@ -118,14 +117,14 @@
                     <div class="panel-body">
                         <div class="form-group">
                             <label>Analysis ID</label>
-                            <input type="text" id="{{prefix}}analysisID" class="form-control input-sm"
-                                   placeholder="AN-23, AN-50 ..." on-keyup="calculateFilters">
+                            <input type="text" id="{{prefix}}analysisID" class$="form-control input-sm {{prefix}}FilterTextInput"
+                                   placeholder="AN-23, AN-50 ..." on-keyup="updateQueryFilters">
                             <label>Samples name</label>
-                            <input type="text" id="{{prefix}}sampleID" class="form-control input-sm"
-                                   placeholder="HG01881,HG00101 ..." on-keyup="calculateFilters">
+                            <input type="text" id="{{prefix}}sampleID" class$="form-control input-sm {{prefix}}FilterTextInput"
+                                   placeholder="HG01881,HG00101 ..." on-keyup="updateQueryFilters">
                             <label>Analysis Type</label>
-                            <input type="text" id="{{prefix}}analysisType" class="form-control input-sm"
-                                   placeholder="Duo, Family ..." on-keyup="calculateFilters">
+                            <input type="text" id="{{prefix}}analysisType" class$="form-control input-sm {{prefix}}FilterTextInput"
+                                   placeholder="Duo, Family ..." on-keyup="updateQueryFilters">
                         </div>
                     </div>
                 </div>
@@ -133,22 +132,23 @@
         </div>
     </template>
     <script>
-        class OpencgaAnalysisFilter extends Polymer.Element {
+        class OpencgaClinicalAnalysisFilter extends Polymer.Element {
+
+            constructor() {
+                super();
+                this._init();
+            }
+
             static get is() {
-                return 'opencga-analysis-filter';
+                return 'opencga-clinical-analysis-filter';
             }
 
             static get properties() {
                 return {
-                    opencgaClient: {
-                        type: Object
-                    },
-                    study: {
-                        type: Object
-                    },
                     query: {
                         type: Object,
-                        notify: true
+                        notify: true,
+                        observer: "queryObserver"
                     },
                     search: {
                         type: Object,
@@ -156,19 +156,17 @@
                     }
                 }
             }
-            constructor() {
-                super();
-            }
 
             _attachDom(dom) {
                 this.appendChild(dom);
             }
 
-            ready() {
-                super.ready();
-                if (UtilsNew.isEmpty(this.prefix)) {
-                    this.prefix = "anFilter" + Utils.randomString(6);
-                }
+            connectedCallback() {
+                super.connectedCallback();
+            }
+
+            _init() {
+                this.prefix = "anFilter" + Utils.randomString(6);
                 let _years = [];
                 let fullDate = new Date()
                 let limitYear = fullDate.getFullYear();
@@ -192,27 +190,86 @@
                     _days.push(i);
                 }
                 this.daysToSearch = _days;
+                this._reset = true;
             }
 
-            calculateFilters(e) {
+            queryObserver() {
+                if (this._reset) {
+                    this.setQueryFilters();
+                } else {
+                    this._reset = true;
+                }
+            }
+
+            setQueryFilters() {
+                this._clearHtmlDom();
+                // TODO implement set query filters one day
+            }
+
+            updateQueryFilters() {
                 let _query = {};
 
+                let analysisID = PolymerUtils.getElementById(this.prefix + "analysisID").value;
+                let sampleID = PolymerUtils.getElementById(this.prefix + "sampleID").value;
+                let analysisType = PolymerUtils.getElementById(this.prefix + "analysisType").value;
+                let yearInput = PolymerUtils.getElementById(this.prefix + "YearSelect").value;
+                let monthInput = PolymerUtils.getElementById(this.prefix + "MonthSelect").value;
+                let dayInput = PolymerUtils.getElementById(this.prefix + "DaySelect").value;
+                if (this.customDate && UtilsNew.isNotEmpty(yearInput) && UtilsNew.isNotEmpty(monthInput) && UtilsNew.isNotEmpty(dayInput) ) {
+                    let monthNumber = 0;
+                    this.monthToSearch.forEach((month,index) => {
+                        if (month === monthInput) {
+                            monthNumber = index;
+                        }
+                    });
+                    _query.creationDate = new Date(yearInput, monthNumber, dayInput).getTime();
+                }
+
+                if (UtilsNew.isNotEmpty(analysisID)) {
+                    _query.name = analysisID;
+                }
+
+                if (UtilsNew.isNotEmpty(sampleID)) {
+                    _query.sample = sampleID;
+                }
+
+                if (UtilsNew.isNotEmpty(analysisType)) {
+                    _query.type = analysisType;
+                }
+
+                this._reset = false;
+                this.query = _query;
+                this._reset = true;
+            }
+
+            calculateFilterDate(e) {
                 // Active/disable
+                this.customDate = false;
                 if (e.target.defaultValue === "range" && e.target.checked) {
                     PolymerUtils.removeAttributebyclass("codeDis", "disabled");
+                    this.customDate = true;
                 } else {
                     PolymerUtils.setAttributeByClassName("codeDis", "disabled", true)
                 }
 
-                _query.name = PolymerUtils.getElementById(this.prefix + "analysisID").value;
-
-                this.query = _query;
             }
 
+            onSearchClick() {
+                this.dispatchEvent(new CustomEvent("search", {
+                    detail: {query: this.query},
+                    bubbles: true,
+                    composed: true
+                }));
+            }
+
+            _clearHtmlDom() {
+                $("." + this.prefix + "FilterTextInput").val("");
+                $("." + this.prefix + "FilterTextInput").prop("disabled", false);
+            }
 
         }
 
-        customElements.define(OpencgaAnalysisFilter.is, OpencgaAnalysisFilter);
+        customElements.define(OpencgaClinicalAnalysisFilter.is, OpencgaClinicalAnalysisFilter);
 
     </script>
 </dom-module>

@@ -14,7 +14,7 @@
   ~ limitations under the License.
   -->
 
-<dom-module id="variant-sample-grid">
+<dom-module id="opencga-sample-grid">
     <template>
         <style include="jso-styles"></style>
 
@@ -24,40 +24,35 @@
             </div>
 
             <table id="{{prefix}}SampleSelector" data-test-id="variant-sample-grid-sample-selector" data-show-columns="true" data-show-export="true" data-show-pagination-switch="true"
-                   data-pagination="true" data-page-size="5" data-show-refresh="true" data-page-list="[5, 10]" style="cursor: pointer">
+                   data-pagination="true" data-page-size="10" data-show-refresh="true" data-page-list="[5, 10]" data-icons-prefix="fa" data-icons="icons" style="cursor: pointer">
                 <thead style="background-color: #eee"></thead>
             </table>
         </div>
     </template>
 
     <script>
-        class VariantSampleGrid extends Polymer.Element {
+        class OpencgaSampleGrid extends Polymer.Element {
 
             constructor() {
                 super();
 
-                this.prefix = "VarSampleGrid" + Utils.randomString(6);
+                this._init();
+
             }
 
             static get is() {
-                return 'variant-sample-grid';
+                return 'opencga-sample-grid';
             }
 
             static get properties() {
                 return {
+                    opencgaSession: {
+                        type: Object,
+                        observer: "renderTable"
+                    },
                     opencgaClient: {
                         type: Object,
                         observer: 'renderTable'
-                    },
-                    project: {
-                        type: Object
-                    },
-                    study: {
-                        type: Object,
-                        observer: 'renderTable'
-                    },
-                    config: {
-                        type: Object
                     },
                     samples: {
                         type: Array,
@@ -74,12 +69,19 @@
                     eventNotifyName: {
                         type: String,
                         value: "messageevent"
-                    }
+                    },
+                    config: {
+                        type: Object
+                    },
                 }
             }
 
             static get observers() {
                 return ['calculateFilters(filteredVariables.variables.*)'];
+            }
+
+            _init() {
+                this.prefix = "VarSampleGrid" + Utils.randomString(6);
             }
 
             ready() {
@@ -98,15 +100,16 @@
 
                 this.table = PolymerUtils.getElementById(this.prefix + "SampleSelector");
                 this.search = {};
+
             }
 
             renderTable() {
                 let filters = this.search;
 
                 this.from = 1;
-                this.to = 5;
+                this.to = 10;
 
-                if (UtilsNew.isNotUndefined(this.opencgaClient) && UtilsNew.isNotUndefined(this.study) && this.study.id > 0) {
+                if (UtilsNew.isNotUndefined(this.opencgaClient) && UtilsNew.isNotUndefined(this.opencgaSession.study) && this.opencgaSession.study.id > 0) {
                     // Make a copy of the samples (if they exist), we will use this private copy until it is assigned to this.samples
                     if (UtilsNew.isNotUndefined(this.samples)) {
                         this._samples = this.samples;
@@ -130,7 +133,7 @@
                         sidePagination: 'server',
                         queryParams: function (params) {
                             let auxParams = {
-                                studyId: _this.study.id,
+                                studyId: _this.opencgaSession.study.id,
 //                                lazy: "false",
                                 sid: Cookies.get(_this.opencgaClient.getConfig().cookieSessionId),
                                 order: params.order,
@@ -262,12 +265,12 @@
                         }
                     });
 
-                    this.opencgaClient.studies().info(this.study.id)
+                    this.opencgaClient.studies().info(this.opencgaSession.study.id)
                         .then(function (response) {
                             _this.variableSets = response.response[0].result[0].variableSets;
                         })
                         .catch(function () {
-                            console.log("Could not obtain the variable sets of the study " + _this.study.id);
+                            console.log("Could not obtain the variable sets of the study " + _this.opencgaSession.study.id);
                         });
                 } else {
                     // Delete table
@@ -468,32 +471,54 @@
             }
 
             downloadFormatter(value, row) {
-                return '<button role="button" type="button" class="' + this.prefix + 'Download btn btn-sm btn-primary" ' +
-                    'data-sample-name="' + row.name +'" ><i class="fa fa-download" aria-hidden="true"></i>&nbsp;Download</button>';
+                return '<a role="button" type="button" class="'+this.prefix + 'Download btn btn-sm btn-primary" data-sample-name="'+row.name +'" ><i class="fa fa-download" aria-hidden="true"></i>&nbsp;Download</a>';
             }
 
             downloadQCFile(e) {
-                let paramsDownload = {
-                    study: this.project.alias + ":" + this.study.alias
+                let name = e.target.getAttribute('data-sample-name') + ".QC.tar.gz";
+                let study = this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias;
+                let sid =  Cookies.get(this.opencgaClient.getConfig().cookieSessionId);
+                let opencgaHostUrl = this.opencgaClient.getConfig().host;
+                if (!opencgaHostUrl.startsWith("http://") && !opencgaHostUrl.startsWith("https://")) {
+                    opencgaHostUrl = 'http://' + opencgaHostUrl;
+                }
+                opencgaHostUrl += '/webservices/rest/v1/files/';
+
+                let paramsInfo= {
+                    study: study
                 };
-                let name = e.target.getAttribute('data-sample-name');
-                name = name + ".QC.tar.gz";
-                this.opencgaClient.files().download(name, paramsDownload)
+
+                this.opencgaClient.files().info(name, paramsInfo)
                     .then((response) => {
-                    let MIME_TYPE = "application/octet-stream";
-                    let blob = new Blob([response], {type: MIME_TYPE});
-                    window.location.href = window.URL.createObjectURL(blob);
-                })
-                .catch((response) => {
-                    this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
-                        detail: {
-                            message: response.error,
-                            type: UtilsNew.MESSAGE_ERROR
-                        },
-                        bubbles: true,
-                        composed: true
-                    }));
-                });
+                        if (response.response.length > 0) {
+                            let url = opencgaHostUrl + name + "/download?sid=" + sid + "&study=" + study;
+                            let a = document.createElement("a");
+                            a.href = url;
+                            a.download = name;
+                            document.body.appendChild(a);
+                            a.click();
+                        } else {
+                            this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+                                detail: {
+                                    message: name + " not found.",
+                                    type: UtilsNew.MESSAGE_ERROR
+                                },
+                                bubbles: true,
+                                composed: true
+                            }));
+                        }
+                    })
+                    .catch((response) => {
+                        this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+                            detail: {
+                                message: name + " not found.",
+                                type: UtilsNew.MESSAGE_ERROR
+                            },
+                            bubbles: true,
+                            composed: true
+                        }));
+                    });
+
             }
 
             _initTableColumns() {
@@ -553,7 +578,8 @@
                         }
                     ]
                 ];
-                if (this.config.grid.downloadQcSample) {
+
+                if (typeof this.config !== "undefined" && this.config.grid.downloadQcSample) {
                     this._columns[0].push({
                         title: 'QC',
                         field: 'download',
@@ -564,6 +590,6 @@
             }
         }
 
-        customElements.define(VariantSampleGrid.is, VariantSampleGrid);
+        customElements.define(OpencgaSampleGrid.is, OpencgaSampleGrid);
     </script>
 </dom-module>

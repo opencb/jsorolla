@@ -15,63 +15,58 @@
  */
 
 const cellbase = {
-    // hosts: ["bioinfodev.hpc.cam.ac.uk/cellbase-4.5.0-rc.1.1"],
-    hosts: ["bioinfo.hpc.cam.ac.uk/cellbase"],
+    hosts: ["http://bioinfo.hpc.cam.ac.uk/cellbase"],
     version: "v4",
 };
 
 const opencga = {
-    // host: "bioinfodev.hpc.cam.ac.uk/hgva-1.2.0-dev",
-    host: "bioinfo.hpc.cam.ac.uk/hgva",
+    // host: "http://bioinfodev.hpc.cam.ac.uk/hgva-1.3.2",
+    host: "http://localhost:8080/opencga-1.3.2",
     version: "v1",
-    // asUser: "researchcga", // user@project:study
-    projects: [
-        // {
-        //     name: "ProjectA",
-        //     alias: "proj_a",
-        //     studies : [
-        //         {
-        //             name: "Study1",
-        //             alias: "s_1"
-        //         }
-        //     ]
-        // }
-    ],
+
+    // This allows IVA to query a OpenCGA instance being an 'anonymous' user, this means that no login is required.
+    // If 'projects' is empty then all public projects and studies of 'user' will be used.
+    anonymous: {
+        //     user: "hgvauser",
+        projects: [
+            {
+                id: "platinum",
+                name: "Platinum",
+                alias: "platinum",
+                organism: {
+                    scientificName: "Homo sapiens",
+                    assembly: "GRCh37"
+                },
+                studies : [
+                    {
+                        id: "illumina_platinum",
+                        name: "Illumina Platinum",
+                        alias: "illumina_platinum"
+                    }
+                ]
+            }
+        ]
+    },
     summary: true,
     cookie: {
         prefix: "iva",
     },
 };
 
-const ebiWS = {
-    root: "https://www.ebi.ac.uk/ols/api",
-    tree: {
-        "hp": ["/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0012823", "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0040279",
-            "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0000005", "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0040006",
-            "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0000118", "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FUPHENO_0001002"],
-        "go": ["/ontologies/go/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FGO_0008150", "/ontologies/go/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FGO_0005575",
-            "/ontologies/go/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FGO_0003674"]
-    },
-    search: "/search"
-};
-
 const application = {
     title: "IVA",
     version: "v0.9.0",
     logo: "img/opencb-logo.png",
-    notifyEventMessage: "notifymessage",
-    session: {
-        // 60000 ms = 1 min
-        checkTime: 60000,
-        // 60000 ms = 1 min
-        minRemainingTime: 60000,
-        // 600000 ms = 10 min = 1000(1sec) * 60(60 sec = 1min) * 10(10 min)
-        maxRemainingTime: 600000
-    },
+    // The order, title and nested submenus are respected
     menu: [
         {
             id: "browser",
             title: "Variant Browser",
+            visibility: "public",
+        },
+        {
+            id: "interpretation",
+            title: "Variant Interpretation",
             visibility: "public",
         },
         {
@@ -80,16 +75,20 @@ const application = {
             visibility: "public",
         },
         {
-            id: "prioritization",
-            title: "Prioritization",
+            id: "facet",
+            title: "Facets",
+            visibility: "public",
+        },
+        {
+            id: "panel",
+            title: "Panels",
             visibility: "public",
         },
         {
             id: "analysis",
             title: "Analysis",
-            visibility: "public",
+            visibility: "private",
             submenu: [
-
                 {
                     separator: true,
                     visibility: "public",
@@ -110,11 +109,6 @@ const application = {
                     visibility: "public",
                 },
             ],
-        },
-        {
-            id: "facet",
-            title: "Facets (New!)",
-            visibility: "public",
         },
         {
             id: "beacon",
@@ -154,18 +148,18 @@ const application = {
                     id: "exporter",
                     title: "Exporter",
                     visibility: "public",
-                },
-            ],
+                }
+            ]
         },
         {
             id: "genomeBrowser",
             title: "Genome Browser",
-            visibility: "public",
+            visibility: "private"
         },
     ],
     search: {
         placeholder: "Search",
-        visibility: "public",
+        visible: true,
     },
     settings: {
         visibility: "public",
@@ -174,23 +168,33 @@ const application = {
         {name: "Documentation", url: "http://docs.opencb.org/display/iva/IVA+Home", icon: "fa fa-book"},
         {name: "Tutorial", url: "http://docs.opencb.org/display/iva/Tutorials", icon: ""},
         {name: "Source code", url: "https://github.com/opencb/iva", icon: "fa fa-github"},
+        {name: "Releases", url: "https://github.com/opencb/iva/releases", icon: ""},
         {name: "Contact", url: "http://docs.opencb.org/display/iva/About", icon: "fa fa-envelope"},
         {name: "FAQ", url: "", icon: ""},
     ],
     login: {
-        visibility: "public",
+        visible: true,
     },
     breadcrumb: {
         title: "Projects",
-        visibility: "private",
+        visible: true,
     },
+    notifyEventMessage: "notifymessage",
+    session: {
+        // 60000 ms = 1 min
+        checkTime: 60000,
+        // 60000 ms = 1 min
+        minRemainingTime: 60000,
+        // 600000 ms = 10 min = 1000(1sec) * 60(60 sec = 1min) * 10(10 min)
+        maxRemainingTime: 600000
+    }
 };
-
 
 const beacon = {
     hosts: [
-        "brca-exchange", "cell_lines", "cosmic", "wtsi", "wgs", "ncbi", "ebi", "ega", "broad", "gigascience", "ucsc", "lovd", "hgmd", "icgc", "sahgp",
-    ],
+        "brca-exchange", "cell_lines", "cosmic", "wtsi", "wgs", "ncbi", "ebi", "ega", "broad", "gigascience",
+        "ucsc", "lovd", "hgmd", "icgc", "sahgp"
+    ]
 };
 
 const populationFrequencies = {
@@ -206,76 +210,67 @@ const populationFrequencies = {
         {
             id: "1kG_phase3",
             title: "1000 Genomes",
-            tooltip: "Only considers variants whose observed allelic frequency in the 1000 genomes phase 3 database is below (or above) the defined value. Genome-wide allelic frequencies were obtained from more than 2.500 genomes.",
+            tooltip: "Only considers variants whose observed allelic frequency in the 1000 genomes phase 3 database is below (or above) " +
+            "the defined value. Genome-wide allelic frequencies were obtained from more than 2.500 genomes.",
             populations: [
                 {
-                    id: "ALL",
-                    title: "All populations [ALL]",
+                    id: "ALL", title: "All populations [ALL]",
                     active: true,
                 },
                 {
-                    id: "EUR",
-                    title: "European [EUR]",
+                    id: "EUR", title: "European [EUR]",
                 },
                 {
-                    id: "AMR",
-                    title: "American [AMR]",
+                    id: "AMR", title: "American [AMR]",
                 },
                 {
-                    id: "AFR",
-                    title: "African [AFR]",
+                    id: "AFR", title: "African [AFR]",
                 },
                 {
-                    id: "SAS",
-                    title: "South Asian [SAS]",
+                    id: "EAS", title: "East Asian [EAS]",
                 },
                 {
-                    id: "EAS",
-                    title: "East Asian [EAS]",
-                },
+                    id: "SAS", title: "South Asian [SAS]",
+                }
             ],
         },
         {
-            id: "EXAC",
-            title: "ExAC",
-            tooltip: "Only considers variants whose observed allelic frequency in the The Exome Aggregation Consortium (ExAC) database is below (or above) the defined value. ExAC covers only exomic positions. The frequencies were obtained using more than 60.000 exomes.",
+            id: "GNOMAD_GENOMES",
+            title: "gnomAD Genomes",
+            tooltip: "Only considers variants whose observed allelic frequency in the gnomAD Genomes database is below (or above) the " +
+            "defined value. Frequencies were calculated from about 15,000 unrelated individuals.",
             populations: [
                 {
-                    id: "ALL",
-                    title: "ExAC [ALL]",
+                    id: "ALL", title: "gnomAD [ALL]",
                 },
                 {
-                    id: "NFE",
-                    title: "Non-Finnish European [NFE]",
+                    id: "NFE", title: "Non-Finnish European [NFE]",
                 },
                 {
-                    id: "AMR",
-                    title: "American [AMR]",
+                    id: "AMR", title: "American [AMR]",
                 },
                 {
-                    id: "EAS",
-                    title: "East Asian [EAS]",
+                    id: "AFR", title: "African [AFR]",
                 },
                 {
-                    id: "SAS",
-                    title: "South Asian [SAS]",
+                    id: "EAS", title: "East Asian [EAS]",
+                },
+                {
+                    id: "SAS", title: "South Asian [SAS]",
                 },
             ],
         },
         {
             id: "ESP6500",
             title: "ESP6500",
-            tooltip: "Only considers variants whose observed allelic frequency in the Exome Variant Server (ESP6500) database is below (or above) the defined value. ESP6500 covers only exomic positions. The frequencies were obtained using more than 6000 exomes.",
+            tooltip: "Only considers variants whose observed allelic frequency in the Exome Variant Server (ESP6500) database is below " +
+            "(or above) the defined value. ESP6500 covers only exomic positions. The frequencies were obtained from more than 6000 exomes.",
             populations: [
                 {
-                    id: "EA",
-                    title: "European American [EA]",
-                    active: true,
+                    id: "EA", title: "European American [EA]"
                 },
                 {
-                    id: "AA",
-                    title: "African American [AA]",
-                    active: true,
+                    id: "AA", title: "African American [AA]",
                 },
             ],
         },
@@ -323,7 +318,6 @@ const consequenceTypes = {
                 {
                     id: "SO:0001631",
                     name: "upstream_gene_variant",
-                    title: "upstream gene variant",
                     description: "A sequence variant located 5' of a gene",
                     impact: "modifier",
                 },
@@ -608,34 +602,3 @@ const DEFAULT_SPECIES = {
         },
     ],
 };
-
-const biotypes = ["3prime_overlapping_ncrna",
-    "IG_C_gene",
-    "IG_C_pseudogene",
-    "IG_D_gene",
-    "IG_J_gene",
-    "IG_J_pseudogene",
-    "IG_V_gene",
-    "IG_V_pseudogene",
-    "Mt_rRNA",
-    "Mt_tRNA",
-    "TR_C_gene",
-    "TR_D_gene",
-    "TR_J_gene",
-    "TR_J_pseudogene",
-    "TR_V_gene",
-    "TR_V_pseudogene",
-    "antisense",
-    "lincRNA",
-    "miRNA",
-    "misc_RNA",
-    "polymorphic_pseudogene",
-    "processed_transcript",
-    "protein_coding",
-    "pseudogene",
-    "rRNA",
-    "sense_intronic",
-    "sense_overlapping",
-    "snRNA",
-    "snoRNA",
-];

@@ -88,8 +88,8 @@
     <template>
 
         <div class="col-md-10 col-md-offset-1">
-            <clinical-interpretation-view id="id" interpretation="{{interpretationJson}}" title="Interpretation View" project="{{project}}"
-                                          study="{{study}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+            <clinical-interpretation-view id="id" interpretation="{{interpretationJson}}" title="Interpretation View"
+                                          opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
                                           consequence-types="{{consequenceTypes}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
                                           style="font-size: 12px">
             </clinical-interpretation-view>
@@ -106,6 +106,7 @@
                     this.interpretationJson = interpretationJson;
                     this.opencgaClientConfig = new OpenCGAClientConfig("bioinfodev.hpc.cam.ac.uk/hgva-1.2.0-dev", "v1", true, "clinical_interpretation_test");
                     this.opencgaClient = new OpenCGAClient(this.opencgaClientConfig);
+                    this.opencgaSession = this.opencgaClient.createAnonymousSession();
 
                     this.cellBaseClientConfig = new CellBaseClientConfig("bioinfo.hpc.cam.ac.uk/cellbase", "v4", "hsapiens");
                     this.cellbaseClient = new CellBaseClient(this.cellBaseClientConfig);

@@ -14,7 +14,7 @@
   ~ limitations under the License.
   -->
 
-<link rel="import" href="../variant/variant-sample-grid.html">
+<link rel="import" href="../catalog/samples/opencga-sample-grid.html">
 <link rel="import" href="../catalog/samples/opencga-sample-filter.html">
 <link rel="import" href="../catalog/samples/opencga-family-editor-new.html">
 <link rel="import" href="../opencga-active-filters.html">
@@ -26,19 +26,19 @@
 
         <div class="row">
             <div class="col-md-2">
-                <opencga-sample-filter study="{{study}}" config="{{config}}" samples="{{samples}}"
+                <opencga-sample-filter opencga-session="{{opencgaSession}}" config="{{config}}" samples="{{samples}}"
                                        opencga-client="{{opencgaClient}}" query="{{query}}" search="{{search}}">
                 </opencga-sample-filter>
             </div>
 
             <div class="col-md-10">
                 <br>
-                <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" filters="{{config.filters}}" default-study="{{study.alias}}"
+                <opencga-active-filters opencga-client="{{opencgaSession.opencgaClient}}" query="{{query}}" filters="{{config.filters}}" default-study="{{opencgaSession.study.alias}}"
                                         alias="{{activeFilterAlias}}" refresh="{{search}}" on-clear="onClear" on-filterchange="onFilterChange">
                 </opencga-active-filters>
 
                 <h3>Sample Results</h3>
-                <variant-sample-grid opencga-client="{{opencgaClient}}" config="[[config]]" event-notify-name="[[eventNotifyName]]" study="{{study}}" samples="{{samples}}" search="{{search}}" project="[[project]]"></variant-sample-grid>
+                <opencga-sample-grid opencga-client="{{opencgaClient}}" opencga-session="{{opencgaSession}}" config="[[config]]" event-notify-name="[[eventNotifyName]]" samples="{{samples}}" search="{{search}}"></opencga-sample-grid>
 
                 <br>
                 <h3>Analysis Type</h3>
@@ -88,7 +88,7 @@
 
                     <table id="{{prefix}}tableAnalysis" data-toolbar="#toolbar" data-show-columns="true" data-show-export="true"
                            data-show-pagination-switch="true" data-pagination="true" data-page-size="5" data-page-list="[5, 10, 25]"
-                           data-checkbox-header="false" data-maintain-selected="true" style="cursor: pointer;">
+                           data-checkbox-header="false" data-maintain-selected="true" data-icons-prefix="fa" data-icons="icons" style="cursor: pointer;">
                         <thead style="background-color: #eee"></thead>
                     </table>
                 </div>
@@ -108,7 +108,7 @@
                     <div class="modal-body" style="height: 500px">
                         <template is="dom-if" if="{{showModalFamilyEditor}}" restamp="true">
 
-                            <opencga-family-editor-new study="{{study}}" samples="{{_samplesAnalysis}}"
+                            <opencga-family-editor-new opencga-session="{{opencgaSession}}" samples="{{_samplesAnalysis}}"
                                                        opencga-client="{{opencgaClient}}" family="{{family}}"
                                                        on-familychange="familyChange" message-error-family="{{messageErrorFamily}}">
                             </opencga-family-editor-new>
@@ -154,8 +154,7 @@
 
             constructor() {
                 super();
-
-                this.prefix = "sample" + Utils.randomString(6);
+                this._init();
             }
 
             static get is() {
@@ -164,15 +163,12 @@
 
             static get properties() {
                 return {
+                    opencgaSession: {
+                        type: Object
+                    },
                     opencgaClient: {
                         type: Object,
                         observer: "renderAnalysisTable"
-                    },
-                    project: {
-                        type: Object
-                    },
-                    study: {
-                        type: Object
                     },
                     samples: {
                         type: Array,
@@ -212,6 +208,11 @@
                 }
             }
 
+
+            _init() {
+                this.prefix = "sample" + Utils.randomString(6);
+
+            }
             _attachDom(dom) {
                 this.appendChild(dom);
             }
@@ -520,7 +521,7 @@
 
                         let _analysisType = "";
                         let params = {
-                            study: this.project.alias + ":" + this.study.alias
+                            study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias
                         };
                         this.messageErrorText =  [];
                         this.messageSuccessText = [];
@@ -746,7 +747,7 @@
 
             createAnalysis(analysisInfo) {
                 let params = {
-                    study: this.project.alias + ":" + this.study.alias
+                    study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias
                 };
                 let body = {
                     "name": analysisInfo.analysisID,
@@ -1049,7 +1050,7 @@
             }
 
             onClear() {
-                this.query = {studies: this.project.alias + ":" + this.study.alias};
+                this.query = {studies: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias};
                 this.search = {};
             }
 

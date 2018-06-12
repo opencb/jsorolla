@@ -72,7 +72,7 @@
                 </span>
 
                 <!-- TODO we probably need a new property for this -->
-                <template is="dom-if" if="{{checkSid(opencgaClient._config)}}">
+                <template is="dom-if" if="{{showSelectFilters(opencgaClient._config)}}">
                     <div class="btn-group" style="float: right">
                         <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class="fa fa-filter" aria-hidden="true" style="padding-right: 5px"></i> Filters <span class="caret"></span>
@@ -81,13 +81,20 @@
                             <li><a style="font-weight: bold">Saved Filters</a></li>
                             <template is="dom-repeat" items="{{filters}}">
                                 <li>
-                                    <a data-filter-name$="{{item.name}}" style="cursor: pointer" on-click="onServerFilterChange" class="filtersLink">&nbsp;&nbsp;{{item.name}}</a>
+                                    <template is="dom-if" if="{{!item.active}}">
+                                        <a data-filter-name$="{{item.name}}" style="cursor: pointer" on-click="onServerFilterChange" class="filtersLink">&nbsp;&nbsp;{{item.name}}</a>
+                                    </template>
+                                    <template is="dom-if" if="{{item.active}}">
+                                        <a data-filter-name$="{{item.name}}" style="cursor: pointer;color: green" on-click="onServerFilterChange" class="filtersLink">&nbsp;&nbsp;{{item.name}}</a>
+                                    </template>
                                 </li>
                             </template>
-                            <li role="separator" class="divider"></li>
-                            <li>
-                                <a style="cursor: pointer" on-click="launchModal"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save...</a>
-                            </li>
+                            <template is="dom-if" if="{{checkSid(opencgaClient._config)}}">
+                                <li role="separator" class="divider"></li>
+                                <li>
+                                    <a style="cursor: pointer" on-click="launchModal"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save...</a>
+                                </li>
+                            </template>
                         </ul>
                     </div>
                 </template>
@@ -113,9 +120,9 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="filterDescription" class="col-xs-2 col-form-label">Description</label>
+                            <label for="{{prefix}}filterDescription" class="col-xs-2 col-form-label">Description</label>
                             <div class="col-xs-10">
-                                <input class="form-control" type="text" id="filterDescription">
+                                <input class="form-control" type="text" id="{{prefix}}filterDescription">
                             </div>
                         </div>
                     </div>
@@ -133,7 +140,7 @@
             constructor() {
                 super();
 
-                this.prefix = "activeFilter_" + Utils.randomString(6);
+                this.prefix = "oaf" + Utils.randomString(6);
             }
 
             static get is() {
@@ -179,15 +186,22 @@
                 this.appendChild(dom);
             }
 
-            ready() {
-                super.ready();
-            }
-
             connectedCallback() {
                 super.connectedCallback();
 
                 // We need to init _previousQuery with query in order to work before executing any search
                 this._previousQuery = this.query;
+
+                // If there is any active filter we set the first one in the initialisation
+                if (typeof this.filters !== "undefined") {
+                    for (let filter of this.filters) {
+                        if (filter.active) {
+                            let _queryList = Object.assign({}, filter.query);
+                            this.dispatchEvent(new CustomEvent("filterchange", {detail: _queryList, bubbles: true, composed: true}));
+                            break;
+                        }
+                    }
+                }
             }
 
             clear() {
@@ -210,8 +224,12 @@
                 $(PolymerUtils.getElementById(this.prefix + 'SaveModal')).modal('show');
             }
 
+            showSelectFilters(config) {
+                return (this.filters !== undefined && this.filters.length > 0) || !UtilsNew.isEmpty(config.sessionId);
+            }
+
             checkSid(config) {
-                return !UtilsNew.isEmpty(config.sessionId);
+                return UtilsNew.isNotEmpty(config.sessionId);
             }
 
             checkFilters(config) {
@@ -268,12 +286,12 @@
             onServerFilterChange(e) {
                 if (!UtilsNew.isUndefinedOrNull(this.filters)) {
                     // We look for the filter name in the filters array
-                    for (let f of this.filters) {
-                        if (f.name === e.target.dataset.filterName) {
+                    for (let filter of this.filters) {
+                        if (filter.name === e.target.dataset.filterName) {
                             PolymerUtils.addStyleByClass('filtersLink', 'color', 'black');
                             e.target.style.color = "green";
 
-                            let _queryList = Object.assign({}, f.query);
+                            let _queryList = Object.assign({}, filter.query);
                             this.dispatchEvent(new CustomEvent("filterchange", {detail: _queryList, bubbles: true, composed: true}));
                             break;
                         }
@@ -291,6 +309,11 @@
 
                 if (UtilsNew.isEmpty(value)) {
                     delete _queryList[name];
+                    if (UtilsNew.isEqual(name, "genotype")){
+                        if (this.modeInheritance === "xLinked" || this.modeInheritance === "yLinked"){
+                            delete _queryList["region"];
+                        }
+                    }
                 } else {
 //                    let filterFields = _queryList[name].split(new RegExp("[,;]"));
                     let filterFields;
@@ -300,12 +323,11 @@
                         filterFields = _queryList[name].split(new RegExp("[,;]"));
                     }
 
-//                    debugger
                     let indexOfValue = filterFields.indexOf(value);
                     filterFields.splice(indexOfValue, 1);
 
                     if (_queryList[name].indexOf("/") !== -1) {
-                        _queryList[name] = filterFields.join(";");
+                        // _queryList[name] = filterFields.join(";");
                     } else {
                         if (_queryList[name].indexOf(',') !== -1) {
                             _queryList[name] = filterFields.join(",");
@@ -320,8 +342,7 @@
                     //TODO Refactor
                     $("#filtersList option[value='none']").prop('selected', true);
                 }
-//                debugger
-//                this.query = Object.assign({}, _queryList);
+
                 this.dispatchEvent(new CustomEvent("filterchange", {detail: _queryList, bubbles: true, composed: true}));
             }
 
