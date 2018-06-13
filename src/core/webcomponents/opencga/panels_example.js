@@ -60,7 +60,7 @@ let diseasePanels = [{
             }
         ],
 
-        variants: ["rs123456", "RCV129812", "1:3333423:A:T"],
+        variants: ["rs123456", "1:3333423:A:T"],
 
         genes: [
             {id: "BRCA1", weight: 1, soType: "splice_site"},
