@@ -1,0 +1,106 @@
+<!--
+  ~ Copyright 2015 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<link rel="import" href="opencga-individual-grid.html">
+<link rel="import" href="../opencga-active-filters.html">
+<link rel="import" href="opencga-individual-filter.html">
+
+<dom-module id="opencga-individual-browser">
+    <template>
+        <style include="jso-styles"></style>
+        <div class="col-md-3">
+            <opencga-individual-filter opencga-client="{{opencgaClient}}" opencga-session="{{opencgaSession}}" query="{{query}}" on-search="onSearch" config="{{config}}"></opencga-individual-filter>
+        </div>
+        <div class="col-md-9">
+            <br>
+            <!--<opencga-active-filters opencga-client="{{opencgaClient}}" query="[[query]]" filters="{{config.filters}}" on-filterchange="onFilterChange" on-clear="onClear"-->
+                                    <!--filter-bioformat="VARIANT" default-study="{{opencgaSession.study.alias}}" alias="{{activeFilterAlias}}" refresh="{{search}}" genotype-samples="{{genotypeSamples}}"-->
+                                    <!--mode-inheritance="[[modeInheritance]]">-->
+            <!--</opencga-active-filters>-->
+
+            <!--<h3>Analysis results</h3>-->
+            <br>
+            <opencga-individual-grid opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}"
+                                            query="{{search}}" config="{{individualGridConfig}}" config-values="{{config}}"
+                                            on-individual-selected="onIndividualSelectedSelector">
+            </opencga-individual-grid>
+
+        </div>
+    </template>
+    <script>
+
+        class OpencgaIndividualBrowser extends Polymer.Element {
+            constructor() {
+                super();
+                this._init();
+            }
+
+            static get is() {
+                return 'opencga-individual-browser';
+            }
+
+            static get properties() {
+                return {
+                    opencgaSession: {
+                        type: Object
+                    },
+                    query: {
+                        type: Object,
+                        observer: "queryObserver"
+                    },
+                    config: {
+                        type: Object
+                    }
+                }
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            _init() {
+                this.individualDefaultQuery = {sort: "id"};
+                this.individualQuery = {sort: "id"};
+                this.search = Object.assign({}, this.individualQuery);
+                this.individualGridConfig = this.getDefaultConfig();
+            }
+
+            // onAnalysisSelectedSelector (e) {
+            //     e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+            //     this.analysisSelected = e.detail;
+            // }
+
+            queryObserver() {
+                this.individualQuery = Object.assign({}, this.individualDefaultQuery, this.query);
+            }
+
+            onClear() {
+                this.query = {studies: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias};
+                this.search = this.query;
+            }
+
+            onSearch(e) {
+                this.search = Object.assign({}, this.individualDefaultQuery, e.detail.query);
+            }
+
+            getDefaultConfig() {
+                return {pagination: true, pageSize: 10, pageList: [5,10,25]};
+            }
+        }
+
+        customElements.define(OpencgaIndividualBrowser.is, OpencgaIndividualBrowser);
+    </script>
+</dom-module>
