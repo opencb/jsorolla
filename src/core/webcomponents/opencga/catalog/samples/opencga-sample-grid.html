@@ -215,7 +215,7 @@
                                    return  sampleSelected.name === sample.name;
                                 });
 
-                                if(!existsNewSelected){
+                                if(!existsNewSelected) {
                                     newSamples.push(sample);
                                 }
                             });
@@ -262,7 +262,6 @@
 
 //                                PolymerUtils.getElementById(_this.prefix + 'Download').addEventListener('click', _this.downloadQCFile.bind(_this));
                             }
-
                         }
                     });
 
@@ -318,7 +317,6 @@
                         this.set("filteredVariables.variables", tmpVariables);
                     }
                 }
-
             }
 
             /**
@@ -473,7 +471,6 @@
             }
 
             downloadFormatter(value, row) {
-
                 return '<a role="button" type="button" class="'+this.prefix + 'Download btn btn-sm btn-primary" data-sample-name="'+row.name +'" ><i class="fa fa-download" aria-hidden="true"></i>&nbsp;Download</a>';
             }
 
@@ -525,7 +522,6 @@
             }
 
             _initTableColumns() {
-
                 this._columns = [
                     [
                         {
@@ -580,7 +576,6 @@
                             visible: false,
                             field: 'type'
                         }
-
                     ]
                 ];
 
@@ -593,9 +588,6 @@
                 }
                 return this._columns;
             }
-
-
-
         }
 
         customElements.define(OpencgaSampleGrid.is, OpencgaSampleGrid);
