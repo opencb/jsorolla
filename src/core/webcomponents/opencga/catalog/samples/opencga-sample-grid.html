@@ -104,7 +104,7 @@
             }
 
             renderTable() {
-                let filters = this.search;
+                let filters = Object.assign({}, this.search);
 
                 this.from = 1;
                 this.to = 10;

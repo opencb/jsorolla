@@ -1,0 +1,435 @@
+<!--
+  ~ Copyright 2018 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<dom-module id="opencga-annotation-filter">
+    <template>
+        <style include="jso-styles">
+            .plus-button {
+                color: #00AA33;
+                cursor: pointer;
+            }
+
+            .plus-button:hover {
+                color: #009c2c;
+            }
+        </style>
+
+        <div id="{{prefix}}-main-annotation-filter-div">
+            <template is="dom-if" if="{{!variableSets.length}}">
+                <!--<div style="text-align: center">-->
+                    No variableSets defined in the study
+                <!--</div>-->
+            </template>
+
+            <!-- Annotations -->
+            <template is="dom-if" if="{{variableSets.length}}">
+                <template is="dom-if" if="{{multipleVariableSets}}">
+                    <!--<div class="form-group">-->
+                    <label for="{{prefix}}-variableSetSelect">Select Variable Set</label>
+                    <select class="selectpicker" id="{{prefix}}-variableSetSelect" on-change="onSelectedVariableSetChange"
+                            on-dom-change="renderDomRepeat" data-width="100%">
+                        <!--<select class="form-control" id="variableSetSelect" style="width: 100%"-->
+                        <!--on-change="onSelectedVariableSetChange">-->
+                        <template is="dom-repeat" items="{{variableSets}}">
+                            <option data-variable="{{item}}">{{item.name}}</option>
+                        </template>
+                    </select>
+                    <!--</div>-->
+                </template>
+
+                <label for="{{prefix}}-annotation-picker" style="margin-top: 15px;">Select variable and value(s)</label>
+                <select id="{{prefix}}-annotation-picker" class="selectpicker" data-live-search="true" data-size="10"
+                        data-max-options="1" on-change="onChangeSelectedVariable" data-width="100%" data-class="btn-sm">
+                    <template is="dom-repeat" items="{{variables}}" as="variable" on-dom-change="renderDomRepeat" restamp="true">
+                        <option data-tokens="{{variable.tags}}" data-variable="{{variable}}"
+                                style$="padding-left: {{variable.margin}}px; cursor: {{variable.cursor}};"
+                                disabled$="{{variable.disabled}}">
+                            {{variable.name}}
+                        </option>
+                    </template>
+                </select>
+
+                <!-- Show different value selector based on the type of the selected variable -->
+                <div class="row" style="margin-top: 15px;">
+                    <div class="col-md-10">
+                        <template is="dom-if" if="{{checkVarType(selectedVariable, 'TEXT')}}">
+                            <!-- TEXT type: include an input text and add suitable regular expression for text-->
+                            <!-- http://stackoverflow.com/questions/14237686/disabling-controls-in-bootstrap-->
+                            <input type="text" class$="form-control {{prefix}}AnnotationTextInput"
+                                   placeholder="{{selectedVariable.id}} name" data-variable-name$="{{selectedVariable.id}}"
+                                   pattern="{{variable.attributes.pattern}}"
+                                   aria-describedby="basic-addon1" on-keyup="addInputFilter">
+                        </template>
+
+                        <template is="dom-if" if="{{checkVarType(selectedVariable, 'NUMERIC')}}">
+                            <!-- NUMERIC type: include an input text and add suitable regular expression for numbers -->
+                            <input type="text" class$="form-control {{prefix}}AnnotationTextInput"
+                                   placeholder="{{selectedVariable.id}} number" data-variable-name$="{{selectedVariable.id}}"
+                                   pattern="^[0-9]+$" on-keyup="addInputFilter">
+                        </template>
+
+                        <template is="dom-if" if="{{checkVarType(selectedVariable, 'INTEGER')}}">
+                            <!-- NUMERIC type: include an input text and add suitable regular expression for numbers -->
+                            <input type="text" class$="form-control {{prefix}}AnnotationTextInput"
+                                   placeholder="{{selectedVariable.id}} number" data-variable-name$="{{selectedVariable.id}}"
+                                   pattern="^[0-9]+$" on-keyup="addInputFilter">
+                        </template>
+
+                        <template is="dom-if" if="{{checkVarType(selectedVariable, 'DOUBLE')}}">
+                            <!-- NUMERIC type: include an input text and add suitable regular expression for numbers -->
+                            <input type="text" class$="form-control {{prefix}}AnnotationTextInput"
+                                   placeholder="{{selectedVariable.id}} number" data-variable-name$="{{selectedVariable.id}}"
+                                   pattern="^[0-9]+$" on-keyup="addInputFilter">
+                        </template>
+
+                        <template is="dom-if" if="{{checkVarType(selectedVariable, 'CATEGORICAL')}}">
+                            <select id="{{prefix}}-categorical-selector" class="selectpicker" multiple on-change="addCategoricalFilter"
+                                    data-width="100%">
+                                <template is="dom-repeat" items="{{selectedVariable.allowedValues}}" on-dom-change="renderDomRepeat">
+                                    <option value="{{item}}">{{item}}</option>
+                                </template>
+                            </select>
+                        </template>
+
+                        <template is="dom-if" if="{{checkVarType(selectedVariable, 'BOOLEAN')}}">
+                            <!-- BOOLEAN type, 2 values: radio buttons for selection: yes or no -->
+                            <div class="form-check form-check-inline">
+                                <input id="{{prefix}}{{selectedVariable.id}}yes" class="form-check-input"
+                                       type="radio" name="{{selectedVariable.id}}Options" data-value=true on-click="addSelectedFilter"> True
+                                <input id="{{prefix}}{{selectedVariable.id}}no" class="form-check-input"
+                                       type="radio" name="{{selectedVariable.id}}Options" data-value=false on-click="addSelectedFilter"> False
+                            </div>
+                        </template>
+                    </div>
+
+                    <div class="col-md-2">
+                        <i class="fa fa-plus-circle fa-2x plus-button" aria-hidden="true"
+                           on-click="onAddAnnotationClicked">
+                        </i>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </template>
+
+    <script>
+
+        class OpencgaAnnotationFilter extends Polymer.Element {
+
+            constructor() {
+                super();
+
+                this._init();
+            }
+
+            static get is() {
+                return 'opencga-annotation-filter';
+            }
+
+            static get properties() {
+                return {
+                    opencgaSession: {
+                        type: Object,
+                        observer: "opencgaSessionObserver"
+                    },
+                    opencgaClient: {
+                        type: Object
+                    },
+                    config: {
+                        type: Object
+                    }
+                }
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            _init() {
+                // super.ready();
+                this.prefix = "oaf-" + Utils.randomString(6);
+
+                this.multipleVariableSets = false;
+
+                this._config = {};
+            }
+
+            connectedCallback() {
+                Object.assign(this._config, this.getDefaultConfig(), this.config);
+
+                // Components are already set. We will override with the classes from the configuration file
+                PolymerUtils.addClassById(`${this.prefix}-main-annotation-filter-div`, [this._config.class]);
+            }
+
+            renderDomRepeat(e) {
+                // $('select.selectpicker').selectpicker('render');
+                $('select.selectpicker').selectpicker('refresh');
+                $('select.selectpicker').selectpicker('deselectAll');
+
+                // Get selected variable
+                this.selectedVariable = this.getVariable($(`button[data-id=${this.prefix}-annotation-picker]`)[0].title);
+
+                this.lastAnnotationFilter = undefined;
+
+                let annotationDiv = $(`#${this.prefix}-main-annotation-filter-div`);
+                // Add the class to the select picker buttons
+                annotationDiv.find(".selectpicker").selectpicker('setStyle', this._config.buttonClass, 'add');
+                // Add the class to the lists
+                annotationDiv.find("ul > li").addClass(this._config.class);
+                // Add the class to the input
+                annotationDiv.find(`.${this.prefix}AnnotationTextInput`).addClass(this._config.class);
+            }
+
+            onChangeSelectedVariable(e) {
+                this.selectedVariable = this.getVariable(e.currentTarget.value);
+                this.lastAnnotationFilter = undefined;
+
+                // We do this manually here because the selectpicker class does not show/hide automatically
+                if (this.selectedVariable.type === "CATEGORICAL") {
+                    $(`#${this.prefix}-categorical-selector`).selectpicker("show");
+                } else {
+                    $(`#${this.prefix}-categorical-selector`).selectpicker("hide");
+                }
+            }
+
+            onAddAnnotationClicked(e) {
+                if (typeof this.lastAnnotationFilter === "undefined") {
+                    NotificationUtils.showNotify("Please choose or input a value", "WARNING");
+                    return;
+                }
+                this.dispatchEvent(new CustomEvent('filterannotation', {detail: {value: this.lastAnnotationFilter}}));
+            }
+
+            getVariable(variableId) {
+                for (let i in this.variables){
+                    if (this.variables[i].id === variableId) {
+                        return this.variables[i];
+                    }
+                }
+                console.error("Variable " + variableId + " not found");
+            }
+
+            addCategoricalFilter(e) {
+                this.lastAnnotationFilter = undefined;
+
+                let values = $('.selectpicker').selectpicker('val');
+                if (values === null) {
+                    return;
+                }
+
+                let variableSetId = $(`#${this.prefix}-variableSetSelect`).selectpicker('val');
+                let variable = $(`#${this.prefix}-annotation-picker`)[0].selectedOptions.item(0).dataVariable.tags;
+
+                this.lastAnnotationFilter = `${variableSetId}:${variable}=${values.join(",")}`;
+            }
+
+            addInputFilter(e) {
+                this.lastAnnotationFilter = undefined;
+
+                let annotationTextInputElements = PolymerUtils.getElementsByClassName(this.prefix + "AnnotationTextInput");
+                if (annotationTextInputElements.length === 0) {
+                    return;
+                }
+                let value = annotationTextInputElements[0].value;
+                let variableSetId = $(`#${this.prefix}-variableSetSelect`).selectpicker('val');
+                let variable = $(`#${this.prefix}-annotation-picker`)[0].selectedOptions.item(0).dataVariable.tags;
+
+                if (value === "") {
+                    this.lastAnnotationFilter = undefined;
+                    return;
+                }
+
+                this.lastAnnotationFilter = `${variableSetId}:${variable}=${value}`;
+            }
+
+            addSelectedFilter(e) {
+                let value = e.currentTarget.dataset.value;
+                let variableSetId = $(`#${this.prefix}-variableSetSelect`).selectpicker('val');
+                let variable = $(`#${this.prefix}-annotation-picker`)[0].selectedOptions.item(0).dataVariable.tags;
+
+                this.lastAnnotationFilter = `${variableSetId}:${variable}=${value}`;
+            }
+
+            opencgaSessionObserver() {
+
+                this.variableSets = [];
+                this.multipleVariableSets = false;
+                this.variables = [];
+
+                $('select.selectpicker').selectpicker('refresh');
+                $('select.selectpicker').selectpicker('deselectAll');
+
+                if (typeof this.opencgaSession.study === "undefined") {
+                    this.dispatchEvent(new CustomEvent('variablesetselected', {detail: {id: null}}));
+                    return;
+                }
+
+                if (typeof this.opencgaSession.study.variableSets !== "undefined") {
+                    this._updateVariableSets(this.opencgaSession.study);
+                } else {
+                    let _this = this;
+
+                    this.opencgaClient.studies().info(this.opencgaSession.study.id, {include: "variableSets"})
+                        .then(function (response) {
+                            _this._updateVariableSets(response.response[0].result[0]);
+                        })
+                        .catch(function () {
+                            _this.multipleVariableSets = false;
+
+                            // Hide all selectpicker selectors
+                            $(`#${this.prefix}-variableSetSelect`).selectpicker('hide');
+                            $(`#${this.prefix}-annotation-picker`).selectpicker('hide');
+                            $(`#${this.prefix}-categorical-selector`).selectpicker('hide');
+
+                            this.dispatchEvent(new CustomEvent('variablesetselected', {detail: {id: null}}));
+                            console.log("Could not obtain the variable sets of the study " + _this.opencgaSession.study);
+                        });
+                }
+            }
+
+            _updateVariableSets(study) {
+                if (typeof study.variableSets === "undefined") {
+                    this.variableSets = [];
+                } else {
+                    this.variableSets = study.variableSets;
+                }
+
+                if (this.variableSets.length > 0) {
+                    this.variables = this.parseVariableForDisplay(this.variableSets[0].variables); // select first one by default
+                    this.filteredVariables = {
+                        variableSet: this.variableSets[0].id,
+                        variables: []
+                    };
+
+                    // Show all selectpicker selectors
+                    $(`#${this.prefix}-variableSetSelect`).selectpicker('show');
+                    $(`#${this.prefix}-annotation-picker`).selectpicker('show');
+                    if (typeof this.selectedVariable !== "undefined" && this.checkVarType(this.selectedVariable, "CATEGORICAL")) {
+                        $(`#${this.prefix}-categorical-selector`).selectpicker('show');
+                    }
+
+                    this.multipleVariableSets = this.variableSets.length > 1;
+                    this.dispatchEvent(new CustomEvent('variablesetselected', {detail: {id: this.variableSets[0].name}}));
+
+                } else {
+                    this.multipleVariableSets = false;
+
+                    // Hide all selectpicker selectors
+                    $(`#${this.prefix}-variableSetSelect`).selectpicker('hide');
+                    $(`#${this.prefix}-annotation-picker`).selectpicker('hide');
+                    $(`#${this.prefix}-categorical-selector`).selectpicker('hide');
+
+                    this.dispatchEvent(new CustomEvent('variablesetselected', {detail: {id: null}}));
+                }
+            }
+
+            renderVariableTemplate() {
+                let myTemplate = PolymerUtils.getElementById(this.prefix + 'VariableTemplate');
+                if (UtilsNew.isNotNull(myTemplate)) {
+                    myTemplate.render();
+                }
+            }
+
+            onSelectedVariableSetChange(e) {
+                let selectedVariableSet = e.currentTarget.value;
+
+                for (let i in this.variableSets) {
+                    let variableSet = this.variableSets[i];
+                    if (variableSet.name === selectedVariableSet) {
+                        this.variables = this.parseVariableForDisplay(variableSet.variables);
+                        return;
+                    }
+                }
+            }
+
+            parseVariableForDisplay(variables) {
+                return this._parseVariableForDisplay(variables, [], this._config.variableSelector.marginLeft);
+            }
+
+            _parseVariableForDisplay(variables, tags, margin) {
+                let displayVariables = [];
+
+                for (let i in variables) {
+                    let variable = variables[i];
+
+                    if (variable.type !== "OBJECT") {
+                        // let myTags = Array.from(new Set([variable.name, variable.title].concat(tags))).join(" ");
+
+                        // Add variable
+                        displayVariables.push({
+                            id: variable.name,
+                            name: typeof variable.title === "undefined" ? variable.name : variable.title,
+                            category: variable.category,
+                            type: variable.type,
+                            defaultValue: variable.defaultValue,
+                            multiValue: variable.multiValue,
+                            allowedValues: variable.allowedValues,
+                            disabled: false,
+                            margin: margin,
+                            cursor: "pointer",
+                            // tags: [variable.name, variable.title].concat(tags).join(" ")
+                            // tags: myTags
+                            // tags: tags + "." + variable.name
+                            tags: tags.concat(variable.name).join(".")
+                        });
+                    } else {
+                        // let myTags = Array.from(new Set([variable.name, variable.title].concat(tags))).join(" ");
+
+                        // Add variable
+                        displayVariables.push({
+                            id: variable.name,
+                            name: typeof variable.title === "undefined" ? variable.name : variable.title,
+                            category: variable.category,
+                            type: variable.type,
+                            defaultValue: variable.defaultValue,
+                            multiValue: variable.multiValue,
+                            allowedValues: variable.allowedValues,
+                            disabled: true,
+                            margin: margin,
+                            cursor: "default",
+                            // tags: myTags
+                            tags: tags.concat(variable.name).join(".")
+                        });
+
+                        displayVariables = displayVariables.concat(this._parseVariableForDisplay(variable.variableSet,
+                            // [variable.name, variable.title].concat(tags), margin + this._config.variableSelector.marginStep));
+                            tags.concat(variable.name), margin + this._config.variableSelector.marginStep));
+                    }
+                }
+
+                return displayVariables;
+            }
+
+            checkVarType(myVar, type) {
+                return (myVar.type === type);
+            }
+
+            getDefaultConfig() {
+                return {
+                    variableSelector: {
+                        marginLeft: 20,
+                        marginStep: 15
+                    },
+                    class: "",
+                    buttonClass: "",
+                    inputClass: ""
+                }
+            }
+        }
+
+        customElements.define(OpencgaAnnotationFilter.is, OpencgaAnnotationFilter);
+    </script>
+</dom-module>

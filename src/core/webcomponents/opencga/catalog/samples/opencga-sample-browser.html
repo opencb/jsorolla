@@ -39,7 +39,7 @@
 
             <div class="col-md-10">
                 <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" filters="{{_config.filters}}" default-study="{{opencgaSession.study.alias}}"
-                                        alias="{{activeFilterAlias}}" refresh="{{search}}" on-clear="onClear" on-filterchange="onActiveFilterChange">
+                                        config="{{filtersConfig}}" alias="{{activeFilterAlias}}" refresh="{{search}}" on-clear="onClear" on-filterchange="onActiveFilterChange">
                 </opencga-active-filters>
 
                 <!--<h3>Sample Results</h3>-->
@@ -101,6 +101,10 @@
                 this.samples = [];
 
                 this._config = this.getDefaultConfig();
+
+                this.filtersConfig = {
+                    complexFields: ["annotation"]
+                };
             }
 
             static get observers() {
