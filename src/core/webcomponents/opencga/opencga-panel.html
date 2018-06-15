@@ -15,32 +15,32 @@
   -->
 <link rel="import" href="./opencga-panel-editor.html">
 <link rel="import" href="./opencga-panel-list.html">
+<link rel="import" href="./opencga-panel-summary.html">
 
 <dom-module id="opencga-panel">
     <template>
         <style include="jso-styles">
 
         </style>
-        <div class="col-md-12">
-            <div >
-
+        <div class="col-md-12" style="margin-top: 2%;">
+            <div>
                 <button id="{{prefix}}newPanelButton" type="button" class="btn btn-primary variant-prioritization-view-buttons"
                         on-click="_changeView" style="float: right;">
                     <template is="dom-if" if="{{!panelEditor}}">
-                        <i class="fa fa-floppy-o icon-padding" aria-hidden="true" on-click="_changeView"></i>New Panel...
+                        <i class="fa fa-floppy-o icon-padding" aria-hidden="true" on-click="_changeView"></i> New Panel...
                     </template>
                     <template is="dom-if" if="{{panelEditor}}">
-                        <i class="fa fa-floppy-o icon-padding" aria-hidden="true" on-click="_changeView"></i>Panel List...
+                        <i class="fa fa-floppy-o icon-padding" aria-hidden="true" on-click="_changeView"></i> Panel List...
                     </template>
                 </button>
             </div>
-            <div >
+            <div>
                 <h3>Panel Preview</h3>
                 <template is="dom-if" if="{{!panelEditor}}">
-                    <opencga-panel-list project="{{project}}" study="{{study}}" opencga-client="{{opencgaClient}}" panel-examples="{{panelExamples}}"></opencga-panel-list>
+                    <opencga-panel-list opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}" opencga-client="{{opencgaClient}}" panel-examples="{{panelExamples}}" on-panelselected="onPanelSelected"></opencga-panel-list>
                 </template>
                 <template is="dom-if" if="{{panelEditor}}">
-                    <opencga-panel-editor project="{{project}}" study="{{study}}" opencga-client="{{opencgaClient}}">
+                    <opencga-panel-editor opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}" panel-selected="{{panelSelected}}">
 
                     </opencga-panel-editor>
                 </template>
@@ -64,14 +64,8 @@
 
             static get properties() {
                 return {
-                    project: {
+                    opencgaSession: {
                         type: Object
-                    },
-                    study: {
-                        type: Object
-                    },
-                    studies: {
-                        type: Array
                     },
                     opencgaClient: {
                         type: Object
@@ -90,6 +84,10 @@
             }
             _changeView() {
                 this.panelEditor = !this.panelEditor;
+            }
+
+            onPanelSelected(e) {
+                this.panelSelected = e.detail;
             }
 
 

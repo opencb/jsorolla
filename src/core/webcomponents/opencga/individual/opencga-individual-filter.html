@@ -14,7 +14,7 @@
   ~ limitations under the License.
   -->
 
-<dom-module id="opencga-clinical-analysis-filter">
+<dom-module id="opencga-individual-filter">
     <template>
         <style include="jso-styles"></style>
 
@@ -27,24 +27,24 @@
         </div>
         <br>
         <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true">
-            <!-- Analysis Selection -->
+            <!-- Individual -->
             <div class="panel panel-default">
-                <div class="panel-heading" role="tab" id="{{prefix}}AnalysisSelectionHeading">
+                <div class="panel-heading" role="tab" id="{{prefix}}IndividualSelectionHeading">
                     <h4 class="panel-title">
                         <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                           href="#{{prefix}}AnalysisSelection" aria-expanded="true"
-                           aria-controls="{{prefix}}AnalysisSelection">
-                            Analysis Selection
+                           href="#{{prefix}}IndividualSelection" aria-expanded="true"
+                           aria-controls="{{prefix}}IndividualSelection">
+                            Individual Selection
                             <div style="float: right" class="tooltip-div">
-                                <a data-toggle="tooltip" title="Analysis selection">
+                                <a data-toggle="tooltip" title="Individual selection">
                                     <i class="fa fa-info-circle" aria-hidden="true"></i>
                                 </a>
                             </div>
                         </a>
                     </h4>
                 </div>
-                <div id="{{prefix}}AnalysisSelection" class="panel-collapse collapse in" role="tabpanel"
-                     aria-labelledby="{{prefix}}AnalysisSelectionHeading">
+                <div id="{{prefix}}IndividualSelection" class="panel-collapse collapse in" role="tabpanel"
+                     aria-labelledby="{{prefix}}IndividualSelectionHeading">
                     <div class="panel-body">
                         <div class="form-group">
                             <form>
@@ -54,8 +54,8 @@
                                        class$="{{prefix}}FilterRadio" checked on-change="calculateFilterDate"
                                        style="padding-left: 20px"> All<br>
                                 <!--<input type="radio" name="selectionButtons" id="recentlyRadio" value="recently"-->
-                                       <!--class$="{{prefix}}FilterRadio" on-change="updateQueryFilters"-->
-                                       <!--style="padding-left: 20px"> Recently Created<br>-->
+                                <!--class$="{{prefix}}FilterRadio" on-change="updateQueryFilters"-->
+                                <!--style="padding-left: 20px"> Recently Created<br>-->
                                 <input type="radio" name="selectionButtons" id="rangeRadio" value="range"
                                        class$="{{prefix}}FilterRadio" on-change="calculateFilterDate"
                                        style="padding-left: 20px"> Date (Year-Month-Day)
@@ -96,35 +96,67 @@
                     </div>
                 </div>
             </div>
-            <!-- Analysis Characteristics -->
+            <!-- Individual Characteristics -->
             <div class="panel panel-default">
-                <div class="panel-heading" role="tab" id="{{prefix}}AnalysisCharacteristicsHeading">
+                <div class="panel-heading" role="tab" id="{{prefix}}IndividualCharacteristicsHeading">
                     <h4 class="panel-title">
                         <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                           href="#{{prefix}}AnalysisCharacteristics" aria-expanded="true"
-                           aria-controls="{{prefix}}AnalysisCharacteristics">
-                            Analysis Characteristics
+                           href="#{{prefix}}IndividualCharacteristics" aria-expanded="true"
+                           aria-controls="{{prefix}}IndividualCharacteristics">
+                            Individual Characteristics
                             <div style="float: right" class="tooltip-div">
-                                <a data-toggle="tooltip" title="Analysis Characteristics">
+                                <a data-toggle="tooltip" title="Individual Characteristics">
                                     <i class="fa fa-info-circle" aria-hidden="true"></i>
                                 </a>
                             </div>
                         </a>
                     </h4>
                 </div>
-                <div id="{{prefix}}AnalysisCharacteristics" class="panel-collapse collapse in" role="tabpanel"
-                     aria-labelledby="{{prefix}}AnalysisCharacteristicsHeading">
+                <div id="{{prefix}}IndividualCharacteristics" class="panel-collapse collapse in" role="tabpanel"
+                     aria-labelledby="{{prefix}}IndividualCharacteristicsHeading">
                     <div class="panel-body">
                         <div class="form-group">
-                            <label>Analysis ID</label>
+                            <label>Individual ID</label>
                             <input type="text" id="{{prefix}}analysisID" class$="form-control input-sm {{prefix}}FilterTextInput"
-                                   placeholder="AN-23, AN-50 ..." on-keyup="updateQueryFilters">
-                            <label>Samples name</label>
-                            <input type="text" id="{{prefix}}sampleID" class$="form-control input-sm {{prefix}}FilterTextInput"
-                                   placeholder="HG01881,HG00101 ..." on-keyup="updateQueryFilters">
-                            <label>Analysis Type</label>
-                            <input type="text" id="{{prefix}}analysisType" class$="form-control input-sm {{prefix}}FilterTextInput"
-                                   placeholder="Duo, Family ..." on-keyup="updateQueryFilters">
+                                   placeholder="Name, Name2 ..." on-keyup="updateQueryFilters">
+                            <label>Sex</label>
+                            <select type="text" id="{{prefix}}sex" class$="form-control {{prefix}}SelectInput codeDis input-sm"
+                                    on-change="updateQueryFilters" >
+                                <option value="">Select...</option>
+                                <option value="FEMALE">Female</option>
+                                <option value="MALE">Male</option>
+                            </select>
+                            <label>Karyotypic Sex</label>
+                            <select type="text" id="{{prefix}}karyotypicSex" class$="form-control {{prefix}}SelectInput codeDis input-sm"
+                                    on-change="updateQueryFilters" >
+                                <option value="">Select...</option>                                <template is="dom-repeat" items="{{karyotypics}}">
+                                    <option value="{{item.key}}">{{item.value}}</option>
+                                </template>
+                            </select>
+                            <label>Ethnicity</label>
+                            <select type="text" id="{{prefix}}ethnicity" class$="form-control {{prefix}}SelectInput codeDis input-sm"
+                                    on-change="updateQueryFilters" >
+                                <option value="">Select...</option>
+                                <template is="dom-repeat" items="{{ethnicities}}">
+                                    <option value="{{item.id}}">{{item.title}}</option>
+                                </template>
+                            </select>
+                            <label>Affectation Status</label>
+                            <select type="text" id="{{prefix}}affectationStatus" class$="form-control {{prefix}}SelectInput codeDis input-sm"
+                                    on-change="updateQueryFilters" >
+                                <option value="">Select...</option>
+                                <template is="dom-repeat" items="{{affectationStatus}}">
+                                    <option value="{{item.id}}">{{item.title}}</option>
+                                </template>
+                            </select>
+                            <label>Life Status</label>
+                            <select type="text" id="{{prefix}}lifeStatus" class$="form-control {{prefix}}SelectInput codeDis input-sm"
+                                    on-change="updateQueryFilters" >
+                                <option value="">Select...</option>
+                                <template is="dom-repeat" items="{{lifeStatus}}">
+                                    <option value="{{item.id}}">{{item.title}}</option>
+                                </template>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -132,7 +164,7 @@
         </div>
     </template>
     <script>
-        class OpencgaClinicalAnalysisFilter extends Polymer.Element {
+        class OpencgaIndividualFilter extends Polymer.Element {
 
             constructor() {
                 super();
@@ -140,7 +172,7 @@
             }
 
             static get is() {
-                return 'opencga-clinical-analysis-filter';
+                return 'opencga-individual-filter';
             }
 
             static get properties() {
@@ -153,6 +185,9 @@
                     search: {
                         type: Object,
                         notify: true
+                    },
+                    config: {
+                        type: Object
                     }
                 }
             }
@@ -163,10 +198,36 @@
 
             connectedCallback() {
                 super.connectedCallback();
+
+                // karyotypicSex
+                if (UtilsNew.isNotUndefinedOrNull(this.config.kariotypicSex) && UtilsNew.isNotUndefinedOrNull(this.config.kariotypicSex)
+                    && UtilsNew.isNotEmptyArray(this.config.kariotypicSex)) {
+                    this.karyotypics = this.config.kariotypicSex.map((karyotypic) => {
+                        return {key: karyotypic, value: karyotypic};
+                    });
+                }
+
+                //Ethnicity
+                if (UtilsNew.isNotUndefinedOrNull(this.config.ethnicity) && UtilsNew.isNotUndefinedOrNull(this.config.ethnicity)
+                    && UtilsNew.isNotEmptyArray(this.config.ethnicity)) {
+                    this.ethnicities = this.config.ethnicity;
+                }
+
+                // affectationStatus
+                if (UtilsNew.isNotUndefinedOrNull(this.config.status) && UtilsNew.isNotUndefinedOrNull(this.config.status)
+                    && UtilsNew.isNotEmptyArray(this.config.status)) {
+                    this.affectationStatus = this.config.status;
+                }
+
+                // life_status
+                if (UtilsNew.isNotUndefinedOrNull(this.config.life_status) && UtilsNew.isNotUndefinedOrNull(this.config.life_status)
+                    && UtilsNew.isNotEmptyArray(this.config.life_status)) {
+                    this.lifeStatus = this.config.life_status;
+                }
             }
 
             _init() {
-                this.prefix = "anFilter" + Utils.randomString(6);
+                this.prefix = "indFilter" + Utils.randomString(6);
                 let _years = [];
                 let fullDate = new Date()
                 let limitYear = fullDate.getFullYear();
@@ -210,9 +271,11 @@
                 let _query = {};
 
                 let analysisID = PolymerUtils.getElementById(this.prefix + "analysisID").value;
-                let sampleID = PolymerUtils.getElementById(this.prefix + "sampleID").value;
-                let analysisType = PolymerUtils.getElementById(this.prefix + "analysisType").value;
-                let yearInput = PolymerUtils.getElementById(this.prefix + "YearSelect").value;
+                let sex = PolymerUtils.getElementById(this.prefix + "sex").value;
+                let karyotypicSex = PolymerUtils.getElementById(this.prefix + "karyotypicSex").value;
+                let ethnicity = PolymerUtils.getElementById(this.prefix + "ethnicity").value;
+                let affectationStatus = PolymerUtils.getElementById(this.prefix + "affectationStatus").value;
+                let lifeStatus = PolymerUtils.getElementById(this.prefix + "lifeStatus").value;
                 let monthInput = PolymerUtils.getElementById(this.prefix + "MonthSelect").value;
                 let dayInput = PolymerUtils.getElementById(this.prefix + "DaySelect").value;
                 if (this.customDate && UtilsNew.isNotEmpty(yearInput) && UtilsNew.isNotEmpty(monthInput) && UtilsNew.isNotEmpty(dayInput) ) {
@@ -229,12 +292,24 @@
                     _query.name = analysisID;
                 }
 
-                if (UtilsNew.isNotEmpty(sampleID)) {
-                    _query.sample = sampleID;
+                if (UtilsNew.isNotEmpty(sex)) {
+                    _query.sex = sex;
                 }
 
-                if (UtilsNew.isNotEmpty(analysisType)) {
-                    _query.type = analysisType;
+                if (UtilsNew.isNotEmpty(karyotypicSex)) {
+                    _query.karyotypicSex = karyotypicSex;
+                }
+
+                if (UtilsNew.isNotEmpty(ethnicity)) {
+                    _query.ethnicity = ethnicity;
+                }
+
+                if (UtilsNew.isNotEmpty(affectationStatus)) {
+                    _query.affectationStatus = affectationStatus;
+                }
+
+                if (UtilsNew.isNotEmpty(lifeStatus)) {
+                    _query.lifeStatus = lifeStatus;
                 }
 
                 this._reset = false;
@@ -251,6 +326,7 @@
                 } else {
                     PolymerUtils.setAttributeByClassName("codeDis", "disabled", true)
                 }
+                this.updateQueryFilters();
 
             }
 
@@ -269,7 +345,7 @@
 
         }
 
-        customElements.define(OpencgaClinicalAnalysisFilter.is, OpencgaClinicalAnalysisFilter);
+        customElements.define(OpencgaIndividualFilter.is, OpencgaIndividualFilter);
 
     </script>
 </dom-module>
