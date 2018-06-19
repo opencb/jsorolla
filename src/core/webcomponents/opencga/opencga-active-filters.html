@@ -174,6 +174,14 @@
                     refresh: {
                         type: Object,
                         observer: "searchClicked"
+                    },
+                    config: {
+                        type: Object,
+                        value: function () {
+                            return {
+                                complexFields: []
+                            };
+                        }
                     }
                 }
             }
@@ -317,7 +325,8 @@
                 } else {
 //                    let filterFields = _queryList[name].split(new RegExp("[,;]"));
                     let filterFields;
-                    if (value.indexOf("/") !== -1) {
+                    if ((value.indexOf(";") !== -1 && value.indexOf(",") !== -1)
+                        || this.config.complexFields.indexOf(name) !== -1) {
                         filterFields = _queryList[name].split(new RegExp(";"));
                     } else {
                         filterFields = _queryList[name].split(new RegExp("[,;]"));
@@ -326,8 +335,9 @@
                     let indexOfValue = filterFields.indexOf(value);
                     filterFields.splice(indexOfValue, 1);
 
-                    if (_queryList[name].indexOf("/") !== -1) {
-                        // _queryList[name] = filterFields.join(";");
+                    if ((value.indexOf(";") !== -1 && value.indexOf(",") !== -1)
+                        || this.config.complexFields.indexOf(name) !== -1) {
+                        _queryList[name] = filterFields.join(";");
                     } else {
                         if (_queryList[name].indexOf(',') !== -1) {
                             _queryList[name] = filterFields.join(",");
@@ -366,10 +376,15 @@
 
                         // We convert the Query entry object into an array of small objects (queryList)
                         let value = this.query[key];
+                        if (typeof value === "boolean") {
+                            value = value.toString();
+                        }
 
-                        // Only genotypes contain the character '/', this must be split by semi-colon
+                        // If we find a field with both ; and , or the field has been defined as complex, we will only
+                        // separate by ;
                         let filterFields = [];
-                        if (value.indexOf("/") !== -1) {
+                        if ((value.indexOf(";") !== -1 && value.indexOf(",") !== -1)
+                            || this.config.complexFields.indexOf(title) !== -1) {
                             filterFields = value.split(new RegExp(";"));
                         } else {
                             filterFields = value.split(new RegExp("[,;]"));

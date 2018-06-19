@@ -1,0 +1,248 @@
+<!--
+  ~ Copyright 2015 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<dom-module id="opencga-date-filter">
+    <template>
+        <style include="jso-styles">
+        </style>
+
+        <div class="form-group">
+            <form id="{{prefix}}DateRadioButton">
+                <!--<label class="label-opencga-sample-filter">By Date</label>-->
+                <!--<br>-->
+                <input type="radio" name="selectionButtons" id="allRadio" value="all"
+                       class$="{{prefix}}FilterRadio" checked on-change="calculateFilters"
+                       style="padding-left: 20px"> All<br>
+                <input type="radio" name="selectionButtons" id="recentlyRadio" value="recently"
+                       class$="{{prefix}}FilterRadio" on-change="calculateFilters"
+                       style="padding-left: 20px"> Recently Uploaded<br>
+                <input type="radio" name="selectionButtons" id="dateRadio" value="date"
+                       class$="{{prefix}}FilterRadio" on-change="calculateFilters"
+                       style="padding-left: 20px"> Date (Year-Month-Day)
+            </form>
+
+            <div style="padding: 10px 0px 15px 25px">
+                <form class="form-inline">
+                    <div class="form-group row">
+                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm"
+                                id="{{prefix}}YearSelect" name="birthYear" required on-change="calculateFilters" disabled>
+                            <template is="dom-repeat" items="{{yearsToSearch}}">
+                                <option value="{{item}}">{{item}}</option>
+                            </template>
+                        </select>
+
+                        <label style="padding: 0px 2px">-</label>
+                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm"
+                                id="{{prefix}}MonthSelect" name="birthYear" required on-change="calculateFilters" disabled>
+                            <option value="any">Any</option>
+                            <template is="dom-repeat" items="{{monthToSearch}}">
+                                <option value="{{item}}">{{item}}</option>
+                            </template>
+                        </select>
+
+                        <label style="padding: 0px 2px">-</label>
+                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm"
+                                id="{{prefix}}DaySelect" name="birthYear" required on-change="calculateFilters" disabled>
+                            <option value="any">Any</option>
+                            <template is="dom-repeat" items="{{daysToSearch}}">
+                                <option value="{{item}}">{{item}}</option>
+                            </template>
+                        </select>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </template>
+
+    <script>
+
+        class OpencgaDateFilter extends Polymer.Element {
+
+            constructor() {
+                super();
+
+                this._init();
+            }
+
+            static get is() {
+                return 'opencga-date-filter';
+            }
+
+            static get properties() {
+                return {
+                    minYear: {
+                        type: Number,
+                        value: 1920
+                    }
+                }
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            _init() {
+                // super.ready();
+                this.prefix = "odf-" + Utils.randomString(6);
+
+                let _years = [];
+                let fullDate = new Date();
+                let limitYear = fullDate.getFullYear();
+                for (let year = this.minYear; year <= limitYear; year++) {
+                    _years.push(year);
+                }
+                // This change triggers the polymer dom-repeat
+                this.years = _years;
+
+
+                // Init arrays for Date selector
+                let _yearsToSearch = [];
+                for (let year = limitYear, i = 0; i < 5; year--, i++) {
+                    _yearsToSearch.push(year);
+                }
+                this.yearsToSearch = _yearsToSearch;
+
+                this.monthToSearch = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+                let _days = [];
+                for (let i = 1; i <= 31; i++) {
+                    _days.push(i);
+                }
+                this.daysToSearch = _days;
+            }
+
+            calculateFilters(e) {
+                let _query = {};
+
+                //TODO Refactor
+                let dateOption = $("#" + this.prefix + "DateRadioButton input[type='radio']:checked").val();
+                switch (dateOption) {
+                    case "recently":
+                        let dates = [];
+                        // Last 7 days
+                        for (let i = 0; i < 7; i++) {
+                            let da = new Date();
+                            da.setDate(da.getDate() - i);
+                            // If the month and day have one digit we add 0 before
+                            let m = da.getMonth() + 1;
+                            if (m < 10) {
+                                m = "0" + m;
+                            }
+                            let d = da.getDate();
+                            if (d < 10) {
+                                d = "0" + d;
+                            }
+                            dates.push("^" + da.getFullYear() + m + d + "*")
+                        }
+                        _query.creationDate = "~" + dates.join(",");
+                        PolymerUtils.setAttributeByClassName('codeDis','disabled', 'true');
+                        break;
+                    case "date":
+                        let date = this._getDateFilter(e);
+                        _query.creationDate = date;
+                        PolymerUtils.removeAttributebyclass('codeDis','disabled');
+                        break;
+                    case "all":
+//                        PolymerUtils.getElementById(this.prefix + "YearSelect").value = this.yearsToSearch[0];
+//                        PolymerUtils.getElementById(this.prefix + "MonthSelect").value = "any";
+//                        PolymerUtils.getElementById(this.prefix + "DaySelect").value = "any";
+                    default:
+                        delete _query.creationDate;
+                        PolymerUtils.setAttributeByClassName('codeDis','disabled', 'true');
+                        break;
+                }
+
+                // To prevent to call renderQueryFilters we set this to false
+                this._reset = false;
+                this.set("query", _query);
+                this._reset = true;
+            }
+
+            _getDateFilter(e) {
+                let year = PolymerUtils.getElementById(this.prefix + "YearSelect").value;
+                let month =  PolymerUtils.getElementById(this.prefix + "MonthSelect").value;
+                let day =  PolymerUtils.getElementById(this.prefix + "DaySelect").value;
+                let date;
+                if (month === "any") {
+                    date = "~^" + year + "*";
+                } else {
+                    let monthIndex = this.monthToSearch.indexOf(month) + 1;
+                    if (monthIndex < 10) {
+                        monthIndex = "0" + monthIndex;
+                    }
+                    if (day === "any") {
+                        date = "~^" + year + monthIndex + "*";
+                    } else {
+                        if (day < 10) {
+                            day = "0" + day;
+                        }
+                        date = "~^" + year + monthIndex + day + "*";
+                    }
+                }
+                return date;
+            }
+
+            checkYears(e) {
+                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+                PolymerUtils.innerHTML(this.prefix + '_errorDiv_birthYear', '');
+                PolymerUtils.innerHTML(this.prefix + '_errorDiv_testYear', '');
+                let currentElement =  PolymerUtils.getElementById(e.target.id);
+                let identifier = e.target.id;
+                let pairElement = '';
+                let divSuffix = '';
+                let message = '';
+                if (identifier.search('birthYear') !== -1) { // Birth year element raises the event -> check Test year
+                    pairElement =  PolymerUtils.getElementById(this.prefix + "testYear");
+                    divSuffix = "birthYear";
+                    message = "Year of Birth must be prior to year of Test";
+                } else { // Year of test element raises the event -> swap elements and check the birth year
+                    currentElement =  PolymerUtils.getElementById(this.prefix + "birthYear");
+                    pairElement =  PolymerUtils.getElementById(e.target.id);
+                    divSuffix = "testYear";
+                    message = "Year of Test must be posterior to year of Birth";
+                }
+
+                if (PolymerUtils.querySelectorAll("option:selected",pairElement) !== ""
+                    && (parseInt(PolymerUtils.querySelectorAll("option:selected", currentElement).textContent) > parseInt(PolymerUtils.querySelectorAll("option:selected", pairElement).textContent))) { // Year of birth cannot be lower than Year of test
+                    PolymerUtils.innerHTML(this.prefix + "_errorDiv_" + divSuffix, message);
+                }
+            }
+
+            /**
+             * Use custom CSS class to easily reset all controls.
+             */
+            _clearHtmlDom() {
+                // Input controls
+                PolymerUtils.setPropertyByClassName(this.prefix + "FilterTextInput", 'value', '');
+                PolymerUtils.removeAttributebyclass(this.prefix + "FilterTextInput", 'disabled');
+                // Uncheck checkboxes
+                PolymerUtils.setPropertyByClassName(this.prefix + "FilterCheckBox", 'checked', false);
+                // Set first option and make it active
+                PolymerUtils.setAttributeByClassName(this.prefix + "FilterSelect", 'selectedIndex', 0);
+                PolymerUtils.removeAttributebyclass(this.prefix + "FilterSelect", 'disabled');
+                PolymerUtils.setPropertyByClassName(this.prefix + "FilterRadio", 'checked', false);
+                PolymerUtils.setAttributeByClassName(this.prefix + "FilterRadio", 'disabled', true);
+
+                //TODO Refactor
+                $("." + this.prefix + "FilterRadio").filter('[value="or"]').prop('checked', true);
+            }
+
+        }
+
+        customElements.define(OpencgaDateFilter.is, OpencgaDateFilter);
+    </script>
+</dom-module>
