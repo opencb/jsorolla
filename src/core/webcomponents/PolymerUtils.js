@@ -105,7 +105,7 @@ class PolymerUtils {
 
     static addClassByQuerySelector(id, className) {
         if (UtilsNew.isNotUndefinedOrNull(id)) {
-            return this.addClass(PolymerUtils.querySelector(id), className);
+            return this.addClass(PolymerUtils.querySelectorAll(id), className);
         }
     }
 
@@ -130,7 +130,13 @@ class PolymerUtils {
                     });
                 }
             } else {
-                el.classList.add(className);
+                if (el.length > 1) {
+                    el.forEach((item) => {
+                        item.classList.add(className);
+                    });
+                } else {
+                    el.classList.add(className);
+                }
             }
         }
     }

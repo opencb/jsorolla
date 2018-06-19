@@ -21,50 +21,90 @@
 
         <div class="form-group">
             <form id="{{prefix}}DateRadioButton">
-                <!--<label class="label-opencga-sample-filter">By Date</label>-->
-                <!--<br>-->
                 <input type="radio" name="selectionButtons" id="allRadio" value="all"
-                       class$="{{prefix}}FilterRadio" checked on-change="calculateFilters"
-                       style="padding-left: 20px"> All<br>
+                       class$="{{prefix}}FilterRadio" checked on-change="calculateFilters" style="padding-left: 20px">
+                <span class$="{{prefix}}-text">All</span>
+                <br>
                 <input type="radio" name="selectionButtons" id="recentlyRadio" value="recently"
-                       class$="{{prefix}}FilterRadio" on-change="calculateFilters"
-                       style="padding-left: 20px"> Recently Uploaded<br>
+                       class$="{{prefix}}FilterRadio" on-change="calculateFilters" style="padding-left: 20px">
+                <span class$="{{prefix}}-text">Recent (last {{_config.recentDays}} days)</span>
+                <br>
                 <input type="radio" name="selectionButtons" id="dateRadio" value="date"
-                       class$="{{prefix}}FilterRadio" on-change="calculateFilters"
-                       style="padding-left: 20px"> Date (Year-Month-Day)
+                       class$="{{prefix}}FilterRadio" on-change="calculateFilters" style="padding-left: 20px">
+                <span class$="{{prefix}}-text">Range</span>
             </form>
 
-            <div style="padding: 10px 0px 15px 25px">
-                <form class="form-inline">
-                    <div class="form-group row">
-                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm"
-                                id="{{prefix}}YearSelect" name="birthYear" required on-change="calculateFilters" disabled>
-                            <template is="dom-repeat" items="{{yearsToSearch}}">
-                                <option value="{{item}}">{{item}}</option>
-                            </template>
-                        </select>
+            <!--<div class="form-group">-->
+            <!--<label class$="{{prefix}}-text">Begin periode</label>-->
+            <!--<input type="date" id="{{prefix}}-from" name="bday" max="3000-12-31" min="1000-01-01"-->
+            <!--class$="form-control {{prefix}}-codeDis" on-change="onDateChange" disabled>-->
 
-                        <label style="padding: 0px 2px">-</label>
-                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm"
-                                id="{{prefix}}MonthSelect" name="birthYear" required on-change="calculateFilters" disabled>
-                            <option value="any">Any</option>
-                            <template is="dom-repeat" items="{{monthToSearch}}">
-                                <option value="{{item}}">{{item}}</option>
-                            </template>
-                        </select>
+            <!--<label class$="{{prefix}}-text">End periode</label>-->
+            <!--<input type="date" id="{{prefix}}-to" name="bday" max="3000-12-31" min="1000-01-01"-->
+            <!--class$="form-control {{prefix}}-codeDis" on-change="onDateChange" disabled>-->
+            <!--</div>-->
 
-                        <label style="padding: 0px 2px">-</label>
-                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm"
-                                id="{{prefix}}DaySelect" name="birthYear" required on-change="calculateFilters" disabled>
-                            <option value="any">Any</option>
-                            <template is="dom-repeat" items="{{daysToSearch}}">
-                                <option value="{{item}}">{{item}}</option>
-                            </template>
-                        </select>
-                    </div>
-                </form>
-            </div>
+            <label class$="{{prefix}}-text">Begin periode</label>
+            <form class="form-inline">
+                <div class="form-group row" style="padding-left: 15px;">
+                    <select class$="form-control {{prefix}}SelectInput {{prefix}}-codeDis"
+                            id="{{prefix}}YearSelectFrom" name="birthYear" required on-change="calculateFilters" disabled>
+                        <template is="dom-repeat" items="{{yearsToSearch}}">
+                            <option value="{{item}}">{{item}}</option>
+                        </template>
+                    </select>
+
+                    <label style="padding: 0px 2px">-</label>
+                    <select class$="form-control {{prefix}}SelectInput {{prefix}}-codeDis"
+                            id="{{prefix}}MonthSelectFrom" name="birthYear" required on-change="calculateFilters" disabled>
+                        <option value="any">Any</option>
+                        <template is="dom-repeat" items="{{monthToSearch}}">
+                            <option value="{{item}}">{{item}}</option>
+                        </template>
+                    </select>
+
+                    <label style="padding: 0px 2px">-</label>
+                    <select class$="form-control {{prefix}}SelectInput {{prefix}}-codeDis"
+                            id="{{prefix}}DaySelectFrom" name="birthYear" required on-change="calculateFilters" disabled>
+                        <option value="any">Any</option>
+                        <template is="dom-repeat" items="{{daysToSearch}}">
+                            <option value="{{item}}">{{item}}</option>
+                        </template>
+                    </select>
+                </div>
+            </form>
+
+            <label class$="{{prefix}}-text">End periode</label>
+            <form class="form-inline">
+                <div class="form-group row" style="padding-left: 15px;">
+                    <select class$="form-control {{prefix}}SelectInput {{prefix}}-codeDis"
+                            id="{{prefix}}YearSelectTo" name="birthYear" required on-change="calculateFilters" disabled>
+                        <template is="dom-repeat" items="{{yearsToSearch}}">
+                            <option value="{{item}}">{{item}}</option>
+                        </template>
+                    </select>
+
+                    <label style="padding: 0px 2px">-</label>
+                    <select class$="form-control {{prefix}}SelectInput {{prefix}}-codeDis"
+                            id="{{prefix}}MonthSelectTo" name="birthYear" required on-change="calculateFilters" disabled>
+                        <option value="any">Any</option>
+                        <template is="dom-repeat" items="{{monthToSearch}}">
+                            <option value="{{item}}">{{item}}</option>
+                        </template>
+                    </select>
+
+                    <label style="padding: 0px 2px">-</label>
+                    <select class$="form-control {{prefix}}SelectInput {{prefix}}-codeDis"
+                            id="{{prefix}}DaySelectTo" name="birthYear" required on-change="calculateFilters" disabled>
+                        <option value="any">Any</option>
+                        <template is="dom-repeat" items="{{daysToSearch}}">
+                            <option value="{{item}}">{{item}}</option>
+                        </template>
+                    </select>
+                </div>
+            </form>
         </div>
+
 
     </template>
 
@@ -84,9 +124,8 @@
 
             static get properties() {
                 return {
-                    minYear: {
-                        type: Number,
-                        value: 1920
+                    config: {
+                        type: Object
                     }
                 }
             }
@@ -98,11 +137,17 @@
             _init() {
                 // super.ready();
                 this.prefix = "odf-" + Utils.randomString(6);
+            }
+
+            connectedCallback() {
+                let config = {};
+                Object.assign(config, this.getDefaultConfig(), this.config);
+                this._config = config;
 
                 let _years = [];
                 let fullDate = new Date();
                 let limitYear = fullDate.getFullYear();
-                for (let year = this.minYear; year <= limitYear; year++) {
+                for (let year = this._config.minYear; year <= limitYear; year++) {
                     _years.push(year);
                 }
                 // This change triggers the polymer dom-repeat
@@ -123,77 +168,119 @@
                     _days.push(i);
                 }
                 this.daysToSearch = _days;
+
+                if (UtilsNew.isNotEmpty(this._config.inputClass)) {
+                    PolymerUtils.addClassByQuerySelector(`opencga-date-filter .${this.prefix}-codeDis`, this._config.inputClass);
+                    PolymerUtils.addClassByQuerySelector(`opencga-date-filter .${this.prefix}-text`, this._config.class);
+                }
             }
 
             calculateFilters(e) {
-                let _query = {};
-
-                //TODO Refactor
-                let dateOption = $("#" + this.prefix + "DateRadioButton input[type='radio']:checked").val();
+                let dateOption = $(`#${this.prefix}DateRadioButton input[type='radio']:checked`).val();
+                let date = "";
                 switch (dateOption) {
                     case "recently":
-                        let dates = [];
-                        // Last 7 days
-                        for (let i = 0; i < 7; i++) {
-                            let da = new Date();
-                            da.setDate(da.getDate() - i);
-                            // If the month and day have one digit we add 0 before
-                            let m = da.getMonth() + 1;
-                            if (m < 10) {
-                                m = "0" + m;
-                            }
-                            let d = da.getDate();
-                            if (d < 10) {
-                                d = "0" + d;
-                            }
-                            dates.push("^" + da.getFullYear() + m + d + "*")
+
+                        // Last x days
+                        let da = new Date();
+                        da.setDate(da.getDate() - this._config.recentDays);
+                        // If the month and day have one digit we add 0 before
+                        let m = da.getMonth() + 1;
+                        if (m < 10) {
+                            m = "0" + m;
                         }
-                        _query.creationDate = "~" + dates.join(",");
-                        PolymerUtils.setAttributeByClassName('codeDis','disabled', 'true');
+                        let d = da.getDate();
+                        if (d < 10) {
+                            d = "0" + d;
+                        }
+
+                        date = `>${da.getFullYear()}${m}${d}`;
+                        PolymerUtils.setAttributeByClassName(`${this.prefix}-codeDis`,'disabled', 'true');
                         break;
                     case "date":
-                        let date = this._getDateFilter(e);
-                        _query.creationDate = date;
-                        PolymerUtils.removeAttributebyclass('codeDis','disabled');
+                        date = this._getDateFilter();
+                        PolymerUtils.removeAttributebyclass(`${this.prefix}-codeDis`,'disabled');
                         break;
                     case "all":
-//                        PolymerUtils.getElementById(this.prefix + "YearSelect").value = this.yearsToSearch[0];
-//                        PolymerUtils.getElementById(this.prefix + "MonthSelect").value = "any";
-//                        PolymerUtils.getElementById(this.prefix + "DaySelect").value = "any";
                     default:
-                        delete _query.creationDate;
-                        PolymerUtils.setAttributeByClassName('codeDis','disabled', 'true');
+                        PolymerUtils.setAttributeByClassName(`${this.prefix}-codeDis`,'disabled', 'true');
                         break;
                 }
 
-                // To prevent to call renderQueryFilters we set this to false
-                this._reset = false;
-                this.set("query", _query);
-                this._reset = true;
+                this.dispatchEvent(new CustomEvent('datechanged', {detail: {date: date}}));
             }
 
-            _getDateFilter(e) {
-                let year = PolymerUtils.getElementById(this.prefix + "YearSelect").value;
-                let month =  PolymerUtils.getElementById(this.prefix + "MonthSelect").value;
-                let day =  PolymerUtils.getElementById(this.prefix + "DaySelect").value;
-                let date;
+            _getDateFilter() {
+                let from = this._getFromDate();
+                let to = this._getToDate();
+
+                if (to > from) {
+                    return `${from}-${to}`;
+                }
+            }
+
+            _getFromDate() {
+                let year = PolymerUtils.getElementById(this.prefix + "YearSelectFrom").value;
+                let month =  PolymerUtils.getElementById(this.prefix + "MonthSelectFrom").value;
+                let day =  PolymerUtils.getElementById(this.prefix + "DaySelectFrom").value;
                 if (month === "any") {
-                    date = "~^" + year + "*";
+                    month = "01";
                 } else {
                     let monthIndex = this.monthToSearch.indexOf(month) + 1;
-                    if (monthIndex < 10) {
-                        monthIndex = "0" + monthIndex;
-                    }
-                    if (day === "any") {
-                        date = "~^" + year + monthIndex + "*";
-                    } else {
-                        if (day < 10) {
-                            day = "0" + day;
-                        }
-                        date = "~^" + year + monthIndex + day + "*";
-                    }
+                    month = monthIndex < 10 ? `0${monthIndex}` : monthIndex;
                 }
-                return date;
+                if (day === "any") {
+                    day = "01";
+                } else if (day < 10) {
+                    day = `0${day}`;
+                }
+                return `${year}${month}${day}0000`;
+                //     let monthIndex = this.monthToSearch.indexOf(month) + 1;
+                //     if (monthIndex < 10) {
+                //         monthIndex = "0" + monthIndex;
+                //     }
+                //     if (day === "any") {
+                //         date = "~^" + year + monthIndex + "*";
+                //     } else {
+                //         if (day < 10) {
+                //             day = "0" + day;
+                //         }
+                //         date = "~^" + year + monthIndex + day + "*";
+                //     }
+                // }
+                // return date;
+            }
+
+            _getToDate() {
+                let year = PolymerUtils.getElementById(this.prefix + "YearSelectTo").value;
+                let month =  PolymerUtils.getElementById(this.prefix + "MonthSelectTo").value;
+                let day =  PolymerUtils.getElementById(this.prefix + "DaySelectTo").value;
+                if (month === "any") {
+                    month = "12";
+                } else {
+                    let monthIndex = this.monthToSearch.indexOf(month) + 1;
+                    month = monthIndex < 10 ? `0${monthIndex}` : monthIndex;
+                }
+                if (day === "any") {
+                    day = ["01", "03", "05", "07", "08", "10", "12"].indexOf(month) !== -1 ? "31" : (month === "02" ? "28" : "30");
+                } else if (day < 10) {
+                    day = `0${day}`;
+                }
+                return `${year}${month}${day}2359`;
+                //     let monthIndex = this.monthToSearch.indexOf(month) + 1;
+                //     if (monthIndex < 10) {
+                //         monthIndex = "0" + monthIndex;
+                //     }
+                //     if (day === "any") {
+                //         date = "~^" + year + monthIndex + "*";
+                //     } else {
+                //         if (day < 10) {
+                //             day = "0" + day;
+                //         }
+                //         date = "~^" + year + monthIndex + day + "*";
+                //     }
+                // }
+                // return date;
             }
 
             checkYears(e) {
@@ -239,6 +326,15 @@
 
                 //TODO Refactor
                 $("." + this.prefix + "FilterRadio").filter('[value="or"]').prop('checked', true);
+            }
+
+            getDefaultConfig() {
+                return {
+                    minYear: 1920,
+                    recentDays: 7,
+                    inputClass: "input-sm",
+                    class: "small"
+                }
             }
 
         }

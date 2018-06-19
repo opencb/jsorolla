@@ -17,6 +17,7 @@
 <link rel="import" href="opencga-sample-filter.html">
 <link rel="import" href="opencga-sample-grid.html">
 <link rel="import" href="../../opencga-active-filters.html">
+<link rel="import" href="../variableSets/opencga-annotation-comparator.html">
 
 <dom-module id="opencga-sample-browser">
     <template>
@@ -50,6 +51,50 @@
                 </div>
                 <br>
                 <!--<h3>Tools?</h3>-->
+                <div style="padding-top: 20px">
+                    <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
+                        <li role="presentation" class="active">
+                            <a href="#{{prefix}}Annotation" role="tab" data-toggle="tab" class="browser-variant-tab-title">
+                                Sample comparator
+                            </a>
+                        </li>
+                        <!--<li role="presentation">-->
+                            <!--<a href="#{{prefix}}Genotype" role="tab" data-toggle="tab" class="browser-variant-tab-title">-->
+                                <!--Genotype Stats-->
+                            <!--</a>-->
+                        <!--</li>-->
+                        <!--<li role="presentation">-->
+                            <!--<a href="#{{prefix}}Beacon" role="tab" data-toggle="tab" class="browser-variant-tab-title">-->
+                                <!--Beacon Network-->
+                            <!--</a>-->
+                        <!--</li>-->
+                    </ul>
+
+                    <div class="tab-content" style="height: 680px">
+                        <!-- Annotation Tab -->
+                        <div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">
+                            <opencga-annotation-comparator opencga-client="{{opencgaSession.opencgaClient}}"
+                                                           opencga-session="{{opencgaSession}}" config="[[_config]]"
+                                                           entry-ids="{{samples}}" entity="SAMPLE">
+                            </opencga-annotation-comparator>
+                        </div>
+
+                        <!--<div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">-->
+                            <!--<opencga-annotation-comparator opencga-client="{{opencgaSession.opencgaClient}}"-->
+                                                           <!--opencga-session="{{opencgaSession}}" config="[[_config]]"-->
+                                                           <!--entry-ids="{{samples}}" entity="SAMPLE">-->
+                            <!--</opencga-annotation-comparator>-->
+                        <!--</div>-->
+
+                        <!--<div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">-->
+                            <!--<opencga-annotation-comparator opencga-client="{{opencgaSession.opencgaClient}}"-->
+                                                           <!--opencga-session="{{opencgaSession}}" config="[[_config]]"-->
+                                                           <!--entry-ids="{{samples}}" entity="SAMPLE">-->
+                            <!--</opencga-annotation-comparator>-->
+                        <!--</div>-->
+                    </div>
+                </div>
+
 
             </div>
         </div>

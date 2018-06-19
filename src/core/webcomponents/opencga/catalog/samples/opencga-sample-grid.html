@@ -140,7 +140,8 @@
                                 sort: params.sort,
                                 limit: params.limit,
                                 skip: params.offset,
-                                includeIndividual: true
+                                includeIndividual: true,
+                                include: "name,creationDate,status,type,sex"
                             };
 
                             if (UtilsNew.isUndefined(filters)) {
@@ -404,7 +405,8 @@
             }
 
             individualFormatter(value, row) {
-                if (UtilsNew.isNotUndefined(row.attributes.individual) && UtilsNew.isNotUndefined(row.attributes.individual.name)) {
+                if (UtilsNew.isNotUndefined(row.attributes) && UtilsNew.isNotUndefined(row.attributes.individual)
+                    && UtilsNew.isNotUndefined(row.attributes.individual.name)) {
                     return row.attributes.individual.name;
                 } else {
                     return '-'
@@ -423,7 +425,8 @@
             }
 
             diagnosisFormatter(value, row) {
-                if (UtilsNew.isNotUndefined(row.attributes.individual) && UtilsNew.isNotEmptyArray(row.attributes.individual.phenotypes)) {
+                if (UtilsNew.isNotUndefined(row.attributes) && UtilsNew.isNotUndefined(row.attributes.individual)
+                    && UtilsNew.isNotEmptyArray(row.attributes.individual.phenotypes)) {
                     let diagnosisPhenotypes = row.attributes.individual.phenotypes.filter((disease) => {
                         return disease.source === "ICD10";
                     }).map((icd10disease) => {
@@ -437,7 +440,8 @@
             }
 
             hpoFormatter(value, row) {
-                if (UtilsNew.isNotUndefined(row.attributes.individual) && UtilsNew.isNotEmptyArray(row.attributes.individual.phenotypes)) {
+                if (UtilsNew.isNotUndefined(row.attributes) && UtilsNew.isNotUndefined(row.attributes.individual)
+                    && UtilsNew.isNotEmptyArray(row.attributes.individual.phenotypes)) {
                     let hpoPhenotypes = row.attributes.individual.phenotypes.filter((disease) => {
                         return disease.source === "HPO";
                     }).map((hpoDisease) => {
@@ -451,7 +455,8 @@
             }
 
             fatherFormatter(value, row) {
-                if (UtilsNew.isNotUndefined(row.attributes.individual) && row.attributes.individual.fatherId > 0) {
+                if (UtilsNew.isNotUndefined(row.attributes) && UtilsNew.isNotUndefined(row.attributes.individual)
+                    && row.attributes.individual.fatherId > 0) {
                     return row.attributes.individual.fatherId;
                 } else {
                     return '-';
@@ -459,7 +464,8 @@
             }
 
             motherFormatter(value, row) {
-                if (UtilsNew.isNotUndefined(row.attributes.individual) && row.attributes.individual.motherId > 0) {
+                if (UtilsNew.isNotUndefined(row.attributes) && UtilsNew.isNotUndefined(row.attributes.individual)
+                    && row.attributes.individual.motherId > 0) {
                     return row.attributes.individual.motherId;
                 } else {
                     return '-';
