@@ -164,11 +164,13 @@
 
                 this.multipleVariableSets = false;
 
-                this._config = {};
+                this._config = this.getDefaultConfig();
             }
 
             connectedCallback() {
-                Object.assign(this._config, this.getDefaultConfig(), this.config);
+                let config = {};
+                Object.assign(config, this.getDefaultConfig(), this.config);
+                this._config = config;
 
                 // Components are already set. We will override with the classes from the configuration file
                 PolymerUtils.addClassById(`${this.prefix}-main-annotation-filter-div`, [this._config.class]);
@@ -180,7 +182,10 @@
                 $('select.selectpicker').selectpicker('deselectAll');
 
                 // Get selected variable
-                this.selectedVariable = this.getVariable($(`button[data-id=${this.prefix}-annotation-picker]`)[0].title);
+                let variableSetSelector = $(`button[data-id=${this.prefix}-annotation-picker]`)[0];
+                if (typeof variableSetSelector !== "undefined") {
+                    this.selectedVariable = this.getVariable(variableSetSelector.title);
+                }
 
                 this.lastAnnotationFilter = undefined;
 
