@@ -74,7 +74,7 @@
                                 <label for="{{prefix}}FeatureTextarea" class="col-label">Genes</label>
                                 <textarea id="{{prefix}}FeatureTextarea" name="geneSnp" class="form-control clearable"
                                           rows="3" placeholder="BRCA2,PPL" style="margin-top: 5px" value="{{geneValue::input}}"></textarea>
-                                <button id="{{prefix}}addGenes" type="button" on-click="addGene" class="btn btn-primary variant-prioritization-view-buttons" style="margin-top: 1%;">
+                                <button id="{{prefix}}addGenes" type="button" on-click="addGenes" class="btn btn-primary variant-prioritization-view-buttons" style="margin-top: 1%;">
                                     <i class="fa fa-floppy-o icon-padding" aria-hidden="true" ></i> Add Genes
                                 </button>
                             </div>
@@ -97,7 +97,7 @@
                         </div>
                         <div class="col-md-8">
                             <div id="{{prefix}}PanelGenes" style="">
-                                <button id="{{prefix}}DeleteAnalysisButton" style="margin-top: 2%;" class="btn btn-danger" on-click="deleteGenes">
+                                <button id="{{prefix}}DeleteGeneButton" style="margin-top: 2%;" class="btn btn-danger" on-click="deleteGenes">
                                     <i class="fa fa-times"></i>&nbsp;Delete
                                 </button>
                                 <table id="{{prefix}}PanelGenesGrid" data-pagination="true" data-page-list="[10, 25, 50]"
@@ -113,8 +113,8 @@
                             <div class="form-group has-feedback">
                                 <label for="{{prefix}}LocationTextarea" class="col-label">Genomic Pos</label>
                                 <textarea id="{{prefix}}LocationTextarea" name="location" class="form-control clearable"
-                                          rows="3" placeholder="3:444-55555,1:1-100000"></textarea>
-                                <button id="{{prefix}}addMutation" type="button" class="btn btn-primary variant-prioritization-view-buttons" style="margin-top: 1%;">
+                                          rows="3" placeholder="3:444-55555,1:1-100000" value="{{regionValue::input}}"></textarea>
+                                <button id="{{prefix}}addMutation" type="button" on-click="addMutations" class="btn btn-primary variant-prioritization-view-buttons" style="margin-top: 1%;">
                                     <i class="fa fa-floppy-o icon-padding" aria-hidden="true"></i> Add Genes
                                 </button>
                             </div>
@@ -143,6 +143,9 @@
                         </div>
                         <div class="col-md-8">
                             <div id="{{prefix}}PanelMutations" style="">
+                                <button id="{{prefix}}DeleteMutationsButton" style="margin-top: 2%;" class="btn btn-danger" on-click="deleteMutations">
+                                    <i class="fa fa-times"></i>&nbsp;Delete
+                                </button>
                                 <table id="{{prefix}}PanelMutationsGrid" data-pagination="true" data-page-list="[10, 25, 50]"
                                        data-click-to-select="true" data-search="true">
                                 </table>
@@ -209,6 +212,7 @@
             _init() {
                 this.prefix = "OpencgaPanelEditor" + Utils.randomString(6);
                 this.genesPanelEditor = [];
+                this.mutationsPanelEditor = [];
             }
             _attachDom(dom) {
                 this.appendChild(dom);
@@ -348,7 +352,7 @@
                 $("#" + this.prefix + 'PanelGenesGrid').bootstrapTable({
                     url: opencgaHostUrl,
                     columns: _this._createDefaultColumnsGenes(),
-                    data: this.genesPanelEditor,
+                    data:_this.genesPanelEditor,
                     // method: 'get',
                     // sidePagination: 'server',
                     filterControl: true,
@@ -438,8 +442,9 @@
                 $("#" + this.prefix + 'PanelMutationsGrid').bootstrapTable({
                     url: opencgaHostUrl,
                     columns: _this._createDefaultColumnsMutations(),
-                    method: 'get',
-                    sidePagination: 'server',
+                    data: _this.mutationsPanelEditor,
+                    // method: 'get',
+                    // sidePagination: 'server',
                     filterControl: true,
                     queryParams: function (params) {
                         let auxParams = {
@@ -514,33 +519,61 @@
                 });
             }
 
-            addGene(e) {
-                debugger
+            addGenes(e) {
                 console.log(this.geneValue);
                 let assembly = this.opencgaSession.project.organism.assembly;
                 let _this = this;
                 let genesToAdd = this.geneValue.split(",");
                 this.cellbaseClient.get('feature', 'gene', this.geneValue, 'info', {assembly: assembly}, {})
                     .then(function (response) {
-                        if (UtilsNew.isNotUndefinedOrNull(response.response) && response.response ) {
+                        if (UtilsNew.isNotUndefinedOrNull(response.response) && response.response) {
                             response.response.forEach((geneResponse) => {
-                                let geneInfo = geneResponse.result[0];
-                                let existsGene = _this.genesPanelEditor.find((geneAdded) => {
-                                    return geneAdded.name === geneInfo.name;
-                                });
-                                if (UtilsNew.isUndefinedOrNull(existsGene)) {
-                                    _this.genesPanelEditor.push(geneInfo);
-                                    _this.renderPanelTableGenes();
-                                    _this.geneValue = "";
+                                if (response.response[0].numTotalResults === 1) {
+                                    let geneInfo = geneResponse.result[0];
+                                    let existsGene = _this.genesPanelEditor.find((geneAdded) => {
+                                        return geneAdded.name === geneInfo.name;
+                                    });
+                                    if (UtilsNew.isUndefinedOrNull(existsGene)) {
+                                        _this.genesPanelEditor.push(geneInfo);
+                                        _this.renderPanelTableGenes();
+                                        _this.geneValue = "";
+                                    }
                                 }
                             });
                         }
-                        console.log(response);
                     });
-                // console.log(e);
             }
 
             deleteGenes(e) {
+                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+                let names = $.map($(PolymerUtils.getElementById(this.prefix + 'PanelGenesGrid')).bootstrapTable('getSelections'), function (row) {
+                    return row.name;
+                });
+
+                $(PolymerUtils.getElementById(this.prefix + 'PanelGenesGrid')).bootstrapTable('remove', {
+                    field: 'name',
+                    values: names
+                });
+            }
+
+            addMutations(e) {
+                console.log(this.geneValue);
+                let assembly = this.opencgaSession.project.organism.assembly;
+                let _this = this;
+                this.cellbaseClient.get('clinical', 'variant', null, 'search', {assembly: assembly, region: this.regionValue}, {})
+                    .then(function (response) {
+                        if (UtilsNew.isNotUndefinedOrNull(response.response) && response.response ) {
+                            response.response[0].result.forEach((mutationResponse) => {
+                                let mutationInfo = mutationResponse;
+                                    _this.mutationsPanelEditor.push(mutationInfo);
+                                    _this.renderPanelTableMutations();
+                                    _this.regionValue = "";
+                            });
+                        }
+                    });
+            }
+
+            deleteMutations(e) {
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
                 let names = $.map($(PolymerUtils.getElementById(this.prefix + 'PanelGenesGrid')).bootstrapTable('getSelections'), function (row) {
                     return row.name;
@@ -606,13 +639,10 @@
                 return [
                     [
                         {
-//                            title: 'Select',
-//                            field: {source: 'state', context: this},
                             field: "stateCheckBox",
                             checkbox: true,
                             colspan: 1,
                             rowspan: 1
-                            // formatter: this.stateFormatter
                         },
                         {
                             title: 'Genes',
@@ -658,8 +688,32 @@
                 return [
                     [
                         {
-                            title: 'Variants',
-                            field: 'name',
+                            field: "stateCheckBox",
+                            checkbox: true,
+                            colspan: 1,
+                            rowspan: 1
+                        },
+                        {
+                            title: 'Chromosome',
+                            field: 'chromosome',
+                            // sortable: true,
+                            colspan: 1,
+                            rowspan: 1,
+                            halign: 'center',
+                            searchable: true
+                        },
+                        {
+                            title: 'Start',
+                            field: 'start',
+                            // sortable: true,
+                            colspan: 1,
+                            rowspan: 1,
+                            halign: 'center',
+                            searchable: true
+                        },
+                        {
+                            title: 'End',
+                            field: 'end',
                             // sortable: true,
                             colspan: 1,
                             rowspan: 1,
