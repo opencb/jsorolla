@@ -20,7 +20,7 @@
 
         </style>
         <div style="padding-top: 20px" >
-            <opencga-panel-summary opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}" panel-selected="{{panelSelected}}"></opencga-panel-summary>
+            <!--<opencga-panel-summary opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}" panel-selected="{{panelSelected}}"></opencga-panel-summary>-->
             <h3>Opencga Panel editor</h3>
             <div style="padding-top: 20px">
                 <ul id="{{prefix}}panelSteps" class="nav nav-tabs" role="tablist">
@@ -37,6 +37,11 @@
                     <li role="presentation">
                         <a href="#{{prefix}}Mutations" role="tab" data-toggle="tab" class="prioritization-variant-tab-title">
                             Mutations
+                        </a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#{{prefix}}Info" role="tab" data-toggle="tab" class="prioritization-variant-tab-title">
+                            Info
                         </a>
                     </li>
                 </ul>
@@ -68,9 +73,9 @@
                             <div class="form-group has-feedback">
                                 <label for="{{prefix}}FeatureTextarea" class="col-label">Genes</label>
                                 <textarea id="{{prefix}}FeatureTextarea" name="geneSnp" class="form-control clearable"
-                                          rows="3" placeholder="BRCA2,PPL" style="margin-top: 5px"></textarea>
-                                <button id="{{prefix}}addGenes" type="button" class="btn btn-primary variant-prioritization-view-buttons" style="margin-top: 1%;">
-                                    <i class="fa fa-floppy-o icon-padding" aria-hidden="true"></i> Add Genes
+                                          rows="3" placeholder="BRCA2,PPL" style="margin-top: 5px" value="{{geneValue::input}}"></textarea>
+                                <button id="{{prefix}}addGenes" type="button" on-click="addGenes" class="btn btn-primary variant-prioritization-view-buttons" style="margin-top: 1%;">
+                                    <i class="fa fa-floppy-o icon-padding" aria-hidden="true" ></i> Add Genes
                                 </button>
                             </div>
                             <div class="form-group has-feedback">
@@ -92,6 +97,9 @@
                         </div>
                         <div class="col-md-8">
                             <div id="{{prefix}}PanelGenes" style="">
+                                <button id="{{prefix}}DeleteGeneButton" style="margin-top: 2%;" class="btn btn-danger" on-click="deleteGenes">
+                                    <i class="fa fa-times"></i>&nbsp;Delete
+                                </button>
                                 <table id="{{prefix}}PanelGenesGrid" data-pagination="true" data-page-list="[10, 25, 50]"
                                        data-search="true">
                                 </table>
@@ -105,8 +113,8 @@
                             <div class="form-group has-feedback">
                                 <label for="{{prefix}}LocationTextarea" class="col-label">Genomic Pos</label>
                                 <textarea id="{{prefix}}LocationTextarea" name="location" class="form-control clearable"
-                                          rows="3" placeholder="3:444-55555,1:1-100000"></textarea>
-                                <button id="{{prefix}}addMutation" type="button" class="btn btn-primary variant-prioritization-view-buttons" style="margin-top: 1%;">
+                                          rows="3" placeholder="3:444-55555,1:1-100000" value="{{regionValue::input}}"></textarea>
+                                <button id="{{prefix}}addMutation" type="button" on-click="addMutations" class="btn btn-primary variant-prioritization-view-buttons" style="margin-top: 1%;">
                                     <i class="fa fa-floppy-o icon-padding" aria-hidden="true"></i> Add Genes
                                 </button>
                             </div>
@@ -135,10 +143,36 @@
                         </div>
                         <div class="col-md-8">
                             <div id="{{prefix}}PanelMutations" style="">
+                                <button id="{{prefix}}DeleteMutationsButton" style="margin-top: 2%;" class="btn btn-danger" on-click="deleteMutations">
+                                    <i class="fa fa-times"></i>&nbsp;Delete
+                                </button>
                                 <table id="{{prefix}}PanelMutationsGrid" data-pagination="true" data-page-list="[10, 25, 50]"
                                        data-click-to-select="true" data-search="true">
                                 </table>
                             </div>
+                        </div>
+                    </div>
+                    <!--Info panel-->
+                    <div role="tabpanel" class="tab-pane" id="{{prefix}}Info">
+                        <div class="col-md-4" style="margin-top: 2%">
+                            <div class="form-group has-feedback">
+                                <label for="{{prefix}}PanelName" class="col-label">Name</label>
+                                <input id="{{prefix}}PanelName" name="panelName" class="form-control clearable"
+                                          placeholder="Panel...">
+                            </div>
+                            <div class="form-group has-feedback">
+                                <label for="{{prefix}}PanelAuthor" class="col-label">Author</label>
+                                <input id="{{prefix}}PanelAuthor" name="panelName" class="form-control clearable"
+                                       placeholder="Author...">
+                            </div>
+                            <div class="form-group has-feedback">
+                                <label for="{{prefix}}PanelDescription" class="col-label">Description</label>
+                                <textarea id="{{prefix}}PanelDescription" name="location" class="form-control clearable"
+                                          rows="3" placeholder="Description"></textarea>
+                            </div>
+                            <button id="{{prefix}}SavePanel" type="button" class="btn btn-primary variant-prioritization-view-buttons" style="margin-top: 1%;">
+                                <i class="fa fa-floppy-o icon-padding" aria-hidden="true"></i> Save Panel
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -153,7 +187,7 @@
 
             constructor() {
                 super();
-                this.prefix = "OpencgaPanelEditor" + Utils.randomString(6);
+                this._init();
             }
 
             static get is() {
@@ -175,6 +209,11 @@
             }
 
 
+            _init() {
+                this.prefix = "OpencgaPanelEditor" + Utils.randomString(6);
+                this.genesPanelEditor = [];
+                this.mutationsPanelEditor = [];
+            }
             _attachDom(dom) {
                 this.appendChild(dom);
                 this.diseasesSelected = [];
@@ -313,8 +352,9 @@
                 $("#" + this.prefix + 'PanelGenesGrid').bootstrapTable({
                     url: opencgaHostUrl,
                     columns: _this._createDefaultColumnsGenes(),
-                    method: 'get',
-                    sidePagination: 'server',
+                    data:_this.genesPanelEditor,
+                    // method: 'get',
+                    // sidePagination: 'server',
                     filterControl: true,
                     queryParams: function (params) {
                         let auxParams = {
@@ -402,8 +442,9 @@
                 $("#" + this.prefix + 'PanelMutationsGrid').bootstrapTable({
                     url: opencgaHostUrl,
                     columns: _this._createDefaultColumnsMutations(),
-                    method: 'get',
-                    sidePagination: 'server',
+                    data: _this.mutationsPanelEditor,
+                    // method: 'get',
+                    // sidePagination: 'server',
                     filterControl: true,
                     queryParams: function (params) {
                         let auxParams = {
@@ -478,6 +519,72 @@
                 });
             }
 
+            addGenes(e) {
+                console.log(this.geneValue);
+                let assembly = this.opencgaSession.project.organism.assembly;
+                let _this = this;
+                let genesToAdd = this.geneValue.split(",");
+                this.cellbaseClient.get('feature', 'gene', this.geneValue, 'info', {assembly: assembly}, {})
+                    .then(function (response) {
+                        if (UtilsNew.isNotUndefinedOrNull(response.response) && response.response) {
+                            response.response.forEach((geneResponse) => {
+                                if (response.response[0].numTotalResults === 1) {
+                                    let geneInfo = geneResponse.result[0];
+                                    let existsGene = _this.genesPanelEditor.find((geneAdded) => {
+                                        return geneAdded.name === geneInfo.name;
+                                    });
+                                    if (UtilsNew.isUndefinedOrNull(existsGene)) {
+                                        _this.genesPanelEditor.push(geneInfo);
+                                        _this.renderPanelTableGenes();
+                                        _this.geneValue = "";
+                                    }
+                                }
+                            });
+                        }
+                    });
+            }
+
+            deleteGenes(e) {
+                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+                let names = $.map($(PolymerUtils.getElementById(this.prefix + 'PanelGenesGrid')).bootstrapTable('getSelections'), function (row) {
+                    return row.name;
+                });
+
+                $(PolymerUtils.getElementById(this.prefix + 'PanelGenesGrid')).bootstrapTable('remove', {
+                    field: 'name',
+                    values: names
+                });
+            }
+
+            addMutations(e) {
+                console.log(this.geneValue);
+                let assembly = this.opencgaSession.project.organism.assembly;
+                let _this = this;
+                this.cellbaseClient.get('clinical', 'variant', null, 'search', {assembly: assembly, region: this.regionValue}, {})
+                    .then(function (response) {
+                        if (UtilsNew.isNotUndefinedOrNull(response.response) && response.response ) {
+                            response.response[0].result.forEach((mutationResponse) => {
+                                let mutationInfo = mutationResponse;
+                                    _this.mutationsPanelEditor.push(mutationInfo);
+                                    _this.renderPanelTableMutations();
+                                    _this.regionValue = "";
+                            });
+                        }
+                    });
+            }
+
+            deleteMutations(e) {
+                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+                let names = $.map($(PolymerUtils.getElementById(this.prefix + 'PanelGenesGrid')).bootstrapTable('getSelections'), function (row) {
+                    return row.name;
+                });
+
+                $(PolymerUtils.getElementById(this.prefix + 'PanelGenesGrid')).bootstrapTable('remove', {
+                    field: 'name',
+                    values: names
+                });
+            }
+
             sourceFormatter(value, row, index) {
                 let source = "-";
                 if (UtilsNew.isNotUndefinedOrNull(row.annotation.traitAssociation) && UtilsNew.isNotEmptyArray(row.annotation.traitAssociation) && UtilsNew.isNotUndefinedOrNull(row.annotation.traitAssociation[0].source.name)){
@@ -532,8 +639,41 @@
                 return [
                     [
                         {
+                            field: "stateCheckBox",
+                            checkbox: true,
+                            colspan: 1,
+                            rowspan: 1
+                        },
+                        {
                             title: 'Genes',
                             field: 'name',
+                            // sortable: true,
+                            colspan: 1,
+                            rowspan: 1,
+                            halign: 'center',
+                            searchable: true
+                        },
+                        {
+                            title: 'Chromosome',
+                            field: 'chromosome',
+                            // sortable: true,
+                            colspan: 1,
+                            rowspan: 1,
+                            halign: 'center',
+                            searchable: true
+                        },
+                        {
+                            title: 'Start',
+                            field: 'start',
+                            // sortable: true,
+                            colspan: 1,
+                            rowspan: 1,
+                            halign: 'center',
+                            searchable: true
+                        },
+                        {
+                            title: 'End',
+                            field: 'end',
                             // sortable: true,
                             colspan: 1,
                             rowspan: 1,
@@ -548,8 +688,32 @@
                 return [
                     [
                         {
-                            title: 'Variants',
-                            field: 'name',
+                            field: "stateCheckBox",
+                            checkbox: true,
+                            colspan: 1,
+                            rowspan: 1
+                        },
+                        {
+                            title: 'Chromosome',
+                            field: 'chromosome',
+                            // sortable: true,
+                            colspan: 1,
+                            rowspan: 1,
+                            halign: 'center',
+                            searchable: true
+                        },
+                        {
+                            title: 'Start',
+                            field: 'start',
+                            // sortable: true,
+                            colspan: 1,
+                            rowspan: 1,
+                            halign: 'center',
+                            searchable: true
+                        },
+                        {
+                            title: 'End',
+                            field: 'end',
                             // sortable: true,
                             colspan: 1,
                             rowspan: 1,

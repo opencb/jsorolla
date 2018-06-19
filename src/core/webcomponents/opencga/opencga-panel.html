@@ -35,12 +35,12 @@
                 </button>
             </div>
             <div>
-                <h3>Panel Preview</h3>
                 <template is="dom-if" if="{{!panelEditor}}">
+                    <h3>Panel Preview</h3>
                     <opencga-panel-list opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}" opencga-client="{{opencgaClient}}" panel-examples="{{panelExamples}}" on-panelselected="onPanelSelected"></opencga-panel-list>
                 </template>
                 <template is="dom-if" if="{{panelEditor}}">
-                    <opencga-panel-editor opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}" panel-selected="{{panelSelected}}">
+                    <opencga-panel-editor opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" panel-selected="{{panelSelected}}">
 
                     </opencga-panel-editor>
                 </template>
