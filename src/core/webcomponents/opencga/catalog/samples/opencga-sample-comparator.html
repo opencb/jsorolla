@@ -76,7 +76,7 @@
                 this.appendChild(dom);
             }
             ready() {
-                if (typeof this.prefix === "undefined" || this.prefix == "") {
+                if (typeof this.prefix === "undefined" || this.prefix === "") {
                     this.prefix = Utils.randomString(6);
                 }
             }
@@ -85,7 +85,7 @@
                 let _this = this;
                 for (let i in _this.variableSets) {
                     let variableSet = _this.variableSets[i];
-                    if (variableSet.name == selectedVariableSet) {
+                    if (variableSet.name === selectedVariableSet) {
                         _this.variableSet = variableSet;
                     }
                 }
@@ -102,7 +102,7 @@
             }
             getSamples(opencgaClient, resource) {
                 let _this = this;
-                if (_this.cohortId != "" && _this.opencgaClient instanceof OpenCGAClient) {
+                if (_this.cohortId !== "" && _this.opencgaClient instanceof OpenCGAClient) {
                     _this.opencgaClient.cohorts().getSamples(_this.cohortId).then(function (response) {
                         // TODO test it with the actual cohort id
                         _this.samples = response.response[0].result;
@@ -121,16 +121,16 @@
                 let _this = this;
                 let variableSets = [];
                 if (_this.opencgaClient instanceof OpenCGAClient) {
-                    if (typeof _this.study !== "undefined" && typeof _this.study.id !== "undefined" && _this.study.id != "") {
+                    if (typeof _this.study !== "undefined" && typeof _this.study.id !== "undefined" && _this.study.id !== "") {
                         _this.opencgaClient.studies().info(_this.study.id).then(function (response) {
                             _this.variableSets = response.response[0].result[0].variableSets;
                         });
-                    } else if (_this.variableIds.length == 1) {
+                    } else if (_this.variableIds.length === 1) {
                         _this.opencgaClient.variables().info(_this.variableIds[0]).then(function (response) {
                             variableSets.push(response.response[0].result[0]);
                             _this.variableSets = variableSets;
                         });
-                    } else if (_this.variableIds.length > 1 && typeof _this.study.id !== "undefined" && _this.study.id != "") {
+                    } else if (_this.variableIds.length > 1 && typeof _this.study.id !== "undefined" && _this.study.id !== "") {
                         _this.opencgaClient.variables().search({id: _this.variableIds.join(','), studyId: _this.study.id}).then(function (response) {
                             // TODO test it with more than one variable-set id
                             for (let i in response.response) {
