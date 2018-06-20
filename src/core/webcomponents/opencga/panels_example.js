@@ -21,8 +21,8 @@ let diseasePanels = [{
     variants: ["rs123456", "RCV129812", "1:3333423:A:T"],
 
     genes: [
-        {id: "BRCA2", weight: 3, soType: "splice_site"},
-        {id: "TP53", weight: 0, soType: ""}
+        {name: "BRCA2", chromosome: "1", start: "888", end:"121212", weight: 3, soType: "splice_site"},
+        {name: "TP53", chromosome: "2", start: "3121", end:"44334", weight: 0, soType: ""}
     ],
 
     regions: ["1:3333423-3333435", "1:3333423"],
