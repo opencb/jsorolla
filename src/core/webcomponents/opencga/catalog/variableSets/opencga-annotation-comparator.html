@@ -208,7 +208,8 @@
                                     tmpSample["annotations"].push(annotationSet.name);
                                     let id = `${sample.name}:${annotationSet.name}`;
                                     for (let z in annotationSet.annotations) {
-                                        variableMap[annotationSet.annotations[z].name].annotations[id] = annotationSet.annotations[z].value;
+                                        _this._processAnnotations(variableMap, annotationSet.annotations[z], id);
+                                        // variableMap[annotationSet.annotations[z].name].annotations[id] = annotationSet.annotations[z].value;
                                     }
 
                                 }
@@ -225,6 +226,80 @@
                         $(`#${_this.prefix}-ac-table`).bootstrapTable('destroy');
                         debugger
                     });
+            }
+
+            _processAnnotations(variableMap, annotation, id) {
+                if (variableMap[annotation.name].type !== "OBJECT") {
+                    variableMap[annotation.name].annotations[id] = annotation.value;
+                    return;
+                }
+
+                if (typeof variableMap[annotation.name].variableSet === "undefined"
+                    || variableMap[annotation.name].variableSet.length === 0) {
+                    // We don't expect more annotations
+                    variableMap[annotation.name].annotations[id] = `${JSON.stringify(annotation.value).substring(0, 30)}...`;
+                }
+
+                // We are processing a complex annotation.
+                let annotations = {};
+                if (variableMap[annotation.name].multiValue) {
+                    // We expect an array
+                    for (let i in annotation.value) {
+                        this._processComplexAnnotations(annotations, variableMap, annotation.value[i], annotation.name, true);
+                    }
+                } else {
+                    this._processComplexAnnotations(annotations, variableMap, annotation.value, annotation.name, false);
+                }
+
+                for (let key in annotations) {
+                    if (Array.isArray(annotations[key])) {
+                        variableMap[key].annotations[id] = annotations[key].join(", ");
+                    } else {
+                        variableMap[key].annotations[id] = annotations[key];
+                    }
+                }
+                // debugger
+            }
+
+            _processComplexAnnotations(returnedAnnotation, variableMap, annotation, fullAnnotationId, isArray) {
+                for (let key in annotation) {
+                    let currentVariable = `${fullAnnotationId}.${key}`;
+
+                    if (variableMap[currentVariable].type !== "OBJECT") {
+                        this._addAnnotationValue(returnedAnnotation, currentVariable, annotation[key], isArray);
+                        continue;
+                    }
+
+                    if (typeof variableMap[currentVariable].variableSet === "undefined"
+                        || variableMap[currentVariable].variableSet.length === 0) {
+                        let value = `${JSON.stringify(annotation[key]).substring(0, 30)}...`;
+
+                        this._addAnnotationValue(returnedAnnotation, currentVariable, value, isArray);
+                        continue;
+                    }
+
+                    // We are processing a complex annotation
+                    if (Array.isArray(annotation[key])) {
+                        for (let i in annotation[key]) {
+                            this._processComplexAnnotations(returnedAnnotation, variableMap, annotation[key][i],
+                                currentVariable, isArray || variableMap[currentVariable].multiValue);
+                        }
+                    } else {
+                        this._processComplexAnnotations(returnedAnnotation, variableMap, annotation[key],
+                            currentVariable, isArray || variableMap[currentVariable].multiValue);
+                    }
+                }
+            }
+
+            _addAnnotationValue(returnedAnnotation, currentVariable, value, isArray) {
+                if (isArray) {
+                    if (typeof returnedAnnotation[currentVariable] === "undefined") {
+                        returnedAnnotation[currentVariable] = [];
+                    }
+                    returnedAnnotation[currentVariable].push(value);
+                } else {
+                    returnedAnnotation[currentVariable] = value;
+                }
             }
 
             buildNewTable(samples, variables) {
@@ -314,7 +389,8 @@
                             allowedValues: variable.allowedValues,
                             annotations: {
                                 variable: tags.concat(variable.name).join(".")
-                            }
+                            },
+                            variableSet: variable.variableSet
                         });
 
                         displayVariables = displayVariables.concat(this._flattenVariableArray(variable.variableSet,
