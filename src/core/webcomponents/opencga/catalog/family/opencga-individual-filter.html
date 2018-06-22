@@ -241,7 +241,18 @@
                 this._reset = true;
             }
 
-          
+            calculateFilterDate(e) {
+                // Active/disable
+                this.customDate = false;
+                if (e.target.defaultValue === "range" && e.target.checked) {
+                    PolymerUtils.removeAttributebyclass("codeDis", "disabled");
+                    this.customDate = true;
+                } else {
+                    PolymerUtils.setAttributeByClassName("codeDis", "disabled", true)
+                }
+                this.updateQueryFilters();
+
+            }
 
             onSearchClick() {
                 this.dispatchEvent(new CustomEvent("search", {
