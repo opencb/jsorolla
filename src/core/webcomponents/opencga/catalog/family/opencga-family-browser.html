@@ -14,11 +14,11 @@
   ~ limitations under the License.
   -->
 
-<link rel="import" href="opencga-individual-grid.html">
+<link rel="import" href="opencga-family-grid.html">
 <link rel="import" href="../../opencga-active-filters.html">
-<link rel="import" href="opencga-individual-filter.html">
+<link rel="import" href="opencga-family-filter.html">
 
-<dom-module id="opencga-individual-browser">
+<dom-module id="opencga-family-browser">
     <template>
         <style include="jso-styles"></style>
         <template is="dom-if" if="{{_config.showTitle}}">
@@ -29,7 +29,7 @@
             </div>
         </template>
         <div class="col-md-2">
-            <opencga-individual-filter opencga-client="{{opencgaClient}}" opencga-session="{{opencgaSession}}" query="{{query}}" on-search="onSearch" config="{{configValues}}"></opencga-individual-filter>
+            <opencga-family-filter opencga-client="{{opencgaClient}}" opencga-session="{{opencgaSession}}" query="{{query}}" on-search="onSearch"></opencga-family-filter>
         </div>
         <div class="col-md-10">
             <br>
@@ -37,25 +37,24 @@
                                     refresh="{{search}}" on-clear="onClear" on-filterchange="onActiveFilterChange">
             </opencga-active-filters>
 
-            <!--<h3>Analysis results</h3>-->
+            <!--<h3>Family results</h3>-->
             <br>
-            <opencga-individual-grid opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}"
-                                            query="{{search}}" config="{{_config}}" config-values="{{configValues}}"
-                                            on-individual-selected="onIndividualSelectedSelector">
-            </opencga-individual-grid>
+            <opencga-family-grid opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}"
+                                            query="{{search}}" config="{{_config}}">
+            </opencga-family-grid>
 
         </div>
     </template>
     <script>
 
-        class OpencgaIndividualBrowser extends Polymer.Element {
+        class OpencgaFamilyBrowser extends Polymer.Element {
             constructor() {
                 super();
                 this._init();
             }
 
             static get is() {
-                return 'opencga-individual-browser';
+                return 'opencga-family-browser';
             }
 
             static get properties() {
@@ -65,11 +64,8 @@
                     },
                     configValues: {
                         type: Object
-                    },
-                    config: {
-                        type: Object,
-                        observer: "configObserver"
                     }
+
                 }
             }
 
@@ -78,23 +74,19 @@
             }
 
             _init() {
-                this.individualDefaultQuery = {sort: "id"};
-                this.search = Object.assign({}, this.individualDefaultQuery);
+                this.familyDefaultQuery = {sort: "id"};
+                this.search = Object.assign({}, this.familyDefaultQuery);
                 this._config = this.getDefaultConfig();
             }
 
-            configObserver() {
-                this._config = Object.assign(this.getDefaultConfig(), this.config);
-            }
-
             onClear() {
-                this._config = Object.assign(this.getDefaultConfig(), this.config);
+                this._config = this.getDefaultConfig();
                 this.query = {studies: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias};
                 this.search = {};
             }
 
             onSearch(e) {
-                this.search = Object.assign({}, this.individualDefaultQuery, e.detail.query);
+                this.search = Object.assign({}, this.familyDefaultQuery, e.detail.query);
             }
 
             onActiveFilterChange(e) {
@@ -104,7 +96,7 @@
 
             getDefaultConfig() {
                 return {
-                    title: "Individual Browser",
+                    title: "Family Browser",
                     showTitle: true,
                     filter: {
 
@@ -118,6 +110,6 @@
             }
         }
 
-        customElements.define(OpencgaIndividualBrowser.is, OpencgaIndividualBrowser);
+        customElements.define(OpencgaFamilyBrowser.is, OpencgaFamilyBrowser);
     </script>
 </dom-module>

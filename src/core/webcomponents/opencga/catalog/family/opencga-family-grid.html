@@ -14,20 +14,19 @@
   ~ limitations under the License.
   -->
 
-<!--<link rel="import" href="../../clinical/clinical-analysis-view.html">-->
 
-<dom-module id="opencga-individual-grid">
+<dom-module id="opencga-family-grid">
     <template>
         <style include="jso-styles"></style>
-        <span>Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> individuals</span>
-        <table id="{{prefix}}tableIndividual"
+        <span>Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> families</span>
+        <table id="{{prefix}}tableFamily"
                data-icons-prefix="fa" data-icons="icons" data-show-refresh="true">
             <thead style="background-color: #eee"></thead>
         </table>
     </template>
 
     <script>
-        class OpencgaIndividualGrid extends Polymer.Element {
+        class OpencgaFamilyGrid extends Polymer.Element {
 
             constructor() {
                 super();
@@ -37,7 +36,7 @@
             }
 
             static get is() {
-                return 'opencga-individual-grid';
+                return 'opencga-family-grid';
             }
 
             static get properties() {
@@ -53,14 +52,7 @@
                         type: Object,
                         observer: "queryObserver"
                     },
-                    individual: {
-                        type: Object,
-                        observer: "individualObserver"
-                    },
                     config: {
-                        type: Object
-                    },
-                    configValues: {
                         type: Object
                     }
                 }
@@ -74,7 +66,7 @@
                 super.connectedCallback();
 
                 // Next code add an event to the blue plus symbol that expands the rows
-                let table = $('#' + this.prefix + 'tableIndividual');
+                let table = $('#' + this.prefix + 'tableFamily');
                 let _this = this;
                 table.on('expand-row.bs.table', function (e, index, row, $detail) {
                     let res = _this.detailFormatter(index, row);
@@ -120,8 +112,8 @@
                 let _numTotal = -1;
 
                 let _this = this;
-                $(PolymerUtils.getElementById(this.prefix + "tableIndividual")).bootstrapTable('destroy');
-                $(PolymerUtils.getElementById(this.prefix + "tableIndividual")).bootstrapTable({
+                $(PolymerUtils.getElementById(this.prefix + "tableFamily")).bootstrapTable('destroy');
+                $(PolymerUtils.getElementById(this.prefix + "tableFamily")).bootstrapTable({
                     url: urlQueryParams.host,
                     columns: _this._getTableColumns(),
                     method: 'get',
@@ -150,7 +142,7 @@
                     onLoadSuccess: function (data) {
                         if (UtilsNew.isUndefinedOrNull(_this.analysis)) {
                             // The first time we mark as selected the first row
-                            let _table = $('#' + _this.prefix + 'tableIndividual');
+                            let _table = $('#' + _this.prefix + 'tableFamily');
                             if (UtilsNew.isNotUndefinedOrNull(_table) && data.total > 0) {
                                 _table.bootstrapTable('check', 0);
                             }
@@ -191,7 +183,7 @@
                     if (UtilsNew.isEmpty(this.query.studies) || this.query.studies.split(new RegExp("[,;]")).length === 1) {
                         this.query.study = this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias;
                     }
-                    host += '/webservices/rest/v1/individuals/search';
+                    host += '/webservices/rest/v1/families/search';
                 } else {
                     return {host: host, queryParams: {}};
                 }
@@ -200,55 +192,17 @@
                 let queryParams = Object.assign(
                     {
                         sid: this.opencgaClient._config.sessionId,
-                        include: "id,name,sex,karyotypicSex,ethnicity,lifeStatus,affectationStatus,creationDate",
+                        include: "id,name,creationDate",
                         skipCount: false
                     }, this.query);
 
                 return {host: host, queryParams: queryParams};
             }
 
-            individualObserver() {
-                if (UtilsNew.isNotUndefinedOrNull(this.analysis)) {
-                    $('#' + this.prefix + 'tableIndividual').bootstrapTable("checkBy", {
-                        field: "name",
-                        values: [this.analysis.name]
-                    })
-                } else {
-                    $('#' + this.prefix + 'tableIndividual').bootstrapTable('check', 0);
-                }
-            }
-
-            sampleFormatter(value, row, index) {
-                return row.subjects[0].samples[0].name;
-            }
-
-            subjectFormatter(value, row, index) {
-                return row.subjects[0].name;
-            }
-
-            diseaseFormatter(value, row, index) {
-                return row.disease.name;
-            }
-
             dateFormatter(value, row, index) {
                 return moment(value, "YYYYMMDDHHmmss").format('D MMM YYYY');
             }
 
-            ethnicityFormatter(value, row, index) {
-                debugger;
-                if (UtilsNew.isNotUndefinedOrNull(this.configValues) && UtilsNew.isNotUndefinedOrNull(this.configValues.ethnicity) && UtilsNew.isNotEmptyArray(this.configValues.ethnicity)) {
-
-                    let ethnicityExists =  this.configValues.ethnicity.find((eth) => {
-                        return eth.id == value;
-                    });
-
-                    if (UtilsNew.isNotUndefinedOrNull(ethnicityExists)) {
-                        return ethnicityExists.title;
-                    }
-                }
-
-                return "-"
-            }
 
             _getTableColumns() {
                 return [
@@ -263,27 +217,6 @@
                             field: 'name'
                         },
                         {
-                            title: 'Sex',
-                            field: 'sex'
-                        },
-                        {
-                            title: 'Ethnicity',
-                            field: 'ethnicity',
-                            formatter: this.ethnicityFormatter.bind(this)
-                        },
-                        {
-                            title: 'Karyotypic Sex',
-                            field: 'karyotypicSex'
-                        },
-                        {
-                            title: 'Life Status',
-                            field: 'lifeStatus'
-                        },
-                        {
-                            title: 'Affectation Status',
-                            field: 'affectationStatus'
-                        },
-                        {
                             title: 'Date',
                             field: 'creationDate',
                             formatter: this.dateFormatter
@@ -296,6 +229,6 @@
             }
         }
 
-        customElements.define(OpencgaIndividualGrid.is, OpencgaIndividualGrid);
+        customElements.define(OpencgaFamilyGrid.is, OpencgaFamilyGrid);
     </script>
 </dom-module>
