@@ -19,7 +19,7 @@
 <dom-module id="opencga-individual-grid">
     <template>
         <style include="jso-styles"></style>
-        <span>Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> analysis</span>
+        <span>Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> individuals</span>
         <table id="{{prefix}}tableIndividual"
                data-icons-prefix="fa" data-icons="icons" data-show-refresh="true">
             <thead style="background-color: #eee"></thead>
@@ -109,10 +109,11 @@
             }
 
             renderTable() {
-                let _config = Object.assign(this.defaultConfig, this.config);
+                debugger;
+                let _config = Object.assign(this.defaultConfig, this.config.grid);
 
                 this.from = 1;
-                this.to = Math.max(UtilsNew.isNotUndefinedOrNull(this.query.limit) ? this.query.limit : 0, this.config.pageSize);
+                this.to = Math.max(UtilsNew.isNotUndefinedOrNull(this.query.limit) ? this.query.limit : 0, _config.pageSize);
 
                 let urlQueryParams = this._getUrlQueryParams();
                 let queryParams = urlQueryParams.queryParams;

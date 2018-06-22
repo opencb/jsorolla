@@ -46,53 +46,7 @@
                 <div id="{{prefix}}IndividualSelection" class="panel-collapse collapse in" role="tabpanel"
                      aria-labelledby="{{prefix}}IndividualSelectionHeading">
                     <div class="panel-body">
-                        <div class="form-group">
-                            <form>
-                                <label>Select</label>
-                                <br>
-                                <input type="radio" name="selectionButtons" id="allRadio" value="all"
-                                       class$="{{prefix}}FilterRadio" checked on-change="calculateFilterDate"
-                                       style="padding-left: 20px"> All<br>
-                                <!--<input type="radio" name="selectionButtons" id="recentlyRadio" value="recently"-->
-                                <!--class$="{{prefix}}FilterRadio" on-change="updateQueryFilters"-->
-                                <!--style="padding-left: 20px"> Recently Created<br>-->
-                                <input type="radio" name="selectionButtons" id="rangeRadio" value="range"
-                                       class$="{{prefix}}FilterRadio" on-change="calculateFilterDate"
-                                       style="padding-left: 20px"> Date (Year-Month-Day)
-                            </form>
-                            <div style="padding: 15px 0px 0px 25px">
-                                <form class="form-inline">
-                                    <div class="form-group row">
-                                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm"
-                                                id="{{prefix}}YearSelect" name="yearInput" required
-                                                on-change="updateQueryFilters" disabled>
-                                            <template is="dom-repeat" items="{{yearsToSearch}}">
-                                                <option value="{{item}}">{{item}}</option>
-                                            </template>
-                                        </select>
-
-                                        <label style="padding: 0px 2px">-</label>
-                                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm"
-                                                id="{{prefix}}MonthSelect" name="monthInput" required
-                                                on-change="updateQueryFilters" disabled>
-                                            <option></option>
-                                            <template is="dom-repeat" items="{{monthToSearch}}">
-                                                <option value="{{item}}">{{item}}</option>
-                                            </template>
-                                        </select>
-                                        <label style="padding: 0px 2px">-</label>
-                                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm"
-                                                id="{{prefix}}DaySelect" name="dayInput" required
-                                                on-change="updateQueryFilters" disabled>
-                                            <option></option>
-                                            <template is="dom-repeat" items="{{daysToSearch}}">
-                                                <option value="{{item}}">{{item}}</option>
-                                            </template>
-                                        </select>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
+                        <opencga-date-filter config="{{dateFilterConfig}}" on-datechanged="onDateChanged"></opencga-date-filter>
                     </div>
                 </div>
             </div>
@@ -129,7 +83,8 @@
                             <label>Karyotypic Sex</label>
                             <select type="text" id="{{prefix}}karyotypicSex" class$="form-control {{prefix}}SelectInput codeDis input-sm"
                                     on-change="updateQueryFilters" >
-                                <option value="">Select...</option>                                <template is="dom-repeat" items="{{karyotypics}}">
+                                <option value="">Select...</option>
+                                <template is="dom-repeat" items="{{karyotypics}}">
                                     <option value="{{item.key}}">{{item.value}}</option>
                                 </template>
                             </select>
@@ -228,29 +183,9 @@
 
             _init() {
                 this.prefix = "indFilter" + Utils.randomString(6);
-                let _years = [];
-                let fullDate = new Date()
-                let limitYear = fullDate.getFullYear();
-                for (let year = this.minYear; year <= limitYear; year++) {
-                    _years.push(year);
-                }
-                // This change triggers the polymer dom-repeat
-                this.years = _years;
-
-                // Init arrays for Date range selector
-                let _yearsToSearch = [];
-                for (let year = limitYear, i = 0; i < 5; year--, i++) {
-                    _yearsToSearch.push(year);
-                }
-                this.yearsToSearch = _yearsToSearch;
-
-                this.monthToSearch = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-                let _days = [];
-                for (let i = 1; i <= 31; i++) {
-                    _days.push(i);
-                }
-                this.daysToSearch = _days;
+                this.dateFilterConfig = {
+                    recentDays: 10
+                };
                 this._reset = true;
             }
 
@@ -276,18 +211,6 @@
                 let ethnicity = PolymerUtils.getElementById(this.prefix + "ethnicity").value;
                 let affectationStatus = PolymerUtils.getElementById(this.prefix + "affectationStatus").value;
                 let lifeStatus = PolymerUtils.getElementById(this.prefix + "lifeStatus").value;
-                let yearInput = PolymerUtils.getElementById(this.prefix + "YearSelect").value;
-                let monthInput = PolymerUtils.getElementById(this.prefix + "MonthSelect").value;
-                let dayInput = PolymerUtils.getElementById(this.prefix + "DaySelect").value;
-                if (this.customDate && UtilsNew.isNotEmpty(yearInput) && UtilsNew.isNotEmpty(monthInput) && UtilsNew.isNotEmpty(dayInput) ) {
-                    let monthNumber = 0;
-                    this.monthToSearch.forEach((month,index) => {
-                        if (month === monthInput) {
-                            monthNumber = index;
-                        }
-                    });
-                    _query.creationDate = new Date(yearInput, monthNumber, dayInput).getTime();
-                }
 
                 if (UtilsNew.isNotEmpty(analysisID)) {
                     _query.name = analysisID;
@@ -339,9 +262,24 @@
                 }));
             }
 
+            onDateChanged(e) {
+                let query = {};
+                Object.assign(query, this.query);
+                if (UtilsNew.isNotEmpty(e.detail.date)) {
+                    query["creationDate"] = e.detail.date;
+                } else {
+                    delete query["creationDate"];
+                }
+
+                this._reset = false;
+                this.set("query", query);
+                this._reset = true;
+            }
+
             _clearHtmlDom() {
                 $("." + this.prefix + "FilterTextInput").val("");
                 $("." + this.prefix + "FilterTextInput").prop("disabled", false);
+                $("." + this.prefix + "SelectInput").prop('selectedIndex', 0);
             }
 
         }

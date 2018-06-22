@@ -15,26 +15,32 @@
   -->
 
 <link rel="import" href="opencga-individual-grid.html">
-<link rel="import" href="../opencga-active-filters.html">
+<link rel="import" href="../../opencga-active-filters.html">
 <link rel="import" href="opencga-individual-filter.html">
 
 <dom-module id="opencga-individual-browser">
     <template>
         <style include="jso-styles"></style>
-        <div class="col-md-3">
-            <opencga-individual-filter opencga-client="{{opencgaClient}}" opencga-session="{{opencgaSession}}" query="{{query}}" on-search="onSearch" config="{{config}}"></opencga-individual-filter>
+        <template is="dom-if" if="{{_config.showTitle}}">
+            <div class="panel" style="margin-bottom: 15px">
+                <h3 style="margin: 10px 10px 10px 15px">
+                    <i class="fa fa-users" aria-hidden="true"></i> &nbsp;{{_config.title}}
+                </h3>
+            </div>
+        </template>
+        <div class="col-md-2">
+            <opencga-individual-filter opencga-client="{{opencgaClient}}" opencga-session="{{opencgaSession}}" query="{{query}}" on-search="onSearch" config="{{configValues}}"></opencga-individual-filter>
         </div>
-        <div class="col-md-9">
+        <div class="col-md-10">
             <br>
-            <!--<opencga-active-filters opencga-client="{{opencgaClient}}" query="[[query]]" filters="{{config.filters}}" on-filterchange="onFilterChange" on-clear="onClear"-->
-                                    <!--filter-bioformat="VARIANT" default-study="{{opencgaSession.study.alias}}" alias="{{activeFilterAlias}}" refresh="{{search}}" genotype-samples="{{genotypeSamples}}"-->
-                                    <!--mode-inheritance="[[modeInheritance]]">-->
-            <!--</opencga-active-filters>-->
+            <opencga-active-filters opencga-client="{{opencgaClient}}" query="[[query]]" filters="{{_config.filters}}" default-study="{{opencgaSession.study.alias}}"
+                                    refresh="{{search}}" on-clear="onClear" on-filterchange="onActiveFilterChange">
+            </opencga-active-filters>
 
             <!--<h3>Analysis results</h3>-->
             <br>
             <opencga-individual-grid opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}"
-                                            query="{{search}}" config="{{individualGridConfig}}" config-values="{{config}}"
+                                            query="{{search}}" config="{{_config}}" config-values="{{configValues}}"
                                             on-individual-selected="onIndividualSelectedSelector">
             </opencga-individual-grid>
 
@@ -57,12 +63,12 @@
                     opencgaSession: {
                         type: Object
                     },
-                    query: {
-                        type: Object,
-                        observer: "queryObserver"
+                    configValues: {
+                        type: Object
                     },
                     config: {
-                        type: Object
+                        type: Object,
+                        observer: "configObserver"
                     }
                 }
             }
@@ -73,31 +79,42 @@
 
             _init() {
                 this.individualDefaultQuery = {sort: "id"};
-                this.individualQuery = {sort: "id"};
-                this.search = Object.assign({}, this.individualQuery);
-                this.individualGridConfig = this.getDefaultConfig();
+                this.search = Object.assign({}, this.individualDefaultQuery);
+                this._config = this.getDefaultConfig();
             }
 
-            // onAnalysisSelectedSelector (e) {
-            //     e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-            //     this.analysisSelected = e.detail;
-            // }
-
-            queryObserver() {
-                this.individualQuery = Object.assign({}, this.individualDefaultQuery, this.query);
+            configObserver() {
+                this._config = Object.assign(this.getDefaultConfig(), this.config);
             }
 
             onClear() {
+                this._config = Object.assign(this.getDefaultConfig(), this.config);
                 this.query = {studies: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias};
-                this.search = this.query;
+                this.search = {};
             }
 
             onSearch(e) {
                 this.search = Object.assign({}, this.individualDefaultQuery, e.detail.query);
             }
 
+            onActiveFilterChange(e) {
+                this.query = e.detail;
+                this.search = e.detail;
+            }
+
             getDefaultConfig() {
-                return {pagination: true, pageSize: 10, pageList: [5,10,25]};
+                return {
+                    title: "Individual Browser",
+                    showTitle: true,
+                    filter: {
+
+                    },
+                    grid: {
+                        pagination: true,
+                        pageSize: 10,
+                        pageList: [5,10,25]
+                    }
+                };
             }
         }
 
