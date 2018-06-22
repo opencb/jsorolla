@@ -21,7 +21,7 @@
         <style is="custom-style" include="jso-styles"></style>
 
         <div class="form-group">
-            <label for="variableSetSelect">Variable Set</label>
+            <span for="variableSetSelect">Variable Set</span>
             <select class="form-control" id="variableSetSelect" style="width: 100%" on-change="selectedVariableSet">
                 <template is="dom-repeat" items="{{variableSets}}">
                     <option data-variable="{{item}}">{{item.name}}</option>

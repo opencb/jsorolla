@@ -273,10 +273,10 @@
                         type: Object,
                         observer: 'renderHashQueryParams'
                     },
-                    checkProjects: {
-                        type: Boolean,
-                        computed: '_checkProjects()'
-                    },
+                    // checkProjects: {
+                    //     type: Boolean,
+                    //     computed: '_checkProjects()'
+                    // },
                     variant: {
                         type: String,
                         value: "No variant selected"
@@ -294,6 +294,7 @@
             _init() {
                 this.prefix = "varbrowser" + Utils.randomString(6);
 
+                this.checkProjects = false;
                 this._collapsed = false;
                 this.genotypeColor = {
                     "0/0": "#6698FF",
@@ -349,6 +350,7 @@
             }
 
             onStudyUpdate() {
+                // debugger
                 if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.project)) {
                     // Update cohorts from config, this updates the Cohort filter MAF
                     for (let section of this.config.filter.menu.sections) {
@@ -362,6 +364,10 @@
                             }
                         }
                     }
+
+                    this.checkProjects = true;
+                } else {
+                    this.checkProjects = false;
                 }
             }
 
@@ -395,12 +401,12 @@
                 this.region = e.detail.genomeBrowserPosition;
             }
 
-            _checkProjects() {
-                if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.projects)) {
-                    return this.opencgaSession.projects.length !== 0;
-                }
-                return false;
-            }
+            // _checkProjects() {
+            //     if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.projects)) {
+            //         return this.opencgaSession.projects.length !== 0;
+            //     }
+            //     return false;
+            // }
 
 
             projectStudyObtained(project, study) {
