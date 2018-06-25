@@ -23,8 +23,9 @@
                 <span style="font-size: 14px">Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> samples</span>
             </div>
 
-            <table id="{{prefix}}SampleSelector" data-test-id="variant-sample-grid-sample-selector" data-show-columns="true" data-show-export="true" data-show-pagination-switch="true"
-                   data-pagination="true" data-page-size="10" data-show-refresh="true" data-page-list="[5, 10]" data-icons-prefix="fa" data-icons="icons" style="cursor: pointer">
+            <table id="{{prefix}}SampleSelector" data-show-columns="true" data-show-export="true" data-show-pagination-switch="true"
+                   data-pagination="true" data-page-size="10" data-show-refresh="true" data-page-list="[5, 10]" data-icons-prefix="fa"
+                   data-icons="icons" style="cursor: pointer">
                 <thead style="background-color: #eee"></thead>
             </table>
         </div>
@@ -257,13 +258,13 @@
                             _this.from = (page - 1) * size + 1;
                             _this.to = page * size;
                         },
-                        onPostBody: function() {
-                            if(PolymerUtils.getElementsByClassName(_this.prefix + 'Download')) {
-                                PolymerUtils.querySelectorAll("." + _this.prefix + "Download").forEach(elem => elem.addEventListener("click", _this.downloadQCFile.bind(_this), true));
-
-//                                PolymerUtils.getElementById(_this.prefix + 'Download').addEventListener('click', _this.downloadQCFile.bind(_this));
-                            }
-                        }
+//                         onPostBody: function() {
+//                             if(PolymerUtils.getElementsByClassName(_this.prefix + 'Download')) {
+//                                 PolymerUtils.querySelectorAll("." + _this.prefix + "Download").forEach(elem => elem.addEventListener("click", _this.downloadQCFile.bind(_this), true));
+//
+// //                                PolymerUtils.getElementById(_this.prefix + 'Download').addEventListener('click', _this.downloadQCFile.bind(_this));
+//                             }
+//                         }
                     });
 
                     this.opencgaClient.studies().info(this.opencgaSession.study.id)
@@ -476,56 +477,56 @@
                 return (row.somatic) ? "Somatic" : "Germline";
             }
 
-            downloadFormatter(value, row) {
-                return '<a role="button" type="button" class="'+this.prefix + 'Download btn btn-sm btn-primary" data-sample-name="'+row.name +'" ><i class="fa fa-download" aria-hidden="true"></i>&nbsp;Download</a>';
-            }
-
-            downloadQCFile(e) {
-                let name = e.target.getAttribute('data-sample-name') + ".QC.tar.gz";
-                let study = this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias;
-                let sid =  Cookies.get(this.opencgaClient.getConfig().cookieSessionId);
-                let opencgaHostUrl = this.opencgaClient.getConfig().host;
-                if (!opencgaHostUrl.startsWith("http://") && !opencgaHostUrl.startsWith("https://")) {
-                    opencgaHostUrl = 'http://' + opencgaHostUrl;
-                }
-                opencgaHostUrl += '/webservices/rest/v1/files/';
-
-                let paramsInfo= {
-                    study: study
-                };
-
-                this.opencgaClient.files().info(name, paramsInfo)
-                    .then((response) => {
-                        if (response.response.length > 0) {
-                            let url = opencgaHostUrl + name + "/download?sid=" + sid + "&study=" + study;
-                            let a = document.createElement("a");
-                            a.href = url;
-                            a.download = name;
-                            document.body.appendChild(a);
-                            a.click();
-                        } else {
-                            this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
-                                detail: {
-                                    message: name + " not found.",
-                                    type: UtilsNew.MESSAGE_ERROR
-                                },
-                                bubbles: true,
-                                composed: true
-                            }));
-                        }
-                    })
-                    .catch((response) => {
-                        this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
-                            detail: {
-                                message: name + " not found.",
-                                type: UtilsNew.MESSAGE_ERROR
-                            },
-                            bubbles: true,
-                            composed: true
-                        }));
-                    });
-
-            }
+            // downloadFormatter(value, row) {
+            //     return '<a role="button" type="button" class="'+this.prefix + 'Download btn btn-sm btn-primary" data-sample-name="'+row.name +'" ><i class="fa fa-download" aria-hidden="true"></i>&nbsp;Download</a>';
+            // }
+            //
+            // downloadQCFile(e) {
+            //     let name = e.target.getAttribute('data-sample-name') + ".QC.tar.gz";
+            //     let study = this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias;
+            //     let sid =  Cookies.get(this.opencgaClient.getConfig().cookieSessionId);
+            //     let opencgaHostUrl = this.opencgaClient.getConfig().host;
+            //     if (!opencgaHostUrl.startsWith("http://") && !opencgaHostUrl.startsWith("https://")) {
+            //         opencgaHostUrl = 'http://' + opencgaHostUrl;
+            //     }
+            //     opencgaHostUrl += '/webservices/rest/v1/files/';
+            //
+            //     let paramsInfo= {
+            //         study: study
+            //     };
+            //
+            //     this.opencgaClient.files().info(name, paramsInfo)
+            //         .then((response) => {
+            //             if (response.response.length > 0) {
+            //                 let url = opencgaHostUrl + name + "/download?sid=" + sid + "&study=" + study;
+            //                 let a = document.createElement("a");
+            //                 a.href = url;
+            //                 a.download = name;
+            //                 document.body.appendChild(a);
+            //                 a.click();
+            //             } else {
+            //                 this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+            //                     detail: {
+            //                         message: name + " not found.",
+            //                         type: UtilsNew.MESSAGE_ERROR
+            //                     },
+            //                     bubbles: true,
+            //                     composed: true
+            //                 }));
+            //             }
+            //         })
+            //         .catch((response) => {
+            //             this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+            //                 detail: {
+            //                     message: name + " not found.",
+            //                     type: UtilsNew.MESSAGE_ERROR
+            //                 },
+            //                 bubbles: true,
+            //                 composed: true
+            //             }));
+            //         });
+            //
+            // }
 
             _initTableColumns() {
                 this._columns = [
@@ -584,14 +585,14 @@
                         }
                     ]
                 ];
-
-                if (typeof this.config !== "undefined" && this.config.grid.downloadQcSample) {
-                    this._columns[0].push({
-                        title: 'QC',
-                        field: 'download',
-                        formatter: this.downloadFormatter.bind(this)
-                    });
-                }
+                //
+                // if (typeof this.config !== "undefined" && this.config.grid.downloadQcSample) {
+                //     this._columns[0].push({
+                //         title: 'QC',
+                //         field: 'download',
+                //         formatter: this.downloadFormatter.bind(this)
+                //     });
+                // }
                 return this._columns;
             }
         }
