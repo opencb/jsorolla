@@ -1,0 +1,115 @@
+<!--
+  ~ Copyright 2015 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<link rel="import" href="opencga-family-grid.html">
+<link rel="import" href="../../opencga-active-filters.html">
+<link rel="import" href="opencga-family-filter.html">
+
+<dom-module id="opencga-family-browser">
+    <template>
+        <style include="jso-styles"></style>
+        <template is="dom-if" if="{{_config.showTitle}}">
+            <div class="panel" style="margin-bottom: 15px">
+                <h3 style="margin: 10px 10px 10px 15px">
+                    <i class="fa fa-users" aria-hidden="true"></i> &nbsp;{{_config.title}}
+                </h3>
+            </div>
+        </template>
+        <div class="col-md-2">
+            <opencga-family-filter opencga-client="{{opencgaClient}}" opencga-session="{{opencgaSession}}" query="{{query}}" on-search="onSearch"></opencga-family-filter>
+        </div>
+        <div class="col-md-10">
+            <br>
+            <opencga-active-filters opencga-client="{{opencgaClient}}" query="[[query]]" filters="{{_config.filters}}" default-study="{{opencgaSession.study.alias}}"
+                                    refresh="{{search}}" on-clear="onClear" on-filterchange="onActiveFilterChange">
+            </opencga-active-filters>
+
+            <!--<h3>Family results</h3>-->
+            <br>
+            <opencga-family-grid opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}"
+                                            query="{{search}}" config="{{_config}}">
+            </opencga-family-grid>
+
+        </div>
+    </template>
+    <script>
+
+        class OpencgaFamilyBrowser extends Polymer.Element {
+            constructor() {
+                super();
+                this._init();
+            }
+
+            static get is() {
+                return 'opencga-family-browser';
+            }
+
+            static get properties() {
+                return {
+                    opencgaSession: {
+                        type: Object
+                    },
+                    configValues: {
+                        type: Object
+                    }
+
+                }
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            _init() {
+                this.familyDefaultQuery = {sort: "id"};
+                this.search = Object.assign({}, this.familyDefaultQuery);
+                this._config = this.getDefaultConfig();
+            }
+
+            onClear() {
+                this._config = this.getDefaultConfig();
+                this.query = {studies: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias};
+                this.search = {};
+            }
+
+            onSearch(e) {
+                this.search = Object.assign({}, this.familyDefaultQuery, e.detail.query);
+            }
+
+            onActiveFilterChange(e) {
+                this.query = e.detail;
+                this.search = e.detail;
+            }
+
+            getDefaultConfig() {
+                return {
+                    title: "Family Browser",
+                    showTitle: true,
+                    filter: {
+
+                    },
+                    grid: {
+                        pagination: true,
+                        pageSize: 10,
+                        pageList: [5,10,25]
+                    }
+                };
+            }
+        }
+
+        customElements.define(OpencgaFamilyBrowser.is, OpencgaFamilyBrowser);
+    </script>
+</dom-module>

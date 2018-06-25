@@ -1,0 +1,301 @@
+<!--
+  ~ Copyright 2015-2016 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!--<link rel="import" href="../../clinical/clinical-analysis-view.html">-->
+
+<dom-module id="opencga-individual-grid">
+    <template>
+        <style include="jso-styles"></style>
+        <span>Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> individuals</span>
+        <table id="{{prefix}}tableIndividual"
+               data-icons-prefix="fa" data-icons="icons" data-show-refresh="true">
+            <thead style="background-color: #eee"></thead>
+        </table>
+    </template>
+
+    <script>
+        class OpencgaIndividualGrid extends Polymer.Element {
+
+            constructor() {
+                super();
+
+                // Set status and init private properties
+                this._init();
+            }
+
+            static get is() {
+                return 'opencga-individual-grid';
+            }
+
+            static get properties() {
+                return {
+                    opencgaSession: {
+                        type: Object,
+                        observer: "renderTable"
+                    },
+                    opencgaClient: {
+                        type: Object
+                    },
+                    query: {
+                        type: Object,
+                        observer: "queryObserver"
+                    },
+                    individual: {
+                        type: Object,
+                        observer: "individualObserver"
+                    },
+                    config: {
+                        type: Object
+                    },
+                    configValues: {
+                        type: Object
+                    }
+                }
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            connectedCallback() {
+                super.connectedCallback();
+
+                // Next code add an event to the blue plus symbol that expands the rows
+                let table = $('#' + this.prefix + 'tableIndividual');
+                let _this = this;
+                table.on('expand-row.bs.table', function (e, index, row, $detail) {
+                    let res = _this.detailFormatter(index, row);
+                    $detail.html(res);
+                });
+
+                // Now we render the table the first time and set _rendered as tru to avoid more than one render the first time
+
+                this.renderTable();
+                this._rendered = true;
+            }
+
+            _init() {
+                this.prefix = "oig" + Utils.randomString(6);
+
+                this.defaultConfig = this.getDefaultConfig();
+
+                window.icons = {
+                    refresh: 'fa-refresh',
+                    columns: 'fa-th',
+                    paginationSwitchDown: 'fa-caret-square-o-down',
+                    paginationSwitchUp: 'fa-caret-square-o-up',
+                    detailOpen: 'fa-plus',
+                    detailClose: 'fa-minus'
+                };
+            }
+
+            queryObserver() {
+                if (this._rendered) {
+                    this.renderTable();
+                }
+            }
+
+            renderTable() {
+                debugger;
+                let _config = Object.assign(this.defaultConfig, this.config.grid);
+
+                this.from = 1;
+                this.to = Math.max(UtilsNew.isNotUndefinedOrNull(this.query.limit) ? this.query.limit : 0, _config.pageSize);
+
+                let urlQueryParams = this._getUrlQueryParams();
+                let queryParams = urlQueryParams.queryParams;
+                let _numTotal = -1;
+
+                let _this = this;
+                $(PolymerUtils.getElementById(this.prefix + "tableIndividual")).bootstrapTable('destroy');
+                $(PolymerUtils.getElementById(this.prefix + "tableIndividual")).bootstrapTable({
+                    url: urlQueryParams.host,
+                    columns: _this._getTableColumns(),
+                    method: 'get',
+                    sidePagination: 'server',
+
+                    // Set table properties, these are read from config property
+                    pagination: _config.pagination,
+                    pageSize: _config.pageSize,
+                    pageList: _config.pageList,
+
+                    queryParams: function (params) {
+                        if ((queryParams.limit === undefined || params.limit !== queryParams.limit) && UtilsNew.isNotUndefinedOrNull(params.limit)) {
+                            queryParams.limit = params.limit;
+                        }
+                        queryParams.skip = params.offset;
+                        return queryParams;
+                    },
+                    responseHandler: function (resp) {
+                        if (_numTotal === -1) {
+                            _numTotal = resp.response[0].numTotalResults;
+                        }
+                        // Format the number string with commas
+                        _this.numTotalResultsText = _numTotal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                        return {total: _numTotal, rows: resp.response[0].result}
+                    },
+                    onLoadSuccess: function (data) {
+                        if (UtilsNew.isUndefinedOrNull(_this.analysis)) {
+                            // The first time we mark as selected the first row
+                            let _table = $('#' + _this.prefix + 'tableIndividual');
+                            if (UtilsNew.isNotUndefinedOrNull(_table) && data.total > 0) {
+                                _table.bootstrapTable('check', 0);
+                            }
+                        } else {
+                            // _this.analysisObserver();
+                        }
+                    },
+                    onCheck: function (row, elem) {
+                        // _this.dispatchEvent(new CustomEvent("analysis-selected", {
+                        //     detail: row,
+                        //     bubbles: true,
+                        //     composed: true
+                        // }));
+                    },
+                    onPageChange: function (page, size) {
+                        _this.from = (page - 1) * size + 1;
+                        _this.to = page * size;
+                    }
+                });
+            }
+
+            _getUrlQueryParams() {
+                // Check the opencgaClient exists
+                if (UtilsNew.isUndefinedOrNull(this.opencgaClient)) {
+                    return {host: "", queryParams: {}};
+                }
+
+                let host = this.opencgaClient.getConfig().host;
+                // By default we assume https protocol instead of http
+                if (!host.startsWith("https://") && !host.startsWith("http://")) {
+                    host = 'https://' + this.opencgaClient.getConfig().host;
+                }
+
+                if (typeof this.opencgaSession.project !== "undefined" && typeof this.opencgaSession.study.alias !== "undefined") {
+                    if (typeof this.query === "undefined") {
+                        this.query = {};
+                    }
+                    if (UtilsNew.isEmpty(this.query.studies) || this.query.studies.split(new RegExp("[,;]")).length === 1) {
+                        this.query.study = this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias;
+                    }
+                    host += '/webservices/rest/v1/individuals/search';
+                } else {
+                    return {host: host, queryParams: {}};
+                }
+
+                // Init queryParams with default and config values plus query object
+                let queryParams = Object.assign(
+                    {
+                        sid: this.opencgaClient._config.sessionId,
+                        include: "id,name,sex,karyotypicSex,ethnicity,lifeStatus,affectationStatus,creationDate",
+                        skipCount: false
+                    }, this.query);
+
+                return {host: host, queryParams: queryParams};
+            }
+
+            individualObserver() {
+                if (UtilsNew.isNotUndefinedOrNull(this.analysis)) {
+                    $('#' + this.prefix + 'tableIndividual').bootstrapTable("checkBy", {
+                        field: "name",
+                        values: [this.analysis.name]
+                    })
+                } else {
+                    $('#' + this.prefix + 'tableIndividual').bootstrapTable('check', 0);
+                }
+            }
+
+            sampleFormatter(value, row, index) {
+                return row.subjects[0].samples[0].name;
+            }
+
+            subjectFormatter(value, row, index) {
+                return row.subjects[0].name;
+            }
+
+            diseaseFormatter(value, row, index) {
+                return row.disease.name;
+            }
+
+            dateFormatter(value, row, index) {
+                return moment(value, "YYYYMMDDHHmmss").format('D MMM YYYY');
+            }
+
+            ethnicityFormatter(value, row, index) {
+                debugger;
+                if (UtilsNew.isNotUndefinedOrNull(this.configValues) && UtilsNew.isNotUndefinedOrNull(this.configValues.ethnicity) && UtilsNew.isNotEmptyArray(this.configValues.ethnicity)) {
+
+                    let ethnicityExists =  this.configValues.ethnicity.find((eth) => {
+                        return eth.id == value;
+                    });
+
+                    if (UtilsNew.isNotUndefinedOrNull(ethnicityExists)) {
+                        return ethnicityExists.title;
+                    }
+                }
+
+                return "-"
+            }
+
+            _getTableColumns() {
+                return [
+                    [
+                        {   field: 'state',
+                            radio: true,
+                            align: 'center',
+                            valign: 'middle'
+                        },
+                        {
+                            title: 'Name',
+                            field: 'name'
+                        },
+                        {
+                            title: 'Sex',
+                            field: 'sex'
+                        },
+                        {
+                            title: 'Ethnicity',
+                            field: 'ethnicity',
+                            formatter: this.ethnicityFormatter.bind(this)
+                        },
+                        {
+                            title: 'Karyotypic Sex',
+                            field: 'karyotypicSex'
+                        },
+                        {
+                            title: 'Life Status',
+                            field: 'lifeStatus'
+                        },
+                        {
+                            title: 'Affectation Status',
+                            field: 'affectationStatus'
+                        },
+                        {
+                            title: 'Date',
+                            field: 'creationDate',
+                            formatter: this.dateFormatter
+                        }
+                    ]
+                ];
+            }
+            getDefaultConfig() {
+                return {pagination: true, pageSize: 10, pageList: [10,25]};
+            }
+        }
+
+        customElements.define(OpencgaIndividualGrid.is, OpencgaIndividualGrid);
+    </script>
+</dom-module>

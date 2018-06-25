@@ -114,7 +114,7 @@
                                 <label for="{{prefix}}LocationTextarea" class="col-label">Genomic Pos</label>
                                 <textarea id="{{prefix}}LocationTextarea" name="location" class="form-control clearable"
                                           rows="3" placeholder="3:444-55555,1:1-100000" value="{{regionValue::input}}"></textarea>
-                                <button id="{{prefix}}addMutation" type="button" on-click="addMutations" class="btn btn-primary variant-prioritization-view-buttons" style="margin-top: 1%;">
+                                <button id="{{prefix}}addMutation" type="button" on-click="addMutationsOnclick" class="btn btn-primary variant-prioritization-view-buttons" style="margin-top: 1%;">
                                     <i class="fa fa-floppy-o icon-padding" aria-hidden="true"></i> Add Genes
                                 </button>
                             </div>
@@ -143,7 +143,7 @@
                         </div>
                         <div class="col-md-8">
                             <div id="{{prefix}}PanelMutations" style="">
-                                <button id="{{prefix}}DeleteMutationsButton" style="margin-top: 2%;" class="btn btn-danger" on-click="deleteMutations">
+                                <button id="{{prefix}}DeleteMutationsButton" style="margin-top: 2%;" class="btn btn-danger" on-click="deleteMutationsOnclick">
                                     <i class="fa fa-times"></i>&nbsp;Delete
                                 </button>
                                 <table id="{{prefix}}PanelMutationsGrid" data-pagination="true" data-page-list="[10, 25, 50]"
@@ -535,6 +535,8 @@
                                     });
                                     if (UtilsNew.isUndefinedOrNull(existsGene)) {
                                         _this.genesPanelEditor.push(geneInfo);
+                                        let region = geneInfo.chromosome + ":"  + geneInfo.start + "-" + geneInfo.end;
+                                        _this.addMutations(region, geneInfo.name);
                                         _this.renderPanelTableGenes();
                                         _this.geneValue = "";
                                     }
@@ -546,43 +548,86 @@
 
             deleteGenes(e) {
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+                let _this = this;
                 let names = $.map($(PolymerUtils.getElementById(this.prefix + 'PanelGenesGrid')).bootstrapTable('getSelections'), function (row) {
                     return row.name;
+                });
+
+                let genesRow = $.map($(PolymerUtils.getElementById(this.prefix + 'PanelGenesGrid')).bootstrapTable('getSelections'), function (row) {
+                    return row;
                 });
 
                 $(PolymerUtils.getElementById(this.prefix + 'PanelGenesGrid')).bootstrapTable('remove', {
                     field: 'name',
                     values: names
                 });
+
+                genesRow.forEach((geneRow) => {
+                    this.deleteMutations([], geneRow.name);
+                });
             }
 
-            addMutations(e) {
-                console.log(this.geneValue);
-                let assembly = this.opencgaSession.project.organism.assembly;
+            addMutationsOnclick(e) {
+                // console.log(this.geneValue);
+                this.addMutations(this.regionValue);
+                this.regionValue = "";
+            }
+
+            addMutations(region, gene = null) {
                 let _this = this;
-                this.cellbaseClient.get('clinical', 'variant', null, 'search', {assembly: assembly, region: this.regionValue}, {})
+                let assembly = this.opencgaSession.project.organism.assembly;
+                this.cellbaseClient.get('clinical', 'variant', null, 'search', {assembly: assembly, region: region}, {})
                     .then(function (response) {
                         if (UtilsNew.isNotUndefinedOrNull(response.response) && response.response ) {
                             response.response[0].result.forEach((mutationResponse) => {
                                 let mutationInfo = mutationResponse;
-                                    _this.mutationsPanelEditor.push(mutationInfo);
+                                let existsMutation = _this.mutationsPanelEditor.find((mutationAdded) => {
+                                    return mutationAdded.mutation.chromosome + ":" + mutationAdded.mutation.start + "-" + mutationAdded.mutation.end === mutationInfo.chromosome + ":" + mutationInfo.start + "-" + mutationInfo.end;
+                                });
+                                if (UtilsNew.isUndefinedOrNull(existsMutation)) {
+                                    let mutation = {mutation: mutationInfo}
+                                    if (UtilsNew.isNotUndefinedOrNull(gene)) {
+                                        mutation.genes = [gene]
+                                    }
+
+                                    _this.mutationsPanelEditor.push(mutation);
                                     _this.renderPanelTableMutations();
-                                    _this.regionValue = "";
+                                }
                             });
                         }
                     });
             }
 
-            deleteMutations(e) {
+            deleteMutationsOnclick(e) {
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-                let names = $.map($(PolymerUtils.getElementById(this.prefix + 'PanelGenesGrid')).bootstrapTable('getSelections'), function (row) {
-                    return row.name;
+                let rows = $.map($(PolymerUtils.getElementById(this.prefix + 'PanelMutationsGrid')).bootstrapTable('getSelections'), function (row) {
+                    return row.mutation.chromosome + ":" + row.mutation.start + "-" + row.mutation.end;
                 });
+                this.deleteMutations(rows);
+            }
 
-                $(PolymerUtils.getElementById(this.prefix + 'PanelGenesGrid')).bootstrapTable('remove', {
-                    field: 'name',
-                    values: names
-                });
+            deleteMutations(ids, geneNameRemoved = null) {
+                if (UtilsNew.isNotUndefinedOrNull(geneNameRemoved)) {
+                    // Deleted mutation by gene which was added
+                    this.mutationsPanelEditor = this.mutationsPanelEditor.filter((mutation) => {
+                        let existGeneInMutation = undefined;
+                        if (UtilsNew.isNotUndefinedOrNull(mutation.genes) && UtilsNew.isNotEmptyArray(mutation.genes)) {
+                            existGeneInMutation = mutation.genes.find((geneName) => {
+                                return geneName === geneNameRemoved;
+                            });
+                        }
+                        return UtilsNew.isUndefinedOrNull(existGeneInMutation);
+                    });
+                } else {
+                    // Deleted mutation by chromosome:start-end
+                    this.mutationsPanelEditor = this.mutationsPanelEditor.filter((mutation) => {
+                        let existMutation = ids.find((mutationPos) => {
+                            return mutation.mutation.chromosome + ":" + mutation.mutation.start + "-" + mutation.mutation.end === mutationPos;
+                        });
+                        return UtilsNew.isUndefinedOrNull(existMutation);
+                    });
+                }
+                this.renderPanelTableMutations();
             }
 
             sourceFormatter(value, row, index) {
@@ -695,7 +740,7 @@
                         },
                         {
                             title: 'Chromosome',
-                            field: 'chromosome',
+                            field: 'mutation.chromosome',
                             // sortable: true,
                             colspan: 1,
                             rowspan: 1,
@@ -704,7 +749,7 @@
                         },
                         {
                             title: 'Start',
-                            field: 'start',
+                            field: 'mutation.start',
                             // sortable: true,
                             colspan: 1,
                             rowspan: 1,
@@ -713,7 +758,25 @@
                         },
                         {
                             title: 'End',
-                            field: 'end',
+                            field: 'mutation.end',
+                            // sortable: true,
+                            colspan: 1,
+                            rowspan: 1,
+                            halign: 'center',
+                            searchable: true
+                        },
+                        {
+                            title: 'Ref',
+                            field: 'mutation.reference',
+                            // sortable: true,
+                            colspan: 1,
+                            rowspan: 1,
+                            halign: 'center',
+                            searchable: true
+                        },
+                        {
+                            title: 'Alternate',
+                            field: 'mutation.alternate',
                             // sortable: true,
                             colspan: 1,
                             rowspan: 1,
