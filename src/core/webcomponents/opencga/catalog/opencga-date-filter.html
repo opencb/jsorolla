@@ -27,81 +27,156 @@
                 <br>
                 <input type="radio" name="selectionButtons" id="recentlyRadio" value="recently"
                        class$="{{prefix}}FilterRadio" on-change="calculateFilters" style="padding-left: 20px">
-                <span class$="{{prefix}}-text">Recent (last {{_config.recentDays}} days)</span>
-                <br>
+                <span class$="{{prefix}}-text">Recent</span>
+
+                <template is="dom-if" if="{{!activatedRecent}}">
+                    <br>
+                </template>
+                <div hidden="{{!activatedRecent}}">
+                    <form class="form-inline">
+                        <div class="form-group row" style="padding-left: 30px;">
+                            <span class$="{{prefix}}-text">Last</span>
+                            <select class$="form-control {{prefix}}SelectInput {{prefix}}-codeDis"
+                                    id="{{prefix}}RecentSelect" name="birthYear" required on-change="calculateFilters">
+                                <option value="1" selected$="{{matchesRecentDaysConfig(1)}}">1</option>
+                                <option value="2" selected$="{{matchesRecentDaysConfig(2)}}">2</option>
+                                <option value="3" selected$="{{matchesRecentDaysConfig(3)}}">3</option>
+                                <option value="4" selected$="{{matchesRecentDaysConfig(4)}}">4</option>
+                                <option value="5" selected$="{{matchesRecentDaysConfig(5)}}">5</option>
+                                <option value="6" selected$="{{matchesRecentDaysConfig(6)}}">6</option>
+                                <option value="7" selected$="{{matchesRecentDaysConfig(7)}}">7</option>
+                                <option value="8" selected$="{{matchesRecentDaysConfig(8)}}">8</option>
+                                <option value="9" selected$="{{matchesRecentDaysConfig(9)}}">9</option>
+                                <option value="10" selected$="{{matchesRecentDaysConfig(10)}}">10</option>
+                                <option value="11" selected$="{{matchesRecentDaysConfig(11)}}">11</option>
+                                <option value="12" selected$="{{matchesRecentDaysConfig(12)}}">12</option>
+                                <option value="13" selected$="{{matchesRecentDaysConfig(13)}}">13</option>
+                                <option value="14" selected$="{{matchesRecentDaysConfig(14)}}">14</option>
+                                <option value="15" selected$="{{matchesRecentDaysConfig(15)}}">15</option>
+                                <option value="16" selected$="{{matchesRecentDaysConfig(16)}}">16</option>
+                                <option value="17" selected$="{{matchesRecentDaysConfig(17)}}">17</option>
+                                <option value="18" selected$="{{matchesRecentDaysConfig(18)}}">18</option>
+                                <option value="19" selected$="{{matchesRecentDaysConfig(19)}}">19</option>
+                                <option value="20" selected$="{{matchesRecentDaysConfig(20)}}">20</option>
+                                <option value="21" selected$="{{matchesRecentDaysConfig(21)}}">21</option>
+                                <option value="22" selected$="{{matchesRecentDaysConfig(22)}}">22</option>
+                                <option value="23" selected$="{{matchesRecentDaysConfig(23)}}">23</option>
+                                <option value="24" selected$="{{matchesRecentDaysConfig(24)}}">24</option>
+                                <option value="25" selected$="{{matchesRecentDaysConfig(25)}}">25</option>
+                                <option value="26" selected$="{{matchesRecentDaysConfig(26)}}">26</option>
+                                <option value="27" selected$="{{matchesRecentDaysConfig(27)}}">27</option>
+                                <option value="28" selected$="{{matchesRecentDaysConfig(28)}}">28</option>
+                                <option value="29" selected$="{{matchesRecentDaysConfig(29)}}">29</option>
+                                <option value="30" selected$="{{matchesRecentDaysConfig(30)}}">30</option>
+                            </select>
+                            <span class$="{{prefix}}-text"> day(s)</span>
+                        </div>
+                    </form>
+                </div>
                 <input type="radio" name="selectionButtons" id="dateRadio" value="date"
                        class$="{{prefix}}FilterRadio" on-change="calculateFilters" style="padding-left: 20px">
+                <span class$="{{prefix}}-text">Date</span>
+
+                <template is="dom-if" if="{{!activatedDate}}">
+                    <br>
+                </template>
+                <div hidden="{{!activatedDate}}">
+                    <form class="form-inline">
+                        <div class="form-group row" style="padding-left: 30px;">
+                            <select class$="form-control {{prefix}}SelectInput {{prefix}}-codeDis"
+                                    id="{{prefix}}YearSelect" name="birthYear" required on-change="calculateFilters">
+                                <template is="dom-repeat" items="{{yearsToSearch}}">
+                                    <option value="{{item}}">{{item}}</option>
+                                </template>
+                            </select>
+
+                            <label style="padding: 0px 2px">-</label>
+                            <select class$="form-control {{prefix}}SelectInput {{prefix}}-codeDis"
+                                    id="{{prefix}}MonthSelect" name="birthYear" required on-change="calculateFilters">
+                                <option value="any">Any</option>
+                                <template is="dom-repeat" items="{{monthToSearch}}">
+                                    <option value="{{item}}">{{item}}</option>
+                                </template>
+                            </select>
+
+                            <label style="padding: 0px 2px">-</label>
+                            <select class$="form-control {{prefix}}SelectInput {{prefix}}-codeDis"
+                                    id="{{prefix}}DaySelect" name="birthYear" required on-change="calculateFilters">
+                                <option value="any">Any</option>
+                                <template is="dom-repeat" items="{{daysToSearch}}">
+                                    <option value="{{item}}">{{item}}</option>
+                                </template>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+
+                <input type="radio" name="selectionButtons" id="rangesRadio" value="range"
+                       class$="{{prefix}}FilterRadio" on-change="calculateFilters" style="padding-left: 20px">
                 <span class$="{{prefix}}-text">Range</span>
-            </form>
 
-            <!--<div class="form-group">-->
-            <!--<label class$="{{prefix}}-text">Begin periode</label>-->
-            <!--<input type="date" id="{{prefix}}-from" name="bday" max="3000-12-31" min="1000-01-01"-->
-            <!--class$="form-control {{prefix}}-codeDis" on-change="onDateChange" disabled>-->
+                <div hidden="{{!activatedRanges}}">
+                    <label class$="{{prefix}}-text" style="padding-left: 10px;">Begin periode</label>
+                    <form class="form-inline">
+                        <div class="form-group row" style="padding-left: 30px;">
+                            <select class$="form-control {{prefix}}SelectInput {{prefix}}-codeDis"
+                                    id="{{prefix}}YearSelectFrom" name="birthYear" required on-change="calculateFilters">
+                                <template is="dom-repeat" items="{{yearsToSearch}}">
+                                    <option value="{{item}}">{{item}}</option>
+                                </template>
+                            </select>
 
-            <!--<label class$="{{prefix}}-text">End periode</label>-->
-            <!--<input type="date" id="{{prefix}}-to" name="bday" max="3000-12-31" min="1000-01-01"-->
-            <!--class$="form-control {{prefix}}-codeDis" on-change="onDateChange" disabled>-->
-            <!--</div>-->
+                            <label style="padding: 0px 2px">-</label>
+                            <select class$="form-control {{prefix}}SelectInput {{prefix}}-codeDis"
+                                    id="{{prefix}}MonthSelectFrom" name="birthYear" required on-change="calculateFilters">
+                                <option value="any">Any</option>
+                                <template is="dom-repeat" items="{{monthToSearch}}">
+                                    <option value="{{item}}">{{item}}</option>
+                                </template>
+                            </select>
 
-            <label class$="{{prefix}}-text">Begin periode</label>
-            <form class="form-inline">
-                <div class="form-group row" style="padding-left: 15px;">
-                    <select class$="form-control {{prefix}}SelectInput {{prefix}}-codeDis"
-                            id="{{prefix}}YearSelectFrom" name="birthYear" required on-change="calculateFilters" disabled>
-                        <template is="dom-repeat" items="{{yearsToSearch}}">
-                            <option value="{{item}}">{{item}}</option>
-                        </template>
-                    </select>
+                            <label style="padding: 0px 2px">-</label>
+                            <select class$="form-control {{prefix}}SelectInput {{prefix}}-codeDis"
+                                    id="{{prefix}}DaySelectFrom" name="birthYear" required on-change="calculateFilters">
+                                <option value="any">Any</option>
+                                <template is="dom-repeat" items="{{daysToSearch}}">
+                                    <option value="{{item}}">{{item}}</option>
+                                </template>
+                            </select>
+                        </div>
+                    </form>
 
-                    <label style="padding: 0px 2px">-</label>
-                    <select class$="form-control {{prefix}}SelectInput {{prefix}}-codeDis"
-                            id="{{prefix}}MonthSelectFrom" name="birthYear" required on-change="calculateFilters" disabled>
-                        <option value="any">Any</option>
-                        <template is="dom-repeat" items="{{monthToSearch}}">
-                            <option value="{{item}}">{{item}}</option>
-                        </template>
-                    </select>
+                    <label class$="{{prefix}}-text" style="padding-left: 10px;">End periode</label>
+                    <form class="form-inline">
+                        <div class="form-group row" style="padding-left: 30px;">
+                            <select class$="form-control {{prefix}}SelectInput {{prefix}}-codeDis"
+                                    id="{{prefix}}YearSelectTo" name="birthYear" required on-change="calculateFilters">
+                                <template is="dom-repeat" items="{{yearsToSearch}}">
+                                    <option value="{{item}}">{{item}}</option>
+                                </template>
+                            </select>
 
-                    <label style="padding: 0px 2px">-</label>
-                    <select class$="form-control {{prefix}}SelectInput {{prefix}}-codeDis"
-                            id="{{prefix}}DaySelectFrom" name="birthYear" required on-change="calculateFilters" disabled>
-                        <option value="any">Any</option>
-                        <template is="dom-repeat" items="{{daysToSearch}}">
-                            <option value="{{item}}">{{item}}</option>
-                        </template>
-                    </select>
+                            <label style="padding: 0px 2px">-</label>
+                            <select class$="form-control {{prefix}}SelectInput {{prefix}}-codeDis"
+                                    id="{{prefix}}MonthSelectTo" name="birthYear" required on-change="calculateFilters">
+                                <option value="any">Any</option>
+                                <template is="dom-repeat" items="{{monthToSearch}}">
+                                    <option value="{{item}}">{{item}}</option>
+                                </template>
+                            </select>
+
+                            <label style="padding: 0px 2px">-</label>
+                            <select class$="form-control {{prefix}}SelectInput {{prefix}}-codeDis"
+                                    id="{{prefix}}DaySelectTo" name="birthYear" required on-change="calculateFilters">
+                                <option value="any">Any</option>
+                                <template is="dom-repeat" items="{{daysToSearch}}">
+                                    <option value="{{item}}">{{item}}</option>
+                                </template>
+                            </select>
+                        </div>
+                    </form>
                 </div>
-            </form>
 
-            <label class$="{{prefix}}-text">End periode</label>
-            <form class="form-inline">
-                <div class="form-group row" style="padding-left: 15px;">
-                    <select class$="form-control {{prefix}}SelectInput {{prefix}}-codeDis"
-                            id="{{prefix}}YearSelectTo" name="birthYear" required on-change="calculateFilters" disabled>
-                        <template is="dom-repeat" items="{{yearsToSearch}}">
-                            <option value="{{item}}">{{item}}</option>
-                        </template>
-                    </select>
-
-                    <label style="padding: 0px 2px">-</label>
-                    <select class$="form-control {{prefix}}SelectInput {{prefix}}-codeDis"
-                            id="{{prefix}}MonthSelectTo" name="birthYear" required on-change="calculateFilters" disabled>
-                        <option value="any">Any</option>
-                        <template is="dom-repeat" items="{{monthToSearch}}">
-                            <option value="{{item}}">{{item}}</option>
-                        </template>
-                    </select>
-
-                    <label style="padding: 0px 2px">-</label>
-                    <select class$="form-control {{prefix}}SelectInput {{prefix}}-codeDis"
-                            id="{{prefix}}DaySelectTo" name="birthYear" required on-change="calculateFilters" disabled>
-                        <option value="any">Any</option>
-                        <template is="dom-repeat" items="{{daysToSearch}}">
-                            <option value="{{item}}">{{item}}</option>
-                        </template>
-                    </select>
-                </div>
             </form>
         </div>
 
@@ -125,7 +200,8 @@
             static get properties() {
                 return {
                     config: {
-                        type: Object
+                        type: Object,
+                        observer: "configObserver"
                     }
                 }
             }
@@ -137,13 +213,20 @@
             _init() {
                 // super.ready();
                 this.prefix = "odf-" + Utils.randomString(6);
+                this._config = this.getDefaultConfig();
+
+                this.activatedRanges = false;
+                this.activatedDate = false;
+                this.activatedRecent = false;
             }
 
-            connectedCallback() {
+            configObserver() {
                 let config = {};
                 Object.assign(config, this.getDefaultConfig(), this.config);
                 this._config = config;
+            }
 
+            connectedCallback() {
                 let _years = [];
                 let fullDate = new Date();
                 let limitYear = fullDate.getFullYear();
@@ -180,10 +263,13 @@
                 let date = "";
                 switch (dateOption) {
                     case "recently":
+                        this.activatedRanges = false;
+                        this.activatedDate = false;
+                        this.activatedRecent = true;
 
                         // Last x days
                         let da = new Date();
-                        da.setDate(da.getDate() - this._config.recentDays);
+                        da.setDate(da.getDate() - PolymerUtils.querySelector(`#${this.prefix}RecentSelect`).value);
                         // If the month and day have one digit we add 0 before
                         let m = da.getMonth() + 1;
                         if (m < 10) {
@@ -194,16 +280,28 @@
                             d = "0" + d;
                         }
 
-                        date = `>${da.getFullYear()}${m}${d}`;
-                        PolymerUtils.setAttributeByClassName(`${this.prefix}-codeDis`,'disabled', 'true');
+                        date = `>=${da.getFullYear()}${m}${d}`;
                         break;
                     case "date":
+                        this.activatedRanges = false;
+                        this.activatedDate = true;
+                        this.activatedRecent = false;
+
                         date = this._getDateFilter();
-                        PolymerUtils.removeAttributebyclass(`${this.prefix}-codeDis`,'disabled');
+                        break;
+                    case "range":
+                        this.activatedRanges = true;
+                        this.activatedDate = false;
+                        this.activatedRecent = false;
+
+                        date = this._getRangeFilter();
                         break;
                     case "all":
                     default:
-                        PolymerUtils.setAttributeByClassName(`${this.prefix}-codeDis`,'disabled', 'true');
+                        this.activatedRanges = false;
+                        this.activatedDate = false;
+                        this.activatedRecent = false;
+
                         break;
                 }
 
@@ -211,12 +309,34 @@
             }
 
             _getDateFilter() {
+                let year = PolymerUtils.getElementById(this.prefix + "YearSelect").value;
+                let month =  PolymerUtils.getElementById(this.prefix + "MonthSelect").value;
+                let day =  PolymerUtils.getElementById(this.prefix + "DaySelect").value;
+                if (month === "any") {
+                    month = "";
+                    day = "";
+                } else {
+                    let monthIndex = this.monthToSearch.indexOf(month) + 1;
+                    month = monthIndex < 10 ? `0${monthIndex}` : monthIndex;
+
+                    if (day === "any") {
+                        day = "";
+                    } else if (day < 10) {
+                        day = `0${day}`;
+                    }
+                }
+
+                return `${year}${month}${day}`;
+            }
+
+            _getRangeFilter() {
                 let from = this._getFromDate();
                 let to = this._getToDate();
 
                 if (to > from) {
                     return `${from}-${to}`;
                 }
+                return "";
             }
 
             _getFromDate() {
@@ -234,21 +354,7 @@
                 } else if (day < 10) {
                     day = `0${day}`;
                 }
-                return `${year}${month}${day}0000`;
-                //     let monthIndex = this.monthToSearch.indexOf(month) + 1;
-                //     if (monthIndex < 10) {
-                //         monthIndex = "0" + monthIndex;
-                //     }
-                //     if (day === "any") {
-                //         date = "~^" + year + monthIndex + "*";
-                //     } else {
-                //         if (day < 10) {
-                //             day = "0" + day;
-                //         }
-                //         date = "~^" + year + monthIndex + day + "*";
-                //     }
-                // }
-                // return date;
+                return `${year}${month}${day}`;
             }
 
             _getToDate() {
@@ -266,7 +372,7 @@
                 } else if (day < 10) {
                     day = `0${day}`;
                 }
-                return `${year}${month}${day}2359`;
+                return `${year}${month}${day}`;
                 //     let monthIndex = this.monthToSearch.indexOf(month) + 1;
                 //     if (monthIndex < 10) {
                 //         monthIndex = "0" + monthIndex;
@@ -307,6 +413,12 @@
                     && (parseInt(PolymerUtils.querySelectorAll("option:selected", currentElement).textContent) > parseInt(PolymerUtils.querySelectorAll("option:selected", pairElement).textContent))) { // Year of birth cannot be lower than Year of test
                     PolymerUtils.innerHTML(this.prefix + "_errorDiv_" + divSuffix, message);
                 }
+            }
+
+            matchesRecentDaysConfig(day) {
+                // Because the config might not have changed yet...
+                this.configObserver();
+                return day === this._config.recentDays;
             }
 
             /**
