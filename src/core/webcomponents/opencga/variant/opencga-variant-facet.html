@@ -336,7 +336,8 @@
             static get properties() {
                 return {
                     opencgaSession: {
-                        type: Object
+                        type: Object,
+                        observer: "opencgaSessionObserver"
                     },
                     opencgaClient: {
                         type: Object
@@ -360,10 +361,10 @@
                         type: Object,
                         observer: 'fetchVariants'
                     },
-                    checkProjects: {
-                        type: Boolean,
-                        computed: '_checkProjects()'
-                    },
+                    // checkProjects: {
+                    //     type: Boolean,
+                    //     computed: '_checkProjects()'
+                    // },
                     config: {
                         type: Object
                     }
@@ -376,6 +377,8 @@
 
             _init() {
                 this.prefix = "facet" + Utils.randomString(6);
+
+                this.checkProjects = false;
 
                 this.activeFilterAlias = {
                     "annot-xref": "XRef",
@@ -401,6 +404,28 @@
                 this._showInitMessage = true;
             }
 
+            opencgaSessionObserver() {
+                // debugger
+                if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.project)) {
+                    // Update cohorts from config, this updates the Cohort filter MAF
+                    for (let section of this.config.filter.menu.sections) {
+                        for (let subsection of section.subsections) {
+                            if (subsection.id === "cohort") {
+                                let projectFields = this.opencgaSession.project.alias.split("@");
+                                let projectId = (projectFields.length > 1) ? projectFields[1] : projectFields[0];
+                                this.cohorts = subsection.cohorts[projectId];
+                                // this.set('cohorts', subsection.cohorts[projectId]);
+                                // debugger
+                            }
+                        }
+                    }
+
+                    this.checkProjects = true;
+                } else {
+                    this.checkProjects = false;
+                }
+            }
+
             onClear() {
                 this.query = {};
                 this.search = {};
@@ -411,12 +436,12 @@
                 this.search = e.detail;
             }
 
-            _checkProjects() {
-                if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.projects)) {
-                    return this.opencgaSession.projects.length !== 0;
-                }
-                return false;
-            }
+            // _checkProjects() {
+            //     if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.projects)) {
+            //         return this.opencgaSession.projects.length !== 0;
+            //     }
+            //     return false;
+            // }
 
             addFacets() {
                 // Facets
