@@ -143,7 +143,8 @@
                         value: false
                     },
                     config: {
-                        type: Object
+                        type: Object,
+                        observer: "configObserver"
                     }
                 }
             }
@@ -178,12 +179,17 @@
 
                 this.analysisMode = "family";
 
-                this.defaultConfig = {
-                    pagination: true,
-                    pageSize: 10,
-                    pageList: [10, 25, 50],
-                    showExport: false
-                };
+                // this.defaultConfig = {
+                //     pagination: true,
+                //     pageSize: 10,
+                //     pageList: [10, 25, 50],
+                //     showExport: false
+                // };
+                this._config = this.getDefaultConfig();
+            }
+
+            configObserver() {
+                this._config = Object.assign(this.getDefaultConfig(), this.config);
             }
 
             assignColors() {
@@ -219,7 +225,7 @@
             }
 
             renderVariantTable() {
-                let _config = Object.assign(this.defaultConfig, this.config.grid);
+                // let _config = Object.assign(this.getDefaultConfig(), this.config.grid);
 
                 this.variant = ""; // Empty the variant every time the grid is loaded
 
@@ -228,26 +234,27 @@
                 this.approximateCountResult = false;
 
                 let _table = $('#' + this.prefix + 'VariantBrowserGrid');
-                let _this = this;
+
                 if (typeof this.opencgaClient !== "undefined" && this.opencgaClient instanceof OpenCGAClient && typeof
                     this.opencgaSession.project !== "undefined" && typeof this.opencgaSession.study !== "undefined" && typeof this.opencgaSession.study.alias !== "undefined") {
 
                     let urlQueryParams = this._getUrlQueryParams();
                     let queryParams = urlQueryParams.queryParams;
                     let _numTotal = -1;
-                    $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('destroy');
-                    $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable({
+                    let _this = this;
+                    $('#' + this.prefix + 'VariantBrowserGrid').bootstrapTable('destroy');
+                    $('#' + this.prefix + 'VariantBrowserGrid').bootstrapTable({
                         url: urlQueryParams.host,
                         columns: _this.cols,
                         method: 'get',
                         sidePagination: 'server',
 
                         // Set table properties, these are read from config property
-                        pagination: _config.pagination,
-                        pageSize: _config.pageSize,
-                        pageList: _config.pageList,
-                        showExport: _config.showExport,
-                        detailView: _config.detailView,
+                        pagination: _this._config.pagination,
+                        pageSize: _this._config.pageSize,
+                        pageList: _this._config.pageList,
+                        showExport: _this._config.showExport,
+                        detailView: _this._config.detailView,
 
                         queryParams: function (params) {
                             queryParams.limit = params.limit;
@@ -503,6 +510,9 @@
             variantFormatter(value, row, index) {
                 let ref = (row.reference !== "") ? row.reference : "-";
                 let alt = (row.alternate !== "") ? row.alternate : "-";
+
+                ref = (ref.length > this.field.context._config.alleleStringLengthMax) ? ref.substring(0, this.field.context._config.alleleStringLengthMax - 3) + "..." : ref;
+                alt = (alt.length > this.field.context._config.alleleStringLengthMax) ? alt.substring(0, this.field.context._config.alleleStringLengthMax - 3) + "..." : alt;
 
                 let id = row.id;
                 if (typeof row.annotation !== "undefined" && typeof row.annotation.xrefs !== "undefined" && row.annotation.xrefs.length > 0) {
@@ -1329,6 +1339,17 @@
                 }).on("show.bs.popover", function () {
                     $(this).data("bs.popover").tip().css("max-width", "none");
                 });
+            }
+
+            getDefaultConfig() {
+                return {
+                    pagination: true,
+                    pageSize: 10,
+                    pageList: [10, 25, 50],
+                    showExport: false,
+
+                    alleleStringLengthMax: 10
+                }
             }
         }
 
