@@ -182,15 +182,15 @@
                             <div class="browser-subsection">Somatic
                             </div>
                             <form id="{{prefix}}-somatic" class="subsection-content form-group">
-                                <input id="{{prefix}}-somatic-option-none" class="form-group-sm"
+                                <input id="{{prefix}}-somatic-option-none" class$="form-group-sm {{prefix}}FilterRadio"
                                        type="radio" name="{{prefix}}-somatic-options" value="None" on-click="calculateFilters" checked>
                                     <span class="small">None</span>
                                 <br>
-                                <input id="{{prefix}}-somatic-option-yes" class="form-group-sm"
+                                <input id="{{prefix}}-somatic-option-true" class$="form-group-sm {{prefix}}FilterRadio"
                                        type="radio" name="{{prefix}}-somatic-options" value="True" on-click="calculateFilters">
                                     <span class="small">True</span>
                                 <br>
-                                <input id="{{prefix}}-somatic-option-no" class="form-group-sm"
+                                <input id="{{prefix}}-somatic-option-false" class$="form-group-sm {{prefix}}FilterRadio"
                                        type="radio" name="{{prefix}}-somatic-options" value="False" on-click="calculateFilters">
                                     <span class="small">False</span>
                             </form>
@@ -207,64 +207,9 @@
                             </div>
                         </div>
 
-                        <!--&lt;!&ndash;<div class="form-group">&ndash;&gt;-->
-                            <!--&lt;!&ndash;<label class="label-opencga-sample-filter">Sample name</label>&ndash;&gt;-->
-                            <!--&lt;!&ndash;<input type="text" id="{{prefix}}SampleName" class$="form-control {{prefix}}FilterTextInput"&ndash;&gt;-->
-                                   <!--&lt;!&ndash;placeholder="HG01879, HG01880, HG01881..." on-keyup="calculateFilters">&ndash;&gt;-->
-                        <!--&lt;!&ndash;</div>&ndash;&gt;-->
-
-                        <!--<div class="form-group">-->
-
-                            <!--&lt;!&ndash;<opencga-date-filter></opencga-date-filter>&ndash;&gt;-->
-
-                            <!--<label class="label-opencga-sample-filter">Patient Filters</label>-->
-                            <!--<br>-->
-                            <!--&lt;!&ndash;<input type="checkbox" name="selectionButtons" id="controls" value="controls"&ndash;&gt;-->
-                            <!--&lt;!&ndash;class$="{{prefix}}FilterRadio" on-change="calculateFilters"&ndash;&gt;-->
-                            <!--&lt;!&ndash;style="padding-left: 20px"> Controls&ndash;&gt;-->
-                            <!--<span style="padding-top: 10px">Individual ID</span>-->
-                            <!--<input type="text" id="{{prefix}}PatientName" class$="form-control {{prefix}}FilterTextInput"-->
-                                   <!--placeholder="Smith, Grant ..." on-keyup="calculateFilters">-->
-
-                            <!--<span style="padding-top: 10px">HPO</span>-->
-                            <!--<input type="text" id="{{prefix}}PatientHpo" class$="form-control {{prefix}}FilterTextInput"-->
-                                   <!--placeholder="HP:000145" on-keyup="calculateFilters">-->
-
-                            <!--<span style="padding-top: 10px">Diagnosis</span>-->
-                            <!--<input type="text" id="{{prefix}}PatientDiagnosis" class$="form-control {{prefix}}FilterTextInput"-->
-                                   <!--placeholder="Smith, Grant ..." on-keyup="calculateFilters">-->
-                        <!--</div>-->
                     </div>
                 </div>
             </div>
-
-            <!--&lt;!&ndash; Sample characteristics &ndash;&gt;-->
-            <!--<div class="panel panel-default">-->
-                <!--<div class="panel-heading" role="tab" id="{{prefix}}SampleGeneralFilterHeading">-->
-                    <!--<h4 class="panel-title">-->
-                        <!--<a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"-->
-                           <!--href="#{{prefix}}SampleGeneralFilter" aria-expanded="true"-->
-                           <!--aria-controls="{{prefix}}SampleGeneralFilter">-->
-                            <!--Sample Characteristics-->
-                            <!--<div style="float: right" class="tooltip-div">-->
-                                <!--<a data-toggle="tooltip" title="Generic sample filters">-->
-                                    <!--<i class="fa fa-info-circle" aria-hidden="true"></i>-->
-                                <!--</a>-->
-                            <!--</div>-->
-                        <!--</a>-->
-                    <!--</h4>-->
-                <!--</div>-->
-                <!--<div id="{{prefix}}SampleGeneralFilter" class="panel-collapse collapse in" role="tabpanel"-->
-                     <!--aria-labelledby="{{prefix}}SampleGeneralFilterHeading">-->
-
-                    <!--<div class="panel-body">-->
-                        <!--<opencga-annotation-filter opencga-session="{{opencgaSession}}"-->
-                                                   <!--opencga-client="{{opencgaClient}}"-->
-                                                   <!--on-filterannotation="addAnnotation">-->
-                        <!--</opencga-annotation-filter>-->
-                    <!--</div>-->
-                <!--</div>-->
-            <!--</div>-->
 
         </div>
 
@@ -289,7 +234,6 @@
                 return {
                     opencgaSession: {
                         type: Object
-                        // observer: "updateVariableSets"
                     },
                     opencgaClient: {
                         type: Object
@@ -335,31 +279,6 @@
             _init() {
                 // super.ready();
                 this.prefix = "osf-" + Utils.randomString(6);
-
-                let _years = [];
-                let fullDate = new Date();
-                let limitYear = fullDate.getFullYear();
-                for (let year = this.minYear; year <= limitYear; year++) {
-                    _years.push(year);
-                }
-                // This change triggers the polymer dom-repeat
-                this.years = _years;
-
-
-                // Init arrays for Date selector
-                let _yearsToSearch = [];
-                for (let year = limitYear, i = 0; i < 5; year--, i++) {
-                    _yearsToSearch.push(year);
-                }
-                this.yearsToSearch = _yearsToSearch;
-
-                this.monthToSearch = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-                let _days = [];
-                for (let i = 1; i <= 31; i++) {
-                    _days.push(i);
-                }
-                this.daysToSearch = _days;
 
                 this.annotationFilterConfig = {
                     class: "small",
@@ -412,7 +331,7 @@
 
             onQueryUpdate() {
                 if (this._reset) {
-                    console.log("onQueryUpdate: calling to 'renderQueryFilters()'")
+                    console.log("onQueryUpdate: calling to 'renderQueryFilters()'");
                     this.renderQueryFilters();
                 } else {
                     this._reset = true;
@@ -423,11 +342,26 @@
                 // Empty everything before rendering
                 this._clearHtmlDom();
 
-                this._checkAnnotations();
-
                 // Sample
                 if (UtilsNew.isNotUndefined(this.query.name)) {
-                    PolymerUtils.setValue(this.prefix + "SampleName", this.query.name);
+                    PolymerUtils.setValue(`${this.prefix}-sample-input`, this.query.name);
+                }
+
+                // Individual
+                if (UtilsNew.isNotUndefined(this.query.individual)) {
+                    PolymerUtils.setValue(`${this.prefix}-individual-input`, this.query.individual);
+                }
+
+                // Phenotypes
+                if (UtilsNew.isNotUndefined(this.query.phenotypes)) {
+                    PolymerUtils.setValue(`${this.prefix}-phenotypes-input`, this.query.phenotypes);
+                }
+
+                // Somatic checkbox
+                if (UtilsNew.isNotUndefined(this.query.somatic)) {
+                    PolymerUtils.setPropertyById(`${this.prefix}-somatic-option-${this.query.somatic}`, 'checked', true);
+                } else {
+                    PolymerUtils.setPropertyById(`${this.prefix}-somatic-option-none`, 'checked', true);
                 }
             }
 
@@ -470,228 +404,6 @@
                 this._reset = true;
             }
 
-            addAnnotationFilter(e) {
-                let _query = {};
-                let annotations = [];
-                let annotationTextInputElements = PolymerUtils.getElementsByClassName(this.prefix + "AnnotationTextInput");
-                for (let annot of annotationTextInputElements) {
-                    if (annot.value !== "") {
-                        annotations.push(annot.dataset.variableName + "=" + annot.value)
-                    }
-                }
-
-                annotationTextInputElements = PolymerUtils.getElementsByClassName(this.prefix + "AnnotationSelect");
-                for (let annot of annotationTextInputElements) {
-                    if (annot.value !== "") {
-                        annotations.push(annot.dataset.variableName + "=" + annot.value)
-                    }
-                }
-
-                _query.annotation = annotations.join(",");
-
-                this._reset = false;
-                this.set("query", _query);
-                this._reset = true;
-            }
-
-            _getDateFilter(e) {
-                let year = PolymerUtils.getElementById(this.prefix + "YearSelect").value;
-                let month =  PolymerUtils.getElementById(this.prefix + "MonthSelect").value;
-                let day =  PolymerUtils.getElementById(this.prefix + "DaySelect").value;
-                let date;
-                if (month === "any") {
-                    date = "~^" + year + "*";
-                } else {
-                    let monthIndex = this.monthToSearch.indexOf(month) + 1;
-                    if (monthIndex < 10) {
-                        monthIndex = "0" + monthIndex;
-                    }
-                    if (day === "any") {
-                        date = "~^" + year + monthIndex + "*";
-                    } else {
-                        if (day < 10) {
-                            day = "0" + day;
-                        }
-                        date = "~^" + year + monthIndex + day + "*";
-                    }
-                }
-                return date;
-            }
-
-            updateVariableSets() {
-                this.variables = [];
-                let _this = this;
-                this.opencgaClient.studies().info(this.opencgaSession.study.id, {include: "variableSets"})
-                    .then(function (response) {
-                        _this.variableSets = response.response[0].result[0].variableSets;
-                        // debugger
-                        if (_this.variableSets.length > 0) {
-                            _this.variables = _this.variableSets[0].variables; // setting first one by default
-                            _this.filteredVariables = {
-                                variableSet: _this.variableSets[0].id,
-                                variables: []
-                            };
-                        } else {
-                            // _this.variableSets = [{name: "none"}];
-                            _this.variableSets = [];
-                        }
-                    })
-                    .catch(function () {
-                        console.log("Could not obtain the variable sets of the study " + _this.opencgaSession.study);
-                    });
-            }
-
-            renderVariableTemplate() {
-                let myTemplate = PolymerUtils.getElementById(this.prefix + 'VariableTemplate');
-                if (UtilsNew.isNotNull(myTemplate)) {
-                    myTemplate.render();
-                }
-            }
-
-            variableSelected(e) {
-                this.variable = e.target.dataVariable;
-                if (UtilsNew.isUndefined(this.variable) || Object.getOwnPropertyNames(this.variable).length === 0) {
-                    return;
-                }
-                this._isCategorical = false;
-                this._isText = false;
-                this._isNumerical = false;
-                this._isBoolean = false;
-                this._isObject = false;
-                if (this.variable.type.toLowerCase() === "categorical") {
-                    this._isCategorical = true;
-                } else if (this.variable.type.toLowerCase() === "text") {
-                    this._isText = true;
-                } else if (this.variable.type.toLowerCase() === "numeric") {
-                    this._isNumerical = true;
-                } else if (this.variable.type.toLowerCase() === "boolean") {
-                    this._isBoolean = true;
-                } else if (this.variable.type.toLowerCase() === "object") {
-                    this._isObject = true;
-                }
-                //TODO Refactor
-                $(e.target.dataTarget).modal('show');
-            }
-
-            updateCompactFilter(e) {
-                let myFilter = {};
-                if (this.variable.type.toLowerCase() === "categorical") {
-                    let allValues = [];
-                    //TODO Refactor
-                    let selected = $("input[name='" + this.prefix + "Categorical']:checked");
-                    for (let i = 0; i < selected.length; i++) {
-                        allValues.push(selected[i].value);
-                    }
-                    myFilter = {
-                        name: this.variable.name,
-                        value: allValues.join()
-                    };
-                } else if (this.variable.type.toLowerCase() === "text") {
-                    //TODO Refactor
-                    let value = $("input[name='" + this.prefix + "Text']");
-                    myFilter = {
-                        name: this.variable.name,
-                        value: value.value
-                    };
-                    value.value = "";
-                } else if (this.variable.type.toLowerCase() === "numeric") {
-                    //TODO Refactor
-                    let value = $("input[name='" + this.prefix + "Numerical']");
-                    myFilter = {
-                        name: this.variable.name,
-                        value: value.value
-                    };
-                    value.value = "";
-                } else if (this.variable.type.toLowerCase() === "boolean") {
-                    this._isBoolean = true;
-                } else if (this.variable.type.toLowerCase() === "object") {
-                    this._isObject = true;
-                }
-                this.query[myFilter.name] = myFilter.value;
-                this.query = Object.assign({}, this.query);
-                this.fire('opencga-filter-added', myFilter);
-            }
-
-            variablesChanged() {
-                this._areVariablesEmpty = (this.variables.length === 0);
-            }
-
-            checkVarType(myVar, type) {
-                return (myVar.type === type);
-            }
-
-            checkCatType(myVar, type, lowerLimit, upperLimit) {
-                return (myVar.type === type && myVar.allowedValues.length >= lowerLimit && myVar.allowedValues.length < upperLimit);
-            }
-
-            checkYears(e) {
-                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-                PolymerUtils.innerHTML(this.prefix + '_errorDiv_birthYear', '');
-                PolymerUtils.innerHTML(this.prefix + '_errorDiv_testYear', '');
-                let currentElement =  PolymerUtils.getElementById(e.target.id);
-                let identifier = e.target.id;
-                let pairElement = '';
-                let divSuffix = '';
-                let message = '';
-                if (identifier.search('birthYear') !== -1) { // Birth year element raises the event -> check Test year
-                    pairElement =  PolymerUtils.getElementById(this.prefix + "testYear");
-                    divSuffix = "birthYear";
-                    message = "Year of Birth must be prior to year of Test";
-                } else { // Year of test element raises the event -> swap elements and check the birth year
-                    currentElement =  PolymerUtils.getElementById(this.prefix + "birthYear");
-                    pairElement =  PolymerUtils.getElementById(e.target.id);
-                    divSuffix = "testYear";
-                    message = "Year of Test must be posterior to year of Birth";
-                }
-
-                if (PolymerUtils.querySelectorAll("option:selected",pairElement) !== ""
-                    && (parseInt(PolymerUtils.querySelectorAll("option:selected", currentElement).textContent) > parseInt(PolymerUtils.querySelectorAll("option:selected", pairElement).textContent))) { // Year of birth cannot be lower than Year of test
-                    PolymerUtils.innerHTML(this.prefix + "_errorDiv_" + divSuffix, message);
-                }
-            }
-
-            checkType(str1, str2) {
-                return str1.search(str2) !== -1;
-            }
-
-            _filterVariable(variable) {
-                for (let i = 0; i < this.filteredVariables.variables.length; i++) {
-                    if (variable.name === this.filteredVariables.variables[i].name) {
-                        return false;
-                    }
-                }
-                if (UtilsNew.isNotUndefined(this.searchVariable)
-                    && variable.name.toLowerCase().indexOf(this.searchVariable.toLowerCase()) === -1) {
-                    return false;
-                }
-                return true;
-            }
-
-            _sortVariables(a, b) {
-                if (a.rank < b.rank) {
-                    return -1;
-                }
-                return 1;
-            }
-
-            _changeMode(e) {
-                this.compact = !this.compact;
-            }
-
-            _checkAnnotations() {
-                if (typeof this._annotationFilter !== "undefined") {
-                    let annotations = this.query["annotation"];
-                    this._annotationFilter = {};
-                    if (typeof annotations !== "undefined") {
-                        let splitAnnotations = annotations.split(";");
-                        for (let i in splitAnnotations) {
-                            let splitAnnotation = splitAnnotations[i].split("=");
-                            this._annotationFilter[splitAnnotation[0]] = splitAnnotation[1];
-                        }
-                    }
-                }
-            }
-
             /**
              * Use custom CSS class to easily reset all controls.
              */
@@ -705,25 +417,11 @@
                 PolymerUtils.setAttributeByClassName(this.prefix + "FilterSelect", 'selectedIndex', 0);
                 PolymerUtils.removeAttributebyclass(this.prefix + "FilterSelect", 'disabled');
                 PolymerUtils.setPropertyByClassName(this.prefix + "FilterRadio", 'checked', false);
-                PolymerUtils.setAttributeByClassName(this.prefix + "FilterRadio", 'disabled', true);
 
-                //TODO Refactor
-                $("." + this.prefix + "FilterRadio").filter('[value="or"]').prop('checked', true);
+                // TODO Refactor
+                // $("." + this.prefix + "FilterRadio").filter('[value="or"]').prop('checked', true);
             }
 
-            isVisible(myVar) {
-                if (UtilsNew.isNotUndefinedOrNull(this.config) && UtilsNew.isNotUndefinedOrNull(this.config.variableSet)) {
-                    let excludeArray = this.config.variableSet.exclude;
-                    for (let index in excludeArray) {
-                        if (excludeArray[index].webComponent === this.localName) {
-                            return (!(excludeArray[index].variable.indexOf(myVar.name)!== -1));
-                        } else {
-                            return true;
-                        }
-                    }
-                }
-                return true;
-            }
         }
 
         customElements.define(OpencgaSampleFilter.is, OpencgaSampleFilter);

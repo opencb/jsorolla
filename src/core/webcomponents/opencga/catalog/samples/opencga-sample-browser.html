@@ -33,19 +33,19 @@
 
         <div class="row" style="padding: 0px 5px">
             <div class="col-md-2">
-                <opencga-sample-filter opencga-session="{{opencgaSession}}" config="{{_config}}" samples="{{samples}}"
+                <opencga-sample-filter opencga-session="{{opencgaSession}}" config="{{_config.filter}}" samples="{{samples}}"
                                        opencga-client="{{opencgaSession.opencgaClient}}" query="{{query}}" search="{{search}}">
                 </opencga-sample-filter>
             </div>
 
             <div class="col-md-10">
-                <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" filters="{{_config.filters}}" default-study="{{opencgaSession.study.alias}}"
+                <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" default-study="{{opencgaSession.study.alias}}"
                                         config="{{filtersConfig}}" alias="{{activeFilterAlias}}" refresh="{{search}}" on-clear="onClear" on-filterchange="onActiveFilterChange">
                 </opencga-active-filters>
 
                 <!--<h3>Sample Results</h3>-->
                 <div style="padding: 5px 0px">
-                    <opencga-sample-grid opencga-client="{{opencgaSession.opencgaClient}}" opencga-session="{{opencgaSession}}" config="[[_config]]"
+                    <opencga-sample-grid opencga-client="{{opencgaSession.opencgaClient}}" opencga-session="{{opencgaSession}}" config="[[_config.grid]]"
                                          event-notify-name="[[eventNotifyName]]" samples="{{samples}}" search="{{search}}">
                     </opencga-sample-grid>
                 </div>

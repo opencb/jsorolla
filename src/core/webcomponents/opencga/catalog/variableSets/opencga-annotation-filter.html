@@ -230,7 +230,7 @@
             addCategoricalFilter(e) {
                 this.lastAnnotationFilter = undefined;
 
-                let values = $('.selectpicker').selectpicker('val');
+                let values = $(`#${this.prefix}-categorical-selector`).selectpicker('val');
                 if (values === null) {
                     return;
                 }

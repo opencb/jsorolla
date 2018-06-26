@@ -141,16 +141,16 @@
                             </div>
                             <div id="{{prefix}}-name" class="subsection-content form-group">
                                 <input type="text" id="{{prefix}}-cohort-input" class$="form-control input-sm {{prefix}}FilterTextInput"
-                                       placeholder="HG01879, HG01880, HG01881..." on-keyup="calculateFilters">
+                                       placeholder="healthy, cancer..." on-keyup="calculateFilters">
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <div class="browser-subsection">Individual
+                            <div class="browser-subsection">Sample
                             </div>
-                            <div id="{{prefix}}-individual" class="subsection-content form-group">
-                                <input type="text" id="{{prefix}}-individual-input" class$="form-control input-sm {{prefix}}FilterTextInput"
-                                       placeholder="LP-1234, LP-4567 ..." on-keyup="calculateFilters">
+                            <div id="{{prefix}}-sample" class="subsection-content form-group">
+                                <input type="text" id="{{prefix}}-sample-input" class$="form-control input-sm {{prefix}}FilterTextInput"
+                                       placeholder="HG01879, HG01880, HG01881..." on-keyup="calculateFilters">
                             </div>
                         </div>
 
@@ -169,31 +169,22 @@
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <div class="browser-subsection">Phenotypes
+                        <div class="form-group" id="{{prefix}}-type-div">
+                            <div class="browser-subsection">Type
                             </div>
-                            <div id="{{prefix}}-phenotypes" class="subsection-content form-group">
-                                <input type="text" id="{{prefix}}-phenotypes-input" class$="form-control input-sm {{prefix}}FilterTextInput"
-                                        placeholder="Full-text search, e.g. *melanoma*" on-keyup="calculateFilters">
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="browser-subsection">Somatic
-                            </div>
-                            <form id="{{prefix}}-somatic" class="subsection-content form-group">
-                                <input id="{{prefix}}-somatic-option-none" class="form-group-sm"
-                                       type="radio" name="{{prefix}}-somatic-options" value="None" on-click="calculateFilters" checked>
-                                    <span class="small">None</span>
-                                <br>
-                                <input id="{{prefix}}-somatic-option-yes" class="form-group-sm"
-                                       type="radio" name="{{prefix}}-somatic-options" value="True" on-click="calculateFilters">
-                                    <span class="small">True</span>
-                                <br>
-                                <input id="{{prefix}}-somatic-option-no" class="form-group-sm"
-                                       type="radio" name="{{prefix}}-somatic-options" value="False" on-click="calculateFilters">
-                                    <span class="small">False</span>
-                            </form>
+                            <select class="selectpicker" id="{{prefix}}-type" on-change="calculateFilters" on-dom-change="renderDomRepeat"
+                                    data-width="100%">
+                                <option data-value="All" selected>All</option>
+                                <option data-value="CASE_CONTROL">CASE_CONTROL</option>
+                                <option data-value="CASE_SET">CASE_SET</option>
+                                <option data-value="CONTROL_SET">CONTROL_SET</option>
+                                <option data-value="PAIRED">PAIRED</option>
+                                <option data-value="PAIRED_TUMOR">PAIRED_TUMOR</option>
+                                <option data-value="AGGREGATE">AGGREGATE</option>
+                                <option data-value="TIME_SERIES">TIME_SERIES</option>
+                                <option data-value="FAMILY">FAMILY</option>
+                                <option data-value="TRIO">TRIO</option>
+                            </select>
                         </div>
 
                         <div class="form-group">
@@ -370,6 +361,16 @@
                 this.dateFilterConfig = {
                     recentDays: 10
                 };
+            }
+
+            connectedCallback() {
+
+                // Decrease the button and font size of the selectpicker component
+                let annotationDiv = $(`#${this.prefix}-type-div`);
+                // Add the class to the select picker buttons
+                annotationDiv.find(".selectpicker").selectpicker('setStyle', "btn-sm", 'add');
+                // Add the class to the lists
+                annotationDiv.find("ul > li").addClass("small");
             }
 
             onSearch() {
