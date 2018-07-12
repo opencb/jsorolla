@@ -415,6 +415,8 @@
             }
 
             dateFormatter(value, row) {
+                return moment(value, "YYYYMMDDHHmmss").format('D MMM YYYY');
+
                 let pattern = /^(\d\d\d\d)(\d\d)(\d\d)/;
                 let matches = pattern.exec(value);
                 if (matches) {
