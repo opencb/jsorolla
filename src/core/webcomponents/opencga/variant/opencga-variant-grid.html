@@ -564,6 +564,8 @@
                     //     }
                     // }
 
+                    let clinvarTraits = "<span style='font-weight: bold'>ClinVar:</span> -";
+                    let cosmicTraits = "<span style='font-weight: bold'>Cosmic:</span> -";
                     if (typeof row.annotation.variantTraitAssociation !== "undefined" && row.annotation.variantTraitAssociation != null) {
                         let traits = {
                             clinvar: [],
@@ -583,17 +585,14 @@
                             }
                         }
 
-                        let clinvarTraits = "<span style='font-weight: bold'>ClinVar:</span> -";
                         if (traits.clinvar.length > 0) {
                             clinvarTraits = "<span style='font-weight: bold'>ClinVar:</span> " + traits.clinvar.join(", ");
                         }
-                        let cosmicTraits = "<span style='font-weight: bold'>Cosmic:</span> -";
                         if (traits.cosmic.length > 0) {
                             cosmicTraits = "<span style='font-weight: bold'>Cosmic:</span> " + traits.cosmic.join(", ");
                         }
-
-                        clinicalHtml += "<div class='col-md-6'>" + clinvarTraits + "<br>" + cosmicTraits + "</div>";
                     }
+                    clinicalHtml += "<div class='col-md-6'>" + clinvarTraits + "<br>" + cosmicTraits + "</div>";
 
                 }
                 result += ctHtml + clinicalHtml + "</div>"
