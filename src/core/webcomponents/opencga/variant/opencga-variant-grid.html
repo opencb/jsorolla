@@ -922,11 +922,13 @@
                                 }
                             }
 
-                            let traitText = traits[0];
-                            if (traits.length > 1) {
-                                traitText += ", ..."
+                            if (traits.length > 0) {
+                                let traitText = traits[0];
+                                if (traits.length > 1) {
+                                    traitText += ", ..."
+                                }
+                                phenotypeHtml = `<span data-toggle="tooltip" data-placement="bottom" title="${traitText}"><i class='fa fa-check' style='color: green'></i></span>`;
                             }
-                            phenotypeHtml = `<span data-toggle="tooltip" data-placement="bottom" title="${traitText}"><i class='fa fa-check' style='color: green'></i></span>`;
                         }
                         // if (traits.length > 0) {
                         //     return traits.join('<br>');
