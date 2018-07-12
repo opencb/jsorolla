@@ -255,6 +255,10 @@
                         pageList: _this._config.pageList,
                         showExport: _this._config.showExport,
                         detailView: _this._config.detailView,
+                        detailFormatter: _this._config.detailFormatter,
+
+                        // this makes the opencga-variant-grid properties available in the bootstrap-table formatters
+                        variantGrid: _this,
 
                         queryParams: function (params) {
                             queryParams.limit = params.limit;
@@ -507,6 +511,95 @@
                 this.dispatchEvent(new CustomEvent('selected', {detail: {gene: geneName}}));
             }
 
+            tableDetailFormatter(value, row, a) {
+                let result = "<div class='row'>";
+                let ctHtml = "<div class='col-md-12' style='padding: 0px 0px 10px 25px'><div class='col-md-2'><span style='font-weight: bold'>Consequence Types:</span></div>";
+                // let caddHtml = "<div class='col-md-12' style='padding: 0px 0px 10px 25px'><div class='col-md-2'><span style='font-weight: bold'>CADD Functional Score:</span></div>";
+                let clinicalHtml = "<div class='col-md-12' style='padding: 0px 0px 10px 25px'><div class='col-md-2'><span style='font-weight: bold'>Clinical Phenotypes:</span></div>";
+                if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
+
+                    if (typeof row.annotation.consequenceTypes !== "undefined" && row.annotation.consequenceTypes.length > 0) {
+                        // Sort and group CTs by Gene name
+                        row.annotation.consequenceTypes.sort(function(a, b) {
+                            if (a.geneName < b.geneName) {
+                                return -1;
+                            }
+                            if (a.geneName > b.geneName) {
+                                return 1;
+                            }
+                            return 0;
+                        });
+
+                        ctHtml += "<div class='col-md-6'>";
+                        for (let ct of row.annotation.consequenceTypes) {
+                            let soArray = [];
+                            for (let so of ct.sequenceOntologyTerms) {
+                                if (typeof this.variantGrid.consequenceTypeToColor !== "undefined"
+                                    && typeof this.variantGrid.consequenceTypeToColor[so.name] !== "undefined") {
+                                    soArray.push('<span style="color: ' + this.variantGrid.consequenceTypeToColor[so.name] + '">' + so.name + '</span>');
+                                } else {
+                                    soArray.push('<span>' + so.name + '</span>');
+                                }
+                            }
+                            if (ct.geneName !== undefined && ct.geneName !== "") {
+                                ctHtml += `${ct.ensemblGeneId} (${ct.geneName}) - ${ct.ensemblTranscriptId}:  ${soArray.join(", ")}<br>`;
+                            } else {
+                                ctHtml += `${soArray.join(", ")}<br>`;
+                            }
+                        }
+                        ctHtml += "</div></div>";
+                    }
+
+                    // if (typeof row.annotation.functionalScore !== "undefined") {
+                    //     for (let i = 0; i < row.annotation.functionalScore.length; i++) {
+                    //         if (typeof row.annotation.functionalScore[i] !== "undefined" && row.annotation.functionalScore[i].source === "cadd_scaled" && row.type === "SNV") {
+                    //             let value = Number(row.annotation.functionalScore[i].score).toFixed(2);
+                    //             if (value < 15) {
+                    //                 caddHtml += `<div class='col-md-4'>${value}</div>`;
+                    //             } else {
+                    //                 caddHtml += `<div class='col-md-4'><span style="color: red">${value}</span></div>`;
+                    //             }
+                    //             caddHtml += "</div>"
+                    //         }
+                    //     }
+                    // }
+
+                    if (typeof row.annotation.variantTraitAssociation !== "undefined" && row.annotation.variantTraitAssociation != null) {
+                        let traits = {
+                            clinvar: [],
+                            cosmic: []
+                        };
+                        let fields = ["clinvar", "cosmic"];
+                        for (let field of fields) {
+                            let clinicalData = row.annotation.variantTraitAssociation[field];
+                            if (typeof clinicalData !== "undefined" && clinicalData.length > 0) {
+                                for (let j = 0; j < clinicalData.length; j++) {
+                                    if (field === "clinvar" && traits.clinvar.indexOf(clinicalData[j].traits[0]) === -1 && clinicalData[j].traits[0] !== "not specified" && clinicalData[j].traits[0] !== "not provided") {
+                                        traits.clinvar.push(clinicalData[j].traits[0]);
+                                    } else if (field === "cosmic" && traits.cosmic.indexOf(clinicalData[j].primaryHistology) === -1) {
+                                        traits.cosmic.push(clinicalData[j].primaryHistology);
+                                    }
+                                }
+                            }
+                        }
+
+                        let clinvarTraits = "<span style='font-weight: bold'>ClinVar:</span> -";
+                        if (traits.clinvar.length > 0) {
+                            clinvarTraits = "<span style='font-weight: bold'>ClinVar:</span> " + traits.clinvar.join(", ");
+                        }
+                        let cosmicTraits = "<span style='font-weight: bold'>Cosmic:</span> -";
+                        if (traits.cosmic.length > 0) {
+                            cosmicTraits = "<span style='font-weight: bold'>Cosmic:</span> " + traits.cosmic.join(", ");
+                        }
+
+                        clinicalHtml += "<div class='col-md-6'>" + clinvarTraits + "<br>" + cosmicTraits + "</div>";
+                    }
+
+                }
+                result += ctHtml + clinicalHtml + "</div>"
+                return result;
+            }
+
             variantFormatter(value, row, index) {
                 let ref = (row.reference !== "") ? row.reference : "-";
                 let alt = (row.alternate !== "") ? row.alternate : "-";
@@ -657,8 +750,8 @@
             }
 
             proteinScoreFormatter(value, row, index) {
-                var min = 10;
-                var max = 0;
+                let min = 10;
+                let max = 0;
                 let description = {};
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
                     if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined") {
@@ -666,7 +759,7 @@
                             if (typeof row.annotation.consequenceTypes[i].proteinVariantAnnotation !== "undefined"
                                 && typeof row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores !== "undefined") {
                                 for (let j = 0; j < row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores.length; j++) {
-                                    if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].source == this.field.source) {
+                                    if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].source === this.field.source) {
                                         switch (this.field.source) {
                                             case "sift":
                                                 if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score < min) {
@@ -690,7 +783,7 @@
 
                 if (this.field.source === 'sift' && min !== 10) {
                     return '<span style="color: ' + this.field.context.pssColor.get(description.sift) + '" title="' + min + '">' + description.sift + '</span>';
-                } else if (this.field.source == 'polyphen' && max >= 0) {
+                } else if (this.field.source === 'polyphen' && max >= 0) {
                     if(UtilsNew.isNotUndefinedOrNull(description) && UtilsNew.isNotUndefinedOrNull(description.polyphen)){
                         let str = description.polyphen;
                         if (str.indexOf(' ') >= 0) {
@@ -813,12 +906,13 @@
                 return '-';
             }
 
-            clinvarFormatter(value, row, index) {
+            clinicalPhenotypeFormatter(value, row, index) {
+                let phenotypeHtml = "<span><i class='fa fa-times' style='color: red'></i></span>";
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined" && typeof row.annotation.variantTraitAssociation !== "undefined") {
                     if (row.annotation.variantTraitAssociation != null) {
                         let traits = [];
                         let clinicalData = row.annotation.variantTraitAssociation[this.field];
-                        if (typeof clinicalData !== "undefined") {
+                        if (typeof clinicalData !== "undefined" && clinicalData.length > 0) {
                             for (let j = 0; j < clinicalData.length; j++) {
                                 if (this.field === "clinvar" && traits.indexOf(clinicalData[j].traits[0]) === -1
                                     && clinicalData[j].traits[0] !== "not specified" && clinicalData[j].traits[0] !== "not provided") {
@@ -827,13 +921,19 @@
                                     traits.push(clinicalData[j].primaryHistology);
                                 }
                             }
+
+                            let traitText = traits[0];
+                            if (traits.length > 1) {
+                                traitText += ", ..."
+                            }
+                            phenotypeHtml = `<span data-toggle="tooltip" data-placement="bottom" title="${traitText}"><i class='fa fa-check' style='color: green'></i></span>`;
                         }
-                        if (traits.length > 0) {
-                            return traits.join('<br>');
-                        }
+                        // if (traits.length > 0) {
+                        //     return traits.join('<br>');
+                        // }
                     }
                 }
-                return '-';
+                return phenotypeHtml;
             }
 
             sampleFormatter(value, row, index) {
@@ -1179,9 +1279,8 @@
                             halign: 'center'
                         },
                         {
-                            title: 'Phenotype',
-                            field: 'Phenotype',
-                            colspan: 3,
+                            title: 'Phenotypes',
+                            colspan: 2,
                             rowspan: 1,
                             halign: 'center'
                         }
@@ -1240,11 +1339,11 @@
                             halign: 'center'
                         },
                         {
-                            title: 'Clinvar',
+                            title: 'ClinVar',
                             field: 'clinvar',
                             colspan: 1,
                             rowspan: 1,
-                            formatter: this.clinvarFormatter,
+                            formatter: this.clinicalPhenotypeFormatter,
                             halign: 'center'
                         },
                         {
@@ -1252,12 +1351,13 @@
                             field: 'cosmic',
                             colspan: 1,
                             rowspan: 1,
-                            formatter: this.clinvarFormatter,
+                            formatter: this.clinicalPhenotypeFormatter,
                             halign: 'center'
                         }
                     ]
                 ];
             }
+
             _downloadTabFile() {
                 let urlQueryParams = this._getUrlQueryParams();
                 let params = urlQueryParams.queryParams;
@@ -1347,6 +1447,8 @@
                     pageSize: 10,
                     pageList: [10, 25, 50],
                     showExport: false,
+                    detailView: true,
+                    detailFormatter: this.tableDetailFormatter,
 
                     alleleStringLengthMax: 15
                 }
