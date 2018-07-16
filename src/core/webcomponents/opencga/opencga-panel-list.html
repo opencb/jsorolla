@@ -22,27 +22,29 @@
                 margin-top: 20px;
             }
         </style>
+
         <div class="col-md-2 div-margin">
+            <div style="width: 60%;margin: 0 auto">
+                <button type="button" class="btn btn-lg btn-primary" style="width: 100%" on-click="onSearch">
+                    <i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px"></i> Search
+                </button>
+            </div>
             <div class="form-group has-feedback">
-                <label for="{{prefix}}NamePanel" class="col-label">name</label>
+                <label for="{{prefix}}NamePanel" class="col-label">Name</label>
                 <input id="{{prefix}}NamePanel" type="text" class="form-control"
-                       placeholder="Search for" value="">
+                       placeholder="Search for" value="{{namePanel::input}}">
             </div>
             <div class="form-group has-feedback">
-                <label for="{{prefix}}Genes" class="col-label">Genes</label>
-                <input id="{{prefix}}Genes" type="text" class="form-control"
-                       placeholder="Search for" value="">
+                <label for="{{prefix}}AuthorPanel" class="col-label">Author</label>
+                <input id="{{prefix}}AuthorPanel" type="text" class="form-control"
+                       placeholder="Search for" value="{{authorPanel::input}}">
             </div>
             <div class="form-group has-feedback">
-                <label for="{{prefix}}Mutations" class="col-label">Mutations</label>
-                <input id="{{prefix}}Mutations" type="text" class="form-control"
-                       placeholder="Search for" value="">
+                <label for="{{prefix}}VersionPanel" class="col-label">Version</label>
+                <input id="{{prefix}}VersionPanel" type="text" class="form-control"
+                       placeholder="Search for" value="{{versionPanel::input}}">
             </div>
-            <div class="form-group has-feedback">
-                <label for="{{prefix}}Diseases" class="col-label">Diseases</label>
-                <input id="{{prefix}}Diseases" type="text" class="form-control"
-                       placeholder="Search for" value="">
-            </div>
+
 
         </div>
         <div class="col-md-10 div-margin">
@@ -99,33 +101,33 @@
                 if (!opencgaHostUrl.startsWith("http://") && !opencgaHostUrl.startsWith("https://")) {
                     opencgaHostUrl = 'http://' + opencgaHostUrl;
                 }
-                opencgaHostUrl += '/webservices/rest/v1/samples/search';
+                opencgaHostUrl += '/webservices/rest/v1/diseasePanels/search';
 
                 let _table = $('#' + this.prefix + 'PanelsGrid');
 
                 let _this = this;
+                let queryParams = this.query;
                 $(_table).bootstrapTable('destroy');
                 $(_table).bootstrapTable({
-                    // url: opencgaHostUrl,
-                    data: this.panelExamples,
+                    url: opencgaHostUrl,
+//                    data: this.panelExamples,
                     columns: _this._createPanels(),
-                    // method: 'get',
-                    // sidePagination: 'server',
+                    method: 'get',
+                    sidePagination: 'server',
                     filterControl: true,
                     queryParams: function (params) {
                         let auxParams = {
-                            studyId: _this.opencgaSession.study.id,
+                            study: "test@reference_grch37:1kG_phase3",
 //                                lazy: "false",
                             sid: Cookies.get(_this.opencgaClient.getConfig().cookieSessionId),
-                            order: params.order,
-                            sort: params.sort,
+//                            order: params.order,
+//                            sort: params.sort,
                             limit: params.limit,
                             skip: params.offset,
-                            includeIndividual: true,
-                            name: params.search
+                            include: "name,author,version,description,genes,variants,phenotypes"
                         };
 
-                        return Object.assign({}, auxParams);
+                        return Object.assign({}, auxParams, queryParams);
                     },
                     responseHandler: function (response) {
                         if (!_this.hasOwnProperty("numTotalResults")) {
@@ -143,6 +145,7 @@
                             _this.to = _this.numTotalResults;
                         }
 
+                        debugger;
                         return {
                             total: _this.numTotalResults,
                             rows: response.response[0].result
@@ -224,7 +227,7 @@
                     },
                     onLoadSuccess: function (data) {
                         PolymerUtils.querySelector(_table.selector).rows[1].setAttribute('class', 'success');
-                        _this.selectPanel(data[0]);
+//                        _this.selectPanel(data[0]);
 
                     },
                     onPageChange: function (page, size) {
@@ -239,7 +242,24 @@
                 });
             }
 
+            onSearch(e) {
+                let query = {};
+                if (UtilsNew.isNotEmpty(this.namePanel)) {
+                    query.name = this.namePanel;
+                }
+                if (UtilsNew.isNotEmpty(this.authorPanel)) {
+                    query.author = this.authorPanel;
+                }
+                if (UtilsNew.isNotEmpty(this.versionPanel)) {
+                    query.version = this.versionPanel;
+                }
+
+                this.query = Object.assign({}, query);
+                this.renderPanelTable();
+            }
+
             selectPanel(panel) {
+                debugger;
                 this.panelSelected = panel;
                 this.dispatchEvent(new CustomEvent("panelselected", {
                     detail: this.panelSelected,

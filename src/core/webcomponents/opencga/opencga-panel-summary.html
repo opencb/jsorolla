@@ -32,7 +32,7 @@
             </ul>
 
             <div class="tab-content" >
-                <div role="tabpanel" class="tab-pane active" id="{{prefix}}TAB_SUMMARY">
+                <div role="tabpanel" class="tab-pane active" id="{{prefix}}TAB_SUMMARY" style="margin-top: 2%;">
                     <div class="form-group has-feedback">
                         <label class="col-label">Name</label>
                         <span> {{panelSelected.name}}</span>
@@ -122,12 +122,15 @@
                 this.renderPanelTableMutations();
             }
             panelSelectedObserver(e) {
-                this.diseasesSelected = this.panelSelected.phenotypes;
-                this.genesSelected = this.panelSelected.genes;
-                this.mutationsSelected = this.panelSelected.variants;
-                this.renderPanelTableDiseases();
-                this.renderPanelTableGenes();
-                this.renderPanelTableMutations();
+                if (UtilsNew.isNotUndefinedOrNull(this.panelSelected)) {
+                    this.diseasesSelected = UtilsNew.isNotUndefined(this.panelSelected) ? this.panelSelected.phenotypes : [];
+                    debugger;
+                    this.genesSelected = this.panelSelected.genes;
+                    this.mutationsSelected = this.panelSelected.variants;
+                    this.renderPanelTableDiseases();
+                    this.renderPanelTableGenes();
+                    this.renderPanelTableMutations();
+                }
             }
 
             renderPanelTableDiseases(){
@@ -584,7 +587,11 @@
             }
 
             variantFormatter(value, row, index) {
-                return row;
+                return row.id;
+            }
+
+            variantPhenotypeFormatter(value, row, index) {
+                return row.phenotype;
             }
 
             _createPhenotypes() {
@@ -666,6 +673,16 @@
                             halign: 'center',
                             searchable: true,
                             formatter: this.variantFormatter,
+
+                        },
+                        {
+                            title: 'Variant',
+                            // sortable: true,
+                            colspan: 1,
+                            rowspan: 1,
+                            halign: 'center',
+                            searchable: true,
+                            formatter: this.variantPhenotypeFormatter,
 
                         }
                     ]
