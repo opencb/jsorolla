@@ -48,7 +48,14 @@
 
         </div>
         <div class="col-md-10 div-margin">
+            <div id="{{prefix}}InstallationPanelsDiv">
+                <h2>Installation Panels</h2>
+                <table id="{{prefix}}InstallationPanelsGrid" data-pagination="true" data-page-list="[5, 10, 25, 50]">
+                </table>
+            </div>
+            <opencga-panel-summary opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}" panel-selected="{{installationPanelSelected}}"></opencga-panel-summary>
             <div id="{{prefix}}PanelsDiv">
+                <h2>Panels</h2>
                 <table id="{{prefix}}PanelsGrid" data-pagination="true" data-page-list="[5, 10, 25, 50]">
                 </table>
             </div>
@@ -93,6 +100,7 @@
             connectedCallback() {
                 super.connectedCallback();
                 this.renderPanelTable();
+                this.renderInstallationPanelTable();
             }
 
             renderPanelTable() {
@@ -117,8 +125,8 @@
                     filterControl: true,
                     queryParams: function (params) {
                         let auxParams = {
-                            study: "test@reference_grch37:1kG_phase3",
-//                                lazy: "false",
+                            study: _this.opencgaSession.study.fqn,
+                            //                                lazy: "false",
                             sid: Cookies.get(_this.opencgaClient.getConfig().cookieSessionId),
 //                            order: params.order,
 //                            sort: params.sort,
@@ -155,75 +163,6 @@
                         $('.success').removeClass('success');
                         $(element).addClass('success');
                         _this.selectPanel(row);
-
-                        // let index = element[0].getAttribute("data-index");
-                        // // Check and uncheck actions trigger events that are captured below
-                        // if (row.state) {
-                        //     $(PolymerUtils.getElementById(_this.prefix + 'SampleSelector')).bootstrapTable('uncheck', index);
-                        // } else {
-                        //     $(PolymerUtils.getElementById(_this.prefix + "SampleSelector")).bootstrapTable('check', index);
-                        // }
-                    },
-                    onCheck: function (row, elem) {
-                        // check sample is not already selected
-                        // for (let i in _this._samples) {
-                        //     if (_this._samples[i].name === row.name) {
-                        //         return;
-                        //     }
-                        // }
-                        //
-                        // // we add samples to selected samples
-                        // _this.push("_samples", row);
-                        // _this.set('samples', _this._samples.slice());
-
-                    },
-                    onUncheck: function (row, elem) {
-                        // let sampleToDeleteIdx = -1;
-                        // for (let i in _this.samples) {
-                        //     if (_this.samples[i].name === row.name) {
-                        //         sampleToDeleteIdx = i;
-                        //         break;
-                        //     }
-                        // }
-                        //
-                        // if (sampleToDeleteIdx === -1) {
-                        //     return;
-                        // }
-                        //
-                        // _this.splice('_samples', sampleToDeleteIdx, 1);
-                        // _this.set('samples', _this._samples.slice());
-                    },
-                    onCheckAll: function (rows) {
-                        // let newSamples = _this._samples.slice();
-                        // // check sample is not already selected
-                        // rows.forEach((sample) => {
-                        //     let existsNewSelected = _this._samples.some((sampleSelected) => {
-                        //         return  sampleSelected.name === sample.name;
-                        //     });
-                        //
-                        //     if(!existsNewSelected){
-                        //         newSamples.push(sample);
-                        //     }
-                        // });
-                        //
-                        // // we add samples to selected samples
-                        // _this._samples = newSamples;
-                        // _this.set('samples', newSamples.slice());
-
-                    },
-                    onUncheckAll: function (rows) {
-//                         // check sample is not already selected
-//                         rows.forEach((sample) => {
-//                             _this._samples = _this._samples.filter((sampleSelected) => {
-//                                 return sampleSelected.name !== sample.name;
-//                             });
-//
-//                         });
-//
-//                         // we add samples to selected samples
-// //                            _this.push("_samples", row);
-//                         _this.set('samples', _this._samples.slice());
-
                     },
                     onLoadSuccess: function (data) {
                         PolymerUtils.querySelector(_table.selector).rows[1].setAttribute('class', 'success');
@@ -242,6 +181,86 @@
                 });
             }
 
+
+            renderInstallationPanelTable() {
+                // Check that HTTP protocol is present and complete the URL
+                let opencgaHostUrl = this.opencgaClient.getConfig().host;
+                if (!opencgaHostUrl.startsWith("http://") && !opencgaHostUrl.startsWith("https://")) {
+                    opencgaHostUrl = 'http://' + opencgaHostUrl;
+                }
+                opencgaHostUrl += '/webservices/rest/v1/diseasePanels/search';
+
+                let _table = $('#' + this.prefix + 'InstallationPanelsGrid');
+
+                let _this = this;
+                let queryParams = this.query;
+                $(_table).bootstrapTable('destroy');
+                $(_table).bootstrapTable({
+                    url: opencgaHostUrl,
+//                    data: this.panelExamples,
+                    columns: _this._createPanels(),
+                    method: 'get',
+                    sidePagination: 'server',
+                    filterControl: true,
+                    queryParams: function (params) {
+                        let auxParams = {
+                            study: _this.opencgaSession.study.fqn,
+//                                lazy: "false",
+                            sid: Cookies.get(_this.opencgaClient.getConfig().cookieSessionId),
+//                            order: params.order,
+//                            sort: params.sort,
+                            globalPanels: true,
+                            limit: params.limit,
+                            skip: params.offset,
+                            include: "name,author,version,description,genes,variants,phenotypes"
+                        };
+
+                        return Object.assign({}, auxParams, queryParams);
+                    },
+                    responseHandler: function (response) {
+                        if (!_this.hasOwnProperty("numTotalResults")) {
+                            _this.numTotalResults = 0;
+                        }
+                        if (_this.numTotalResults !== response.response[0].numTotalResults
+                                && response.queryOptions.skip === 0) {
+                            _this.numTotalResults = response.response[0].numTotalResults;
+                        }
+
+                        _this.numTotalResultsText = _this.numTotalResults.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+                        if(response.queryOptions.skip === 0 && _this.numTotalResults < response.queryOptions.limit){
+                            _this.from = 1;
+                            _this.to = _this.numTotalResults;
+                        }
+
+                        debugger;
+                        return {
+                            total: _this.numTotalResults,
+                            rows: response.response[0].result
+                        };
+                    },
+                    onClickRow: function (row, element, field) {
+                        $('.success').removeClass('success');
+                        $(element).addClass('success');
+                        _this.selectInstallationPanel(row);
+                    },
+                    onLoadSuccess: function (data) {
+                        PolymerUtils.querySelector(_table.selector).rows[1].setAttribute('class', 'success');
+//                        _this.selectPanel(data[0]);
+
+                    },
+                    onPageChange: function (page, size) {
+                        _this.from = (page - 1) * size + 1;
+                        _this.to = page * size;
+                    },
+                    onPostBody: function(data) {
+                        PolymerUtils.querySelector(_table.selector).rows[1].setAttribute('class', 'success');
+                        // _this.panelSelected = data[0];
+                        _this.selectInstallationPanel(data[0]);
+                    }
+                });
+            }
+
             onSearch(e) {
                 let query = {};
                 if (UtilsNew.isNotEmpty(this.namePanel)) {
@@ -256,6 +275,7 @@
 
                 this.query = Object.assign({}, query);
                 this.renderPanelTable();
+                this.renderInstallationPanelTable();
             }
 
             selectPanel(panel) {
@@ -266,6 +286,11 @@
                     bubbles: true,
                     composed: true
                 }));
+            }
+
+            selectInstallationPanel(panel) {
+                debugger;
+                this.installationPanelSelected = panel;
             }
 
             // panelFormatter(value, row, index) {
