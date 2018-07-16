@@ -50,6 +50,9 @@
         <div class="col-md-10 div-margin">
             <div id="{{prefix}}InstallationPanelsDiv">
                 <h2>Installation Panels</h2>
+                <button id="{{prefix}}ImportInstallationPanel" type="button" on-click="importInstallationPanel" class="btn btn-danger variant-prioritization-view-buttons" style="margin: 1% 1%; float: right;">
+                    <i class="fa fa-copy icon-padding" aria-hidden="true" ></i> Import Panel
+                </button>
                 <table id="{{prefix}}InstallationPanelsGrid" data-pagination="true" data-page-list="[5, 10, 25, 50]">
                 </table>
             </div>
@@ -153,7 +156,6 @@
                             _this.to = _this.numTotalResults;
                         }
 
-                        debugger;
                         return {
                             total: _this.numTotalResults,
                             rows: response.response[0].result
@@ -233,7 +235,6 @@
                             _this.to = _this.numTotalResults;
                         }
 
-                        debugger;
                         return {
                             total: _this.numTotalResults,
                             rows: response.response[0].result
@@ -279,7 +280,6 @@
             }
 
             selectPanel(panel) {
-                debugger;
                 this.panelSelected = panel;
                 this.dispatchEvent(new CustomEvent("panelselected", {
                     detail: this.panelSelected,
@@ -289,8 +289,18 @@
             }
 
             selectInstallationPanel(panel) {
-                debugger;
                 this.installationPanelSelected = panel;
+            }
+
+            importInstallationPanel() {
+                if (UtilsNew.isNotUndefinedOrNull(this.installationPanelSelected)) {
+                    this.dispatchEvent(new CustomEvent("importpanel", {
+                        detail: this.installationPanelSelected,
+                        bubbles: true,
+                        composed: true
+                    }));
+                }
+
             }
 
             // panelFormatter(value, row, index) {

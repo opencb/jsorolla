@@ -124,7 +124,6 @@
             panelSelectedObserver(e) {
                 if (UtilsNew.isNotUndefinedOrNull(this.panelSelected)) {
                     this.diseasesSelected = UtilsNew.isNotUndefined(this.panelSelected) ? this.panelSelected.phenotypes : [];
-                    debugger;
                     this.genesSelected = this.panelSelected.genes;
                     this.mutationsSelected = this.panelSelected.variants;
                     this.renderPanelTableDiseases();

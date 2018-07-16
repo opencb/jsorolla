@@ -204,6 +204,10 @@
                     },
                     cellbaseClient: {
                         type: Object
+                    },
+                    panel: {
+                        type: Object,
+                        observer: "panelObserver"
                     }
                 }
             }
@@ -226,6 +230,25 @@
                 this.renderPanelTableMutations();
                 $('select.selectpicker').selectpicker('render');
 
+            }
+
+            panelObserver(e) {
+                this.diseasesSelected = this.panel.phenotypes.map((disease) => {
+                    return disease.name;
+                });
+
+                this.genesPanelEditor = this.panel.genes.map((gene) => {
+                    return {name: gene.name};
+                });
+
+                this.mutationsPanelEditor = this.panel.variants.map((mutation) => {
+                    return mutation;
+                });
+
+
+                this.renderPanelTableDiseases();
+                this.renderPanelTableGenes();
+                this.renderPanelTableMutations();
             }
 
             renderPanelTableDiseases() {
@@ -296,7 +319,7 @@
                     },
                     onUncheck: function (row, elem) {
                         _this.diseasesSelected = _this.diseasesSelected.filter((disease) => {
-                            return disease.id !== row.id;
+                            return disease.disease !== row.annotation.traitAssociation[0].heritableTraits[0].trait;
                         });
 
                         _this.set('diseasesSelected', _this.diseasesSelected.slice());
@@ -350,7 +373,7 @@
                 let _this = this;
                 $("#" + this.prefix + 'PanelGenesGrid').bootstrapTable('destroy');
                 $("#" + this.prefix + 'PanelGenesGrid').bootstrapTable({
-                    url: opencgaHostUrl,
+//                    url: opencgaHostUrl,
                     columns: _this._createDefaultColumnsGenes(),
                     data:_this.genesPanelEditor,
                     // method: 'get',
@@ -521,29 +544,41 @@
 
             addGenes(e) {
                 console.log(this.geneValue);
-                let assembly = this.opencgaSession.project.organism.assembly;
-                let _this = this;
+//                let assembly = this.opencgaSession.project.organism.assembly;
                 let genesToAdd = this.geneValue.split(",");
-                this.cellbaseClient.get('feature', 'gene', this.geneValue, 'info', {assembly: assembly}, {})
-                    .then(function (response) {
-                        if (UtilsNew.isNotUndefinedOrNull(response.response) && response.response) {
-                            response.response.forEach((geneResponse) => {
-                                if (response.response[0].numTotalResults === 1) {
-                                    let geneInfo = geneResponse.result[0];
-                                    let existsGene = _this.genesPanelEditor.find((geneAdded) => {
-                                        return geneAdded.name === geneInfo.name;
-                                    });
-                                    if (UtilsNew.isUndefinedOrNull(existsGene)) {
-                                        _this.genesPanelEditor.push(geneInfo);
-                                        let region = geneInfo.chromosome + ":"  + geneInfo.start + "-" + geneInfo.end;
-                                        _this.addMutations(region, geneInfo.name);
-                                        _this.renderPanelTableGenes();
-                                        _this.geneValue = "";
-                                    }
-                                }
-                            });
-                        }
+                let _this = this;
+
+                genesToAdd.map(gene => {
+                    let existsGene = _this.genesPanelEditor.find((geneAdded) => {
+                        return geneAdded.name === gene;
                     });
+                    if (UtilsNew.isUndefinedOrNull(existsGene)) {
+                        _this.genesPanelEditor.push({name: gene});
+                    }
+                });
+                _this.renderPanelTableGenes();
+                _this.geneValue = "";
+
+//                this.cellbaseClient.get('feature', 'gene', this.geneValue, 'info', {assembly: assembly}, {})
+//                    .then(function (response) {
+//                        if (UtilsNew.isNotUndefinedOrNull(response.response) && response.response) {
+//                            response.response.forEach((geneResponse) => {
+//                                if (response.response[0].numTotalResults === 1) {
+//                                    let geneInfo = geneResponse.result[0];
+//                                    let existsGene = _this.genesPanelEditor.find((geneAdded) => {
+//                                        return geneAdded.name === geneInfo.name;
+//                                    });
+//                                    if (UtilsNew.isUndefinedOrNull(existsGene)) {
+//                                        _this.genesPanelEditor.push(geneInfo);
+//                                        let region = geneInfo.chromosome + ":"  + geneInfo.start + "-" + geneInfo.end;
+//                                        _this.addMutations(region, geneInfo.name);
+//                                        _this.renderPanelTableGenes();
+//                                        _this.geneValue = "";
+//                                    }
+//                                }
+//                            });
+//                        }
+//                    });
             }
 
             deleteGenes(e) {
@@ -553,18 +588,18 @@
                     return row.name;
                 });
 
-                let genesRow = $.map($(PolymerUtils.getElementById(this.prefix + 'PanelGenesGrid')).bootstrapTable('getSelections'), function (row) {
-                    return row;
-                });
+//                let genesRow = $.map($(PolymerUtils.getElementById(this.prefix + 'PanelGenesGrid')).bootstrapTable('getSelections'), function (row) {
+//                    return row;
+//                });
 
                 $(PolymerUtils.getElementById(this.prefix + 'PanelGenesGrid')).bootstrapTable('remove', {
                     field: 'name',
                     values: names
                 });
 
-                genesRow.forEach((geneRow) => {
-                    this.deleteMutations([], geneRow.name);
-                });
+//                genesRow.forEach((geneRow) => {
+//                    this.deleteMutations([], geneRow.name);
+//                });
             }
 
             addMutationsOnclick(e) {
@@ -737,6 +772,25 @@
                             checkbox: true,
                             colspan: 1,
                             rowspan: 1
+                        },
+
+                        {
+                            title: 'Id',
+                            field: 'id',
+                            // sortable: true,
+                            colspan: 1,
+                            rowspan: 1,
+                            halign: 'center',
+                            searchable: true
+                        },
+                        {
+                            title: 'Phenotype',
+                            field: 'phenotype',
+                            // sortable: true,
+                            colspan: 1,
+                            rowspan: 1,
+                            halign: 'center',
+                            searchable: true
                         },
                         {
                             title: 'Chromosome',

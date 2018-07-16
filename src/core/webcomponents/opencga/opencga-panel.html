@@ -37,10 +37,11 @@
             <div>
                 <template is="dom-if" if="{{!panelEditor}}">
                     <h3>Preview</h3>
-                    <opencga-panel-list opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}" opencga-client="{{opencgaClient}}" panel-examples="{{panelExamples}}" on-panelselected="onPanelSelected"></opencga-panel-list>
+                    <opencga-panel-list opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}" opencga-client="{{opencgaClient}}" panel-examples="{{panelExamples}}"
+                                        on-panelselected="onPanelSelected" on-importpanel="onImportPanel"></opencga-panel-list>
                 </template>
                 <template is="dom-if" if="{{panelEditor}}">
-                    <opencga-panel-editor opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" panel-selected="{{panelSelected}}">
+                    <opencga-panel-editor opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" panel="{{panelSelected}}">
 
                     </opencga-panel-editor>
                 </template>
@@ -88,6 +89,11 @@
 
             onPanelSelected(e) {
                 this.panelSelected = e.detail;
+            }
+
+            onImportPanel(e) {
+                this.panelSelected = e.detail;
+                this._changeView();
             }
 
 
