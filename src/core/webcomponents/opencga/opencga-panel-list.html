@@ -24,13 +24,8 @@
         </style>
         <div class="col-md-2 div-margin">
             <div class="form-group has-feedback">
-                <label for="{{prefix}}NamePanel" class="col-label">Panel name</label>
+                <label for="{{prefix}}NamePanel" class="col-label">name</label>
                 <input id="{{prefix}}NamePanel" type="text" class="form-control"
-                       placeholder="Search for" value="">
-            </div>
-            <div class="form-group has-feedback">
-                <label for="{{prefix}}Genes" class="col-label">Genes</label>
-                <input id="{{prefix}}Genes" type="text" class="form-control"
                        placeholder="Search for" value="">
             </div>
             <div class="form-group has-feedback">
@@ -269,7 +264,7 @@
                 return [
                     [
                         {
-                            title: 'Panel',
+                            title: 'Name',
                             field: 'name',
                             // sortable: true,
                             colspan: 1,
@@ -278,7 +273,7 @@
                             searchable: true
                         },
                         {
-                            title: 'Genes Number',
+                            title: 'Number of Genes',
                             // sortable: true,
                             colspan: 1,
                             rowspan: 1,
@@ -286,7 +281,7 @@
                             formatter: this.genesFormatter,
                         },
                         {
-                            title: 'Phenotypes Number',
+                            title: 'Number of Phenotypes',
                             // sortable: true,
                             colspan: 1,
                             rowspan: 1,
