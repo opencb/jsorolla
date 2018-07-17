@@ -135,7 +135,7 @@
 //                            sort: params.sort,
                             limit: params.limit,
                             skip: params.offset,
-                            include: "name,author,version,description,genes,variants,phenotypes"
+                            include: "id,name,author,version,description,genes,variants,phenotypes,source,creationDate"
                         };
 
                         return Object.assign({}, auxParams, queryParams);
@@ -303,14 +303,19 @@
 
             }
 
-            // panelFormatter(value, row, index) {
             //     return "<span style='white-space: nowrap'>" + index + "</span>";
             // }
+            // panelFormatter(value, row, index) {
+            phenotypesFormatter(value, row, index) {
+                return UtilsNew.isNotEmptyArray(row.phenotypes) ? row.phenotypes.length : 0;
+            }
+
             genesFormatter(value, row, index) {
                 return UtilsNew.isNotEmptyArray(row.genes) ? row.genes.length : 0;
             }
-            phenotypesFormatter(value, row, index) {
-                return UtilsNew.isNotEmptyArray(row.phenotypes) ? row.phenotypes.length : 0;
+
+            mutationsFormatter(value, row, index) {
+                return UtilsNew.isNotEmptyArray(row.variants) ? row.variants.length : 0;
             }
 
 
@@ -318,6 +323,15 @@
             _createPanels() {
                 return [
                     [
+                        {
+                            title: 'ID',
+                            field: 'id',
+                            // sortable: true,
+                            colspan: 1,
+                            rowspan: 1,
+                            halign: 'center',
+                            searchable: true
+                        },
                         {
                             title: 'Name',
                             field: 'name',
@@ -328,6 +342,14 @@
                             searchable: true
                         },
                         {
+                            title: 'Number of Phenotypes',
+                            // sortable: true,
+                            colspan: 1,
+                            rowspan: 1,
+                            halign: 'center',
+                            formatter: this.phenotypesFormatter,
+                        },
+                        {
                             title: 'Number of Genes',
                             // sortable: true,
                             colspan: 1,
@@ -336,12 +358,12 @@
                             formatter: this.genesFormatter,
                         },
                         {
-                            title: 'Number of Phenotypes',
+                            title: 'Number of Mutations',
                             // sortable: true,
                             colspan: 1,
                             rowspan: 1,
                             halign: 'center',
-                            formatter: this.phenotypesFormatter,
+                            formatter: this.mutationsFormatter,
                         }
                     ]
                 ];
