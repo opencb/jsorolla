@@ -41,7 +41,7 @@
                                         on-panelselected="onPanelSelected" on-importpanel="onImportPanel"></opencga-panel-list>
                 </template>
                 <template is="dom-if" if="{{panelEditor}}">
-                    <opencga-panel-editor opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" panel="{{installationPanel}}">
+                    <opencga-panel-editor opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" panel="{{installationPanel}}" event-notify-name="{{eventNotifyName}}">
 
                     </opencga-panel-editor>
                 </template>
@@ -80,11 +80,17 @@
                     },
                     panelExamples: {
                         type: Array
+                    },
+                    eventNotifyName: {
+                        type: String,
+                        value: "messageevent"
                     }
+
                 }
             }
             _changeView() {
                 this.panelEditor = !this.panelEditor;
+                this.installationPanel = {};
             }
 
             onPanelSelected(e) {
@@ -92,8 +98,8 @@
             }
 
             onImportPanel(e) {
-                this.installationPanel = e.detail;
                 this._changeView();
+                this.installationPanel = e.detail;
             }
 
 
