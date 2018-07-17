@@ -1020,11 +1020,11 @@ class Panels extends Acls {
     }
 
     create(params, body, options) {
-        return this.post("panels", undefined, "create", params, body, options);
+        return this.post("diseasePanels", undefined, "create", params, body, options);
     }
 
     info(id, params, options) {
-        return this.get("panels", id, "info", params, options);
+        return this.get("diseasePanels", id, "info", params, options);
     }
 
 }

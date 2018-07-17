@@ -21,7 +21,7 @@
         </style>
         <div style="padding-top: 20px" >
             <!--<opencga-panel-summary opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}" panel-selected="{{panelSelected}}"></opencga-panel-summary>-->
-            <h3>Opencga Panel editor</h3>
+            <h3>Editor</h3>
             <div style="padding-top: 20px">
                 <ul id="{{prefix}}panelSteps" class="nav nav-tabs" role="tablist">
                     <li role="presentation" class="active">
@@ -59,7 +59,7 @@
                         <div class="col-md-6" style="margin-top: 5%">
                             <ul class="list-group">
                                 <template is="dom-repeat" items="{{diseasesSelected}}">
-                                    <li class="list-group-item">{{item.disease}}
+                                    <li class="list-group-item">{{item.name}}
                                         <span class="badge">source</span>
                                     </li>
                                 </template>
@@ -75,7 +75,7 @@
                                 <textarea id="{{prefix}}FeatureTextarea" name="geneSnp" class="form-control clearable"
                                           rows="3" placeholder="BRCA2,PPL" style="margin-top: 5px" value="{{geneValue::input}}"></textarea>
                                 <button id="{{prefix}}addGenes" type="button" on-click="addGenes" class="btn btn-primary variant-prioritization-view-buttons" style="margin-top: 1%;">
-                                    <i class="fa fa-floppy-o icon-padding" aria-hidden="true" ></i> Add Genes
+                                    <i class="fa fa-plus icon-padding" aria-hidden="true" ></i> Add
                                 </button>
                             </div>
                             <!--<div class="form-group has-feedback">-->
@@ -97,11 +97,10 @@
                         </div>
                         <div class="col-md-8">
                             <div id="{{prefix}}PanelGenes" style="">
-                                <button id="{{prefix}}DeleteGeneButton" style="margin-top: 2%;" class="btn btn-danger" on-click="deleteGenes">
+                                <button id="{{prefix}}DeleteGeneButton" style="margin: 1% 1%; float: right;" class="btn btn-danger" on-click="deleteGenes">
                                     <i class="fa fa-times"></i>&nbsp;Delete
                                 </button>
-                                <table id="{{prefix}}PanelGenesGrid" data-pagination="true" data-page-list="[10, 25, 50]"
-                                       data-search="true">
+                                <table id="{{prefix}}PanelGenesGrid" data-pagination="true" data-page-list="[10, 25, 50]">
                                 </table>
                             </div>
                         </div>
@@ -114,10 +113,20 @@
                                 <label for="{{prefix}}LocationTextarea" class="col-label">Genomic Pos</label>
                                 <textarea id="{{prefix}}LocationTextarea" name="location" class="form-control clearable"
                                           rows="3" placeholder="3:444-55555,1:1-100000" value="{{regionValue::input}}"></textarea>
-                                <button id="{{prefix}}addMutation" type="button" on-click="addMutationsOnclick" class="btn btn-primary variant-prioritization-view-buttons" style="margin-top: 1%;">
-                                    <i class="fa fa-floppy-o icon-padding" aria-hidden="true"></i> Add Genes
-                                </button>
                             </div>
+                            <div class="form-group has-feedback">
+                                <label for="{{prefix}}diseaseMutation" class="col-label">Disease</label>
+                                <select class="form-control" id="{{prefix}}diseaseMutation"
+                                        name="diseaseMutation" required data-required-error="This field is required" value="{{diseaseMutation::input}}">
+                                    <option value="">Select...</option>
+                                    <template is="dom-repeat" items="{{diseasesSelected}}">
+                                        <option value="{{item.name}}">{{item.name}}</option>
+                                    </template>
+                                </select>
+                            </div>
+                            <button id="{{prefix}}addMutation" type="button" on-click="addMutationsOnclick" class="btn btn-primary variant-prioritization-view-buttons" style="margin-top: 1%;">
+                                <i class="fa fa-plus icon-padding" aria-hidden="true"></i> Add
+                            </button>
                             <!--<div class="form-group has-feedback">-->
                                 <!--<label for="{{prefix}}ImportFromVCF" class="col-label">Import from VCF</label>-->
                                 <!--<select class="selectpicker" id="{{prefix}}ImportFromVCF" data-size="10" data-live-search="true"-->
@@ -143,37 +152,39 @@
                         </div>
                         <div class="col-md-8">
                             <div id="{{prefix}}PanelMutations" style="">
-                                <button id="{{prefix}}DeleteMutationsButton" style="margin-top: 2%;" class="btn btn-danger" on-click="deleteMutationsOnclick">
+                                <button id="{{prefix}}DeleteMutationsButton" style="margin: 1% 1%; float: right;" class="btn btn-danger" on-click="deleteMutationsOnclick">
                                     <i class="fa fa-times"></i>&nbsp;Delete
                                 </button>
                                 <table id="{{prefix}}PanelMutationsGrid" data-pagination="true" data-page-list="[10, 25, 50]"
-                                       data-click-to-select="true" data-search="true">
+                                       data-click-to-select="true" >
                                 </table>
                             </div>
                         </div>
                     </div>
                     <!--Info panel-->
                     <div role="tabpanel" class="tab-pane" id="{{prefix}}Info">
-                        <div class="col-md-4" style="margin-top: 2%">
-                            <div class="form-group has-feedback">
-                                <label for="{{prefix}}PanelName" class="col-label">Name</label>
-                                <input id="{{prefix}}PanelName" name="panelName" class="form-control clearable"
-                                          placeholder="Panel...">
+                        <form id="{{prefix}}uploadForm" class="form-horizontal" data-toggle="validator" data-feedback='{"success": "fa-check", "error": "fa-times"}' role="form">
+                            <div class="col-md-4" style="margin-top: 2%">
+                                <div class="form-group has-feedback">
+                                    <label for="{{prefix}}PanelName" class="col-label">Name</label>
+                                    <input id="{{prefix}}PanelName" name="panelName" class="form-control clearable"
+                                              placeholder="Panel..." value="{{panelName::input}}" required>
+                                </div>
+                                <div class="form-group has-feedback">
+                                    <label for="{{prefix}}PanelAuthor" class="col-label">Author</label>
+                                    <input id="{{prefix}}PanelAuthor" name="panelAuthor" class="form-control clearable"
+                                           placeholder="Author..." value="{{panelAuthor::input}}">
+                                </div>
+                                <div class="form-group has-feedback">
+                                    <label for="{{prefix}}PanelDescription" class="col-label">Description</label>
+                                    <textarea id="{{prefix}}PanelDescription" name="location" class="form-control clearable"
+                                              rows="3" placeholder="Description" value="{{panelDescription::input}}"></textarea>
+                                </div>
+                                <button id="{{prefix}}SavePanel" type="button" class="btn btn-primary variant-prioritization-view-buttons" on-click="savePanel" style="margin-top: 1%;">
+                                    <i class="fa fa-floppy-o icon-padding" aria-hidden="true"></i> Save
+                                </button>
                             </div>
-                            <div class="form-group has-feedback">
-                                <label for="{{prefix}}PanelAuthor" class="col-label">Author</label>
-                                <input id="{{prefix}}PanelAuthor" name="panelName" class="form-control clearable"
-                                       placeholder="Author...">
-                            </div>
-                            <div class="form-group has-feedback">
-                                <label for="{{prefix}}PanelDescription" class="col-label">Description</label>
-                                <textarea id="{{prefix}}PanelDescription" name="location" class="form-control clearable"
-                                          rows="3" placeholder="Description"></textarea>
-                            </div>
-                            <button id="{{prefix}}SavePanel" type="button" class="btn btn-primary variant-prioritization-view-buttons" style="margin-top: 1%;">
-                                <i class="fa fa-floppy-o icon-padding" aria-hidden="true"></i> Save Panel
-                            </button>
-                        </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -204,6 +215,14 @@
                     },
                     cellbaseClient: {
                         type: Object
+                    },
+                    panel: {
+                        type: Object,
+                        observer: "panelObserver"
+                    },
+                    eventNotifyName: {
+                        type: String,
+                        value: "messageevent"
                     }
                 }
             }
@@ -226,6 +245,39 @@
                 this.renderPanelTableMutations();
                 $('select.selectpicker').selectpicker('render');
 
+            }
+
+            panelObserver(e) {
+                this.diseasesSelected = [];
+                if (UtilsNew.isNotUndefinedOrNull(this.panel.phenotypes) && UtilsNew.isNotEmptyArray(this.panel.phenotypes )) {
+                    this.diseasesSelected = this.panel.phenotypes.map((disease) => {
+                        return disease;
+                    });
+                }
+                this.genesPanelEditor = [];
+                if (UtilsNew.isNotUndefinedOrNull(this.panel.genes) && UtilsNew.isNotEmptyArray(this.panel.genes)) {
+                    let genesPanelEditor = this.panel.genes.map((gene) => {
+                        return gene.name;
+                    });
+                    this.addGene(genesPanelEditor);
+                }
+
+                this.mutationsPanelEditor = [];
+                if (UtilsNew.isNotUndefinedOrNull(this.panel.variants) && UtilsNew.isNotEmptyArray(this.panel.variants)) {
+                    this.mutationsPanelEditor = this.panel.variants.map((mutation) => {
+                        return mutation;
+                    });
+                }
+
+                this.panelName = this.panel.name;
+                this.panelId = this.panel.id;
+                this.panelAuthor = this.panel.author;
+                this.panelDescription = this.panel.description;
+                this.panelSource = this.panel.source;
+
+                this.renderPanelTableDiseases();
+                this.renderPanelTableGenes();
+                this.renderPanelTableMutations();
             }
 
             renderPanelTableDiseases() {
@@ -286,17 +338,18 @@
                         // }
                     },
                     onCheck: function (row, elem) {
+                        debugger;
                         let disease = "-";
                         if (UtilsNew.isNotUndefinedOrNull(row.annotation.traitAssociation) && UtilsNew.isNotEmptyArray(row.annotation.traitAssociation) && UtilsNew.isNotEmptyArray(row.annotation.traitAssociation[0].heritableTraits)){
                             disease = row.annotation.traitAssociation[0].heritableTraits[0].trait;
+                            _this.diseasesSelected.push({id: row.annotation.traitAssociation[0].id, name: disease, source: row.annotation.traitAssociation[0].source.name})
                         }
-                        _this.diseasesSelected.push({disease: disease})
                         _this.set('diseasesSelected', _this.diseasesSelected.slice());
 
                     },
                     onUncheck: function (row, elem) {
                         _this.diseasesSelected = _this.diseasesSelected.filter((disease) => {
-                            return disease.id !== row.id;
+                            return disease.disease !== row.annotation.traitAssociation[0].heritableTraits[0].trait;
                         });
 
                         _this.set('diseasesSelected', _this.diseasesSelected.slice());
@@ -328,222 +381,86 @@
                         _this.from = (page - 1) * size + 1;
                         _this.to = page * size;
                     },
-                    onPostBody: function() {
-//                         if(PolymerUtils.getElementsByClassName(_this.prefix + 'Download')) {
-//                             PolymerUtils.querySelectorAll("." + _this.prefix + "Download").forEach(elem => elem.addEventListener("click", _this.downloadQCFile.bind(_this), true));
-//
-// //                                PolymerUtils.getElementById(_this.prefix + 'Download').addEventListener('click', _this.downloadQCFile.bind(_this));
-//                         }
-
-                    }
                 });
             }
 
             renderPanelTableGenes() {
-                // Check that HTTP protocol is present and complete the URL
-                let opencgaHostUrl = this.opencgaClient.getConfig().host;
-                if (!opencgaHostUrl.startsWith("http://") && !opencgaHostUrl.startsWith("https://")) {
-                    opencgaHostUrl = 'http://' + opencgaHostUrl;
-                }
-                opencgaHostUrl += '/webservices/rest/v1/samples/search';
-
                 let _this = this;
                 $("#" + this.prefix + 'PanelGenesGrid').bootstrapTable('destroy');
                 $("#" + this.prefix + 'PanelGenesGrid').bootstrapTable({
-                    url: opencgaHostUrl,
                     columns: _this._createDefaultColumnsGenes(),
                     data:_this.genesPanelEditor,
-                    // method: 'get',
-                    // sidePagination: 'server',
                     filterControl: true,
-                    queryParams: function (params) {
-                        let auxParams = {
-                            studyId: _this.opencgaSession.study.id,
-//                                lazy: "false",
-                            sid: Cookies.get(_this.opencgaClient.getConfig().cookieSessionId),
-                            order: params.order,
-                            sort: params.sort,
-                            limit: params.limit,
-                            skip: params.offset,
-                            includeIndividual: true,
-                            name: params.search
-                        };
-
-                        return Object.assign({}, auxParams);
-                    },
-                    responseHandler: function (response) {
-                        if (!_this.hasOwnProperty("numTotalResults")) {
-                            _this.numTotalResults = 0;
-                        }
-                        if (_this.numTotalResults !== response.response[0].numTotalResults
-                            && response.queryOptions.skip === 0) {
-                            _this.numTotalResults = response.response[0].numTotalResults;
-                        }
-
-                        _this.numTotalResultsText = _this.numTotalResults.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-
-                        if(response.queryOptions.skip === 0 && _this.numTotalResults < response.queryOptions.limit){
-                            _this.from = 1;
-                            _this.to = _this.numTotalResults;
-                        }
-
-                        return {
-                            total: _this.numTotalResults,
-                            rows: response.response[0].result
-                        };
-                    },
-                    onClickRow: function (row, element, field) {
-                        // let index = element[0].getAttribute("data-index");
-                        // // Check and uncheck actions trigger events that are captured below
-                        // if (row.state) {
-                        //     $(PolymerUtils.getElementById(_this.prefix + 'SampleSelector')).bootstrapTable('uncheck', index);
-                        // } else {
-                        //     $(PolymerUtils.getElementById(_this.prefix + "SampleSelector")).bootstrapTable('check', index);
-                        // }
-                    },
-                    onLoadSuccess: function (data) {
-                        // Check all already selected rows. Selected samples are stored in this.samples array
-                        // if (_this.samples !== "undefined") {
-                        //     for (let idx in _this.samples) {
-                        //         for (let j in data.rows) {
-                        //             if (_this.samples[idx].name === data.rows[j].name) {
-                        //                 $(PolymerUtils.getElementById(_this.prefix + 'SampleSelector')).bootstrapTable('check', j);
-                        //                 break;
-                        //             }
-                        //         }
-                        //     }
-                        // }
-                    },
                     onPageChange: function (page, size) {
                         _this.from = (page - 1) * size + 1;
                         _this.to = page * size;
-                    },
-                    onPostBody: function() {
-//                         if(PolymerUtils.getElementsByClassName(_this.prefix + 'Download')) {
-//                             PolymerUtils.querySelectorAll("." + _this.prefix + "Download").forEach(elem => elem.addEventListener("click", _this.downloadQCFile.bind(_this), true));
-//
-// //                                PolymerUtils.getElementById(_this.prefix + 'Download').addEventListener('click', _this.downloadQCFile.bind(_this));
-//                         }
-
                     }
                 });
             }
 
             renderPanelTableMutations() {
                 // Check that HTTP protocol is present and complete the URL
-                let opencgaHostUrl = this.opencgaClient.getConfig().host;
-                if (!opencgaHostUrl.startsWith("http://") && !opencgaHostUrl.startsWith("https://")) {
-                    opencgaHostUrl = 'http://' + opencgaHostUrl;
-                }
-                opencgaHostUrl += '/webservices/rest/v1/samples/search';
-
                 let _this = this;
                 $("#" + this.prefix + 'PanelMutationsGrid').bootstrapTable('destroy');
                 $("#" + this.prefix + 'PanelMutationsGrid').bootstrapTable({
-                    url: opencgaHostUrl,
+                    // url: opencgaHostUrl,
                     columns: _this._createDefaultColumnsMutations(),
                     data: _this.mutationsPanelEditor,
-                    // method: 'get',
-                    // sidePagination: 'server',
-                    filterControl: true,
-                    queryParams: function (params) {
-                        let auxParams = {
-                            studyId: _this.opencgaSession.study.id,
-//                                lazy: "false",
-                            sid: Cookies.get(_this.opencgaClient.getConfig().cookieSessionId),
-                            order: params.order,
-                            sort: params.sort,
-                            limit: params.limit,
-                            skip: params.offset,
-                            includeIndividual: true,
-                            name: params.search
-                        };
-
-                        return Object.assign({}, auxParams);
-                    },
-                    responseHandler: function (response) {
-                        if (!_this.hasOwnProperty("numTotalResults")) {
-                            _this.numTotalResults = 0;
-                        }
-                        if (_this.numTotalResults !== response.response[0].numTotalResults
-                            && response.queryOptions.skip === 0) {
-                            _this.numTotalResults = response.response[0].numTotalResults;
-                        }
-
-                        _this.numTotalResultsText = _this.numTotalResults.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-
-                        if(response.queryOptions.skip === 0 && _this.numTotalResults < response.queryOptions.limit){
-                            _this.from = 1;
-                            _this.to = _this.numTotalResults;
-                        }
-
-                        return {
-                            total: _this.numTotalResults,
-                            rows: response.response[0].result
-                        };
-                    },
-                    onClickRow: function (row, element, field) {
-                        // let index = element[0].getAttribute("data-index");
-                        // // Check and uncheck actions trigger events that are captured below
-                        // if (row.state) {
-                        //     $(PolymerUtils.getElementById(_this.prefix + 'SampleSelector')).bootstrapTable('uncheck', index);
-                        // } else {
-                        //     $(PolymerUtils.getElementById(_this.prefix + "SampleSelector")).bootstrapTable('check', index);
-                        // }
-                    },
-                    onLoadSuccess: function (data) {
-                        // Check all already selected rows. Selected samples are stored in this.samples array
-                        // if (_this.samples !== "undefined") {
-                        //     for (let idx in _this.samples) {
-                        //         for (let j in data.rows) {
-                        //             if (_this.samples[idx].name === data.rows[j].name) {
-                        //                 $(PolymerUtils.getElementById(_this.prefix + 'SampleSelector')).bootstrapTable('check', j);
-                        //                 break;
-                        //             }
-                        //         }
-                        //     }
-                        // }
-                    },
-                    onPageChange: function (page, size) {
-                        _this.from = (page - 1) * size + 1;
-                        _this.to = page * size;
-                    },
-                    onPostBody: function() {
-//                         if(PolymerUtils.getElementsByClassName(_this.prefix + 'Download')) {
-//                             PolymerUtils.querySelectorAll("." + _this.prefix + "Download").forEach(elem => elem.addEventListener("click", _this.downloadQCFile.bind(_this), true));
-//
-// //                                PolymerUtils.getElementById(_this.prefix + 'Download').addEventListener('click', _this.downloadQCFile.bind(_this));
-//                         }
-
-                    }
                 });
             }
 
             addGenes(e) {
                 console.log(this.geneValue);
-                let assembly = this.opencgaSession.project.organism.assembly;
-                let _this = this;
                 let genesToAdd = this.geneValue.split(",");
-                this.cellbaseClient.get('feature', 'gene', this.geneValue, 'info', {assembly: assembly}, {})
-                    .then(function (response) {
-                        if (UtilsNew.isNotUndefinedOrNull(response.response) && response.response) {
-                            response.response.forEach((geneResponse) => {
-                                if (response.response[0].numTotalResults === 1) {
-                                    let geneInfo = geneResponse.result[0];
-                                    let existsGene = _this.genesPanelEditor.find((geneAdded) => {
-                                        return geneAdded.name === geneInfo.name;
-                                    });
-                                    if (UtilsNew.isUndefinedOrNull(existsGene)) {
-                                        _this.genesPanelEditor.push(geneInfo);
-                                        let region = geneInfo.chromosome + ":"  + geneInfo.start + "-" + geneInfo.end;
-                                        _this.addMutations(region, geneInfo.name);
-                                        _this.renderPanelTableGenes();
-                                        _this.geneValue = "";
-                                    }
-                                }
-                            });
-                        }
+                this.addGene(genesToAdd);
+            }
+
+            addGene(genes) {
+                let _this = this;
+                let assembly = this.opencgaSession.project.organism.assembly;
+                let promises = [];
+                let numGenesAdded = 0;
+                genes.map(gene => {
+                    let existsGene = _this.genesPanelEditor.find((geneAdded) => {
+                        return geneAdded.name === gene;
                     });
+                    if (UtilsNew.isUndefinedOrNull(existsGene)) {
+
+                        promises.push(this.cellbaseClient.get('feature', 'gene', gene, 'info', {assembly: assembly}, {})
+                            .then(function (response) {
+                                if (UtilsNew.isNotUndefinedOrNull(response.response) && response.response) {
+                                    response.response.forEach((geneResponse) => {
+                                        if (response.response[0].numTotalResults === 1) {
+                                            let geneInfo = geneResponse.result[0];
+                                            _this.genesPanelEditor.push(geneInfo);
+                                            numGenesAdded++;
+                                        }
+                                    });
+                                }
+                            }));
+                    } else {
+                        _this.dispatchEvent(new CustomEvent(_this.eventNotifyName, {
+                            detail: {
+                                message: "Gene already exists: " + gene,
+                                type: UtilsNew.MESSAGE_INFO
+                            },
+                            bubbles: true,
+                            composed: true
+                        }));
+                    }
+                });
+                Promise.all(promises).then(values => {
+                    _this.dispatchEvent(new CustomEvent(_this.eventNotifyName, {
+                        detail: {
+                            message: "Added " + numGenesAdded + " genes.",
+                            type: UtilsNew.MESSAGE_INFO
+                        },
+                        bubbles: true,
+                        composed: true
+                    }));
+                    _this.renderPanelTableGenes();
+                    _this.geneValue = "";
+                });
             }
 
             deleteGenes(e) {
@@ -553,47 +470,57 @@
                     return row.name;
                 });
 
-                let genesRow = $.map($(PolymerUtils.getElementById(this.prefix + 'PanelGenesGrid')).bootstrapTable('getSelections'), function (row) {
-                    return row;
-                });
-
                 $(PolymerUtils.getElementById(this.prefix + 'PanelGenesGrid')).bootstrapTable('remove', {
                     field: 'name',
                     values: names
                 });
-
-                genesRow.forEach((geneRow) => {
-                    this.deleteMutations([], geneRow.name);
-                });
             }
 
             addMutationsOnclick(e) {
-                // console.log(this.geneValue);
-                this.addMutations(this.regionValue);
-                this.regionValue = "";
+                if (UtilsNew.isNotUndefinedOrNull(this.diseaseMutation)) {
+                    // console.log(this.geneValue);
+                    this.addMutations(this.regionValue);
+                    this.regionValue = "";
+                } else {
+                    this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+                        detail: {
+                            message: "Disease is required",
+                            type: UtilsNew.MESSAGE_ERROR
+                        },
+                        bubbles: true,
+                        composed: true
+                    }));
+                }
             }
 
-            addMutations(region, gene = null) {
+            addMutations(region) {
                 let _this = this;
                 let assembly = this.opencgaSession.project.organism.assembly;
                 this.cellbaseClient.get('clinical', 'variant', null, 'search', {assembly: assembly, region: region}, {})
                     .then(function (response) {
                         if (UtilsNew.isNotUndefinedOrNull(response.response) && response.response ) {
+                            let numVariantsAdded = 0;
                             response.response[0].result.forEach((mutationResponse) => {
                                 let mutationInfo = mutationResponse;
                                 let existsMutation = _this.mutationsPanelEditor.find((mutationAdded) => {
-                                    return mutationAdded.mutation.chromosome + ":" + mutationAdded.mutation.start + "-" + mutationAdded.mutation.end === mutationInfo.chromosome + ":" + mutationInfo.start + "-" + mutationInfo.end;
+                                    return mutationAdded.chromosome + ":" + mutationAdded.start + "-" + mutationAdded.end === mutationInfo.chromosome + ":" + mutationInfo.start + "-" + mutationInfo.end;
                                 });
                                 if (UtilsNew.isUndefinedOrNull(existsMutation)) {
-                                    let mutation = {mutation: mutationInfo}
-                                    if (UtilsNew.isNotUndefinedOrNull(gene)) {
-                                        mutation.genes = [gene]
-                                    }
-
-                                    _this.mutationsPanelEditor.push(mutation);
+                                    // let mutation = {mutation: mutationInfo}
+                                    mutationInfo.phenotype = _this.diseaseMutation;
+                                    _this.mutationsPanelEditor.push(mutationInfo);
+                                    numVariantsAdded++;
                                     _this.renderPanelTableMutations();
                                 }
                             });
+                            _this.dispatchEvent(new CustomEvent(_this.eventNotifyName, {
+                                detail: {
+                                    message: "Added " + numVariantsAdded + " variants.",
+                                    type: UtilsNew.MESSAGE_INFO
+                                },
+                                bubbles: true,
+                                composed: true
+                            }));
                         }
                     });
             }
@@ -601,7 +528,7 @@
             deleteMutationsOnclick(e) {
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
                 let rows = $.map($(PolymerUtils.getElementById(this.prefix + 'PanelMutationsGrid')).bootstrapTable('getSelections'), function (row) {
-                    return row.mutation.chromosome + ":" + row.mutation.start + "-" + row.mutation.end;
+                    return row.chromosome + ":" + row.start + "-" + row.end;
                 });
                 this.deleteMutations(rows);
             }
@@ -622,12 +549,72 @@
                     // Deleted mutation by chromosome:start-end
                     this.mutationsPanelEditor = this.mutationsPanelEditor.filter((mutation) => {
                         let existMutation = ids.find((mutationPos) => {
-                            return mutation.mutation.chromosome + ":" + mutation.mutation.start + "-" + mutation.mutation.end === mutationPos;
+                            return mutation.chromosome + ":" + mutation.start + "-" + mutation.end === mutationPos;
                         });
                         return UtilsNew.isUndefinedOrNull(existMutation);
                     });
                 }
                 this.renderPanelTableMutations();
+            }
+
+            savePanel() {
+                let _this = this;
+                let params = {
+                    study:this.opencgaSession.study.fqn
+                };
+                if (UtilsNew.isUndefinedOrNull(this.panelName)) {
+                    _this.dispatchEvent(new CustomEvent(_this.eventNotifyName, {
+                        detail: {
+                            message: "Name is required",
+                            type: UtilsNew.MESSAGE_INFO
+                        },
+                        bubbles: true,
+                        composed: true
+                    }));
+                }
+                if (UtilsNew.isUndefinedOrNull(this.panelId)) {
+                    this.panelId = this.panelName.replace(/\s/g, "");
+                }
+
+                let panel = {
+                    "id": this.panelId,
+                    "name": this.panelName,
+                    "description": this.panelDescription,
+                    "author": this.panelAuthor,
+                    "source": this.panelSource,
+                    "phenotypes": this.diseasesSelected,
+                    "genes": this.genesPanelEditor.map(geneInfo => {
+                        return {"id": geneInfo.id, "name": geneInfo.name, "confidence": ""}
+                    }),
+                    "variants": this.mutationsPanelEditor.map(mutationInfo => {
+                        return {"id": UtilsNew.isUndefinedOrNull(mutationInfo.id) ? mutationInfo.chromosome + ":" + mutationInfo.start + "-" + mutationInfo.end: mutationInfo.id,
+                            "phenotype": mutationInfo.diseaseMutation}
+                    })
+
+                }
+                this.opencgaClient.panels().create(params, panel)
+                    .then(response => {
+                        _this.dispatchEvent(new CustomEvent(_this.eventNotifyName, {
+                            detail: {
+                                message: "Created Panel " + this.panelName,
+                                type: UtilsNew.MESSAGE_SUCCESS
+                            },
+                            bubbles: true,
+                            composed: true
+                        }));
+                        _this.panel = {};
+                })
+                .catch(function (responseError) {
+                    let _message = responseError.error;
+                    _this.dispatchEvent(new CustomEvent(_this.eventNotifyName, {
+                        detail: {
+                            message: _message,
+                            type: UtilsNew.MESSAGE_ERROR
+                        },
+                        bubbles: true,
+                        composed: true
+                    }));
+                });
             }
 
             sourceFormatter(value, row, index) {
@@ -638,12 +625,35 @@
                 return "<span style='white-space: nowrap'>" + source + "</span>";
             }
 
+            diseaseIdFormatter(value, row, index) {
+                let diseaseId = "-";
+                if (UtilsNew.isNotUndefinedOrNull(row.annotation.traitAssociation) && UtilsNew.isNotEmptyArray(row.annotation.traitAssociation)){
+                    diseaseId = row.annotation.traitAssociation[0].id;
+                }
+                return "<span style='white-space: nowrap'>" + diseaseId + "</span>";
+            }
+
+
             diseaseFormatter(value, row, index) {
                 let disease = "-";
                 if (UtilsNew.isNotUndefinedOrNull(row.annotation.traitAssociation) && UtilsNew.isNotEmptyArray(row.annotation.traitAssociation) && UtilsNew.isNotEmptyArray(row.annotation.traitAssociation[0].heritableTraits)){
                     disease = row.annotation.traitAssociation[0].heritableTraits[0].trait;
                 }
                 return "<span style='white-space: nowrap'>" + disease + "</span>";
+            }
+
+            locationFormatter(value, row, index) {
+                return row.chromosome + ":" + row.start + "-" + row.end;
+            }
+
+            idMutationFormatter(value, row, index) {
+                let id = "-";
+                if (UtilsNew.isNotUndefinedOrNull(row.chromosome) && UtilsNew.isNotUndefinedOrNull(row.start) && UtilsNew.isNotUndefinedOrNull(row.end)) {
+                    id = row.chromosome + ":" + row.start + "-" + row.end;
+                } else if(UtilsNew.isNotUndefinedOrNull(row.id)) {
+                    id = row.id;
+                }
+                return id;
             }
 
             _createDefaultColumnsDiseases() {
@@ -657,6 +667,15 @@
                             colspan: 1,
                             rowspan: 1
                             // formatter: this.stateFormatter
+                        },
+                        {
+                            title: 'ID',
+                            formatter: this.diseaseIdFormatter,
+                            // sortable: true,
+                            colspan: 1,
+                            rowspan: 1,
+                            halign: 'center',
+                            searchable: true
                         },
                         {
                             title: 'Disease',
@@ -690,7 +709,16 @@
                             rowspan: 1
                         },
                         {
-                            title: 'Genes',
+                            title: 'ID',
+                            field: 'id',
+                            // sortable: true,
+                            colspan: 1,
+                            rowspan: 1,
+                            halign: 'center',
+                            searchable: true
+                        },
+                        {
+                            title: 'Name',
                             field: 'name',
                             // sortable: true,
                             colspan: 1,
@@ -699,17 +727,17 @@
                             searchable: true
                         },
                         {
-                            title: 'Chromosome',
+                            title: 'Location',
                             field: 'chromosome',
                             // sortable: true,
                             colspan: 1,
                             rowspan: 1,
                             halign: 'center',
-                            searchable: true
+                            formatter: this.locationFormatter,
                         },
                         {
-                            title: 'Start',
-                            field: 'start',
+                            title: 'Confidence',
+                            field: 'confidence',
                             // sortable: true,
                             colspan: 1,
                             rowspan: 1,
@@ -717,8 +745,8 @@
                             searchable: true
                         },
                         {
-                            title: 'End',
-                            field: 'end',
+                            title: 'Biotype',
+                            field: 'biotype',
                             // sortable: true,
                             colspan: 1,
                             rowspan: 1,
@@ -738,27 +766,10 @@
                             colspan: 1,
                             rowspan: 1
                         },
+
                         {
-                            title: 'Chromosome',
-                            field: 'mutation.chromosome',
-                            // sortable: true,
-                            colspan: 1,
-                            rowspan: 1,
-                            halign: 'center',
-                            searchable: true
-                        },
-                        {
-                            title: 'Start',
-                            field: 'mutation.start',
-                            // sortable: true,
-                            colspan: 1,
-                            rowspan: 1,
-                            halign: 'center',
-                            searchable: true
-                        },
-                        {
-                            title: 'End',
-                            field: 'mutation.end',
+                            title: 'Id',
+                            formatter: this.idMutationFormatter,
                             // sortable: true,
                             colspan: 1,
                             rowspan: 1,
@@ -767,7 +778,7 @@
                         },
                         {
                             title: 'Ref',
-                            field: 'mutation.reference',
+                            field: 'reference',
                             // sortable: true,
                             colspan: 1,
                             rowspan: 1,
@@ -776,13 +787,22 @@
                         },
                         {
                             title: 'Alternate',
-                            field: 'mutation.alternate',
+                            field: 'alternate',
                             // sortable: true,
                             colspan: 1,
                             rowspan: 1,
                             halign: 'center',
                             searchable: true
-                        }
+                        },
+                        {
+                            title: 'Phenotype',
+                            field: 'phenotype',
+                            // sortable: true,
+                            colspan: 1,
+                            rowspan: 1,
+                            halign: 'center',
+                            searchable: true
+                        },
                     ]
                 ];
             }

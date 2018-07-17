@@ -22,40 +22,47 @@
                 margin-top: 20px;
             }
         </style>
+
         <div class="col-md-2 div-margin">
+            <div style="width: 60%;margin: 0 auto">
+                <button type="button" class="btn btn-lg btn-primary" style="width: 100%" on-click="onSearch">
+                    <i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px"></i> Search
+                </button>
+            </div>
             <div class="form-group has-feedback">
-                <label for="{{prefix}}NamePanel" class="col-label">Panel name</label>
+                <label for="{{prefix}}NamePanel" class="col-label">Name</label>
                 <input id="{{prefix}}NamePanel" type="text" class="form-control"
-                       placeholder="Search for" value="">
+                       placeholder="Search for" value="{{namePanel::input}}">
             </div>
             <div class="form-group has-feedback">
-                <label for="{{prefix}}Genes" class="col-label">Genes</label>
-                <input id="{{prefix}}Genes" type="text" class="form-control"
-                       placeholder="Search for" value="">
+                <label for="{{prefix}}AuthorPanel" class="col-label">Author</label>
+                <input id="{{prefix}}AuthorPanel" type="text" class="form-control"
+                       placeholder="Search for" value="{{authorPanel::input}}">
             </div>
             <div class="form-group has-feedback">
-                <label for="{{prefix}}Genes" class="col-label">Genes</label>
-                <input id="{{prefix}}Genes" type="text" class="form-control"
-                       placeholder="Search for" value="">
+                <label for="{{prefix}}VersionPanel" class="col-label">Version</label>
+                <input id="{{prefix}}VersionPanel" type="text" class="form-control"
+                       placeholder="Search for" value="{{versionPanel::input}}">
             </div>
-            <div class="form-group has-feedback">
-                <label for="{{prefix}}Mutations" class="col-label">Mutations</label>
-                <input id="{{prefix}}Mutations" type="text" class="form-control"
-                       placeholder="Search for" value="">
-            </div>
-            <div class="form-group has-feedback">
-                <label for="{{prefix}}Diseases" class="col-label">Diseases</label>
-                <input id="{{prefix}}Diseases" type="text" class="form-control"
-                       placeholder="Search for" value="">
-            </div>
+
 
         </div>
         <div class="col-md-10 div-margin">
             <div id="{{prefix}}PanelsDiv">
-                <table id="{{prefix}}PanelsGrid" data-pagination="true" data-page-list="[5, 10, 25, 50]">
+                <h2>Panels</h2>
+                <table id="{{prefix}}PanelsGrid" data-pagination="true" data-page-list="[5, 10, 25, 50]"  data-show-refresh="true">
                 </table>
             </div>
             <opencga-panel-summary opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}" panel-selected="{{panelSelected}}"></opencga-panel-summary>
+            <div id="{{prefix}}InstallationPanelsDiv">
+                <h2>Installation Panels</h2>
+                <button id="{{prefix}}ImportInstallationPanel" type="button" on-click="importInstallationPanel" class="btn btn-danger variant-prioritization-view-buttons" style="margin: 1% 1%; float: right;">
+                    <i class="fa fa-copy icon-padding" aria-hidden="true" ></i> Import
+                </button>
+                <table id="{{prefix}}InstallationPanelsGrid" data-pagination="true" data-page-list="[5, 10, 25, 50]">
+                </table>
+            </div>
+            <opencga-panel-summary opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}" panel-selected="{{installationPanelSelected}}"></opencga-panel-summary>
         </div>
 
     </template>
@@ -96,6 +103,7 @@
             connectedCallback() {
                 super.connectedCallback();
                 this.renderPanelTable();
+                this.renderInstallationPanelTable();
             }
 
             renderPanelTable() {
@@ -104,33 +112,33 @@
                 if (!opencgaHostUrl.startsWith("http://") && !opencgaHostUrl.startsWith("https://")) {
                     opencgaHostUrl = 'http://' + opencgaHostUrl;
                 }
-                opencgaHostUrl += '/webservices/rest/v1/samples/search';
+                opencgaHostUrl += '/webservices/rest/v1/diseasePanels/search';
 
                 let _table = $('#' + this.prefix + 'PanelsGrid');
 
                 let _this = this;
+                let queryParams = this.query;
                 $(_table).bootstrapTable('destroy');
                 $(_table).bootstrapTable({
-                    // url: opencgaHostUrl,
-                    data: this.panelExamples,
+                    url: opencgaHostUrl,
+//                    data: this.panelExamples,
                     columns: _this._createPanels(),
-                    // method: 'get',
-                    // sidePagination: 'server',
+                    method: 'get',
+                    sidePagination: 'server',
                     filterControl: true,
                     queryParams: function (params) {
                         let auxParams = {
-                            studyId: _this.opencgaSession.study.id,
-//                                lazy: "false",
+                            study: _this.opencgaSession.study.fqn,
+                            //                                lazy: "false",
                             sid: Cookies.get(_this.opencgaClient.getConfig().cookieSessionId),
-                            order: params.order,
-                            sort: params.sort,
+//                            order: params.order,
+//                            sort: params.sort,
                             limit: params.limit,
                             skip: params.offset,
-                            includeIndividual: true,
-                            name: params.search
+                            include: "id,name,author,version,description,genes,variants,phenotypes,source,creationDate"
                         };
 
-                        return Object.assign({}, auxParams);
+                        return Object.assign({}, auxParams, queryParams);
                     },
                     responseHandler: function (response) {
                         if (!_this.hasOwnProperty("numTotalResults")) {
@@ -157,79 +165,10 @@
                         $('.success').removeClass('success');
                         $(element).addClass('success');
                         _this.selectPanel(row);
-
-                        // let index = element[0].getAttribute("data-index");
-                        // // Check and uncheck actions trigger events that are captured below
-                        // if (row.state) {
-                        //     $(PolymerUtils.getElementById(_this.prefix + 'SampleSelector')).bootstrapTable('uncheck', index);
-                        // } else {
-                        //     $(PolymerUtils.getElementById(_this.prefix + "SampleSelector")).bootstrapTable('check', index);
-                        // }
-                    },
-                    onCheck: function (row, elem) {
-                        // check sample is not already selected
-                        // for (let i in _this._samples) {
-                        //     if (_this._samples[i].name === row.name) {
-                        //         return;
-                        //     }
-                        // }
-                        //
-                        // // we add samples to selected samples
-                        // _this.push("_samples", row);
-                        // _this.set('samples', _this._samples.slice());
-
-                    },
-                    onUncheck: function (row, elem) {
-                        // let sampleToDeleteIdx = -1;
-                        // for (let i in _this.samples) {
-                        //     if (_this.samples[i].name === row.name) {
-                        //         sampleToDeleteIdx = i;
-                        //         break;
-                        //     }
-                        // }
-                        //
-                        // if (sampleToDeleteIdx === -1) {
-                        //     return;
-                        // }
-                        //
-                        // _this.splice('_samples', sampleToDeleteIdx, 1);
-                        // _this.set('samples', _this._samples.slice());
-                    },
-                    onCheckAll: function (rows) {
-                        // let newSamples = _this._samples.slice();
-                        // // check sample is not already selected
-                        // rows.forEach((sample) => {
-                        //     let existsNewSelected = _this._samples.some((sampleSelected) => {
-                        //         return  sampleSelected.name === sample.name;
-                        //     });
-                        //
-                        //     if(!existsNewSelected){
-                        //         newSamples.push(sample);
-                        //     }
-                        // });
-                        //
-                        // // we add samples to selected samples
-                        // _this._samples = newSamples;
-                        // _this.set('samples', newSamples.slice());
-
-                    },
-                    onUncheckAll: function (rows) {
-//                         // check sample is not already selected
-//                         rows.forEach((sample) => {
-//                             _this._samples = _this._samples.filter((sampleSelected) => {
-//                                 return sampleSelected.name !== sample.name;
-//                             });
-//
-//                         });
-//
-//                         // we add samples to selected samples
-// //                            _this.push("_samples", row);
-//                         _this.set('samples', _this._samples.slice());
-
                     },
                     onLoadSuccess: function (data) {
                         PolymerUtils.querySelector(_table.selector).rows[1].setAttribute('class', 'success');
-                        _this.selectPanel(data[0]);
+//                        _this.selectPanel(data[0]);
 
                     },
                     onPageChange: function (page, size) {
@@ -244,6 +183,102 @@
                 });
             }
 
+
+            renderInstallationPanelTable() {
+                // Check that HTTP protocol is present and complete the URL
+                let opencgaHostUrl = this.opencgaClient.getConfig().host;
+                if (!opencgaHostUrl.startsWith("http://") && !opencgaHostUrl.startsWith("https://")) {
+                    opencgaHostUrl = 'http://' + opencgaHostUrl;
+                }
+                opencgaHostUrl += '/webservices/rest/v1/diseasePanels/search';
+
+                let _table = $('#' + this.prefix + 'InstallationPanelsGrid');
+
+                let _this = this;
+                let queryParams = this.query;
+                $(_table).bootstrapTable('destroy');
+                $(_table).bootstrapTable({
+                    url: opencgaHostUrl,
+//                    data: this.panelExamples,
+                    columns: _this._createPanels(),
+                    method: 'get',
+                    sidePagination: 'server',
+                    filterControl: true,
+                    queryParams: function (params) {
+                        let auxParams = {
+                            study: _this.opencgaSession.study.fqn,
+//                                lazy: "false",
+                            sid: Cookies.get(_this.opencgaClient.getConfig().cookieSessionId),
+//                            order: params.order,
+//                            sort: params.sort,
+                            globalPanels: true,
+                            limit: params.limit,
+                            skip: params.offset,
+                            include: "id,name,author,version,description,genes,variants,phenotypes,source,creationDate"
+                        };
+
+                        return Object.assign({}, auxParams, queryParams);
+                    },
+                    responseHandler: function (response) {
+                        if (!_this.hasOwnProperty("numTotalResults")) {
+                            _this.numTotalResults = 0;
+                        }
+                        if (_this.numTotalResults !== response.response[0].numTotalResults
+                                && response.queryOptions.skip === 0) {
+                            _this.numTotalResults = response.response[0].numTotalResults;
+                        }
+
+                        _this.numTotalResultsText = _this.numTotalResults.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+                        if(response.queryOptions.skip === 0 && _this.numTotalResults < response.queryOptions.limit){
+                            _this.from = 1;
+                            _this.to = _this.numTotalResults;
+                        }
+
+                        return {
+                            total: _this.numTotalResults,
+                            rows: response.response[0].result
+                        };
+                    },
+                    onClickRow: function (row, element, field) {
+                        $('.success').removeClass('success');
+                        $(element).addClass('success');
+                        _this.selectInstallationPanel(row);
+                    },
+                    onLoadSuccess: function (data) {
+                        PolymerUtils.querySelector(_table.selector).rows[1].setAttribute('class', 'success');
+//                        _this.selectPanel(data[0]);
+
+                    },
+                    onPageChange: function (page, size) {
+                        _this.from = (page - 1) * size + 1;
+                        _this.to = page * size;
+                    },
+                    onPostBody: function(data) {
+                        PolymerUtils.querySelector(_table.selector).rows[1].setAttribute('class', 'success');
+                        // _this.panelSelected = data[0];
+                        _this.selectInstallationPanel(data[0]);
+                    }
+                });
+            }
+
+            onSearch(e) {
+                let query = {};
+                if (UtilsNew.isNotEmpty(this.namePanel)) {
+                    query.name = this.namePanel;
+                }
+                if (UtilsNew.isNotEmpty(this.authorPanel)) {
+                    query.author = this.authorPanel;
+                }
+                if (UtilsNew.isNotEmpty(this.versionPanel)) {
+                    query.version = this.versionPanel;
+                }
+
+                this.query = Object.assign({}, query);
+                this.renderPanelTable();
+                this.renderInstallationPanelTable();
+            }
+
             selectPanel(panel) {
                 this.panelSelected = panel;
                 this.dispatchEvent(new CustomEvent("panelselected", {
@@ -253,14 +288,34 @@
                 }));
             }
 
-            // panelFormatter(value, row, index) {
+            selectInstallationPanel(panel) {
+                this.installationPanelSelected = panel;
+            }
+
+            importInstallationPanel() {
+                if (UtilsNew.isNotUndefinedOrNull(this.installationPanelSelected)) {
+                    this.dispatchEvent(new CustomEvent("importpanel", {
+                        detail: this.installationPanelSelected,
+                        bubbles: true,
+                        composed: true
+                    }));
+                }
+
+            }
+
             //     return "<span style='white-space: nowrap'>" + index + "</span>";
             // }
+            // panelFormatter(value, row, index) {
+            phenotypesFormatter(value, row, index) {
+                return UtilsNew.isNotEmptyArray(row.phenotypes) ? row.phenotypes.length : 0;
+            }
+
             genesFormatter(value, row, index) {
                 return UtilsNew.isNotEmptyArray(row.genes) ? row.genes.length : 0;
             }
-            phenotypesFormatter(value, row, index) {
-                return UtilsNew.isNotEmptyArray(row.phenotypes) ? row.phenotypes.length : 0;
+
+            mutationsFormatter(value, row, index) {
+                return UtilsNew.isNotEmptyArray(row.variants) ? row.variants.length : 0;
             }
 
 
@@ -269,7 +324,16 @@
                 return [
                     [
                         {
-                            title: 'Panel',
+                            title: 'ID',
+                            field: 'id',
+                            // sortable: true,
+                            colspan: 1,
+                            rowspan: 1,
+                            halign: 'center',
+                            searchable: true
+                        },
+                        {
+                            title: 'Name',
                             field: 'name',
                             // sortable: true,
                             colspan: 1,
@@ -278,7 +342,15 @@
                             searchable: true
                         },
                         {
-                            title: 'Genes Number',
+                            title: 'Number of Phenotypes',
+                            // sortable: true,
+                            colspan: 1,
+                            rowspan: 1,
+                            halign: 'center',
+                            formatter: this.phenotypesFormatter,
+                        },
+                        {
+                            title: 'Number of Genes',
                             // sortable: true,
                             colspan: 1,
                             rowspan: 1,
@@ -286,12 +358,12 @@
                             formatter: this.genesFormatter,
                         },
                         {
-                            title: 'Phenotypes Number',
+                            title: 'Number of Mutations',
                             // sortable: true,
                             colspan: 1,
                             rowspan: 1,
                             halign: 'center',
-                            formatter: this.phenotypesFormatter,
+                            formatter: this.mutationsFormatter,
                         }
                     ]
                 ];

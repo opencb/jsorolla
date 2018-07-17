@@ -27,20 +27,21 @@
                 <button id="{{prefix}}newPanelButton" type="button" class="btn btn-primary variant-prioritization-view-buttons"
                         on-click="_changeView" style="float: right;">
                     <template is="dom-if" if="{{!panelEditor}}">
-                        <i class="fa fa-floppy-o icon-padding" aria-hidden="true" on-click="_changeView"></i> New Panel...
+                        <i class="fa fa-plus icon-padding" aria-hidden="true" ></i> New...
                     </template>
                     <template is="dom-if" if="{{panelEditor}}">
-                        <i class="fa fa-floppy-o icon-padding" aria-hidden="true" on-click="_changeView"></i> Panel List...
+                        <i class="fa fa-undo icon-padding" aria-hidden="true"></i> Back to browser...
                     </template>
                 </button>
             </div>
             <div>
                 <template is="dom-if" if="{{!panelEditor}}">
-                    <h3>Panel Preview</h3>
-                    <opencga-panel-list opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}" opencga-client="{{opencgaClient}}" panel-examples="{{panelExamples}}" on-panelselected="onPanelSelected"></opencga-panel-list>
+                    <h3>Preview</h3>
+                    <opencga-panel-list opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}" opencga-client="{{opencgaClient}}" panel-examples="{{panelExamples}}"
+                                        on-panelselected="onPanelSelected" on-importpanel="onImportPanel"></opencga-panel-list>
                 </template>
                 <template is="dom-if" if="{{panelEditor}}">
-                    <opencga-panel-editor opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" panel-selected="{{panelSelected}}">
+                    <opencga-panel-editor opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" panel="{{installationPanel}}" event-notify-name="{{eventNotifyName}}">
 
                     </opencga-panel-editor>
                 </template>
@@ -79,15 +80,26 @@
                     },
                     panelExamples: {
                         type: Array
+                    },
+                    eventNotifyName: {
+                        type: String,
+                        value: "messageevent"
                     }
+
                 }
             }
             _changeView() {
                 this.panelEditor = !this.panelEditor;
+                this.installationPanel = {};
             }
 
             onPanelSelected(e) {
                 this.panelSelected = e.detail;
+            }
+
+            onImportPanel(e) {
+                this._changeView();
+                this.installationPanel = e.detail;
             }
 
 
