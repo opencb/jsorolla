@@ -34,33 +34,37 @@
             }
         </style>
 
-        <div id="{{prefix}}ToolbarLeft" style="float: left;margin: 10px 0px 0px 0px">
-            <span>
-                Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> variants
-                <template is="dom-if" if="{{approximateCountResult}}">
-                    <span style="padding-left: 10px; color: red" data-toggle="tooltip" title="Approximate count calculated, less than 5% of error">
-                        <i class="fa fa-lg fa-exclamation-triangle"></i>
-                    </span>
-                </template>
-            </span>
-        </div>
-
-        <div id="{{prefix}}toolbar" style="float:right;margin: 10px 0px 10px 0px">
-            <div class="btn-group">
-                <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <i id="{{prefix}}DownloadRefresh" class="fa fa-refresh fa-spin" aria-hidden="true" style="font-size:14px;display: none"></i>
-                    <i id="{{prefix}}DownloadIcon" class="fa fa-download" aria-hidden="true"></i> Download <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu btn-sm">
-                    <li><a id="{{prefix}}DownloadTabLink" on-click="_downloadTabFile">Tab</a></li>
-                    <li><a id="{{prefix}}DownloadJsonLink" on-click="_downloadJsonFile">JSON</a></li>
-                </ul>
+        <div class="col-md-12" style="padding: 5px 0px 0px 0px">
+            <div id="{{prefix}}ToolbarLeft" class="col-md-6" style="padding: 15px 0px 0px 0px">
+                <span style="padding: 0px">
+                    Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> variants
+                    <template is="dom-if" if="{{approximateCountResult}}">
+                        <span style="padding-left: 10px; color: red" data-toggle="tooltip" title="Approximate count calculated, less than 5% of error">
+                            <i class="fa fa-lg fa-exclamation-triangle"></i>
+                        </span>
+                    </template>
+                </span>
             </div>
 
-            <!--Share URL-->
-            <button type="button" class="btn btn-default btn-sm" data-toggle="popover" data-placement="bottom" on-click="_shareLink">
-                <i class="fa fa-share-alt" aria-hidden="true"></i> Share
-            </button>
+            <div id="{{prefix}}toolbar" class="col-md-6" style="padding: 0px">
+                <div class="form-inline" style="padding: 0px; float: right">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i id="{{prefix}}DownloadRefresh" class="fa fa-refresh fa-spin" aria-hidden="true" style="font-size:14px;display: none"></i>
+                            <i id="{{prefix}}DownloadIcon" class="fa fa-download" aria-hidden="true"></i> Download <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu btn-sm">
+                            <li><a id="{{prefix}}DownloadTabLink" on-click="_downloadTabFile">Tab</a></li>
+                            <li><a id="{{prefix}}DownloadJsonLink" on-click="_downloadJsonFile">JSON</a></li>
+                        </ul>
+                    </div>
+
+                    <!--Share URL-->
+                    <button type="button" class="btn btn-default btn-sm" data-toggle="popover" data-placement="bottom" on-click="_shareLink">
+                        <i class="fa fa-share-alt" aria-hidden="true"></i> Share
+                    </button>
+                </div>
+            </div>
         </div>
 
         <div id="{{prefix}}GridTableDiv" style="margin-top: 10px">
@@ -138,10 +142,6 @@
                         type: String,
                         notify: true
                     },
-                    showSelect: {
-                        type: Boolean,
-                        value: false
-                    },
                     config: {
                         type: Object,
                         observer: "configObserver"
@@ -167,9 +167,6 @@
                 this.downloadRefreshIcon = $("#" + this.prefix + "DownloadRefresh");
                 this.downloadIcon = $("#" + this.prefix + "DownloadIcon");
 
-                // ...
-                // this.defaultConfig.detailView = this.showSelect;
-
                 this._refreshTableColumns();
                 this.renderVariantTable();
             }
@@ -179,12 +176,6 @@
 
                 this.analysisMode = "family";
 
-                // this.defaultConfig = {
-                //     pagination: true,
-                //     pageSize: 10,
-                //     pageList: [10, 25, 50],
-                //     showExport: false
-                // };
                 this._config = this.getDefaultConfig();
             }
 
@@ -250,6 +241,7 @@
                         sidePagination: 'server',
 
                         // Set table properties, these are read from config property
+                        uniqueId: "id",
                         pagination: _this._config.pagination,
                         pageSize: _this._config.pageSize,
                         pageList: _this._config.pageList,
@@ -274,7 +266,7 @@
                             _this.approximateCountResult = resp.response[0].approximateCount;
                             return {total: _numTotal, rows: resp.response[0].result}
                         },
-                        onClickRow: function (row, $element) {
+                        onClickRow: function (row, $element, field) {
                             $('.success').removeClass('success');
                             $($element).addClass('success');
 
@@ -369,9 +361,10 @@
                         }
                     });
 
-                    if (!this.showSelect) {
-                        $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('hideColumn', "stateCheckBox");
-                    }
+                    // if (!this.showSelect) {
+                    //     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('hideColumn', "selectForInterpretation");
+                    //     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('hideColumn', "stateCheckBox");
+                    // }
 
                     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('showLoading');
                 }
@@ -595,7 +588,7 @@
                     clinicalHtml += "<div class='col-md-6'>" + clinvarTraits + "<br>" + cosmicTraits + "</div>";
 
                 }
-                result += ctHtml + clinicalHtml + "</div>"
+                result += ctHtml + clinicalHtml + "</div>";
                 return result;
             }
 
@@ -929,9 +922,6 @@
                                 phenotypeHtml = `<span data-toggle="tooltip" data-placement="bottom" title="${traitText}"><i class='fa fa-check' style='color: green'></i></span>`;
                             }
                         }
-                        // if (traits.length > 0) {
-                        //     return traits.join('<br>');
-                        // }
                     }
                 }
                 return phenotypeHtml;
@@ -939,6 +929,7 @@
 
             sampleFormatter(value, row, index) {
                 let res = "-";
+
                 if (typeof row !== "undefined" && typeof row.studies !== "undefined" && row.studies.length > 0) {
                     // NOTE: There are always 4 columns before the samples
                     // This context is for row
@@ -960,8 +951,8 @@
                                 });
                             }
                             if (UtilsNew.isNotUndefinedOrNull(study.samplesData) && UtilsNew.isNotEmptyArray(study.samplesData)) {
-                                if (UtilsNew.isNotUndefinedOrNull(study.samplesData[this.fieldIndex - 5])) {
-                                    let currentGenotype = study.samplesData[this.fieldIndex - 5][0];
+                                if (UtilsNew.isNotUndefinedOrNull(study.samplesData[this.fieldIndex - 4])) {
+                                    let currentGenotype = study.samplesData[this.fieldIndex - 4][0];
                                     let reference = currentGenotype.split("/")[0];
                                     let alternate = currentGenotype.split("/")[1];
                                     let tooltipText = reference + " / " + alternate;
@@ -1036,7 +1027,7 @@
                     } else {
                         row.studies.forEach((study) => {
                             if (study.samplesData.length > 0) {
-                                let currentGenotype = study.samplesData[this.fieldIndex - 5];
+                                let currentGenotype = study.samplesData[this.fieldIndex - 4];
                                 if (UtilsNew.isNotUndefinedOrNull(currentGenotype)) {
                                     res = currentGenotype[0];
                                     return;
@@ -1050,16 +1041,17 @@
 
             _refreshTableColumns() {
                 this.cols = this._createDefaultColumns();
+
                 if (typeof this.cols !== "undefined" && typeof this.cohorts !== "undefined" && Object.keys(this.cohorts).length > 0
                     && this.config.filter.menu.skipSubsections !== undefined && !this.config.filter.menu.skipSubsections.includes("cohort")) {
-                    let cohortIdx = 6;
+                    let cohortIdx = 5;
                     let cohortStudies = Object.keys(this.cohorts);
-                    this.cols[0].splice(8, 0, {
+                    this.cols[0].splice(7, 0, {
                         title: this.opencgaSession.project.name,
                         field: 'cohorts',
                         rowspan: 1,
                         colspan: cohortStudies.length,
-                        halign: 'center'
+                        align: 'center'
                     });
 
                     for(let i = 0; i < cohortStudies.length; i++) {
@@ -1073,13 +1065,13 @@
                             rowspan: 1,
                             colspan: 1,
                             formatter: this.cohortFormatter,
-                            halign: 'center'
+                            align: 'center'
                         });
                     }
                 }
 
                 if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.studies !== "undefined" && this.populationFrequencies.studies.length > 0) {
-                    let popIdx = 8;
+                    let popIdx = 7;
                     let subPopIdx = 6;
                     if (typeof this.cohorts !== "undefined" && Object.keys(this.cohorts).length > 0
                         && this.config.filter.menu.skipSubsections !== undefined && !this.config.filter.menu.skipSubsections.includes("cohort")) {
@@ -1093,15 +1085,15 @@
                         'Frequencies are visualized as colours which classify values into very rare, rare, average, common or missing, see http://www.dialogues-cns.com/wp-content/uploads/2015/03/DialoguesClinNeurosci-17-69-g001.jpg. Please, leave ' +
                         'the cursor over each square to visualize the actual frequency value."><i class="fa fa-info-circle" aria-hidden="true"></i></a>' +
                         '<div style="width: 60%;margin: auto"><div style="float: left">Legend:&nbsp;&nbsp;</div>' +
-                        '<div style="float: left; width: 10px;height: 10px;margin: 6px 2px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.veryRare + '" title="Very rare:  freq < 0.001"></div>' +
-                        '<div style="float: left; width: 10px;height: 10px;margin: 6px 2px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.rare + '" title="Rare:  freq < 0.005"></div>' +
-                        '<div style="float: left; width: 10px;height: 10px;margin: 6px 2px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.average + '" title="Average:  freq < 0.05"></div>' +
-                        '<div style="float: left; width: 10px;height: 10px;margin: 6px 2px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.common + '" title="Common:  freq >= 0.05"></div>' +
+                            '<div style="float: left; width: 10px;height: 10px;margin: 6px 2px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.veryRare + '" title="Very rare:  freq < 0.001"></div>' +
+                            '<div style="float: left; width: 10px;height: 10px;margin: 6px 2px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.rare + '" title="Rare:  freq < 0.005"></div>' +
+                            '<div style="float: left; width: 10px;height: 10px;margin: 6px 2px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.average + '" title="Average:  freq < 0.05"></div>' +
+                            '<div style="float: left; width: 10px;height: 10px;margin: 6px 2px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.common + '" title="Common:  freq >= 0.05"></div>' +
                         '</div>',
                         field: '',
                         rowspan: 1,
                         colspan: this.populationFrequencies.studies.length,
-                        halign: 'center'
+                        align: 'center'
                     });
 
                     for (let j = 0; j < this.populationFrequencies.studies.length; j++) {
@@ -1123,104 +1115,70 @@
                             rowspan: 1,
                             colspan: 1,
                             formatter: this.populationFrequenciesFormatter,
-                            halign: 'center'
+                            align: 'center'
                         });
                     }
                 }
 
                 if (typeof this.cols !== "undefined" && typeof this.samples !== "undefined" && this.samples.length > 0) {
-                    switch(this.analysisMode) {
-                        case "family":
-                            // if type is 'family' we expected few samples to be provided in property 'samples'
-                            this.cols[0].splice(5, 0, {
-                                title: 'Samples',
-                                field: 'samples',
-                                rowspan: 1,
-                                colspan: this.samples.length,
-                                halign: 'center'
-                            });
-                            for(let i = 0; i < this.samples.length; i++) {
-                                this.cols[1].splice(i, 0, {
-                                    title: this.samples[i].name,
-                                    field: 'samples',
-                                    rowspan: 1,
-                                    colspan: 1,
-                                    formatter: this.sampleFormatter,
-                                    halign: 'center',
-                                    nucleotideGenotype: this.config.grid.nucleotideGenotype,
-                                });
-                            }
-                            break;
-                        case "cancer":
-                            this.cols[0].splice(5, 0, {
-                                title: this.samples[0].name,
-                                field: 'samples',
-                                rowspan: 1,
-                                colspan: 2,
-                                halign: 'center'
-                            });
-                            this.cols[1].splice(0, 0, {
-                                    title: 'Somatic',
-                                    field: 'samples',
-                                    rowspan: 1,
-                                    colspan: 1,
-                                    halign: 'center'
-                                },
-                                {
-                                    title: 'Germline',
-                                    field: 'samples',
-                                    rowspan: 1,
-                                    colspan: 1,
-                                    halign: 'center'
-                                }
-                            );
-                            break;
-                        case "caseControl":
-                            this.cols[0].splice(5, 0, {
-                                title: 'Samples',
-                                field: 'samples',
-                                rowspan: 1,
-                                colspan: 2,
-                                halign: 'center'
-                            });
-                            this.cols[1].splice(0, 0, {
-                                    title: 'Control',
-                                    field: 'samples',
-                                    rowspan: 1,
-                                    colspan: 1,
-                                    halign: 'center'
-                                },
-                                {
-                                    title: 'Case',
-                                    field: 'samples',
-                                    rowspan: 1,
-                                    colspan: 1,
-                                    halign: 'center'
-                                }
-                            );
-                            break;
-                        default:
-                            break;
+                    this.cols[0].splice(4, 0, {
+                        title: 'Samples',
+                        field: 'samples',
+                        rowspan: 1,
+                        colspan: this.samples.length,
+                        align: 'center'
+                    });
+                    for(let i = 0; i < this.samples.length; i++) {
+                        this.cols[1].splice(i, 0, {
+                            title: this.samples[i].name,
+                            field: 'samples',
+                            rowspan: 1,
+                            colspan: 1,
+                            formatter: this.sampleFormatter,
+                            align: 'center',
+                            nucleotideGenotype: true,
+                        });
                     }
+                    // switch(this.analysisMode) {
+                    //     case "family":
+                    //         // if type is 'family' we expected few samples to be provided in property 'samples'
+                    //         break;
+                    //     case "cancer":
+                    //         this.cols[0].splice(4, 0, {
+                    //             title: this.samples[0].name,
+                    //             field: 'samples',
+                    //             rowspan: 1,
+                    //             colspan: 2,
+                    //             halign: 'center'
+                    //         });
+                    //         this.cols[1].splice(0, 0, {
+                    //                 title: 'Somatic',
+                    //                 field: 'samples',
+                    //                 rowspan: 1,
+                    //                 colspan: 1,
+                    //                 halign: 'center'
+                    //             },
+                    //             {
+                    //                 title: 'Germline',
+                    //                 field: 'samples',
+                    //                 rowspan: 1,
+                    //                 colspan: 1,
+                    //                 halign: 'center'
+                    //             }
+                    //         );
+                    //         break;
+                    //     default:
+                    //         break;
+                    // }
                 }
                 // this.renderVariantTable();
             }
 
             _createDefaultColumns() {
-                return [
+                let columns = [
                     [
                         {
-//                            title: 'Select',
-//                            field: {source: 'state', context: this},
-                            field: "stateCheckBox",
-                            checkbox: true,
-                            colspan: 1,
-                            rowspan: 2,
-                            formatter: this.stateFormatter
-                        },
-                        {
                             title: 'Variant',
-                            // field: 'variant',
                             field: {context: this},
                             colspan: 1,
                             rowspan: 2,
@@ -1254,7 +1212,6 @@
                         {
                             title: 'Consequence Type',
                             field: {context: this},
-//                            sortable: true,
                             colspan: 1,
                             rowspan: 2,
                             formatter: this.consequenceTypeFormatter,
@@ -1267,24 +1224,23 @@
                             'SIFT score takes values in the range [0, infinite[, the lower the values, the more damaging the prediction. ' +
                             'Polyphen score takes values in the range [0, 1[, the closer to 2, the more damaging the prediction.">' +
                             '<i class="fa fa-info-circle" aria-hidden="true"></i></a>',
-//                            field: 'Protein Substitution',
-                            colspan: 3,
                             rowspan: 1,
-                            halign: 'center'
+                            colspan: 3,
+                            align: 'center'
                         },
                         {
                             title: 'Conservation  <a data-toggle="tooltip" title="Positive PhyloP scores measure conservation which is slower evolution than expected, at sites that are predicted to be conserved. Negative PhyloP scores measure acceleration, which is faster evolution than expected, at sites that are predicted to be fast-evolving. Absolute values of phyloP scores represent -log p-values under a null hypothesis of neutral evolution. The phastCons scores represent probabilities of negative selection and range between 0 and 1. Positive GERP scores represent a substitution deficit and thus indicate that a site may be under evolutionary constraint. Negative scores indicate that a site is probably evolving neutrally. Some authors suggest that a score threshold of 2 provides high sensitivity while still strongly enriching for truly constrained sites"><i class="fa fa-info-circle" aria-hidden="true"></i></a>',
                             field: 'Conservation',
-                            colspan: 3,
                             rowspan: 1,
-                            halign: 'center'
+                            colspan: 3,
+                            align: 'center'
                         },
                         {
                             title: 'Phenotypes',
-                            colspan: 2,
                             rowspan: 1,
-                            halign: 'center'
-                        }
+                            colspan: 2,
+                            align: 'center'
+                        },
                     ],
                     [
                         {
@@ -1305,7 +1261,6 @@
                         },
                         {
                             title: 'CADD',
-//                            field: {source: 'caddScaled', context: this},
                             colspan: 1,
                             rowspan: 1,
                             formatter: this.caddScaledFormatter,
@@ -1345,7 +1300,7 @@
                             colspan: 1,
                             rowspan: 1,
                             formatter: this.clinicalPhenotypeFormatter,
-                            halign: 'center'
+                            align: 'center'
                         },
                         {
                             title: 'Cosmic',
@@ -1353,10 +1308,28 @@
                             colspan: 1,
                             rowspan: 1,
                             formatter: this.clinicalPhenotypeFormatter,
-                            halign: 'center'
-                        }
+                            align: 'center'
+                        },
                     ]
                 ];
+
+                // add last checkbox column
+                if (this._config.showSelectCheckbox) {
+                    columns[0].push({
+                        title: 'Select for <br> Interpretation',
+                        field: "selectForInterpretation",
+                        rowspan: 1,
+                        colspan: 1,
+                        align: 'center'
+                    });
+                    columns[1].push({
+                        field: "stateCheckBox",
+                        checkbox: true,
+                        rowspan: 1,
+                        colspan: 1
+                    });
+                }
+                return columns;
             }
 
             _downloadTabFile() {
@@ -1370,7 +1343,7 @@
                 this.opencgaClient.variants().query(params)
                     .then(function (response) {
                         let json = response.response[0].result;
-                        let dataString = VariantUtils.jsonToTabConvert(json, _this.populationFrequencies.studies, _this.samples, _this.config.grid.nucleotideGenotype);
+                        let dataString = VariantUtils.jsonToTabConvert(json, _this.populationFrequencies.studies, _this.samples, _this._config.nucleotideGenotype);
                         let data = new Blob([dataString.join('\n')], {type: 'text/plain'});
                         let file = window.URL.createObjectURL(data);
                         let a = document.createElement("a");
@@ -1451,6 +1424,8 @@
                     detailView: true,
                     detailFormatter: this.tableDetailFormatter,
 
+                    showSelectCheckbox: false,
+                    nucleotideGenotype: true,
                     alleleStringLengthMax: 15
                 }
             }
