@@ -75,7 +75,7 @@
                                 <textarea id="{{prefix}}FeatureTextarea" name="geneSnp" class="form-control clearable"
                                           rows="3" placeholder="BRCA2,PPL" style="margin-top: 5px" value="{{geneValue::input}}"></textarea>
                                 <button id="{{prefix}}addGenes" type="button" on-click="addGenes" class="btn btn-primary variant-prioritization-view-buttons" style="margin-top: 1%;">
-                                    <i class="fa fa-floppy-o icon-padding" aria-hidden="true" ></i> Add Genes
+                                    <i class="fa fa-floppy-o icon-padding" aria-hidden="true" ></i> Add
                                 </button>
                             </div>
                             <!--<div class="form-group has-feedback">-->
@@ -120,12 +120,12 @@
                                         name="diseaseMutation" required data-required-error="This field is required" value="{{diseaseMutation::input}}">
                                     <option value="">Select...</option>
                                     <template is="dom-repeat" items="{{diseasesSelected}}">
-                                        <option value="{{item.disease}}">{{item.disease}}</option>
+                                        <option value="{{item.name}}">{{item.name}}</option>
                                     </template>
                                 </select>
                             </div>
                             <button id="{{prefix}}addMutation" type="button" on-click="addMutationsOnclick" class="btn btn-primary variant-prioritization-view-buttons" style="margin-top: 1%;">
-                                <i class="fa fa-floppy-o icon-padding" aria-hidden="true"></i> Add Genes
+                                <i class="fa fa-floppy-o icon-padding" aria-hidden="true"></i> Add
                             </button>
                             <!--<div class="form-group has-feedback">-->
                                 <!--<label for="{{prefix}}ImportFromVCF" class="col-label">Import from VCF</label>-->
@@ -163,26 +163,28 @@
                     </div>
                     <!--Info panel-->
                     <div role="tabpanel" class="tab-pane" id="{{prefix}}Info">
-                        <div class="col-md-4" style="margin-top: 2%">
-                            <div class="form-group has-feedback">
-                                <label for="{{prefix}}PanelName" class="col-label">Name</label>
-                                <input id="{{prefix}}PanelName" name="panelName" class="form-control clearable"
-                                          placeholder="Panel..." value="{{panelName::input}}">
+                        <form id="{{prefix}}uploadForm" class="form-horizontal" data-toggle="validator" data-feedback='{"success": "fa-check", "error": "fa-times"}' role="form">
+                            <div class="col-md-4" style="margin-top: 2%">
+                                <div class="form-group has-feedback">
+                                    <label for="{{prefix}}PanelName" class="col-label">Name</label>
+                                    <input id="{{prefix}}PanelName" name="panelName" class="form-control clearable"
+                                              placeholder="Panel..." value="{{panelName::input}}" required>
+                                </div>
+                                <div class="form-group has-feedback">
+                                    <label for="{{prefix}}PanelAuthor" class="col-label">Author</label>
+                                    <input id="{{prefix}}PanelAuthor" name="panelAuthor" class="form-control clearable"
+                                           placeholder="Author..." value="{{panelAuthor::input}}">
+                                </div>
+                                <div class="form-group has-feedback">
+                                    <label for="{{prefix}}PanelDescription" class="col-label">Description</label>
+                                    <textarea id="{{prefix}}PanelDescription" name="location" class="form-control clearable"
+                                              rows="3" placeholder="Description" value="{{panelDescription::input}}"></textarea>
+                                </div>
+                                <button id="{{prefix}}SavePanel" type="button" class="btn btn-primary variant-prioritization-view-buttons" on-click="savePanel" style="margin-top: 1%;">
+                                    <i class="fa fa-floppy-o icon-padding" aria-hidden="true"></i> Save
+                                </button>
                             </div>
-                            <div class="form-group has-feedback">
-                                <label for="{{prefix}}PanelAuthor" class="col-label">Author</label>
-                                <input id="{{prefix}}PanelAuthor" name="panelAuthor" class="form-control clearable"
-                                       placeholder="Author..." value="{{panelAuthor::input}}">
-                            </div>
-                            <div class="form-group has-feedback">
-                                <label for="{{prefix}}PanelDescription" class="col-label">Description</label>
-                                <textarea id="{{prefix}}PanelDescription" name="location" class="form-control clearable"
-                                          rows="3" placeholder="Description" value="{{panelDescription::input}}"></textarea>
-                            </div>
-                            <button id="{{prefix}}SavePanel" type="button" class="btn btn-primary variant-prioritization-view-buttons" on-click="savePanel" style="margin-top: 1%;">
-                                <i class="fa fa-floppy-o icon-padding" aria-hidden="true"></i> Save Panel
-                            </button>
-                        </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -336,11 +338,12 @@
                         // }
                     },
                     onCheck: function (row, elem) {
+                        debugger;
                         let disease = "-";
                         if (UtilsNew.isNotUndefinedOrNull(row.annotation.traitAssociation) && UtilsNew.isNotEmptyArray(row.annotation.traitAssociation) && UtilsNew.isNotEmptyArray(row.annotation.traitAssociation[0].heritableTraits)){
                             disease = row.annotation.traitAssociation[0].heritableTraits[0].trait;
+                            _this.diseasesSelected.push({id: row.annotation.traitAssociation[0].id, name: disease, source: row.annotation.traitAssociation[0].source.name})
                         }
-                        _this.diseasesSelected.push({disease: disease})
                         _this.set('diseasesSelected', _this.diseasesSelected.slice());
 
                     },
@@ -416,6 +419,7 @@
                 let _this = this;
                 let assembly = this.opencgaSession.project.organism.assembly;
                 let promises = [];
+                let numGenesAdded = 0;
                 genes.map(gene => {
                     let existsGene = _this.genesPanelEditor.find((geneAdded) => {
                         return geneAdded.name === gene;
@@ -429,6 +433,7 @@
                                         if (response.response[0].numTotalResults === 1) {
                                             let geneInfo = geneResponse.result[0];
                                             _this.genesPanelEditor.push(geneInfo);
+                                            numGenesAdded++;
                                         }
                                     });
                                 }
@@ -445,6 +450,14 @@
                     }
                 });
                 Promise.all(promises).then(values => {
+                    _this.dispatchEvent(new CustomEvent(_this.eventNotifyName, {
+                        detail: {
+                            message: "Added " + numGenesAdded + " genes.",
+                            type: UtilsNew.MESSAGE_INFO
+                        },
+                        bubbles: true,
+                        composed: true
+                    }));
                     _this.renderPanelTableGenes();
                     _this.geneValue = "";
                 });
@@ -480,27 +493,34 @@
                 }
             }
 
-            addMutations(region, gene = null) {
+            addMutations(region) {
                 let _this = this;
                 let assembly = this.opencgaSession.project.organism.assembly;
                 this.cellbaseClient.get('clinical', 'variant', null, 'search', {assembly: assembly, region: region}, {})
                     .then(function (response) {
                         if (UtilsNew.isNotUndefinedOrNull(response.response) && response.response ) {
+                            let numVariantsAdded = 0;
                             response.response[0].result.forEach((mutationResponse) => {
                                 let mutationInfo = mutationResponse;
                                 let existsMutation = _this.mutationsPanelEditor.find((mutationAdded) => {
-                                    return mutationAdded.mutation.chromosome + ":" + mutationAdded.mutation.start + "-" + mutationAdded.mutation.end === mutationInfo.chromosome + ":" + mutationInfo.start + "-" + mutationInfo.end;
+                                    return mutationAdded.chromosome + ":" + mutationAdded.start + "-" + mutationAdded.end === mutationInfo.chromosome + ":" + mutationInfo.start + "-" + mutationInfo.end;
                                 });
                                 if (UtilsNew.isUndefinedOrNull(existsMutation)) {
-                                    let mutation = {mutation: mutationInfo}
-                                    if (UtilsNew.isNotUndefinedOrNull(gene)) {
-                                        mutation.genes = [gene]
-                                    }
-
-                                    _this.mutationsPanelEditor.push(mutation);
+                                    // let mutation = {mutation: mutationInfo}
+                                    mutationInfo.phenotype = _this.diseaseMutation;
+                                    _this.mutationsPanelEditor.push(mutationInfo);
+                                    numVariantsAdded++;
                                     _this.renderPanelTableMutations();
                                 }
                             });
+                            _this.dispatchEvent(new CustomEvent(_this.eventNotifyName, {
+                                detail: {
+                                    message: "Added " + numVariantsAdded + " variants.",
+                                    type: UtilsNew.MESSAGE_INFO
+                                },
+                                bubbles: true,
+                                composed: true
+                            }));
                         }
                     });
             }
@@ -508,7 +528,7 @@
             deleteMutationsOnclick(e) {
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
                 let rows = $.map($(PolymerUtils.getElementById(this.prefix + 'PanelMutationsGrid')).bootstrapTable('getSelections'), function (row) {
-                    return row.mutation.chromosome + ":" + row.mutation.start + "-" + row.mutation.end;
+                    return row.chromosome + ":" + row.start + "-" + row.end;
                 });
                 this.deleteMutations(rows);
             }
@@ -529,7 +549,7 @@
                     // Deleted mutation by chromosome:start-end
                     this.mutationsPanelEditor = this.mutationsPanelEditor.filter((mutation) => {
                         let existMutation = ids.find((mutationPos) => {
-                            return mutation.mutation.chromosome + ":" + mutation.mutation.start + "-" + mutation.mutation.end === mutationPos;
+                            return mutation.chromosome + ":" + mutation.start + "-" + mutation.end === mutationPos;
                         });
                         return UtilsNew.isUndefinedOrNull(existMutation);
                     });
@@ -542,6 +562,16 @@
                 let params = {
                     study:this.opencgaSession.study.fqn
                 };
+                if (UtilsNew.isUndefinedOrNull(this.panelName)) {
+                    _this.dispatchEvent(new CustomEvent(_this.eventNotifyName, {
+                        detail: {
+                            message: "Name is required",
+                            type: UtilsNew.MESSAGE_INFO
+                        },
+                        bubbles: true,
+                        composed: true
+                    }));
+                }
                 if (UtilsNew.isUndefinedOrNull(this.panelId)) {
                     this.panelId = this.panelName.replace(/\s/g, "");
                 }
@@ -556,7 +586,10 @@
                     "genes": this.genesPanelEditor.map(geneInfo => {
                         return {"id": geneInfo.id, "name": geneInfo.name, "confidence": ""}
                     }),
-                    "variants": this.mutationsPanelEditor
+                    "variants": this.mutationsPanelEditor.map(mutationInfo => {
+                        return {"id": UtilsNew.isUndefinedOrNull(mutationInfo.id) ? mutationInfo.chromosome + ":" + mutationInfo.start + "-" + mutationInfo.end: mutationInfo.id,
+                            "phenotype": mutationInfo.diseaseMutation}
+                    })
 
                 }
                 this.opencgaClient.panels().create(params, panel)
@@ -611,6 +644,16 @@
 
             locationFormatter(value, row, index) {
                 return row.chromosome + ":" + row.start + "-" + row.end;
+            }
+
+            idMutationFormatter(value, row, index) {
+                let id = "-";
+                if (UtilsNew.isNotUndefinedOrNull(row.chromosome) && UtilsNew.isNotUndefinedOrNull(row.start) && UtilsNew.isNotUndefinedOrNull(row.end)) {
+                    id = row.chromosome + ":" + row.start + "-" + row.end;
+                } else if(UtilsNew.isNotUndefinedOrNull(row.id)) {
+                    id = row.id;
+                }
+                return id;
             }
 
             _createDefaultColumnsDiseases() {
@@ -726,7 +769,25 @@
 
                         {
                             title: 'Id',
-                            field: 'id',
+                            formatter: this.idMutationFormatter,
+                            // sortable: true,
+                            colspan: 1,
+                            rowspan: 1,
+                            halign: 'center',
+                            searchable: true
+                        },
+                        {
+                            title: 'Ref',
+                            field: 'reference',
+                            // sortable: true,
+                            colspan: 1,
+                            rowspan: 1,
+                            halign: 'center',
+                            searchable: true
+                        },
+                        {
+                            title: 'Alternate',
+                            field: 'alternate',
                             // sortable: true,
                             colspan: 1,
                             rowspan: 1,
@@ -742,51 +803,6 @@
                             halign: 'center',
                             searchable: true
                         },
-                        {
-                            title: 'Chromosome',
-                            field: 'mutation.chromosome',
-                            // sortable: true,
-                            colspan: 1,
-                            rowspan: 1,
-                            halign: 'center',
-                            searchable: true
-                        },
-                        {
-                            title: 'Start',
-                            field: 'mutation.start',
-                            // sortable: true,
-                            colspan: 1,
-                            rowspan: 1,
-                            halign: 'center',
-                            searchable: true
-                        },
-                        {
-                            title: 'End',
-                            field: 'mutation.end',
-                            // sortable: true,
-                            colspan: 1,
-                            rowspan: 1,
-                            halign: 'center',
-                            searchable: true
-                        },
-                        {
-                            title: 'Ref',
-                            field: 'mutation.reference',
-                            // sortable: true,
-                            colspan: 1,
-                            rowspan: 1,
-                            halign: 'center',
-                            searchable: true
-                        },
-                        {
-                            title: 'Alternate',
-                            field: 'mutation.alternate',
-                            // sortable: true,
-                            colspan: 1,
-                            rowspan: 1,
-                            halign: 'center',
-                            searchable: true
-                        }
                     ]
                 ];
             }
