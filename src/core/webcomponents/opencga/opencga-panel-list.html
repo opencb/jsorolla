@@ -48,6 +48,12 @@
 
         </div>
         <div class="col-md-10 div-margin">
+            <div id="{{prefix}}PanelsDiv">
+                <h2>Panels</h2>
+                <table id="{{prefix}}PanelsGrid" data-pagination="true" data-page-list="[5, 10, 25, 50]">
+                </table>
+            </div>
+            <opencga-panel-summary opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}" panel-selected="{{panelSelected}}"></opencga-panel-summary>
             <div id="{{prefix}}InstallationPanelsDiv">
                 <h2>Installation Panels</h2>
                 <button id="{{prefix}}ImportInstallationPanel" type="button" on-click="importInstallationPanel" class="btn btn-danger variant-prioritization-view-buttons" style="margin: 1% 1%; float: right;">
@@ -57,12 +63,6 @@
                 </table>
             </div>
             <opencga-panel-summary opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}" panel-selected="{{installationPanelSelected}}"></opencga-panel-summary>
-            <div id="{{prefix}}PanelsDiv">
-                <h2>Panels</h2>
-                <table id="{{prefix}}PanelsGrid" data-pagination="true" data-page-list="[5, 10, 25, 50]">
-                </table>
-            </div>
-            <opencga-panel-summary opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}" panel-selected="{{panelSelected}}"></opencga-panel-summary>
         </div>
 
     </template>
@@ -214,7 +214,7 @@
                             globalPanels: true,
                             limit: params.limit,
                             skip: params.offset,
-                            include: "name,author,version,description,genes,variants,phenotypes"
+                            include: "id,name,author,version,description,genes,variants,phenotypes,source,creationDate"
                         };
 
                         return Object.assign({}, auxParams, queryParams);

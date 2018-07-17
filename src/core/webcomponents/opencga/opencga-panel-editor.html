@@ -59,7 +59,7 @@
                         <div class="col-md-6" style="margin-top: 5%">
                             <ul class="list-group">
                                 <template is="dom-repeat" items="{{diseasesSelected}}">
-                                    <li class="list-group-item">{{item.disease}}
+                                    <li class="list-group-item">{{item.name}}
                                         <span class="badge">source</span>
                                     </li>
                                 </template>
@@ -179,12 +179,7 @@
                                 <textarea id="{{prefix}}PanelDescription" name="location" class="form-control clearable"
                                           rows="3" placeholder="Description" value="{{panelDescription::input}}"></textarea>
                             </div>
-                            <div class="form-group has-feedback">
-                                <label for="{{prefix}}panelSource" class="col-label">Source</label>
-                                <input id="{{prefix}}panelSource" name="panelSource" class="form-control clearable"
-                                       placeholder="Source..." value="{{panelSource::input}}">
-                            </div>
-                            <button id="{{prefix}}SavePanel" type="button" class="btn btn-primary variant-prioritization-view-buttons" style="margin-top: 1%;">
+                            <button id="{{prefix}}SavePanel" type="button" class="btn btn-primary variant-prioritization-view-buttons" on-click="savePanel" style="margin-top: 1%;">
                                 <i class="fa fa-floppy-o icon-padding" aria-hidden="true"></i> Save Panel
                             </button>
                         </div>
@@ -254,7 +249,7 @@
                 this.diseasesSelected = [];
                 if (UtilsNew.isNotUndefinedOrNull(this.panel.phenotypes) && UtilsNew.isNotEmptyArray(this.panel.phenotypes )) {
                     this.diseasesSelected = this.panel.phenotypes.map((disease) => {
-                        return disease.name;
+                        return disease;
                     });
                 }
                 this.genesPanelEditor = [];
@@ -273,11 +268,10 @@
                 }
 
                 this.panelName = this.panel.name;
+                this.panelId = this.panel.id;
                 this.panelAuthor = this.panel.author;
                 this.panelDescription = this.panel.description;
                 this.panelSource = this.panel.source;
-                debugger;
-
 
                 this.renderPanelTableDiseases();
                 this.renderPanelTableGenes();
@@ -433,13 +427,21 @@
                                 if (UtilsNew.isNotUndefinedOrNull(response.response) && response.response) {
                                     response.response.forEach((geneResponse) => {
                                         if (response.response[0].numTotalResults === 1) {
-                                            debugger;
                                             let geneInfo = geneResponse.result[0];
                                             _this.genesPanelEditor.push(geneInfo);
                                         }
                                     });
                                 }
                             }));
+                    } else {
+                        _this.dispatchEvent(new CustomEvent(_this.eventNotifyName, {
+                            detail: {
+                                message: "Gene already exists: " + gene,
+                                type: UtilsNew.MESSAGE_INFO
+                            },
+                            bubbles: true,
+                            composed: true
+                        }));
                     }
                 });
                 Promise.all(promises).then(values => {
@@ -533,6 +535,53 @@
                     });
                 }
                 this.renderPanelTableMutations();
+            }
+
+            savePanel() {
+                let _this = this;
+                let params = {
+                    study:this.opencgaSession.study.fqn
+                };
+                if (UtilsNew.isUndefinedOrNull(this.panelId)) {
+                    this.panelId = this.panelName.replace(/\s/g, "");
+                }
+
+                let panel = {
+                    "id": this.panelId,
+                    "name": this.panelName,
+                    "description": this.panelDescription,
+                    "author": this.panelAuthor,
+                    "source": this.panelSource,
+                    "phenotypes": this.diseasesSelected,
+                    "genes": this.genesPanelEditor.map(geneInfo => {
+                        return {"id": geneInfo.id, "name": geneInfo.name, "confidence": ""}
+                    }),
+                    "variants": this.mutationsPanelEditor
+
+                }
+                this.opencgaClient.panels().create(params, panel)
+                    .then(response => {
+                        _this.dispatchEvent(new CustomEvent(_this.eventNotifyName, {
+                            detail: {
+                                message: "Created Panel " + this.panelName,
+                                type: UtilsNew.MESSAGE_SUCCESS
+                            },
+                            bubbles: true,
+                            composed: true
+                        }));
+                        _this.panel = {};
+                })
+                .catch(function (responseError) {
+                    let _message = responseError.error;
+                    _this.dispatchEvent(new CustomEvent(_this.eventNotifyName, {
+                        detail: {
+                            message: _message,
+                            type: UtilsNew.MESSAGE_ERROR
+                        },
+                        bubbles: true,
+                        composed: true
+                    }));
+                });
             }
 
             sourceFormatter(value, row, index) {
