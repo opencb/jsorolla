@@ -41,7 +41,7 @@
                                         on-panelselected="onPanelSelected" on-importpanel="onImportPanel"></opencga-panel-list>
                 </template>
                 <template is="dom-if" if="{{panelEditor}}">
-                    <opencga-panel-editor opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" panel="{{panelSelected}}">
+                    <opencga-panel-editor opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" panel="{{installationPanel}}">
 
                     </opencga-panel-editor>
                 </template>
@@ -92,7 +92,7 @@
             }
 
             onImportPanel(e) {
-                this.panelSelected = e.detail;
+                this.installationPanel = e.detail;
                 this._changeView();
             }
 
