@@ -1,0 +1,227 @@
+<!--
+  ~ Copyright 2015 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<dom-module id="opencga-panel-filter">
+    <template>
+        <style include="jso-styles">
+            .browser-subsection {
+                font-size: 1.35rem;
+                font-weight: bold;
+                padding: 5px 0px;
+                color: #444444;
+                border-bottom: 1px solid rgba(221, 221, 221, 0.8);
+            }
+
+
+        </style>
+
+        <br>
+        <div style="width: 60%;margin: 0 auto">
+            <button type="button" class="btn btn-primary" style="width: 100%" on-click="onSearchClick">
+                <i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px 0px 5px"></i>
+                Search
+            </button>
+        </div>
+        <br>
+        <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true">
+            <!-- Panel -->
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="{{prefix}}PanelSelectionHeading">
+                    <h4 class="panel-title">
+                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
+                           href="#{{prefix}}PanelSelection" aria-expanded="true"
+                           aria-controls="{{prefix}}PanelSelection">
+                            Panel
+                            <div style="float: right" class="tooltip-div">
+                                <a data-toggle="tooltip" title="Panel selection">
+                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        </a>
+                    </h4>
+                </div>
+
+                <div id="{{prefix}}PanelCharacteristics" class="panel-collapse collapse in" role="tabpanel"
+                     aria-labelledby="{{prefix}}PanelCharacteristicsHeading">
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <div class="browser-subsection">ID
+                            </div>
+                            <div id="{{prefix}}-panelId" class="subsection-content form-group">
+                                <input type="text" id="{{prefix}}IDPanel" class$="form-control input-sm {{prefix}}FilterTextInput"
+                                       placeholder="ID ..." on-keyup="updateQueryFilters">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="browser-subsection">Name
+                            </div>
+                            <div id="{{prefix}}-panelName" class="subsection-content form-group">
+                                <input type="text" id="{{prefix}}NamePanel" class$="form-control input-sm {{prefix}}FilterTextInput"
+                                       placeholder="Name, Name2 ..." on-keyup="updateQueryFilters">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="browser-subsection">Version
+                            </div>
+                            <div id="{{prefix}}-panelVersion" class="subsection-content form-group">
+                                <input type="text" id="{{prefix}}versionPanel" class$="form-control input-sm {{prefix}}FilterTextInput"
+                                       placeholder="Version ..." on-keyup="updateQueryFilters">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="browser-subsection">Author
+                            </div>
+                            <div id="{{prefix}}-panelAuthor" class="subsection-content form-group">
+                                <input type="text" id="{{prefix}}authorPanel" class$="form-control input-sm {{prefix}}FilterTextInput"
+                                       placeholder="Author ..." on-keyup="updateQueryFilters">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--<div id="{{prefix}}IndividualSelection" class="panel-collapse collapse in" role="tabpanel"-->
+                     <!--aria-labelledby="{{prefix}}IndividualSelectionHeading">-->
+                    <!--<div class="panel-body">-->
+                        <!--<opencga-date-filter config="{{dateFilterConfig}}" on-datechanged="onDateChanged"></opencga-date-filter>-->
+                    <!--</div>-->
+                <!--</div>-->
+            </div>
+        </div>
+    </template>
+    <script>
+        class OpencgaPanelFilter extends Polymer.Element {
+
+            constructor() {
+                super();
+                this._init();
+            }
+
+            static get is() {
+                return 'opencga-panel-filter';
+            }
+
+            static get properties() {
+                return {
+                    query: {
+                        type: Object,
+                        notify: true,
+                        observer: "queryObserver"
+                    },
+                    search: {
+                        type: Object,
+                        notify: true
+                    },
+                    config: {
+                        type: Object
+                    }
+                }
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            connectedCallback() {
+                super.connectedCallback();
+            }
+
+            _init() {
+                this.prefix = "panelFilter" + Utils.randomString(6);
+                this.dateFilterConfig = {
+                    recentDays: 10
+                };
+                this._reset = true;
+            }
+
+            queryObserver() {
+                if (this._reset) {
+                    this.setQueryFilters();
+                } else {
+                    this._reset = true;
+                }
+            }
+
+            setQueryFilters() {
+                this._clearHtmlDom();
+                // TODO implement set query filters one day
+            }
+
+            updateQueryFilters() {
+                let _query = {};
+                let id = PolymerUtils.getElementById(this.prefix + "IDPanel").value;
+                let name = PolymerUtils.getElementById(this.prefix + "NamePanel").value;
+                let author = PolymerUtils.getElementById(this.prefix + "authorPanel").value;
+                let version = PolymerUtils.getElementById(this.prefix + "versionPanel").value;
+
+                if (UtilsNew.isNotEmpty(id)) {
+                    _query.id = id;
+                }
+
+                if (UtilsNew.isNotEmpty(name)) {
+                    _query.name = name;
+                }
+
+                if (UtilsNew.isNotEmpty(author)) {
+                    _query.author = author;
+                }
+
+                if (UtilsNew.isNotEmpty(version)) {
+                    _query.version = version;
+                }
+
+                this._reset = false;
+                this.query = _query;
+                this._reset = true;
+            }
+
+
+
+            onSearchClick() {
+                this.dispatchEvent(new CustomEvent("search", {
+                    detail: {query: this.query},
+                    bubbles: true,
+                    composed: true
+                }));
+            }
+
+            onDateChanged(e) {
+                let query = {};
+                Object.assign(query, this.query);
+                if (UtilsNew.isNotEmpty(e.detail.date)) {
+                    query["creationDate"] = e.detail.date;
+                } else {
+                    delete query["creationDate"];
+                }
+
+                this._reset = false;
+                this.set("query", query);
+                this._reset = true;
+            }
+
+            _clearHtmlDom() {
+                $("." + this.prefix + "FilterTextInput").val("");
+                $("." + this.prefix + "FilterTextInput").prop("disabled", false);
+                $("." + this.prefix + "SelectInput").prop('selectedIndex', 0);
+            }
+
+        }
+
+        customElements.define(OpencgaPanelFilter.is, OpencgaPanelFilter);
+
+    </script>
+</dom-module>

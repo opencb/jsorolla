@@ -13,9 +13,9 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<link rel="import" href="./opencga-panel-summary.html">
+<link rel="import" href="opencga-panel-summary.html">
 
-<dom-module id="opencga-panel-list">
+<dom-module id="opencga-panel-grid">
     <template>
         <style include="jso-styles">
             .div-margin {
@@ -23,60 +23,57 @@
             }
         </style>
 
-        <div class="col-md-2 div-margin">
-            <div style="width: 60%;margin: 0 auto">
-                <button type="button" class="btn btn-lg btn-primary" style="width: 100%" on-click="onSearch">
-                    <i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px"></i> Search
-                </button>
-            </div>
-            <div class="form-group has-feedback">
-                <label for="{{prefix}}NamePanel" class="col-label">Name</label>
-                <input id="{{prefix}}NamePanel" type="text" class="form-control"
-                       placeholder="Search for" value="{{namePanel::input}}">
-            </div>
-            <div class="form-group has-feedback">
-                <label for="{{prefix}}AuthorPanel" class="col-label">Author</label>
-                <input id="{{prefix}}AuthorPanel" type="text" class="form-control"
-                       placeholder="Search for" value="{{authorPanel::input}}">
-            </div>
-            <div class="form-group has-feedback">
-                <label for="{{prefix}}VersionPanel" class="col-label">Version</label>
-                <input id="{{prefix}}VersionPanel" type="text" class="form-control"
-                       placeholder="Search for" value="{{versionPanel::input}}">
-            </div>
-
-
+        <!--<div class="col-md-2 div-margin">-->
+            <!--<div style="width: 60%;margin: 0 auto">-->
+                <!--<button type="button" class="btn btn-lg btn-primary" style="width: 100%" on-click="onSearch">-->
+                    <!--<i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px"></i> Search-->
+                <!--</button>-->
+            <!--</div>-->
+            <!--<div class="form-group has-feedback">-->
+                <!--<label for="{{prefix}}NamePanel" class="col-label">Name</label>-->
+                <!--<input id="{{prefix}}NamePanel" type="text" class="form-control"-->
+                       <!--placeholder="Search for" value="{{namePanel::input}}">-->
+            <!--</div>-->
+            <!--<div class="form-group has-feedback">-->
+                <!--<label for="{{prefix}}AuthorPanel" class="col-label">Author</label>-->
+                <!--<input id="{{prefix}}AuthorPanel" type="text" class="form-control"-->
+                       <!--placeholder="Search for" value="{{authorPanel::input}}">-->
+            <!--</div>-->
+            <!--<div class="form-group has-feedback">-->
+                <!--<label for="{{prefix}}VersionPanel" class="col-label">Version</label>-->
+                <!--<input id="{{prefix}}VersionPanel" type="text" class="form-control"-->
+                       <!--placeholder="Search for" value="{{versionPanel::input}}">-->
+            <!--</div>-->
+        <!--</div>-->
+        <div id="{{prefix}}PanelsDiv">
+            <h2>Panels</h2>
+            <table id="{{prefix}}PanelsGrid" data-pagination="true" data-page-list="[5, 10, 25, 50]" data-show-refresh="true">
+            </table>
         </div>
-        <div class="col-md-10 div-margin">
-            <div id="{{prefix}}PanelsDiv">
-                <h2>Panels</h2>
-                <table id="{{prefix}}PanelsGrid" data-pagination="true" data-page-list="[5, 10, 25, 50]"  data-show-refresh="true">
-                </table>
-            </div>
-            <opencga-panel-summary opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}" panel-selected="{{panelSelected}}"></opencga-panel-summary>
-            <div id="{{prefix}}InstallationPanelsDiv">
-                <h2>Installation Panels</h2>
-                <button id="{{prefix}}ImportInstallationPanel" type="button" on-click="importInstallationPanel" class="btn btn-danger variant-prioritization-view-buttons" style="margin: 1% 1%; float: right;">
-                    <i class="fa fa-copy icon-padding" aria-hidden="true" ></i> Import
-                </button>
-                <table id="{{prefix}}InstallationPanelsGrid" data-pagination="true" data-page-list="[5, 10, 25, 50]">
-                </table>
-            </div>
-            <opencga-panel-summary opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}" panel-selected="{{installationPanelSelected}}"></opencga-panel-summary>
+        <opencga-panel-summary opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}" panel-selected="{{panelSelected}}"></opencga-panel-summary>
+        <div id="{{prefix}}InstallationPanelsDiv">
+            <h2>Installation Panels</h2>
+            <button id="{{prefix}}ImportInstallationPanel" type="button" on-click="importInstallationPanel" class="btn btn-danger variant-prioritization-view-buttons" style="margin: 1% 1%; float: right;">
+                <i class="fa fa-copy icon-padding" aria-hidden="true" ></i> Import
+            </button>
+            <table id="{{prefix}}InstallationPanelsGrid" data-pagination="true" data-page-list="[5]">
+            </table>
         </div>
+        <opencga-panel-summary opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}" panel-selected="{{installationPanelSelected}}"></opencga-panel-summary>
 
     </template>
 
     <script>
-        class OpencgaPanelList extends Polymer.Element {
+        class OpencgaPanelGrid extends Polymer.Element {
 
             constructor() {
                 super();
-                this.prefix = "PanelList" + Utils.randomString(6);
+                this._init();
+                this.prefix = "PanelGrid" + Utils.randomString(6);
             }
 
             static get is() {
-                return 'opencga-panel-list';
+                return 'opencga-panel-grid';
             }
 
             static get properties() {
@@ -90,8 +87,12 @@
                     cellbaseClient: {
                         type: Object
                     },
-                    panelExamples: {
-                        type: Array
+                    query: {
+                        type: Object,
+                        observer: "queryObserver"
+                    },
+                    config: {
+                        type: Object
                     }
                 }
             }
@@ -104,41 +105,52 @@
                 super.connectedCallback();
                 this.renderPanelTable();
                 this.renderInstallationPanelTable();
+                this._rendered = true;
+            }
+
+            _init() {
+                this.prefix = "oip" + Utils.randomString(6);
+                this.defaultConfig = this.getDefaultConfig();
+
+                window.icons = {
+                    refresh: 'fa-refresh',
+                    columns: 'fa-th',
+                    paginationSwitchDown: 'fa-caret-square-o-down',
+                    paginationSwitchUp: 'fa-caret-square-o-up',
+                    detailOpen: 'fa-plus',
+                    detailClose: 'fa-minus'
+                };
             }
 
             renderPanelTable() {
+                let _config = Object.assign(this.defaultConfig, this.config.grid);
                 // Check that HTTP protocol is present and complete the URL
-                let opencgaHostUrl = this.opencgaClient.getConfig().host;
-                if (!opencgaHostUrl.startsWith("http://") && !opencgaHostUrl.startsWith("https://")) {
-                    opencgaHostUrl = 'http://' + opencgaHostUrl;
-                }
-                opencgaHostUrl += '/webservices/rest/v1/diseasePanels/search';
+                this.from = 1;
+                this.to = Math.max(UtilsNew.isNotUndefinedOrNull(this.query.limit) ? this.query.limit : 0, _config.pageSize);
 
-                let _table = $('#' + this.prefix + 'PanelsGrid');
+                let urlQueryParams = this._getUrlQueryParams();
+                let queryParams = urlQueryParams.queryParams;
+                let _numTotal = -1;
 
                 let _this = this;
-                let queryParams = this.query;
+                let _table = $('#' + this.prefix + 'PanelsGrid');
                 $(_table).bootstrapTable('destroy');
                 $(_table).bootstrapTable({
-                    url: opencgaHostUrl,
-//                    data: this.panelExamples,
+                    url: urlQueryParams.host,
                     columns: _this._createPanels(),
                     method: 'get',
                     sidePagination: 'server',
-                    filterControl: true,
-                    queryParams: function (params) {
-                        let auxParams = {
-                            study: _this.opencgaSession.study.fqn,
-                            //                                lazy: "false",
-                            sid: Cookies.get(_this.opencgaClient.getConfig().cookieSessionId),
-//                            order: params.order,
-//                            sort: params.sort,
-                            limit: params.limit,
-                            skip: params.offset,
-                            include: "id,name,author,version,description,genes,variants,phenotypes,source,creationDate"
-                        };
 
-                        return Object.assign({}, auxParams, queryParams);
+                    // Set table properties, these are read from config property
+                    pagination: _config.pagination,
+                    pageSize: _config.pageSize,
+                    pageList: _config.pageList,
+                    queryParams: function (params) {
+                        if ((queryParams.limit === undefined || params.limit !== queryParams.limit) && UtilsNew.isNotUndefinedOrNull(params.limit)) {
+                            queryParams.limit = params.limit;
+                        }
+                        queryParams.skip = params.offset;
+                        return queryParams;
                     },
                     responseHandler: function (response) {
                         if (!_this.hasOwnProperty("numTotalResults")) {
@@ -185,39 +197,37 @@
 
 
             renderInstallationPanelTable() {
+                let _config = Object.assign(this.defaultConfig, this.config.grid);
                 // Check that HTTP protocol is present and complete the URL
-                let opencgaHostUrl = this.opencgaClient.getConfig().host;
-                if (!opencgaHostUrl.startsWith("http://") && !opencgaHostUrl.startsWith("https://")) {
-                    opencgaHostUrl = 'http://' + opencgaHostUrl;
-                }
-                opencgaHostUrl += '/webservices/rest/v1/diseasePanels/search';
+                this.from = 1;
+                this.to = Math.max(UtilsNew.isNotUndefinedOrNull(this.query.limit) ? this.query.limit : 0, _config.pageSize);
 
-                let _table = $('#' + this.prefix + 'InstallationPanelsGrid');
+                let urlQueryParams = this._getUrlQueryParams();
+                let queryParams = urlQueryParams.queryParams;
+                let _numTotal = -1;
 
                 let _this = this;
-                let queryParams = this.query;
+                let _table = $('#' + this.prefix + 'InstallationPanelsGrid');
                 $(_table).bootstrapTable('destroy');
                 $(_table).bootstrapTable({
-                    url: opencgaHostUrl,
-//                    data: this.panelExamples,
+                    url: urlQueryParams.host,
                     columns: _this._createPanels(),
                     method: 'get',
                     sidePagination: 'server',
-                    filterControl: true,
-                    queryParams: function (params) {
-                        let auxParams = {
-                            study: _this.opencgaSession.study.fqn,
-//                                lazy: "false",
-                            sid: Cookies.get(_this.opencgaClient.getConfig().cookieSessionId),
-//                            order: params.order,
-//                            sort: params.sort,
-                            globalPanels: true,
-                            limit: params.limit,
-                            skip: params.offset,
-                            include: "id,name,author,version,description,genes,variants,phenotypes,source,creationDate"
-                        };
 
-                        return Object.assign({}, auxParams, queryParams);
+                    // Set table properties, these are read from config property
+                    pagination: _config.pagination,
+                    pageSize: _config.pageSize,
+                    pageList: _config.pageList,
+
+                    queryParams: function (params) {
+                        if ((queryParams.limit === undefined || params.limit !== queryParams.limit) && UtilsNew.isNotUndefinedOrNull(params.limit)) {
+                            queryParams.limit = params.limit;
+                        }
+
+                        queryParams.skip = params.offset;
+                        queryParams.globalPanels = true;
+                        return queryParams;
                     },
                     responseHandler: function (response) {
                         if (!_this.hasOwnProperty("numTotalResults")) {
@@ -262,22 +272,65 @@
                 });
             }
 
-            onSearch(e) {
-                let query = {};
-                if (UtilsNew.isNotEmpty(this.namePanel)) {
-                    query.name = this.namePanel;
-                }
-                if (UtilsNew.isNotEmpty(this.authorPanel)) {
-                    query.author = this.authorPanel;
-                }
-                if (UtilsNew.isNotEmpty(this.versionPanel)) {
-                    query.version = this.versionPanel;
+            _getUrlQueryParams() {
+                // Check the opencgaClient exists
+                if (UtilsNew.isUndefinedOrNull(this.opencgaClient)) {
+                    return {host: "", queryParams: {}};
                 }
 
-                this.query = Object.assign({}, query);
-                this.renderPanelTable();
-                this.renderInstallationPanelTable();
+                let host = this.opencgaClient.getConfig().host;
+                // By default we assume https protocol instead of http
+                if (!host.startsWith("https://") && !host.startsWith("http://")) {
+                    host = 'https://' + this.opencgaClient.getConfig().host;
+                }
+
+                if (typeof this.opencgaSession.project !== "undefined" && typeof this.opencgaSession.study.alias !== "undefined") {
+                    if (typeof this.query === "undefined") {
+                        this.query = {};
+                    }
+                    if (UtilsNew.isEmpty(this.query.studies) || this.query.studies.split(new RegExp("[,;]")).length === 1) {
+                        this.query.study = this.opencgaSession.study.fqn;
+                    }
+                    host += '/webservices/rest/v1/diseasePanels/search';
+                } else {
+                    return {host: host, queryParams: {}};
+                }
+
+                // Init queryParams with default and config values plus query object
+                let queryParams = Object.assign(
+                    {
+                        sid: this.opencgaClient._config.sessionId,
+                        include: "id,name,author,version,description,genes,variants,phenotypes,source,creationDate",
+                        skipCount: false
+                    }, this.query);
+
+                return {host: host, queryParams: queryParams};
             }
+
+
+            queryObserver() {
+                if (this._rendered) {
+                    this.renderPanelTable();
+                    this.renderInstallationPanelTable();
+
+                }
+            }
+            // onSearch(e) {
+            //     let query = {};
+            //     if (UtilsNew.isNotEmpty(this.namePanel)) {
+            //         query.name = this.namePanel;
+            //     }
+            //     if (UtilsNew.isNotEmpty(this.authorPanel)) {
+            //         query.author = this.authorPanel;
+            //     }
+            //     if (UtilsNew.isNotEmpty(this.versionPanel)) {
+            //         query.version = this.versionPanel;
+            //     }
+            //
+            //     this.query = Object.assign({}, query);
+            //     this.renderPanelTable();
+            //     this.renderInstallationPanelTable();
+            // }
 
             selectPanel(panel) {
                 this.panelSelected = panel;
@@ -303,9 +356,6 @@
 
             }
 
-            //     return "<span style='white-space: nowrap'>" + index + "</span>";
-            // }
-            // panelFormatter(value, row, index) {
             phenotypesFormatter(value, row, index) {
                 return UtilsNew.isNotEmptyArray(row.phenotypes) ? row.phenotypes.length : 0;
             }
@@ -317,8 +367,6 @@
             mutationsFormatter(value, row, index) {
                 return UtilsNew.isNotEmptyArray(row.variants) ? row.variants.length : 0;
             }
-
-
 
             _createPanels() {
                 return [
@@ -385,8 +433,12 @@
                     ]
                 ];
             }
+
+            getDefaultConfig() {
+                return {pagination: true, pageSize: 5, pageList: [5]};
+            }
         }
 
-        customElements.define(OpencgaPanelList.is, OpencgaPanelList);
+        customElements.define(OpencgaPanelGrid.is, OpencgaPanelGrid);
     </script>
 </dom-module>
