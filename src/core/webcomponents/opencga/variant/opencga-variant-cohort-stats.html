@@ -94,6 +94,11 @@
                     variant: {
                         type: String,
                         observer: "variantObserved"
+                    },
+                    active: {
+                        type: Boolean,
+                        value: false,
+                        observer: "activeObserved"
                     }
                 }
             }
@@ -102,9 +107,16 @@
                 this.appendChild(dom);
             }
 
+            activeObserved(e) {
+                this._queryCohortStats(e);
+            }
+
             variantObserved(e) {
-                // debugger
-                if (this.variant.split(':').length > 2) {
+                this._queryCohortStats(e);
+            }
+
+            _queryCohortStats(e) {
+                if (this.variant.split(':').length > 2 && this.active) {
                     let [chromosome, start, ref, alt] = this.variant.split(":");
                     this.region = new Region(chromosome + ":" + start);
                     let params = {

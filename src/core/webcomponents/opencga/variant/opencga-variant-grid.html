@@ -445,7 +445,8 @@
 
                 // Init queryParams with default and config values plus query object
                 let queryParams;
-                if (UtilsNew.isNotUndefinedOrNull(this.config) && UtilsNew.isNotUndefinedOrNull(this.config.grid)) {
+                if (UtilsNew.isNotUndefinedOrNull(this.config) && UtilsNew.isNotUndefinedOrNull(this.config.grid)
+                    && UtilsNew.isNotUndefinedOrNull(this.config.grid.queryParams)) {
                     queryParams = Object.assign({sid: this.opencgaClient._config.sessionId}, this.config.grid.queryParams, this.query);
                 } else {
                     queryParams = Object.assign({sid: this.opencgaClient._config.sessionId}, this.query);
