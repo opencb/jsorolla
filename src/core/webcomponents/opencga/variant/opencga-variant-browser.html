@@ -18,6 +18,7 @@
 <link rel="import" href="../opencga-active-filters.html">
 <link rel="import" href="opencga-variant-grid.html">
 <link rel="import" href="opencga-variant-cohort-stats.html">
+<link rel="import" href="opencga-variant-samples.html">
 <link rel="import" href="variant-beacon-network.html">
 <link rel="import" href="variant-genome-browser.html">
 <link rel="import" href="../opencga-genome-browser.html">
@@ -117,17 +118,22 @@
                                 <div style="padding-top: 20px">
                                     <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
                                         <li role="presentation" class="active">
-                                            <a href="#{{prefix}}Annotation" role="tab" data-toggle="tab" class="browser-variant-tab-title">
+                                            <a href="#{{prefix}}Annotation" role="tab" data-toggle="tab" class="browser-variant-tab-title" data-id="annotation" on-click="_changeBottomTab">
                                                 Advanced Annotation
                                             </a>
                                         </li>
                                         <li role="presentation">
-                                            <a href="#{{prefix}}Genotype" role="tab" data-toggle="tab" class="browser-variant-tab-title">
-                                                Genotype Stats
+                                            <a href="#{{prefix}}CohortStats" role="tab" data-toggle="tab" class="browser-variant-tab-title" data-id="cohorts" on-click="_changeBottomTab">
+                                                Cohort Stats
                                             </a>
                                         </li>
                                         <li role="presentation">
-                                            <a href="#{{prefix}}Beacon" role="tab" data-toggle="tab" class="browser-variant-tab-title">
+                                            <a href="#{{prefix}}Samples" role="tab" data-toggle="tab" class="browser-variant-tab-title" data-id="samples" on-click="_changeBottomTab">
+                                                Samples
+                                            </a>
+                                        </li>
+                                        <li role="presentation">
+                                            <a href="#{{prefix}}Beacon" role="tab" data-toggle="tab" class="browser-variant-tab-title" data-id="beacon" on-click="_changeBottomTab">
                                                 Beacon Network
                                             </a>
                                         </li>
@@ -146,9 +152,16 @@
                                         </div>
 
                                         <!-- Cohort Stats Tab -->
-                                        <div role="tabpanel" class="tab-pane" id="{{prefix}}Genotype">
+                                        <div role="tabpanel" class="tab-pane" id="{{prefix}}CohortStats">
                                             <div style="width: 75%;padding-top: 8px">
-                                                <opencga-variant-cohort-stats opencga-session="{{opencgaSession}}" variant="{{variant}}"></opencga-variant-cohort-stats>
+                                                <opencga-variant-cohort-stats opencga-session="{{opencgaSession}}" variant="{{variant}}"  active="{{cohortsActive}}"></opencga-variant-cohort-stats>
+                                            </div>
+                                        </div>
+
+                                        <!-- Samples Tab -->
+                                        <div role="tabpanel" class="tab-pane" id="{{prefix}}Samples">
+                                            <div style="width: 75%;padding-top: 8px">
+                                                <opencga-variant-samples opencga-session="{{opencgaSession}}" variant="{{variant}}" active="{{samplesActive}}"></opencga-variant-samples>
                                             </div>
                                         </div>
 
@@ -401,12 +414,10 @@
                 this.region = e.detail.genomeBrowserPosition;
             }
 
-            // _checkProjects() {
-            //     if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.projects)) {
-            //         return this.opencgaSession.projects.length !== 0;
-            //     }
-            //     return false;
-            // }
+            _changeBottomTab(e) {
+                this.cohortsActive = (e.currentTarget.dataset.id === "cohorts");
+                this.samplesActive = (e.currentTarget.dataset.id === "samples");
+            }
 
 
             projectStudyObtained(project, study) {

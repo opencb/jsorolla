@@ -132,8 +132,8 @@
                                                           consequence-types="{{consequenceTypes}}"
                                                           query="[[query]]" search="[[search]]" variant="{{variant}}"
                                                           on-selected="selectedGene" on-selectvariant="onSelectVariant" on-checkvariant="onCheckVariant"
-                                                          show-select="{{config.grid.showSelect}}" style="font-size: 12px"  on-setgenomebrowserposition="onGenomeBrowserPositionChange"
-                                                          config="{{config}}">
+                                                          style="font-size: 12px"  on-setgenomebrowserposition="onGenomeBrowserPositionChange"
+                                                          config="{{config.grid}}">
                                     </opencga-variant-grid>
                                 </template>
                                 <template is="dom-if" if="{{!interactive}}">
@@ -145,8 +145,8 @@
                                                           consequence-types="{{consequenceTypes}}"
                                                           query="[[defaultAutomaticQuery]]" search="[[search]]" variant="{{variant}}"
                                                           on-selected="selectedGene" on-selectvariant="onSelectVariant" on-checkvariant="onCheckVariant"
-                                                          show-select="{{config.grid.showSelect}}" style="font-size: 12px"  on-setgenomebrowserposition="onGenomeBrowserPositionChange"
-                                                          config="{{config}}">
+                                                          style="font-size: 12px"  on-setgenomebrowserposition="onGenomeBrowserPositionChange"
+                                                          config="{{config.grid}}">
                                     </opencga-variant-grid>
                                 </template>
 
