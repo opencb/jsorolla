@@ -199,26 +199,9 @@
                             rows: response.response[0].result
                         };
                     },
-                    onClickRow: function (row, element, field) {
-                        // let index = element[0].getAttribute("data-index");
-                        // // Check and uncheck actions trigger events that are captured below
-                        // if (row.state) {
-                        //     $(PolymerUtils.getElementById(_this.prefix + 'SampleSelector')).bootstrapTable('uncheck', index);
-                        // } else {
-                        //     $(PolymerUtils.getElementById(_this.prefix + "SampleSelector")).bootstrapTable('check', index);
-                        // }
-                    },
                     onPageChange: function (page, size) {
                         _this.from = (page - 1) * size + 1;
                         _this.to = page * size;
-                    },
-                    onPostBody: function() {
-//                         if(PolymerUtils.getElementsByClassName(_this.prefix + 'Download')) {
-//                             PolymerUtils.querySelectorAll("." + _this.prefix + "Download").forEach(elem => elem.addEventListener("click", _this.downloadQCFile.bind(_this), true));
-//
-// //                                PolymerUtils.getElementById(_this.prefix + 'Download').addEventListener('click', _this.downloadQCFile.bind(_this));
-//                         }
-
                     }
                 });
             }
@@ -279,14 +262,6 @@
                     onPageChange: function (page, size) {
                         _this.from = (page - 1) * size + 1;
                         _this.to = page * size;
-                    },
-                    onPostBody: function() {
-//                         if(PolymerUtils.getElementsByClassName(_this.prefix + 'Download')) {
-//                             PolymerUtils.querySelectorAll("." + _this.prefix + "Download").forEach(elem => elem.addEventListener("click", _this.downloadQCFile.bind(_this), true));
-//
-// //                                PolymerUtils.getElementById(_this.prefix + 'Download').addEventListener('click', _this.downloadQCFile.bind(_this));
-//                         }
-
                     }
                 });
             }
@@ -347,14 +322,6 @@
                     onPageChange: function (page, size) {
                         _this.from = (page - 1) * size + 1;
                         _this.to = page * size;
-                    },
-                    onPostBody: function() {
-//                         if(PolymerUtils.getElementsByClassName(_this.prefix + 'Download')) {
-//                             PolymerUtils.querySelectorAll("." + _this.prefix + "Download").forEach(elem => elem.addEventListener("click", _this.downloadQCFile.bind(_this), true));
-//
-// //                                PolymerUtils.getElementById(_this.prefix + 'Download').addEventListener('click', _this.downloadQCFile.bind(_this));
-//                         }
-
                     }
                 });
             }
@@ -396,35 +363,17 @@
                 return [
                     [
                         {
-                            title: 'Genes',
+                            title: 'ID',
+                            field: 'id',
+                            // sortable: true,
+                            colspan: 1,
+                            rowspan: 1,
+                            halign: 'center',
+                            searchable: true
+                        },
+                        {
+                            title: 'Name',
                             field: 'name',
-                            // sortable: true,
-                            colspan: 1,
-                            rowspan: 1,
-                            halign: 'center',
-                            searchable: true
-                        },
-                        {
-                            title: 'Chromosome',
-                            field: 'chromosome',
-                            // sortable: true,
-                            colspan: 1,
-                            rowspan: 1,
-                            halign: 'center',
-                            searchable: true
-                        },
-                        {
-                            title: 'Start',
-                            field: 'start',
-                            // sortable: true,
-                            colspan: 1,
-                            rowspan: 1,
-                            halign: 'center',
-                            searchable: true
-                        },
-                        {
-                            title: 'End',
-                            field: 'end',
                             // sortable: true,
                             colspan: 1,
                             rowspan: 1,
@@ -449,7 +398,7 @@
 
                         },
                         {
-                            title: 'Variant',
+                            title: 'Disease',
                             // sortable: true,
                             colspan: 1,
                             rowspan: 1,

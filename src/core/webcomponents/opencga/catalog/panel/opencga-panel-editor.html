@@ -20,7 +20,6 @@
 
         </style>
         <div style="padding-top: 20px" >
-            <!--<opencga-panel-summary opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}" panel-selected="{{panelSelected}}"></opencga-panel-summary>-->
             <h3>Editor</h3>
             <div style="padding-top: 20px">
                 <ul id="{{prefix}}panelSteps" class="nav nav-tabs" role="tablist">
@@ -59,7 +58,7 @@
                         <div class="col-md-6" style="margin-top: 5%">
                             <ul class="list-group">
                                 <template is="dom-repeat" items="{{diseasesSelected}}">
-                                    <li class="list-group-item">{{item.name}}
+                                    <li class="list-group-item">{{item.trait}}
                                         <span class="badge">{{item.source}}</span>
                                     </li>
                                 </template>
@@ -78,22 +77,6 @@
                                     <i class="fa fa-plus icon-padding" aria-hidden="true" ></i> Add
                                 </button>
                             </div>
-                            <!--<div class="form-group has-feedback">-->
-                                <!--<label for="{{prefix}}ImportFromOtherPanel" class="col-label">Import from other panel</label>-->
-                                <!--<select class="selectpicker" id="{{prefix}}ImportFromOtherPanel" data-size="10" data-live-search="true"-->
-                                            <!--data-selected-text-format="count">-->
-                                    <!--<option>Select..</option>-->
-                                <!--</select>-->
-
-                            <!--</div>-->
-                            <!--<div class="form-group has-feedback">-->
-                                <!--<label for="{{prefix}}ImportFromBED" class="col-label">Import from BED</label>-->
-                                <!--<select class="selectpicker" id="{{prefix}}ImportFromBED" data-size="10" data-live-search="true"-->
-                                        <!--data-selected-text-format="count">-->
-                                    <!--<option>Select..</option>-->
-                                <!--</select>-->
-
-                            <!--</div>-->
                         </div>
                         <div class="col-md-8">
                             <div id="{{prefix}}PanelGenes" style="">
@@ -120,35 +103,13 @@
                                         name="diseaseMutation" required data-required-error="This field is required" value="{{diseaseMutation::input}}">
                                     <option value="">Select...</option>
                                     <template is="dom-repeat" items="{{diseasesSelected}}">
-                                        <option value="{{item.name}}">{{item.name}}</option>
+                                        <option value="{{item.trait}}">{{item.trait}}</option>
                                     </template>
                                 </select>
                             </div>
                             <button id="{{prefix}}addMutation" type="button" on-click="addMutationsOnclick" class="btn btn-primary variant-prioritization-view-buttons" style="margin-top: 1%;">
                                 <i class="fa fa-plus icon-padding" aria-hidden="true"></i> Add
                             </button>
-                            <!--<div class="form-group has-feedback">-->
-                                <!--<label for="{{prefix}}ImportFromVCF" class="col-label">Import from VCF</label>-->
-                                <!--<select class="selectpicker" id="{{prefix}}ImportFromVCF" data-size="10" data-live-search="true"-->
-                                        <!--data-selected-text-format="count">-->
-                                    <!--<option>Select..</option>-->
-                                <!--</select>-->
-
-                            <!--</div>-->
-                            <!--<div class="form-group has-feedback">-->
-                                <!--<label for="{{prefix}}ImportFromCSV" class="col-label">Import from BED</label>-->
-                                <!--<select class="selectpicker" id="{{prefix}}ImportFromCSV" data-size="10" data-live-search="true"-->
-                                        <!--data-selected-text-format="count">-->
-                                    <!--<option>Select..</option>-->
-                                <!--</select>-->
-                            <!--</div>-->
-                            <!--<div class="form-group has-feedback">-->
-                                <!--<label for="{{prefix}}ImportFromOtherPanelMutations" class="col-label">Import from other panel</label>-->
-                                <!--<select class="selectpicker" id="{{prefix}}ImportFromOtherPanelMutations" data-size="10" data-live-search="true"-->
-                                        <!--data-selected-text-format="count">-->
-                                    <!--<option>Select..</option>-->
-                                <!--</select>-->
-                            <!--</div>-->
                         </div>
                         <div class="col-md-8">
                             <div id="{{prefix}}PanelMutations" style="">
@@ -251,7 +212,7 @@
                 this.diseasesSelected = [];
                 if (UtilsNew.isNotUndefinedOrNull(this.panel.phenotypes) && UtilsNew.isNotEmptyArray(this.panel.phenotypes )) {
                     this.diseasesSelected = this.panel.phenotypes.map((disease) => {
-                        return disease;
+                        return {trait: disease.name, source: disease.source};
                     });
                 }
                 this.genesPanelEditor = [];
@@ -264,8 +225,8 @@
 
                 this.mutationsPanelEditor = [];
                 if (UtilsNew.isNotUndefinedOrNull(this.panel.variants) && UtilsNew.isNotEmptyArray(this.panel.variants)) {
-                    this.mutationsPanelEditor = this.panel.variants.map((mutation) => {
-                        return mutation;
+                    this.panel.variants.forEach((mutation) => {
+                        this.addMutations({region: mutation.id}, mutation.phenotype)
                     });
                 }
 
@@ -282,10 +243,13 @@
 
             renderPanelTableDiseases() {
                 // Check that HTTP protocol is present and complete the URL
-                // search?limit=3&source=clinvar&trait=hereditary%2Cbreast%2Covarian%2Ccancer&include=annotation.traitAssociation,chromosome,start,end,reference,alternate
-                let cellbaseHostUrl = 'http://cellbase.clinbioinfosspa.es/cb';
+                let host = this.cellbaseClient._config.hosts[0];
+                // By default we assume https protocol instead of http
+                if (!host.startsWith("https://") && !host.startsWith("http://")) {
+                    host = 'https://' + this.cellbaseClient._config.hosts[0];
+                }
 
-                cellbaseHostUrl += '/webservices/rest/v4/hsapiens/clinical/variant/search';
+                let cellbaseHostUrl = host + '/webservices/rest/v4-dev/hsapiens/clinical/variant/diseases';
 
                 let _this = this;
                 $("#" + this.prefix + 'PanelDiseasesGrid').bootstrapTable('destroy');
@@ -297,11 +261,13 @@
                     filterControl: true,
                     queryParams: function (params) {
                         let auxParams = {
+                            // version: "v4-dev",
+                            // species: "hsapiens",
                             sort: params.sort,
                             limit: params.limit,
                             skip: params.offset,
                             source: "clinvar",
-                            include: "annotation.traitAssociation,chromosome,start,end,reference,alternate",
+                            // include: "annotation.traitAssociation,chromosome,start,end,reference,alternate",
                             trait: params.search
                         };
 
@@ -328,54 +294,80 @@
                             rows: response.response[0].result
                         };
                     },
-                    onClickRow: function (row, element, field) {
-                        // let index = element[0].getAttribute("data-index");
-                        // // Check and uncheck actions trigger events that are captured below
-                        // if (row.state) {
-                        //     $(PolymerUtils.getElementById(_this.prefix + 'SampleSelector')).bootstrapTable('uncheck', index);
-                        // } else {
-                        //     $(PolymerUtils.getElementById(_this.prefix + "SampleSelector")).bootstrapTable('check', index);
-                        // }
-                    },
                     onCheck: function (row, elem) {
-                        debugger;
                         let disease = "-";
-                        if (UtilsNew.isNotUndefinedOrNull(row.annotation.traitAssociation) && UtilsNew.isNotEmptyArray(row.annotation.traitAssociation) && UtilsNew.isNotEmptyArray(row.annotation.traitAssociation[0].heritableTraits)){
-                            disease = row.annotation.traitAssociation[0].heritableTraits[0].trait;
-                            _this.diseasesSelected.push({id: row.annotation.traitAssociation[0].id, name: disease, source: row.annotation.traitAssociation[0].source.name})
+                        if (UtilsNew.isNotUndefinedOrNull(row) && UtilsNew.isNotUndefinedOrNull(row._id) && UtilsNew.isNotUndefinedOrNull(row._id.trait)) {
+                            let diseaseExist = _this.diseasesSelected.find((disease) => {
+                                return disease.trait === row._id.trait;
+                            });
+
+                            if (UtilsNew.isUndefinedOrNull(diseaseExist)) {
+                                disease = row._id;
+                                _this.diseasesSelected.push(disease)
+                                _this.addMutations({ traitExactMatch: disease.trait, source: disease.source}, disease.trait, true);
+                            }
+
                         }
                         _this.set('diseasesSelected', _this.diseasesSelected.slice());
-
                     },
                     onUncheck: function (row, elem) {
                         _this.diseasesSelected = _this.diseasesSelected.filter((disease) => {
-                            return disease.disease !== row.annotation.traitAssociation[0].heritableTraits[0].trait;
+                            return disease.trait !== row._id.trait;
+                        });
+
+                        // Remove all mutations and genes and we calculate again from remaining diseases
+                        _this.set('mutationsPanelEditor', []);
+                        _this.renderPanelTableMutations();
+                        _this.set('genesPanelEditor', []);
+                        _this.renderPanelTableGenes();
+                        _this.diseasesSelected.forEach((disease)=> {
+                            _this.addMutations({ traitExactMatch: disease.trait, source: disease.source }, disease.trait, true);
                         });
 
                         _this.set('diseasesSelected', _this.diseasesSelected.slice());
                     },
                     onCheckAll: function (rows) {
-                        _this.diseasesSelected = [];
+                        // _this.diseasesSelected = [];
                         rows.map((row) => {
-                            _this.diseasesSelected.push({name: row.name, id: row.id})
+                            let existDisease = _this.diseasesSelected.find((disease) => {
+                                return disease.trait === row._id.trait;
+                            });
+
+                            if (UtilsNew.isUndefinedOrNull(existDisease)) {
+                                let disease = row._id;
+                                _this.diseasesSelected.push(row._id)
+                                _this.addMutations({ traitExactMatch: disease.trait, source: "clinvar"}, disease.trait, true);
+                            }
                         });
+
                         _this.set('diseasesSelected', _this.diseasesSelected.slice());
                     },
                     onUncheckAll: function (rows) {
-                        _this.set('diseasesSelected', []);
+                        rows.forEach((row) => {
+                            _this.diseasesSelected = _this.diseasesSelected.filter((disease) => {
+                                return disease.trait !== row._id.trait;
+                            });
+                        });
+                        // Remove all mutations and genes and we calculate again from remaining diseases
+                        _this.set('mutationsPanelEditor', []);
+                        _this.renderPanelTableMutations();
+                        _this.set('genesPanelEditor', []);
+                        _this.renderPanelTableGenes();
+                        _this.diseasesSelected.forEach((disease)=> {
+                            _this.addMutations({ traitExactMatch: disease.trait, source: "clinvar"}, disease.trait, true);
+                        });
+                        _this.set('diseasesSelected', _this.diseasesSelected.slice());
                     },
                     onLoadSuccess: function (data) {
-                        // Check all already selected rows. Selected samples are stored in this.samples array
-                        // if (_this.samples !== "undefined") {
-                        //     for (let idx in _this.samples) {
-                        //         for (let j in data.rows) {
-                        //             if (_this.samples[idx].name === data.rows[j].name) {
-                        //                 $(PolymerUtils.getElementById(_this.prefix + 'SampleSelector')).bootstrapTable('check', j);
-                        //                 break;
-                        //             }
-                        //         }
-                        //     }
-                        // }
+                        for (let j in data.rows) {
+                            let existsDisease = _this.diseasesSelected.find((disease) => {
+                                return disease.trait === data.rows[j]._id.trait;
+                            });
+
+                            if (UtilsNew.isNotUndefinedOrNull(existsDisease)) {
+                                $(PolymerUtils.getElementById(_this.prefix + 'PanelDiseasesGrid')).bootstrapTable('check', j);
+                            }
+                        }
                     },
                     onPageChange: function (page, size) {
                         _this.from = (page - 1) * size + 1;
@@ -415,44 +407,55 @@
                 this.addGene(genesToAdd);
             }
 
-            addGene(genes) {
+            addGene(genes, mutationInfo) {
                 let _this = this;
                 let assembly = this.opencgaSession.project.organism.assembly;
                 let promises = [];
                 let numGenesAdded = 0;
                 genes.map(gene => {
-                    let existsGene = _this.genesPanelEditor.find((geneAdded) => {
-                        return geneAdded.name === gene;
-                    });
-                    if (UtilsNew.isUndefinedOrNull(existsGene)) {
+                    if (UtilsNew.isNotUndefinedOrNull(gene)) {
+                        let existsGene = _this.genesPanelEditor.find((geneAdded) => {
+                            return geneAdded.name === gene;
+                        });
+                        if (UtilsNew.isUndefinedOrNull(existsGene)) {
 
-                        promises.push(this.cellbaseClient.get('feature', 'gene', gene, 'info', {assembly: assembly}, {})
-                            .then(function (response) {
-                                if (UtilsNew.isNotUndefinedOrNull(response.response) && response.response) {
-                                    response.response.forEach((geneResponse) => {
-                                        if (response.response[0].numTotalResults === 1) {
-                                            let geneInfo = geneResponse.result[0];
-                                            _this.genesPanelEditor.push(geneInfo);
-                                            numGenesAdded++;
-                                        }
-                                    });
-                                }
-                            }));
-                    } else {
-                        _this.dispatchEvent(new CustomEvent(_this.eventNotifyName, {
-                            detail: {
-                                message: "Gene already exists: " + gene,
-                                type: UtilsNew.MESSAGE_INFO
-                            },
-                            bubbles: true,
-                            composed: true
-                        }));
+                            promises.push(this.cellbaseClient.get('feature', 'gene', gene, 'info', {assembly: assembly}, {})
+                                .then(function (response) {
+                                    if (UtilsNew.isNotUndefinedOrNull(response.response) && response.response) {
+                                        response.response.forEach((geneResponse) => {
+                                            if (response.response[0].numTotalResults === 1) {
+                                                let geneInfo = geneResponse.result[0];
+                                                let existsGene = _this.genesPanelEditor.find((gene) => {
+                                                    return gene.name === geneInfo.name;
+                                                });
+                                                if (UtilsNew.isUndefinedOrNull(existsGene)) {
+                                                    _this.genesPanelEditor.push(geneInfo);
+                                                    numGenesAdded++;
+                                                }
+                                            }
+                                        });
+                                    }
+                                }));
+                        } else {
+                            // _this.dispatchEvent(new CustomEvent(_this.eventNotifyName, {
+                            //     detail: {
+                            //         message: "Gene already exists: " + gene,
+                            //         type: UtilsNew.MESSAGE_INFO
+                            //     },
+                            //     bubbles: true,
+                            //     composed: true
+                            // }));
+                        }
                     }
                 });
                 Promise.all(promises).then(values => {
+                    let message = "Added " + numGenesAdded + " genes. ";
+                    if (UtilsNew.isNotUndefinedOrNull(mutationInfo)) {
+                        message += mutationInfo.chromosome + ":" + mutationInfo.start + "-" + mutationInfo.end;
+                    }
                     _this.dispatchEvent(new CustomEvent(_this.eventNotifyName, {
                         detail: {
-                            message: "Added " + numGenesAdded + " genes.",
+                            message: message,
                             type: UtilsNew.MESSAGE_INFO
                         },
                         bubbles: true,
@@ -479,7 +482,7 @@
             addMutationsOnclick(e) {
                 if (UtilsNew.isNotUndefinedOrNull(this.diseaseMutation)) {
                     // console.log(this.geneValue);
-                    this.addMutations(this.regionValue);
+                    this.addMutations({ region: this.regionValue });
                     this.regionValue = "";
                 } else {
                     this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
@@ -493,10 +496,13 @@
                 }
             }
 
-            addMutations(region) {
+            addMutations(_query, diseaseName, addGenes = false) {
                 let _this = this;
                 let assembly = this.opencgaSession.project.organism.assembly;
-                this.cellbaseClient.get('clinical', 'variant', null, 'search', {assembly: assembly, region: region}, {})
+                let query = {assembly: assembly};
+                query = Object.assign({}, query, _query);
+
+                this.cellbaseClient.get('clinical', 'variant', null, 'search', query, {})
                     .then(function (response) {
                         if (UtilsNew.isNotUndefinedOrNull(response.response) && response.response ) {
                             let numVariantsAdded = 0;
@@ -507,15 +513,28 @@
                                 });
                                 if (UtilsNew.isUndefinedOrNull(existsMutation)) {
                                     // let mutation = {mutation: mutationInfo}
-                                    mutationInfo.phenotype = _this.diseaseMutation;
+                                    mutationInfo.phenotype = UtilsNew.isNotUndefinedOrNull(diseaseName) ? diseaseName : _this.diseaseMutation;
                                     _this.mutationsPanelEditor.push(mutationInfo);
                                     numVariantsAdded++;
                                     _this.renderPanelTableMutations();
+
+                                    // if we are adding mutations from a disease we add genes as well.
+                                    if (addGenes) {
+                                        let genesDisease = mutationInfo.annotation.consequenceTypes.map((gene) => {
+                                            return gene.geneName;
+                                        });
+                                        _this.addGene(genesDisease, mutationInfo);
+                                    }
                                 }
                             });
+
+                            let message = "Added " + numVariantsAdded + " variants. ";
+                            if (UtilsNew.isNotUndefinedOrNull(diseaseName)) {
+                                message += "Disease " + diseaseName;
+                            }
                             _this.dispatchEvent(new CustomEvent(_this.eventNotifyName, {
                                 detail: {
-                                    message: "Added " + numVariantsAdded + " variants.",
+                                    message: message,
                                     type: UtilsNew.MESSAGE_INFO
                                 },
                                 bubbles: true,
@@ -572,9 +591,7 @@
                         composed: true
                     }));
                 }
-                if (UtilsNew.isUndefinedOrNull(this.panelId)) {
-                    this.panelId = this.panelName.replace(/\s/g, "");
-                }
+                this.panelId = this.panelName.replace(/\s/g, "");
 
                 let panel = {
                     "id": this.panelId,
@@ -582,13 +599,15 @@
                     "description": this.panelDescription,
                     "author": this.panelAuthor,
                     "source": this.panelSource,
-                    "phenotypes": this.diseasesSelected,
+                    "phenotypes": this.diseasesSelected.map(disease => {
+                        return {"id": disease.trait, "name": disease.trait, "source": disease.source}
+                    }),
                     "genes": this.genesPanelEditor.map(geneInfo => {
                         return {"id": geneInfo.id, "name": geneInfo.name, "confidence": ""}
                     }),
                     "variants": this.mutationsPanelEditor.map(mutationInfo => {
                         return {"id": UtilsNew.isUndefinedOrNull(mutationInfo.id) ? mutationInfo.chromosome + ":" + mutationInfo.start + "-" + mutationInfo.end: mutationInfo.id,
-                            "phenotype": mutationInfo.diseaseMutation}
+                            "phenotype": mutationInfo.phenotype}
                     })
 
                 }
@@ -619,25 +638,17 @@
 
             sourceFormatter(value, row, index) {
                 let source = "-";
-                if (UtilsNew.isNotUndefinedOrNull(row.annotation.traitAssociation) && UtilsNew.isNotEmptyArray(row.annotation.traitAssociation) && UtilsNew.isNotUndefinedOrNull(row.annotation.traitAssociation[0].source.name)){
-                    source = row.annotation.traitAssociation[0].source.name
+                if (UtilsNew.isNotUndefinedOrNull(row) && UtilsNew.isNotUndefinedOrNull(row._id) && UtilsNew.isNotUndefinedOrNull(row._id.source)){
+                    source = row._id.source;
                 }
                 return "<span style='white-space: nowrap'>" + source + "</span>";
-            }
-
-            diseaseIdFormatter(value, row, index) {
-                let diseaseId = "-";
-                if (UtilsNew.isNotUndefinedOrNull(row.annotation.traitAssociation) && UtilsNew.isNotEmptyArray(row.annotation.traitAssociation)){
-                    diseaseId = row.annotation.traitAssociation[0].id;
-                }
-                return "<span style='white-space: nowrap'>" + diseaseId + "</span>";
             }
 
 
             diseaseFormatter(value, row, index) {
                 let disease = "-";
-                if (UtilsNew.isNotUndefinedOrNull(row.annotation.traitAssociation) && UtilsNew.isNotEmptyArray(row.annotation.traitAssociation) && UtilsNew.isNotEmptyArray(row.annotation.traitAssociation[0].heritableTraits)){
-                    disease = row.annotation.traitAssociation[0].heritableTraits[0].trait;
+                if (UtilsNew.isNotUndefinedOrNull(row) && UtilsNew.isNotUndefinedOrNull(row._id) && UtilsNew.isNotUndefinedOrNull(row._id.trait)){
+                    disease = row._id.trait;
                 }
                 return "<span style='white-space: nowrap'>" + disease + "</span>";
             }
@@ -667,15 +678,6 @@
                             colspan: 1,
                             rowspan: 1
                             // formatter: this.stateFormatter
-                        },
-                        {
-                            title: 'ID',
-                            formatter: this.diseaseIdFormatter,
-                            // sortable: true,
-                            colspan: 1,
-                            rowspan: 1,
-                            halign: 'center',
-                            searchable: true
                         },
                         {
                             title: 'Disease',
