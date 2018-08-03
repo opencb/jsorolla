@@ -21,298 +21,297 @@
         <style include="jso-styles"></style>
 
         <template is="dom-if" if="{{checkProjects}}">
-        <div class="panel" style="margin-bottom: 15px">
-            <h3 style="margin: 10px 10px 10px 15px">
-                <i class="fa fa-bar-chart" aria-hidden="true"></i> &nbsp;{{config.title}}
-            </h3>
-        </div>
-
-        <div class="row" style="padding: 0px 10px">
-            <div class="col-md-2">
-                <opencga-variant-filter opencga-session={{opencgaSession}} opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
-                                        population-frequencies="{{populationFrequencies}}" consequence-types="{{consequenceTypes}}"
-                                        query="{{query}}" search="{{search}}" config="{{config.filter}}" style="font-size: 12px">
-                </opencga-variant-filter>
+            <div class="panel" style="margin-bottom: 15px">
+                <h3 style="margin: 10px 10px 10px 15px">
+                    <i class="fa fa-bar-chart" aria-hidden="true"></i> &nbsp;{{config.title}}
+                </h3>
             </div>
 
-            <div class="col-md-10">
-                <div>
-                    <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" alias="{{activeFilterAlias}}"
-                                            default-study="{{opencgaSession.study.alias}}" refresh="{{search}}">
-                    </opencga-active-filters>
+            <div class="row" style="padding: 0px 10px">
+                <div class="col-md-2">
+                    <opencga-variant-filter opencga-session={{opencgaSession}} opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+                                            population-frequencies="{{populationFrequencies}}" consequence-types="{{consequenceTypes}}"
+                                            query="{{query}}" search="{{search}}" config="{{config.filter}}" style="font-size: 12px">
+                    </opencga-variant-filter>
+                </div>
 
-                    <div class="panel panel-default col-sm-12">
-                        <!-- Facet Fields -->
-                        <div class="col-sm-10">
-                            <h3>Fields</h3>
-                            <div class="form-group row">
-                                <div class="col-sm-2">
-                                    <select id="{{prefix}}FacetField" class$="form-control {{prefix}}FilterSelect">
-                                        <option value="none" selected>Select a field...</option>
-                                        <template is="dom-repeat" items="{{config.fields}}">
-                                            <option value="{{item.value}}">{{item.name}}</option>
-                                        </template>
-                                        <template is="dom-repeat" items="{{facetFieldsName}}" filter="_isValidField">
-                                            <option value="{{item.value}}">{{item.name}}</option>
-                                        </template>
-                                    </select>
-                                </div>
-                                <div class="col-sm-2">
-                                    <textarea class="form-control" rows="1" id="{{prefix}}FieldIncludes" placeholder="Include values"></textarea>
-                                </div>
-                                <div class="col-sm-2">
-                                    <select id="{{prefix}}FacetFieldNested" class$="form-control {{prefix}}FilterSelect">
-                                        <option value="none" selected>Nested field...</option>
-                                        <template is="dom-repeat" items="{{config.fields}}">
-                                            <option value="{{item.value}}">{{item.name}}</option>
-                                        </template>
-                                    </select>
-                                </div>
-                                <div class="col-sm-2">
-                                    <textarea class="form-control" rows="1" id="{{prefix}}NestedFieldIncludes" placeholder="Include values"></textarea>
-                                </div>
-                                <button type="button" class="btn btn-primary" on-click="addFacets" style="cursor: pointer">Add</button>
-                            </div>
+                <div class="col-md-10">
+                    <div>
+                        <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" alias="{{activeFilterAlias}}"
+                                                default-study="{{opencgaSession.study.alias}}" refresh="{{search}}">
+                        </opencga-active-filters>
 
-                            <template is="dom-repeat" items="{{facetFieldsName}}">
+                        <div class="panel panel-default col-sm-12">
+                            <!-- Facet Fields -->
+                            <div class="col-sm-10">
+                                <h3>Fields</h3>
+                                <div class="form-group row">
+                                    <div class="col-sm-2">
+                                        <select id="{{prefix}}FacetField" class$="form-control {{prefix}}FilterSelect">
+                                            <option value="none" selected>Select a field...</option>
+                                            <template is="dom-repeat" items="{{config.fields}}">
+                                                <option value="{{item.value}}">{{item.name}}</option>
+                                            </template>
+                                            <template is="dom-repeat" items="{{facetFieldsName}}" filter="_isValidField">
+                                                <option value="{{item.value}}">{{item.name}}</option>
+                                            </template>
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <textarea class="form-control" rows="1" id="{{prefix}}FieldIncludes" placeholder="Include values"></textarea>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <select id="{{prefix}}FacetFieldNested" class$="form-control {{prefix}}FilterSelect">
+                                            <option value="none" selected>Nested field...</option>
+                                            <template is="dom-repeat" items="{{config.fields}}">
+                                                <option value="{{item.value}}">{{item.name}}</option>
+                                            </template>
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <textarea class="form-control" rows="1" id="{{prefix}}NestedFieldIncludes" placeholder="Include values"></textarea>
+                                    </div>
+                                    <button type="button" class="btn btn-primary" on-click="addFacets" style="cursor: pointer">Add</button>
+                                </div>
+
+                                <template is="dom-repeat" items="{{facetFieldsName}}">
                                 <span style="font-size: 14px">
                                     <span title="Remove field" style="padding: 0px 0px 20px 20px">
                                         <i class="fa fa-times fa-lg" aria-hidden="true" on-click="removeFacetField"
                                            data-id="{{item.value}}" data-field="field" style="color: darkred;cursor: pointer"></i>
                                     </span>&nbsp;{{item.name}}
                                 </span>
-                            </template>
-                        </div>
+                                </template>
+                            </div>
 
-                        <!-- Facet Range -->
-                        <div class="col-sm-10">
-                            <h3>Ranges</h3>
+                            <!-- Facet Range -->
+                            <div class="col-sm-10">
+                                <h3>Ranges</h3>
 
-                            <!-- Chromosomes -->
-                            <label>Chromosome</label>
-                            <div class="form-group row">
-                                <div class="col-sm-2">
-                                    <input type="text" class="form-control" id="{{prefix}}ChromosomeInput" placeholder="1">
+                                <!-- Chromosomes -->
+                                <label>Chromosome</label>
+                                <div class="form-group row">
+                                    <div class="col-sm-2">
+                                        <input type="text" class="form-control" id="{{prefix}}ChromosomeInput" placeholder="1">
+                                    </div>
+
+                                    <div class="col-sm-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Chunk</span>
+                                            <select id="{{prefix}}ChromosomeRangeGap" class$="form-control {{prefix}}FilterSelect">
+                                                <option value="1000000" selected>1 Mb</option>
+                                                <option value="2000000">2 Mb</option>
+                                                <option value="5000000">5 Mb</option>
+                                                <option value="10000000">10 Mb</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <button type="button" class="btn btn-primary" id="{{prefix}}ChromosomeAdd" on-click="addFacets" style="cursor: pointer">Add</button>
                                 </div>
 
-                                <div class="col-sm-2">
-                                    <div class="input-group">
-                                        <span class="input-group-addon">Chunk</span>
-                                        <select id="{{prefix}}ChromosomeRangeGap" class$="form-control {{prefix}}FilterSelect">
-                                            <option value="1000000" selected>1 Mb</option>
-                                            <option value="2000000">2 Mb</option>
-                                            <option value="5000000">5 Mb</option>
-                                            <option value="10000000">10 Mb</option>
+                                <!-- Conservation & Deleteriousness -->
+                                <label>Conservation & Deleteriousness</label>
+                                <div class="form-group row">
+                                    <div class="col-sm-2">
+                                        <select id="{{prefix}}FacetRangeField" class$="form-control {{prefix}}FilterSelect">
+                                            <option value="none" selected>Select a field...</option>
+                                            <template is="dom-repeat" items="{{config.ranges}}">
+                                                <option value="{{item.value}}">{{item.name}}</option>
+                                            </template>
                                         </select>
                                     </div>
-                                </div>
 
-                                <button type="button" class="btn btn-primary" id="{{prefix}}ChromosomeAdd" on-click="addFacets" style="cursor: pointer">Add</button>
-                            </div>
-
-                            <!-- Conservation & Deleteriousness -->
-                            <label>Conservation & Deleteriousness</label>
-                            <div class="form-group row">
-                                <div class="col-sm-2">
-                                    <select id="{{prefix}}FacetRangeField" class$="form-control {{prefix}}FilterSelect">
-                                        <option value="none" selected>Select a field...</option>
-                                        <template is="dom-repeat" items="{{config.ranges}}">
-                                            <option value="{{item.value}}">{{item.name}}</option>
-                                        </template>
-                                    </select>
-                                </div>
-
-                                <div class="col-sm-2">
-                                    <div class="input-group">
-                                        <span class="input-group-addon">Start</span>
-                                        <input type="text" class="form-control" id="{{prefix}}FacetRangeStart" value="0">
+                                    <div class="col-sm-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Start</span>
+                                            <input type="text" class="form-control" id="{{prefix}}FacetRangeStart" value="0">
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="col-sm-2">
-                                    <div class="input-group">
-                                        <span class="input-group-addon">End</span>
-                                        <input type="text" class="form-control" id="{{prefix}}FacetRangeEnd" value="1">
+                                    <div class="col-sm-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">End</span>
+                                            <input type="text" class="form-control" id="{{prefix}}FacetRangeEnd" value="1">
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="col-sm-2">
-                                    <div class="input-group">
-                                        <span class="input-group-addon">Interval</span>
-                                        <input type="text" class="form-control" id="{{prefix}}FacetRangeGap" value="0.1">
+                                    <div class="col-sm-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Interval</span>
+                                            <input type="text" class="form-control" id="{{prefix}}FacetRangeGap" value="0.1">
+                                        </div>
                                     </div>
+
+                                    <button type="button" class="btn btn-primary" on-click="addFacets" style="cursor: pointer">Add</button>
                                 </div>
 
-                                <button type="button" class="btn btn-primary" on-click="addFacets" style="cursor: pointer">Add</button>
-                            </div>
-
-                            <!-- Population frequency -->
-                            <label>Population frequency</label>
-                            <div class="form-group row">
-                                <div class="col-sm-2">
-                                    <select id="{{prefix}}PopFreqRangeField" class$="form-control {{prefix}}FilterSelect">
-                                        <option value="none" selected>Select a population...</option>
-                                        <template is="dom-repeat" items="{{populationFrequencies.studies}}" as="study">
-                                            <template is="dom-repeat" items="{{study.populations}}" as="population">
-                                                <option value="{{study.id}}_{{population.id}}">{{study.id}}_{{population.id}}
-                                                </option>
+                                <!-- Population frequency -->
+                                <label>Population frequency</label>
+                                <div class="form-group row">
+                                    <div class="col-sm-2">
+                                        <select id="{{prefix}}PopFreqRangeField" class$="form-control {{prefix}}FilterSelect">
+                                            <option value="none" selected>Select a population...</option>
+                                            <template is="dom-repeat" items="{{populationFrequencies.studies}}" as="study">
+                                                <template is="dom-repeat" items="{{study.populations}}" as="population">
+                                                    <option value="{{study.id}}_{{population.id}}">{{study.id}}_{{population.id}}
+                                                    </option>
+                                                </template>
                                             </template>
-                                        </template>
-                                    </select>
-                                </div>
-
-                                <div class="col-sm-2">
-                                    <div class="input-group">
-                                        <span class="input-group-addon">Start</span>
-                                        <input type="text" class="form-control" id="{{prefix}}PopFreqRangeStart" value="0">
+                                        </select>
                                     </div>
-                                </div>
 
-                                <div class="col-sm-2">
-                                    <div class="input-group">
-                                        <span class="input-group-addon">End</span>
-                                        <input type="text" class="form-control" id="{{prefix}}PopFreqRangeEnd" value="1">
+                                    <div class="col-sm-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Start</span>
+                                            <input type="text" class="form-control" id="{{prefix}}PopFreqRangeStart" value="0">
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="col-sm-2">
-                                    <div class="input-group">
-                                        <span class="input-group-addon">Interval</span>
-                                        <input type="text" class="form-control" id="{{prefix}}PopFreqRangeGap" value="0.1">
+                                    <div class="col-sm-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">End</span>
+                                            <input type="text" class="form-control" id="{{prefix}}PopFreqRangeEnd" value="1">
+                                        </div>
                                     </div>
+
+                                    <div class="col-sm-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Interval</span>
+                                            <input type="text" class="form-control" id="{{prefix}}PopFreqRangeGap" value="0.1">
+                                        </div>
+                                    </div>
+
+                                    <button type="button" class="btn btn-primary" on-click="addFacets" style="cursor: pointer">Add</button>
                                 </div>
 
-                                <button type="button" class="btn btn-primary" on-click="addFacets" style="cursor: pointer">Add</button>
-                            </div>
-
-                            <template is="dom-repeat" items="{{facetRangeFields}}">
+                                <template is="dom-repeat" items="{{facetRangeFields}}">
                                 <span style="font-size: 14px">
                                     <span title="Remove field" style="padding: 0px 0px 20px 20px">
                                         <i class="fa fa-times fa-lg" aria-hidden="true" on-click="removeFacetField"
                                            data-id="{{item}}" data-field="range" style="color: darkred;cursor: pointer"></i>
                                     </span>&nbsp;{{item}}
                                 </span>
-                            </template>
-                        </div>
-
-                        <div class="col-sm-12">
-                            <div style="float: right; padding: 0px 0px 10px 5px">
-                                <button type="button" class="btn btn-primary btn-lg" on-click="render">Refresh</button>
+                                </template>
                             </div>
 
-                            <div style="float: right; padding: 0px 0px 10px 0px">
-                                <button type="button" class="btn btn-primary btn-lg" on-click="clearAll">Clear</button>
+                            <div class="col-sm-12">
+                                <div style="float: right; padding: 0px 0px 10px 5px">
+                                    <button type="button" class="btn btn-primary btn-lg" on-click="render">Refresh</button>
+                                </div>
+
+                                <div style="float: right; padding: 0px 0px 10px 0px">
+                                    <button type="button" class="btn btn-primary btn-lg" on-click="clearAll">Clear</button>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
 
-                    <!-- RESULTS - Facet Plots -->
-                    <h2>Results</h2>
+                        <!-- RESULTS - Facet Plots -->
+                        <h2>Results</h2>
 
-                    <template is="dom-if" if="{{_showInitMessage}}">
-                        <h3>No facet filters selected</h3>
-                    </template>
+                        <template is="dom-if" if="{{_showInitMessage}}">
+                            <h3>No facet filters selected</h3>
+                        </template>
 
-                    <!--<h4>Total Number of Variants : {{totalVariants}}</h4>-->
-                    <template is="dom-repeat" items="{{results}}" id="resultsDiv">
-                        <h3>{{item.title}}</h3>
-                        <div class="btn-group" style="float: right">
+                        <!--<h4>Total Number of Variants : {{totalVariants}}</h4>-->
+                        <template is="dom-repeat" items="{{results}}" id="resultsDiv">
+                            <h3>{{item.title}}</h3>
+                            <div class="btn-group" style="float: right">
                             <span class="btn btn-primary plots active" on-click="onHistogramChart">
                                 <i class="fa fa-bar-chart" style="padding-right: 5px" title="Bar Chart" data-id="{{item.name}}"></i>
                             </span>
-                            <template is="dom-if" if="{{item.renderPieChart}}">
+                                <template is="dom-if" if="{{item.renderPieChart}}">
                                 <span class="btn btn-primary plots" on-click="onPieChart">
                                     <i class="fa fa-pie-chart" style="padding-right: 5px" title="Pie Chart" data-id="{{item.name}}"></i>
                                 </span>
-                            </template>
-                            <span class="btn btn-primary plots" on-click="onTabularView">
+                                </template>
+                                <span class="btn btn-primary plots" on-click="onTabularView">
                                 <i class="fa fa-table" style="padding-right: 5px" title="Tabular View" data-id="{{item.name}}"></i>
                             </span>
-                        </div>
-                        <div id="{{prefix}}{{item.name}}Plot"></div>
+                            </div>
+                            <div id="{{prefix}}{{item.name}}Plot"></div>
 
-                        <!--Table-->
-                        <br>
-                        <table class="table table-bordered" id="{{prefix}}{{item.name}}Table" style="display: none;">
+                            <!--Table-->
+                            <br>
+                            <table class="table table-bordered" id="{{prefix}}{{item.name}}Table" style="display: none;">
 
-                            <!-- Facet Field Table -->
-                            <template is="dom-if" if="{{checkField(item.category)}}">
-                                <thead class="table-header bg-primary">
-                                <tr>
-                                    <th>{{item.title}}</th>
-                                    <template is="dom-if" if="{{subFieldExists(item.subField)}}">
-                                        <th>{{item.subField}}</th>
-                                    </template>
-                                    <th>Number of Variants</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <template is="dom-repeat" items="{{item.counts}}" as="count">
-                                    <template is="dom-if" if="{{fieldExists(count)}}">
-                                        <tr>
-                                            <td rowspan$="{{countSubFields(count)}}">{{count.value}}</td>
-                                        </tr>
-
-                                        <template is="dom-repeat" items="{{count.field.counts}}" as="subFieldCount">
+                                <!-- Facet Field Table -->
+                                <template is="dom-if" if="{{checkField(item.category)}}">
+                                    <thead class="table-header bg-primary">
+                                    <tr>
+                                        <th>{{item.title}}</th>
+                                        <template is="dom-if" if="{{subFieldExists(item.subField)}}">
+                                            <th>{{item.subField}}</th>
+                                        </template>
+                                        <th>Number of Variants</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <template is="dom-repeat" items="{{item.counts}}" as="count">
+                                        <template is="dom-if" if="{{fieldExists(count)}}">
                                             <tr>
-                                                <td>{{subFieldCount.value}}</td>
-                                                <td>{{subFieldCount.count}}</td>
+                                                <td rowspan$="{{countSubFields(count)}}">{{count.value}}</td>
+                                            </tr>
+
+                                            <template is="dom-repeat" items="{{count.field.counts}}" as="subFieldCount">
+                                                <tr>
+                                                    <td>{{subFieldCount.value}}</td>
+                                                    <td>{{subFieldCount.count}}</td>
+                                                </tr>
+                                            </template>
+                                        </template>
+
+                                        <template is="dom-if" if="{{!fieldExists(count)}}">
+                                            <tr>
+                                                <td>{{count.value}}</td>
+                                                <td>{{count.count}}</td>
                                             </tr>
                                         </template>
                                     </template>
+                                    </tbody>
+                                </template>
 
-                                    <template is="dom-if" if="{{!fieldExists(count)}}">
+                                <!-- Facet Range Table -->
+                                <template is="dom-if" if="{{!checkField(item.category)}}">
+                                    <thead class="table-header bg-primary">
+                                    <tr>
+                                        <th>Range</th>
+                                        <th>Number of Variants</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <template is="dom-repeat" items="{{item.data}}" as="data">
                                         <tr>
-                                            <td>{{count.value}}</td>
-                                            <td>{{count.count}}</td>
+                                            <td>{{data.range}}</td>
+                                            <td>{{data.count}}</td>
                                         </tr>
                                     </template>
+                                    </tbody>
                                 </template>
-                                </tbody>
-                            </template>
-
-                            <!-- Facet Range Table -->
-                            <template is="dom-if" if="{{!checkField(item.category)}}">
-                                <thead class="table-header bg-primary">
-                                <tr>
-                                    <th>Range</th>
-                                    <th>Number of Variants</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <template is="dom-repeat" items="{{item.data}}" as="data">
-                                    <tr>
-                                        <td>{{data.range}}</td>
-                                        <td>{{data.count}}</td>
-                                    </tr>
-                                </template>
-                                </tbody>
-                            </template>
-                        </table>
-                        <br>
-                    </template>
+                            </table>
+                            <br>
+                        </template>
+                    </div>
                 </div>
+            </div>
+        </template>
 
-                <div class="modal fade" id="{{prefix}}LoadingModal" data-backdrop="static" data-keyboard="false" tabindex="-1"
-                     role="dialog"
-                     aria-hidden="true" style="padding-top:15%; overflow-y:visible;">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h3>Loading...</h3>
-                            </div>
-                            <div class="modal-body">
-                                <div class="progress progress-striped active">
-                                    <div class="progress-bar progress-bar-success" style="width: 100%"></div>
-                                </div>
-                            </div>
+        <div class="modal fade" id="{{prefix}}LoadingModal" data-backdrop="static" data-keyboard="false" tabindex="-1"
+             role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Loading ...</h3>
+                    </div>
+                    <div class="modal-body">
+                        <div class="progress progress-striped active">
+                            <div class="progress-bar progress-bar-success" style="width: 100%"></div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        </template>
 
         <template is="dom-if" if="{{!checkProjects}}">
             <span style="text-align: center"><h3>No public projects available to browse. Please login to continue</h3></span>
@@ -714,7 +713,7 @@
                                 $(PolymerUtils.getElementById(_this.prefix + "LoadingModal")).modal("hide");
                                 _this._showInitMessage = false;
                             });}
-                    ,250);
+                    , 250);
 
             }
 
@@ -795,7 +794,7 @@
                     tooltip: {
                         headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
                         pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-                        '<td style="padding:0"><b>{point.y:.1f} </b></td></tr>',
+                            '<td style="padding:0"><b>{point.y:.1f} </b></td></tr>',
                         footerFormat: '</table>',
                         shared: true,
                         useHTML: true

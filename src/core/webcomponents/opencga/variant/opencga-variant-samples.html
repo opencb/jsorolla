@@ -18,6 +18,13 @@
     <template>
         <style include="jso-styles"></style>
 
+        <div class="col-md-12 col-md-offset-10" style="padding: 20px 0px 10px 0px">
+            <button type="button" class="btn btn-primary btn-sm" data-toggle="popover" data-placement="bottom" on-click="_downloadSamples">
+                <i class="fa fa-download" aria-hidden="true"></i> Download
+            </button>
+        </div>
+
+
         <h4 style="font-weight: bold;padding: 20px 0px 0px 0px">
             <i class="fa fa-minus-circle" on-click="handleCollapseAction" data-id="Het" style="cursor: pointer"></i>
             &nbsp;Heterozygous (0/1)
@@ -27,7 +34,7 @@
 
 
             <!--<table id="{{prefix}}VariantBrowserGrid">-->
-                <!--<thead style="background-color: #eee"></thead>-->
+            <!--<thead style="background-color: #eee"></thead>-->
             <!--</table>-->
 
 
@@ -101,6 +108,23 @@
                 </div>
             </template>
         </div>
+
+        <div class="modal fade" id="{{prefix}}LoadingModal" data-backdrop="static" data-keyboard="false" tabindex="-1"
+             role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Fetching samples...</h3>
+                    </div>
+                    <div class="modal-body">
+                        <div class="progress progress-striped active">
+                            <div class="progress-bar progress-bar-success" style="width: 100%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </template>
 
     <script>
@@ -355,29 +379,43 @@
                         exclude: "annotation",
                     };
 
-                    let _this = this;
-                    this.opencgaSession.opencgaClient.variants().samples(params)
-                        .then(function (response) {
-                            if (response.response[0].result.length > 0) {
-                                _this.set("samplesHet", response.response[0].result);
-                            }
-                            _this.set("showSamplesHet", response.response[0].result.length > 0);
-                        })
-                        .catch(function (reason) {
-                            console.error(reason)
-                        });
+                    // Shows loading modal
+                    $(PolymerUtils.getElementById(this.prefix + "LoadingModal")).modal("show");
 
-                    params.genotypes = "1/1,1|1";
-                    this.opencgaSession.opencgaClient.variants().samples(params)
-                        .then(function (response) {
-                            if (response.response[0].result.length > 0) {
-                                _this.set("samplesHomAlt", response.response[0].result);
-                            }
-                            _this.set("showSamplesHomAlt", response.response[0].result.length > 0);
-                        })
-                        .catch(function (reason) {
-                            console.error(reason)
-                        });
+                    let _this = this;
+                    // _this.set("samplesHet", []);
+                    // _this.set("samplesHomAlt", []);
+                    setTimeout(() => {
+                        this.opencgaSession.opencgaClient.variants().samples(params)
+                            .then(function (response) {
+                                if (response.response[0].result.length > 0) {
+                                    _this.set("samplesHet", response.response[0].result);
+                                }
+                                _this.set("showSamplesHet", response.response[0].result.length > 0);
+
+                                // Shows loading modal
+                                $(PolymerUtils.getElementById(_this.prefix + "LoadingModal")).modal("hide");
+                            })
+                            .catch(function (reason) {
+                                console.error(reason);
+                                $(PolymerUtils.getElementById(_this.prefix + "LoadingModal")).modal("hide");
+                            });
+
+                        params.genotypes = "1/1,1|1";
+                        this.opencgaSession.opencgaClient.variants().samples(params)
+                            .then(function (response) {
+                                if (response.response[0].result.length > 0) {
+                                    _this.set("samplesHomAlt", response.response[0].result);
+                                }
+                                _this.set("showSamplesHomAlt", response.response[0].result.length > 0);
+
+                                // $(PolymerUtils.getElementById(this.prefix + "LoadingModal")).modal("hide");
+                            })
+                            .catch(function (reason) {
+                                console.error(reason);
+                                // $(PolymerUtils.getElementById(this.prefix + "LoadingModal")).modal("hide");
+                            });
+                    }, 50);
                 }
             }
 
@@ -390,6 +428,28 @@
                 } else {
                     e.target.className = "fa fa-minus-circle";
                 }
+            }
+
+            _downloadSamples() {
+                let dataString = [];
+                for (let sample of this.samplesHet) {
+                    dataString.push(sample.id + "\t0/1");
+                }
+                for (let sample of this.samplesHomAlt) {
+                    dataString.push(sample.id + "\t1/1");
+                }
+
+                let data = new Blob([dataString.join('\n')], {type: 'text/plain'});
+                let file = window.URL.createObjectURL(data);
+                let a = document.createElement("a");
+                a.href = file;
+                a.download = this.opencgaSession.study.alias + "_sample_genotypes.txt";
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(function() {
+                    document.body.removeChild(a);
+                }, 0);
+
             }
 
             _createDefaultColumns() {
