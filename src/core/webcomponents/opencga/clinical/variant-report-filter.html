@@ -154,6 +154,21 @@
                                    value="analysisResume" class$="{{prefix}}FilterRadio" on-change="showAnalysisResume"
                                    style="padding-left: 20px"> Analysis Summary<br>
                         </div>
+                        <label class="labelInheritanceMode">Inheritance Mode:</label>
+                        <select id="{{prefix}}InheritanceMode" name="{{prefix}}InheritanceMode"
+                                class$="form-control input-sm {{prefix}}InheritanceMode" value="{{dataFieldsPrivate.inheritance::input}}" disabled="{{interpretation.attributes.inheritance}}">
+                            <option value="autoDominant">Autosomal Dominant</option>
+                            <option value="autoRecessive">Autosomal Recessive</option>
+                        </select>
+                        <label class="labelInheritanceMode">Prenatal Mode:</label>
+                        <select id="{{prefix}}PrenatalMode" name="{{prefix}}PrenatalMode"
+                                class$="form-control input-sm {{prefix}}PrenatalMode" value="{{dataFieldsPrivate.inheritancePrenatal::input}}" >
+                            <option value="">Select...</option>
+
+                            <template is="dom-repeat" items="{{prenatalModes}}">
+                                <option value="{{item.id}}">{{item.value}}</option>
+                            </template>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -408,7 +423,23 @@
                 if (UtilsNew.isNotUndefinedOrNull(this.interpretation) && UtilsNew.isNotUndefinedOrNull(this.interpretation.attributes) && UtilsNew.isNotUndefinedOrNull(this.interpretation.attributes.panelInfo)) {
                     this.dataFieldsPrivate.reasonConsultation = this.interpretation.attributes.panelInfo.panel;
                     this.dataFieldsPrivate.diseaseHeader = this.interpretation.attributes.panelInfo.panel;
-                    this.dataFieldsPrivate = Object.assign({},this.dataFieldsPrivate)
+                    this.dataFieldsPrivate = Object.assign({},this.dataFieldsPrivate);
+                    this.prenatalModes = [];
+                    if (UtilsNew.isNotUndefinedOrNull(this.interpretation.attributes.inheritance)) {
+                        switch(this.interpretation.attributes.inheritance) {
+                            case "autoRecessive":
+                                this.prenatalModes = [{id: "recessive_1", value: "Diagnóstico Prenatal, autosómico recesivo (no se conoce el estado de portador de ambos miembros de la pareja)"},
+                                    {id: "recessive_2", value: "Diagnóstico Prenatal, autosómico recesivo (se conoce el estado de portador de ambos miembros de la pareja)"}]
+                                break;
+                            case "xLinked":
+                                this.prenatalModes = [{id: "xlinked_1", value: "Diagnóstico Prenatal, ligado al X"},
+                                    {id: "xlinked_2", value: "Diagnóstico Prenatal, ligado al X, madre no portadora"}]
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+
                 }
                 this.showReportOptions();
             }
@@ -590,6 +621,7 @@
 
                 }
             }
+
             changeSign(e) {
                 let drsSign = [];
                 drsSign.push("");

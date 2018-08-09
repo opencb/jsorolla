@@ -427,6 +427,8 @@
                         <ul>
                             <li>{{dataFields.extraInterpretation}}</li>
                             <li>{{dataFields.extraInterpretationComments}}</li>
+                            <li>{{inheritanceText}}</li>
+                            <li>{{inheritancePrenatalText}}</li>
                             <li>{{loadi18n('interpretationText2_1')}} {{dataFields.depth}}{{loadi18n('interpretationText2_2')}}
                                 {{dataFields.coverage}}{{loadi18n('interpretationText2_3')}}
                             </li>
@@ -682,7 +684,9 @@
                         type: Object
                     },
                     dataFields: {
-                        type: Object
+                        type: Object,
+                        observer: 'loadDataFields'
+
                     },
                     mmpExtensionConfig: {
                         type: Object
@@ -789,6 +793,9 @@
                         this.analysisID = this.interpretation.clinicalAnalysis.id;
                         PolymerUtils.setPropertyById(this.prefix + "interpretationID", "innerText", this.interpretation.id);
                         PolymerUtils.setPropertyById(this.prefix + "interpretationName", "innerText", this.interpretation.name);
+                        this.loadTextInheritanceMode(this.interpretation.attributes.inheritance);
+                        this.loadTextInheritancePrenatal(this.interpretation.attributes.inheritance);
+
 
                         // Sample Information
                         PolymerUtils.setPropertyById(this.prefix + "IndividualID", "innerText", patientId);
@@ -877,6 +884,77 @@
                     }
                     table.innerHTML = rows;
                 }
+            }
+
+            loadTextInheritanceMode(inheritance) {
+                if (UtilsNew.isNotUndefinedOrNull(inheritance)) {
+                    switch (inheritance) {
+                        case "autoDominant":
+                            this.inheritanceText = this.dataFields.diseaseHeader + this.loadi18n('interpretationText5_1_1') + this.patientArticleTxtde + this.loadi18n('interpretationText5_2_1');
+                            break;
+                        case "autoRecessive":
+                            this.inheritanceText = this.dataFields.diseaseHeader + this.loadi18n('interpretationText5_1_2') + this.patientArticleTxtde + this.loadi18n('interpretationText5_2_2');
+                            break;
+                        case "xLinked":
+                            this.inheritanceText = this.dataFields.diseaseHeader +  this.loadi18n('interpretationText5_1_3') + this.patientArticleTxtde + this.loadi18n('interpretationText5_2_3');
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            loadTextInheritancePrenatal(inheritancePrenatal) {
+                if (UtilsNew.isNotUndefinedOrNull(inheritancePrenatal)) {
+                    switch (inheritancePrenatal) {
+                        case "autoDominant":
+                            this.inheritancePrenatalText = this.loadi18n('interpretationText6_1_3');
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            prenatalModeChange() {
+                switch (this.dataFields.inheritancePrenatal) {
+                    case "recessive_1":
+                        this.inheritancePrenatalText = this.loadi18n('interpretationText6_1_1') + this.dataFields.applicant + this.loadi18n('interpretationText6_2_1');
+                        break;
+                    case "recessive_2":
+                        this.inheritancePrenatalText = this.loadi18n('interpretationText6_1_2') + this.dataFields.applicant + this.loadi18n('interpretationText6_2_2');
+                        break;
+                    case "xlinked_1":
+                        this.inheritancePrenatalText = this.loadi18n('interpretationText6_1_4');
+                        break;
+                    case "xlinked_2":
+                        let variant = "-";
+                        let genes = [];
+                        if (UtilsNew.isNotEmptyArray(this.interpretation.reportedVariants) && this.interpretation.reportedVariants.length === 1) {
+                            let mutationInfo = this.interpretation.reportedVariants[0];
+                            variant = mutationInfo.chromosome + ":" + mutationInfo.start + ":" + mutationInfo.reference + ":" + mutationInfo.alternate;
+                            for (let o in mutationInfo.annotation.consequenceTypes) {
+                                if (UtilsNew.isNotUndefined(mutationInfo.annotation.consequenceTypes[o].geneName) && !UtilsNew.isEmpty(mutationInfo.annotation.consequenceTypes[o].geneName)
+                                    && !genes.includes(mutationInfo.annotation.consequenceTypes[o].geneName)) {
+                                    genes.push(mutationInfo.annotation.consequenceTypes[o].geneName);
+                                }
+                            }
+                        }
+
+                        this.inheritancePrenatalText = this.loadi18n('interpretationText6_1_5') + variant +  this.loadi18n('interpretationText6_2_5') + genes.join(",") +  this.loadi18n('interpretationText6_3_5');
+                        break;
+                    default:
+                        break;
+                }
+                if (UtilsNew.isNotUndefinedOrNull(this.dataFields.inheritancePrenatal)) {
+                }
+            }
+
+
+
+
+            loadDataFields() {
+                this.loadTextInheritanceMode(this.dataFields.inheritance);
+                this.prenatalModeChange();
             }
 
             sequenceGeneTablebody() {

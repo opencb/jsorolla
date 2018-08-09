@@ -705,6 +705,9 @@
                     interpretation.comments = PolymerUtils.getValue(this.prefix + "CommentInterpretation");
                     interpretation.reportedVariants = this.checkedVariants;
                     interpretation.attributes = {panelInfo: this.panelInfo};
+                    if (UtilsNew.isNotUndefinedOrNull(this.modeInheritance)) {
+                        interpretation.attributes.inheritance = this.modeInheritance;
+                    }
                     interpretation.creationDate = moment(new Date(), "YYYYMMDDHHmmss").format('D MMM YY');
 
 
