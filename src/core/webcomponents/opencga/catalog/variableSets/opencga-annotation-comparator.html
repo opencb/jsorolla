@@ -44,7 +44,7 @@
                         <!--<select class="form-control" id="variableSetSelect" style="width: 100%"-->
                         <!--on-change="onSelectedVariableSetChange">-->
                         <template is="dom-repeat" items="{{variableSets}}">
-                            <option data-variable="{{item}}">{{item.name}}</option>
+                            <option data-variable="{{item}}">{{item.id}}</option>
                         </template>
                     </select>
                     <!--</div>-->
@@ -138,6 +138,7 @@
 
             entryIdsObserver() {
                 if (this.entryIds.length === 0 || UtilsNew.isEmpty(this.entity)) {
+                    $(`#${this.prefix}-ac-table`).bootstrapTable('destroy');
                     return;
                 }
 
@@ -155,6 +156,9 @@
                     case "FAMILY":
                         client = this.opencgaClient.families();
                         break;
+                    case "FILE":
+                        client = this.opencgaClient.files();
+                        break;
                     default:
                         console.error("Unexpected entity value passed to annotation-comparator webcomponent");
                         return;
@@ -169,86 +173,87 @@
                 let _this = this;
                 client.info(entryIds.join(","), {
                     study: this.opencgaSession.study.id,
-                    include: "annotationSets,name",
+                    include: "annotationSets,id",
                     flattenAnnotations: true
                 })
-                    .then(function(response) {
-                        // Get the selected variableSet
-                        let variableSet = $(`button[data-id=${_this.prefix}-variableSetSelect]`)[0].title;
-                        for (let i in _this.variableSets) {
-                            if (_this.variableSets[i].name === variableSet) {
-                                _this.selectedVariableSet = _this.variableSets[i];
-                                break;
-                            }
+                .then(function(response) {
+                    // Get the selected variableSet
+                    let variableSet = $(`button[data-id=${_this.prefix}-variableSetSelect]`)[0].title;
+                    for (let i in _this.variableSets) {
+                        if (_this.variableSets[i].id === variableSet) {
+                            _this.selectedVariableSet = _this.variableSets[i];
+                            break;
                         }
+                    }
 
-                        let variables = _this.flattenVariableArray(_this.selectedVariableSet.variables);
-                        // We create a temporal map to be able to update each variable with the annotation values directly
-                        let variableMap = {};
-                        for (let i in variables) {
-                            variableMap[variables[i].id] = variables[i];
-                        }
+                    let variables = _this.flattenVariableArray(_this.selectedVariableSet.variables);
+                    // We create a temporal map to be able to update each variable with the annotation values directly
+                    let variableMap = {};
+                    for (let i in variables) {
+                        variableMap[variables[i].id] = variables[i];
+                    }
 
-                        let samples = [];
-                        for (let i in response.response) {
-                            let tmpSample = {};
-                            for (let j in response.response[i].result) {
-                                let sample = response.response[i].result[j];
-                                tmpSample["id"] = sample.name;
-                                tmpSample["annotations"] = [];
+                    let samples = [];
+                    for (let i in response.response) {
+                        let tmpSample = {};
+                        for (let j in response.response[i].result) {
+                            let sample = response.response[i].result[j];
+                            tmpSample["id"] = sample.id;
+                            tmpSample["annotations"] = [];
 
-                                // We check all the different annotations
-                                for (let w in sample.annotationSets) {
-                                    let annotationSet = sample.annotationSets[w];
-                                    if (annotationSet.variableSetId !== _this.selectedVariableSet.id) {
-                                        // The current annotation set does not annotate the selected variable set
-                                        continue;
-                                    }
-
-                                    tmpSample["annotations"].push(annotationSet.name);
-                                    let id = `${sample.name}:${annotationSet.name}`;
-                                    for (let z in annotationSet.annotations) {
-                                        _this._processAnnotations(variableMap, annotationSet.annotations[z], id);
-                                        // variableMap[annotationSet.annotations[z].name].annotations[id] = annotationSet.annotations[z].value;
-                                    }
-
+                            // We check all the different annotations
+                            for (let w in sample.annotationSets) {
+                                let annotationSet = sample.annotationSets[w];
+                                if (annotationSet.variableSetId !== _this.selectedVariableSet.id) {
+                                    // The current annotation set does not annotate the selected variable set
+                                    continue;
                                 }
-                            }
 
-                            if (tmpSample.annotations.length > 0) {
-                                samples.push(tmpSample);
+                                tmpSample["annotations"].push(annotationSet.id);
+                                let id = `${sample.id}:${annotationSet.id}`;
+                                for (let z in annotationSet.annotations) {
+                                    _this._processAnnotations(variableMap,
+                                        {id: z, value: annotationSet.annotations[z]}, id);
+                                    // variableMap[annotationSet.annotations[z].name].annotations[id] = annotationSet.annotations[z].value;
+                                }
+
                             }
                         }
 
-                        _this.buildNewTable(samples, variables);
-                    })
-                    .catch(function(response) {
-                        $(`#${_this.prefix}-ac-table`).bootstrapTable('destroy');
-                        debugger
-                    });
+                        if (tmpSample.annotations.length > 0) {
+                            samples.push(tmpSample);
+                        }
+                    }
+
+                    _this.buildNewTable(samples, variables);
+                })
+                .catch(function(response) {
+                    $(`#${_this.prefix}-ac-table`).bootstrapTable('destroy');
+                    debugger
+                });
             }
 
             _processAnnotations(variableMap, annotation, id) {
-                if (variableMap[annotation.name].type !== "OBJECT") {
-                    variableMap[annotation.name].annotations[id] = annotation.value;
+                if (variableMap[annotation.id].type !== "OBJECT") {
+                    variableMap[annotation.id].annotations[id] = annotation.value;
                     return;
                 }
 
-                if (typeof variableMap[annotation.name].variableSet === "undefined"
-                    || variableMap[annotation.name].variableSet.length === 0) {
+                if (typeof variableMap[annotation.id].variableSet === "undefined"
+                    || variableMap[annotation.id].variableSet.length === 0) {
                     // We don't expect more annotations
-                    variableMap[annotation.name].annotations[id] = `${JSON.stringify(annotation.value).substring(0, 30)}...`;
+                    variableMap[annotation.id].annotations[id] = `${JSON.stringify(annotation.value).substring(0, 30)}...`;
                 }
 
                 // We are processing a complex annotation.
                 let annotations = {};
-                if (variableMap[annotation.name].multiValue) {
+                if (variableMap[annotation.id].multiValue) {
                     // We expect an array
                     for (let i in annotation.value) {
-                        this._processComplexAnnotations(annotations, variableMap, annotation.value[i], annotation.name, true);
+                        this._processComplexAnnotations(annotations, variableMap, annotation.value[i], annotation.id, true);
                     }
                 } else {
-                    this._processComplexAnnotations(annotations, variableMap, annotation.value, annotation.name, false);
+                    this._processComplexAnnotations(annotations, variableMap, annotation.value, annotation.id, false);
                 }
 
                 for (let key in annotations) {
@@ -366,35 +371,35 @@
                     if (variable.type !== "OBJECT") {
                         // Add variable
                         displayVariables.push({
-                            id: tags.concat(variable.name).join("."),
-                            name: typeof variable.title === "undefined" ? variable.name : variable.title,
+                            id: tags.concat(variable.id).join("."),
+                            name: variable.name,
                             category: variable.category,
                             type: variable.type,
                             defaultValue: variable.defaultValue,
                             multiValue: variable.multiValue,
                             allowedValues: variable.allowedValues,
                             annotations: {
-                                variable: tags.concat(variable.name).join(".")
+                                variable: tags.concat(variable.id).join(".")
                             }
                         });
                     } else {
                         // Add variable
                         displayVariables.push({
-                            id: tags.concat(variable.name).join("."),
-                            name: typeof variable.title === "undefined" ? variable.name : variable.title,
+                            id: tags.concat(variable.id).join("."),
+                            name: variable.name,
                             category: variable.category,
                             type: variable.type,
                             defaultValue: variable.defaultValue,
                             multiValue: variable.multiValue,
                             allowedValues: variable.allowedValues,
                             annotations: {
-                                variable: tags.concat(variable.name).join(".")
+                                variable: tags.concat(variable.id).join(".")
                             },
                             variableSet: variable.variableSet
                         });
 
                         displayVariables = displayVariables.concat(this._flattenVariableArray(variable.variableSet,
-                            tags.concat(variable.name)));
+                            tags.concat(variable.id)));
                     }
                 }
 

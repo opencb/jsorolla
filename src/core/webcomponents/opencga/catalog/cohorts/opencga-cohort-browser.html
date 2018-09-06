@@ -171,7 +171,8 @@
 
             onClear() {
                 this.config = Object.assign(this.getDefaultConfig(), this.config);
-                this.query = {studies: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias};
+                this.query = {};
+                // this.query = {studies: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias};
                 this.search = {};
             }
 

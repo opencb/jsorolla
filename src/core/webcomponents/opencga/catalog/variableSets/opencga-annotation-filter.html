@@ -309,6 +309,10 @@
                 if (typeof study.variableSets === "undefined") {
                     this.variableSets = [];
                 } else {
+                    for (let i in study.variableSets) {
+                        let variableSet = study.variableSets[i];
+                        variableSet["name"] = UtilsNew.defaultString(variableSet.name, variableSet.id)
+                    }
                     this.variableSets = study.variableSets;
                 }
 
@@ -327,7 +331,7 @@
                     }
 
                     this.multipleVariableSets = this.variableSets.length > 1;
-                    this.dispatchEvent(new CustomEvent('variablesetselected', {detail: {id: this.variableSets[0].name}}));
+                    this.dispatchEvent(new CustomEvent('variablesetselected', {detail: {id: this.variableSets[0].id}}));
 
                 } else {
                     this.multipleVariableSets = false;
@@ -375,8 +379,8 @@
 
                         // Add variable
                         displayVariables.push({
-                            id: variable.name,
-                            name: typeof variable.title === "undefined" ? variable.name : variable.title,
+                            id: variable.id,
+                            name: UtilsNew.defaultString(variable.name, variable.id),
                             category: variable.category,
                             type: variable.type,
                             defaultValue: variable.defaultValue,
@@ -388,15 +392,15 @@
                             // tags: [variable.name, variable.title].concat(tags).join(" ")
                             // tags: myTags
                             // tags: tags + "." + variable.name
-                            tags: tags.concat(variable.name).join(".")
+                            tags: tags.concat(variable.id).join(".")
                         });
                     } else {
                         // let myTags = Array.from(new Set([variable.name, variable.title].concat(tags))).join(" ");
 
                         // Add variable
                         displayVariables.push({
-                            id: variable.name,
-                            name: typeof variable.title === "undefined" ? variable.name : variable.title,
+                            id: variable.id,
+                            name: UtilsNew.defaultString(variable.name, variable.id),
                             category: variable.category,
                             type: variable.type,
                             defaultValue: variable.defaultValue,
@@ -406,12 +410,12 @@
                             margin: margin,
                             cursor: "default",
                             // tags: myTags
-                            tags: tags.concat(variable.name).join(".")
+                            tags: tags.concat(variable.id).join(".")
                         });
 
                         displayVariables = displayVariables.concat(this._parseVariableForDisplay(variable.variableSet,
                             // [variable.name, variable.title].concat(tags), margin + this._config.variableSelector.marginStep));
-                            tags.concat(variable.name), margin + this._config.variableSelector.marginStep));
+                            tags.concat(variable.id), margin + this._config.variableSelector.marginStep));
                     }
                 }
 
