@@ -439,7 +439,7 @@
                 this.cellbaseClient.getMeta("about").then(response => {
                     if (UtilsNew.isNotUndefinedOrNull(response) && UtilsNew.isNotEmptyArray(response.response)) {
                         if (UtilsNew.isNotUndefinedOrNull(response.response[0].result) && UtilsNew.isNotEmptyArray(response.response[0].result)) {
-                            this.cellbaseVersion =response.response[0].result[0]["Version: "];
+                            this.cellbaseVersion = response.response[0].result[0]["Version: "];
                         }
                     }
                 });
@@ -578,16 +578,16 @@
             onClear() {
                 this.modeInheritance = "none";
                 this.query = {studies: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias};
-                this._initGenotypeSamples(this.samples,true);
+                // this._initGenotypeSamples(this.samples, true);
                 this.search = {};
             }
 
             onFilterChange(e) {
-                this.query = Object.assign({},e.detail);
-                if (UtilsNew.isUndefinedOrNull(this.query.genotype)) {
-                    this.modeInheritance = "none";
-                    this._initGenotypeSamples(this.samples, true)
-                }
+                this.query = Object.assign({}, e.detail);
+                // if (UtilsNew.isUndefinedOrNull(this.query.genotype)) {
+                //     this.modeInheritance = "none";
+                //     this._initGenotypeSamples(this.samples, true)
+                // }
                 this.search = e.detail;
             }
 

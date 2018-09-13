@@ -265,7 +265,7 @@
 
                             if (_this.variantAnnotation.geneTraitAssociation != null) {
                                 _this.numberConsequenceTypes = _this.variantAnnotation.consequenceTypes.length;
-                                _this.numberPopulationFrequencies = _this.variantAnnotation.populationFrequencies.length;
+                                _this.numberPopulationFrequencies = UtilsNew.isNotEmptyArray(_this.variantAnnotation.populationFrequencies) ? _this.variantAnnotation.populationFrequencies.length : 0;
                                 _this.numberVTA = UtilsNew.isNotUndefinedOrNull(_this.variantAnnotation.traitAssociation) ? _this.variantAnnotation.traitAssociation.length : 0;
                                 _this.numberGTA = UtilsNew.isNotUndefinedOrNull(_this.variantAnnotation.geneTraitAssociation) ? _this.variantAnnotation.geneTraitAssociation.length: 0;
                             }

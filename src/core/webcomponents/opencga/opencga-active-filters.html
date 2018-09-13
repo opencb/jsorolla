@@ -243,7 +243,7 @@
             checkFilters(config) {
                 let _this = this;
                 if (this.opencgaClient instanceof OpenCGAClient && UtilsNew.isNotUndefined(config.value.sessionId)) {
-                    this.opencgaClient.users().getFilters({}, {})
+                    this.opencgaClient.users().getFilters({}, {serverVersion: this.opencgaClient._config.serverVersion})
                         .then(function (response) {
                             let result = response.response[0].result;
                             if (result.length > 0) {
@@ -259,34 +259,46 @@
             }
 
             save() {
+                let filterName = PolymerUtils.getValue("filterName");
+                let filterDescription = PolymerUtils.getValue(this.prefix + "filterDescription");
+
                 let params = {};
-                params.name = this.$.filterName.value;
-                params.description = this.$.filterDescription.value;
+                params.name = filterName;
+                params.description = filterDescription;
                 params.bioformat = this.filterBioformat;
                 params.query = this.query;
                 params.options = {};
                 let _this = this;
-                this.opencgaClient.users().getFilter(this.$.filterName.value, {}, {})
+                this.opencgaClient.users().getFilters({name: filterName}, {serverVersion: this.opencgaClient._config.serverVersion})
                     .then(function (response) {
                         if (response.response[0].result.length > 0) {
                             delete params.name;
-                            _this.opencgaClient.users().updateFilter(_this.$.filterName.value, params, {})
+                            _this.opencgaClient.users().updateFilter(filterName, params, {})
                                 .then(function (response) {
                                     for (let i in _this.filters) {
-                                        if (_this.filters[i].name === _this.$.filterName.value) {
+                                        if (_this.filters[i].name === filterName) {
                                             _this.filters[i] = response.response[0].result[0];
                                         }
                                     }
-                                    _this.$.filterName.value = "";
-                                    _this.$.filterDescription.value = "";
+                                    PolymerUtils.setValue("filterName", "");
+                                    PolymerUtils.setValue(_this.prefix + "filterDescription", "");
                                 });
                         } else {
-                            _this.opencgaClient.users().createFilter(params, {})
-                                .then(function (response) {
-                                    _this.push("filters", params);
-                                    _this.$.filterName.value = "";
-                                    _this.$.filterDescription.value = "";
-                                });
+                            if (_this.opencgaClient._config.serverSession !== undefined && _this.opencgaClient._config.serverSession === "1.3") {
+                                _this.opencgaClient.users().create(params, {})
+                                    .then(function (response) {
+                                        _this.push("filters", params);
+                                        PolymerUtils.setValue("filterName", "");
+                                        PolymerUtils.setValue(_this.prefix + "filterDescription", "");
+                                    });
+                            } else {
+                                _this.opencgaClient.users().updateFilters(undefined, params, {})
+                                    .then(function (response) {
+                                        _this.push("filters", params);
+                                        PolymerUtils.setValue("filterName", "");
+                                        PolymerUtils.setValue(_this.prefix + "filterDescription", "");
+                                    });
+                            }
                         }
                     });
             }

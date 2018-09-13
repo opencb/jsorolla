@@ -196,7 +196,8 @@ class OpenCGAClient {
                         session.date = new Date().toISOString();
                         session.server = {
                             host: _this._config.host,
-                            version: _this._config.version
+                            version: _this._config.version,
+                            serverVersion: _this._config.serverVersion
                         };
                         session.opencgaClient = _this;
 
@@ -208,6 +209,11 @@ class OpenCGAClient {
                                     // this sets the current active project and study
                                     session.project = session.projects[0];
                                     session.study = session.projects[0].studies[0];
+
+                                    // FIXME This is need to kepp backward compatibility with OpenCGA 1.3.x
+                                    if (UtilsNew.isNotUndefinedOrNull(session.project.fqn)) {
+                                        session.project.alias = session.project.fqn;
+                                    }
                                 }
 
                                 resolve(session);
@@ -358,7 +364,7 @@ class OpenCGAParentClass {
         }
 
         // Some web services do not need the second category of ids
-        if (typeof ids2 !== "undefined" && ids2 !== null) {
+        if (typeof ids2 !== "undefined" && ids2 !== null && ids2 !== "") {
             url += `${ids2}/`;
         }
 
@@ -543,7 +549,8 @@ class Users extends OpenCGAParentClass {
 
     // Filters
     getFilters(params, options) {
-        return this.extendedGet("users", this._getUserId(), "configs/filters", undefined, "list", params, options);
+        let subCat = (options.serverVersion !== undefined && options.serverVersion === "1.3") ? "list" : "";
+        return this.extendedGet("users", this._getUserId(), "configs/filters", undefined, subCat, params, options);
     }
 
     getFilter(filter, params, options) {
@@ -574,6 +581,25 @@ class Users extends OpenCGAParentClass {
         }
         _options["method"] = "POST";
         return this.extendedGet("users", this._getUserId(), "configs/filters", filter, "update", _params, _options);
+    }
+
+    updateFilters(action, params, options) {
+        let _action = action;
+        let _params = Object.assign({}, params);
+        let _options = Object.assign({}, options);
+
+        if (_action === undefined || _action === "") {
+            _action = "ADD";
+        }
+
+        if (!_params.hasOwnProperty("body")) {
+            _params = {
+                action: _action,
+                body: _params
+            };
+        }
+        _options["method"] = "POST";
+        return this.extendedGet("users", this._getUserId(), "configs/filters", undefined, "update", _params, _options);
     }
 
     deleteFilter(filter) {
@@ -1090,6 +1116,10 @@ class Variant extends OpenCGAParentClass {
 
     constructor(config) {
         super(config);
+    }
+
+    metadata(params, options) {
+        return this.get("analysis/variant", undefined, "metadata", params, options);
     }
 
     query(params, options) {

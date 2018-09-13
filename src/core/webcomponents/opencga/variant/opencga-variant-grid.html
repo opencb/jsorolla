@@ -326,6 +326,9 @@
                                 }
                             }
                         },
+                        onLoadError: function (status, res) {
+                            debugger
+                        },
                         onPageChange: function (page, size) {
                             _this.from = (page - 1) * size + 1;
                             _this.to = page * size;

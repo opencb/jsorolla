@@ -15,6 +15,7 @@
   -->
 
 <link rel="import" href="variant-sample-selector.html">
+<link rel="import" href="opencga-variant-filter-sample.html">
 <link rel="import" href="../catalog/samples/opencga-sample-grid.html">
 <link rel="import" href="../catalog/clinical/opencga-clinical-analysis-browser.html">
 <link rel="import" href="../../commons/variant-modal-ontology.html">
@@ -122,30 +123,22 @@
                                 selected-terms="{{selectedTermsOntology}}">
         </variant-modal-ontology>
 
-        <!-- Modal dialog for Sample Browser in prioritization-->
-        <!--<div class="modal fade" id="{{prefix}}SampleBrowser" tabindex="-1" role="dialog"-->
-        <!--aria-labelledby="sampleBrowserLabel">-->
-        <!--<div class="modal-dialog modal-lg" role="document" style="width: 1440px;">-->
-        <!--<div class="modal-content">-->
-        <!--<div class="modal-header">-->
-        <!--<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span-->
-        <!--aria-hidden="true">&times;</span></button>-->
-        <!--<h4 class="modal-title" id="{{prefix}}SampleBrowserLabel">Family Selector</h4>-->
-        <!--</div>-->
-        <!--<div class="modal-body" style="height: 680px">-->
-        <!--&lt;!&ndash;<opencga-family-selector opencga-client="{{opencgaClient}}" study-id="{{study.id}}" samples="{{samples}}" prefix="{{prefix}}"></opencga-family-selector>&ndash;&gt;-->
-        <!--<variant-sample-selector opencga-client="{{opencgaClient}}" project="{{project}}" study="{{study}}"-->
-        <!--mode="{{analysisType}}" samples="{{samples}}" on-familychange="onFamilyChange">-->
-        <!--</variant-sample-selector>-->
-        <!--</div>-->
-        <!--<div class="modal-footer">-->
-        <!--<button type="button" class="btn btn-primary" data-dismiss="modal" on-click="closeModalSample">-->
-        <!--OK-->
-        <!--</button>-->
-        <!--</div>-->
-        <!--</div>-->
-        <!--</div>-->
-        <!--</div>-->
+        <div class="modal fade" id="{{prefix}}SampleFilterModal" data-backdrop="static" data-keyboard="false" tabindex="-1"
+             role="dialog" aria-hidden="true" style="padding-top: 0%; overflow-y: visible">
+            <div class="modal-dialog" style="width: 1024px">
+                <div class="modal-content">
+                    <div class="modal-header" style="padding: 5px 15px">
+                        <h3>Sample Selection</h3>
+                    </div>
+                    <div class="modal-body">
+                        <opencga-variant-filter-sample opencga-session={{opencgaSession}} on-samplefilterschange="onSampleFiltersChange" samples="{{samples}}"></opencga-variant-filter-sample>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </template>
 
     <script>
@@ -176,7 +169,8 @@
                     },
                     search: {
                         type: Object,
-                        notify: true
+                        notify: true,
+                        observer: "searchObserver"
                     },
                     family: {
                         type: Object,
@@ -213,9 +207,7 @@
             }
 
             static get observers() {
-                return [
-                    "samplesObserver(samples.*)"
-                ]
+                return ["samplesObserver(samples.*)"]
             }
 
             _attachDom(dom) {
@@ -224,6 +216,7 @@
 
             connectedCallback() {
                 super.connectedCallback();
+
 
                 // Render filter menu and add event and tooltips
                 this._renderFilterMenu();
@@ -234,7 +227,7 @@
             }
 
             _init() {
-                this.prefix = "var-browser-filter-" + Utils.randomString(6);
+                this.prefix = "ovf" + Utils.randomString(6);
 
                 this._initialised = false;
                 this._reset = true;
@@ -246,6 +239,25 @@
                 this.modalGoActive = false;
 
                 this._genotypes = ["0/0", "0/1", "1/1"];
+
+                // TO DELETE
+                this.samplesTest = ["NA12877"];
+                this._sampleFilters = {
+                    sampleFilters: [
+                        {
+                            id: "NA12877", genotypes: ["0/1"], dp: 5
+                        }
+                    ],
+                    fileFilters: [],
+                    modeOfInheritance: "recessive",
+                    compoundHeterozygous: true,
+                    missing: true
+                };
+                this.samples = [
+                    {
+                        id: "NA12877", genotypes: ["0/1"], dp: 5
+                    }
+                ]
             }
 
             studyObserver() {
@@ -294,11 +306,40 @@
                 }
             }
 
-            queryObserver() {
+            queryObserver(newValue, oldValue) {
                 if (this._reset) {
                     this.setQueryFilters();
                 } else {
                     this._reset = true;
+                }
+
+                // Parameter 'genotype' has been removed
+                if (UtilsNew.isNotUndefinedOrNull(oldValue) && UtilsNew.isNotUndefinedOrNull(oldValue.genotype)
+                    && UtilsNew.isUndefinedOrNull(newValue.genotype)) {
+                    let _samples = [];
+                    for (let sample of this.samples) {
+                        sample.genotypes = [];
+                        sample.dp = undefined;
+                        _samples.push(sample);
+                    }
+                    this.samples = _samples;
+                }
+
+                // Parameter 'format' has been removed
+                if (UtilsNew.isNotUndefinedOrNull(oldValue) && UtilsNew.isNotUndefinedOrNull(oldValue.format)
+                    && UtilsNew.isUndefinedOrNull(newValue.format)) {
+                    let _samples = [];
+                    for (let sample of this.samples) {
+                        sample.dp = undefined;
+                        _samples.push(sample);
+                    }
+                    this.samples = _samples;
+                }
+            }
+
+            searchObserver(e) {
+                if (Object.keys(this.search).length === 0) {
+                    this.samples = [];
                 }
             }
 
@@ -329,61 +370,65 @@
 
             // familyObserver() {
             //     if (UtilsNew.isNotUndefinedOrNull(this.family)) {
-                    // Display family segregation dropdown
-                    // PolymerUtils.show(this.prefix + "SampleSegregation");
+            // Display family segregation dropdown
+            // PolymerUtils.show(this.prefix + "SampleSegregation");
             //     }
             // }
 
 
-            _autocompleteSampleSearch(e) {
-                // Only gene symbols are going to be searched and not Ensembl IDs
-                let sampleNamePrefix = PolymerUtils.getElementById(this.prefix  + "AutocompleteSampleSearchInput").value;
-                if (UtilsNew.isNotUndefinedOrNull(sampleNamePrefix) && sampleNamePrefix.length >= 4) {
-                    let _this = this;
-                    this.opencgaClient.samples()
-                        .search({
-                            study: _this.opencgaSession.project.alias + ":" + _this.opencgaSession.study.alias,
-                            name: "~^" + sampleNamePrefix,
-                            include: "id,name,source",
-                            includeIndividual: true,
-                            limit: 20}, {})
-                        .then(function (response) {
-//                            _this.autocompleteSampleData = response.response[0].result;
-                            let options = "";
-                            for (let sample of response.response[0].result) {
-                                let sampleStr = JSON.stringify(sample);
-                                options += `<option id="${_this.prefix}Sample${sample.name}" value="${sample.name}" data-sample='` + sampleStr + "'>";
-                            }
-                            PolymerUtils.innerHTML(_this.prefix + "AutocompleteSampleSearchDataList", options);
-                        });
-                }
+//             _autocompleteSampleSearch(e) {
+//                 // Only gene symbols are going to be searched and not Ensembl IDs
+//                 let sampleNamePrefix = PolymerUtils.getElementById(this.prefix  + "AutocompleteSampleSearchInput").value;
+//                 if (UtilsNew.isNotUndefinedOrNull(sampleNamePrefix) && sampleNamePrefix.length >= 4) {
+//                     let _this = this;
+//                     this.opencgaClient.samples()
+//                         .search({
+//                             study: _this.opencgaSession.project.alias + ":" + _this.opencgaSession.study.alias,
+//                             name: "~^" + sampleNamePrefix,
+//                             include: "id,name,source",
+//                             includeIndividual: true,
+//                             limit: 20}, {})
+//                         .then(function (response) {
+// //                            _this.autocompleteSampleData = response.response[0].result;
+//                             let options = "";
+//                             for (let sample of response.response[0].result) {
+//                                 let sampleStr = JSON.stringify(sample);
+//                                 options += `<option id="${_this.prefix}Sample${sample.name}" value="${sample.name}" data-sample='` + sampleStr + "'>";
+//                             }
+//                             PolymerUtils.innerHTML(_this.prefix + "AutocompleteSampleSearchDataList", options);
+//                         });
+//                 }
+//             }
+
+            onSampleFilterClick() {
+                $("#" + this.prefix + "SampleFilterModal").modal("show");
             }
 
-            onSampleChange(e) {
-                    let sampleSearchInput = PolymerUtils.getElementById(this.prefix + "AutocompleteSampleSearchInput");
-                    let sampleHtmlObj = PolymerUtils.getElementById(this.prefix + "Sample" + sampleSearchInput.value);
-                    let sample = JSON.parse(sampleHtmlObj.dataset.sample);
-
-                    if (UtilsNew.isNotUndefinedOrNull(sample)) {
-                        // This triggers the call to samplesObserver()
-                        if (UtilsNew.isUndefinedOrNull(this.samples)) {
-                            this.samples = [];
-                        }
-                        this.push("samples", sample);
-
-                        // Empty previous Sample selection
-                        this.autocompleteSampleData = [];
-                        sampleSearchInput.value = "";
-
-                        // Notify the sample change
-                        this.dispatchEvent(new CustomEvent("samplechange", {
-                            detail: {samples: this.samples}, bubbles: true, composed: true
-                        }));
-                        this.dispatchEvent(new CustomEvent("inheritancemode", {
-                            detail: {decisionTreeInheritance: this.decisionTreeInheritance}, bubbles: true, composed: true
-                        }));
-                    }
-            }
+            // onSampleChange(e) {
+            //     let sampleSearchInput = PolymerUtils.getElementById(this.prefix + "AutocompleteSampleSearchInput");
+            //     let sampleHtmlObj = PolymerUtils.getElementById(this.prefix + "Sample" + sampleSearchInput.value);
+            //     let sample = JSON.parse(sampleHtmlObj.dataset.sample);
+            //
+            //     if (UtilsNew.isNotUndefinedOrNull(sample)) {
+            //         // This triggers the call to samplesObserver()
+            //         if (UtilsNew.isUndefinedOrNull(this.samples)) {
+            //             this.samples = [];
+            //         }
+            //         this.push("samples", sample);
+            //
+            //         // Empty previous Sample selection
+            //         this.autocompleteSampleData = [];
+            //         sampleSearchInput.value = "";
+            //
+            //         // Notify the sample change
+            //         this.dispatchEvent(new CustomEvent("samplechange", {
+            //             detail: {samples: this.samples}, bubbles: true, composed: true
+            //         }));
+            //         this.dispatchEvent(new CustomEvent("inheritancemode", {
+            //             detail: {decisionTreeInheritance: this.decisionTreeInheritance}, bubbles: true, composed: true
+            //         }));
+            //     }
+            // }
 
             propagateOkHPO(e) {
                 if (this.openHPO) {
@@ -436,7 +481,7 @@
             keyUpAllPopFreq(e) {
                 let studyId = e.target.getAttribute("data-study");
                 let study = this.populationFrequencies.studies.find((study) => {
-                   return study.id === studyId;
+                    return study.id === studyId;
                 });
 
                 study.populations.forEach((popFreq) => {
@@ -499,30 +544,30 @@
                 this.updateQueryFilters();
             }
 
-            clear() {
-                // This will trigger the event that call to setQueryFilters
-                this.query = {};
-
-                // This refresh the variant main grid
-                this.search = {};
-            }
+            // clear() {
+            //     // This will trigger the event that call to setQueryFilters
+            //     this.query = {};
+            //
+            //     // This refresh the variant main grid
+            //     this.search = {};
+            // }
 
             setQueryFilters() {
                 // Empty everything before rendering
                 this._clearHtmlDom();
 
-                // If this,query is null or empty there is nothing else to do
+                // Check 'query' is not null or empty there is nothing else to do
                 if (UtilsNew.isUndefinedOrNull(this.query) || Object.keys(this.query).length === 0) {
                     return;
                 }
 
                 // Genotypes
-                this.renderGenotypes();
+                // this.renderGenotypes();
 
                 // inheritance Mode
-                if (UtilsNew.isNotUndefinedOrNull(this.modeInheritance)) {
-                    PolymerUtils.setValue(this.prefix + "SegregationOperator", this.modeInheritance)
-                }
+                // if (UtilsNew.isNotUndefinedOrNull(this.modeInheritance)) {
+                //     PolymerUtils.setValue(this.prefix + "SegregationOperator", this.modeInheritance)
+                // }
 
                 // Cohorts
                 let cohortArray = [];
@@ -745,28 +790,37 @@
                 let _filters = {};
 
                 // Adding sample genotypes filter
-                let selectedGenotypes = $("." + this.prefix + "genotypes:checkbox:checked");
-                if (selectedGenotypes.length > 0) {
-                    let sampleGenotypesObj = {};
-                    for (let i = 0; i < selectedGenotypes.length; i++) {
-                        if (typeof sampleGenotypesObj[selectedGenotypes[i].getAttribute("data-id")] === "undefined") {
-                            sampleGenotypesObj[selectedGenotypes[i].getAttribute("data-id")] = {};
-                        }
-                        sampleGenotypesObj[selectedGenotypes[i].getAttribute("data-id")][selectedGenotypes[i].defaultValue] = selectedGenotypes[i].checked;
-                    }
-                    let _genotypes = [];
-                    for (let sampleName in sampleGenotypesObj) {
-                        let gts = [];
-                        for (let sampleGT in sampleGenotypesObj[sampleName]) {
-                            if (sampleGenotypesObj[sampleName][sampleGT] === true) {
-                                gts.push(sampleGT);
-                            }
-                        }
-                        if (gts.length > 0) {
-                            _genotypes.push(sampleName + ':' + gts.join(','));
-                        }
-                    }
-                    _filters.genotype = _genotypes.join(';');
+                // let selectedGenotypes = $("." + this.prefix + "genotypes:checkbox:checked");
+                // if (selectedGenotypes.length > 0) {
+                //     let sampleGenotypesObj = {};
+                //     for (let i = 0; i < selectedGenotypes.length; i++) {
+                //         if (typeof sampleGenotypesObj[selectedGenotypes[i].getAttribute("data-id")] === "undefined") {
+                //             sampleGenotypesObj[selectedGenotypes[i].getAttribute("data-id")] = {};
+                //         }
+                //         sampleGenotypesObj[selectedGenotypes[i].getAttribute("data-id")][selectedGenotypes[i].defaultValue] = selectedGenotypes[i].checked;
+                //     }
+                //     let _genotypes = [];
+                //     for (let sampleName in sampleGenotypesObj) {
+                //         let gts = [];
+                //         for (let sampleGT in sampleGenotypesObj[sampleName]) {
+                //             if (sampleGenotypesObj[sampleName][sampleGT] === true) {
+                //                 gts.push(sampleGT);
+                //             }
+                //         }
+                //         if (gts.length > 0) {
+                //             _genotypes.push(sampleName + ':' + gts.join(','));
+                //         }
+                //     }
+                //     _filters.genotype = _genotypes.join(';');
+                // }
+                if (UtilsNew.isNotUndefinedOrNull(this.query.genotype)) {
+                    _filters.genotype = this.query.genotype;
+                }
+                if (UtilsNew.isNotUndefinedOrNull(this.query.format)) {
+                    _filters.format = this.query.format;
+                }
+                if (UtilsNew.isNotUndefinedOrNull(this.query.info)) {
+                    _filters.info = this.query.info;
                 }
 
                 // Add Cohort stats MAF filter: [{study.alias}]:{cohort}[<|>|<=|>=]{number}
@@ -1053,125 +1107,125 @@
             }
 
             // @TODO We should remove this when exists in server an endpoint to get this values
-            selectInheritanceMode(e) {
-                e.preventDefault();
-                // if in a last state we had yLinked or xLinked mode and we do not now, we need to clear locationTextArea
-                if (UtilsNew.isNotUndefinedOrNull(e.target.value) && (e.target.value !== "xLinked" || e.target.value !== "yLinked")
-                    && (this.modeInheritance === "xLinked" || this.modeInheritance === "yLinked")) {
-                    delete this.query.region;
-                }
+            // selectInheritanceMode(e) {
+            //     e.preventDefault();
+            //     // if in a last state we had yLinked or xLinked mode and we do not now, we need to clear locationTextArea
+            //     if (UtilsNew.isNotUndefinedOrNull(e.target.value) && (e.target.value !== "xLinked" || e.target.value !== "yLinked")
+            //         && (this.modeInheritance === "xLinked" || this.modeInheritance === "yLinked")) {
+            //         delete this.query.region;
+            //     }
+            //
+            //     // Set current mode
+            //     this.modeInheritance = e.target.value;
+            //     if (this.modeInheritance == "xLinked") {
+            //         this.query.region = "X";
+            //     } else if (this.modeInheritance == "yLinked") {
+            //         this.query.region = "Y";
+            //     }
+            //     this.dispatchEvent(new CustomEvent("inheritancemode", { detail: {decisionTreeInheritance: this.decisionTreeInheritance }, bubbles: true, composed: true }));
+            // }
 
-                // Set current mode
-                this.modeInheritance = e.target.value;
-                if (this.modeInheritance == "xLinked") {
-                    this.query.region = "X";
-                } else if (this.modeInheritance == "yLinked") {
-                    this.query.region = "Y";
-                }
-                this.dispatchEvent(new CustomEvent("inheritancemode", { detail: {decisionTreeInheritance: this.decisionTreeInheritance }, bubbles: true, composed: true }));
-            }
-
-            renderGenotypes() {
-                let table = PolymerUtils.getElementById(this.prefix + "SampleGenotypeTable");
-                if (UtilsNew.isUndefinedOrNull(table)) {
-                    return;
-                }
-                let tableBody = table.getElementsByTagName('tbody')[0];
-                let _genotypes = [];
-                // Delete all existing rows
-                while(tableBody.rows.length) {
-                    tableBody.deleteRow(0);
-                }
-
-                let genotypeSamples = {};
-                let samples = [];
-                if (UtilsNew.isNotUndefinedOrNull(this.query.genotype)) {
-                    let sampleGenotypes = this.query.genotype.split(";")
-
-                    for (let sampleGenotype of sampleGenotypes) {
-                        if (UtilsNew.isNotEmpty(sampleGenotype)) {
-                            let sample = sampleGenotype.split(":")[0];
-                            genotypeSamples[sample] = {};
-                            samples.push(sample);
-                            let genotypes = sampleGenotype.split(":")[1].split(",");
-                            genotypes.forEach(genotype => {
-                                if (genotype !== "./.") {
-                                    genotypeSamples[sample][genotype] = true;
-                                }
-                            });
-                        }
-                    }
-                }
-
-                // Loading samples when we are passing just genotypes to filter.
-                if (samples.length && (UtilsNew.isUndefinedOrNull(this.samples) || (UtilsNew.isNotUndefinedOrNull(this.samples) && samples.length !== this.samples.length))) {
-                    let _this = this;
-                    let params = {
-                        study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias
-                    };
-                    this.opencgaClient.samples().info(samples.join(','), params).then(function (response) {
-                        let _samples = [];
-                        for (let i in response.response) {
-                            _samples.push(response.response[i].result[0]);
-                        }
-                        _this.samples = _samples;
-                    });
-                }
-                for (let sample of samples) {
-
-                    let tr = tableBody.insertRow(-1);
-                    tr.setAttribute("id", sample);
-
-                    let td = tr.insertCell(0);
-                    let nameText = document.createTextNode(sample);
-                    td.appendChild(nameText);
-
-                    for (let genotype of this._genotypes) {
-                        let isCheckedGenotype = UtilsNew.isNotUndefinedOrNull(genotypeSamples)
-                            && UtilsNew.isNotUndefinedOrNull(genotypeSamples[sample])
-                            && UtilsNew.isNotUndefinedOrNull(genotypeSamples[sample][genotype]) ? genotypeSamples[sample][genotype] : false;
-
-
-                        let td = tr.insertCell(-1);
-                        let cell = document.createElement("INPUT");
-                        cell.setAttribute("id", this.prefix + "SampleGenotypeCheckbox" + genotype);
-                        cell.setAttribute("type", "checkbox");
-                        cell.setAttribute("class", this.prefix + "genotypes " + this.prefix + "FilterCheckBox");
-                        cell.setAttribute("value", genotype);
-                        cell.setAttribute("data-id", sample);
-                        cell.addEventListener("change", this.genotypeCheckboxClicked.bind(this));
-                        if (isCheckedGenotype) {
-                            cell.setAttribute("checked", true);
-                            _genotypes.push(genotype);
-                        }
-
-                        td.appendChild(cell);
-                    }
-                }
-
-                if (UtilsNew.isNotEmptyArray(samples)) {  // this.query.samples !== undefined && this.query.samples.length > 0
-                    // this.showSampleGenotypes = true;
-                    PolymerUtils.setAttribute(this.prefix + "SampleGenotypeDivTable", "style", "display: inline");
-                    PolymerUtils.setAttribute(this.prefix + "SampleGenotypeOptions", "style", "display: inline");
-                    // If there is more than one sample we make visible the Segregation dropdown
-                    if (samples.length > 0) {
-                        PolymerUtils.setAttribute(this.prefix + "SampleSegregation", "style", "display: inline");
-                        let allContainsIndividual = false;
-                        if (UtilsNew.isNotUndefinedOrNull(this.samples) && UtilsNew.isNotEmptyArray(this.samples)) {
-                            let allContainsIndividual = this.samples.every((sample) => {
-                                return UtilsNew.isNotUndefinedOrNull(sample.attributes) && UtilsNew.isNotUndefinedOrNull(sample.attributes.individual);
-                            });
-                            if (allContainsIndividual) {
-                                PolymerUtils.setPropertyById(this.prefix + "SegregationOperator", "disabled", true)
-                            } else {
-                                PolymerUtils.removeAttribute(this.prefix + "SegregationOperator", "disabled")
-                            }
-                        }
-                    }
-                } else {
-                    PolymerUtils.setAttribute(this.prefix + "SampleGenotypeDivTable", "style", "display: none");
-                }
-            }
+            // renderGenotypes() {
+            //     let table = PolymerUtils.getElementById(this.prefix + "SampleGenotypeTable");
+            //     if (UtilsNew.isUndefinedOrNull(table)) {
+            //         return;
+            //     }
+            //     let tableBody = table.getElementsByTagName('tbody')[0];
+            //     let _genotypes = [];
+            //     // Delete all existing rows
+            //     while(tableBody.rows.length) {
+            //         tableBody.deleteRow(0);
+            //     }
+            //
+            //     let genotypeSamples = {};
+            //     let samples = [];
+            //     if (UtilsNew.isNotUndefinedOrNull(this.query.genotype)) {
+            //         let sampleGenotypes = this.query.genotype.split(";")
+            //
+            //         for (let sampleGenotype of sampleGenotypes) {
+            //             if (UtilsNew.isNotEmpty(sampleGenotype)) {
+            //                 let sample = sampleGenotype.split(":")[0];
+            //                 genotypeSamples[sample] = {};
+            //                 samples.push(sample);
+            //                 let genotypes = sampleGenotype.split(":")[1].split(",");
+            //                 genotypes.forEach(genotype => {
+            //                     if (genotype !== "./.") {
+            //                         genotypeSamples[sample][genotype] = true;
+            //                     }
+            //                 });
+            //             }
+            //         }
+            //     }
+            //
+            //     // Loading samples when we are passing just genotypes to filter.
+            //     if (samples.length && (UtilsNew.isUndefinedOrNull(this.samples) || (UtilsNew.isNotUndefinedOrNull(this.samples) && samples.length !== this.samples.length))) {
+            //         let _this = this;
+            //         let params = {
+            //             study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias
+            //         };
+            //         this.opencgaClient.samples().info(samples.join(','), params).then(function (response) {
+            //             let _samples = [];
+            //             for (let i in response.response) {
+            //                 _samples.push(response.response[i].result[0]);
+            //             }
+            //             _this.samples = _samples;
+            //         });
+            //     }
+            //
+            //     for (let sample of samples) {
+            //         let tr = tableBody.insertRow(-1);
+            //         tr.setAttribute("id", sample);
+            //
+            //         let td = tr.insertCell(0);
+            //         let nameText = document.createTextNode(sample);
+            //         td.appendChild(nameText);
+            //
+            //         for (let genotype of this._genotypes) {
+            //             let isCheckedGenotype = UtilsNew.isNotUndefinedOrNull(genotypeSamples)
+            //             && UtilsNew.isNotUndefinedOrNull(genotypeSamples[sample])
+            //             && UtilsNew.isNotUndefinedOrNull(genotypeSamples[sample][genotype]) ? genotypeSamples[sample][genotype] : false;
+            //
+            //
+            //             let td = tr.insertCell(-1);
+            //             let cell = document.createElement("INPUT");
+            //             cell.setAttribute("id", this.prefix + "SampleGenotypeCheckbox" + genotype);
+            //             cell.setAttribute("type", "checkbox");
+            //             cell.setAttribute("class", this.prefix + "genotypes " + this.prefix + "FilterCheckBox");
+            //             cell.setAttribute("value", genotype);
+            //             cell.setAttribute("data-id", sample);
+            //             cell.addEventListener("change", this.genotypeCheckboxClicked.bind(this));
+            //             if (isCheckedGenotype) {
+            //                 cell.setAttribute("checked", true);
+            //                 _genotypes.push(genotype);
+            //             }
+            //
+            //             td.appendChild(cell);
+            //         }
+            //     }
+            //
+            //     if (UtilsNew.isNotEmptyArray(samples)) {  // this.query.samples !== undefined && this.query.samples.length > 0
+            //         // this.showSampleGenotypes = true;
+            //         PolymerUtils.setAttribute(this.prefix + "SampleGenotypeDivTable", "style", "display: inline");
+            //         PolymerUtils.setAttribute(this.prefix + "SampleGenotypeOptions", "style", "display: inline");
+            //         // If there is more than one sample we make visible the Segregation dropdown
+            //         if (samples.length > 0) {
+            //             PolymerUtils.setAttribute(this.prefix + "SampleSegregation", "style", "display: inline");
+            //             let allContainsIndividual = false;
+            //             if (UtilsNew.isNotUndefinedOrNull(this.samples) && UtilsNew.isNotEmptyArray(this.samples)) {
+            //                 let allContainsIndividual = this.samples.every((sample) => {
+            //                     return UtilsNew.isNotUndefinedOrNull(sample.attributes) && UtilsNew.isNotUndefinedOrNull(sample.attributes.individual);
+            //                 });
+            //                 if (allContainsIndividual) {
+            //                     PolymerUtils.setPropertyById(this.prefix + "SegregationOperator", "disabled", true)
+            //                 } else {
+            //                     PolymerUtils.removeAttribute(this.prefix + "SegregationOperator", "disabled")
+            //                 }
+            //             }
+            //         }
+            //     } else {
+            //         PolymerUtils.setAttribute(this.prefix + "SampleGenotypeDivTable", "style", "display: none");
+            //     }
+            // }
 
             genotypeCheckboxClicked(e) {
                 this.modeInheritance = "none";
@@ -1339,80 +1393,135 @@
             }
 
             _getSampleHtml(subsection, prefix) {
-                let options = "";
-                if (UtilsNew.isNotUndefinedOrNull(subsection) && UtilsNew.isNotEmptyArray(subsection.inheritanceModes)) {
-                    for (let inheritanceMode of subsection.inheritanceModes) {
-                        options += `<option value="${inheritanceMode.key}">${inheritanceMode.text}</option>`;
-                    }
-                }
-                let approxCountCheckbox = "";
-                if (subsection.showApproximateCount) {
-                    // approxCountCheckbox = `<input id="${prefix}ApproxCountCheckbox" type="checkbox" value="approximateCount" class="${prefix}FilterCheckBox" checked> Approximate Count<br>`;
-                    approxCountCheckbox = '<input id="${prefix}ApproxCountCheckbox" type="checkbox" value="approximateCount" class="${prefix}FilterCheckBox" style="display: none;" checked> Approximate Count<br>';
-                }
-                let res = ``;
-                console.log("Probing");
-                console.log(subsection.showSelectSamples);
-
-
+                // let options = "";
+                // if (UtilsNew.isNotUndefinedOrNull(subsection) && UtilsNew.isNotEmptyArray(subsection.inheritanceModes)) {
+                //     for (let inheritanceMode of subsection.inheritanceModes) {
+                //         options += `<option value="${inheritanceMode.key}">${inheritanceMode.text}</option>`;
+                //     }
+                // }
+                // let approxCountCheckbox = "";
+                // if (subsection.showApproximateCount) {
+                //     // approxCountCheckbox = `<input id="${prefix}ApproxCountCheckbox" type="checkbox" value="approximateCount" class="${prefix}FilterCheckBox" checked> Approximate Count<br>`;
+                //     approxCountCheckbox = '<input id="${prefix}ApproxCountCheckbox" type="checkbox" value="approximateCount" class="${prefix}FilterCheckBox" style="display: none;" checked> Approximate Count<br>';
+                // }
+                let res = "";
                 if (subsection.showSelectSamples) {
-                    res = `<div id="${prefix}AutocompleteSampleSelect" style="margin: 15px 0px">
-                        <span>Select Sample:</span>
-
-                        <div class="row">
-                            <div class="col-md-9">
-                                <input id="${prefix}AutocompleteSampleSearchInput" type="text" class="form-control" placeholder="Search name..."
-                                            list="${prefix}AutocompleteSampleSearchDataList"">
-                                <datalist id="${prefix}AutocompleteSampleSearchDataList"></datalist>
-                            </div>
-                            <div class="col-md-3">
-                                <button id="${prefix}SampleAddButton" type="button" class="btn btn-default btn-sm form-control">
-                                    <i class="fa fa-plus"></i>
-                                </button>
+                    res = `
+                        <div>
+                            <div style="padding: 10px 0px">Select Samples and Genotypes:</div>
+                            <div style="padding-left: 20px">
+                                <button id="${prefix}SampleFilterModalButton" type="button" class="btn btn-default" style="width: 80%">Sample Selection ...</button>
                             </div>
                         </div>
-                    </div>`
+                        <div style="padding: 10px 0px 5px 0px">
+                            <div style="padding: 15px 0px;">
+                                <span style="font-weight: bold">Filters Summary</span>
+                            </div>
+                            <div>
+                                <span>Sample Filters:</span>
+                            </div>
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th scope="col">Sample ID</th>
+                                    <th scope="col">GT</th>
+                                </tr>
+                                </thead>
+                                <tbody id="${prefix}SampleFiltersSummaryTBody">
+                                    <tr>
+                                        <td>No samples selected</td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <!--
+                                <div>Other filters:</div>
+                                <ul>
+                                    <li>Mode of Inheritance: ${this._modeOfInheritance}</li>
+                                    <li>Compound heterozygous: ${this._compoundHeterozygous}</li>
+                                </ul>
+                            -->
+
+                            <div>File Filters:</div>
+                            <table class="table" style="margin-bottom: 5px">
+                                <thead>
+                                <tr>
+                                    <th scope="col">File Name</th>
+                                    <th scope="col">QUAL</th>
+                                    <th scope="col">FILTER</th>
+                                </tr>
+                                </thead>
+                                <tbody id="${prefix}FileFiltersSummaryTBody">
+                                    <tr>
+                                        <td>No files selected</td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
                 }
-                return `
-                    ${res}
-                    <div style="margin: 15px 0px">
-                        <span>Select Sample Genotypes:</span>
-                        <div id="${prefix}SampleGenotypeMessage">
-                            <span style="color: darkred;padding: 5px 0px 0px 10px">No samples selected</span>
-                        </div>
-                        <div id="${prefix}SampleSegregation" style="display: none">
-                            <div style="padding-left: 10px;padding-top: 10px">
-                                <span class="control-label">Inheritance Mode:</span>
-                                <select id="${prefix}SegregationOperator" name="${prefix}Segregation"
-                                     class="form-control input-sm ${prefix}FilterSelect">
-                                 ${options}
-                                </select>
-                            </div>
-                        </div>
-
-                        <div id="${prefix}SampleGenotypeDivTable" style="display: none">
-                            <div style="padding-left: 10px;padding-top: 10px">
-                                <table id="${prefix}SampleGenotypeTable" class="table table-hover" style="margin-bottom: 10px">
-                                    <thead>
-                                        <tr>
-                                            <th>Sample</th><th>0/0</th><th>0/1</th><th>1/1</th>
-                                            <!--<th>Sample</th><th>HOM_REF</th><th>HET</th><th>HOM_ALT</th><th>MISS</th>-->
-                                        </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <div id="${prefix}SampleGenotypeOptions" style="display: inline">
-                            <span>Sample Genotypes Query Options</span>
-                            <div id="${prefix}GenotypeQueryOptions" style="padding-left: 10px;padding-top: 5px">
-                                ${approxCountCheckbox}
-                                <input type="checkbox" value="multiAllelic" class="${prefix}FilterCheckBox"> Select all multi-allelic variants<br>
-                            </div>
-                        </div>
-                    </div>`
-                ;
+                return res;
+                // if (subsection.showSelectSamples) {
+                //     res += `<div id="${prefix}AutocompleteSampleSelect" style="margin: 25px 0px">
+                //         <div style="font-weight: bold">OLD:</div>
+                //         <span>Select Sample:</span>
+                //
+                //         <div class="row">
+                //             <div class="col-md-9">
+                //                 <input id="${prefix}AutocompleteSampleSearchInput" type="text" class="form-control" placeholder="Search name..."
+                //                             list="${prefix}AutocompleteSampleSearchDataList"">
+                //                 <datalist id="${prefix}AutocompleteSampleSearchDataList"></datalist>
+                //             </div>
+                //             <div class="col-md-3">
+                //                 <button id="${prefix}SampleAddButton" type="button" class="btn btn-default btn-sm form-control">
+                //                     <i class="fa fa-plus"></i>
+                //                 </button>
+                //             </div>
+                //         </div>
+                //     </div>`
+                // }
+                // return `
+                //     ${res}
+                //     <div style="margin: 15px 0px">
+                //         <span>Select Sample Genotypes:</span>
+                //         <div id="${prefix}SampleGenotypeMessage">
+                //             <span style="color: darkred;padding: 5px 0px 0px 10px">No samples selected</span>
+                //         </div>
+                //         <div id="${prefix}SampleSegregation" style="display: none">
+                //             <div style="padding-left: 10px;padding-top: 10px">
+                //                 <span class="control-label">Inheritance Mode:</span>
+                //                 <select id="${prefix}SegregationOperator" name="${prefix}Segregation"
+                //                      class="form-control input-sm ${prefix}FilterSelect">
+                //                  ${options}
+                //                 </select>
+                //             </div>
+                //         </div>
+                //
+                //         <div id="${prefix}SampleGenotypeDivTable" style="display: none">
+                //             <div style="padding-left: 10px;padding-top: 10px">
+                //                 <table id="${prefix}SampleGenotypeTable" class="table table-hover" style="margin-bottom: 10px">
+                //                     <thead>
+                //                         <tr>
+                //                             <th>Sample</th><th>0/0</th><th>0/1</th><th>1/1</th>
+                //                             <!--<th>Sample</th><th>HOM_REF</th><th>HET</th><th>HOM_ALT</th><th>MISS</th>-->
+                //                         </tr>
+                //                     </thead>
+                //                     <tbody></tbody>
+                //                 </table>
+                //             </div>
+                //         </div>
+                //
+                //         <div id="${prefix}SampleGenotypeOptions" style="display: inline">
+                //             <span>Sample Genotypes Query Options</span>
+                //             <div id="${prefix}GenotypeQueryOptions" style="padding-left: 10px;padding-top: 5px">
+                //                 ${approxCountCheckbox}
+                //                 <input type="checkbox" value="multiAllelic" class="${prefix}FilterCheckBox"> Select all multi-allelic variants<br>
+                //             </div>
+                //         </div>
+                //     </div>`
+                //     ;
             }
 
             _getCohortHtml(cohorts, prefix) {
@@ -1941,22 +2050,28 @@
                 }
 
                 // Add events for Sample IDs
-                let autoCompleteSampleElement = PolymerUtils.getElementById(this.prefix + "AutocompleteSampleSearchInput");
-                if (UtilsNew.isNotUndefinedOrNull(autoCompleteSampleElement)) {
-                    autoCompleteSampleElement.addEventListener('keyup', this._autocompleteSampleSearch.bind(this));
-                    PolymerUtils.getElementById(this.prefix + "SampleAddButton").addEventListener('click', this.onSampleChange.bind(this));
-                }
-                // Add event for inheritanceMode
-                let inheritanceModeElement = PolymerUtils.getElementById(this.prefix + "SegregationOperator");
-                if (UtilsNew.isNotUndefinedOrNull(inheritanceModeElement)) {
-                    inheritanceModeElement.addEventListener('change', this.selectInheritanceMode.bind(this));
+                let elementById = PolymerUtils.getElementById(this.prefix + "SampleFilterModalButton");
+                if (UtilsNew.isNotUndefinedOrNull(elementById)) {
+                    elementById.addEventListener('click', this.onSampleFilterClick.bind(this));
                 }
 
+                // let autoCompleteSampleElement = PolymerUtils.getElementById(this.prefix + "AutocompleteSampleSearchInput");
+                // if (UtilsNew.isNotUndefinedOrNull(autoCompleteSampleElement)) {
+                //     autoCompleteSampleElement.addEventListener('keyup', this._autocompleteSampleSearch.bind(this));
+                //     PolymerUtils.getElementById(this.prefix + "SampleAddButton").addEventListener('click', this.onSampleChange.bind(this));
+                // }
+
+                // Add event for inheritanceMode
+                // let inheritanceModeElement = PolymerUtils.getElementById(this.prefix + "SegregationOperator");
+                // if (UtilsNew.isNotUndefinedOrNull(inheritanceModeElement)) {
+                //     inheritanceModeElement.addEventListener('change', this.selectInheritanceMode.bind(this));
+                // }
+
                 // ApproxCountCheckbox
-                let approxCountCheckbox = PolymerUtils.getElementById(this.prefix + "ApproxCountCheckbox");
-                if (UtilsNew.isNotUndefinedOrNull(approxCountCheckbox)) {
-                    approxCountCheckbox.addEventListener('change', this.onApproxCountChange.bind(this));
-                }
+                // let approxCountCheckbox = PolymerUtils.getElementById(this.prefix + "ApproxCountCheckbox");
+                // if (UtilsNew.isNotUndefinedOrNull(approxCountCheckbox)) {
+                //     approxCountCheckbox.addEventListener('change', this.onApproxCountChange.bind(this));
+                // }
 
                 // Add events for Cohort
 //                let cohorts = this.config.menu.sections.forEach(section => section.subsections.forEach(subsection => {if (subsection.id === "cohort") return subsection}));
@@ -2048,11 +2163,113 @@
                 PolymerUtils.getElementById(this.prefix + "buttonOpenHpoAccesions").addEventListener('click', this.openModalHpo.bind(this));
             }
 
-            onApproxCountChange(e) {
-                // this.query.approximateCount = e.target.checked;
-                this.set("query.approximateCount", e.target.checked);
+            onSampleFiltersChange(e) {
+                // Process Sample filters
+                let sampleTableTr = "";
+                let _genotypeFilter = [];
+                let _dpFormatFilter = [];
+                for (let sampleFilter of e.detail.sampleFilters) {
+                    let color = (sampleFilter.affected) ? "red" : "black";
+                    let genotypes = (sampleFilter.genotypes.length > 0) ? sampleFilter.genotypes.join(",") : "none";
+                    let dp = (sampleFilter.dp > 0) ? sampleFilter.dp : -1;
 
+                    sampleTableTr += `
+                            <tr data-sample="${sampleFilter.id}">
+                                <td>
+                                    <span style="color: ${color}">${sampleFilter.id}</span>
+                                </td>
+                                <td>
+                                    ${genotypes}
+                                </td>
+                            </tr>
+                    `;
+
+                    if (genotypes !== "none") {
+                        _genotypeFilter.push(sampleFilter.id + ":" + genotypes);
+                    }
+                    if (dp !== -1) {
+                        _dpFormatFilter.push(sampleFilter.id + ":DP>=" + dp);
+                    }
+                }
+
+                let elementById = PolymerUtils.getElementById(this.prefix + "SampleFiltersSummaryTBody");
+                if (UtilsNew.isNotUndefinedOrNull(elementById)) {
+                    // Set HTML into the table body
+                    elementById.innerHTML = sampleTableTr;
+                }
+
+                // Process Sample filters
+                let fileTableTr = "";
+                let _info = "";
+                for (let fileFilter of e.detail.fileFilters) {
+                    let qual = (fileFilter.qual > 0) ? fileFilter.qual : -1;
+                    let filter = (UtilsNew.isNotUndefinedOrNull(fileFilter.filter)) ? fileFilter.filter : "none";
+
+                    fileTableTr += `
+                            <tr data-file="${fileFilter.name}">
+                                <td>
+                                    <span>${fileFilter.name}</span>
+                                </td>
+                                <td>
+                                    ${qual}
+                                </td>
+                                <td>
+                                    ${filter}
+                                </td>
+                            </tr>
+                    `;
+
+                    if (qual !== -1 || filter !== "none") {
+                        _info += `${fileFilter.name}:`;
+                        let _arr = [];
+                        if (qual !== -1) {
+                            _arr.push("QUAL>" + qual)
+                        }
+                        if (filter !== "none") {
+                            _arr.push("FILTER=" + filter);
+                        }
+                        // FIXME join should be done with ';' instead of ','
+                        _info += _arr.join(",") + ";";
+                    }
+                }
+
+                elementById = PolymerUtils.getElementById(this.prefix + "FileFiltersSummaryTBody");
+                if (UtilsNew.isNotUndefinedOrNull(elementById)) {
+                    elementById.innerHTML = fileTableTr;
+                }
+
+
+                // this._modeOfInheritance = e.detail.modeOfInheritance;
+                // this._compoundHeterozygous = e.detail.compoundHeterozygous;
+                let needUpdateQuery = false;
+                if (_genotypeFilter !== undefined && _genotypeFilter.length > 0) {
+                    this.query.genotype = _genotypeFilter.join(";");
+                    needUpdateQuery = true;
+                }
+                if (_dpFormatFilter !== undefined && _dpFormatFilter.length > 0) {
+                    this.query.format = _dpFormatFilter.join(";");
+                    needUpdateQuery = true;
+                } else {
+                    if (UtilsNew.isNotUndefinedOrNull(this.query.format)) {
+                        delete this.query.format;
+                        needUpdateQuery = true;
+                    }
+                }
+                if (_info !== "") {
+                    this.query.info = _info;
+                    needUpdateQuery = true;
+                }
+
+                // Only update query if really needed, this avoids unneeded web refresh
+                if (needUpdateQuery) {
+                    this.query = Object.assign({}, this.query);
+                }
             }
+
+            // onApproxCountChange(e) {
+            //     // this.query.approximateCount = e.target.checked;
+            //     this.set("query.approximateCount", e.target.checked);
+            // }
 
             _addAllTooltips() {
                 for (let section of this.config.menu.sections) {
