@@ -105,12 +105,15 @@
             }
 
             renderTable() {
+                this.set('samples', []);
+
                 let filters = Object.assign({}, this.search);
 
                 this.from = 1;
                 this.to = 10;
 
-                if (UtilsNew.isNotUndefined(this.opencgaClient) && UtilsNew.isNotUndefined(this.opencgaSession.study) && this.opencgaSession.study.id > 0) {
+                if (UtilsNew.isNotUndefined(this.opencgaClient) && UtilsNew.isNotUndefined(this.opencgaSession.study)
+                    && UtilsNew.isNotUndefined(this.opencgaSession.study.fqn)) {
                     // Make a copy of the samples (if they exist), we will use this private copy until it is assigned to this.samples
                     if (UtilsNew.isNotUndefined(this.samples)) {
                         this._samples = this.samples;
@@ -134,7 +137,7 @@
                         sidePagination: 'server',
                         queryParams: function (params) {
                             let auxParams = {
-                                studyId: _this.opencgaSession.study.id,
+                                study: _this.opencgaSession.study.fqn,
 //                                lazy: "false",
                                 sid: Cookies.get(_this.opencgaClient.getConfig().cookieSessionId),
                                 order: params.order,
@@ -142,7 +145,8 @@
                                 limit: params.limit,
                                 skip: params.offset,
                                 includeIndividual: true,
-                                include: "name,creationDate,status,type,sex"
+                                include: "id,creationDate,status,type,sex,version,release,individual.id,individual.sex,"
+                                    + "individual.father,individual.mother,individual.phenotypes"
                             };
 
                             if (UtilsNew.isUndefined(filters)) {
@@ -183,7 +187,7 @@
                         onCheck: function (row, elem) {
                             // check sample is not already selected
                             for (let i in _this._samples) {
-                                if (_this._samples[i].name === row.name) {
+                                if (_this._samples[i].id === row.id) {
                                     return;
                                 }
                             }
@@ -196,7 +200,7 @@
                         onUncheck: function (row, elem) {
                             let sampleToDeleteIdx = -1;
                             for (let i in _this.samples) {
-                                if (_this.samples[i].name === row.name) {
+                                if (_this.samples[i].id === row.id) {
                                     sampleToDeleteIdx = i;
                                     break;
                                 }
@@ -214,7 +218,7 @@
                             // check sample is not already selected
                             rows.forEach((sample) => {
                                 let existsNewSelected = _this._samples.some((sampleSelected) => {
-                                   return  sampleSelected.name === sample.name;
+                                   return sampleSelected.id === sample.id;
                                 });
 
                                 if(!existsNewSelected) {
@@ -231,7 +235,7 @@
                             // check sample is not already selected
                             rows.forEach((sample) => {
                                 _this._samples = _this._samples.filter((sampleSelected) => {
-                                    return sampleSelected.name !== sample.name;
+                                    return sampleSelected.id !== sample.id;
                                 });
 
                             });
@@ -246,7 +250,7 @@
                             if (_this.samples !== "undefined") {
                                 for (let idx in _this.samples) {
                                     for (let j in data.rows) {
-                                        if (_this.samples[idx].name === data.rows[j].name) {
+                                        if (_this.samples[idx].id === data.rows[j].id) {
                                             $(PolymerUtils.getElementById(_this.prefix + 'SampleSelector')).bootstrapTable('check', j);
                                             break;
                                         }
@@ -407,8 +411,8 @@
 
             individualFormatter(value, row) {
                 if (UtilsNew.isNotUndefined(row.attributes) && UtilsNew.isNotUndefined(row.attributes.individual)
-                    && UtilsNew.isNotUndefined(row.attributes.individual.name)) {
-                    return row.attributes.individual.name;
+                    && UtilsNew.isNotUndefined(row.attributes.individual.id)) {
+                    return row.attributes.individual.id;
                 } else {
                     return '-'
                 }
@@ -416,15 +420,6 @@
 
             dateFormatter(value, row) {
                 return moment(value, "YYYYMMDDHHmmss").format('D MMM YYYY');
-
-                let pattern = /^(\d\d\d\d)(\d\d)(\d\d)/;
-                let matches = pattern.exec(value);
-                if (matches) {
-                    let [year, month, day] = [matches[1], matches[2] - 1, matches[3]];
-                    return year + "-" + month + "-" + day;
-                } else {
-                    return "Invalid date: '" + value + "'";
-                }
             }
 
             diagnosisFormatter(value, row) {
@@ -459,8 +454,9 @@
 
             fatherFormatter(value, row) {
                 if (UtilsNew.isNotUndefined(row.attributes) && UtilsNew.isNotUndefined(row.attributes.individual)
-                    && row.attributes.individual.fatherId > 0) {
-                    return row.attributes.individual.fatherId;
+                    && UtilsNew.isNotUndefined(row.attributes.individual.father)
+                    && UtilsNew.isNotUndefined(row.attributes.individual.father.id)) {
+                    return row.attributes.individual.father.id;
                 } else {
                     return '-';
                 }
@@ -468,8 +464,9 @@
 
             motherFormatter(value, row) {
                 if (UtilsNew.isNotUndefined(row.attributes) && UtilsNew.isNotUndefined(row.attributes.individual)
-                    && row.attributes.individual.motherId > 0) {
-                    return row.attributes.individual.motherId;
+                    && UtilsNew.isNotUndefined(row.attributes.individual.mother)
+                    && UtilsNew.isNotUndefined(row.attributes.individual.mother.id)) {
+                    return row.attributes.individual.mother.id;
                 } else {
                     return '-';
                 }
@@ -478,57 +475,6 @@
             cellTypeFormatter(value, row) {
                 return (row.somatic) ? "Somatic" : "Germline";
             }
-
-            // downloadFormatter(value, row) {
-            //     return '<a role="button" type="button" class="'+this.prefix + 'Download btn btn-sm btn-primary" data-sample-name="'+row.name +'" ><i class="fa fa-download" aria-hidden="true"></i>&nbsp;Download</a>';
-            // }
-            //
-            // downloadQCFile(e) {
-            //     let name = e.target.getAttribute('data-sample-name') + ".QC.tar.gz";
-            //     let study = this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias;
-            //     let sid =  Cookies.get(this.opencgaClient.getConfig().cookieSessionId);
-            //     let opencgaHostUrl = this.opencgaClient.getConfig().host;
-            //     if (!opencgaHostUrl.startsWith("http://") && !opencgaHostUrl.startsWith("https://")) {
-            //         opencgaHostUrl = 'http://' + opencgaHostUrl;
-            //     }
-            //     opencgaHostUrl += '/webservices/rest/v1/files/';
-            //
-            //     let paramsInfo= {
-            //         study: study
-            //     };
-            //
-            //     this.opencgaClient.files().info(name, paramsInfo)
-            //         .then((response) => {
-            //             if (response.response.length > 0) {
-            //                 let url = opencgaHostUrl + name + "/download?sid=" + sid + "&study=" + study;
-            //                 let a = document.createElement("a");
-            //                 a.href = url;
-            //                 a.download = name;
-            //                 document.body.appendChild(a);
-            //                 a.click();
-            //             } else {
-            //                 this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
-            //                     detail: {
-            //                         message: name + " not found.",
-            //                         type: UtilsNew.MESSAGE_ERROR
-            //                     },
-            //                     bubbles: true,
-            //                     composed: true
-            //                 }));
-            //             }
-            //         })
-            //         .catch((response) => {
-            //             this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
-            //                 detail: {
-            //                     message: name + " not found.",
-            //                     type: UtilsNew.MESSAGE_ERROR
-            //                 },
-            //                 bubbles: true,
-            //                 composed: true
-            //             }));
-            //         });
-            //
-            // }
 
             _initTableColumns() {
                 this._columns = [
@@ -540,11 +486,11 @@
                         },
                         {
                             title: 'Sample',
-                            field: 'name'
+                            field: 'id'
                         },
                         {
                             title: 'Individual ID',
-                            field: 'individual.id',
+                            field: 'attributes.individual.id',
                             formatter: this.individualFormatter
                         },
                         {
@@ -558,7 +504,7 @@
                         },
                         {
                             title: 'Sex',
-                            field: 'individual.sex'
+                            field: 'attributes.individual.sex'
                         },
                         {
                             title: 'Diagnosis',
@@ -570,10 +516,12 @@
                         },
                         {
                             title: 'Father',
+                            field: 'attributes.individual.father.id',
                             formatter: this.fatherFormatter
                         },
                         {
                             title: 'Mother',
+                            field: 'attributes.individual.mother.id',
                             formatter: this.motherFormatter
                         },
                         {
@@ -584,6 +532,16 @@
                             title: 'Type',
                             visible: false,
                             field: 'type'
+                        },
+                        {
+                            title: 'Release',
+                            visible: false,
+                            field: 'release'
+                        },
+                        {
+                            title: 'Version',
+                            visible: false,
+                            field: 'version'
                         }
                     ]
                 ];

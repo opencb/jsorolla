@@ -56,6 +56,10 @@ class UtilsNew {
         return typeof arr !== 'undefined' && arr !== null && arr.length > 0;
     }
 
+    static defaultString(str, str2) {
+        return this.isNotEmpty(str) ? str : str2;
+    }
+
     static containsArray(arr, item) {
         if (UtilsNew.isNotEmptyArray(arr) && UtilsNew.isNotUndefinedOrNull(item)) {
             return arr.indexOf(item) > -1;
