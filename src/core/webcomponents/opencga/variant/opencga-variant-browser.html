@@ -23,6 +23,7 @@
 <link rel="import" href="variant-genome-browser.html">
 <link rel="import" href="../opencga-genome-browser.html">
 <link rel="import" href="../../cellbase/variation/cellbase-variantannotation-view.html">
+<link rel="import" href="opencga-variant-detail-template.html">
 
 <dom-module id="opencga-variant-browser">
     <template>
@@ -116,32 +117,27 @@
                             <div style="padding-top: 20px" hidden$="{{!checkVariant(variant)}}">
                                 <h3>Variant: {{variant}}</h3>
                                 <div style="padding-top: 20px">
+                                    <!-- Dynamically create the Detail Tabs from Browser config -->
                                     <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
-                                        <li role="presentation" class="active">
-                                            <a href="#{{prefix}}Annotation" role="tab" data-toggle="tab" class="browser-variant-tab-title" data-id="annotation" on-click="_changeBottomTab">
-                                                Advanced Annotation
-                                            </a>
-                                        </li>
-                                        <li role="presentation">
-                                            <a href="#{{prefix}}CohortStats" role="tab" data-toggle="tab" class="browser-variant-tab-title" data-id="cohorts" on-click="_changeBottomTab">
-                                                Cohort Stats
-                                            </a>
-                                        </li>
-                                        <li role="presentation">
-                                            <a href="#{{prefix}}Samples" role="tab" data-toggle="tab" class="browser-variant-tab-title" data-id="samples" on-click="_changeBottomTab">
-                                                Samples
-                                            </a>
-                                        </li>
-                                        <li role="presentation">
-                                            <a href="#{{prefix}}Beacon" role="tab" data-toggle="tab" class="browser-variant-tab-title" data-id="beacon" on-click="_changeBottomTab">
-                                                Beacon Network
-                                            </a>
-                                        </li>
+                                        <template is="dom-repeat" items="{{config.detail}}">
+                                            <template is="dom-if" if="{{item.active}}">
+                                                <li role="presentation" class="active">
+                                                    <a href="#{{prefix}}{{item.id}}" role="tab" data-toggle="tab" data-id$="{{item.id}}"
+                                                       class="browser-variant-tab-title" on-click="_changeBottomTab">{{item.title}}</a>
+                                                </li>
+                                            </template>
+                                            <template is="dom-if" if="{{!item.active}}">
+                                                <li role="presentation" class="">
+                                                    <a href="#{{prefix}}{{item.id}}" role="tab" data-toggle="tab" data-id$="{{item.id}}"
+                                                       class="browser-variant-tab-title" on-click="_changeBottomTab">{{item.title}}</a>
+                                                </li>
+                                            </template>
+                                        </template>
                                     </ul>
 
                                     <div class="tab-content" style="height: 680px">
                                         <!-- Annotation Tab -->
-                                        <div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">
+                                        <div id="{{prefix}}annotation" role="tabpanel" class="tab-pane active">
                                             <cellbase-variantannotation-view data="{{variant}}" assembly={{opencgaSession.project.organism.assembly}} prefix="{{prefix}}"
                                                                              cellbase-client="{{cellbaseClient}}" mode="vertical"
                                                                              hash-fragment-credentials="{{hashFragmentCredentials}}"
@@ -152,29 +148,31 @@
                                         </div>
 
                                         <!-- Cohort Stats Tab -->
-                                        <div role="tabpanel" class="tab-pane" id="{{prefix}}CohortStats">
+                                        <div id="{{prefix}}cohortStats" role="tabpanel" class="tab-pane">
                                             <div style="width: 75%;padding-top: 8px">
-                                                <opencga-variant-cohort-stats opencga-session="{{opencgaSession}}" variant="{{variant}}"  active="{{cohortsActive}}"></opencga-variant-cohort-stats>
+                                                <opencga-variant-cohort-stats opencga-session="{{opencgaSession}}" variant="{{variant}}" active="{{detailActiveTabs.cohortStats}}"></opencga-variant-cohort-stats>
                                             </div>
                                         </div>
 
                                         <!-- Samples Tab -->
-                                        <div role="tabpanel" class="tab-pane" id="{{prefix}}Samples">
+                                        <div id="{{prefix}}samples" role="tabpanel" class="tab-pane">
                                             <div style="width: 75%;padding-top: 8px">
-                                                <opencga-variant-samples opencga-session="{{opencgaSession}}" variant="{{variant}}" active="{{samplesActive}}"></opencga-variant-samples>
+                                                <opencga-variant-samples opencga-session="{{opencgaSession}}" variant="{{variant}}" active="{{detailActiveTabs.samples}}"></opencga-variant-samples>
                                             </div>
                                         </div>
 
-                                        <!-- Beacon network Tab-->
-                                        <div role="tabpanel" class="tab-pane" id="{{prefix}}Beacon">
-                                            <br>
-                                            <button class="btn btn-primary" type="button" on-click="triggerBeacon">Search Beacon Network</button>
-                                            <a data-toggle="tooltip"
-                                               title="Beacon Network is a search engine across the world's public beacons. You can find it here - https://beacon-network.org/#/">
-                                                <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                            </a>
-                                            <br><br>
-                                            <variant-beacon-network hosts="{{beaconHosts}}" clear="{{variant}}" variant="{{variantToBeacon}}"></variant-beacon-network>
+                                        <!-- Beacon Network Tab-->
+                                        <div id="{{prefix}}beacon" role="tabpanel" class="tab-pane">
+                                            <div style="width: 75%;padding-top: 8px">
+                                                <variant-beacon-network variant="{{variant}}" clear="{{variant}}" config="{{beaconConfig}}"></variant-beacon-network>
+                                            </div>
+                                        </div>
+
+                                        <!-- Example Template Tab-->
+                                        <div id="{{prefix}}template" role="tabpanel" class="tab-pane">
+                                            <div style="width: 75%;padding-top: 8px">
+                                                <opencga-variant-detail-template opencga-session="{{opencgaSession}}" variant="{{variant}}" active="{{detailActiveTabs.template}}"></opencga-variant-detail-template>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -277,7 +275,8 @@
                         type: Object
                     },
                     beaconHosts: {
-                        type: Array
+                        type: Array,
+                        observer: "beaconHostsObserver"
                     },
                     query: {
                         type: Object
@@ -334,6 +333,12 @@
                 };
 
                 this._config = this.getDefaultConfig();
+            }
+
+            beaconHostsObserver(e) {
+                this.beaconConfig = {
+                    hosts: this.beaconHosts
+                };
             }
 
             onCollapse() {
@@ -399,6 +404,14 @@
                 this.dispatchEvent(new CustomEvent("samplechange", {detail: {samples: this.samples}, bubbles: true, composed: true}));
             }
 
+            _changeBottomTab(e) {
+                let _activeTabs = {}
+                for (let detail of this.config.detail) {
+                    _activeTabs[detail.id] = (detail.id === e.currentTarget.dataset.id);
+                }
+                this.set("detailActiveTabs", _activeTabs);
+            }
+
             onGenomeBrowserPositionChange(e) {
                 $('.variant-browser-content').hide(); // hides all content divs
 
@@ -413,12 +426,6 @@
 
                 this.region = e.detail.genomeBrowserPosition;
             }
-
-            _changeBottomTab(e) {
-                this.cohortsActive = (e.currentTarget.dataset.id === "cohorts");
-                this.samplesActive = (e.currentTarget.dataset.id === "samples");
-            }
-
 
             projectStudyObtained(project, study) {
                 if (typeof this.opencgaSession.project !== "undefined" && this.opencgaSession.project.alias !== ""
@@ -627,10 +634,6 @@
                         data: params.data
                     }]
                 });
-            }
-
-            triggerBeacon(e) {
-                this.variantToBeacon = this.variant;
             }
 
             getDefaultConfig() {
