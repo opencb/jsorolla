@@ -147,12 +147,12 @@
                     },
                     variant: {
                         type: String,
-                        observer: "variantObserved"
+                        observer: "variantObserver"
                     },
                     active: {
                         type: Boolean,
                         value: false,
-                        observer: "activeObserved"
+                        observer: "activeObserver"
                     }
                 }
             }
@@ -161,14 +161,12 @@
                 this.appendChild(dom);
             }
 
-            activeObserved(e) {
+            activeObserver(e) {
                 this._querySamples(e);
-                // this.renderVariantTable();
             }
 
-            variantObserved(e) {
+            variantObserver(e) {
                 this._querySamples(e);
-                // this.renderVariantTable();
             }
 
 //             renderVariantTable() {
@@ -327,46 +325,46 @@
 //                 }
 //             }
 
-            _getUrlQueryParams() {
-                // Check the opencgaClient exists
-                if (UtilsNew.isUndefinedOrNull(this.opencgaClient)) {
-                    return {host: "", queryParams: {}};
-                }
-
-                let host = this.opencgaClient.getConfig().host;
-                // By default we assume https protocol instead of http
-                if (!host.startsWith("https://") && !host.startsWith("http://")) {
-                    host = 'https://' + this.opencgaClient.getConfig().host;
-                }
-
-                if (typeof this.opencgaSession.project !== "undefined" && typeof this.opencgaSession.study.alias !== "undefined") {
-                    if (typeof this.query === "undefined") {
-                        this.query = {};
-                    }
-                    if (UtilsNew.isEmpty(this.query.studies) || this.query.studies.split(new RegExp("[,;]")).length === 1) {
-                        this.query.studies = this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias;
-                    }
-                    host += '/webservices/rest/v1/analysis/variant/samples';
-                } else {
-                    return {host: host, queryParams: {}};
-                }
-
-
-                // Init queryParams with default and config values plus query object
-                let queryParams = {};
-                // if (UtilsNew.isNotUndefinedOrNull(this.config) && UtilsNew.isNotUndefinedOrNull(this.config.grid)) {
-                //     queryParams = Object.assign({sid: this.opencgaClient._config.sessionId}, this.config.grid.queryParams, this.query);
-                // } else {
-                //     queryParams = Object.assign({sid: this.opencgaClient._config.sessionId}, this.query);
-                // }
-
-                queryParams.id = this.variant;
-                queryParams.study = this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias;
-                queryParams.genotypes = "0/1,0|1";
-                queryParams.exclude = "annotationSets";
-
-                return {host: host, queryParams: queryParams};
-            }
+            // _getUrlQueryParams() {
+            //     // Check the opencgaClient exists
+            //     if (UtilsNew.isUndefinedOrNull(this.opencgaClient)) {
+            //         return {host: "", queryParams: {}};
+            //     }
+            //
+            //     let host = this.opencgaClient.getConfig().host;
+            //     // By default we assume https protocol instead of http
+            //     if (!host.startsWith("https://") && !host.startsWith("http://")) {
+            //         host = 'https://' + this.opencgaClient.getConfig().host;
+            //     }
+            //
+            //     if (typeof this.opencgaSession.project !== "undefined" && typeof this.opencgaSession.study.alias !== "undefined") {
+            //         if (typeof this.query === "undefined") {
+            //             this.query = {};
+            //         }
+            //         if (UtilsNew.isEmpty(this.query.studies) || this.query.studies.split(new RegExp("[,;]")).length === 1) {
+            //             this.query.studies = this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias;
+            //         }
+            //         host += '/webservices/rest/v1/analysis/variant/samples';
+            //     } else {
+            //         return {host: host, queryParams: {}};
+            //     }
+            //
+            //
+            //     // Init queryParams with default and config values plus query object
+            //     let queryParams = {};
+            //     // if (UtilsNew.isNotUndefinedOrNull(this.config) && UtilsNew.isNotUndefinedOrNull(this.config.grid)) {
+            //     //     queryParams = Object.assign({sid: this.opencgaClient._config.sessionId}, this.config.grid.queryParams, this.query);
+            //     // } else {
+            //     //     queryParams = Object.assign({sid: this.opencgaClient._config.sessionId}, this.query);
+            //     // }
+            //
+            //     queryParams.id = this.variant;
+            //     queryParams.study = this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias;
+            //     queryParams.genotypes = "0/1,0|1";
+            //     queryParams.exclude = "annotationSets";
+            //
+            //     return {host: host, queryParams: queryParams};
+            // }
 
             _querySamples(e) {
                 if (this.variant.split(':').length > 2 && this.active) {
@@ -374,7 +372,6 @@
                         id: this.variant,
                         study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
                         genotype: "0/1,0|1",
-                        genotypes: "0/1,0|1",
                         exclude: "annotation",
                     };
 

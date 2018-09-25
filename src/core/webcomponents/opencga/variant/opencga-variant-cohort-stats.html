@@ -93,12 +93,12 @@
                     },
                     variant: {
                         type: String,
-                        observer: "variantObserved"
+                        observer: "variantObserver"
                     },
                     active: {
                         type: Boolean,
                         value: false,
-                        observer: "activeObserved"
+                        observer: "activeObserver"
                     }
                 }
             }
@@ -107,15 +107,15 @@
                 this.appendChild(dom);
             }
 
-            activeObserved(e) {
-                this._queryCohortStats(e);
+            activeObserver(e) {
+                this._fetchCohortStats(e);
             }
 
-            variantObserved(e) {
-                this._queryCohortStats(e);
+            variantObserver(e) {
+                this._fetchCohortStats(e);
             }
 
-            _queryCohortStats(e) {
+            _fetchCohortStats(e) {
                 if (this.variant.split(':').length > 2 && this.active) {
                     let [chromosome, start, ref, alt] = this.variant.split(":");
                     this.region = new Region(chromosome + ":" + start);
