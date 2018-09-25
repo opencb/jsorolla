@@ -33,19 +33,19 @@
                 <div class="form-group row">
                     <label for="refNameInput" class="col-xs-2 col-form-label">Reference Name</label>
                     <div class="col-xs-3">
-                        <input class="form-control" type="text" value="" id="refNameInput">
+                        <input class="form-control" type="text" value="" id="refNameInput" on-keyup="updateVariant">
                     </div>
                 </div>
                 <div class="form-group row">
                     <label for="startInput" class="col-xs-2 col-form-label">Start</label>
                     <div class="col-xs-3">
-                        <input class="form-control" type="text" value="" id="startInput">
+                        <input class="form-control" type="text" value="" id="startInput" on-keyup="updateVariant">
                     </div>
                 </div>
                 <div class="form-group row">
                     <label for="alleleInput" class="col-xs-2 col-form-label">Allele</label>
                     <div class="col-xs-3">
-                        <input class="form-control" type="text" value="" id="alleleInput">
+                        <input class="form-control" type="text" value="" id="alleleInput" on-keyup="updateVariant">
                     </div>
                 </div>
                 <!--<div class="form-group row">-->
@@ -80,23 +80,23 @@
         <div class="col-md-12">
             <h3 style="margin: 10px 5px 15px 50px">Beacon Network</h3>
             <div style="width: 60%; margin-left: 100px">
-                <button class="btn btn-primary" type="button" on-click="triggerBeacon">Search Beacon Network</button>
-                <a data-toggle="tooltip"
-                   title="Beacon Network is a search engine across the world's public beacons. You can find it here - https://beacon-network.org/#/"><i
-                        class="fa fa-info-circle" aria-hidden="true"></i></a>
-                <br><br>
-                <variant-beacon-network hosts="{{hosts}}" variant="{{variant}}" clear="{{clear}}"
-                                        prefix="beacon"></variant-beacon-network>
+                <variant-beacon-network variant="{{variant}}" clear="{{clear}}" config="{{_config}}"></variant-beacon-network>
             </div>
         </div>
     </template>
 
     <script>
-
         class VariantBeacon extends Polymer.Element {
+
+            constructor() {
+                super();
+
+                this._config = this.getDefaultConfig();
+            }
+
             static get is() {
                 return 'variant-beacon'
-            };
+            }
 
             static get properties() {
                 return {
@@ -109,22 +109,19 @@
                     studies: {
                         type: Array
                     },
-                    hosts: {
-                        type: Array
+                    config: {
+                        type: Object,
+                        observer: "configObserver"
                     }
                 }
-            }
-
-            constructor() {
-                super();
             }
 
             _attachDom(dom) {
                 this.appendChild(dom);
             }
 
-            ready() {
-                super.ready();
+            configObserver() {
+                this._config = Object.assign(this.getDefaultConfig(), this.config);
             }
 
             clearFields(e) {
@@ -144,7 +141,8 @@
                 this.$.refNameInput.value = "21";
                 this.$.startInput.value = "46047686";
                 this.$.alleleInput.value = "T";
-//                this.$.jsonType.checked = true;
+
+                this.updateVariant();
             }
 
             execute(e) {
@@ -165,16 +163,24 @@
                 }
             }
 
-            triggerBeacon(e) {
+            updateVariant(e) {
                 this.variant = this.$.refNameInput.value + ":" + this.$.startInput.value + "::" + this.$.alleleInput.value;
             }
 
             checkResult(result) {
                 return UtilsNew.isNotEmpty(result);
             }
+
+            getDefaultConfig() {
+                return {
+                    hosts: [
+                        "brca-exchange", "cell_lines", "cosmic", "wtsi", "wgs", "ncbi", "ebi", "ega", "broad", "gigascience",
+                        "ucsc", "lovd", "hgmd", "icgc", "sahgp"
+                    ]
+                }
+            }
         }
 
         customElements.define(VariantBeacon.is, VariantBeacon);
-
     </script>
 </dom-module>
