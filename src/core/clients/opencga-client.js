@@ -217,7 +217,7 @@ class OpenCGAClient {
                                             if (project.studies !== undefined) {
                                                 for (let study of project.studies) {
                                                     if (study.alias === undefined || study.alias === "") {
-                                                        if (study.alias.includes(":")) {
+                                                        if (study.fqn.includes(":")) {
                                                             study.alias = study.fqn.split(":")[0];
                                                         } else {
                                                             study.alias = study.fqn;
