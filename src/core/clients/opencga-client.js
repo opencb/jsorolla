@@ -210,9 +210,16 @@ class OpenCGAClient {
                                     session.project = session.projects[0];
                                     session.study = session.projects[0].studies[0];
 
-                                    // FIXME This is need to kepp backward compatibility with OpenCGA 1.3.x
+                                    // FIXME This is need to keep backward compatibility with OpenCGA 1.3.x
                                     if (UtilsNew.isNotUndefinedOrNull(session.project.fqn)) {
                                         session.project.alias = session.project.fqn;
+                                        if (project.studies !== undefined) {
+                                            for (let study of project.studies) {
+                                                if (study.alias === undefined || study.alias === "") {
+                                                    study.alias = study.fqn;
+                                                }
+                                            }
+                                        }
                                     }
                                 }
 
