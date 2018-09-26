@@ -213,10 +213,16 @@ class OpenCGAClient {
                                     // FIXME This is need to keep backward compatibility with OpenCGA 1.3.x
                                     if (UtilsNew.isNotUndefinedOrNull(session.project.fqn)) {
                                         session.project.alias = session.project.fqn;
-                                        if (project.studies !== undefined) {
-                                            for (let study of project.studies) {
-                                                if (study.alias === undefined || study.alias === "") {
-                                                    study.alias = study.fqn;
+                                        for (let project of session.projects) {
+                                            if (project.studies !== undefined) {
+                                                for (let study of project.studies) {
+                                                    if (study.alias === undefined || study.alias === "") {
+                                                        if (study.alias.includes(":")) {
+                                                            study.alias = study.fqn.split(":")[0];
+                                                        } else {
+                                                            study.alias = study.fqn;
+                                                        }
+                                                    }
                                                 }
                                             }
                                         }
