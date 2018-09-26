@@ -206,27 +206,16 @@ class OpenCGAClient {
                             .then(function (response) {
                                 session.projects = response.response[0].result;
                                 if (UtilsNew.isNotEmptyArray(session.projects) && UtilsNew.isNotEmptyArray(session.projects[0].studies)) {
+                                    // FIXME This is need to keep backward compatibility with OpenCGA 1.3.x
+                                    for (const project of session.projects) {
+                                        project.alias = project.alias || project.fqn || null;
+                                        for (const study of (project.studies || [])) {
+                                            study.alias = study.alias || (study.fqn || "").split(":").slice(-1).pop() || null;
+                                        }
+                                    }
                                     // this sets the current active project and study
                                     session.project = session.projects[0];
                                     session.study = session.projects[0].studies[0];
-
-                                    // FIXME This is need to keep backward compatibility with OpenCGA 1.3.x
-                                    if (UtilsNew.isNotUndefinedOrNull(session.project.fqn)) {
-                                        session.project.alias = session.project.fqn;
-                                        for (let project of session.projects) {
-                                            if (project.studies !== undefined) {
-                                                for (let study of project.studies) {
-                                                    if (study.alias === undefined || study.alias === "") {
-                                                        if (study.fqn.includes(":")) {
-                                                            study.alias = study.fqn.split(":")[0];
-                                                        } else {
-                                                            study.alias = study.fqn;
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
                                 }
 
                                 resolve(session);
