@@ -18,6 +18,7 @@
 <link rel="import" href="opencga-cohort-grid.html">
 <link rel="import" href="../../opencga-active-filters.html">
 <link rel="import" href="../variableSets/opencga-annotation-comparator.html">
+<link rel="import" href="../variableSets/opencga-annotation-viewer.html">
 
 <dom-module id="opencga-cohort-browser">
     <template>
@@ -53,45 +54,36 @@
                 <!--<h3>Tools?</h3>-->
                 <div style="padding-top: 20px">
                     <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
+
+                        <!--<li role="presentation" class="active">-->
+                            <!--<a href="#{{prefix}}Annotation" role="tab" data-toggle="tab" class="browser-variant-tab-title">-->
+                                <!--Cohort comparator-->
+                            <!--</a>-->
+                        <!--</li>-->
+
                         <li role="presentation" class="active">
-                            <a href="#{{prefix}}Annotation" role="tab" data-toggle="tab" class="browser-variant-tab-title">
-                                Cohort comparator
+                            <a href="#{{prefix}}AnnotationViewer" role="tab" data-toggle="tab" class="browser-variant-tab-title">
+                                Annotation viewer
                             </a>
                         </li>
-                        <!--<li role="presentation">-->
-                            <!--<a href="#{{prefix}}Genotype" role="tab" data-toggle="tab" class="browser-variant-tab-title">-->
-                                <!--Genotype Stats-->
-                            <!--</a>-->
-                        <!--</li>-->
-                        <!--<li role="presentation">-->
-                            <!--<a href="#{{prefix}}Beacon" role="tab" data-toggle="tab" class="browser-variant-tab-title">-->
-                                <!--Beacon Network-->
-                            <!--</a>-->
-                        <!--</li>-->
                     </ul>
 
                     <div class="tab-content" style="height: 680px">
                         <!-- Annotation Tab -->
-                        <div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">
-                            <opencga-annotation-comparator opencga-client="{{opencgaSession.opencgaClient}}"
+                        <!--<div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">-->
+                            <!--<opencga-annotation-comparator opencga-client="{{opencgaSession.opencgaClient}}"-->
+                                                           <!--opencga-session="{{opencgaSession}}" config="[[_config]]"-->
+                                                           <!--entry-ids="{{cohorts}}" entity="COHORT">-->
+                            <!--</opencga-annotation-comparator>-->
+                        <!--</div>-->
+
+                        <div role="tabpanel" class="tab-pane active" id="{{prefix}}AnnotationViewer">
+                            <opencga-annotation-viewer opencga-client="{{opencgaSession.opencgaClient}}"
                                                            opencga-session="{{opencgaSession}}" config="[[_config]]"
                                                            entry-ids="{{cohorts}}" entity="COHORT">
-                            </opencga-annotation-comparator>
+                            </opencga-annotation-viewer>
                         </div>
 
-                        <!--<div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">-->
-                            <!--<opencga-annotation-comparator opencga-client="{{opencgaSession.opencgaClient}}"-->
-                                                           <!--opencga-session="{{opencgaSession}}" config="[[_config]]"-->
-                                                           <!--entry-ids="{{cohorts}}" entity="SAMPLE">-->
-                            <!--</opencga-annotation-comparator>-->
-                        <!--</div>-->
-
-                        <!--<div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">-->
-                            <!--<opencga-annotation-comparator opencga-client="{{opencgaSession.opencgaClient}}"-->
-                                                           <!--opencga-session="{{opencgaSession}}" config="[[_config]]"-->
-                                                           <!--entry-ids="{{cohorts}}" entity="SAMPLE">-->
-                            <!--</opencga-annotation-comparator>-->
-                        <!--</div>-->
                     </div>
                 </div>
 

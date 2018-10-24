@@ -14,6 +14,8 @@
   ~ limitations under the License.
   -->
 
+<link rel="import" href="opencga-variable-selector.html">
+
 <dom-module id="opencga-annotation-filter">
     <template>
         <style include="jso-styles">
@@ -50,17 +52,20 @@
                     <!--</div>-->
                 </template>
 
-                <label for="{{prefix}}-annotation-picker" style="margin-top: 15px;">Select variable and value(s)</label>
-                <select id="{{prefix}}-annotation-picker" class="selectpicker" data-live-search="true" data-size="10"
-                        data-max-options="1" on-change="onChangeSelectedVariable" data-width="100%" data-class="btn-sm">
-                    <template is="dom-repeat" items="{{variables}}" as="variable" on-dom-change="renderDomRepeat" restamp="true">
-                        <option data-tokens="{{variable.tags}}" data-variable="{{variable}}"
-                                style$="padding-left: {{variable.margin}}px; cursor: {{variable.cursor}};"
-                                disabled$="{{variable.disabled}}">
-                            {{variable.name}}
-                        </option>
-                    </template>
-                </select>
+                <opencga-variable-selector variable-set="{{selectedVariableSet}}" on-ovschange="onChangeSelectedVariable">
+                </opencga-variable-selector>
+
+                <!--<label for="{{prefix}}-annotation-picker" style="margin-top: 15px;">Select variable and value(s)</label>-->
+                <!--<select id="{{prefix}}-annotation-picker" class="selectpicker" data-live-search="true" data-size="10"-->
+                        <!--data-max-options="1" on-change="onChangeSelectedVariable" data-width="100%" data-class="btn-sm">-->
+                    <!--<template is="dom-repeat" items="{{variables}}" as="variable" on-dom-change="renderDomRepeat" restamp="true">-->
+                        <!--<option data-tokens="{{variable.tags}}" data-variable="{{variable}}"-->
+                                <!--style$="padding-left: {{variable.margin}}px; cursor: {{variable.cursor}};"-->
+                                <!--disabled$="{{variable.disabled}}">-->
+                            <!--{{variable.name}}-->
+                        <!--</option>-->
+                    <!--</template>-->
+                <!--</select>-->
 
                 <!-- Show different value selector based on the type of the selected variable -->
                 <div class="row" style="margin-top: 15px;">
@@ -199,7 +204,7 @@
             }
 
             onChangeSelectedVariable(e) {
-                this.selectedVariable = this.getVariable(e.currentTarget.value);
+                this.selectedVariable = e.detail.value[0];
                 this.lastAnnotationFilter = undefined;
 
                 // We do this manually here because the selectpicker class does not show/hide automatically
@@ -317,7 +322,7 @@
                 }
 
                 if (this.variableSets.length > 0) {
-                    this.variables = this.parseVariableForDisplay(this.variableSets[0].variables); // select first one by default
+                    this.selectedVariableSet = this.variableSets[0];
                     this.filteredVariables = {
                         variableSet: this.variableSets[0].id,
                         variables: []
@@ -358,68 +363,10 @@
                 for (let i in this.variableSets) {
                     let variableSet = this.variableSets[i];
                     if (variableSet.name === selectedVariableSet) {
-                        this.variables = this.parseVariableForDisplay(variableSet.variables);
+                        this.selectedVariableSet = variableSet;
                         return;
                     }
                 }
-            }
-
-            parseVariableForDisplay(variables) {
-                return this._parseVariableForDisplay(variables, [], this._config.variableSelector.marginLeft);
-            }
-
-            _parseVariableForDisplay(variables, tags, margin) {
-                let displayVariables = [];
-
-                for (let i in variables) {
-                    let variable = variables[i];
-
-                    if (variable.type !== "OBJECT") {
-                        // let myTags = Array.from(new Set([variable.name, variable.title].concat(tags))).join(" ");
-
-                        // Add variable
-                        displayVariables.push({
-                            id: variable.id,
-                            name: UtilsNew.defaultString(variable.name, variable.id),
-                            category: variable.category,
-                            type: variable.type,
-                            defaultValue: variable.defaultValue,
-                            multiValue: variable.multiValue,
-                            allowedValues: variable.allowedValues,
-                            disabled: false,
-                            margin: margin,
-                            cursor: "pointer",
-                            // tags: [variable.name, variable.title].concat(tags).join(" ")
-                            // tags: myTags
-                            // tags: tags + "." + variable.name
-                            tags: tags.concat(variable.id).join(".")
-                        });
-                    } else {
-                        // let myTags = Array.from(new Set([variable.name, variable.title].concat(tags))).join(" ");
-
-                        // Add variable
-                        displayVariables.push({
-                            id: variable.id,
-                            name: UtilsNew.defaultString(variable.name, variable.id),
-                            category: variable.category,
-                            type: variable.type,
-                            defaultValue: variable.defaultValue,
-                            multiValue: variable.multiValue,
-                            allowedValues: variable.allowedValues,
-                            disabled: true,
-                            margin: margin,
-                            cursor: "default",
-                            // tags: myTags
-                            tags: tags.concat(variable.id).join(".")
-                        });
-
-                        displayVariables = displayVariables.concat(this._parseVariableForDisplay(variable.variableSet,
-                            // [variable.name, variable.title].concat(tags), margin + this._config.variableSelector.marginStep));
-                            tags.concat(variable.id), margin + this._config.variableSelector.marginStep));
-                    }
-                }
-
-                return displayVariables;
             }
 
             checkVarType(myVar, type) {
