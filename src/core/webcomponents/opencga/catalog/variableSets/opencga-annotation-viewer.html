@@ -49,7 +49,7 @@
                         <!--</div>-->
                     </template>
 
-                    <div id="{{prefix}}-table" style="padding: 15px 0px; max-height: 800px; overflow-x: auto; overflow-y: auto;"></div>
+                    <div id="{{prefix}}-table" style="padding: 15px 0px; max-height: 500px; overflow-x: auto; overflow-y: auto;"></div>
 
                 </template>
             </div>
@@ -101,6 +101,7 @@
                 this.selectedVariables = [];
 
                 this.ovsConfig = {
+                    title: "Select variables",
                     multiSelection: true,
                     onlyAllowLeafSelection: false
                 };
@@ -270,14 +271,34 @@
                 let head = '';
                 let body = '';
 
+                let filteredAnnotations = {};
+                let annotationIds = [];
+
                 for (let sampleKey in annotations) {
-                    head += '<th>' + sampleKey + '</th>';
+                    head += '<th>' + sampleKey;
 
                     let annotationHtml = "";
                     for (let i = 0; i < annotations[sampleKey].length; i++) {
-                        annotationHtml += '<div id="' + this.prefix + "-" + sampleKey + "-" + annotations[sampleKey][i]["variableSetId"]
-                            + "-" + annotations[sampleKey][i]["id"] + '"></div>';
+                        let key = this.prefix + "-" + sampleKey + "-"+ annotations[sampleKey][i]["variableSetId"] + "-"
+                            + annotations[sampleKey][i]["id"];
+                        let annotationId = sampleKey + "-"+ annotations[sampleKey][i]["variableSetId"] + "-"
+                            + annotations[sampleKey][i]["id"] + ".json";
+
+                        // We filter the current annotation
+                        filteredAnnotations[key] = this.getFilteredAnnotations(annotations[sampleKey][i]);
+                        let annotationString = JSON.stringify(filteredAnnotations[key]);
+
+                        // We generate a button to be able to download the filtered annotation
+                        head += `<a data-annotation='${annotationString}' data-title='${annotationId}'
+                                    title='Download ${annotationId}' style='cursor: pointer; margin-left: 5px'>
+                                     <i class='fa fa-download fa-lg' aria-hidden='true'></i>
+                                </a>`;
+                        annotationIds.push(annotationId);
+
+                        annotationHtml += '<div id="' + key + '"></div>';
                     }
+
+                    head += '</th>';
                     body += '<td>' + annotationHtml + '</td>';
                 }
 
@@ -287,15 +308,42 @@
                 html += '</table>';
 
                 PolymerUtils.innerHTML(this.prefix + "-table", html);
+                // We now add the on-click event (it was impossible adding it to the html directly)
+                for (let i = 0; i < annotationIds.length; i++) {
+                    $(`a[data-title='${annotationIds[i]}']`)[0].addEventListener("click", this.downloadFile);
+                }
 
                 // Now we iterate again to view the jsons in the table
                 for (let sampleKey in annotations) {
                     for (let i = 0; i < annotations[sampleKey].length; i++) {
                         let key = this.prefix + "-" + sampleKey + "-"+ annotations[sampleKey][i]["variableSetId"] + "-"
                             + annotations[sampleKey][i]["id"];
-                        $('#' + key).jsonViewer(this.getFilteredAnnotations(annotations[sampleKey][i]));
+                        $('#' + key).jsonViewer(filteredAnnotations[key]);
                     }
                 }
+            }
+
+            downloadFile(e) {
+                let mime_type = "text/plain";
+
+                let name = e.currentTarget.dataset.title;
+                let contents = e.currentTarget.dataset.annotation;
+
+                let blob = new Blob([contents], {type: mime_type});
+
+                let dlink = document.createElement("a");
+                dlink.download = name;
+                dlink.href = window.URL.createObjectURL(blob);
+                dlink.onclick = function(e) {
+                    // revokeObjectURL needs a delay to work properly
+                    var that = this;
+                    setTimeout(function() {
+                        window.URL.revokeObjectURL(that.href);
+                    }, 1500);
+                };
+
+                dlink.click();
+                dlink.remove();
             }
 
             _storeAnnotations(response) {
