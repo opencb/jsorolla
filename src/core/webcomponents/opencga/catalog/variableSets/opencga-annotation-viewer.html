@@ -1,0 +1,460 @@
+<!--
+  ~ Copyright 2018 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<link rel="import" href="opencga-variable-selector.html">
+
+<dom-module id="opencga-annotation-viewer">
+    <template>
+        <style include="jso-styles"></style>
+
+        <div style="padding: 15px 20px">
+
+            <div id="{{prefix}}-main-annotation-comparator-div">
+                <template is="dom-if" if="{{!variableSets.length}}">
+                    <!--<div style="text-align: center">-->
+                    No variableSets defined in the study
+                    <!--</div>-->
+                </template>
+
+                <!-- Annotations -->
+                <template is="dom-if" if="{{variableSets.length}}">
+                    <template is="dom-if" if="{{multipleVariableSets}}">
+                        <!--<div class="form-group">-->
+                        <label for="{{prefix}}-variableSetSelect">Select Variable Set</label>
+                        <select class="selectpicker" id="{{prefix}}-variableSetSelect" on-change="entryIdsObserver"
+                                on-dom-change="renderDomRepeat" data-width="auto">
+                            <!--<select class="form-control" id="variableSetSelect" style="width: 100%"-->
+                            <!--on-change="onSelectedVariableSetChange">-->
+                            <template is="dom-repeat" items="{{variableSets}}">
+                                <option data-variable="{{item}}">{{item.id}}</option>
+                            </template>
+                        </select>
+
+                        <opencga-variable-selector variable-set="{{selectedVariableSet}}" config="{{ovsConfig}}"
+                                                   on-ovschange="onSelectedVariablesChange">
+                        </opencga-variable-selector>
+                        <!--</div>-->
+                    </template>
+
+                    <div id="{{prefix}}-table" style="padding: 15px 0px; max-height: 500px; overflow-x: auto; overflow-y: auto;"></div>
+
+                </template>
+            </div>
+        </div>
+    </template>
+
+    <script>
+
+        class OpencgaAnnotationViewer extends Polymer.Element {
+
+            constructor() {
+                super();
+
+                this._init();
+            }
+
+            static get is() {
+                return 'opencga-annotation-viewer';
+            }
+
+            static get properties() {
+                return {
+                    opencgaSession: {
+                        type: Object,
+                        observer: "opencgaSessionObserver"
+                    },
+                    opencgaClient: {
+                        type: Object
+                    },
+                    entryIds: {
+                        type: Array,
+                        observer: "entryIdsObserver"
+                    },
+                    entity: {
+                        // Allowed values are SAMPLE,INDIVIDUAL,COHORT,FAMILY,FILE
+                        type: String
+                    }
+                }
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            _init() {
+                // super.ready();
+                this.prefix = "oac-" + Utils.randomString(6);
+
+                this.selectedVariables = [];
+
+                this.ovsConfig = {
+                    title: "Select variables",
+                    multiSelection: true,
+                    onlyAllowLeafSelection: false,
+                    addResetButton: true
+                };
+            }
+
+            opencgaSessionObserver() {
+
+                this.variableSets = [];
+                this.variables = [];
+
+                this._annotations = {};
+
+                if (typeof this.opencgaSession.study === "undefined") {
+                    return;
+                }
+
+                if (typeof this.opencgaSession.study.variableSets !== "undefined") {
+                    this._updateVariableSets(this.opencgaSession.study);
+                } else {
+                    let _this = this;
+
+                    this.opencgaClient.studies().info(this.opencgaSession.study.id, {include: "variableSets"})
+                        .then(function (response) {
+                            _this._updateVariableSets(response.response[0].result[0]);
+                        })
+                        .catch(function () {
+                            _this.multipleVariableSets = false;
+
+                            // Hide all selectpicker selectors
+                            $(`#${this.prefix}-variableSetSelect`).selectpicker('hide');
+
+                            console.log("Could not obtain the variable sets of the study " + _this.opencgaSession.study);
+                        });
+                }
+            }
+
+            entryIdsObserver(e) {
+                // Get the selected variableSet
+                if (typeof e.target === "undefined") {
+                    let variableSet = $(`button[data-id=${this.prefix}-variableSetSelect]`)[0];
+                    if (typeof variableSet !== "undefined") {
+                        let variableSetId = variableSet.title;
+                        for (let i in this.variableSets) {
+                            if (this.variableSets[i].id === variableSetId) {
+                                this.selectedVariableSet = this.variableSets[i];
+                                break;
+                            }
+                        }
+                    }
+                } else {
+                    for (let i in this.variableSets) {
+                        if (this.variableSets[i].id === e.target.value) {
+                            this.selectedVariableSet = this.variableSets[i];
+                            break;
+                        }
+                    }
+                }
+
+                let client = undefined;
+                switch (this.entity) {
+                    case "SAMPLE":
+                        client = this.opencgaClient.samples();
+                        break;
+                    case "INDIVIDUAL":
+                        client = this.opencgaClient.individuals();
+                        break;
+                    case "COHORT":
+                        client = this.opencgaClient.cohorts();
+                        break;
+                    case "FAMILY":
+                        client = this.opencgaClient.families();
+                        break;
+                    case "FILE":
+                        client = this.opencgaClient.files();
+                        break;
+                    default:
+                        console.error("Unexpected entity value passed to annotation-comparator webcomponent");
+                        return;
+                }
+
+                // Extract sample ids
+                let entryIds = [];
+                for (let i in this.entryIds) {
+                    if (!(this.entryIds[i].id in this._annotations)) {
+                        entryIds.push(this.entryIds[i].id);
+                    }
+                }
+
+                let _this = this;
+                if (entryIds.length > 0) {
+                    client.info(entryIds.join(","), {
+                        study: this.opencgaSession.study.id,
+                        include: "annotationSets,id"
+                    })
+                        .then(function (response) {
+                            _this._storeAnnotations(response);
+                            _this._renderNewTable();
+                        })
+                } else {
+                    this._storeAnnotations(undefined);
+                    this._renderNewTable();
+                }
+            }
+
+            onSelectedVariablesChange(e) {
+                let selectedVariables = [];
+                for (let i = 0; i < e.detail.value.length; i++) {
+                    selectedVariables.push(e.detail.value[i].tags);
+                }
+
+                this.selectedVariables = selectedVariables;
+                this._renderNewTable();
+            }
+
+            _renderNewTable() {
+                let annotations = {};
+                for (let sample in this._annotations) {
+                    for (let i = 0; i < this._annotations[sample].length; i++) {
+                        if (this._annotations[sample][i]["variableSetId"] === this.selectedVariableSet.id) {
+                            if (!(sample in annotations)) {
+                                annotations[sample] = [];
+                            }
+                            annotations[sample].push(this._annotations[sample][i]);
+                        }
+                    }
+                }
+
+                this._generateTable(annotations);
+            }
+
+            _generateTable(annotations) {
+                /*
+                * <table class="table">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Firstname</th>
+                        <th>Lastname</th>
+                        <th>Age</th>
+                        <th>City</th>
+                        <th>Country</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td><span>1</span></td>
+                        <td><br>Anna</td>
+                        <td>Pitt</td>
+                        <td>35</td>
+                        <td>New York</td>
+                        <td>USA</td>
+                    </tr>
+                    </tbody>
+                </table>
+                * */
+
+                if (Object.keys(annotations).length === 0) {
+                    // If the user hasn't selected any sample
+                    if (this.entryIds.length === 0) {
+                        PolymerUtils.innerHTML(this.prefix + "-table", "");
+                    } else {
+                        PolymerUtils.innerHTML(this.prefix + "-table", "No annotations found in the variable set");
+                    }
+                    return;
+                }
+
+                let head = '';
+                let body = '';
+
+                let filteredAnnotations = {};
+                let annotationIds = [];
+
+                for (let sampleKey in annotations) {
+                    head += '<th>' + sampleKey;
+
+                    let annotationHtml = "";
+                    for (let i = 0; i < annotations[sampleKey].length; i++) {
+                        let key = this.prefix + "-" + sampleKey + "-"+ annotations[sampleKey][i]["variableSetId"] + "-"
+                            + annotations[sampleKey][i]["id"];
+                        let annotationId = sampleKey + "-"+ annotations[sampleKey][i]["variableSetId"] + "-"
+                            + annotations[sampleKey][i]["id"] + ".json";
+
+                        // We filter the current annotation
+                        filteredAnnotations[key] = this.getFilteredAnnotations(annotations[sampleKey][i]);
+                        let annotationString = JSON.stringify(filteredAnnotations[key]);
+
+                        // We generate a button to be able to download the filtered annotation
+                        head += `<a data-annotation='${annotationString}' data-title='${annotationId}'
+                                    title='Download ${annotationId}' style='cursor: pointer; margin-left: 5px'>
+                                     <i class='fa fa-download fa-lg' aria-hidden='true'></i>
+                                </a>`;
+                        annotationIds.push(annotationId);
+
+                        annotationHtml += '<div id="' + key + '"></div>';
+                    }
+
+                    head += '</th>';
+                    body += '<td>' + annotationHtml + '</td>';
+                }
+
+                let html = '<table class="table">';
+                html += '<thead><tr>' + head + '</tr></thead>';
+                html += '<tbody><tr>' + body + '</tr></tbody>';
+                html += '</table>';
+
+                PolymerUtils.innerHTML(this.prefix + "-table", html);
+                // We now add the on-click event (it was impossible adding it to the html directly)
+                for (let i = 0; i < annotationIds.length; i++) {
+                    $(`a[data-title='${annotationIds[i]}']`)[0].addEventListener("click", this.downloadFile);
+                }
+
+                // Now we iterate again to view the jsons in the table
+                for (let sampleKey in annotations) {
+                    for (let i = 0; i < annotations[sampleKey].length; i++) {
+                        let key = this.prefix + "-" + sampleKey + "-"+ annotations[sampleKey][i]["variableSetId"] + "-"
+                            + annotations[sampleKey][i]["id"];
+                        $('#' + key).jsonViewer(filteredAnnotations[key]);
+                    }
+                }
+            }
+
+            downloadFile(e) {
+                let mime_type = "text/plain";
+
+                let name = e.currentTarget.dataset.title;
+                let contents = e.currentTarget.dataset.annotation;
+
+                let blob = new Blob([contents], {type: mime_type});
+
+                let dlink = document.createElement("a");
+                dlink.download = name;
+                dlink.href = window.URL.createObjectURL(blob);
+                dlink.onclick = function(e) {
+                    // revokeObjectURL needs a delay to work properly
+                    var that = this;
+                    setTimeout(function() {
+                        window.URL.revokeObjectURL(that.href);
+                    }, 1500);
+                };
+
+                dlink.click();
+                dlink.remove();
+            }
+
+            _storeAnnotations(response) {
+                // Add the new samples
+                if (typeof response !== "undefined") {
+                    for (let i = 0; i < response.response.length; i++) {
+                        for (let j = 0; j < response.response[i].result.length; j++) {
+                            let sample = response.response[i].result[j];
+                            this._annotations[sample.id] = sample.annotationSets;
+                        }
+                    }
+                }
+
+                // Remove unselected samples
+                let selectedSamples = [];
+                for (let i = 0; i < this.entryIds.length; i++) {
+                    selectedSamples.push(this.entryIds[i].id);
+                }
+
+                for (let sample in this._annotations) {
+                    if (selectedSamples.indexOf(sample) === -1) {
+                        delete this._annotations[sample];
+                    }
+                }
+            }
+
+            getFilteredAnnotations(annotationSet) {
+                // If the user hasn't filtered, we will show all the information
+                if (this.selectedVariables.length === 0) {
+                    return annotationSet;
+                }
+
+                let annotationSetCopy = {};
+                Object.assign(annotationSetCopy, annotationSet);
+
+                let annotations = {};
+                for (let i = 0; i < this.selectedVariables.length; i++) {
+                    let keys = this.selectedVariables[i].split(".");
+                    this._addFilteredAnnotation(keys, annotations, annotationSet.annotations);
+                }
+
+                annotationSetCopy["annotations"] = annotations;
+
+                return annotationSetCopy;
+            }
+
+            // This method will clone in 'annotationClone' the object keys 'keys' read from 'annotation'
+            _addFilteredAnnotation(keys, annotationClone, annotation) {
+                let myKey = keys[0];
+
+                if (keys.length === 1) {
+                    if (typeof annotation !== "undefined" && typeof annotation[myKey] !== "undefined") {
+                        annotationClone[myKey] = annotation[myKey];
+                    }
+                } else {
+                    if (Array.isArray(annotation[myKey])) {
+                        if (!(myKey in annotationClone)) {
+                            annotationClone[myKey] = [];
+                        }
+                        for (let i = 0; i < annotation[myKey].length; i++) {
+                            let myObject;
+                            if (annotationClone[myKey].length === annotation[myKey].length) {
+                                // The array was already defined
+                                myObject = annotationClone[myKey][i];
+                            } else {
+                                myObject = {};
+                                annotationClone[myKey].push(myObject);
+                            }
+
+                            this._addFilteredAnnotation(keys.slice(1), myObject, annotation[myKey][i]);
+                        }
+                    } else if (typeof annotation[myKey] !== "undefined") {
+                        // It is an object
+                        if (!(myKey in annotationClone)) {
+                            annotationClone[myKey] = {};
+                        }
+                        this._addFilteredAnnotation(keys.slice(1), annotationClone[myKey], annotation[myKey]);
+                    }
+                }
+            }
+
+            _updateVariableSets(study) {
+                if (typeof study.variableSets === "undefined") {
+                    this.variableSets = [];
+                } else {
+                    this.variableSets = study.variableSets;
+                }
+
+                if (this.variableSets.length > 0) {
+                    // this.variables = this.parseVariableForDisplay(this.variableSets[0].variables); // select first one by default
+
+                    // Show selectpicker selector
+                    $(`#${this.prefix}-variableSetSelect`).selectpicker('show');
+
+                    this.multipleVariableSets = this.variableSets.length > 1;
+                } else {
+                    this.multipleVariableSets = false;
+
+                    // Hide selectpicker selector
+                    $(`#${this.prefix}-variableSetSelect`).selectpicker('hide');
+                }
+            }
+
+            renderDomRepeat(e) {
+                $('select.selectpicker').selectpicker('refresh');
+                $('select.selectpicker').selectpicker('deselectAll');
+            }
+
+        }
+
+        customElements.define(OpencgaAnnotationViewer.is, OpencgaAnnotationViewer);
+    </script>
+</dom-module>

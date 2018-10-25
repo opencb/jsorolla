@@ -206,7 +206,7 @@ class OpenCGAClient {
                             .then(function (response) {
                                 session.projects = response.response[0].result;
                                 if (UtilsNew.isNotEmptyArray(session.projects) && UtilsNew.isNotEmptyArray(session.projects[0].studies)) {
-                                    // FIXME This is need to keep backward compatibility with OpenCGA 1.3.x
+                                    // FIXME This is needed to keep backward compatibility with OpenCGA 1.3.x
                                     for (let project of session.projects) {
                                         project.alias = project.alias || project.fqn || null;
                                         if (project.studies !== undefined) {
