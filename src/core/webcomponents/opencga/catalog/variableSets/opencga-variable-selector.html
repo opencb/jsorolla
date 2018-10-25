@@ -15,21 +15,31 @@
   -->
 
 <dom-module id="opencga-variable-selector">
-    <template>
 
+    <style>
+        .ovs-list li.selected {
+            background-color: #cdcdcd;
+        }
+    </style>
+
+    <template>
         <div id="{{prefix}}-main-div">
             <template is="dom-if" if="{{variables.length}}">
-                <label for="{{prefix}}-annotation-picker" style="margin-top: 15px;">{{_config.title}}</label>
-                <select class="selectpicker" id="{{prefix}}-annotation-picker" data-live-search="true" data-size="10"
-                        on-change="onChangeSelectedVariable" data-width="100%" data-class="btn-sm" multiple$="{{_config.multiSelection}}">
-                    <template is="dom-repeat" items="{{variables}}" as="variable" on-dom-change="renderDomRepeat" restamp="true">
-                        <option data-tokens="{{variable.tags}}" data-variable="{{variable}}"
-                                style$="padding-left: {{variable.margin}}px; cursor: {{variable.cursor}};"
-                                disabled$="{{variable.disabled}}">
-                            {{variable.name}}
-                        </option>
+                    <template is="dom-if" if="{{_config.addResetButton}}">
+                        <button type="button" style="float: right; margin: 10px 10px 5px 0px;" class="btn btn-primary" on-click="resetSelection">Reset</button>
                     </template>
-                </select>
+
+                    <label for="{{prefix}}-annotation-picker" style="margin-top: 15px;">{{_config.title}}</label>
+                    <select class="selectpicker ovs-list" id="{{prefix}}-annotation-picker" data-live-search="true" data-size="10"
+                            on-change="onChangeSelectedVariable" data-width="100%" data-class="btn-sm" multiple$="{{_config.multiSelection}}">
+                        <template is="dom-repeat" items="{{variables}}" as="variable" on-dom-change="renderDomRepeat" restamp="true">
+                            <option data-tokens="{{variable.tags}}" data-variable="{{variable}}"
+                                    style$="padding-left: {{variable.margin}}px; cursor: {{variable.cursor}};"
+                                    disabled$="{{variable.disabled}}">
+                                {{variable.name}}
+                            </option>
+                        </template>
+                    </select>
             </template>
         </div>
     </template>
@@ -167,11 +177,20 @@
                 this.dispatchEvent(new CustomEvent('ovschange', {detail: {value: selectedVariables}}));
             }
 
+            resetSelection(e) {
+                let mainDiv = $(`#${this.prefix}-main-div`);
+                let selectpicker = mainDiv.find(".selectpicker");
+
+                selectpicker.selectpicker('refresh');
+                selectpicker.selectpicker('deselectAll');
+            }
+
             getDefaultConfig() {
                 return {
                     title: "Select variable and value(s)",
                     multiSelection: false, // Select multiple fields
                     onlyAllowLeafSelection: true, // Only allow leaf selection
+                    addResetButton: false,
 
                     class: "small",
                     buttonClass: "btn-sm",
