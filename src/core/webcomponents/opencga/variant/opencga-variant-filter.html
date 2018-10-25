@@ -241,23 +241,25 @@
                 this._genotypes = ["0/0", "0/1", "1/1"];
 
                 // TO DELETE
-                this.samplesTest = ["NA12877"];
-                this._sampleFilters = {
-                    sampleFilters: [
-                        {
-                            id: "NA12877", genotypes: ["0/1"], dp: 5
-                        }
-                    ],
-                    fileFilters: [],
-                    modeOfInheritance: "recessive",
-                    compoundHeterozygous: true,
-                    missing: true
-                };
-                this.samples = [
-                    {
-                        id: "NA12877", genotypes: ["0/1"], dp: 5
-                    }
-                ]
+                // this.samplesTest = ["NA12877"];
+                // this._sampleFilters = {
+                //     sampleFilters: [
+                //         {
+                //             id: "NA12877", genotypes: ["0/1"], dp: 5
+                //         }
+                //     ],
+                //     fileFilters: [],
+                //     modeOfInheritance: "recessive",
+                //     compoundHeterozygous: true,
+                //     missing: true
+                // };
+                // this.samples = [
+                //     {
+                //         id: "NA12877", genotypes: ["0/1"], dp: 5
+                //     }
+                // ]
+
+                this.samples = [];
             }
 
             studyObserver() {
@@ -1625,97 +1627,98 @@
             }
 
             _getGeneDiseasePanelsHtml(prefix) {
-                let options = "";
-                let _this = this;
-                this.opencgaClient.panels()
-                    .search({
-                        study: _this.opencgaSession.project.alias + ":" + _this.opencgaSession.study.alias,
-                        include: "id,name,stats"
-                    }, {})
-                    .then(function (response) {
-                        options += `<optgroup label="Study Panels of ${_this.opencgaSession.study.alias}">`;
-                        if (response.response[0].result.length === 0) {
-                            options += "<option disabled>None</option>";
-                        } else {
-                            for (let panel of response.response[0].result) {
-                                if (panel.stats.numberOfGenes > 0) {
-                                    options += `<option value="${panel.name}">${panel.name} (${panel.stats.numberOfGenes})</option>`;
-                                }
-                            }
-                        }
-                        options += "</optgroup>";
-
-                        // Search Global Panels
-                        _this.opencgaClient.panels()
-                            .search({
-                                globalPanels: true,
-                                include: "id,name,stats"
-                            }, {})
-                            .then(function (response) {
-                                options += `<optgroup label="Global Panels">`;
-                                for (let panel of response.response[0].result) {
-                                    if (panel.stats.numberOfGenes > 0) {
-                                        options += `<option value="${panel.name}">${panel.name} (${panel.stats.numberOfGenes})</option>`;
-                                    }
-                                }
-                                options += "</optgroup>";
-
-                                let content = `
-                                        <select id="${prefix}PanelApps" class="selectpicker show-tick ${prefix}FilterSelect" data-size="10" data-live-search="true"
-                                            data-max-options="1" data-selected-text-format="count" multiple>
-                                            ${options}
-                                        </select>
-                                        <div style="padding-top: 5px">
-                                            <textarea id="${prefix}PanelAppsTextarea" name="panelAppsTextarea"
-                                              class="form-control clearable ${prefix}FilterTextInput"
-                                              rows="3" placeholder="No panel selected"></textarea>
-                                        </div>
-                                `;
-                                PolymerUtils.innerHTML(_this.prefix + "DiseasePanelDropdown", content);
-                            });
-                        //
-                    //     let content = `
-                    //      <select id="${prefix}PanelApps" class="selectpicker show-tick ${prefix}FilterSelect" data-size="10" data-live-search="true"
-                    //             data-max-options="1" data-selected-text-format="count" multiple>
-                    //         ${options}
-                    //     </select>
-                    //     <div style="padding-top: 5px">
-                    //         <textarea id="${prefix}PanelAppsTextarea" name="panelAppsTextarea"
-                    //                   class="form-control clearable ${prefix}FilterTextInput"
-                    //                   rows="3" placeholder="No panel selected"></textarea>
-                    //     </div>
-                    // `;
-                    //     PolymerUtils.innerHTML(_this.prefix + "DiseasePanelDropdown", content);
-                    });
+                // let options = "";
+                // let _this = this;
+                // this.opencgaClient.panels()
+                //     .search({
+                //         study: _this.opencgaSession.project.alias + ":" + _this.opencgaSession.study.alias,
+                //         include: "id,name,stats"
+                //     }, {})
+                //     .then(function (response) {
+                //         options += `<optgroup label="Study Panels of ${_this.opencgaSession.study.alias}">`;
+                //         if (response.response[0].result.length === 0) {
+                //             options += "<option disabled>None</option>";
+                //         } else {
+                //             for (let panel of response.response[0].result) {
+                //                 if (panel.stats.numberOfGenes > 0) {
+                //                     options += `<option value="${panel.name}">${panel.name} (${panel.stats.numberOfGenes})</option>`;
+                //                 }
+                //             }
+                //         }
+                //         options += "</optgroup>";
+                //
+                //         // Search Global Panels
+                //         _this.opencgaClient.panels()
+                //             .search({
+                //                 globalPanels: true,
+                //                 include: "id,name,stats"
+                //             }, {})
+                //             .then(function (response) {
+                //                 options += `<optgroup label="Global Panels">`;
+                //                 for (let panel of response.response[0].result) {
+                //                     if (panel.stats.numberOfGenes > 0) {
+                //                         options += `<option value="${panel.name}">${panel.name} (${panel.stats.numberOfGenes})</option>`;
+                //                     }
+                //                 }
+                //                 options += "</optgroup>";
+                //
+                //                 let content = `
+                //                         <select id="${prefix}PanelApps" class="selectpicker show-tick ${prefix}FilterSelect" data-size="10" data-live-search="true"
+                //                             data-max-options="1" data-selected-text-format="count" multiple>
+                //                             ${options}
+                //                         </select>
+                //                         <div style="padding-top: 5px">
+                //                             <textarea id="${prefix}PanelAppsTextarea" name="panelAppsTextarea"
+                //                               class="form-control clearable ${prefix}FilterTextInput"
+                //                               rows="3" placeholder="No panel selected"></textarea>
+                //                         </div>
+                //                 `;
+                //                 PolymerUtils.innerHTML(_this.prefix + "DiseasePanelDropdown", content);
+                //             });
+                //         //
+                //     //     let content = `
+                //     //      <select id="${prefix}PanelApps" class="selectpicker show-tick ${prefix}FilterSelect" data-size="10" data-live-search="true"
+                //     //             data-max-options="1" data-selected-text-format="count" multiple>
+                //     //         ${options}
+                //     //     </select>
+                //     //     <div style="padding-top: 5px">
+                //     //         <textarea id="${prefix}PanelAppsTextarea" name="panelAppsTextarea"
+                //     //                   class="form-control clearable ${prefix}FilterTextInput"
+                //     //                   rows="3" placeholder="No panel selected"></textarea>
+                //     //     </div>
+                //     // `;
+                //     //     PolymerUtils.innerHTML(_this.prefix + "DiseasePanelDropdown", content);
+                //     });
 
                 if (UtilsNew.isNotUndefinedOrNull(this.panelList)) {
-                    // let options = "";
-                    // this.panelList.sort((a, b) => {
-                    //     if (a.title === b.title) {
-                    //         return 0;
-                    //     }
-                    //     return a.title < b.title ? -1 : 1;
-                    // }).forEach((item) => {
-                    //     options += `<option value="${item.name}">${item.title} (${item.genes.length})</option>`;
-                    // });
+                    let options = "";
+                    this.panelList.sort((a, b) => {
+                        if (a.title === b.title) {
+                            return 0;
+                        }
+                        return a.title < b.title ? -1 : 1;
+                    }).forEach((item) => {
+                        options += `<option value="${item.name}">${item.title} (${item.genes.length})</option>`;
+                    });
 
                     // <select class="form-control ${prefix}FilterSelect" id="${prefix}PanelApps">
                     //     <option value="none">Select a panel...</option>
                     //     ${options}
                     // </select>
 
-                    // return `
-                    //      <select id="${prefix}PanelApps" class="selectpicker show-tick ${prefix}FilterSelect" data-size="10" data-live-search="true"
-                    //             data-max-options="1" data-selected-text-format="count" multiple>
-                    //         ${options}
-                    //     </select>
-                    //     <div style="padding-top: 5px">
-                    //         <textarea id="${prefix}PanelAppsTextarea" name="panelAppsTextarea"
-                    //                   class="form-control clearable ${prefix}FilterTextInput"
-                    //                   rows="3" placeholder="No panel selected"></textarea>
-                    //     </div>
-                    // `;
-                    return `<div id="${prefix}DiseasePanelDropdown"></div>`;
+                    return `
+                         <select id="${prefix}PanelApps" class="selectpicker show-tick ${prefix}FilterSelect" data-size="10" data-live-search="true"
+                                data-max-options="1" data-selected-text-format="count" multiple>
+                            ${options}
+                        </select>
+                        <div style="padding-top: 5px">
+                            <textarea id="${prefix}PanelAppsTextarea" name="panelAppsTextarea"
+                                      class="form-control clearable ${prefix}FilterTextInput"
+                                      rows="3" placeholder="No panel selected"></textarea>
+                        </div>
+                    `;
+
+                    // return `<div id="${prefix}DiseasePanelDropdown"></div>`;
                 }
             }
 

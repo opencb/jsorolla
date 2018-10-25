@@ -128,7 +128,8 @@
                         observer: 'assignColors'
                     },
                     query: {
-                        type: Object
+                        type: Object,
+                        observer: "queryObserver"
                     },
                     search: {
                         type: Object,
@@ -177,6 +178,22 @@
                 this.analysisMode = "family";
 
                 this._config = this.getDefaultConfig();
+            }
+
+            queryObserver() {
+                if (this.query !== undefined && this.query.genotype !== undefined) {
+                    let _samples = [];
+                    let genotypes = this.query.genotype.split(";");
+                    for (let g of genotypes) {
+                        _samples.push({
+                            id: g.split(":")[0],
+                            name: g.split(":")[0]
+                        });
+                    }
+                    this.samples = _samples;
+                }
+                // this.query;
+                // debugger
             }
 
             configObserver() {
@@ -463,6 +480,7 @@
                     queryParams.summary = false;
                     queryParams.includeSample = sampleNames.join(",");
                     queryParams.exclude = "annotation.geneExpression";
+                    queryParams.approximateCount = true;
                 } else {
                     queryParams.summary = true;
                 }
