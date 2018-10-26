@@ -26,6 +26,11 @@
                 padding-left: 4px;
                 padding-right: 5px;
             }
+
+            .detail-tab-title {
+                font-size: 115%;
+                font-weight: bold;
+            }
         </style>
 
         <template is="dom-if" if="{{_config.showTitle}}">
@@ -88,7 +93,7 @@
                 <div style="padding-top: 20px">
                     <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
                         <li role="presentation" class="active">
-                            <a href="#{{prefix}}Annotation" role="tab" data-toggle="tab" class="browser-variant-tab-title">
+                            <a href="#{{prefix}}Annotation" role="tab" data-toggle="tab" class="detail-tab-title">
                                 Sample comparator
                             </a>
                         </li>
