@@ -123,11 +123,6 @@
                         <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
                            href="#{{prefix}}CohortSelection" aria-expanded="true" aria-controls="{{prefix}}CohortSelection">
                             Cohort
-                            <!--<div style="float: right" class="tooltip-div">-->
-                                <!--<a data-toggle="tooltip" title="Cohort selection">-->
-                                    <!--<i class="fa fa-info-circle" aria-hidden="true"></i>-->
-                                <!--</a>-->
-                            <!--</div>-->
                         </a>
                     </h4>
                 </div>
@@ -172,8 +167,8 @@
                         <div class="form-group" id="{{prefix}}-type-div">
                             <div class="browser-subsection">Type
                             </div>
-                            <select class="selectpicker" id="{{prefix}}-type" on-change="calculateFilters" on-dom-change="renderDomRepeat"
-                                    data-width="100%">
+                            <select class="selectpicker" id="{{prefix}}-type" on-change="calculateFilters"
+                                    on-dom-change="renderDomRepeat" data-width="100%">
                                 <option data-value="All" selected>All</option>
                                 <option data-value="CASE_CONTROL">CASE_CONTROL</option>
                                 <option data-value="CASE_SET">CASE_SET</option>
@@ -437,17 +432,12 @@
 
                 let name = PolymerUtils.getValue(`${this.prefix}-cohort-input`);
                 if (UtilsNew.isNotEmpty(name)) {
-                    _query.name = name;
+                    _query.id = name;
                 }
 
-                let individual = PolymerUtils.getValue(`${this.prefix}-individual-input`);
-                if (UtilsNew.isNotEmpty(individual)) {
-                    _query.individual = individual;
-                }
-
-                let phenotypes = PolymerUtils.getValue(`${this.prefix}-phenotypes-input`);
-                if (UtilsNew.isNotEmpty(phenotypes)) {
-                    _query.phenotypes = phenotypes;
+                let sample = PolymerUtils.getValue(`${this.prefix}-sample-input`);
+                if (UtilsNew.isNotEmpty(sample)) {
+                    _query.samples = sample;
                 }
 
                 // keep annotation filter
@@ -460,9 +450,9 @@
                     _query.creationDate = this.query.creationDate;
                 }
 
-                let somatic = $(`input[name=${this.prefix}-somatic-options]:checked`, `#${this.prefix}-somatic`).val();
-                if (somatic !== "None") {
-                    _query.somatic = somatic === "True";
+                let type = $(`#${this.prefix}-type`).selectpicker('val');
+                if (type !== "All") {
+                    _query.type = type;
                 }
 
                 // To prevent to call renderQueryFilters we set this to false

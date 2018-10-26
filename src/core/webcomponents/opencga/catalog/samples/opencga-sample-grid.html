@@ -20,34 +20,6 @@
     <template>
         <style include="jso-styles"></style>
 
-        <!--<div class="col-md-12" style="padding: 5px 0px 0px 0px">-->
-        <!--<div id="{{prefix}}ToolbarLeft" class="col-md-6" style="padding: 15px 0px 0px 0px">-->
-        <!--<span style="padding: 0px">-->
-        <!--Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> samples-->
-        <!--</span>-->
-        <!--</div>-->
-
-        <!--<div id="{{prefix}}toolbar" class="col-md-6" style="padding: 0px">-->
-        <!--<div class="form-inline" style="padding: 0px; float: right">-->
-        <!--<div class="btn-group">-->
-        <!--<button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">-->
-        <!--<i id="{{prefix}}DownloadRefresh" class="fa fa-refresh fa-spin" aria-hidden="true" style="font-size:14px;display: none"></i>-->
-        <!--<i id="{{prefix}}DownloadIcon" class="fa fa-download" aria-hidden="true"></i> Download <span class="caret"></span>-->
-        <!--</button>-->
-        <!--<ul class="dropdown-menu btn-sm">-->
-        <!--<li><a id="{{prefix}}DownloadTabLink" on-click="_downloadTabFile">Tab</a></li>-->
-        <!--<li><a id="{{prefix}}DownloadJsonLink" on-click="_downloadJsonFile">JSON</a></li>-->
-        <!--</ul>-->
-        <!--</div>-->
-
-        <!--&lt;!&ndash;Share URL&ndash;&gt;-->
-        <!--<button type="button" class="btn btn-default btn-sm" data-toggle="popover" data-placement="bottom" on-click="_shareLink">-->
-        <!--<i class="fa fa-share-alt" aria-hidden="true"></i> Share-->
-        <!--</button>-->
-        <!--</div>-->
-        <!--</div>-->
-        <!--</div>-->
-
         <opencb-grid-toolbar from="{{from}}" to="{{to}}" num-total-results-text="{{numTotalResultsText}}"></opencb-grid-toolbar>
 
         <div id="{{prefix}}GridTableDiv" style="margin-top: 10px">
@@ -202,7 +174,6 @@
                             return Object.assign(filters, auxParams);
                         },
                         responseHandler: function (response) {
-                            debugger
                             if (!_this.hasOwnProperty("numTotalResults")) {
                                 _this.numTotalResults = 0;
                             }

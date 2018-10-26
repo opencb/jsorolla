@@ -52,7 +52,8 @@
                     <!--</div>-->
                 </template>
 
-                <opencga-variable-selector variable-set="{{selectedVariableSet}}" on-ovschange="onChangeSelectedVariable">
+                <opencga-variable-selector variable-set="{{selectedVariableSet}}"
+                                           on-variablechange="onChangeSelectedVariable">
                 </opencga-variable-selector>
 
                 <!--<label for="{{prefix}}-annotation-picker" style="margin-top: 15px;">Select variable and value(s)</label>-->
@@ -241,7 +242,7 @@
                 }
 
                 let variableSetId = $(`#${this.prefix}-variableSetSelect`).selectpicker('val');
-                let variable = $(`#${this.prefix}-annotation-picker`)[0].selectedOptions.item(0).dataVariable.tags;
+                let variable = this.selectedVariable.tags;
 
                 this.lastAnnotationFilter = `${variableSetId}:${variable}=${values.join(",")}`;
             }
@@ -255,7 +256,7 @@
                 }
                 let value = annotationTextInputElements[0].value;
                 let variableSetId = $(`#${this.prefix}-variableSetSelect`).selectpicker('val');
-                let variable = $(`#${this.prefix}-annotation-picker`)[0].selectedOptions.item(0).dataVariable.tags;
+                let variable = this.selectedVariable.tags;
 
                 if (value === "") {
                     this.lastAnnotationFilter = undefined;
@@ -268,7 +269,7 @@
             addSelectedFilter(e) {
                 let value = e.currentTarget.dataset.value;
                 let variableSetId = $(`#${this.prefix}-variableSetSelect`).selectpicker('val');
-                let variable = $(`#${this.prefix}-annotation-picker`)[0].selectedOptions.item(0).dataVariable.tags;
+                let variable = this.selectedVariable.tags;
 
                 this.lastAnnotationFilter = `${variableSetId}:${variable}=${value}`;
             }

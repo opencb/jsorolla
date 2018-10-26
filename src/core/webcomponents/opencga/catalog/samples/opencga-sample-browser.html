@@ -92,7 +92,8 @@
 
                             <div class="tab-content" style="height: 680px">
                                 <div role="tabpanel" class="tab-pane active" id="{{prefix}}SampleViewer">
-                                    <opencga-sample-view sample="{{sample}}">
+                                    <opencga-sample-view opencga-client="{{opencgaSession.opencgaClient}}"
+                                    opencga-session="{{opencgaSession}}" sample-id="{{sample.id}}">
                                             <!--opencga-client="{{opencgaSession.opencgaClient}}" -->
                                             <!--opencga-session="{{opencgaSession}}" config="[[_config]]"-->
                                     </opencga-sample-view>
