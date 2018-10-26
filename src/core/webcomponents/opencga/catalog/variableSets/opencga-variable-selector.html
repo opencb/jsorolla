@@ -95,12 +95,14 @@
             parseVariableForDisplay(variableSet) {
                 this.variables = this._parseVariableForDisplay(variableSet.variables, [], this._config.variableSelector.marginLeft);
 
-                // Select first allowed variable by default
-                for (let i = 0; i < this.variables.length; i++) {
-                    if (!this.variables[i].disabled) {
-                        $(`#${this.prefix}-annotation-picker`).find(".selectpicker").selectpicker('deselectAll');
-                        this.dispatchEvent(new CustomEvent('variablechange', {detail: {value: [this.variables[i]]}}));
-                        return;
+                if (!this._config.multiselection) {
+                    // Select first allowed variable by default
+                    for (let i = 0; i < this.variables.length; i++) {
+                        if (!this.variables[i].disabled) {
+                            $(`#${this.prefix}-annotation-picker`).find(".selectpicker").selectpicker('deselectAll');
+                            this.dispatchEvent(new CustomEvent('variablechange', {detail: {value: [this.variables[i]]}}));
+                            return;
+                        }
                     }
                 }
             }

@@ -18,13 +18,10 @@
     <template>
         <style include="jso-styles"></style>
 
-        <div>
-            <div id="{{prefix}}ToolbarLeft" style="float: left;margin: 20px 0px 0px 0px">
-                <span style="font-size: 14px">Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> cohorts</span>
-            </div>
+        <opencb-grid-toolbar from="{{from}}" to="{{to}}" num-total-results-text="{{numTotalResultsText}}"></opencb-grid-toolbar>
 
-            <table id="{{prefix}}CohortSelector" data-test-id="variant-cohort-grid-cohort-selector" data-show-columns="true" data-show-export="true" data-show-pagination-switch="true"
-                   data-pagination="true" data-page-size="10" data-show-refresh="true" data-page-list="[5, 10]" data-icons-prefix="fa" data-icons="icons" style="cursor: pointer">
+        <div id="{{prefix}}GridTableDiv" style="margin-top: 10px">
+            <table id="{{prefix}}CohortBrowserGrid" style="cursor: pointer">
                 <thead style="background-color: #eee"></thead>
             </table>
         </div>
@@ -71,7 +68,8 @@
                         value: "messageevent"
                     },
                     config: {
-                        type: Object
+                        type: Object,
+                        observer: "configObserver"
                     },
                 }
             }
@@ -82,6 +80,8 @@
 
             _init() {
                 this.prefix = "VarCohortGrid" + Utils.randomString(6);
+
+                this._config = this.getDefaultConfig();
             }
 
             ready() {
@@ -91,6 +91,10 @@
                 this.dispatchEvent(new CustomEvent('clear', {detail: {}, bubbles: true, composed: true}));
             }
 
+            configObserver() {
+                this._config = Object.assign(this.getDefaultConfig(), this.config);
+            }
+
             _attachDom(dom) {
                 this.appendChild(dom);
             }
@@ -98,7 +102,7 @@
             connectedCallback() {
                 super.connectedCallback();
 
-                this.table = PolymerUtils.getElementById(this.prefix + "CohortSelector");
+                this.table = PolymerUtils.getElementById(this.prefix + "CohortBrowserGrid");
                 this.search = {};
 
             }
@@ -126,13 +130,25 @@
                     }
                     opencgaHostUrl += '/webservices/rest/v1/cohorts/search';
 
+                    let _table = $('#' + this.prefix + 'CohortBrowserGrid');
+
                     let _this = this;
-                    $("#" + this.prefix + 'CohortSelector').bootstrapTable('destroy');
-                    $("#" + this.prefix + 'CohortSelector').bootstrapTable({
+                    $("#" + this.prefix + 'CohortBrowserGrid').bootstrapTable('destroy');
+                    $("#" + this.prefix + 'CohortBrowserGrid').bootstrapTable({
                         url: opencgaHostUrl,
                         columns: _this._columns,
                         method: 'get',
                         sidePagination: 'server',
+                        uniqueId: "id",
+
+                        // Table properties
+                        pagination: _this._config.pagination,
+                        pageSize: _this._config.pageSize,
+                        pageList: _this._config.pageList,
+                        showExport: _this._config.showExport,
+                        detailView: _this._config.detailView,
+                        detailFormatter: _this._config.detailFormatter,
+
                         queryParams: function (params) {
                             let auxParams = {
                                 study: _this.opencgaSession.study.fqn,
@@ -142,7 +158,7 @@
                                 sort: params.sort,
                                 limit: params.limit,
                                 skip: params.offset,
-                                include: "id,creationDate,status,type"
+                                include: "id,creationDate,status,type,samples"
                             };
 
                             if (UtilsNew.isUndefined(filters)) {
@@ -172,13 +188,21 @@
                             };
                         },
                         onClickRow: function (row, element, field) {
-                            let index = element[0].getAttribute("data-index");
-                            // Check and uncheck actions trigger events that are captured below
-                            if (row.state) {
-                                $(PolymerUtils.getElementById(_this.prefix + 'CohortSelector')).bootstrapTable('uncheck', index);
+                            if (_this._config.multiselection) {
+                                $(element).toggleClass('success');
+                                let index = element[0].getAttribute("data-index");
+                                // Check and uncheck actions trigger events that are captured below
+                                if ("selected" === element[0].className) {
+                                    $(PolymerUtils.getElementById(_this.prefix + 'CohortBrowserGrid')).bootstrapTable('uncheck', index);
+                                } else {
+                                    $(PolymerUtils.getElementById(_this.prefix + "CohortBrowserGrid")).bootstrapTable('check', index);
+                                }
                             } else {
-                                $(PolymerUtils.getElementById(_this.prefix + "CohortSelector")).bootstrapTable('check', index);
+                                $('.success').removeClass('success');
+                                $(element).addClass('success');
                             }
+
+                            _this._onSelectCohort(row);
                         },
                         onCheck: function (row, elem) {
                             // check cohort is not already selected
@@ -214,7 +238,7 @@
                             // check cohort is not already selected
                             rows.forEach((cohort) => {
                                 let existsNewSelected = _this._cohorts.some((cohortSelected) => {
-                                   return  cohortSelected.id === cohort.id;
+                                    return  cohortSelected.id === cohort.id;
                                 });
 
                                 if(!existsNewSelected) {
@@ -243,12 +267,18 @@
                         },
                         onLoadSuccess: function (data) {
                             // Check all already selected rows. Selected cohorts are stored in this.cohorts array
-                            if (_this.cohorts !== "undefined") {
-                                for (let idx in _this.cohorts) {
-                                    for (let j in data.rows) {
-                                        if (_this.cohorts[idx].id === data.rows[j].id) {
-                                            $(PolymerUtils.getElementById(_this.prefix + 'CohortSelector')).bootstrapTable('check', j);
-                                            break;
+                            if (UtilsNew.isNotUndefinedOrNull(_table)) {
+                                if (!_this._config.multiselection) {
+                                    PolymerUtils.querySelector(_table.selector).rows[1].setAttribute('class', 'success');
+                                    _this._onSelectCohort(data.rows[0]);
+                                }
+                                if (_this.cohorts !== "undefined") {
+                                    for (let idx in _this.cohorts) {
+                                        for (let j in data.rows) {
+                                            if (_this.cohorts[idx].id === data.rows[j].id) {
+                                                $(PolymerUtils.getElementById(_this.prefix + 'CohortBrowserGrid')).bootstrapTable('check', j);
+                                                break;
+                                            }
                                         }
                                     }
                                 }
@@ -276,7 +306,7 @@
                         });
                 } else {
                     // Delete table
-                    $(PolymerUtils.getElementById(this.prefix + 'CohortSelector')).bootstrapTable('destroy');
+                    $(PolymerUtils.getElementById(this.prefix + 'CohortBrowserGrid')).bootstrapTable('destroy');
                     this.numTotalResults = 0;
                 }
             }
@@ -286,6 +316,12 @@
              */
             onFilterUpdate() {
                 this.updateForms(this.filters);
+            }
+
+            _onSelectCohort(row) {
+                if (typeof row !== "undefined") {
+                    this.dispatchEvent(new CustomEvent('selectcohort', {detail: {id: row.id, cohort: row}}));
+                }
             }
 
             updateForms(filters) {
@@ -405,12 +441,11 @@
                 }
             }
 
-            individualFormatter(value, row) {
-                if (UtilsNew.isNotUndefined(row.attributes) && UtilsNew.isNotUndefined(row.attributes.individual)
-                    && UtilsNew.isNotUndefined(row.attributes.individual.id)) {
-                    return row.attributes.individual.id;
+            sampleFormatter(value, row) {
+                if (UtilsNew.isNotUndefined(row.samples)) {
+                    return row.samples.length;
                 } else {
-                    return '-'
+                    return 0;
                 }
             }
 
@@ -529,21 +564,25 @@
             }
 
             _initTableColumns() {
+                let columns = [];
+                if (this._config.multiselection) {
+                    columns.push({
+                        field: {source: 'state', context: this},
+                        checkbox: true,
+                        formatter: this.stateFormatter
+                    });
+                }
+
                 this._columns = [
-                    [
-                        {
-                            field: {source: 'state', context: this},
-                            checkbox: true,
-                            formatter: this.stateFormatter
-                        },
+                    columns.concat([
                         {
                             title: 'Cohort',
                             field: 'id'
                         },
                         {
-                            title: 'Individual ID',
-                            field: 'individual.id',
-                            formatter: this.individualFormatter
+                            title: '#Samples',
+                            field: 'samples',
+                            formatter: this.sampleFormatter
                         },
                         {
                             title: 'Date',
@@ -555,45 +594,25 @@
                             field: 'status.name'
                         },
                         {
-                            title: 'Sex',
-                            field: 'individual.sex'
-                        },
-                        {
-                            title: 'Diagnosis',
-                            formatter: this.diagnosisFormatter
-                        },
-                        {
-                            title: 'HPO',
-                            formatter: this.hpoFormatter
-                        },
-                        {
-                            title: 'Father',
-                            formatter: this.fatherFormatter
-                        },
-                        {
-                            title: 'Mother',
-                            formatter: this.motherFormatter
-                        },
-                        {
-                            title: 'Cell Line',
-                            formatter: this.cellTypeFormatter
-                        },
-                        {
                             title: 'Type',
-                            visible: false,
                             field: 'type'
                         }
-                    ]
+                    ])
                 ];
 
-                if (typeof this.config !== "undefined" && this.config.grid.downloadQcCohort) {
-                    this._columns[0].push({
-                        title: 'QC',
-                        field: 'download',
-                        formatter: this.downloadFormatter.bind(this)
-                    });
-                }
                 return this._columns;
+            }
+
+            getDefaultConfig() {
+                return {
+                    pagination: true,
+                    pageSize: 10,
+                    pageList: [10, 25, 50],
+                    showExport: false,
+                    detailView: false,
+                    detailFormatter: undefined, // function with the detail formatter
+                    multiselection: false
+                }
             }
         }
 

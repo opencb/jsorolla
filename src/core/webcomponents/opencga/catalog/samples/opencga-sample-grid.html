@@ -24,8 +24,6 @@
 
         <div id="{{prefix}}GridTableDiv" style="margin-top: 10px">
             <table id="{{prefix}}SampleBrowserGrid" style="cursor: pointer">
-                <!--data-page-size="10" data-page-list="[5, 10]" data-icons-prefix="fa"-->
-                <!--data-icons="icons" style="cursor: pointer">-->
                 <thead style="background-color: #eee"></thead>
             </table>
         </div>
@@ -519,7 +517,6 @@
             }
 
             _initTableColumns() {
-
                 let columns = [];
                 if (this._config.multiselection) {
                     columns.push({

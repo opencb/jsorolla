@@ -93,7 +93,8 @@
                             <div class="tab-content" style="height: 680px">
                                 <div role="tabpanel" class="tab-pane active" id="{{prefix}}SampleViewer">
                                     <opencga-sample-view opencga-client="{{opencgaSession.opencgaClient}}"
-                                    opencga-session="{{opencgaSession}}" sample-id="{{sample.id}}">
+                                    opencga-session="{{opencgaSession}}" sample-id="{{sample.id}}" config="{{_config.sampleDetail}}"
+                                    style="font-size: 12px;">
                                             <!--opencga-client="{{opencgaSession.opencgaClient}}" -->
                                             <!--opencga-session="{{opencgaSession}}" config="[[_config]]"-->
                                     </opencga-sample-view>
@@ -254,6 +255,9 @@
                         multiselection: true,
                         pageSize: 5,
                         pageList: [5, 10],
+                    },
+                    sampleDetail: {
+                        showTitle: false
                     }
                 };
             }
