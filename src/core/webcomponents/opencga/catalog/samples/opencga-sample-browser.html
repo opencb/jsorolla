@@ -69,9 +69,33 @@
                 <!-- Sample View Content -->
                 <div>
                     <div id="{{prefix}}TableResult" class="sample-browser-view-content">
-                        <opencga-sample-grid opencga-client="{{opencgaSession.opencgaClient}}" opencga-session="{{opencgaSession}}" config="[[_config.grid]]"
-                                             event-notify-name="[[eventNotifyName]]" samples="{{samples}}" search="{{search}}" style="font-size: 12px">
+                        <opencga-sample-grid opencga-client="{{opencgaSession.opencgaClient}}"
+                                             opencga-session="{{opencgaSession}}" config="[[_config.grid]]"
+                                             event-notify-name="[[eventNotifyName]]" samples="{{samples}}"
+                                             search="{{search}}" style="font-size: 12px" on-selectsample="onSelectSample">
                         </opencga-sample-grid>
+
+                        <div style="padding-top: 5px">
+                            <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
+
+                                <li role="presentation" class="active">
+                                    <a href="#{{prefix}}SampleViewer" role="tab" data-toggle="tab" class="browser-variant-tab-title">
+                                        Sample info
+                                    </a>
+                                </li>
+                            </ul>
+
+                            <div class="tab-content" style="height: 680px">
+                                <div role="tabpanel" class="tab-pane active" id="{{prefix}}SampleViewer">
+                                    <opencga-sample-view sample="{{sample}}">
+                                            <!--opencga-client="{{opencgaSession.opencgaClient}}" -->
+                                            <!--opencga-session="{{opencgaSession}}" config="[[_config]]"-->
+                                    </opencga-sample-view>
+                                </div>
+
+                            </div>
+                        </div>
+
                     </div>
 
                     <div id="{{prefix}}SummaryStats" class="sample-browser-view-content" style="display: none">
@@ -79,56 +103,23 @@
                     </div>
 
                     <div id="{{prefix}}SampleComparator" class="sample-browser-view-content" style="display: none">
-                        <span>Work in progress</span>
-                    </div>
-                </div>
 
+                        <opencga-sample-grid opencga-client="{{opencgaSession.opencgaClient}}"
+                                             opencga-session="{{opencgaSession}}" config="[[_config.gridComparator]]"
+                                             event-notify-name="[[eventNotifyName]]" samples="{{samples}}"
+                                             search="{{search}}" style="font-size: 12px">
+                        </opencga-sample-grid>
 
-                <!--<h3>Tools?</h3>-->
-                <div style="padding-top: 20px">
-                    <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
-                        <li role="presentation" class="active">
-                            <a href="#{{prefix}}Annotation" role="tab" data-toggle="tab" class="browser-variant-tab-title">
-                                Sample comparator
-                            </a>
-                        </li>
-                        <!--<li role="presentation">-->
-                        <!--<a href="#{{prefix}}Genotype" role="tab" data-toggle="tab" class="browser-variant-tab-title">-->
-                        <!--Genotype Stats-->
-                        <!--</a>-->
-                        <!--</li>-->
-                        <!--<li role="presentation">-->
-                        <!--<a href="#{{prefix}}Beacon" role="tab" data-toggle="tab" class="browser-variant-tab-title">-->
-                        <!--Beacon Network-->
-                        <!--</a>-->
-                        <!--</li>-->
-                    </ul>
-
-                    <div class="tab-content" style="height: 680px">
-                        <!-- Annotation Tab -->
-                        <div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">
-                            <opencga-annotation-comparator opencga-client="{{opencgaSession.opencgaClient}}"
-                                                           opencga-session="{{opencgaSession}}" config="[[_config]]"
-                                                           entry-ids="{{samples}}" entity="SAMPLE">
-                            </opencga-annotation-comparator>
+                        <div style="padding-top: 5px">
+                            <h3> Annotation comparator</h3>
+                            <opencga-annotation-viewer opencga-client="{{opencgaSession.opencgaClient}}"
+                                                       opencga-session="{{opencgaSession}}" config="[[_config]]"
+                                                       entry-ids="{{samples}}" entity="SAMPLE">
+                            </opencga-annotation-viewer>
                         </div>
 
-                        <!--<div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">-->
-                        <!--<opencga-annotation-comparator opencga-client="{{opencgaSession.opencgaClient}}"-->
-                        <!--opencga-session="{{opencgaSession}}" config="[[_config]]"-->
-                        <!--entry-ids="{{samples}}" entity="SAMPLE">-->
-                        <!--</opencga-annotation-comparator>-->
-                        <!--</div>-->
-
-                        <!--<div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">-->
-                        <!--<opencga-annotation-comparator opencga-client="{{opencgaSession.opencgaClient}}"-->
-                        <!--opencga-session="{{opencgaSession}}" config="[[_config]]"-->
-                        <!--entry-ids="{{samples}}" entity="SAMPLE">-->
-                        <!--</opencga-annotation-comparator>-->
-                        <!--</div>-->
                     </div>
                 </div>
-
 
             </div>
         </div>
@@ -206,7 +197,7 @@
             }
 
             onClear() {
-                this.config = Object.assign(this.getDefaultConfig(), this.config);
+                this._config = Object.assign(this.getDefaultConfig(), this.config);
                 this.query = {};
                 // this.query = {studies: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias};
                 this.search = {};
@@ -215,6 +206,10 @@
             onActiveFilterChange(e) {
                 this.query = e.detail;
                 this.search = e.detail;
+            }
+
+            onSelectSample(e) {
+                this.sample = e.detail.sample;
             }
 
             _changeView(e) {
@@ -248,7 +243,11 @@
 
                     },
                     grid: {
-                        showSelect: true,
+                    },
+                    gridComparator: {
+                        multiselection: true,
+                        pageSize: 5,
+                        pageList: [5, 10],
                     }
                 };
             }

@@ -21,40 +21,42 @@
         <style include="jso-styles"></style>
 
         <!--<div class="col-md-12" style="padding: 5px 0px 0px 0px">-->
-            <!--<div id="{{prefix}}ToolbarLeft" class="col-md-6" style="padding: 15px 0px 0px 0px">-->
-                <!--<span style="padding: 0px">-->
-                    <!--Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> samples-->
-                <!--</span>-->
-            <!--</div>-->
-
-            <!--<div id="{{prefix}}toolbar" class="col-md-6" style="padding: 0px">-->
-                <!--<div class="form-inline" style="padding: 0px; float: right">-->
-                    <!--<div class="btn-group">-->
-                        <!--<button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">-->
-                            <!--<i id="{{prefix}}DownloadRefresh" class="fa fa-refresh fa-spin" aria-hidden="true" style="font-size:14px;display: none"></i>-->
-                            <!--<i id="{{prefix}}DownloadIcon" class="fa fa-download" aria-hidden="true"></i> Download <span class="caret"></span>-->
-                        <!--</button>-->
-                        <!--<ul class="dropdown-menu btn-sm">-->
-                            <!--<li><a id="{{prefix}}DownloadTabLink" on-click="_downloadTabFile">Tab</a></li>-->
-                            <!--<li><a id="{{prefix}}DownloadJsonLink" on-click="_downloadJsonFile">JSON</a></li>-->
-                        <!--</ul>-->
-                    <!--</div>-->
-
-                    <!--&lt;!&ndash;Share URL&ndash;&gt;-->
-                    <!--<button type="button" class="btn btn-default btn-sm" data-toggle="popover" data-placement="bottom" on-click="_shareLink">-->
-                        <!--<i class="fa fa-share-alt" aria-hidden="true"></i> Share-->
-                    <!--</button>-->
-                <!--</div>-->
-            <!--</div>-->
+        <!--<div id="{{prefix}}ToolbarLeft" class="col-md-6" style="padding: 15px 0px 0px 0px">-->
+        <!--<span style="padding: 0px">-->
+        <!--Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> samples-->
+        <!--</span>-->
         <!--</div>-->
 
-        <opencb-grid-toolbar from={{from}} to={{to}} numTotalResultsText="{{numTotalResultsText}}"></opencb-grid-toolbar>
+        <!--<div id="{{prefix}}toolbar" class="col-md-6" style="padding: 0px">-->
+        <!--<div class="form-inline" style="padding: 0px; float: right">-->
+        <!--<div class="btn-group">-->
+        <!--<button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">-->
+        <!--<i id="{{prefix}}DownloadRefresh" class="fa fa-refresh fa-spin" aria-hidden="true" style="font-size:14px;display: none"></i>-->
+        <!--<i id="{{prefix}}DownloadIcon" class="fa fa-download" aria-hidden="true"></i> Download <span class="caret"></span>-->
+        <!--</button>-->
+        <!--<ul class="dropdown-menu btn-sm">-->
+        <!--<li><a id="{{prefix}}DownloadTabLink" on-click="_downloadTabFile">Tab</a></li>-->
+        <!--<li><a id="{{prefix}}DownloadJsonLink" on-click="_downloadJsonFile">JSON</a></li>-->
+        <!--</ul>-->
+        <!--</div>-->
 
-        <table id="{{prefix}}SampleSelector"
-               data-page-size="10" data-page-list="[5, 10]" data-icons-prefix="fa"
-               data-icons="icons" style="cursor: pointer">
-            <thead style="background-color: #eee"></thead>
-        </table>
+        <!--&lt;!&ndash;Share URL&ndash;&gt;-->
+        <!--<button type="button" class="btn btn-default btn-sm" data-toggle="popover" data-placement="bottom" on-click="_shareLink">-->
+        <!--<i class="fa fa-share-alt" aria-hidden="true"></i> Share-->
+        <!--</button>-->
+        <!--</div>-->
+        <!--</div>-->
+        <!--</div>-->
+
+        <opencb-grid-toolbar from="{{from}}" to="{{to}}" num-total-results-text="{{numTotalResultsText}}"></opencb-grid-toolbar>
+
+        <div id="{{prefix}}GridTableDiv" style="margin-top: 10px">
+            <table id="{{prefix}}SampleBrowserGrid" style="cursor: pointer">
+                <!--data-page-size="10" data-page-list="[5, 10]" data-icons-prefix="fa"-->
+                <!--data-icons="icons" style="cursor: pointer">-->
+                <thead style="background-color: #eee"></thead>
+            </table>
+        </div>
     </template>
 
     <script>
@@ -98,7 +100,8 @@
                         value: "messageevent"
                     },
                     config: {
-                        type: Object
+                        type: Object,
+                        observer: "configObserver"
                     },
                 }
             }
@@ -109,6 +112,8 @@
 
             _init() {
                 this.prefix = "VarSampleGrid" + Utils.randomString(6);
+
+                this._config = this.getDefaultConfig();
             }
 
             ready() {
@@ -118,6 +123,10 @@
                 this.dispatchEvent(new CustomEvent('clear', {detail: {}, bubbles: true, composed: true}));
             }
 
+            configObserver() {
+                this._config = Object.assign(this.getDefaultConfig(), this.config);
+            }
+
             _attachDom(dom) {
                 this.appendChild(dom);
             }
@@ -125,7 +134,7 @@
             connectedCallback() {
                 super.connectedCallback();
 
-                this.table = PolymerUtils.getElementById(this.prefix + "SampleSelector");
+                this.table = PolymerUtils.getElementById(this.prefix + "SampleBrowserGrid");
                 this.search = {};
 
             }
@@ -154,15 +163,24 @@
                     }
                     opencgaHostUrl += '/webservices/rest/v1/samples/search';
 
+                    let _table = $('#' + this.prefix + 'SampleBrowserGrid');
+
                     let _this = this;
-                    $("#" + this.prefix + 'SampleSelector').bootstrapTable('destroy');
-                    $("#" + this.prefix + 'SampleSelector').bootstrapTable({
+                    $("#" + this.prefix + 'SampleBrowserGrid').bootstrapTable('destroy');
+                    $("#" + this.prefix + 'SampleBrowserGrid').bootstrapTable({
                         url: opencgaHostUrl,
                         columns: _this._columns,
                         method: 'get',
                         sidePagination: 'server',
+                        uniqueId: "id",
 
-                        detailView: false,
+                        // Table properties
+                        pagination: _this._config.pagination,
+                        pageSize: _this._config.pageSize,
+                        pageList: _this._config.pageList,
+                        showExport: _this._config.showExport,
+                        detailView: _this._config.detailView,
+                        detailFormatter: _this._config.detailFormatter,
 
                         queryParams: function (params) {
                             let auxParams = {
@@ -184,6 +202,7 @@
                             return Object.assign(filters, auxParams);
                         },
                         responseHandler: function (response) {
+                            debugger
                             if (!_this.hasOwnProperty("numTotalResults")) {
                                 _this.numTotalResults = 0;
                             }
@@ -205,13 +224,21 @@
                             };
                         },
                         onClickRow: function (row, element, field) {
-                            let index = element[0].getAttribute("data-index");
-                            // Check and uncheck actions trigger events that are captured below
-                            if (row.state) {
-                                $(PolymerUtils.getElementById(_this.prefix + 'SampleSelector')).bootstrapTable('uncheck', index);
+                            if (_this._config.multiselection) {
+                                $(element).toggleClass('success');
+                                let index = element[0].getAttribute("data-index");
+                                // Check and uncheck actions trigger events that are captured below
+                                if ("selected" === element[0].className) {
+                                    $(PolymerUtils.getElementById(_this.prefix + 'SampleBrowserGrid')).bootstrapTable('uncheck', index);
+                                } else {
+                                    $(PolymerUtils.getElementById(_this.prefix + "SampleBrowserGrid")).bootstrapTable('check', index);
+                                }
                             } else {
-                                $(PolymerUtils.getElementById(_this.prefix + "SampleSelector")).bootstrapTable('check', index);
+                                $('.success').removeClass('success');
+                                $(element).addClass('success');
                             }
+
+                            _this._onSelectSample(row);
                         },
                         onCheck: function (row, elem) {
                             // check sample is not already selected
@@ -247,7 +274,7 @@
                             // check sample is not already selected
                             rows.forEach((sample) => {
                                 let existsNewSelected = _this._samples.some((sampleSelected) => {
-                                   return sampleSelected.id === sample.id;
+                                    return sampleSelected.id === sample.id;
                                 });
 
                                 if(!existsNewSelected) {
@@ -276,16 +303,25 @@
                         },
                         onLoadSuccess: function (data) {
                             // Check all already selected rows. Selected samples are stored in this.samples array
-                            if (_this.samples !== "undefined") {
-                                for (let idx in _this.samples) {
-                                    for (let j in data.rows) {
-                                        if (_this.samples[idx].id === data.rows[j].id) {
-                                            $(PolymerUtils.getElementById(_this.prefix + 'SampleSelector')).bootstrapTable('check', j);
-                                            break;
+                            if (UtilsNew.isNotUndefinedOrNull(_table)) {
+                                if (!_this._config.multiselection) {
+                                    PolymerUtils.querySelector(_table.selector).rows[1].setAttribute('class', 'success');
+                                    _this._onSelectSample(data.rows[0]);
+                                }
+
+                                if (_this.samples !== "undefined") {
+                                    for (let idx in _this.samples) {
+                                        for (let j in data.rows) {
+                                            if (_this.samples[idx].id === data.rows[j].id) {
+                                                $(PolymerUtils.getElementById(_this.prefix + 'SampleBrowserGrid')).bootstrapTable('check', j);
+                                                break;
+                                            }
                                         }
                                     }
                                 }
                             }
+
+
                         },
                         onPageChange: function (page, size) {
                             _this.from = (page - 1) * size + 1;
@@ -309,7 +345,7 @@
                         });
                 } else {
                     // Delete table
-                    $(PolymerUtils.getElementById(this.prefix + 'SampleSelector')).bootstrapTable('destroy');
+                    $(PolymerUtils.getElementById(this.prefix + 'SampleBrowserGrid')).bootstrapTable('destroy');
                     this.numTotalResults = 0;
                 }
             }
@@ -319,6 +355,12 @@
              */
             onFilterUpdate() {
                 this.updateForms(this.filters);
+            }
+
+            _onSelectSample(row) {
+                if (typeof row !== "undefined") {
+                    this.dispatchEvent(new CustomEvent('selectsample', {detail: {id: row.id, sample: row}}));
+                }
             }
 
             updateForms(filters) {
@@ -506,13 +548,18 @@
             }
 
             _initTableColumns() {
+
+                let columns = [];
+                if (this._config.multiselection) {
+                    columns.push({
+                        field: {source: 'state', context: this},
+                        checkbox: true,
+                        formatter: this.stateFormatter
+                    });
+                }
+
                 this._columns = [
-                    [
-                        {
-                            field: {source: 'state', context: this},
-                            checkbox: true,
-                            formatter: this.stateFormatter
-                        },
+                    columns.concat([
                         {
                             title: 'Sample',
                             field: 'id'
@@ -572,17 +619,22 @@
                             visible: false,
                             field: 'version'
                         }
-                    ]
+                    ])
                 ];
-                //
-                // if (typeof this.config !== "undefined" && this.config.grid.downloadQcSample) {
-                //     this._columns[0].push({
-                //         title: 'QC',
-                //         field: 'download',
-                //         formatter: this.downloadFormatter.bind(this)
-                //     });
-                // }
+
                 return this._columns;
+            }
+
+            getDefaultConfig() {
+                return {
+                    pagination: true,
+                    pageSize: 10,
+                    pageList: [10, 25, 50],
+                    showExport: false,
+                    detailView: false,
+                    detailFormatter: undefined, // function with the detail formatter
+                    multiselection: false
+                }
             }
         }
 
