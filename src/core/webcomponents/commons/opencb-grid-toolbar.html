@@ -1,0 +1,123 @@
+<!--
+  ~ Copyright 2015-2016 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<dom-module id="opencb-grid-toolbar">
+    <template>
+        <style include="jso-styles"></style>
+
+        <div class="col-md-12" style="padding: 5px 0px 0px 0px">
+            <div id="{{prefix}}ToolbarLeft" class="col-md-6" style="padding: 15px 0px 0px 0px">
+                <span style="padding: 0px">
+                    Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> {{_config.label}}
+                </span>
+            </div>
+
+            <div id="{{prefix}}toolbar" class="col-md-6" style="padding: 0px">
+                <div class="form-inline" style="padding: 0px; float: right">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i id="{{prefix}}DownloadRefresh" class="fa fa-refresh fa-spin" aria-hidden="true" style="font-size:14px;display: none"></i>
+                            <i id="{{prefix}}DownloadIcon" class="fa fa-download" aria-hidden="true"></i> Download <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu btn-sm">
+                            <template is="dom-repeat" items="{{_config.download}}">
+                                <li><a data-download-option$="{{item}}" on-click="onDownloadFile">{{item}}</a></li>
+                            </template>
+                        </ul>
+                    </div>
+
+                    <!--Share URL-->
+                    <button type="button" class="btn btn-default btn-sm" data-toggle="popover" data-placement="bottom" on-click="onShareLink">
+                        <i class="fa fa-share-alt" aria-hidden="true"></i> Share
+                    </button>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        class OpencbGridToolbar extends Polymer.Element {
+
+            constructor() {
+                super();
+
+                this._init();
+            }
+
+            static get is() {
+                return 'opencb-grid-toolbar';
+            }
+
+            static get properties() {
+                return {
+                    from: {
+                        type: String
+                    },
+                    to: {
+                        type: String
+                    },
+                    numTotalResultsText: {
+                        type: String,
+                        value: "0"
+                    },
+                    config: {
+                        type: Object,
+                        observer: "configObserver"
+                    }
+                }
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            _init() {
+                this.prefix = "dialog" + Utils.randomString(6);
+
+                this._config = this.getDefaultConfig();
+            }
+
+            configObserver() {
+                this._config = Object.assign(this.getDefaultConfig(), this.config);
+            }
+
+            onDownloadFile(e) {
+                _this.dispatchEvent(new CustomEvent('download', {
+                    detail: {
+                        option: e.target.dataset.downloadOption
+                    }, bubbles: true, composed: true
+                }));
+            }
+
+            onShareLink(e) {
+                _this.dispatchEvent(new CustomEvent('shareLink', {
+                    detail: {
+
+                    }, bubbles: true, composed: true
+                }));
+            }
+
+            getDefaultConfig() {
+                return {
+                    label: "records",
+                    download: ["Tab", "JSON"]
+                };
+            }
+
+        }
+        customElements.define(OpencbGridToolbar.is, OpencbGridToolbar);
+    </script>
+</dom-module>

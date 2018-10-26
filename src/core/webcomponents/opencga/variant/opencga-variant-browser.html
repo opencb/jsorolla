@@ -576,7 +576,8 @@
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
                 $('.variant-browser-content').hide(); // hides all content divs
                 if (typeof e.target !== "undefined" && typeof e.target.dataset.view !== "undefined") {
-                    $("#" + this.prefix + e.target.dataset.view).show(); // get the href and use it find which div to show
+                    // $("#" + this.prefix + e.target.dataset.view).show(); // get the href and use it find which div to show
+                    PolymerUtils.show(this.prefix + e.target.dataset.view);
                 }
 
                 // Show the active button

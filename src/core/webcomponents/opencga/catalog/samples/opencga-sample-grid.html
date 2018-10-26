@@ -14,21 +14,47 @@
   ~ limitations under the License.
   -->
 
+<link rel="import" href="../../../commons/opencb-grid-toolbar.html">
+
 <dom-module id="opencga-sample-grid">
     <template>
         <style include="jso-styles"></style>
 
-        <div>
-            <div id="{{prefix}}ToolbarLeft" style="float: left;margin: 20px 0px 0px 0px">
-                <span style="font-size: 14px">Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> samples</span>
-            </div>
+        <!--<div class="col-md-12" style="padding: 5px 0px 0px 0px">-->
+            <!--<div id="{{prefix}}ToolbarLeft" class="col-md-6" style="padding: 15px 0px 0px 0px">-->
+                <!--<span style="padding: 0px">-->
+                    <!--Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> samples-->
+                <!--</span>-->
+            <!--</div>-->
 
-            <table id="{{prefix}}SampleSelector" data-show-columns="true" data-show-export="true" data-show-pagination-switch="true"
-                   data-pagination="true" data-page-size="10" data-show-refresh="true" data-page-list="[5, 10]" data-icons-prefix="fa"
-                   data-icons="icons" style="cursor: pointer">
-                <thead style="background-color: #eee"></thead>
-            </table>
-        </div>
+            <!--<div id="{{prefix}}toolbar" class="col-md-6" style="padding: 0px">-->
+                <!--<div class="form-inline" style="padding: 0px; float: right">-->
+                    <!--<div class="btn-group">-->
+                        <!--<button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">-->
+                            <!--<i id="{{prefix}}DownloadRefresh" class="fa fa-refresh fa-spin" aria-hidden="true" style="font-size:14px;display: none"></i>-->
+                            <!--<i id="{{prefix}}DownloadIcon" class="fa fa-download" aria-hidden="true"></i> Download <span class="caret"></span>-->
+                        <!--</button>-->
+                        <!--<ul class="dropdown-menu btn-sm">-->
+                            <!--<li><a id="{{prefix}}DownloadTabLink" on-click="_downloadTabFile">Tab</a></li>-->
+                            <!--<li><a id="{{prefix}}DownloadJsonLink" on-click="_downloadJsonFile">JSON</a></li>-->
+                        <!--</ul>-->
+                    <!--</div>-->
+
+                    <!--&lt;!&ndash;Share URL&ndash;&gt;-->
+                    <!--<button type="button" class="btn btn-default btn-sm" data-toggle="popover" data-placement="bottom" on-click="_shareLink">-->
+                        <!--<i class="fa fa-share-alt" aria-hidden="true"></i> Share-->
+                    <!--</button>-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</div>-->
+
+        <opencb-grid-toolbar from={{from}} to={{to}} numTotalResultsText="{{numTotalResultsText}}"></opencb-grid-toolbar>
+
+        <table id="{{prefix}}SampleSelector"
+               data-page-size="10" data-page-list="[5, 10]" data-icons-prefix="fa"
+               data-icons="icons" style="cursor: pointer">
+            <thead style="background-color: #eee"></thead>
+        </table>
     </template>
 
     <script>
@@ -135,6 +161,9 @@
                         columns: _this._columns,
                         method: 'get',
                         sidePagination: 'server',
+
+                        detailView: false,
+
                         queryParams: function (params) {
                             let auxParams = {
                                 study: _this.opencgaSession.study.fqn,
