@@ -32,24 +32,25 @@
                 <!-- Annotations -->
                 <template is="dom-if" if="{{variableSets.length}}">
                     <template is="dom-if" if="{{multipleVariableSets}}">
-                        <!--<div class="form-group">-->
-                        <label for="{{prefix}}-variableSetSelect">Select Variable Set</label>
-                        <select class="selectpicker" id="{{prefix}}-variableSetSelect" on-change="entryIdsObserver"
-                                on-dom-change="renderDomRepeat" data-width="auto">
-                            <!--<select class="form-control" id="variableSetSelect" style="width: 100%"-->
-                            <!--on-change="onSelectedVariableSetChange">-->
-                            <template is="dom-repeat" items="{{variableSets}}">
-                                <option data-variable="{{item}}">{{item.id}}</option>
-                            </template>
-                        </select>
-
-                        <opencga-variable-selector variable-set="{{selectedVariableSet}}" config="{{ovsConfig}}"
-                                                   on-variablechange="onSelectedVariablesChange">
-                        </opencga-variable-selector>
-                        <!--</div>-->
+                        <div style="width: 40%">
+                            <label for="{{prefix}}-variableSetSelect">Select Variable Set</label>
+                            <select class="selectpicker" id="{{prefix}}-variableSetSelect" on-change="entryIdsObserver"
+                                    on-dom-change="renderDomRepeat" data-width="40%">
+                                <!--<select class="form-control" id="variableSetSelect" style="width: 100%"-->
+                                <!--on-change="onSelectedVariableSetChange">-->
+                                <template is="dom-repeat" items="{{variableSets}}">
+                                    <option data-variable="{{item}}">{{item.id}}</option>
+                                </template>
+                            </select>
+                        </div>
+                        <div style="width: 50%">
+                            <opencga-variable-selector variable-set="{{selectedVariableSet}}" config="{{ovsConfig}}"
+                                                       on-variablechange="onSelectedVariablesChange">
+                            </opencga-variable-selector>
+                        </div>
                     </template>
 
-                    <div id="{{prefix}}-table" style="padding: 15px 0px; max-height: 500px; overflow-x: auto; overflow-y: auto;"></div>
+                    <div id="{{prefix}}-table" style="padding: 25px 10px; max-height: 500px; overflow-x: auto; overflow-y: auto;"></div>
 
                 </template>
             </div>
@@ -57,7 +58,6 @@
     </template>
 
     <script>
-
         class OpencgaAnnotationViewer extends Polymer.Element {
 
             constructor() {
@@ -104,12 +104,11 @@
                     title: "Select variables",
                     multiSelection: true,
                     onlyAllowLeafSelection: false,
-                    addResetButton: true
+                    showResetButton: true
                 };
             }
 
             opencgaSessionObserver() {
-
                 this.variableSets = [];
                 this.variables = [];
 
