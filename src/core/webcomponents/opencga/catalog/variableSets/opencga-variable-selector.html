@@ -89,14 +89,10 @@
                 this._config = this.getDefaultConfig();
             }
 
-            configObserver() {
-                this._config = Object.assign({}, this.getDefaultConfig(), this.config);
-            }
+            connectedCallback() {
+                super.connectedCallback();
 
-            variableSetObserver(variableSet) {
-                this.variables = this._parseVariableForDisplay(variableSet.variables, [], this._config.variableSelector.marginLeft);
-
-                if (!this._config.multiselection) {
+                if (!this._config.multiSelection) {
                     // Select first allowed variable by default
                     for (let variable of this.variables) {
                         if (!variable.disabled) {
@@ -111,6 +107,30 @@
                         }
                     }
                 }
+            }
+
+            configObserver() {
+                this._config = Object.assign({}, this.getDefaultConfig(), this.config);
+            }
+
+            variableSetObserver(variableSet) {
+                this.variables = this._parseVariableForDisplay(variableSet.variables, [], this._config.variableSelector.marginLeft);
+
+                // if (!this._config.multiSelection) {
+                //     // Select first allowed variable by default
+                //     for (let variable of this.variables) {
+                //         if (!variable.disabled) {
+                //             $(`#${this.prefix}-annotation-picker`).find(".selectpicker").selectpicker('deselectAll');
+                //             this.dispatchEvent(new CustomEvent('variablechange', {
+                //                     detail: {
+                //                         value: [variable]
+                //                     }
+                //                 }
+                //             ));
+                //             return;
+                //         }
+                //     }
+                // }
             }
 
             _parseVariableForDisplay(variables, tags, margin) {
