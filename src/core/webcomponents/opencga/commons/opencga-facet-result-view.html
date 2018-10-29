@@ -14,7 +14,7 @@
   ~ limitations under the License.
   -->
 
-<dom-module id="opencga-facet-view">
+<dom-module id="opencga-facet-result-view">
     <template>
         <style include="jso-styles"></style>
 
@@ -98,7 +98,7 @@
     </template>
 
     <script>
-        class OpencgaFacetView extends Polymer.Element {
+        class OpencgaFacetResultView extends Polymer.Element {
 
             constructor() {
                 super();
@@ -108,7 +108,7 @@
             }
 
             static get is() {
-                return 'opencga-facet-view'
+                return 'opencga-facet-result-view'
             };
 
             static get properties() {
@@ -121,9 +121,6 @@
                     },
                     facetResult: {
                         type: Object,
-                    },
-                    active: {
-                        type: Boolean,
                     },
                     config: {
                         type: Object,
@@ -156,11 +153,11 @@
 
             static get observers() {
                 return [
-                    'renderFacets(facetResult, active, config)'
+                    'renderFacets(facetResult, config)'
                 ]
             }
 
-            renderFacets(e, active, conf) {
+            renderFacets(e, conf) {
                 this._config = Object.assign(this.getDefaultConfig(), this.config);
 
                 this.renderHistogramChart();
@@ -242,7 +239,7 @@
             renderPieChart(div, id) {
                 let params;
                 let renderDonut = false;
-                if (UtilsNew.isNotUndefined(this.facetResult) && UtilsNew.isNotUndefined(this.facetResult.buckets[0].facetFields)) {
+                if (UtilsNew.isNotUndefined(this.facetResult) && UtilsNew.isNotUndefined(this.facetResult.buckets[0].fields)) {
                     params = this._getDonutData(id);
                     renderDonut = true;
                 } else {
@@ -300,8 +297,8 @@
                 let params;
                 if (this.facetResult.start === undefined) {
                     let field = this.facetResult;
-                    let fields = field.name.split("-");
-                    let title = [];
+                    // let fields = field.name.split("-");
+                    // let title = [];
                     // if (fields.length > 1) {
                     //     for (let name of fields) {
                     //         title.push(this.fieldNamesMap[name]);
@@ -320,8 +317,8 @@
                     for (let i = 0; i < field.buckets.length; i++) {
                         let bucket = field.buckets[i];
                         obj.categories.push(bucket.value);
-                        if (UtilsNew.isNotEmptyArray(bucket.facetFields)) {
-                            let nestedField = bucket.facetFields[0];
+                        if (UtilsNew.isNotEmptyArray(bucket.fields)) {
+                            let nestedField = bucket.fields[0];
                             obj.nestedField = nestedField.name;
                             for (let nestedCountObj of nestedField.buckets) {
                                 if (UtilsNew.isUndefined(series[nestedCountObj.value])) {
@@ -380,16 +377,17 @@
                 return params;
             }
 
-            _getPieData(id) {
-                let field = this.facetResults[id];
+            _getPieData() {
+                let field = this.facetResult;
                 let pieData = {
                     name: field.name,
-                    title: this.fieldNamesMap[field.name],
+                    // title: this.fieldNamesMap[field.name],
+                    title: field.name,
                     series: []
                 };
                 let data = [];
-                for (let countObj of field.counts) {
-                    data.push({name: countObj.value, y: countObj.count});
+                for (let bucket of field.buckets) {
+                    data.push({name: bucket.value, y: bucket.count});
                 }
                 pieData.series.push({
                     name: field.name,
@@ -400,7 +398,7 @@
                 return pieData;
             }
 
-            _getDonutData(id) {
+            _getDonutData() {
                 let field = this.facetResult;
                 let fields = field.name.split("-");
                 let title = [];
@@ -421,19 +419,18 @@
                 let categories = [];
                 let data = [];
                 for (let i = 0; i < field.buckets.length; i++) {
-                    let fieldObj = field.buckets[i];
-                    debugger
+                    let bucket = field.buckets[i];
 
-                    categories.push(fieldObj.value);
-                    let subField = fieldObj.field;
+                    categories.push(bucket.value);
+                    let subField = bucket.fields;
                     let subCategories = [];
                     let subData = [];
-                    for (let countObj of subField.counts) {
-                        subCategories.push(countObj.value);
-                        subData.push(countObj.count);
+                    for (let bucket of subField[0].buckets) {
+                        subCategories.push(bucket.value);
+                        subData.push(bucket.count);
                     }
                     data.push({
-                        y: fieldObj.count,
+                        y: bucket.count,
                         color: colors[i],
                         drilldown: {
                             name: subField.name,
@@ -502,6 +499,6 @@
             }
         }
 
-        customElements.define(OpencgaFacetView.is, OpencgaFacetView);
+        customElements.define(OpencgaFacetResultView.is, OpencgaFacetResultView);
     </script>
 </dom-module>
