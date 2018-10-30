@@ -19,6 +19,7 @@
 <link rel="import" href="../../opencga-active-filters.html">
 <link rel="import" href="../variableSets/opencga-annotation-comparator.html">
 <link rel="import" href="../variableSets/opencga-annotation-viewer.html">
+<link rel="import" href="../../commons/opencga-facet-view.html">
 
 <dom-module id="opencga-cohort-browser">
     <template>
@@ -114,8 +115,9 @@
 
                     </div>
 
-                    <div id="{{prefix}}SummaryStats" class="cohort-browser-view-content" style="display: none">
-                        <span>Work in progress</span>
+                    <div id="{{prefix}}SummaryStats" class="cohort-browser-view-content" style="display: none;" >
+                        <opencga-facet-view opencga-session="{{opencgaSession}}" entity="COHORT"
+                            variable-sets="[[variableSets]]"></opencga-facet-view>
                     </div>
 
                     <div id="{{prefix}}CohortComparator" class="cohort-browser-view-content" style="display: none">
@@ -197,7 +199,7 @@
             }
 
             static get observers() {
-                return ['calculateFilters(filteredVariables.variables.*)', 'cohortObserver(cohorts.*)'];
+                return ['filterAvailableVariableSets(opencgaSession, config)', 'cohortObserver(cohorts.*)'];
             }
 
             configObserver() {
@@ -229,6 +231,20 @@
 
                 this.sampleSearch = {
                     id: sampleList.join(",")
+                }
+            }
+
+            filterAvailableVariableSets(opencgaSession, config) {
+                if (this._config.variableSetIds.length === 0) {
+                    this.variableSets = opencgaSession.study.variableSets;
+                } else {
+                    let variableSets = [];
+                    for (let i = 0; i < opencgaSession.study.variableSets.length; i++) {
+                        if (this._config.variableSetIds.indexOf(opencgaSession.study.variableSets[i].id) !== -1) {
+                            variableSets.push(opencgaSession.study.variableSets[i]);
+                        }
+                    }
+                    this.variableSets = variableSets;
                 }
             }
 
@@ -271,7 +287,8 @@
                         multiselection: true,
                         pageSize: 5,
                         pageList: [5, 10]
-                    }
+                    },
+                    variableSetIds: []
                 };
             }
         }
