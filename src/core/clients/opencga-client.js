@@ -753,6 +753,10 @@ class Files extends Acls {
         return this.get("files", undefined, "search", params, options);
     }
 
+    stats(params, options) {
+        return this.get("files", undefined, "stats", params, options);
+    }
+
     link(params, options) {
         return this.get("files", undefined, "link", params, options);
     }
@@ -877,6 +881,10 @@ class Individuals extends Acls {
         return this.get("individuals", undefined, "search", params, options);
     }
 
+    stats(params, options) {
+        return this.get("individuals", undefined, "stats", params, options);
+    }
+
     info(id, params, options) {
         return this.get("individuals", id, "info", params, options);
     }
@@ -913,6 +921,10 @@ class Families extends Acls {
         return this.get("families", undefined, "search", params, options);
     }
 
+    stats(params, options) {
+        return this.get("families", undefined, "stats", params, options);
+    }
+
     info(id, params, options) {
         return this.get("families", id, "info", params, options);
     }
@@ -943,6 +955,10 @@ class Samples extends Acls {
 
     search(params, options) {
         return this.get("samples", undefined, "search", params, options);
+    }
+
+    stats(params, options) {
+        return this.get("samples", undefined, "stats", params, options);
     }
 
     groupBy(params, options) {
@@ -1017,8 +1033,8 @@ class Cohorts extends Acls {
         return this.post("cohorts", undefined, "create", params, body, options);
     }
 
-    stats(id, params, options) {
-        return this.get("cohorts", id, "stats", params, options);
+    stats(params, options) {
+        return this.get("cohorts", undefined, "stats", params, options);
     }
 
     search(params, options) {
