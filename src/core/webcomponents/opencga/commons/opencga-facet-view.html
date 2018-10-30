@@ -348,21 +348,188 @@
                             tags: "numSamples"
                         }]);
                     case "FILE":
-                        return [{
-
-                        }];
+                        return catalogCommon.concat([{
+                            id: "name",
+                            name: "Name",
+                            disabled: false,
+                            margin: this._config.variableSelector.marginLeft,
+                            cursor: "pointer",
+                            tags: "name"
+                        }, {
+                            id: "type",
+                            name: "Type",
+                            disabled: false,
+                            margin: this._config.variableSelector.marginLeft,
+                            cursor: "pointer",
+                            tags: "type"
+                        }, {
+                            id: "format",
+                            name: "Format",
+                            disabled: false,
+                            margin: this._config.variableSelector.marginLeft,
+                            cursor: "pointer",
+                            tags: "format"
+                        }, {
+                            id: "bioformat",
+                            name: "Bioformat",
+                            disabled: false,
+                            margin: this._config.variableSelector.marginLeft,
+                            cursor: "pointer",
+                            tags: "bioformat"
+                        }, {
+                            id: "external",
+                            name: "External",
+                            disabled: false,
+                            margin: this._config.variableSelector.marginLeft,
+                            cursor: "pointer",
+                            tags: "external"
+                        }, {
+                            id: "size",
+                            name: "Size",
+                            disabled: false,
+                            margin: this._config.variableSelector.marginLeft,
+                            cursor: "pointer",
+                            tags: "size"
+                        }, {
+                            id: "numSamples",
+                            name: "Number of samples",
+                            disabled: false,
+                            margin: this._config.variableSelector.marginLeft,
+                            cursor: "pointer",
+                            tags: "numSamples"
+                        }, {
+                            id: "numRelatedFiles",
+                            name: "Number of related files",
+                            disabled: false,
+                            margin: this._config.variableSelector.marginLeft,
+                            cursor: "pointer",
+                            tags: "numRelatedFiles"
+                        }]);
                     case "SAMPLE":
-                        return [{
-
-                        }];
+                        return catalogCommon.concat([{
+                            id: "somatic",
+                            name: "Somatic",
+                            disabled: false,
+                            margin: this._config.variableSelector.marginLeft,
+                            cursor: "pointer",
+                            tags: "somatic"
+                        }, {
+                            id: "version",
+                            name: "Version",
+                            disabled: false,
+                            margin: this._config.variableSelector.marginLeft,
+                            cursor: "pointer",
+                            tags: "version"
+                        }]);
                     case "INDIVIDUAL":
-                        return [{
-
-                        }];
+                        return catalogCommon.concat([{
+                            id: "hasFather",
+                            name: "Has father",
+                            disabled: false,
+                            margin: this._config.variableSelector.marginLeft,
+                            cursor: "pointer",
+                            tags: "hasFather"
+                        }, {
+                            id: "hasMother",
+                            name: "Has mother",
+                            disabled: false,
+                            margin: this._config.variableSelector.marginLeft,
+                            cursor: "pointer",
+                            tags: "hasMother"
+                        }, {
+                            id: "numMultiples",
+                            name: "Number of multiples",
+                            disabled: false,
+                            margin: this._config.variableSelector.marginLeft,
+                            cursor: "pointer",
+                            tags: "numMultiples"
+                        }, {
+                            id: "multiplesType",
+                            name: "Multiples type",
+                            disabled: false,
+                            margin: this._config.variableSelector.marginLeft,
+                            cursor: "pointer",
+                            tags: "multiplesType"
+                        }, {
+                            id: "sex",
+                            name: "Sex",
+                            disabled: false,
+                            margin: this._config.variableSelector.marginLeft,
+                            cursor: "pointer",
+                            tags: "sex"
+                        }, {
+                            id: "karyotypicSex",
+                            name: "Karyotypic sex",
+                            disabled: false,
+                            margin: this._config.variableSelector.marginLeft,
+                            cursor: "pointer",
+                            tags: "karyotypicSex"
+                        }, {
+                            id: "version",
+                            name: "Version",
+                            disabled: false,
+                            margin: this._config.variableSelector.marginLeft,
+                            cursor: "pointer",
+                            tags: "version"
+                        }, {
+                            id: "lifeStatus",
+                            name: "Life status",
+                            disabled: false,
+                            margin: this._config.variableSelector.marginLeft,
+                            cursor: "pointer",
+                            tags: "lifeStatus"
+                        }, {
+                            id: "affectationStatus",
+                            name: "Affectation status",
+                            disabled: false,
+                            margin: this._config.variableSelector.marginLeft,
+                            cursor: "pointer",
+                            tags: "affectationStatus"
+                        }, {
+                            id: "numSamples",
+                            name: "Number of samples",
+                            disabled: false,
+                            margin: this._config.variableSelector.marginLeft,
+                            cursor: "pointer",
+                            tags: "numSamples"
+                        }, {
+                            id: "parentalConsanguinity",
+                            name: "Parental consanguinity",
+                            disabled: false,
+                            margin: this._config.variableSelector.marginLeft,
+                            cursor: "pointer",
+                            tags: "parentalConsanguinity"
+                        }]);
                     case "FAMILY":
-                        return [{
-
-                        }];
+                        return catalogCommon.concat([{
+                            id: "phenotypes",
+                            name: "Phenotypes",
+                            disabled: false,
+                            margin: this._config.variableSelector.marginLeft,
+                            cursor: "pointer",
+                            tags: "phenotypes"
+                        }, {
+                            id: "numMembers",
+                            name: "Number of members",
+                            disabled: false,
+                            margin: this._config.variableSelector.marginLeft,
+                            cursor: "pointer",
+                            tags: "numMembers"
+                        }, {
+                            id: "expectedSize",
+                            name: "Expected size",
+                            disabled: false,
+                            margin: this._config.variableSelector.marginLeft,
+                            cursor: "pointer",
+                            tags: "expectedSize"
+                        }, {
+                            id: "version",
+                            name: "Version",
+                            disabled: false,
+                            margin: this._config.variableSelector.marginLeft,
+                            cursor: "pointer",
+                            tags: "version"
+                        }]);
                     default:
                         return [{}];
                 }
@@ -553,7 +720,7 @@
                         marginLeft: 25,
                         marginStep: 15
                     },
-                    defaultStats: ["creationYear>>creationMonth", "status", "numSamples"]
+                    defaultStats: ["creationYear>>creationMonth", "status"]
                 }
             }
         }

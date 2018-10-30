@@ -142,6 +142,10 @@
 
                 if (e.target.id === `${this.prefix}-value-select`) {
                     input.value = e.target.selectedOptions[0].dataset.value;
+                } else {
+                    if (UtilsNew.isNotEmpty(e.target.selectedOptions[0].dataVariable.default)) {
+                        input.value = e.target.selectedOptions[0].dataVariable.default;
+                    }
                 }
 
                 this.dispatchEvent(new CustomEvent('variablechange', {

@@ -18,6 +18,7 @@
 <link rel="import" href="opencga-sample-grid.html">
 <link rel="import" href="../../opencga-active-filters.html">
 <link rel="import" href="../variableSets/opencga-annotation-comparator.html">
+<link rel="import" href="../../commons/opencga-facet-view.html">
 
 <dom-module id="opencga-sample-browser">
     <template>
@@ -106,7 +107,8 @@
                     </div>
 
                     <div id="{{prefix}}SummaryStats" class="sample-browser-view-content" style="display: none">
-                        <span>Work in progress</span>
+                        <opencga-facet-view opencga-session="{{opencgaSession}}" entity="SAMPLE"
+                                            variable-sets="[[variableSets]]"></opencga-facet-view>
                     </div>
 
                     <div id="{{prefix}}SampleComparator" class="sample-browser-view-content" style="display: none">
@@ -187,7 +189,7 @@
             }
 
             static get observers() {
-                return ['calculateFilters(filteredVariables.variables.*)', 'sampleObserver(samples.*)'];
+                return ['filterAvailableVariableSets(opencgaSession, config)', 'sampleObserver(samples.*)'];
             }
 
             configObserver() {
@@ -236,6 +238,20 @@
                 }
             }
 
+            filterAvailableVariableSets(opencgaSession, config) {
+                if (this._config.variableSetIds.length === 0) {
+                    this.variableSets = opencgaSession.study.variableSets;
+                } else {
+                    let variableSets = [];
+                    for (let i = 0; i < opencgaSession.study.variableSets.length; i++) {
+                        if (this._config.variableSetIds.indexOf(opencgaSession.study.variableSets[i].id) !== -1) {
+                            variableSets.push(opencgaSession.study.variableSets[i]);
+                        }
+                    }
+                    this.variableSets = variableSets;
+                }
+            }
+
             executeFacet() {
 
             }
@@ -258,7 +274,8 @@
                     },
                     sampleDetail: {
                         showTitle: false
-                    }
+                    },
+                    variableSetIds: []
                 };
             }
         }
