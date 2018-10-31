@@ -135,6 +135,9 @@
                 // Deselect any item selected
                 $(`#${this.prefix}-value-select`).selectpicker('val', '');
                 $(`#${this.prefix}-term-select`).selectpicker('val', '');
+
+                // Remove span with text from one of the select pickers so it only shows the caret and not the text
+                $(`button[data-id=${this.prefix}-value-select]`)[0].firstElementChild.remove();
             }
 
             onSelectedItemChange(e) {
