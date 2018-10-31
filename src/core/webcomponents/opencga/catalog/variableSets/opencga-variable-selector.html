@@ -64,15 +64,13 @@
             static get properties() {
                 return {
                     variableSet: {
-                        type: Array,
-                        observer: "variableSetObserver"
+                        type: Array
                     },
                     selected: {
                         type: Array
                     },
                     config: {
-                        type: Object,
-                        observer: "configObserver"
+                        type: Object
                     }
                 }
             }
@@ -87,6 +85,12 @@
                 this.variables = [];
 
                 this._config = this.getDefaultConfig();
+            }
+
+            static get observers() {
+                return [
+                    'onVariableSetConfigChange(variableSet, config)'
+                ]
             }
 
             connectedCallback() {
@@ -109,77 +113,17 @@
                 }
             }
 
-            configObserver() {
-                this._config = Object.assign({}, this.getDefaultConfig(), this.config);
-            }
+            onVariableSetConfigChange(variableSet, config) {
+                this._config = Object.assign({}, this.getDefaultConfig(), config);
 
-            variableSetObserver(variableSet) {
-                this.variables = this._parseVariableForDisplay(variableSet.variables, [], this._config.variableSelector.marginLeft);
+                let customConfig = {
+                    onlyAllowLeafSelection: this._config.onlyAllowLeafSelection
+                };
 
-                // if (!this._config.multiSelection) {
-                //     // Select first allowed variable by default
-                //     for (let variable of this.variables) {
-                //         if (!variable.disabled) {
-                //             $(`#${this.prefix}-annotation-picker`).find(".selectpicker").selectpicker('deselectAll');
-                //             this.dispatchEvent(new CustomEvent('variablechange', {
-                //                     detail: {
-                //                         value: [variable]
-                //                     }
-                //                 }
-                //             ));
-                //             return;
-                //         }
-                //     }
-                // }
-            }
-
-            _parseVariableForDisplay(variables, tags, margin) {
-                let displayVariables = [];
-
-                for (let i in variables) {
-                    let variable = variables[i];
-
-                    if (variable.type !== "OBJECT") {
-                        // let myTags = Array.from(new Set([variable.name, variable.title].concat(tags))).join(" ");
-
-                        // Add variable
-                        displayVariables.push({
-                            id: variable.id,
-                            name: UtilsNew.defaultString(variable.name, variable.id),
-                            category: variable.category,
-                            type: variable.type,
-                            defaultValue: variable.defaultValue,
-                            multiValue: variable.multiValue,
-                            allowedValues: variable.allowedValues,
-                            disabled: false,
-                            margin: margin,
-                            cursor: "pointer",
-
-                            tags: tags.concat(variable.id).join(".")
-                        });
-                    } else {
-                        // Add variable
-                        displayVariables.push({
-                            id: variable.id,
-                            name: UtilsNew.defaultString(variable.name, variable.id),
-                            category: variable.category,
-                            type: variable.type,
-                            defaultValue: variable.defaultValue,
-                            multiValue: variable.multiValue,
-                            allowedValues: variable.allowedValues,
-                            disabled: this._config.onlyAllowLeafSelection,
-                            margin: margin,
-                            cursor: this._config.onlyAllowLeafSelection ? "default" : "pointer",
-                            // tags: myTags
-                            tags: tags.concat(variable.id).join(".")
-                        });
-
-                        displayVariables = displayVariables.concat(this._parseVariableForDisplay(variable.variableSet,
-                            // [variable.name, variable.title].concat(tags), margin + this._config.variableSelector.marginStep));
-                            tags.concat(variable.id), margin + this._config.variableSelector.marginStep));
-                    }
+                if (UtilsNew.isNotUndefinedOrNull(variableSet)) {
+                    this.variables = CatalogUIUtils.parseVariableSetVariablesForDisplay(variableSet.variables, [], 25,
+                        customConfig);
                 }
-                return displayVariables;
             }
 
             renderDomRepeat(e) {
@@ -221,12 +165,7 @@
 
                     class: "small",
                     buttonClass: "btn-sm",
-                    inputClass: "input-sm",
-
-                    variableSelector: {
-                        marginLeft: 20,
-                        marginStep: 15
-                    },
+                    inputClass: "input-sm"
                 }
             }
         }

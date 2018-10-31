@@ -204,30 +204,45 @@
                 picker.selectpicker("refresh");
             }
 
-            renderSelector(terms, variableSets) {
-                this.generateShownTerms(terms, variableSets);
+            applyRenderFilters(fields) {
+                if (UtilsNew.isUndefinedOrNull(fields) || fields.length === 0) {
+                    return fields;
+                }
+                let myFields = [];
+                for (let i = 0; i < fields.length; i++) {
+                    let field = Object.assign({}, fields[i]);
+                    field["disabled"] = false;
+                    field["margin"] = 25;
+                    field["cursor"] = "pointer";
+                    field["tags"] = field.id;
+
+                    myFields.push(field);
+                }
+
+                return myFields;
             }
 
-            generateShownTerms(terms, variableSets) {
+            renderSelector(fields, variableSets) {
+                let myFields = this.applyRenderFilters(fields);
 
                 let showTerms = [];
                 showTerms.push({
                     name: "Data model",
-                    values: terms
+                    values: myFields
                 });
 
                 if (typeof variableSets !== "undefined" && variableSets.length > 0) {
                     for (let i = 0; i < variableSets.length; i++) {
                         showTerms.push({
                             name: variableSets[i].id,
-                            values: variableSets[i].variables
+                            values: CatalogUIUtils.parseVariableSetVariablesForDisplay(variableSets[i].variables,
+                                ["annotation"], 25)
                         });
                     }
                 }
 
                 this.showTerms = showTerms;
             }
-
         }
 
         customElements.define(OpencgaFacetViewSelector.is, OpencgaFacetViewSelector);
