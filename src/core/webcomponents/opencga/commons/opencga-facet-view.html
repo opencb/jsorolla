@@ -48,12 +48,12 @@
                 <div class="col-md-12">
                     <h4 style="padding: 20px 0px 5px 0px">Select Custom Aggregation Fields</h4>
                     <div class="col-md-5" style="padding: 0px 30px 0px 10px">
-                        <opencga-facet-view-selector id="{{prefix}}-ofvs-first" terms="{{dataModelTerms}}" variable-sets="{{processedVariableSets}}"
+                        <opencga-facet-view-selector id="{{prefix}}-ofvs-first" terms="{{dataModelTerms}}" variable-sets="[[variableSets]]"
                                                      on-variablechange="onVariableSelectedChange" clear$="{{clearSelectedOptions}}">
                         </opencga-facet-view-selector>
                     </div>
                     <div class="col-md-5" style="padding: 0px 10px 0px 30px">
-                        <opencga-facet-view-selector id="{{prefix}}-ofvs-nested" terms="{{dataModelTerms}}" variable-sets="{{processedVariableSets}}"
+                        <opencga-facet-view-selector id="{{prefix}}-ofvs-nested" terms="{{dataModelTerms}}" variable-sets="[[variableSets]]"
                                                      on-variablechange="onVariableSelectedChange" clear$="{{clearSelectedOptions}}"
                                                      disabled$="{{disableNestedSelector}}">
                         </opencga-facet-view-selector>
@@ -400,7 +400,7 @@
             addFacet(e) {
                 let facetField = this._firstVariable.term;
 
-                if (typeof facetField !== "undefined") {
+                if (UtilsNew.isNotEmpty(facetField)) {
                     let facetFieldIncludes = this._firstVariable.value;
 
                     let facet;
@@ -411,7 +411,7 @@
                     }
 
                     let nestedFacetField = this._secondVariable.term;
-                    if (!this.disableNestedSelector && typeof nestedFacetField !== "undefined") {
+                    if (!this.disableNestedSelector && UtilsNew.isNotEmpty(nestedFacetField)) {
                         let nestedFacetFieldIncludes = this._secondVariable.value;
 
                         let nestedFacet;

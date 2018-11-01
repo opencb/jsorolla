@@ -151,9 +151,11 @@
                     }
                 }
 
+                let term = $(`#${this.prefix}-term-select`)[0].selectedOptions[0];
+
                 this.dispatchEvent(new CustomEvent('variablechange', {
                         detail: {
-                            term: $(`#${this.prefix}-term-select`)[0].selectedOptions[0].dataVariable.tags,
+                            term: UtilsNew.isNotUndefinedOrNull(term) ? term.dataVariable.tags : "",
                             value: input.value
                         }
                     }
@@ -166,9 +168,11 @@
                 // Deselect any item selected
                 $(`#${this.prefix}-value-select`).selectpicker('val', '');
 
+                let term = $(`#${this.prefix}-term-select`)[0].selectedOptions[0];
+
                 this.dispatchEvent(new CustomEvent('variablechange', {
                         detail: {
-                            term: $(`#${this.prefix}-term-select`)[0].selectedOptions[0].dataVariable.tags,
+                            term: UtilsNew.isNotUndefinedOrNull(term) ? term.dataVariable.tags : "",
                             value: input.value
                         }
                     }
