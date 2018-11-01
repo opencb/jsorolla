@@ -133,6 +133,8 @@
                     }
                     opencgaHostUrl += '/webservices/rest/v1/samples/search';
 
+                    let skipCount = false;
+
                     let _table = $('#' + this.prefix + 'SampleBrowserGrid');
 
                     let _this = this;
@@ -153,6 +155,10 @@
                         detailFormatter: _this._config.detailFormatter,
 
                         queryParams: function (params) {
+                            if (this.pageNumber > 1) {
+                                skipCount = true;
+                            }
+
                             let auxParams = {
                                 study: _this.opencgaSession.study.fqn,
 //                                lazy: "false",
@@ -162,6 +168,7 @@
                                 limit: params.limit,
                                 skip: params.offset,
                                 includeIndividual: true,
+                                skipCount: skipCount,
                                 include: "id,creationDate,status,type,sex,version,release,individual.id,individual.sex,"
                                     + "individual.father,individual.mother,individual.phenotypes"
                             };
@@ -172,12 +179,14 @@
                             return Object.assign(filters, auxParams);
                         },
                         responseHandler: function (response) {
-                            if (!_this.hasOwnProperty("numTotalResults")) {
-                                _this.numTotalResults = 0;
-                            }
-                            if (_this.numTotalResults !== response.response[0].numTotalResults
-                                && response.queryOptions.skip === 0) {
-                                _this.numTotalResults = response.response[0].numTotalResults;
+                            if (!skipCount) {
+                                if (!_this.hasOwnProperty("numTotalResults")) {
+                                    _this.numTotalResults = 0;
+                                }
+                                if (_this.numTotalResults !== response.response[0].numTotalResults
+                                    && response.queryOptions.skip === 0) {
+                                    _this.numTotalResults = response.response[0].numTotalResults;
+                                }
                             }
 
                             _this.numTotalResultsText = _this.numTotalResults.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
