@@ -83,10 +83,9 @@
 
                         <div style="padding-top: 5px">
                             <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
-
                                 <li role="presentation" class="active">
                                     <a href="#{{prefix}}SampleViewer" role="tab" data-toggle="tab" class="detail-tab-title">
-                                        Sample info
+                                        Sample Info
                                     </a>
                                 </li>
                             </ul>
@@ -112,7 +111,6 @@
                     </div>
 
                     <div id="{{prefix}}SampleComparator" class="sample-browser-view-content" style="display: none">
-
                         <opencga-sample-grid opencga-client="{{opencgaSession.opencgaClient}}"
                                              opencga-session="{{opencgaSession}}" config="[[_config.gridComparator]]"
                                              event-notify-name="[[eventNotifyName]]" samples="{{samples}}"

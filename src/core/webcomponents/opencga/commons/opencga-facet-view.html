@@ -30,76 +30,73 @@
             }
         </style>
 
-
         <!-- Facet Fields -->
+        <div class="row" style="padding: 0px 15px">
+            <div class="col-md-12 panel panel-default">
+                <h3>Select Aggregation Stats</h3>
 
-        <div class="row">
-            <template is="dom-if" if="{{isNotEmpty(_config.defaultStats)}}">
                 <div class="col-md-12">
-                    <h3>Default Stats</h3>
-                    <h4>Compute default stats <button type="button" class="btn btn-primary" on-click="addDefaultStats" style="cursor: pointer">Add</button></h4>
-
+                    <template is="dom-if" if="{{isNotEmpty(_config.defaultStats)}}">
+                        <h4 style="padding-top: 5px">Default Aggregation Stats</h4>
+                        <span style="padding-left: 10px">Add default aggregation stats</span>
+                        <span style="padding-left: 10px">
+                            <button type="button" class="btn btn-primary" on-click="addDefaultStats">Add</button>
+                        </span>
+                    </template>
                 </div>
-            </template>
 
-            <div class="col-md-12">
-                <h3>Fields</h3>
-
-                <div class="row">
-                    <div class="col-md-5" style="padding: 0px 30px 0px 20px">
+                <div class="col-md-12">
+                    <h4 style="padding: 20px 0px 5px 0px">Select Custom Aggregation Fields</h4>
+                    <div class="col-md-5" style="padding: 0px 30px 0px 10px">
                         <opencga-facet-view-selector id="{{prefix}}-ofvs-first" terms="{{dataModelTerms}}" variable-sets="{{processedVariableSets}}"
                                                      on-variablechange="onVariableSelectedChange" clear$="{{clearSelectedOptions}}">
                         </opencga-facet-view-selector>
                     </div>
-                    <div class="col-md-5" style="padding: 0px 20px 0px 30px">
+                    <div class="col-md-5" style="padding: 0px 10px 0px 30px">
                         <opencga-facet-view-selector id="{{prefix}}-ofvs-nested" terms="{{dataModelTerms}}" variable-sets="{{processedVariableSets}}"
                                                      on-variablechange="onVariableSelectedChange" clear$="{{clearSelectedOptions}}"
                                                      disabled$="{{disableNestedSelector}}">
                         </opencga-facet-view-selector>
                     </div>
 
-                    <div class="col-md-offset-1 col-md-1" style="padding-top: 25px">
+                    <div class="col-md-1" style="padding-top: 25px">
                         <button type="button" class="btn btn-primary" on-click="addFacet" style="cursor: pointer">Add</button>
                     </div>
-
                 </div>
-            </div>
 
-            <div class="col-md-12">
-                <div style="padding: 25px">
-                    <template is="dom-if" if="{{facetFilters.length}}">
-                        <span style="font-weight: bold; padding: 0px 20px">Selected Facets:</span>
-                        <template is="dom-repeat" items="{{facetFilters}}">
-                            <button type="button" class$="btn btn-warning btn-sm {{item}}" data-facet$="{{item}}"
-                                    on-click="removeFacet" on-mouseover="_onMouseOver" on-mouseout="_onMouseOut">
-                                {{item}}
-                            </button>
+                <div class="col-md-12">
+                    <div style="padding: 35px 10px 15px 25px">
+                        <template is="dom-if" if="{{facetFilters.length}}">
+                            <span style="font-weight: bold; padding-right: 10px">Selected Aggregation Fields:</span>
+                            <template is="dom-repeat" items="{{facetFilters}}">
+                                <button type="button" class$="btn btn-warning btn-sm {{item}}" data-facet$="{{item}}"
+                                        on-click="removeFacet" on-mouseover="_onMouseOver" on-mouseout="_onMouseOut">
+                                    {{item}}
+                                </button>
+                            </template>
                         </template>
-                    </template>
+                    </div>
+                </div>
+
+                <div class="col-md-10 col-md-offset-1">
+                    <div style="float: right; padding: 10px">
+                        <button type="button" class="btn btn-primary btn-lg" on-click="fetchData">Run</button>
+                    </div>
+
+                    <div style="float: right; padding: 10px">
+                        <button type="button" class="btn btn-primary btn-lg" on-click="clearAll">Clear</button>
+                    </div>
                 </div>
             </div>
-
-            <div class="col-md-8 col-md-offset-4">
-                <div style="float: right; padding: 0px 10px 10px 10px">
-                    <button type="button" class="btn btn-primary btn-lg" on-click="fetchData">Run</button>
-                </div>
-
-                <div style="float: right; padding: 0px 10px 10px 10px">
-                    <button type="button" class="btn btn-primary btn-lg" on-click="clearAll">Clear</button>
-                </div>
-            </div>
-
 
             <!-- RESULTS - Facet Plots -->
-            <h2>Results</h2>
-
+            <h3>Results</h3>
             <template is="dom-if" if="{{_showInitMessage}}">
-                <h3>No facet filters selected</h3>
+                <h4 style="padding-left: 20px">No aggregation fields selected.</h4>
             </template>
 
             <template is="dom-repeat" items="{{facetResults}}" id="facetResultsDiv">
                 <div style="padding: 20px">
-                    <h3>{{item.name}}</h3>
                     <h4>{{item.name}}</h4>
                     <opencga-facet-result-view facet-result="{{item}}" config="{{_config.result}}"></opencga-facet-result-view>
                 </div>
