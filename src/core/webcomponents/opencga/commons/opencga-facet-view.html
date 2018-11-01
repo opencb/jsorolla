@@ -188,6 +188,13 @@
                 this._config = Object.assign(this.getDefaultConfig(), this.config);
 
                 this.dataModelTerms = this.getDataModelTerms(entity);
+
+                // Take variableSets from the opencgaSession if it has not been passed
+                if (UtilsNew.isUndefinedOrNull(variableSets) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession)
+                    && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.study)
+                    && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.study.variableSets)) {
+                    this.variableSets = this.opencgaSession.study.variableSets;
+                }
             }
 
             onVariableSelectedChange(e) {
