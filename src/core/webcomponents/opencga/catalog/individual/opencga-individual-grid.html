@@ -14,16 +14,19 @@
   ~ limitations under the License.
   -->
 
-<!--<link rel="import" href="../../clinical/clinical-analysis-view.html">-->
+<link rel="import" href="../../../commons/opencb-grid-toolbar.html">
 
 <dom-module id="opencga-individual-grid">
     <template>
         <style include="jso-styles"></style>
-        <span>Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> individuals</span>
-        <table id="{{prefix}}tableIndividual"
-               data-icons-prefix="fa" data-icons="icons" data-show-refresh="true">
-            <thead style="background-color: #eee"></thead>
-        </table>
+
+        <opencb-grid-toolbar from="{{from}}" to="{{to}}" num-total-results-text="{{numTotalResultsText}}"></opencb-grid-toolbar>
+
+        <div id="{{prefix}}GridTableDiv" style="margin-top: 10px">
+            <table id="{{prefix}}IndividualBrowserGrid" style="cursor: pointer">
+                <thead style="background-color: #eee"></thead>
+            </table>
+        </div>
     </template>
 
     <script>
@@ -32,8 +35,8 @@
             constructor() {
                 super();
 
-                // Set status and init private properties
                 this._init();
+
             }
 
             static get is() {
@@ -43,27 +46,41 @@
             static get properties() {
                 return {
                     opencgaSession: {
-                        type: Object,
-                        observer: "renderTable"
-                    },
-                    opencgaClient: {
                         type: Object
                     },
-                    query: {
-                        type: Object,
-                        observer: "queryObserver"
+                    individuals: {
+                        type: Array,
+                        notify: true
                     },
-                    individual: {
-                        type: Object,
-                        observer: "individualObserver"
+                    search: {
+                        type: Object
                     },
                     config: {
-                        type: Object
+                        type: Object,
+                        observer: "configObserver"
                     },
-                    configValues: {
-                        type: Object
-                    }
                 }
+            }
+
+            static get observers() {
+                return ['renderTable(opencgaSession, search)'];
+            }
+
+            _init() {
+                this.prefix = "VarIndividualGrid" + Utils.randomString(6);
+
+                this._config = this.getDefaultConfig();
+            }
+
+            ready() {
+                super.ready();
+
+                this._initTableColumns();
+                this.dispatchEvent(new CustomEvent('clear', {detail: {}, bubbles: true, composed: true}));
+            }
+
+            configObserver() {
+                this._config = Object.assign(this.getDefaultConfig(), this.config);
             }
 
             _attachDom(dom) {
@@ -73,225 +90,367 @@
             connectedCallback() {
                 super.connectedCallback();
 
-                // Next code add an event to the blue plus symbol that expands the rows
-                let table = $('#' + this.prefix + 'tableIndividual');
-                let _this = this;
-                table.on('expand-row.bs.table', function (e, index, row, $detail) {
-                    let res = _this.detailFormatter(index, row);
-                    $detail.html(res);
-                });
+                this.table = PolymerUtils.getElementById(this.prefix + "IndividualBrowserGrid");
+                this.search = {};
 
-                // Now we render the table the first time and set _rendered as tru to avoid more than one render the first time
-
-                this.renderTable();
-                this._rendered = true;
             }
 
-            _init() {
-                this.prefix = "oig" + Utils.randomString(6);
+            renderTable(opencgaSession, search) {
+                this.opencgaClient = opencgaSession.opencgaClient;
 
-                this.defaultConfig = this.getDefaultConfig();
+                this.set('individuals', []);
 
-                window.icons = {
-                    refresh: 'fa-refresh',
-                    columns: 'fa-th',
-                    paginationSwitchDown: 'fa-caret-square-o-down',
-                    paginationSwitchUp: 'fa-caret-square-o-up',
-                    detailOpen: 'fa-plus',
-                    detailClose: 'fa-minus'
-                };
-            }
-
-            queryObserver() {
-                if (this._rendered) {
-                    this.renderTable();
-                }
-            }
-
-            renderTable() {
-                let _config = Object.assign(this.defaultConfig, this.config.grid);
+                let filters = Object.assign({}, this.search);
 
                 this.from = 1;
-                this.to = Math.max(UtilsNew.isNotUndefinedOrNull(this.query.limit) ? this.query.limit : 0, _config.pageSize);
+                this.to = 10;
 
-                let urlQueryParams = this._getUrlQueryParams();
-                let queryParams = urlQueryParams.queryParams;
-                let _numTotal = -1;
+                if (UtilsNew.isNotUndefined(this.opencgaClient) && UtilsNew.isNotUndefined(this.opencgaSession.study)
+                    && UtilsNew.isNotUndefined(this.opencgaSession.study.fqn)) {
+                    // Make a copy of the individuals (if they exist), we will use this private copy until it is assigned to this.individuals
+                    if (UtilsNew.isNotUndefined(this.individuals)) {
+                        this._individuals = this.individuals;
+                    } else {
+                        this._individuals = [];
+                    }
 
-                let _this = this;
-                $(PolymerUtils.getElementById(this.prefix + "tableIndividual")).bootstrapTable('destroy');
-                $(PolymerUtils.getElementById(this.prefix + "tableIndividual")).bootstrapTable({
-                    url: urlQueryParams.host,
-                    columns: _this._getTableColumns(),
-                    method: 'get',
-                    sidePagination: 'server',
+                    // Check that HTTP protocol is present and complete the URL
+                    let opencgaHostUrl = this.opencgaClient.getConfig().host;
+                    if (!opencgaHostUrl.startsWith("http://") && !opencgaHostUrl.startsWith("https://")) {
+                        opencgaHostUrl = 'http://' + opencgaHostUrl;
+                    }
+                    opencgaHostUrl += '/webservices/rest/v1/individuals/search';
 
-                    // Set table properties, these are read from config property
-                    pagination: _config.pagination,
-                    pageSize: _config.pageSize,
-                    pageList: _config.pageList,
+                    let skipCount = false;
 
-                    queryParams: function (params) {
-                        if ((queryParams.limit === undefined || params.limit !== queryParams.limit) && UtilsNew.isNotUndefinedOrNull(params.limit)) {
-                            queryParams.limit = params.limit;
-                        }
-                        queryParams.skip = params.offset;
-                        return queryParams;
-                    },
-                    responseHandler: function (resp) {
-                        if (_numTotal === -1) {
-                            _numTotal = resp.response[0].numTotalResults;
-                        }
-                        // Format the number string with commas
-                        _this.numTotalResultsText = _numTotal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-                        return {total: _numTotal, rows: resp.response[0].result}
-                    },
-                    onLoadSuccess: function (data) {
-                        if (UtilsNew.isUndefinedOrNull(_this.analysis)) {
-                            // The first time we mark as selected the first row
-                            let _table = $('#' + _this.prefix + 'tableIndividual');
-                            if (UtilsNew.isNotUndefinedOrNull(_table) && data.total > 0) {
-                                _table.bootstrapTable('check', 0);
+                    let _table = $('#' + this.prefix + 'IndividualBrowserGrid');
+
+                    let _this = this;
+                    $("#" + this.prefix + 'IndividualBrowserGrid').bootstrapTable('destroy');
+                    $("#" + this.prefix + 'IndividualBrowserGrid').bootstrapTable({
+                        url: opencgaHostUrl,
+                        columns: _this._columns,
+                        method: 'get',
+                        sidePagination: 'server',
+                        uniqueId: "id",
+
+                        // Table properties
+                        pagination: _this._config.pagination,
+                        pageSize: _this._config.pageSize,
+                        pageList: _this._config.pageList,
+                        showExport: _this._config.showExport,
+                        detailView: _this._config.detailView,
+                        detailFormatter: _this._config.detailFormatter,
+
+                        queryParams: function (params) {
+                            if (this.pageNumber > 1) {
+                                skipCount = true;
                             }
-                        } else {
-                            // _this.analysisObserver();
+
+                            let auxParams = {
+                                study: _this.opencgaSession.study.fqn,
+//                                lazy: "false",
+                                sid: Cookies.get(_this.opencgaClient.getConfig().cookieSessionId),
+                                order: params.order,
+                                sort: params.sort,
+                                limit: params.limit,
+                                skip: params.offset,
+                                includeIndividual: true,
+                                skipCount: skipCount,
+                                include: "id,creationDate,status,uuids,sex,version,release,father,mother,population,"
+                                    + "dateOfBirth,modificationDate,lifeStatus,affectationStatus,phenotypes,samples,"
+                                    + "parentalConsanguinity,multiples"
+                            };
+
+                            if (UtilsNew.isUndefined(filters)) {
+                                filters = {};
+                            }
+                            return Object.assign(filters, auxParams);
+                        },
+                        responseHandler: function (response) {
+                            if (!skipCount) {
+                                if (!_this.hasOwnProperty("numTotalResults")) {
+                                    _this.numTotalResults = 0;
+                                }
+                                if (_this.numTotalResults !== response.response[0].numTotalResults
+                                    && response.queryOptions.skip === 0) {
+                                    _this.numTotalResults = response.response[0].numTotalResults;
+                                }
+                            }
+
+                            _this.numTotalResultsText = _this.numTotalResults.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+                            if(response.queryOptions.skip === 0 && _this.numTotalResults < response.queryOptions.limit){
+                                _this.from = 1;
+                                _this.to = _this.numTotalResults;
+                            }
+
+                            return {
+                                total: _this.numTotalResults,
+                                rows: response.response[0].result
+                            };
+                        },
+                        onClickRow: function (row, element, field) {
+                            if (_this._config.multiselection) {
+                                $(element).toggleClass('success');
+                                let index = element[0].getAttribute("data-index");
+                                // Check and uncheck actions trigger events that are captured below
+                                if ("selected" === element[0].className) {
+                                    $(PolymerUtils.getElementById(_this.prefix + 'IndividualBrowserGrid')).bootstrapTable('uncheck', index);
+                                } else {
+                                    $(PolymerUtils.getElementById(_this.prefix + "IndividualBrowserGrid")).bootstrapTable('check', index);
+                                }
+                            } else {
+                                $('.success').removeClass('success');
+                                $(element).addClass('success');
+                            }
+
+                            _this._onSelectIndividual(row);
+                        },
+                        onCheck: function (row, elem) {
+                            // check individual is not already selected
+                            for (let i in _this._individuals) {
+                                if (_this._individuals[i].id === row.id) {
+                                    return;
+                                }
+                            }
+
+                            // we add individuals to selected individuals
+                            _this.push("_individuals", row);
+                            _this.set('individuals', _this._individuals.slice());
+
+                        },
+                        onUncheck: function (row, elem) {
+                            let individualToDeleteIdx = -1;
+                            for (let i in _this.individuals) {
+                                if (_this.individuals[i].id === row.id) {
+                                    individualToDeleteIdx = i;
+                                    break;
+                                }
+                            }
+
+                            if (individualToDeleteIdx === -1) {
+                                return;
+                            }
+
+                            _this.splice('_individuals', individualToDeleteIdx, 1);
+                            _this.set('individuals', _this._individuals.slice());
+                        },
+                        onCheckAll: function (rows) {
+                            let newIndividuals = _this._individuals.slice();
+                            // check individual is not already selected
+                            rows.forEach((individual) => {
+                                let existsNewSelected = _this._individuals.some((individualSelected) => {
+                                    return individualSelected.id === individual.id;
+                                });
+
+                                if(!existsNewSelected) {
+                                    newIndividuals.push(individual);
+                                }
+                            });
+
+                            // we add individuals to selected individuals
+                            _this._individuals = newIndividuals;
+                            _this.set('individuals', newIndividuals.slice());
+
+                        },
+                        onUncheckAll: function (rows) {
+                            // check individual is not already selected
+                            rows.forEach((individual) => {
+                                _this._individuals = _this._individuals.filter((individualSelected) => {
+                                    return individualSelected.id !== individual.id;
+                                });
+
+                            });
+
+                            // we add individuals to selected individuals
+//                            _this.push("_individuals", row);
+                            _this.set('individuals', _this._individuals.slice());
+
+                        },
+                        onLoadSuccess: function (data) {
+                            // Check all already selected rows. Selected individuals are stored in this.individuals array
+                            if (UtilsNew.isNotUndefinedOrNull(_table)) {
+                                if (!_this._config.multiselection) {
+                                    PolymerUtils.querySelector(_table.selector).rows[1].setAttribute('class', 'success');
+                                    _this._onSelectIndividual(data.rows[0]);
+                                }
+
+                                if (_this.individuals !== "undefined") {
+                                    for (let idx in _this.individuals) {
+                                        for (let j in data.rows) {
+                                            if (_this.individuals[idx].id === data.rows[j].id) {
+                                                $(PolymerUtils.getElementById(_this.prefix + 'IndividualBrowserGrid')).bootstrapTable('check', j);
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+
+                        },
+                        onPageChange: function (page, size) {
+                            _this.from = (page - 1) * size + 1;
+                            _this.to = page * size;
+                        },
+//                         onPostBody: function() {
+//                             if(PolymerUtils.getElementsByClassName(_this.prefix + 'Download')) {
+//                                 PolymerUtils.querySelectorAll("." + _this.prefix + "Download").forEach(elem => elem.addEventListener("click", _this.downloadQCFile.bind(_this), true));
+//
+// //                                PolymerUtils.getElementById(_this.prefix + 'Download').addEventListener('click', _this.downloadQCFile.bind(_this));
+//                             }
+//                         }
+                    });
+
+                    this.opencgaClient.studies().info(this.opencgaSession.study.id)
+                        .then(function (response) {
+                            _this.variableSets = response.response[0].result[0].variableSets;
+                        })
+                        .catch(function () {
+                            console.log("Could not obtain the variable sets of the study " + _this.opencgaSession.study.id);
+                        });
+                } else {
+                    // Delete table
+                    $(PolymerUtils.getElementById(this.prefix + 'IndividualBrowserGrid')).bootstrapTable('destroy');
+                    this.numTotalResults = 0;
+                }
+            }
+
+            _onSelectIndividual(row) {
+                if (typeof row !== "undefined") {
+                    this.dispatchEvent(new CustomEvent('selectindividual', {detail: {id: row.id, individual: row}}));
+                }
+            }
+
+            stateFormatter(value, row, index) {
+                if (typeof this.field.context.individuals != "undefined") {
+                    for (let idx in this.field.context.individuals) {
+                        if (this.field.context.individuals[idx].name == row.name) {
+                            break;
                         }
-                    },
-                    onCheck: function (row, elem) {
-                        // _this.dispatchEvent(new CustomEvent("analysis-selected", {
-                        //     detail: row,
-                        //     bubbles: true,
-                        //     composed: true
-                        // }));
-                    },
-                    onPageChange: function (page, size) {
-                        _this.from = (page - 1) * size + 1;
-                        _this.to = page * size;
                     }
-                });
-            }
-
-            _getUrlQueryParams() {
-                // Check the opencgaClient exists
-                if (UtilsNew.isUndefinedOrNull(this.opencgaClient)) {
-                    return {host: "", queryParams: {}};
-                }
-
-                let host = this.opencgaClient.getConfig().host;
-                // By default we assume https protocol instead of http
-                if (!host.startsWith("https://") && !host.startsWith("http://")) {
-                    host = 'https://' + this.opencgaClient.getConfig().host;
-                }
-
-                if (typeof this.opencgaSession.project !== "undefined" && typeof this.opencgaSession.study.alias !== "undefined") {
-                    if (typeof this.query === "undefined") {
-                        this.query = {};
-                    }
-                    if (UtilsNew.isEmpty(this.query.studies) || this.query.studies.split(new RegExp("[,;]")).length === 1) {
-                        this.query.study = this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias;
-                    }
-                    host += '/webservices/rest/v1/individuals/search';
-                } else {
-                    return {host: host, queryParams: {}};
-                }
-
-                // Init queryParams with default and config values plus query object
-                let queryParams = Object.assign(
-                    {
-                        sid: this.opencgaClient._config.sessionId,
-                        include: "id,name,sex,karyotypicSex,ethnicity,lifeStatus,affectationStatus,creationDate",
-                        skipCount: false
-                    }, this.query);
-
-                return {host: host, queryParams: queryParams};
-            }
-
-            individualObserver() {
-                if (UtilsNew.isNotUndefinedOrNull(this.analysis)) {
-                    $('#' + this.prefix + 'tableIndividual').bootstrapTable("checkBy", {
-                        field: "name",
-                        values: [this.analysis.name]
-                    })
-                } else {
-                    $('#' + this.prefix + 'tableIndividual').bootstrapTable('check', 0);
                 }
             }
 
-            sampleFormatter(value, row, index) {
-                return row.subjects[0].samples[0].name;
-            }
-
-            subjectFormatter(value, row, index) {
-                return row.subjects[0].name;
-            }
-
-            diseaseFormatter(value, row, index) {
-                return row.disease.name;
-            }
-
-            dateFormatter(value, row, index) {
+            dateFormatter(value, row) {
+                if (UtilsNew.isUndefinedOrNull(value)) {
+                    return "-";
+                }
                 return moment(value, "YYYYMMDDHHmmss").format('D MMM YYYY');
             }
 
-            ethnicityFormatter(value, row, index) {
-                debugger;
-                if (UtilsNew.isNotUndefinedOrNull(this.configValues) && UtilsNew.isNotUndefinedOrNull(this.configValues.ethnicity) && UtilsNew.isNotEmptyArray(this.configValues.ethnicity)) {
-
-                    let ethnicityExists =  this.configValues.ethnicity.find((eth) => {
-                        return eth.id == value;
-                    });
-
-                    if (UtilsNew.isNotUndefinedOrNull(ethnicityExists)) {
-                        return ethnicityExists.title;
-                    }
+            fatherFormatter(value, row) {
+                if (UtilsNew.isNotUndefined(row.attributes) && UtilsNew.isNotUndefined(row.attributes.individual)
+                    && UtilsNew.isNotUndefined(row.attributes.individual.father)
+                    && UtilsNew.isNotUndefined(row.attributes.individual.father.id)) {
+                    return row.attributes.individual.father.id;
+                } else {
+                    return '-';
                 }
-
-                return "-"
             }
 
-            _getTableColumns() {
-                return [
-                    [
-                        {   field: 'state',
-                            radio: true,
-                            align: 'center',
-                            valign: 'middle'
-                        },
+            motherFormatter(value, row) {
+                if (UtilsNew.isNotUndefined(row.attributes) && UtilsNew.isNotUndefined(row.attributes.individual)
+                    && UtilsNew.isNotUndefined(row.attributes.individual.mother)
+                    && UtilsNew.isNotUndefined(row.attributes.individual.mother.id)) {
+                    return row.attributes.individual.mother.id;
+                } else {
+                    return '-';
+                }
+            }
+
+            _initTableColumns() {
+                let columns = [];
+                if (this._config.multiselection) {
+                    columns.push({
+                        field: {source: 'state', context: this},
+                        checkbox: true,
+                        formatter: this.stateFormatter
+                    });
+                }
+
+                this._columns = [
+                    columns.concat([
                         {
-                            title: 'Name',
-                            field: 'name'
+                            title: 'Individual',
+                            field: 'id'
                         },
                         {
                             title: 'Sex',
                             field: 'sex'
                         },
                         {
-                            title: 'Ethnicity',
-                            field: 'ethnicity',
-                            formatter: this.ethnicityFormatter.bind(this)
-                        },
-                        {
-                            title: 'Karyotypic Sex',
+                            title: 'Karyotypic sex',
                             field: 'karyotypicSex'
                         },
                         {
-                            title: 'Life Status',
-                            field: 'lifeStatus'
+                            title: 'Date of birth',
+                            field: 'dateOfBirth',
+                            formatter: this.dateFormatter
                         },
                         {
-                            title: 'Affectation Status',
+                            title: 'Father',
+                            field: 'father.id',
+                            formatter: this.fatherFormatter
+                        },
+                        {
+                            title: 'Mother',
+                            field: 'mother.id',
+                            formatter: this.motherFormatter
+                        },
+                        {
+                            title: 'Parental consanguinity',
+                            field: 'parentalConsanguinity'
+                        },
+                        {
+                            title: 'Affectation status',
                             field: 'affectationStatus'
                         },
                         {
-                            title: 'Date',
+                            title: 'Life status',
+                            field: 'lifeStatus'
+                        },
+                        {
+                            title: 'Creation date',
                             field: 'creationDate',
                             formatter: this.dateFormatter
+                        },
+                        {
+                            title: 'Modification date',
+                            field: 'modificationDate',
+                            formatter: this.dateFormatter
+                        },
+                        {
+                            title: 'Status',
+                            field: 'status.name'
+                        },
+                        {
+                            title: 'Release',
+                            visible: false,
+                            field: 'release'
+                        },
+                        {
+                            title: 'Version',
+                            visible: false,
+                            field: 'version'
                         }
-                    ]
+                    ])
                 ];
+
+                return this._columns;
             }
+
             getDefaultConfig() {
-                return {pagination: true, pageSize: 10, pageList: [10,25]};
+                return {
+                    pagination: true,
+                    pageSize: 10,
+                    pageList: [10, 25, 50],
+                    showExport: false,
+                    detailView: false,
+                    detailFormatter: undefined, // function with the detail formatter
+                    multiselection: false
+                }
             }
         }
 

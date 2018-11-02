@@ -218,13 +218,13 @@
 
             _renderNewTable() {
                 let annotations = {};
-                for (let sample in this._annotations) {
-                    for (let i = 0; i < this._annotations[sample].length; i++) {
-                        if (this._annotations[sample][i]["variableSetId"] === this.selectedVariableSet.id) {
-                            if (!(sample in annotations)) {
-                                annotations[sample] = [];
+                for (let entry in this._annotations) {
+                    for (let i = 0; i < this._annotations[entry].length; i++) {
+                        if (this._annotations[entry][i]["variableSetId"] === this.selectedVariableSet.id) {
+                            if (!(entry in annotations)) {
+                                annotations[entry] = [];
                             }
-                            annotations[sample].push(this._annotations[sample][i]);
+                            annotations[entry].push(this._annotations[entry][i]);
                         }
                     }
                 }
@@ -351,21 +351,23 @@
                 if (typeof response !== "undefined") {
                     for (let i = 0; i < response.response.length; i++) {
                         for (let j = 0; j < response.response[i].result.length; j++) {
-                            let sample = response.response[i].result[j];
-                            this._annotations[sample.id] = sample.annotationSets;
+                            let entry = response.response[i].result[j];
+                            if (UtilsNew.isNotUndefinedOrNull(entry.annotationSets)) {
+                                this._annotations[entry.id] = entry.annotationSets;
+                            }
                         }
                     }
                 }
 
                 // Remove unselected samples
-                let selectedSamples = [];
+                let selectedEntries = [];
                 for (let i = 0; i < this.entryIds.length; i++) {
-                    selectedSamples.push(this.entryIds[i].id);
+                    selectedEntries.push(this.entryIds[i].id);
                 }
 
-                for (let sample in this._annotations) {
-                    if (selectedSamples.indexOf(sample) === -1) {
-                        delete this._annotations[sample];
+                for (let entry in this._annotations) {
+                    if (selectedEntries.indexOf(entry) === -1) {
+                        delete this._annotations[entry];
                     }
                 }
             }

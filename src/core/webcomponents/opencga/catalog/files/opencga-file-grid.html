@@ -109,7 +109,10 @@
                 this.set('files', []);
 
                 // We avoid listing directories in the grid
-                let filters = Object.assign({type: "FILE"}, this.search);
+                let filters = Object.assign({}, this.search);
+                if (Object.keys(filters).length === 0) {
+                    filters["type"] = "FILE";
+                }
 
                 this.from = 1;
                 this.to = 10;

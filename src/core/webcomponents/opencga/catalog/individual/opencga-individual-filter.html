@@ -13,116 +13,212 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+<link rel="import" href="../variableSets/opencga-annotation-filter.html">
+<link rel="import" href="../opencga-date-filter.html">
 
 <dom-module id="opencga-individual-filter">
     <template>
-        <style include="jso-styles"></style>
+        <style include="jso-styles">
 
-        <br>
+            span + span {
+                margin-left: 10px;
+            }
+
+            div.block {
+                overflow: hidden;
+            }
+
+            div.block label {
+                width: 80px;
+                display: block;
+                float: left;
+                text-align: left;
+                font-weight: normal;
+            }
+
+            select + select {
+                margin-left: 10px;
+            }
+
+            select + input {
+                margin-left: 10px;
+            }
+
+            .browser-subsection {
+                font-size: 1.35rem;
+                font-weight: bold;
+                padding: 5px 0px;
+                color: #444444;
+                border-bottom: 1px solid rgba(221, 221, 221, 0.8);
+            }
+
+            .subsection-content {
+                margin: 5px 5px;
+            }
+        </style>
+
         <div style="width: 60%;margin: 0 auto">
-            <button type="button" class="btn btn-primary" style="width: 100%" on-click="onSearchClick">
-                <i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px 0px 5px"></i>
-                Search
+            <button type="button" class="btn btn-lg btn-primary" style="width: 100%" on-click="onSearch">
+                <i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px"></i> Search
             </button>
         </div>
-        <br>
-        <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true">
-            <!-- Individual -->
+
+        <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true" style="padding-top: 20px">
+
+            <!-- Individual field attributes -->
             <div class="panel panel-default">
                 <div class="panel-heading" role="tab" id="{{prefix}}IndividualSelectionHeading">
                     <h4 class="panel-title">
                         <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                           href="#{{prefix}}IndividualSelection" aria-expanded="true"
-                           aria-controls="{{prefix}}IndividualSelection">
-                            Individual Selection
-                            <div style="float: right" class="tooltip-div">
-                                <a data-toggle="tooltip" title="Individual selection">
-                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                </a>
-                            </div>
+                           href="#{{prefix}}IndividualSelection" aria-expanded="true" aria-controls="{{prefix}}IndividualSelection">
+                            Individual
                         </a>
                     </h4>
                 </div>
+
                 <div id="{{prefix}}IndividualSelection" class="panel-collapse collapse in" role="tabpanel"
                      aria-labelledby="{{prefix}}IndividualSelectionHeading">
                     <div class="panel-body">
-                        <opencga-date-filter config="{{dateFilterConfig}}" on-datechanged="onDateChanged"></opencga-date-filter>
-                    </div>
-                </div>
-            </div>
-            <!-- Individual Characteristics -->
-            <div class="panel panel-default">
-                <div class="panel-heading" role="tab" id="{{prefix}}IndividualCharacteristicsHeading">
-                    <h4 class="panel-title">
-                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                           href="#{{prefix}}IndividualCharacteristics" aria-expanded="true"
-                           aria-controls="{{prefix}}IndividualCharacteristics">
-                            Individual Characteristics
-                            <div style="float: right" class="tooltip-div">
-                                <a data-toggle="tooltip" title="Individual Characteristics">
-                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                </a>
-                            </div>
-                        </a>
-                    </h4>
-                </div>
-                <div id="{{prefix}}IndividualCharacteristics" class="panel-collapse collapse in" role="tabpanel"
-                     aria-labelledby="{{prefix}}IndividualCharacteristicsHeading">
-                    <div class="panel-body">
+
                         <div class="form-group">
-                            <label>Individual ID</label>
-                            <input type="text" id="{{prefix}}analysisID" class$="form-control input-sm {{prefix}}FilterTextInput"
-                                   placeholder="Name, Name2 ..." on-keyup="updateQueryFilters">
-                            <label>Sex</label>
-                            <select type="text" id="{{prefix}}sex" class$="form-control {{prefix}}SelectInput codeDis input-sm"
-                                    on-change="updateQueryFilters" >
-                                <option value="">Select...</option>
-                                <option value="FEMALE">Female</option>
-                                <option value="MALE">Male</option>
-                            </select>
-                            <label>Karyotypic Sex</label>
-                            <select type="text" id="{{prefix}}karyotypicSex" class$="form-control {{prefix}}SelectInput codeDis input-sm"
-                                    on-change="updateQueryFilters" >
-                                <option value="">Select...</option>
-                                <template is="dom-repeat" items="{{karyotypics}}">
-                                    <option value="{{item.key}}">{{item.value}}</option>
-                                </template>
-                            </select>
-                            <label>Ethnicity</label>
-                            <select type="text" id="{{prefix}}ethnicity" class$="form-control {{prefix}}SelectInput codeDis input-sm"
-                                    on-change="updateQueryFilters" >
-                                <option value="">Select...</option>
-                                <template is="dom-repeat" items="{{ethnicities}}">
-                                    <option value="{{item.id}}">{{item.title}}</option>
-                                </template>
-                            </select>
-                            <label>Affectation Status</label>
-                            <select type="text" id="{{prefix}}affectationStatus" class$="form-control {{prefix}}SelectInput codeDis input-sm"
-                                    on-change="updateQueryFilters" >
-                                <option value="">Select...</option>
-                                <template is="dom-repeat" items="{{affectationStatus}}">
-                                    <option value="{{item.id}}">{{item.title}}</option>
-                                </template>
-                            </select>
-                            <label>Life Status</label>
-                            <select type="text" id="{{prefix}}lifeStatus" class$="form-control {{prefix}}SelectInput codeDis input-sm"
-                                    on-change="updateQueryFilters" >
-                                <option value="">Select...</option>
-                                <template is="dom-repeat" items="{{lifeStatus}}">
-                                    <option value="{{item.id}}">{{item.title}}</option>
-                                </template>
-                            </select>
+                            <div class="browser-subsection">Id
+                            </div>
+                            <div id="{{prefix}}-name" class="subsection-content form-group">
+                                <input type="text" id="{{prefix}}-individual-input" class$="form-control input-sm {{prefix}}FilterTextInput"
+                                       placeholder="LP-1234,LP-2345..." on-keyup="calculateFilters">
+                            </div>
                         </div>
+
+                        <div class="form-group">
+                            <div class="browser-subsection">Samples
+                            </div>
+                            <div id="{{prefix}}-sample" class="subsection-content form-group">
+                                <input type="text" id="{{prefix}}-sample-input" class$="form-control input-sm {{prefix}}FilterTextInput"
+                                       placeholder="HG01879, HG01880, HG01881..." on-keyup="calculateFilters">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="browser-subsection">Sex
+                            </div>
+                            <div id="{{prefix}}-individual-sex" class="subsection-content form-group">
+                                <select id="{{prefix}}-individual-sex-select" class="selectpicker" on-change="calculateFilters">
+                                    <option>MALE</option>
+                                    <option>FEMALE</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="browser-subsection">Karyotypic sex
+                            </div>
+                            <div id="{{prefix}}-individual-karyotypicsex" class="subsection-content form-group">
+                                <select id="{{prefix}}-individual-karyotypicsex-select" class="selectpicker" multiple
+                                        on-change="calculateFilters">
+                                    <option>UNKNOWN</option>
+                                    <option>XX</option>
+                                    <option>XY</option>
+                                    <option>XO</option>
+                                    <option>XXY</option>
+                                    <option>XXX</option>
+                                    <option>XXYY</option>
+                                    <option>XXXY</option>
+                                    <option>XXXX</option>
+                                    <option>XYY</option>
+                                    <option>OTHER</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="browser-subsection">Ethnicity
+                            </div>
+                            <div id="{{prefix}}-ethnicity" class="subsection-content form-group">
+                                <input type="text" id="{{prefix}}-ethnicity-input" class$="form-control input-sm {{prefix}}FilterTextInput"
+                                       placeholder="white caucasian,asiatic..." on-keyup="calculateFilters">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="browser-subsection">Affectation status
+                            </div>
+                            <div id="{{prefix}}-affectation-status" class="subsection-content form-group">
+                                <select id="{{prefix}}-affectation-status-select" class="selectpicker" multiple on-change="calculateFilters">
+                                    <option>CONTROL</option>
+                                    <option>AFFECTED</option>
+                                    <option>UNAFFECTED</option>
+                                    <option>UNKNOWN</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="browser-subsection">Life status
+                            </div>
+                            <div id="{{prefix}}-life-status" class="subsection-content form-group">
+                                <select id="{{prefix}}-life-status-select" class="selectpicker" multiple on-change="calculateFilters">
+                                    <option>ALIVE</option>
+                                    <option>ABORTED</option>
+                                    <option>DECEASED</option>
+                                    <option>UNBORN</option>
+                                    <option>STILLBORN</option>
+                                    <option>MISCARRIAGE</option>
+                                    <option>UNKNOWN</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="browser-subsection">Phenotypes
+                            </div>
+                            <div id="{{prefix}}-phenotypes" class="subsection-content form-group">
+                                <input type="text" id="{{prefix}}-phenotypes-input" class$="form-control input-sm {{prefix}}FilterTextInput"
+                                       placeholder="Full-text search, e.g. *melanoma*" on-keyup="calculateFilters">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="browser-subsection" id="{{prefix}}-annotationss">Individual annotations
+                                <div style="float: right" class="tooltip-div">
+                                    <a><i class="fa fa-info-circle" aria-hidden="true" id="{{prefix}}-annotations-tooltip"></i></a>
+                                </div>
+                            </div>
+                            <div id="{{prefix}}-annotations" class="subsection-content">
+                                <opencga-annotation-filter opencga-session="{{opencgaSession}}"
+                                                           opencga-client="{{opencgaClient}}"
+                                                           config="{{annotationFilterConfig}}"
+                                                           on-filterannotation="addAnnotation">
+                                </opencga-annotation-filter>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="browser-subsection" id="{{prefix}}-date">Date
+                                <div style="float: right" class="tooltip-div">
+                                    <a><i class="fa fa-info-circle" aria-hidden="true" id="{{prefix}}-date-tooltip"></i></a>
+                                </div>
+                            </div>
+                            <div id="{{prefix}}-date-content" class="subsection-content">
+                                <opencga-date-filter config="{{dateFilterConfig}}" on-datechanged="onDateChanged"></opencga-date-filter>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
+
         </div>
+
     </template>
+
     <script>
+
         class OpencgaIndividualFilter extends Polymer.Element {
 
             constructor() {
                 super();
+
+                // this.prefix = "VarIndividualFilter-" + Utils.randomString(6);
                 this._init();
             }
 
@@ -132,14 +228,39 @@
 
             static get properties() {
                 return {
+                    opencgaSession: {
+                        type: Object
+                    },
+                    opencgaClient: {
+                        type: Object
+                    },
+                    individuals: {
+                        type: Array,
+                        notify: true
+                    },
                     query: {
                         type: Object,
+                        value: {},
                         notify: true,
-                        observer: "queryObserver"
+                        observer: 'onQueryUpdate'
                     },
                     search: {
                         type: Object,
                         notify: true
+                    },
+                    variableSets: {
+                        type: Array
+                    },
+                    variables: {
+                        type: Array,
+                        observer: 'variablesChanged'
+                    },
+                    minYear: {
+                        type: Number,
+                        value: 1920
+                    },
+                    compact: {
+                        type: Boolean
                     },
                     config: {
                         type: Object
@@ -151,104 +272,50 @@
                 this.appendChild(dom);
             }
 
-            connectedCallback() {
-                super.connectedCallback();
-
-                // karyotypicSex
-                if (UtilsNew.isNotUndefinedOrNull(this.config.kariotypicSex) && UtilsNew.isNotUndefinedOrNull(this.config.kariotypicSex)
-                    && UtilsNew.isNotEmptyArray(this.config.kariotypicSex)) {
-                    this.karyotypics = this.config.kariotypicSex.map((karyotypic) => {
-                        return {key: karyotypic, value: karyotypic};
-                    });
-                }
-
-                //Ethnicity
-                if (UtilsNew.isNotUndefinedOrNull(this.config.ethnicity) && UtilsNew.isNotUndefinedOrNull(this.config.ethnicity)
-                    && UtilsNew.isNotEmptyArray(this.config.ethnicity)) {
-                    this.ethnicities = this.config.ethnicity;
-                }
-
-                // affectationStatus
-                if (UtilsNew.isNotUndefinedOrNull(this.config.status) && UtilsNew.isNotUndefinedOrNull(this.config.status)
-                    && UtilsNew.isNotEmptyArray(this.config.status)) {
-                    this.affectationStatus = this.config.status;
-                }
-
-                // life_status
-                if (UtilsNew.isNotUndefinedOrNull(this.config.life_status) && UtilsNew.isNotUndefinedOrNull(this.config.life_status)
-                    && UtilsNew.isNotEmptyArray(this.config.life_status)) {
-                    this.lifeStatus = this.config.life_status;
-                }
-            }
-
             _init() {
-                this.prefix = "indFilter" + Utils.randomString(6);
+                // super.ready();
+                this.prefix = "osf-" + Utils.randomString(6);
+
+                this.annotationFilterConfig = {
+                    class: "small",
+                    buttonClass: "btn-sm",
+                    inputClass: "input-sm"
+                };
+
                 this.dateFilterConfig = {
                     recentDays: 10
                 };
-                this._reset = true;
             }
 
-            queryObserver() {
-                if (this._reset) {
-                    this.setQueryFilters();
-                } else {
-                    this._reset = true;
+            connectedCallback() {
+                super.connectedCallback();
+
+                // Deselect any item selected
+                $(`#${this.prefix}-individual-sex-select`).selectpicker('val', '');
+            }
+
+            onSearch() {
+                this.search = Object.assign({}, this.query);
+            }
+
+            addAnnotation(e) {
+                if (typeof this._annotationFilter === "undefined") {
+                    this._annotationFilter = {};
                 }
-            }
+                let split = e.detail.value.split("=");
+                this._annotationFilter[split[0]] = split[1];
 
-            setQueryFilters() {
-                this._clearHtmlDom();
-                // TODO implement set query filters one day
-            }
-
-            updateQueryFilters() {
                 let _query = {};
-
-                let analysisID = PolymerUtils.getElementById(this.prefix + "analysisID").value;
-                let sex = PolymerUtils.getElementById(this.prefix + "sex").value;
-                let karyotypicSex = PolymerUtils.getElementById(this.prefix + "karyotypicSex").value;
-                let ethnicity = PolymerUtils.getElementById(this.prefix + "ethnicity").value;
-                let affectationStatus = PolymerUtils.getElementById(this.prefix + "affectationStatus").value;
-                let lifeStatus = PolymerUtils.getElementById(this.prefix + "lifeStatus").value;
-
-                if (UtilsNew.isNotEmpty(analysisID)) {
-                    _query.name = analysisID;
+                Object.assign(_query, this.query);
+                let annotations = [];
+                for (let key in this._annotationFilter) {
+                    annotations.push(`${key}=${this._annotationFilter[key]}`)
                 }
-
-                if (UtilsNew.isNotEmpty(sex)) {
-                    _query.sex = sex;
-                }
-
-                if (UtilsNew.isNotEmpty(karyotypicSex)) {
-                    _query.karyotypicSex = karyotypicSex;
-                }
-
-                if (UtilsNew.isNotEmpty(ethnicity)) {
-                    _query.ethnicity = ethnicity;
-                }
-
-                if (UtilsNew.isNotEmpty(affectationStatus)) {
-                    _query.affectationStatus = affectationStatus;
-                }
-
-                if (UtilsNew.isNotEmpty(lifeStatus)) {
-                    _query.lifeStatus = lifeStatus;
-                }
+                _query['annotation'] = annotations.join(";");
 
                 this._reset = false;
-                this.query = _query;
+                this.set("query", _query);
                 this._reset = true;
-            }
-
-          
-
-            onSearchClick() {
-                this.dispatchEvent(new CustomEvent("search", {
-                    detail: {query: this.query},
-                    bubbles: true,
-                    composed: true
-                }));
             }
 
             onDateChanged(e) {
@@ -265,15 +332,132 @@
                 this._reset = true;
             }
 
+            onQueryUpdate() {
+                if (this._reset) {
+                    console.log("onQueryUpdate: calling to 'renderQueryFilters()'");
+                    this.renderQueryFilters();
+                } else {
+                    this._reset = true;
+                }
+            }
+
+            renderQueryFilters() {
+                // Empty everything before rendering
+                this._clearHtmlDom();
+
+                // Individual
+                if (UtilsNew.isNotUndefined(this.query.id)) {
+                    PolymerUtils.setValue(`${this.prefix}-individual-input`, this.query.id);
+                }
+
+                // Samples
+                if (UtilsNew.isNotUndefined(this.query.samples)) {
+                    PolymerUtils.setValue(`${this.prefix}-sample-input`, this.query.samples);
+                }
+
+                // Phenotypes
+                if (UtilsNew.isNotUndefined(this.query.phenotypes)) {
+                    PolymerUtils.setValue(`${this.prefix}-phenotypes-input`, this.query.phenotypes);
+                }
+
+                // Ethnicity
+                if (UtilsNew.isNotUndefined(this.query.ethnicity)) {
+                    PolymerUtils.setValue(`${this.prefix}-ethnicity-input`, this.query.ethnicity);
+                }
+
+                // Sex
+                if (UtilsNew.isNotUndefined(this.query.sex)) {
+                    $(`#${this.prefix}-individual-sex-select`).selectpicker('val', this.query.sex);
+                }
+
+                // Karyotypic sex
+                if (UtilsNew.isNotUndefined(this.query.karyotypicSex)) {
+                    $(`#${this.prefix}-individual-karyotypicsex-select`).selectpicker('val', this.query.karyotypicSex.split(","));
+                }
+
+                // Affectation status
+                if (UtilsNew.isNotUndefined(this.query.affectationStatus)) {
+                    $(`#${this.prefix}-affectation-status-select`).selectpicker('val', this.query.affectationStatus.split(","));
+                }
+
+                // Life status
+                if (UtilsNew.isNotUndefined(this.query.lifeStatus)) {
+                    $(`#${this.prefix}-life-status-select`).selectpicker('val', this.query.lifeStatus.split(","));
+                }
+            }
+
+            calculateFilters(e) {
+                let _query = {};
+
+                let name = PolymerUtils.getValue(`${this.prefix}-individual-input`);
+                if (UtilsNew.isNotEmpty(name)) {
+                    _query.id = name;
+                }
+
+                let samples = PolymerUtils.getValue(`${this.prefix}-sample-input`);
+                if (UtilsNew.isNotEmpty(samples)) {
+                    _query.samples = samples;
+                }
+
+                let phenotypes = PolymerUtils.getValue(`${this.prefix}-phenotypes-input`);
+                if (UtilsNew.isNotEmpty(phenotypes)) {
+                    _query.phenotypes = phenotypes;
+                }
+
+                let ethnicity = PolymerUtils.getValue(`${this.prefix}-ethnicity-input`);
+                if (UtilsNew.isNotEmpty(ethnicity)) {
+                    _query.ethnicity = ethnicity;
+                }
+
+                let sex = $(`#${this.prefix}-individual-sex-select`).selectpicker('val');
+                if (UtilsNew.isNotEmpty(sex)) {
+                    _query.sex = sex;
+                }
+
+                let karyotypic = $(`#${this.prefix}-individual-karyotypicsex-select`).selectpicker('val');
+                if (UtilsNew.isNotEmpty(karyotypic)) {
+                    _query.karyotypicSex = karyotypic.join(",");
+                }
+
+                let affectation = $(`#${this.prefix}-affectation-status-select`).selectpicker('val');
+                if (UtilsNew.isNotEmpty(affectation)) {
+                    _query.affectationStatus = affectation.join(",");
+                }
+
+                let lifeStatus = $(`#${this.prefix}-life-status-select`).selectpicker('val');
+                if (UtilsNew.isNotEmpty(lifeStatus)) {
+                    _query.lifeStatus = lifeStatus.join(",");
+                }
+
+                // keep annotation filter
+                if (UtilsNew.isNotEmpty(this.query.annotation)) {
+                    _query.annotation = this.query.annotation;
+                }
+
+                // keep date filters
+                if (UtilsNew.isNotEmpty(this.query.creationDate)) {
+                    _query.creationDate = this.query.creationDate;
+                }
+
+                // To prevent to call renderQueryFilters we set this to false
+                this._reset = false;
+                this.set("query", _query);
+                this._reset = true;
+            }
+
+            /**
+             * Use custom CSS class to easily reset all controls.
+             */
             _clearHtmlDom() {
-                $("." + this.prefix + "FilterTextInput").val("");
-                $("." + this.prefix + "FilterTextInput").prop("disabled", false);
-                $("." + this.prefix + "SelectInput").prop('selectedIndex', 0);
+                // Input controls
+                PolymerUtils.setPropertyByClassName(this.prefix + "FilterTextInput", 'value', '');
+                PolymerUtils.removeAttributebyclass(this.prefix + "FilterTextInput", 'disabled');
+
+                $(`#${this.prefix}IndividualSelection .selectpicker`).selectpicker('val','');
             }
 
         }
 
         customElements.define(OpencgaIndividualFilter.is, OpencgaIndividualFilter);
-
     </script>
 </dom-module>
