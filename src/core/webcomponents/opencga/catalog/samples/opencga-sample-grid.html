@@ -20,7 +20,8 @@
     <template>
         <style include="jso-styles"></style>
 
-        <opencb-grid-toolbar from="{{from}}" to="{{to}}" num-total-results-text="{{numTotalResultsText}}"></opencb-grid-toolbar>
+        <opencb-grid-toolbar from="{{from}}" to="{{to}}" num-total-results-text="{{numTotalResultsText}}"
+                             config="[[toolbarConfig]]" on-columnchange="onColumnChange"></opencb-grid-toolbar>
 
         <div id="{{prefix}}GridTableDiv" style="margin-top: 10px">
             <table id="{{prefix}}SampleBrowserGrid" style="cursor: pointer">
@@ -354,6 +355,15 @@
                 }
             }
 
+            onColumnChange(e) {
+                let table = $('#' + this.prefix + 'SampleBrowserGrid');
+                if (e.detail.selected) {
+                    table.bootstrapTable("showColumn", e.detail.id);
+                } else {
+                    table.bootstrapTable("hideColumn", e.detail.id);
+                }
+            }
+
             updateForms(filters) {
                 // This is just to avoid entering here when it has just been initialized
                 if (UtilsNew.isUndefined(this.prefix)) {
@@ -612,6 +622,9 @@
                     ])
                 ];
 
+                this.toolbarConfig = {
+                    columns: this._columns[0]
+                };
                 return this._columns;
             }
 

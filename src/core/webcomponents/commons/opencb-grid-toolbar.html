@@ -29,6 +29,23 @@
                 <div class="form-inline" style="padding: 0px; float: right">
                     <div class="btn-group">
                         <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i id="{{prefix}}ColumnIcon" class="fa fa-columns" aria-hidden="true"></i> Columns <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu btn-sm">
+                            <template is="dom-repeat" items="{{_config.columns}}">
+                                <template is="dom-if" if="{{isTrue(item.eligible)}}">
+                                    <li><a data-column-id$="{{item.field}}" on-click="onColumnClick" style="cursor: pointer;">
+                                        <input type="checkbox" on-click="checkboxToggle" checked$="{{isTrue(item.visible)}}"/>
+                                        <span style="vertical-align: text-bottom;">&nbsp;{{item.title}}</span></a>
+                                    </li>
+                                </template>
+                            </template>
+                        </ul>
+                    </div>
+
+
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i id="{{prefix}}DownloadRefresh" class="fa fa-refresh fa-spin" aria-hidden="true" style="font-size:14px;display: none"></i>
                             <i id="{{prefix}}DownloadIcon" class="fa fa-download" aria-hidden="true"></i> Download <span class="caret"></span>
                         </button>
@@ -95,23 +112,46 @@
             }
 
             onDownloadFile(e) {
-                _this.dispatchEvent(new CustomEvent('download', {
+                this.dispatchEvent(new CustomEvent('download', {
                     detail: {
                         option: e.target.dataset.downloadOption
                     }, bubbles: true, composed: true
                 }));
             }
 
-            onShareLink(e) {
-                _this.dispatchEvent(new CustomEvent('shareLink', {
-                    detail: {
+            checkboxToggle(e) {
+                // We undo the checkbox action. We will toggle it on a different event
+                e.currentTarget.checked = !e.currentTarget.checked;
+            }
 
+            onColumnClick(e) {
+                // Toggle the checkbox
+                e.currentTarget.firstElementChild.checked = !e.currentTarget.firstElementChild.checked;
+                this.dispatchEvent(new CustomEvent('columnchange', {
+                    detail: {
+                        id: e.currentTarget.dataset.columnId,
+                        selected: e.currentTarget.firstElementChild.checked
+                    }, bubbles: true, composed: true
+                }));
+
+                // We do this call to avoid the dropdown to be closed after the click
+                e.stopPropagation();
+            }
+
+            onShareLink(e) {
+                this.dispatchEvent(new CustomEvent('shareLink', {
+                    detail: {
                     }, bubbles: true, composed: true
                 }));
             }
 
+            isTrue(value) {
+                return UtilsNew.isUndefinedOrNull(value) || value;
+            }
+
             getDefaultConfig() {
                 return {
+                    columns: [], // [{field: "blabla", title: "Blabla", visible: true, eligible: true}]
                     label: "records",
                     download: ["Tab", "JSON"]
                 };

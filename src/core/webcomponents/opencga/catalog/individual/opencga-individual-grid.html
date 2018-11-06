@@ -32,7 +32,8 @@
             }
         </style>
 
-        <opencb-grid-toolbar from="{{from}}" to="{{to}}" num-total-results-text="{{numTotalResultsText}}"></opencb-grid-toolbar>
+        <opencb-grid-toolbar from="{{from}}" to="{{to}}" num-total-results-text="{{numTotalResultsText}}"
+                             config="[[toolbarConfig]]" on-columnchange="onColumnChange"></opencb-grid-toolbar>
 
         <div id="{{prefix}}GridTableDiv" style="margin-top: 10px">
             <table id="{{prefix}}IndividualBrowserGrid">
@@ -404,6 +405,14 @@
                 }
             }
 
+            onColumnChange(e) {
+                let table = $('#' + this.prefix + 'IndividualBrowserGrid');
+                if (e.detail.selected) {
+                    table.bootstrapTable("showColumn", e.detail.id);
+                } else {
+                    table.bootstrapTable("hideColumn", e.detail.id);
+                }
+            }
 
             detailFormatter(value, row) {
                 let result = `<div class='row' style="padding: 5px 10px 15px 10px">
@@ -560,7 +569,8 @@
                         field: 'state',
                         checkbox: true,
                         // formatter: this.stateFormatter,
-                        class: "cursor-pointer"
+                        class: "cursor-pointer",
+                        eligible: false
                     });
                 }
 
@@ -614,6 +624,7 @@
                             },
                             {
                                 title: 'Custom Annotations',
+                                field: 'customAnnotation',
                                 formatter: this.customAnnotationFormatter,
                                 visible: customAnnotationVisible,
                                 halign: this._config.header.horizontalAlign
@@ -637,6 +648,10 @@
                             },
                         ])
                 ];
+
+                this.toolbarConfig = {
+                    columns: this._columns[0]
+                };
 
                 return this._columns;
             }
