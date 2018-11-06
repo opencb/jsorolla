@@ -20,10 +20,10 @@
     <template>
         <style include="jso-styles"></style>
 
-        <span>Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> analysis</span>
-        <table id="{{prefix}}tableAnalysis"
-               data-detail-view="true"
-               data-detail-formatter="detailFormatter"  data-icons-prefix="fa" data-icons="icons" data-show-refresh="true">
+        <!--<span>Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> analysis</span>-->
+        <opencb-grid-toolbar from="{{from}}" to="{{to}}" num-total-results-text="{{numTotalResultsText}}"></opencb-grid-toolbar>
+
+        <table id="{{prefix}}tableAnalysis" data-icons-prefix="fa" data-icons="icons">
             <thead style="background-color: #eee"></thead>
         </table>
     </template>
@@ -88,7 +88,7 @@
             _init() {
                 this.prefix = "ocag" + Utils.randomString(6);
 
-                this.defaultConfig = this.getDefaultConfig();
+                this._config = this.getDefaultConfig();
 
                 window.icons = {
                     refresh: 'fa-refresh',
@@ -107,10 +107,8 @@
             }
 
             renderTable() {
-                let _config = Object.assign(this.defaultConfig, this.config);
-
                 this.from = 1;
-                this.to = Math.max(UtilsNew.isNotUndefinedOrNull(this.query.limit) ? this.query.limit : 0, this.config.pageSize);
+                this.to = this._config.pageSize;
 
                 let urlQueryParams = this._getUrlQueryParams();
                 let queryParams = urlQueryParams.queryParams;
@@ -125,9 +123,15 @@
                     sidePagination: 'server',
 
                     // Set table properties, these are read from config property
-                    pagination: _config.pagination,
-                    pageSize: _config.pageSize,
-                    pageList: _config.pageList,
+                    pagination: _this._config.pagination,
+                    pageSize: _this._config.pageSize,
+                    pageList: _this._config.pageList,
+                    showExport: _this._config.showExport,
+                    detailView: _this._config.detailView,
+                    detailFormatter: _this._config.detailFormatter,
+
+                    // Make Polymer components avalaible to table formatters
+                    gridContext: _this,
 
                     queryParams: function (params) {
                         if ((queryParams.limit === undefined || params.limit !== queryParams.limit) && UtilsNew.isNotUndefinedOrNull(params.limit)) {
@@ -233,61 +237,100 @@
                 return div;
             }
 
-            sampleFormatter(value, row, index) {
+            probandFormatter(value, row) {
+                return row.proband.name;
+            }
+
+            familyFormatter(value, row) {
                 return row.subjects[0].samples[0].name;
             }
 
-            subjectFormatter(value, row, index) {
-                return row.subjects[0].name;
-            }
-
-            diseaseFormatter(value, row, index) {
+            diseaseFormatter(value, row) {
                 return row.disease.name;
             }
 
-            dateFormatter(value, row, index) {
+            priorityFormatter(value) {
+                if (UtilsNew.isEmpty(value)) {
+                    return "<span style='color: orange'>HIGH</span>"
+                }
+            }
+            dateFormatter(value) {
                 return moment(value, "YYYYMMDDHHmmss").format('D MMM YYYY');
             }
 
             _getTableColumns() {
+                let columns = [];
+                if (this._config.multiSelection) {
+                    columns.push({
+                        field: 'state',
+                        radio: true,
+                        align: 'center',
+                        valign: 'middle',
+                        class: "cursor-pointer"
+                    });
+                }
+
                 return [
-                    [
-                        {   field: 'state',
-                            radio: true,
-                            align: 'center',
-                            valign: 'middle'
-                        },
-                        {
-                            title: 'ID',
-                            field: 'name'
-                        },
-                        {
-                            title: 'Sample',
-                            formatter: this.sampleFormatter
-                        },
-                        {
-                            title: 'Subject',
-                            formatter: this.subjectFormatter
-                        },
-                        {
-                            title: 'Disease',
-                            field: 'disease',
-                            formatter: this.diseaseFormatter
-                        },
-                        {
-                            title: 'Type',
-                            field: 'type'
-                        },
-                        {
-                            title: 'Date',
-                            field: 'creationDate',
-                            formatter: this.dateFormatter
-                        }
-                    ]
+                    columns.concat(
+                        [
+                            {
+                                title: 'Analysis ID',
+                                field: 'id'
+                            },
+                            {
+                                title: 'Proband',
+                                formatter: this.probandFormatter
+                            },
+                            {
+                                title: 'Family',
+                                formatter: this.familyFormatter
+                            },
+                            {
+                                title: 'Disease',
+                                field: 'disease',
+                                formatter: this.diseaseFormatter
+                            },
+                            {
+                                title: 'Analysis Type',
+                                field: 'type'
+                            },
+                            {
+                                title: 'Priority',
+                                field: 'priority',
+                                formatter: this.priorityFormatter
+                            },
+                            {
+                                title: 'Due Date',
+                                field: 'dueDate',
+                                formatter: this.dateFormatter
+                            },
+                            {
+                                title: 'Creation Date',
+                                field: 'creationDate',
+                                formatter: this.dateFormatter
+                            },
+                            {
+                                title: 'Status',
+                                field: 'status.name',
+                                halign: this._config.header.horizontalAlign
+                            }
+                        ])
                 ];
             }
             getDefaultConfig() {
-                return {pagination: true, pageSize: 5, pageList: [5,10]};
+                return {
+                    pagination: true,
+                    pageSize: 5,
+                    pageList: [5, 10, 25],
+                    showExport: false,
+                    detailView: true,
+                    detailFormatter: this.detailFormatter,
+                    multiSelection: true,
+                    header: {
+                        horizontalAlign: 'center',
+                        verticalAlign: 'bottom'
+                    },
+                };
             }
         }
 

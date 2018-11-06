@@ -362,7 +362,7 @@
     <opencga-message-dialog opencga-client="{{opencgaClient}}" show-message-modal="{{showMessageModal}}" settings-message-modal="{{settingsMessageModal}}"></opencga-message-dialog>
 
     <div class="modal fade" id="{{prefix}}AnalysisBrowser" tabindex="-1" role="dialog" aria-labelledby="sampleBrowserLabel">
-        <div class="modal-dialog modal-lg" role="document" style="width: 1280px;">
+        <div class="modal-dialog modal-lg" role="document" style="width: 1440px;">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -370,7 +370,7 @@
                 </div>
                 <div class="modal-body" style="height: 780px">
                     <opencga-clinical-analysis-browser opencga-client="{{opencgaClient}}" opencga-session="{{opencgaSession}}" analysis-selected="{{analysisSelected}}"
-                                               analysis-modal="{{analysisModal}}">
+                                               analysis-modal="{{analysisModal}}" style="font-size: 12px">
                     </opencga-clinical-analysis-browser>
                 </div>
                 <div class="modal-footer">
