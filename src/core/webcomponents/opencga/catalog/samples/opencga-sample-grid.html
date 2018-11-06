@@ -46,12 +46,10 @@
             static get properties() {
                 return {
                     opencgaSession: {
-                        type: Object,
-                        observer: "renderTable"
+                        type: Object
                     },
                     opencgaClient: {
-                        type: Object,
-                        observer: 'renderTable'
+                        type: Object
                     },
                     samples: {
                         type: Array,
@@ -62,12 +60,15 @@
                         observer: "onFilterUpdate"
                     },
                     search: {
-                        type: Object,
-                        observer: 'renderTable'
+                        type: Object
                     },
                     eventNotifyName: {
                         type: String,
                         value: "messageevent"
+                    },
+                    active: {
+                        type: Boolean,
+                        value: false
                     },
                     config: {
                         type: Object,
@@ -77,7 +78,7 @@
             }
 
             static get observers() {
-                return ['calculateFilters(filteredVariables.variables.*)'];
+                return ['renderTable(opencgaSession, opencgaClient, search, active)', 'calculateFilters(filteredVariables.variables.*)'];
             }
 
             _init() {
@@ -110,6 +111,10 @@
             }
 
             renderTable() {
+                if (!this.active) {
+                    return;
+                }
+
                 this.set('samples', []);
 
                 let filters = Object.assign({}, this.search);
@@ -119,6 +124,16 @@
 
                 if (UtilsNew.isNotUndefined(this.opencgaClient) && UtilsNew.isNotUndefined(this.opencgaSession.study)
                     && UtilsNew.isNotUndefined(this.opencgaSession.study.fqn)) {
+
+                    filters["study"] = this.opencgaSession.study.fqn;
+                    if (UtilsNew.isNotUndefinedOrNull(this.lastFilters)
+                        && JSON.stringify(this.lastFilters) === JSON.stringify(filters)) {
+                        // Abort destroying and creating again the grid. The filters have not changed
+                        return;
+                    }
+                    // Store the current filters
+                    this.lastFilters = Object.assign({}, filters);
+
                     // Make a copy of the samples (if they exist), we will use this private copy until it is assigned to this.samples
                     if (UtilsNew.isNotUndefined(this.samples)) {
                         this._samples = this.samples;
@@ -160,8 +175,6 @@
                             }
 
                             let auxParams = {
-                                study: _this.opencgaSession.study.fqn,
-//                                lazy: "false",
                                 sid: Cookies.get(_this.opencgaClient.getConfig().cookieSessionId),
                                 order: params.order,
                                 sort: params.sort,
