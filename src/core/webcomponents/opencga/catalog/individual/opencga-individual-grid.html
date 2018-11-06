@@ -212,21 +212,31 @@
                         },
                         onClickRow: function (row, element, field) {
                             if (_this._config.multiselection) {
-                                // Check and uncheck when clicking in the checkbox TD cell
-                                if (field === "state") {
-                                    let index = element[0].dataset.index;
-                                    if (element[0].className.includes("selected")) {
-                                        $(PolymerUtils.getElementById(_this.prefix + 'IndividualBrowserGrid')).bootstrapTable('uncheck', index);
-                                    } else {
-                                        $(PolymerUtils.getElementById(_this.prefix + "IndividualBrowserGrid")).bootstrapTable('check', index);
+                                if (_this._config.detailView) {
+                                    // Check and uncheck when clicking in the checkbox TD cell
+                                    if (field === "state") {
+                                        let index = element[0].dataset.index;
+                                        if (element[0].className.includes("selected")) {
+                                            $(PolymerUtils.getElementById(_this.prefix + 'IndividualBrowserGrid')).bootstrapTable('uncheck', index);
+                                        } else {
+                                            $(PolymerUtils.getElementById(_this.prefix + "IndividualBrowserGrid")).bootstrapTable('check', index);
 
+                                            $('.success').removeClass('success');
+                                            $(element).addClass('success');
+                                        }
+                                    } else {
+                                        // If user has clicked in the row
                                         $('.success').removeClass('success');
                                         $(element).addClass('success');
                                     }
                                 } else {
-                                    // If user has clicked in the row
-                                    $('.success').removeClass('success');
-                                    $(element).addClass('success');
+                                    let index = element[0].dataset.index;
+                                    if (element[0].className.includes("selected")) {
+                                        $(PolymerUtils.getElementById(_this.prefix + 'IndividualBrowserGrid')).bootstrapTable('uncheck', index);
+                                        $(element).removeClass('success');
+                                    } else {
+                                        $(PolymerUtils.getElementById(_this.prefix + "IndividualBrowserGrid")).bootstrapTable('check', index);
+                                    }
                                 }
                             } else {
                                 // If not checkboxes exist
@@ -265,7 +275,9 @@
                             }
 
                             // We only activate the row when checking
-                            $('.success').removeClass('success');
+                            if (_this._config.detailView) {
+                                $('.success').removeClass('success');
+                            }
                             $(element[0].parentElement.parentElement).addClass('success');
 
                             // If exist on single nested sample we must check it
@@ -359,8 +371,10 @@
                         onLoadSuccess: function (data) {
                             // Check all already selected rows. Selected individuals are stored in this.individuals array
                             if (UtilsNew.isNotUndefinedOrNull(_table)) {
-                                PolymerUtils.querySelector(_table.selector).rows[1].setAttribute('class', 'success');
-                                _this._onSelectIndividual(data.rows[0]);
+                                if (_this._config.detailView) {
+                                    PolymerUtils.querySelector(_table.selector).rows[1].setAttribute('class', 'success');
+                                    _this._onSelectIndividual(data.rows[0]);
+                                }
 
                                 if (_this.individuals !== "undefined") {
                                     for (let idx in _this.individuals) {
@@ -566,6 +580,8 @@
                     });
                 }
 
+                let myClass = !this._config.detailView ? "cursor-pointer" : "";
+
                 this._columns = [
                     columns.concat(
                         [
@@ -573,52 +589,61 @@
                                 title: 'Individual ID',
                                 field: 'id',
                                 sortable: true,
+                                class: myClass,
                                 halign: this._config.header.horizontalAlign
                             },
                             {
                                 title: 'Sex',
                                 field: 'sex',
                                 sortable: true,
+                                class: myClass,
                                 formatter: this.sexFormatter,
                                 halign: this._config.header.horizontalAlign
                             },
                             {
                                 title: 'Father',
                                 field: 'father.id',
+                                class: myClass,
                                 formatter: this.fatherFormatter,
                                 halign: this._config.header.horizontalAlign
                             },
                             {
                                 title: 'Mother',
                                 field: 'mother.id',
+                                class: myClass,
                                 formatter: this.motherFormatter,
                                 halign: this._config.header.horizontalAlign
                             },
                             {
                                 title: 'Phenotypes',
                                 field: 'phenotypes',
+                                class: myClass,
                                 formatter: this.phenotypesFormatter,
                                 halign: this._config.header.horizontalAlign
                             },
                             {
                                 title: 'Samples',
                                 field: 'samples',
+                                class: myClass,
                                 formatter: this.samplesFormatter,
                                 halign: this._config.header.horizontalAlign
                             },
                             {
                                 title: 'Affectation Status',
                                 field: 'affectationStatus',
+                                class: myClass,
                                 halign: this._config.header.horizontalAlign
                             },
                             {
                                 title: 'Life Status',
                                 field: 'lifeStatus',
+                                class: myClass,
                                 halign: this._config.header.horizontalAlign
                             },
                             {
                                 title: 'Custom Annotations',
                                 field: 'customAnnotation',
+                                class: myClass,
                                 formatter: this.customAnnotationFormatter,
                                 visible: customAnnotationVisible,
                                 halign: this._config.header.horizontalAlign
@@ -626,6 +651,7 @@
                             {
                                 title: 'Date of Birth',
                                 field: 'dateOfBirth',
+                                class: myClass,
                                 sortable: true,
                                 formatter: this.dateFormatter,
                                 halign: this._config.header.horizontalAlign
@@ -633,6 +659,7 @@
                             {
                                 title: 'Creation Date',
                                 field: 'creationDate',
+                                class: myClass,
                                 sortable: true,
                                 formatter: this.dateFormatter,
                                 halign: this._config.header.horizontalAlign
@@ -640,6 +667,7 @@
                             {
                                 title: 'Status',
                                 field: 'status.name',
+                                class: myClass,
                                 halign: this._config.header.horizontalAlign
                             },
                         ])
