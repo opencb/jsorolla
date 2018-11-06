@@ -425,6 +425,9 @@
                                             ${tableCheckboxHeader}
                                             <th>ID</th>
                                             <!--<th>Phenotypes</th>-->
+                                            <th>Source</th>
+                                            <th>Collection Method</th>
+                                            <th>Preparation Method</th>
                                             <th>Somatic</th>
                                             <th>Creation Date</th>
                                             <th>Status</th>
@@ -448,12 +451,21 @@
                             tableCheckboxRow = `<td><input id='${this.gridContext.prefix}${sample.id}Checkbox' type='checkbox' ${checkedStr}></td>`;
                         }
 
+                        let source = (UtilsNew.isNotEmpty(sample.source)) ? sample.source : "-";
+                        let collectionMethod = (sample.collection !== undefined) ? sample.collection.method: "-";
+                        let preparationMethod = (sample.processing !== undefined) ? sample.processing.preparationMethod: "-";
+                        let cellLine = (sample.somatic) ? "Somatic": "Germline";
+                        let creationDate = moment(sample.creationDate, "YYYYMMDDHHmmss").format('D MMM YYYY');
+
                         result += `<tr class="detail-view-row">
                                         ${tableCheckboxRow}
                                         <td>${sample.id}</td>
                                         <!--<td>${sample.phenotypes.join("<br>")}</td>-->
-                                        <td>${sample.somatic}</td>
-                                        <td>${sample.creationDate}</td>
+                                        <td>${source}</td>
+                                        <td>${collectionMethod}</td>
+                                        <td>${preparationMethod}</td>
+                                        <td>${cellLine}</td>
+                                        <td>${creationDate}</td>
                                         <td>${sample.status.name}</td>
                                    </tr>`;
                     }
