@@ -102,19 +102,22 @@
                             <div class="browser-subsection">Sex
                             </div>
                             <div id="{{prefix}}-individual-sex" class="subsection-content form-group">
-                                <select id="{{prefix}}-individual-sex-select" class="selectpicker" on-change="calculateFilters">
+                                <select id="{{prefix}}-individual-sex-select" class="selectpicker" multiple
+                                        on-change="calculateFilters" data-width="100%">
                                     <option>MALE</option>
                                     <option>FEMALE</option>
+                                    <option>UNKNOWN</option>
+                                    <option>UNDETERMINED</option>
                                 </select>
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <div class="browser-subsection">Karyotypic sex
+                            <div class="browser-subsection">Karyotypic Sex
                             </div>
                             <div id="{{prefix}}-individual-karyotypicsex" class="subsection-content form-group">
                                 <select id="{{prefix}}-individual-karyotypicsex-select" class="selectpicker" multiple
-                                        on-change="calculateFilters">
+                                        on-change="calculateFilters" data-width="100%">
                                     <option>UNKNOWN</option>
                                     <option>XX</option>
                                     <option>XY</option>
@@ -135,15 +138,16 @@
                             </div>
                             <div id="{{prefix}}-ethnicity" class="subsection-content form-group">
                                 <input type="text" id="{{prefix}}-ethnicity-input" class$="form-control input-sm {{prefix}}FilterTextInput"
-                                       placeholder="white caucasian,asiatic..." on-keyup="calculateFilters">
+                                       placeholder="White caucasian,asiatic..." on-keyup="calculateFilters">
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <div class="browser-subsection">Affectation status
+                            <div class="browser-subsection">Affectation Status
                             </div>
                             <div id="{{prefix}}-affectation-status" class="subsection-content form-group">
-                                <select id="{{prefix}}-affectation-status-select" class="selectpicker" multiple on-change="calculateFilters">
+                                <select id="{{prefix}}-affectation-status-select" class="selectpicker" multiple
+                                        on-change="calculateFilters" data-width="100%">
                                     <option>CONTROL</option>
                                     <option>AFFECTED</option>
                                     <option>UNAFFECTED</option>
@@ -153,10 +157,11 @@
                         </div>
 
                         <div class="form-group">
-                            <div class="browser-subsection">Life status
+                            <div class="browser-subsection">Life Status
                             </div>
                             <div id="{{prefix}}-life-status" class="subsection-content form-group">
-                                <select id="{{prefix}}-life-status-select" class="selectpicker" multiple on-change="calculateFilters">
+                                <select id="{{prefix}}-life-status-select" class="selectpicker" multiple
+                                        on-change="calculateFilters" data-width="100%">
                                     <option>ALIVE</option>
                                     <option>ABORTED</option>
                                     <option>DECEASED</option>
@@ -178,7 +183,7 @@
                         </div>
 
                         <div class="form-group">
-                            <div class="browser-subsection" id="{{prefix}}-annotationss">Individual annotations
+                            <div class="browser-subsection" id="{{prefix}}-annotationss">Individual Annotations
                                 <div style="float: right" class="tooltip-div">
                                     <a><i class="fa fa-info-circle" aria-hidden="true" id="{{prefix}}-annotations-tooltip"></i></a>
                                 </div>
@@ -289,9 +294,6 @@
 
             connectedCallback() {
                 super.connectedCallback();
-
-                // Deselect any item selected
-                $(`#${this.prefix}-individual-sex-select`).selectpicker('val', '');
             }
 
             onSearch() {

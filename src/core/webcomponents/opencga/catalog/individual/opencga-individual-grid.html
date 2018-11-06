@@ -32,7 +32,8 @@
             }
         </style>
 
-        <opencb-grid-toolbar from="{{from}}" to="{{to}}" num-total-results-text="{{numTotalResultsText}}"></opencb-grid-toolbar>
+        <opencb-grid-toolbar from="{{from}}" to="{{to}}" num-total-results-text="{{numTotalResultsText}}"
+                             config="[[toolbarConfig]]" on-columnchange="onColumnChange"></opencb-grid-toolbar>
 
         <div id="{{prefix}}GridTableDiv" style="margin-top: 10px">
             <table id="{{prefix}}IndividualBrowserGrid">
@@ -65,6 +66,10 @@
                     search: {
                         type: Object
                     },
+                    active: {
+                        type: Boolean,
+                        value: false
+                    },
                     config: {
                         type: Object
                     }
@@ -72,7 +77,7 @@
             }
 
             static get observers() {
-                return ['propertyObserver(opencgaSession, search, config)'];
+                return ['propertyObserver(opencgaSession, search, config, active)'];
             }
 
             _attachDom(dom) {
@@ -82,18 +87,22 @@
             connectedCallback() {
                 super.connectedCallback();
 
-                this.renderTable();
+                this.renderTable(this.active);
             }
 
-            propertyObserver(opencgaSession, search, config) {
+            propertyObserver(opencgaSession, search, config, active) {
                 // With each property change we must updated config and create the columns again. No extra checks are needed.
                 this._config = Object.assign(this.getDefaultConfig(), this.config);
                 this._columns = this._initTableColumns();
 
-                this.renderTable();
+                this.renderTable(active);
             }
 
-            renderTable() {
+            renderTable(active) {
+                if (!active) {
+                    return;
+                }
+
                 this.opencgaClient = this.opencgaSession.opencgaClient;
 
                 this.set('individuals', []);
@@ -106,6 +115,16 @@
 
                 if (UtilsNew.isNotUndefined(this.opencgaClient) && UtilsNew.isNotUndefined(this.opencgaSession.study)
                     && UtilsNew.isNotUndefined(this.opencgaSession.study.fqn)) {
+
+                    filters["study"] = this.opencgaSession.study.fqn;
+                    if (UtilsNew.isNotUndefinedOrNull(this.lastFilters)
+                        && JSON.stringify(this.lastFilters) === JSON.stringify(filters)) {
+                        // Abort destroying and creating again the grid. The filters have not changed
+                        return;
+                    }
+                    // Store the current filters
+                    this.lastFilters = Object.assign({}, filters);
+
                     // Make a copy of the individuals (if they exist), we will use this private copy until it is assigned to this.individuals
                     if (UtilsNew.isNotUndefined(this.individuals)) {
                         this._individuals = this.individuals;
@@ -150,8 +169,6 @@
                             }
 
                             let auxParams = {
-                                study: _this.opencgaSession.study.fqn,
-//                                lazy: "false",
                                 sid: Cookies.get(_this.opencgaClient.getConfig().cookieSessionId),
                                 order: params.order,
                                 sort: params.sort,
@@ -342,10 +359,8 @@
                         onLoadSuccess: function (data) {
                             // Check all already selected rows. Selected individuals are stored in this.individuals array
                             if (UtilsNew.isNotUndefinedOrNull(_table)) {
-                                if (!_this._config.multiselection) {
-                                    PolymerUtils.querySelector(_table.selector).rows[1].setAttribute('class', 'success');
-                                    _this._onSelectIndividual(data.rows[0]);
-                                }
+                                PolymerUtils.querySelector(_table.selector).rows[1].setAttribute('class', 'success');
+                                _this._onSelectIndividual(data.rows[0]);
 
                                 if (_this.individuals !== "undefined") {
                                     for (let idx in _this.individuals) {
@@ -390,6 +405,14 @@
                 }
             }
 
+            onColumnChange(e) {
+                let table = $('#' + this.prefix + 'IndividualBrowserGrid');
+                if (e.detail.selected) {
+                    table.bootstrapTable("showColumn", e.detail.id);
+                } else {
+                    table.bootstrapTable("hideColumn", e.detail.id);
+                }
+            }
 
             detailFormatter(value, row) {
                 let result = `<div class='row' style="padding: 5px 10px 15px 10px">
@@ -546,7 +569,8 @@
                         field: 'state',
                         checkbox: true,
                         // formatter: this.stateFormatter,
-                        class: "cursor-pointer"
+                        class: "cursor-pointer",
+                        eligible: false
                     });
                 }
 
@@ -600,6 +624,7 @@
                             },
                             {
                                 title: 'Custom Annotations',
+                                field: 'customAnnotation',
                                 formatter: this.customAnnotationFormatter,
                                 visible: customAnnotationVisible,
                                 halign: this._config.header.horizontalAlign
@@ -623,6 +648,10 @@
                             },
                         ])
                 ];
+
+                this.toolbarConfig = {
+                    columns: this._columns[0]
+                };
 
                 return this._columns;
             }
