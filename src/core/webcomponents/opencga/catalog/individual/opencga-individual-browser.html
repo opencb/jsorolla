@@ -76,7 +76,7 @@
                 <div>
                     <div id="{{prefix}}TableResult" class="individual-browser-view-content">
                         <opencga-individual-grid opencga-client="{{opencgaSession.opencgaClient}}"
-                                             opencga-session="{{opencgaSession}}" config="[[_config.grid]]"
+                                             opencga-session="{{opencgaSession}}" config="{{_config.grid}}"
                                              event-notify-name="[[eventNotifyName]]" individuals="{{individuals}}"
                                              search="{{search}}" style="font-size: 12px" on-selectindividual="onSelectIndividual">
                         </opencga-individual-grid>
@@ -98,7 +98,7 @@
 
                             <div class="tab-content" style="height: 680px">
                                 <div role="tabpanel" class="tab-pane active" id="{{prefix}}CohortViewer">
-                                    Work in progress
+                                    Work in progress:  {{individual.id}}
                                 </div>
                                 <div role="tabpanel" class="tab-pane" id="{{prefix}}SampleViewer">
                                     <opencga-sample-grid opencga-client="{{opencgaSession.opencgaClient}}"
@@ -281,6 +281,7 @@
 
                     },
                     grid: {
+                        // detailView: false,
                     },
                     gridComparator: {
                         multiselection: true,
