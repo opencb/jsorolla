@@ -75,11 +75,9 @@
                 <!-- Sample View Content -->
                 <div>
                     <div id="{{prefix}}TableResult" class="sample-browser-view-content">
-                        <opencga-sample-grid opencga-client="{{opencgaSession.opencgaClient}}"
-                                             opencga-session="{{opencgaSession}}" config="[[_config.grid]]"
-                                             event-notify-name="[[eventNotifyName]]" samples="{{samples}}"
-                                             search="{{search}}" style="font-size: 12px" on-selectsample="onSelectSample"
-                                             active="{{activeMenu.table}}">
+                        <opencga-sample-grid opencga-session="{{opencgaSession}}" config="[[_config.grid]]"
+                                             samples="{{samples}}" search="{{search}}" style="font-size: 12px"
+                                             on-selectsample="onSelectSample" active="{{activeMenu.table}}">
                         </opencga-sample-grid>
 
                         <div style="padding-top: 5px">
@@ -112,10 +110,9 @@
                     </div>
 
                     <div id="{{prefix}}SampleComparator" class="sample-browser-view-content" style="display: none">
-                        <opencga-sample-grid opencga-client="{{opencgaSession.opencgaClient}}"
-                                             opencga-session="{{opencgaSession}}" config="[[_config.gridComparator]]"
-                                             event-notify-name="[[eventNotifyName]]" samples="{{samples}}"
-                                             search="{{search}}" style="font-size: 12px" active="{{activeMenu.comparator}}">
+                        <opencga-sample-grid opencga-session="{{opencgaSession}}" config="[[_config.gridComparator]]"
+                                             samples="{{samples}}" search="{{search}}" style="font-size: 12px"
+                                             active="{{activeMenu.comparator}}">
                         </opencga-sample-grid>
 
                         <div style="padding-top: 5px">

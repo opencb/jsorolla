@@ -24,7 +24,7 @@
                              config="[[toolbarConfig]]" on-columnchange="onColumnChange"></opencb-grid-toolbar>
 
         <div id="{{prefix}}GridTableDiv" style="margin-top: 10px">
-            <table id="{{prefix}}SampleBrowserGrid" style="cursor: pointer">
+            <table id="{{prefix}}SampleBrowserGrid">
                 <thead style="background-color: #eee"></thead>
             </table>
         </div>
@@ -36,8 +36,7 @@
             constructor() {
                 super();
 
-                this._init();
-
+                this.prefix = "VarSampleGrid" + Utils.randomString(6);
             }
 
             static get is() {
@@ -49,54 +48,24 @@
                     opencgaSession: {
                         type: Object
                     },
-                    opencgaClient: {
-                        type: Object
-                    },
                     samples: {
-                        type: Array,
-                        notify: true
-                    },
-                    filters: {
-                        type: Object,
-                        observer: "onFilterUpdate"
+                        type: Array
                     },
                     search: {
                         type: Object
-                    },
-                    eventNotifyName: {
-                        type: String,
-                        value: "messageevent"
                     },
                     active: {
                         type: Boolean,
                         value: false
                     },
                     config: {
-                        type: Object,
-                        observer: "configObserver"
+                        type: Object
                     },
                 }
             }
 
             static get observers() {
-                return ['renderTable(opencgaSession, opencgaClient, search, active)', 'calculateFilters(filteredVariables.variables.*)'];
-            }
-
-            _init() {
-                this.prefix = "VarSampleGrid" + Utils.randomString(6);
-
-                this._config = this.getDefaultConfig();
-            }
-
-            ready() {
-                super.ready();
-
-                this._initTableColumns();
-                this.dispatchEvent(new CustomEvent('clear', {detail: {}, bubbles: true, composed: true}));
-            }
-
-            configObserver() {
-                this._config = Object.assign(this.getDefaultConfig(), this.config);
+                return ['propertyObserver(opencgaSession, search, config, active)'];
             }
 
             _attachDom(dom) {
@@ -106,15 +75,24 @@
             connectedCallback() {
                 super.connectedCallback();
 
-                this.table = PolymerUtils.getElementById(this.prefix + "SampleBrowserGrid");
-                this.search = {};
-
+                this.renderTable(this.active);
+                // this.table = PolymerUtils.getElementById(this.prefix + "SampleBrowserGrid");
             }
 
-            renderTable() {
-                if (!this.active) {
+            propertyObserver(opencgaSession, search, config, active) {
+                // With each property change we must updated config and create the columns again. No extra checks are needed.
+                this._config = Object.assign(this.getDefaultConfig(), this.config);
+                this._columns = this._initTableColumns();
+
+                this.renderTable(active);
+            }
+
+            renderTable(active) {
+                if (!active) {
                     return;
                 }
+
+                this.opencgaClient = this.opencgaSession.opencgaClient;
 
                 this.set('samples', []);
 
@@ -334,13 +312,6 @@
                 }
             }
 
-            /**
-             * If filters have been removed, clean the values from the forms.
-             */
-            onFilterUpdate() {
-                this.updateForms(this.filters);
-            }
-
             _onSelectSample(row) {
                 if (typeof row !== "undefined") {
                     this.dispatchEvent(new CustomEvent('selectsample', {detail: {id: row.id, sample: row}}));
@@ -355,113 +326,6 @@
                     table.bootstrapTable("hideColumn", e.detail.id);
                 }
             }
-
-            updateForms(filters) {
-                // This is just to avoid entering here when it has just been initialized
-                if (UtilsNew.isUndefined(this.prefix)) {
-                    return;
-                }
-
-                let sampleName = PolymerUtils.getValue(this.prefix + "NameTextarea");
-                if (!filters.hasOwnProperty("name") && UtilsNew.isNotUndefined(sampleName) && sampleName.length > 0) {
-                    PolymerUtils.getElementById(this.prefix + "NameTextarea").value = "";
-                }
-
-                let individual = PolymerUtils.getValue(this.prefix + "IndividualTextarea");
-                if (!filters.hasOwnProperty("individual.id") && UtilsNew.isNotUndefined(individual) && individual.length > 0) {
-
-                    PolymerUtils.setValue(this.prefix + "IndividualTextarea", "");
-                }
-
-                if (this.filteredVariables.variables.length > 0) {
-                    if (!filters.hasOwnProperty("annotation")) {
-                        // Remove the filter variableSetId as it won't make more sense.
-                        this.set("filteredVariables.variables", []);
-
-                    } else if (filters.annotation.length < this.filteredVariables.variables.length) {
-                        let tmpVariables = [];
-                        filters.annotation.forEach(function (variable) {
-                            tmpVariables.push(variable);
-                        });
-
-                        this.set("filteredVariables.variables", tmpVariables);
-                    }
-                }
-            }
-
-            /**
-             * Read from the values in the forms, and sets the filters.
-             */
-            calculateFilters() {
-                let filters = {};
-                let sampleName = "";
-                let individual = "";
-
-                if (PolymerUtils.getElementById(this.prefix + "NameTextarea") !== null) {
-                    sampleName = PolymerUtils.getElementById(this.prefix + "NameTextarea").value;
-                }
-                if (PolymerUtils.getElementById(this.prefix + "IndividualTextarea") !== null) {
-                    individual = PolymerUtils.getElementById(this.prefix + "IndividualTextarea").value;
-                }
-
-                if (UtilsNew.isNotUndefined(sampleName) && sampleName.length > 0) {
-                    filters["name"] = "~" + sampleName;
-                }
-
-                if (UtilsNew.isNotUndefined(individual) && individual.length > 0) {
-                    filters["individual.id"] = "~" + individual;
-                }
-
-                if (UtilsNew.isNotUndefined(this.filteredVariables.variables) && this.filteredVariables.variables.length > 0) {
-//                    filters["variableSetId"] = this.filteredVariables.variableSet;
-                    let annotations = [];
-                    this.filteredVariables.variables.forEach(function (variable) {
-                        annotations.push(variable);
-                    });
-                    filters["annotation"] = annotations;
-                }
-                this.filters = filters;
-            }
-
-            onSearch() {
-                // Convert the filters to an objectParam that can be directly send to the sample search
-                let filterParams = {};
-
-                let keys = Object.keys(this.filters);
-                for (let i = 0; i < keys.length; i++) {
-                    // Some filters can come as an array of things.
-                    // annotation = [{name: name, value: Smith}, {name: age, value: >5}]
-                    if (Array.isArray(this.filters[keys[i]])) {
-                        let myArray = this.filters[keys[i]];
-
-                        let myArrayFilter = [];
-
-                        // The elements in the array can be either an object
-                        if (Object.getPrototypeOf(myArray[0]) === Object.prototype) {
-                            let myArray = this.filters[keys[i]];
-                            for (let j = 0; j < myArray.length; j++) {
-                                // TODO: We have to check if the value already has an operand
-                                myArrayFilter.push(myArray[j].name + "=" + myArray[j].value);
-                            }
-                        } else {
-                            // Or an array of strings or numbers
-                            myArrayFilter = this.filters[keys[i]];
-                        }
-
-                        filterParams[keys[i]] = myArrayFilter.join(";");
-                    } else {
-                        filterParams[keys[i]] = this.filters[keys[i]];
-                    }
-                }
-
-                if (this.filters.hasOwnProperty("annotation")) {
-                    // Add the variable set whose annotations will be queried
-                    filterParams["variableSetId"] = this.filteredVariables.variableSet;
-                }
-
-                this.search = filterParams;
-            }
-
 
             stateFormatter(value, row, index) {
                 if (typeof this.field.context.samples != "undefined") {
@@ -546,7 +410,8 @@
                     columns.push({
                         field: {source: 'state', context: this},
                         checkbox: true,
-                        formatter: this.stateFormatter
+                        formatter: this.stateFormatter,
+                        eligible: false
                     });
                 }
 

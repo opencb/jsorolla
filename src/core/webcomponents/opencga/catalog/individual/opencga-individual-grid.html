@@ -211,7 +211,7 @@
                             };
                         },
                         onClickRow: function (row, element, field) {
-                            if (_this._config.multiselection) {
+                            if (_this._config.multiSelection) {
                                 if (_this._config.detailView) {
                                     // Check and uncheck when clicking in the checkbox TD cell
                                     if (field === "state") {
@@ -429,7 +429,7 @@
                 if (UtilsNew.isNotEmptyArray(row.samples)) {
                     let tableCheckboxHeader = "";
 
-                    if (this.gridContext._config.multiselection) {
+                    if (this.gridContext._config.multiSelection) {
                         tableCheckboxHeader = "<th>Select</th>";
                     }
 
@@ -453,7 +453,7 @@
                     for (let sample of row.samples) {
                         let tableCheckboxRow = "";
                         // If parent row is checked and there is only one samlpe then it must be selected
-                        if (this.gridContext._config.multiselection) {
+                        if (this.gridContext._config.multiSelection) {
                             let checkedStr = "";
                             for (let individual of this.gridContext.individuals) {
                                 if (individual.id === row.id && row.samples.length === 1) {
@@ -570,7 +570,7 @@
                     && UtilsNew.isNotEmptyArray(this._config.customAnnotations.fields));
 
                 let columns = [];
-                if (this._config.multiselection) {
+                if (this._config.multiSelection) {
                     columns.push({
                         field: 'state',
                         checkbox: true,
@@ -688,7 +688,7 @@
                     showExport: false,
                     detailView: true,
                     detailFormatter: this.detailFormatter, // function with the detail formatter
-                    multiselection: true,
+                    multiSelection: true,
                     header: {
                         horizontalAlign: 'center',
                         verticalAlign: 'bottom'
