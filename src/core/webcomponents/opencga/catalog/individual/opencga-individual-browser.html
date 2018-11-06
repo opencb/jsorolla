@@ -85,16 +85,16 @@
                         <div style="padding-top: 5px">
                             <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
                                 <li role="presentation" class="active">
-                                    <a href="#{{prefix}}CohortViewer" role="tab" data-toggle="tab" class="detail-tab-title"
+                                    <a href="#{{prefix}}IndividualViewer" role="tab" data-toggle="tab" class="detail-tab-title"
                                        data-id="info" on-click="_changeBottomTab">
-                                        Individual info
+                                        Individual Info
                                     </a>
                                 </li>
 
                                 <li role="presentation">
-                                    <a href="#{{prefix}}SampleViewer" role="tab" data-toggle="tab" class="detail-tab-title"
-                                       data-id="sampleGrid" on-click="_changeBottomTab">
-                                        Sample grid
+                                    <a href="#{{prefix}}FamilyViewer" role="tab" data-toggle="tab" class="detail-tab-title"
+                                       data-id="familyGrid" on-click="_changeBottomTab">
+                                        Family
                                     </a>
                                 </li>
                             </ul>
@@ -103,11 +103,12 @@
                                 <div role="tabpanel" class="tab-pane active" id="{{prefix}}CohortViewer">
                                     Work in progress:  {{individual.id}}
                                 </div>
-                                <div role="tabpanel" class="tab-pane" id="{{prefix}}SampleViewer">
-                                    <opencga-sample-grid opencga-client="{{opencgaSession.opencgaClient}}"
-                                                         opencga-session="{{opencgaSession}}" search="{{sampleSearch}}"
-                                                         style="font-size: 12px" active="{{detailActiveTabs.sampleGrid}}">
-                                    </opencga-sample-grid>
+                                <div role="tabpanel" class="tab-pane" id="{{prefix}}FamilyViewer">
+                                    Work in progress:  {{individual.id}}
+                                    <!--<opencga-sample-grid opencga-client="{{opencgaSession.opencgaClient}}"-->
+                                                         <!--opencga-session="{{opencgaSession}}" search="{{sampleSearch}}"-->
+                                                         <!--style="font-size: 12px" active="{{detailActiveTabs.sampleGrid}}">-->
+                                    <!--</opencga-sample-grid>-->
                                 </div>
 
                             </div>

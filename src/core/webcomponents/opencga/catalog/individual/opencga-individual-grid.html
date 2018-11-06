@@ -184,7 +184,7 @@
                             if (UtilsNew.isUndefined(filters)) {
                                 filters = {};
                             }
-                            return Object.assign(filters, auxParams);
+                            return Object.assign({}, filters, auxParams);
                         },
                         responseHandler: function (response) {
                             if (!skipCount) {
@@ -379,14 +379,6 @@
                             _this.to = page * size;
                         },
                     });
-
-                    this.opencgaClient.studies().info(this.opencgaSession.study.id)
-                        .then(function (response) {
-                            _this.variableSets = response.response[0].result[0].variableSets;
-                        })
-                        .catch(function () {
-                            console.log("Could not obtain the variable sets of the study " + _this.opencgaSession.study.id);
-                        });
                 } else {
                     // Delete table
                     $(PolymerUtils.getElementById(this.prefix + 'IndividualBrowserGrid')).bootstrapTable('destroy');
@@ -580,11 +572,13 @@
                             {
                                 title: 'Individual ID',
                                 field: 'id',
+                                sortable: true,
                                 halign: this._config.header.horizontalAlign
                             },
                             {
                                 title: 'Sex',
                                 field: 'sex',
+                                sortable: true,
                                 formatter: this.sexFormatter,
                                 halign: this._config.header.horizontalAlign
                             },
@@ -632,12 +626,14 @@
                             {
                                 title: 'Date of Birth',
                                 field: 'dateOfBirth',
+                                sortable: true,
                                 formatter: this.dateFormatter,
                                 halign: this._config.header.horizontalAlign
                             },
                             {
                                 title: 'Creation Date',
                                 field: 'creationDate',
+                                sortable: true,
                                 formatter: this.dateFormatter,
                                 halign: this._config.header.horizontalAlign
                             },

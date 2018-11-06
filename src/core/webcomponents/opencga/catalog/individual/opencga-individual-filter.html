@@ -369,7 +369,7 @@
 
                 // Sex
                 if (UtilsNew.isNotUndefined(this.query.sex)) {
-                    $(`#${this.prefix}-individual-sex-select`).selectpicker('val', this.query.sex);
+                    $(`#${this.prefix}-individual-sex-select`).selectpicker('val', this.query.sex.split(","));
                 }
 
                 // Karyotypic sex
@@ -413,7 +413,7 @@
 
                 let sex = $(`#${this.prefix}-individual-sex-select`).selectpicker('val');
                 if (UtilsNew.isNotEmpty(sex)) {
-                    _query.sex = sex;
+                    _query.sex = sex.join(",");
                 }
 
                 let karyotypic = $(`#${this.prefix}-individual-karyotypicsex-select`).selectpicker('val');

@@ -327,14 +327,6 @@
 //                             }
 //                         }
                     });
-
-                    this.opencgaClient.studies().info(this.opencgaSession.study.id)
-                        .then(function (response) {
-                            _this.variableSets = response.response[0].result[0].variableSets;
-                        })
-                        .catch(function () {
-                            console.log("Could not obtain the variable sets of the study " + _this.opencgaSession.study.id);
-                        });
                 } else {
                     // Delete table
                     $(PolymerUtils.getElementById(this.prefix + 'SampleBrowserGrid')).bootstrapTable('destroy');
