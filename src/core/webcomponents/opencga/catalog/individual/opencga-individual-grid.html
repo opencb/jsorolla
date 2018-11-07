@@ -33,7 +33,7 @@
         </style>
 
         <opencb-grid-toolbar from="{{from}}" to="{{to}}" num-total-results-text="{{numTotalResultsText}}"
-                             config="[[toolbarConfig]]" on-columnchange="onColumnChange"></opencb-grid-toolbar>
+                             config="{{toolbarConfig}}" on-columnchange="onColumnChange"></opencb-grid-toolbar>
 
         <div id="{{prefix}}GridTableDiv" style="margin-top: 10px">
             <table id="{{prefix}}IndividualBrowserGrid">
@@ -95,6 +95,11 @@
                 this._config = Object.assign(this.getDefaultConfig(), this.config);
                 this._columns = this._initTableColumns();
 
+                // Config for the grid toolbar
+                this.toolbarConfig = {
+                    columns: this._columns[0]
+                };
+
                 this.renderTable(active);
             }
 
@@ -116,7 +121,7 @@
                 if (UtilsNew.isNotUndefined(this.opencgaClient) && UtilsNew.isNotUndefined(this.opencgaSession.study)
                     && UtilsNew.isNotUndefined(this.opencgaSession.study.fqn)) {
 
-                    filters["study"] = this.opencgaSession.study.fqn;
+                    filters.study = this.opencgaSession.study.fqn;
                     if (UtilsNew.isNotUndefinedOrNull(this.lastFilters)
                         && JSON.stringify(this.lastFilters) === JSON.stringify(filters)) {
                         // Abort destroying and creating again the grid. The filters have not changed
@@ -527,12 +532,28 @@
                 }
             }
 
-            phenotypesFormatter(value, row) {
-                if (UtilsNew.isNotEmptyArray(row.phenotypes)) {
+            disordersFormatter(value, row) {
+                if (UtilsNew.isNotEmptyArray(row.phenotypes) && UtilsNew.isNotEmptyArray(this.gridContext._config.disorderSources)) {
                     let phenotypes = "<div>";
                     for (let phenotype of row.phenotypes) {
-                        phenotypes += `<span>${phenotype.name} (${phenotype.id})</span>`;
+                        if (this.gridContext._config.disorderSources.disorderSources.includes(phenotype.source)) {
+                            phenotypes += `<span>${phenotype.name} (${phenotype.id})</span>`;
+                        }
                     }
+                    phenotypes += "</div>";
+                    return phenotypes;
+                } else {
+                    return '-';
+                }
+            }
+
+            phenotypesFormatter(value, row) {
+                if (UtilsNew.isNotEmptyArray(row.phenotypes) && UtilsNew.isNotEmptyArray(this.gridContext._config.disorderSources)) {
+                    let phenotypes = "<div>";
+                    for (let phenotype of row.phenotypes) {
+                        if (!this.gridContext._config.disorderSources.disorderSources.includes(phenotype.source)) {
+                            phenotypes += `<span>${phenotype.name} (${phenotype.id})</span>`;
+                        }                    }
                     phenotypes += "</div>";
                     return phenotypes;
                 } else {
@@ -580,7 +601,8 @@
                     });
                 }
 
-                let myClass = !this._config.detailView ? "cursor-pointer" : "";
+                // let myClass = !this._config.detailView ? "cursor-pointer" : "";
+                let myClass = "";
 
                 this._columns = [
                     columns.concat(
@@ -612,6 +634,13 @@
                                 field: 'mother.id',
                                 class: myClass,
                                 formatter: this.motherFormatter,
+                                halign: this._config.header.horizontalAlign
+                            },
+                            {
+                                title: 'Disorders',
+                                field: 'phenotypes',
+                                class: myClass,
+                                formatter: this.disordersFormatter,
                                 halign: this._config.header.horizontalAlign
                             },
                             {
@@ -651,16 +680,16 @@
                             {
                                 title: 'Date of Birth',
                                 field: 'dateOfBirth',
-                                class: myClass,
                                 sortable: true,
+                                class: myClass,
                                 formatter: this.dateFormatter,
                                 halign: this._config.header.horizontalAlign
                             },
                             {
                                 title: 'Creation Date',
                                 field: 'creationDate',
-                                class: myClass,
                                 sortable: true,
+                                class: myClass,
                                 formatter: this.dateFormatter,
                                 halign: this._config.header.horizontalAlign
                             },
@@ -672,10 +701,6 @@
                             },
                         ])
                 ];
-
-                this.toolbarConfig = {
-                    columns: this._columns[0]
-                };
 
                 return this._columns;
             }
@@ -693,6 +718,7 @@
                         horizontalAlign: 'center',
                         verticalAlign: 'bottom'
                     },
+                    disorderSources: ["ICD", "ICD10"],
                     customAnnotations: {
                         title: "Custom Annotation",
                         fields: []
