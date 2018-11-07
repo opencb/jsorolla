@@ -27,27 +27,29 @@
 
             <div id="{{prefix}}toolbar" class="col-md-6" style="padding: 0px">
                 <div class="form-inline" style="padding: 0px; float: right">
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i id="{{prefix}}ColumnIcon" class="fa fa-columns" aria-hidden="true"></i> Columns <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu btn-sm">
-                            <template is="dom-repeat" items="{{_config.columns}}">
-                                <template is="dom-if" if="{{isTrue(item.eligible)}}">
-                                    <li><a data-column-id$="{{item.field}}" on-click="onColumnClick" style="cursor: pointer;">
-                                        <input type="checkbox" on-click="checkboxToggle" checked$="{{isTrue(item.visible)}}"/>
-                                        <span style="vertical-align: text-bottom;">&nbsp;{{item.title}}</span></a>
-                                    </li>
-                                </template>
-                            </template>
-                        </ul>
-                    </div>
 
+                    <template is="dom-if" if="{{config.columns.length}}">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i id="{{prefix}}ColumnIcon" class="fa fa-columns" aria-hidden="true" style="padding-right: 5px"></i> Columns <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu btn-sm">
+                                <template is="dom-repeat" items="{{_config.columns}}">
+                                    <template is="dom-if" if="{{isTrue(item.eligible)}}">
+                                        <li><a data-column-id$="{{item.field}}" on-click="onColumnClick" style="cursor: pointer;">
+                                            <input type="checkbox" on-click="checkboxToggle" checked$="{{isTrue(item.visible)}}"/>
+                                            <span style="vertical-align: text-bottom;">&nbsp;{{item.title}}</span></a>
+                                        </li>
+                                    </template>
+                                </template>
+                            </ul>
+                        </div>
+                    </template>
 
                     <div class="btn-group">
                         <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i id="{{prefix}}DownloadRefresh" class="fa fa-refresh fa-spin" aria-hidden="true" style="font-size:14px;display: none"></i>
-                            <i id="{{prefix}}DownloadIcon" class="fa fa-download" aria-hidden="true"></i> Download <span class="caret"></span>
+                            <i id="{{prefix}}DownloadIcon" class="fa fa-download" aria-hidden="true" style="padding-right: 5px"></i> Download <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu btn-sm">
                             <template is="dom-repeat" items="{{_config.download}}">
@@ -58,7 +60,7 @@
 
                     <!--Share URL-->
                     <button type="button" class="btn btn-default btn-sm" data-toggle="popover" data-placement="bottom" on-click="onShareLink">
-                        <i class="fa fa-share-alt" aria-hidden="true"></i> Share
+                        <i class="fa fa-share-alt" aria-hidden="true" style="padding-right: 5px"></i> Share
                     </button>
                 </div>
             </div>
@@ -151,8 +153,8 @@
 
             getDefaultConfig() {
                 return {
-                    columns: [], // [{field: "blabla", title: "Blabla", visible: true, eligible: true}]
                     label: "records",
+                    columns: [], // [{field: "blabla", title: "Blabla", visible: true, eligible: true}]
                     download: ["Tab", "JSON"]
                 };
             }
