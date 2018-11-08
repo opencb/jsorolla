@@ -533,10 +533,12 @@
             }
 
             disordersFormatter(value, row) {
-                if (UtilsNew.isNotEmptyArray(row.phenotypes) && UtilsNew.isNotEmptyArray(this.gridContext._config.disorderSources)) {
+                // if (UtilsNew.isNotEmptyArray(row.phenotypes) && UtilsNew.isNotEmptyArray(this.gridContext._config.disorderSources)) {
+                if (UtilsNew.isNotEmptyArray(row.phenotypes)) {
                     let phenotypes = "<div>";
                     for (let phenotype of row.phenotypes) {
-                        if (this.gridContext._config.disorderSources.disorderSources.includes(phenotype.source)) {
+                        if (phenotype.source != "hpo") {
+                        // if (this.gridContext._config.disorderSources.disorderSources.includes(phenotype.source)) {
                             phenotypes += `<span>${phenotype.name} (${phenotype.id})</span>`;
                         }
                     }
@@ -548,17 +550,17 @@
             }
 
             phenotypesFormatter(value, row) {
-                if (UtilsNew.isNotEmptyArray(row.phenotypes) && UtilsNew.isNotEmptyArray(this.gridContext._config.disorderSources)) {
-                    let phenotypes = "<div>";
-                    for (let phenotype of row.phenotypes) {
-                        if (!this.gridContext._config.disorderSources.disorderSources.includes(phenotype.source)) {
-                            phenotypes += `<span>${phenotype.name} (${phenotype.id})</span>`;
-                        }                    }
-                    phenotypes += "</div>";
-                    return phenotypes;
-                } else {
+                // if (UtilsNew.isNotEmptyArray(row.phenotypes) && UtilsNew.isNotEmptyArray(this.gridContext._config.disorderSources)) {
+                //     let phenotypes = "<div>";
+                //     for (let phenotype of row.phenotypes) {
+                //         if (!this.gridContext._config.disorderSources.disorderSources.includes(phenotype.source)) {
+                //             phenotypes += `<span>${phenotype.name} (${phenotype.id})</span>`;
+                //         }                    }
+                //     phenotypes += "</div>";
+                //     return phenotypes;
+                // } else {
                     return '-';
-                }
+                // }
             }
 
             samplesFormatter(value, row) {
