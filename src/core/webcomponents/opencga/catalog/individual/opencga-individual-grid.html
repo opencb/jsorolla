@@ -217,24 +217,19 @@
                         },
                         onClickRow: function (row, element, field) {
                             if (_this._config.multiSelection) {
-                                if (_this._config.detailView) {
-                                    // Check and uncheck when clicking in the checkbox TD cell
-                                    if (field === "state") {
-                                        let index = element[0].dataset.index;
-                                        if (element[0].className.includes("selected")) {
-                                            $(PolymerUtils.getElementById(_this.prefix + 'IndividualBrowserGrid')).bootstrapTable('uncheck', index);
-                                        } else {
-                                            $(PolymerUtils.getElementById(_this.prefix + "IndividualBrowserGrid")).bootstrapTable('check', index);
-
-                                            $('.success').removeClass('success');
-                                            $(element).addClass('success');
-                                        }
+                                // Check and uncheck when clicking in the checkbox TD cell
+                                if (field === "state") {
+                                    let index = element[0].dataset.index;
+                                    if (element[0].className.includes("selected")) {
+                                        $(PolymerUtils.getElementById(_this.prefix + 'IndividualBrowserGrid')).bootstrapTable('uncheck', index);
                                     } else {
-                                        // If user has clicked in the row
+                                        $(PolymerUtils.getElementById(_this.prefix + "IndividualBrowserGrid")).bootstrapTable('check', index);
+
                                         $('.success').removeClass('success');
                                         $(element).addClass('success');
                                     }
                                 } else {
+                                    // If user has clicked in the row
                                     let index = element[0].dataset.index;
                                     if (element[0].className.includes("selected")) {
                                         $(PolymerUtils.getElementById(_this.prefix + 'IndividualBrowserGrid')).bootstrapTable('uncheck', index);
@@ -376,7 +371,7 @@
                         onLoadSuccess: function (data) {
                             // Check all already selected rows. Selected individuals are stored in this.individuals array
                             if (UtilsNew.isNotUndefinedOrNull(_table)) {
-                                if (_this._config.detailView) {
+                                if (!_this._config.multiSelection) {
                                     PolymerUtils.querySelector(_table.selector).rows[1].setAttribute('class', 'success');
                                     _this._onSelectIndividual(data.rows[0]);
                                 }
@@ -538,7 +533,7 @@
                     let phenotypes = "<div>";
                     for (let phenotype of row.phenotypes) {
                         if (phenotype.source != "hpo") {
-                        // if (this.gridContext._config.disorderSources.disorderSources.includes(phenotype.source)) {
+                            // if (this.gridContext._config.disorderSources.disorderSources.includes(phenotype.source)) {
                             phenotypes += `<span>${phenotype.name} (${phenotype.id})</span>`;
                         }
                     }
@@ -559,7 +554,7 @@
                 //     phenotypes += "</div>";
                 //     return phenotypes;
                 // } else {
-                    return '-';
+                return '-';
                 // }
             }
 
@@ -603,9 +598,6 @@
                     });
                 }
 
-                // let myClass = !this._config.detailView ? "cursor-pointer" : "";
-                let myClass = "";
-
                 this._columns = [
                     columns.concat(
                         [
@@ -613,68 +605,58 @@
                                 title: 'Individual ID',
                                 field: 'id',
                                 sortable: true,
-                                class: myClass,
                                 halign: this._config.header.horizontalAlign
                             },
                             {
                                 title: 'Sex',
                                 field: 'sex',
                                 sortable: true,
-                                class: myClass,
                                 formatter: this.sexFormatter,
                                 halign: this._config.header.horizontalAlign
                             },
                             {
                                 title: 'Father',
                                 field: 'father.id',
-                                class: myClass,
                                 formatter: this.fatherFormatter,
                                 halign: this._config.header.horizontalAlign
                             },
                             {
                                 title: 'Mother',
                                 field: 'mother.id',
-                                class: myClass,
                                 formatter: this.motherFormatter,
                                 halign: this._config.header.horizontalAlign
                             },
                             {
                                 title: 'Disorders',
                                 field: 'phenotypes',
-                                class: myClass,
                                 formatter: this.disordersFormatter,
                                 halign: this._config.header.horizontalAlign
                             },
                             {
                                 title: 'Phenotypes',
                                 field: 'phenotypes',
-                                class: myClass,
                                 formatter: this.phenotypesFormatter,
                                 halign: this._config.header.horizontalAlign
                             },
                             {
                                 title: 'Samples',
                                 field: 'samples',
-                                class: myClass,
                                 formatter: this.samplesFormatter,
                                 halign: this._config.header.horizontalAlign
                             },
                             {
                                 title: 'Affectation Status',
                                 field: 'affectationStatus',
-                                class: myClass,
                                 halign: this._config.header.horizontalAlign
                             },
                             {
                                 title: 'Life Status',
                                 field: 'lifeStatus',
-                                class: myClass,
                                 halign: this._config.header.horizontalAlign
                             },
                             {
                                 title: 'Custom Annotations',
                                 field: 'customAnnotation',
-                                class: myClass,
                                 formatter: this.customAnnotationFormatter,
                                 visible: customAnnotationVisible,
                                 halign: this._config.header.horizontalAlign
@@ -683,7 +665,6 @@
                                 title: 'Date of Birth',
                                 field: 'dateOfBirth',
                                 sortable: true,
-                                class: myClass,
                                 formatter: this.dateFormatter,
                                 halign: this._config.header.horizontalAlign
                             },
@@ -691,14 +672,12 @@
                                 title: 'Creation Date',
                                 field: 'creationDate',
                                 sortable: true,
-                                class: myClass,
                                 formatter: this.dateFormatter,
                                 halign: this._config.header.horizontalAlign
                             },
                             {
                                 title: 'Status',
                                 field: 'status.name',
-                                class: myClass,
                                 halign: this._config.header.horizontalAlign
                             },
                         ])
@@ -715,7 +694,7 @@
                     showExport: false,
                     detailView: true,
                     detailFormatter: this.detailFormatter, // function with the detail formatter
-                    multiSelection: true,
+                    multiSelection: false,
                     header: {
                         horizontalAlign: 'center',
                         verticalAlign: 'bottom'
