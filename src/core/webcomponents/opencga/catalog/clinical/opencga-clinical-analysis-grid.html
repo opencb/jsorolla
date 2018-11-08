@@ -201,7 +201,7 @@
                 let queryParams = Object.assign(
                     {
                         sid: this.opencgaClient._config.sessionId,
-                        include: "id,name,subjects,disease,type,creationDate,interpretations",
+                        include: "id,name,proband,family,disease,type,creationDate,interpretations,status,dueDate",
                         skipCount: false
                     }, this.query);
 
@@ -279,16 +279,18 @@
                             },
                             {
                                 title: 'Proband',
-                                formatter: this.probandFormatter
+                                field: 'proband.id',
+                                // formatter: this.probandFormatter
                             },
                             {
                                 title: 'Family',
-                                formatter: this.familyFormatter
+                                field: 'family.id',
+                                // formatter: this.familyFormatter
                             },
                             {
                                 title: 'Disease',
                                 field: 'disease',
-                                formatter: this.diseaseFormatter
+                                // formatter: this.diseaseFormatter
                             },
                             {
                                 title: 'Analysis Type',
