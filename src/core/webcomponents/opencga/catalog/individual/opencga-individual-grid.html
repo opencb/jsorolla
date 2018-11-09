@@ -271,11 +271,6 @@
                             _this.push("_individuals", row);
                             _this.set('individuals', _this._individuals.slice());
 
-                            // We detail view is active we expand the row automatically
-                            if (_this._config.detailView) {
-                                $(PolymerUtils.getElementById(_this.prefix + 'IndividualBrowserGrid')).bootstrapTable('expandRow', element[0].dataset.index);
-                            }
-
                             // We only activate the row when checking
                             if (_this._config.detailView) {
                                 $('.success').removeClass('success');

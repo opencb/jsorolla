@@ -98,14 +98,14 @@
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <div class="browser-subsection">Samples
-                            </div>
-                            <div id="{{prefix}}-sample" class="subsection-content form-group">
-                                <input type="text" id="{{prefix}}-sample-input" class$="form-control input-sm {{prefix}}FilterTextInput"
-                                       placeholder="HG01879, HG01880, HG01881..." on-keyup="calculateFilters">
-                            </div>
-                        </div>
+                        <!--<div class="form-group">-->
+                            <!--<div class="browser-subsection">Samples-->
+                            <!--</div>-->
+                            <!--<div id="{{prefix}}-sample" class="subsection-content form-group">-->
+                                <!--<input type="text" id="{{prefix}}-sample-input" class$="form-control input-sm {{prefix}}FilterTextInput"-->
+                                       <!--placeholder="HG01879, HG01880, HG01881..." on-keyup="calculateFilters">-->
+                            <!--</div>-->
+                        <!--</div>-->
 
                         <div class="form-group">
                             <div class="browser-subsection">Phenotypes
@@ -286,40 +286,21 @@
                     PolymerUtils.setValue(`${this.prefix}-family-input`, this.query.id);
                 }
 
-                // Samples
-                if (UtilsNew.isNotUndefined(this.query.samples)) {
-                    PolymerUtils.setValue(`${this.prefix}-sample-input`, this.query.samples);
+                // Members
+                if (UtilsNew.isNotUndefined(this.query.members)) {
+                    PolymerUtils.setValue(`${this.prefix}-members-input`, this.query.members);
                 }
+
+                // Samples
+                // if (UtilsNew.isNotUndefined(this.query.samples)) {
+                //     PolymerUtils.setValue(`${this.prefix}-sample-input`, this.query.samples);
+                // }
 
                 // Phenotypes
                 if (UtilsNew.isNotUndefined(this.query.phenotypes)) {
                     PolymerUtils.setValue(`${this.prefix}-phenotypes-input`, this.query.phenotypes);
                 }
 
-                // Ethnicity
-                if (UtilsNew.isNotUndefined(this.query.ethnicity)) {
-                    PolymerUtils.setValue(`${this.prefix}-ethnicity-input`, this.query.ethnicity);
-                }
-
-                // Sex
-                if (UtilsNew.isNotUndefined(this.query.sex)) {
-                    $(`#${this.prefix}-family-sex-select`).selectpicker('val', this.query.sex.split(","));
-                }
-
-                // Karyotypic sex
-                if (UtilsNew.isNotUndefined(this.query.karyotypicSex)) {
-                    $(`#${this.prefix}-family-karyotypicsex-select`).selectpicker('val', this.query.karyotypicSex.split(","));
-                }
-
-                // Affectation status
-                if (UtilsNew.isNotUndefined(this.query.affectationStatus)) {
-                    $(`#${this.prefix}-affectation-status-select`).selectpicker('val', this.query.affectationStatus.split(","));
-                }
-
-                // Life status
-                if (UtilsNew.isNotUndefined(this.query.lifeStatus)) {
-                    $(`#${this.prefix}-life-status-select`).selectpicker('val', this.query.lifeStatus.split(","));
-                }
             }
 
             calculateFilters(e) {
@@ -330,39 +311,19 @@
                     _query.id = name;
                 }
 
-                let samples = PolymerUtils.getValue(`${this.prefix}-sample-input`);
-                if (UtilsNew.isNotEmpty(samples)) {
-                    _query.samples = samples;
+                // let samples = PolymerUtils.getValue(`${this.prefix}-samples-input`);
+                // if (UtilsNew.isNotEmpty(samples)) {
+                //     _query.samples = samples;
+                // }
+
+                let members = PolymerUtils.getValue(`${this.prefix}-members-input`);
+                if (UtilsNew.isNotEmpty(members)) {
+                    _query.members = members;
                 }
 
                 let phenotypes = PolymerUtils.getValue(`${this.prefix}-phenotypes-input`);
                 if (UtilsNew.isNotEmpty(phenotypes)) {
                     _query.phenotypes = phenotypes;
-                }
-
-                let ethnicity = PolymerUtils.getValue(`${this.prefix}-ethnicity-input`);
-                if (UtilsNew.isNotEmpty(ethnicity)) {
-                    _query.ethnicity = ethnicity;
-                }
-
-                let sex = $(`#${this.prefix}-family-sex-select`).selectpicker('val');
-                if (UtilsNew.isNotEmpty(sex)) {
-                    _query.sex = sex.join(",");
-                }
-
-                let karyotypic = $(`#${this.prefix}-family-karyotypicsex-select`).selectpicker('val');
-                if (UtilsNew.isNotEmpty(karyotypic)) {
-                    _query.karyotypicSex = karyotypic.join(",");
-                }
-
-                let affectation = $(`#${this.prefix}-affectation-status-select`).selectpicker('val');
-                if (UtilsNew.isNotEmpty(affectation)) {
-                    _query.affectationStatus = affectation.join(",");
-                }
-
-                let lifeStatus = $(`#${this.prefix}-life-status-select`).selectpicker('val');
-                if (UtilsNew.isNotEmpty(lifeStatus)) {
-                    _query.lifeStatus = lifeStatus.join(",");
                 }
 
                 // keep annotation filter
