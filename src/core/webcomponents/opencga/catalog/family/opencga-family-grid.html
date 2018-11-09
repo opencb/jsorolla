@@ -511,11 +511,11 @@
                     }
 
                     let html = `<div class="dropdown members-link-dropdown" style="white-space: nowrap">
-                                <a id="${this.field.context.prefix}dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                <a id="${this.prefix}dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                                     style="cursor: pointer">
                                     ${row.members.length} members found
                                 </a>
-                                <ul class="dropdown-menu" aria-labelledby="${this.field.context.prefix}dropdownMenu1" style="font-size: 1.25rem;margin-top: 0px;padding: 10px 0px">
+                                <ul class="dropdown-menu" aria-labelledby="${this.prefix}dropdownMenu1" style="font-size: 1.25rem;margin-top: 0px;padding: 10px 0px">
                                     <!--<li class="dropdown-header">HPO</li>-->
                                     ${members}
                                 </ul>
@@ -529,7 +529,7 @@
 
             disordersFormatter(value, row) {
                 if (UtilsNew.isNotEmptyArray(row.phenotypes)) {
-                    let disorderSources = this.field.context._config.disorderSources;
+                    let disorderSources = this._config.disorderSources;
                     let phenotypes = "<div>";
                     for (let phenotype of row.phenotypes) {
                         if (disorderSources != null && disorderSources.includes(phenotype.source)) {
@@ -545,7 +545,7 @@
 
             phenotypesFormatter(value, row) {
                 if (UtilsNew.isNotEmptyArray(row.phenotypes)) {
-                    let disorderSources = this.field.context._config.disorderSources;
+                    let disorderSources = this._config.disorderSources;
                     let counter = 0;
                     let phenotypes = "";
                     for (let phenotype of row.phenotypes) {
@@ -565,11 +565,11 @@
                     }
 
                     let html = `<div class="dropdown phenotypes-link-dropdown" style="white-space: nowrap">
-                                <a id="${this.field.context.prefix}dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                <a id="${this.prefix}dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                                     style="cursor: pointer">
                                     ${counter} terms found
                                 </a>
-                                <ul class="dropdown-menu" aria-labelledby="${this.field.context.prefix}dropdownMenu1" style="font-size: 1.25rem;margin-top: 0px;padding: 10px 0px">
+                                <ul class="dropdown-menu" aria-labelledby="${this.prefix}dropdownMenu1" style="font-size: 1.25rem;margin-top: 0px;padding: 10px 0px">
                                     <!--<li class="dropdown-header">HPO</li>-->
                                     ${phenotypes}
                                 </ul>
@@ -619,20 +619,20 @@
                             },
                             {
                                 title: 'Members',
-                                field: {id: 'phenotypes', context: this},
-                                formatter: this.membersFormatter,
+                                field: 'members',
+                                formatter: this.membersFormatter.bind(this),
                                 halign: this._config.header.horizontalAlign,
                             },
                             {
                                 title: 'Disorders',
-                                field: {id: 'phenotypes', context: this},
-                                formatter: this.disordersFormatter,
+                                field: 'disorders',
+                                formatter: this.disordersFormatter.bind(this),
                                 halign: this._config.header.horizontalAlign
                             },
                             {
                                 title: 'Phenotypes',
-                                field: {id: 'phenotypes', context: this},
-                                formatter: this.phenotypesFormatter,
+                                field: 'phenotypes',
+                                formatter: this.phenotypesFormatter.bind(this),
                                 halign: this._config.header.horizontalAlign
                             },
                             {
