@@ -47,20 +47,23 @@
 
                 <div class="col-md-12">
                     <h4 style="padding: 20px 0px 5px 0px">Select Custom Aggregation Fields</h4>
-                    <div class="col-md-5" style="padding: 0px 30px 0px 10px">
-                        <opencga-facet-view-selector id="{{prefix}}-ofvs-first" terms="{{dataModelTerms}}" variable-sets="[[variableSets]]"
-                                                     on-variablechange="onVariableSelectedChange" clear$="{{clearSelectedOptions}}">
-                        </opencga-facet-view-selector>
-                    </div>
-                    <div class="col-md-5" style="padding: 0px 10px 0px 30px">
-                        <opencga-facet-view-selector id="{{prefix}}-ofvs-nested" terms="{{dataModelTerms}}" variable-sets="[[variableSets]]"
-                                                     on-variablechange="onVariableSelectedChange" clear$="{{clearSelectedOptions}}"
-                                                     disabled$="{{disableNestedSelector}}">
-                        </opencga-facet-view-selector>
-                    </div>
 
-                    <div class="col-md-1" style="padding-top: 25px">
-                        <button type="button" class="btn btn-primary" on-click="addFacet" style="cursor: pointer">Add</button>
+                    <div class="row">
+                        <div class="col-md-5" style="padding: 0px 30px 0px 10px">
+                            <opencga-facet-view-selector id="{{prefix}}-ofvs-first" terms="{{dataModelTerms}}" variable-sets="[[variableSets]]"
+                                                         on-variablechange="onVariableSelectedChange" clear$="{{clearSelectedOptions}}">
+                            </opencga-facet-view-selector>
+                        </div>
+                        <div class="col-md-5" style="padding: 0px 10px 0px 30px">
+                            <opencga-facet-view-selector id="{{prefix}}-ofvs-nested" terms="{{dataModelTerms}}" variable-sets="[[variableSets]]"
+                                                         on-variablechange="onVariableSelectedChange" clear$="{{clearSelectedOptions}}"
+                                                         disabled$="{{disableNestedSelector}}">
+                            </opencga-facet-view-selector>
+                        </div>
+
+                        <div class="col-md-1 col-md-offset-1" style="padding-top: 25px">
+                            <button type="button" class="btn btn-primary" on-click="addFacet" style="cursor: pointer">Add</button>
+                        </div>
                     </div>
                 </div>
 
@@ -78,7 +81,7 @@
                     </div>
                 </div>
 
-                <div class="col-md-10 col-md-offset-1">
+                <div class="col-md-10 col-md-offset-2">
                     <div style="float: right; padding: 10px">
                         <button type="button" class="btn btn-primary btn-lg" on-click="fetchData">Run</button>
                     </div>

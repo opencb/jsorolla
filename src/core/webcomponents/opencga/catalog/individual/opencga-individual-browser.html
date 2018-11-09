@@ -213,7 +213,7 @@
 
                 this.detailActiveTabs = {
                     info: true,
-                    sampleGrid: false
+                    familyGrid: false
                 };
             }
 
@@ -258,7 +258,7 @@
             _changeBottomTab(e) {
                 let _activeTabs = {
                     info: e.currentTarget.dataset.id === "info",
-                    sampleGrid: e.currentTarget.dataset.id === "sampleGrid"
+                    familyGrid: e.currentTarget.dataset.id === "familyGrid"
                 };
 
                 this.set("detailActiveTabs", _activeTabs);
@@ -271,7 +271,6 @@
                     table: e.currentTarget.dataset.id === "table",
                     comparator: e.currentTarget.dataset.id === "comparator"
                 };
-
                 this.set("activeMenu", activeMenu);
 
                 $('.individual-browser-view-content').hide(); // hides all content divs
@@ -321,7 +320,6 @@
                     gridComparator: {
                         pageSize: 5,
                         pageList: [5, 10],
-                        detailView: false,
                         multiSelection: true
                     },
                     individualDetail: {
