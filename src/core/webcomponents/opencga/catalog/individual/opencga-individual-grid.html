@@ -548,6 +548,7 @@
             phenotypesFormatter(value, row) {
                 if (UtilsNew.isNotEmptyArray(row.phenotypes)) {
                     let disorderSources = this.field.context._config.disorderSources;
+                    let counter = 0;
                     let phenotypes = "";
                     for (let phenotype of row.phenotypes) {
                         if (disorderSources != null && !disorderSources.includes(phenotype.source)) {
@@ -555,7 +556,9 @@
                             if (phenotype.source.toUpperCase() === "HPO") {
                                 phenotypes += `<span>
                                                     <a target='_blank' href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id} </a>(${phenotype.status})
-                                               </span>`;
+                                               </span>
+                                               `;
+                                counter++;
                             } else {
                                 phenotypes += `${phenotype.id} (${phenotype.status})`;
                             }
@@ -566,7 +569,7 @@
                     let html = `<div class="dropdown phenotypes-link-dropdown" style="white-space: nowrap">
                                 <a id="${this.field.context.prefix}dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                                     style="cursor: pointer">
-                                    ${row.phenotypes.length} terms found
+                                    ${counter} terms found
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="${this.field.context.prefix}dropdownMenu1" style="font-size: 1.25rem;margin-top: 0px;padding: 10px 0px">
                                     <!--<li class="dropdown-header">HPO</li>-->

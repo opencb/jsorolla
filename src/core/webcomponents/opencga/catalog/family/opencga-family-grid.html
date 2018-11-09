@@ -30,6 +30,14 @@
             .cursor-pointer {
                 cursor: pointer;
             }
+
+            .members-link-dropdown:hover .dropdown-menu {
+                display: block;
+            }
+
+            .phenotypes-link-dropdown:hover .dropdown-menu {
+                display: block;
+            }
         </style>
 
         <opencb-grid-toolbar from="{{from}}" to="{{to}}" num-total-results-text="{{numTotalResultsText}}"
@@ -424,6 +432,7 @@
                 }
             }
 
+
             detailFormatter(value, row) {
                 let result = `<div class='row' style="padding: 5px 10px 15px 10px">
                                 <div class='col-md-12'>
@@ -500,31 +509,85 @@
                 return result;
             }
 
-            phenotypesFormatter(value, row) {
-                // if (UtilsNew.isNotEmptyArray(row.phenotypes) && UtilsNew.isNotEmptyArray(this.gridContext._config.disorderSources)) {
-                //     let phenotypes = "<div>";
-                //     for (let phenotype of row.phenotypes) {
-                //         if (!this.gridContext._config.disorderSources.disorderSources.includes(phenotype.source)) {
-                //             phenotypes += `<span>${phenotype.name} (${phenotype.id})</span>`;
-                //         }                    }
-                //     phenotypes += "</div>";
-                //     return phenotypes;
-                // } else {
-                return '-';
-                // }
+            membersFormatter(value, row) {
+                if (UtilsNew.isNotEmptyArray(row.members)) {
+                    let members = "";
+                    for (let member of row.members) {
+                        members += `<li style='padding: 0px 15px'>
+                                            <span>
+                                                ${member.id} (${member.sex})
+                                            </span>
+                                       </li>`;
+                    }
+
+                    let html = `<div class="dropdown members-link-dropdown" style="white-space: nowrap">
+                                <a id="${this.field.context.prefix}dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                    style="cursor: pointer">
+                                    ${row.members.length} members found
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="${this.field.context.prefix}dropdownMenu1" style="font-size: 1.25rem;margin-top: 0px;padding: 10px 0px">
+                                    <!--<li class="dropdown-header">HPO</li>-->
+                                    ${members}
+                                </ul>
+                            </div>`;
+
+                    return html;
+                } else {
+                    return 'No members found';
+                }
             }
 
-            memberFormatter(value, row) {
-                if (UtilsNew.isNotEmptyArray(row.members)) {
-                    return row.members.length;
-                    // let members = "<div>";
-                    // for (let member of row.members) {
-                    //     members += `<div>${member.id}</div>`;
-                    // }
-                    // members += "</div>";
-                    // return members;
+            disordersFormatter(value, row) {
+                if (UtilsNew.isNotEmptyArray(row.phenotypes)) {
+                    let disorderSources = this.field.context._config.disorderSources;
+                    let phenotypes = "<div>";
+                    for (let phenotype of row.phenotypes) {
+                        if (disorderSources != null && disorderSources.includes(phenotype.source)) {
+                            phenotypes += `<span>${phenotype.id}</span>`;
+                        }
+                    }
+                    phenotypes += "</div>";
+                    return phenotypes;
                 } else {
-                    return 0;
+                    return '-';
+                }
+            }
+
+            phenotypesFormatter(value, row) {
+                if (UtilsNew.isNotEmptyArray(row.phenotypes)) {
+                    let disorderSources = this.field.context._config.disorderSources;
+                    let counter = 0;
+                    let phenotypes = "";
+                    for (let phenotype of row.phenotypes) {
+                        if (disorderSources != null && !disorderSources.includes(phenotype.source)) {
+                            phenotypes += "<li style='padding: 0px 15px'>";
+                            if (phenotype.source.toUpperCase() === "HPO") {
+                                phenotypes += `<span>
+                                                    <a target='_blank' href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id} </a>(${phenotype.status})
+                                               </span>
+                                               `;
+                                counter++;
+                            } else {
+                                phenotypes += `${phenotype.id} (${phenotype.status})`;
+                            }
+                            phenotypes += "</li>";
+                        }
+                    }
+
+                    let html = `<div class="dropdown phenotypes-link-dropdown" style="white-space: nowrap">
+                                <a id="${this.field.context.prefix}dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                    style="cursor: pointer">
+                                    ${counter} terms found
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="${this.field.context.prefix}dropdownMenu1" style="font-size: 1.25rem;margin-top: 0px;padding: 10px 0px">
+                                    <!--<li class="dropdown-header">HPO</li>-->
+                                    ${phenotypes}
+                                </ul>
+                            </div>`;
+
+                    return html;
+                } else {
+                    return '-';
                 }
             }
 
@@ -555,9 +618,6 @@
                     });
                 }
 
-                // let myClass = !this._config.detailView ? "cursor-pointer" : "";
-                let myClass = "";
-
                 this._columns = [
                     columns.concat(
                         [
@@ -565,28 +625,29 @@
                                 title: 'Family ID',
                                 field: 'id',
                                 sortable: true,
-                                class: myClass,
                                 halign: this._config.header.horizontalAlign
                             },
                             {
-                                title: '#Number Of Members',
-                                field: 'members',
-                                class: myClass,
-                                formatter: this.memberFormatter,
+                                title: 'Members',
+                                field: {id: 'phenotypes', context: this},
+                                formatter: this.membersFormatter,
                                 halign: this._config.header.horizontalAlign,
-                                align: "right"
+                            },
+                            {
+                                title: 'Disorders',
+                                field: {id: 'phenotypes', context: this},
+                                formatter: this.disordersFormatter,
+                                halign: this._config.header.horizontalAlign
                             },
                             {
                                 title: 'Phenotypes',
-                                field: 'phenotypes',
-                                class: myClass,
+                                field: {id: 'phenotypes', context: this},
                                 formatter: this.phenotypesFormatter,
                                 halign: this._config.header.horizontalAlign
                             },
                             {
                                 title: 'Custom Annotations',
                                 field: 'customAnnotation',
-                                class: myClass,
                                 formatter: this.customAnnotationFormatter,
                                 visible: customAnnotationVisible,
                                 halign: this._config.header.horizontalAlign
@@ -594,15 +655,13 @@
                             {
                                 title: 'Creation Date',
                                 field: 'creationDate',
-                                sortable: true,
-                                class: myClass,
                                 formatter: this.dateFormatter,
+                                sortable: true,
                                 halign: this._config.header.horizontalAlign
                             },
                             {
                                 title: 'Status',
                                 field: 'status.name',
-                                class: myClass,
                                 halign: this._config.header.horizontalAlign
                             },
                         ])
@@ -624,7 +683,7 @@
                         horizontalAlign: 'center',
                         verticalAlign: 'bottom'
                     },
-                    disorderSources: ["ICD", "ICD10"],
+                    disorderSources: ["ICD", "ICD10", "GelDisorder"],
                     customAnnotations: {
                         title: "Custom Annotation",
                         fields: []
