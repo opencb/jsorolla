@@ -30,6 +30,10 @@
             .cursor-pointer {
                 cursor: pointer;
             }
+
+            .phenotypes-link-dropdown:hover .dropdown-menu {
+                display: block;
+            }
         </style>
 
         <opencb-grid-toolbar from="{{from}}" to="{{to}}" num-total-results-text="{{numTotalResultsText}}"
@@ -438,7 +442,7 @@
                                     <thead>
                                         <tr class="table-header">
                                             ${tableCheckboxHeader}
-                                            <th>ID</th>
+                                            <th>Sample ID</th>
                                             <!--<th>Phenotypes</th>-->
                                             <th>Source</th>
                                             <th>Collection Method</th>
@@ -528,13 +532,12 @@
             }
 
             disordersFormatter(value, row) {
-                // if (UtilsNew.isNotEmptyArray(row.phenotypes) && UtilsNew.isNotEmptyArray(this.gridContext._config.disorderSources)) {
                 if (UtilsNew.isNotEmptyArray(row.phenotypes)) {
+                    let disorderSources = this.field.context._config.disorderSources;
                     let phenotypes = "<div>";
                     for (let phenotype of row.phenotypes) {
-                        if (phenotype.source != "hpo") {
-                            // if (this.gridContext._config.disorderSources.disorderSources.includes(phenotype.source)) {
-                            phenotypes += `<span>${phenotype.name} (${phenotype.id})</span>`;
+                        if (disorderSources != null && disorderSources.includes(phenotype.source)) {
+                            phenotypes += `<span>${phenotype.id}</span>`;
                         }
                     }
                     phenotypes += "</div>";
@@ -545,17 +548,38 @@
             }
 
             phenotypesFormatter(value, row) {
-                // if (UtilsNew.isNotEmptyArray(row.phenotypes) && UtilsNew.isNotEmptyArray(this.gridContext._config.disorderSources)) {
-                //     let phenotypes = "<div>";
-                //     for (let phenotype of row.phenotypes) {
-                //         if (!this.gridContext._config.disorderSources.disorderSources.includes(phenotype.source)) {
-                //             phenotypes += `<span>${phenotype.name} (${phenotype.id})</span>`;
-                //         }                    }
-                //     phenotypes += "</div>";
-                //     return phenotypes;
-                // } else {
-                return '-';
-                // }
+                if (UtilsNew.isNotEmptyArray(row.phenotypes)) {
+                    let disorderSources = this.field.context._config.disorderSources;
+                    let phenotypes = "";
+                    for (let phenotype of row.phenotypes) {
+                        if (disorderSources != null && !disorderSources.includes(phenotype.source)) {
+                            phenotypes += "<li style='padding: 0px 15px'>";
+                            if (phenotype.source.toUpperCase() === "HPO") {
+                                phenotypes += `<span>
+                                                    <a target='_blank' href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id} </a>(${phenotype.status})
+                                               </span>`;
+                            } else {
+                                phenotypes += `${phenotype.id} (${phenotype.status})`;
+                            }
+                            phenotypes += "</li>";
+                        }
+                    }
+
+                    let html = `<div class="dropdown phenotypes-link-dropdown" style="white-space: nowrap">
+                                <a id="${this.field.context.prefix}dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                    style="cursor: pointer">
+                                    ${row.phenotypes.length} terms found
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="${this.field.context.prefix}dropdownMenu1" style="font-size: 1.25rem;margin-top: 0px;padding: 10px 0px">
+                                    <!--<li class="dropdown-header">HPO</li>-->
+                                    ${phenotypes}
+                                </ul>
+                            </div>`;
+
+                    return html;
+                } else {
+                    return '-';
+                }
             }
 
             samplesFormatter(value, row) {
@@ -628,13 +652,13 @@
                             },
                             {
                                 title: 'Disorders',
-                                field: 'phenotypes',
+                                field: {id: 'phenotypes', context: this},
                                 formatter: this.disordersFormatter,
                                 halign: this._config.header.horizontalAlign
                             },
                             {
                                 title: 'Phenotypes',
-                                field: 'phenotypes',
+                                field: {id: 'phenotypes', context: this},
                                 formatter: this.phenotypesFormatter,
                                 halign: this._config.header.horizontalAlign
                             },
@@ -699,7 +723,7 @@
                         horizontalAlign: 'center',
                         verticalAlign: 'bottom'
                     },
-                    disorderSources: ["ICD", "ICD10"],
+                    disorderSources: ["ICD", "ICD10", "GelDisorder"],
                     customAnnotations: {
                         title: "Custom Annotation",
                         fields: []
