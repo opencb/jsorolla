@@ -224,24 +224,19 @@
                         },
                         onClickRow: function (row, element, field) {
                             if (_this._config.multiSelection) {
-                                if (_this._config.detailView) {
-                                    // Check and uncheck when clicking in the checkbox TD cell
-                                    if (field === "state") {
-                                        let index = element[0].dataset.index;
-                                        if (element[0].className.includes("selected")) {
-                                            $(PolymerUtils.getElementById(_this.prefix + 'FamilyBrowserGrid')).bootstrapTable('uncheck', index);
-                                        } else {
-                                            $(PolymerUtils.getElementById(_this.prefix + "FamilyBrowserGrid")).bootstrapTable('check', index);
-
-                                            $('.success').removeClass('success');
-                                            $(element).addClass('success');
-                                        }
+                                // Check and uncheck when clicking in the checkbox TD cell
+                                if (field === "state") {
+                                    let index = element[0].dataset.index;
+                                    if (element[0].className.includes("selected")) {
+                                        $(PolymerUtils.getElementById(_this.prefix + 'FamilyBrowserGrid')).bootstrapTable('uncheck', index);
                                     } else {
-                                        // If user has clicked in the row
+                                        $(PolymerUtils.getElementById(_this.prefix + "FamilyBrowserGrid")).bootstrapTable('check', index);
+
                                         $('.success').removeClass('success');
                                         $(element).addClass('success');
                                     }
                                 } else {
+                                    // If user has clicked in the row
                                     let index = element[0].dataset.index;
                                     if (element[0].className.includes("selected")) {
                                         $(PolymerUtils.getElementById(_this.prefix + 'FamilyBrowserGrid')).bootstrapTable('uncheck', index);
@@ -281,11 +276,6 @@
                             _this.push("_families", row);
                             _this.set('families', _this._families.slice());
 
-                            // We detail view is active we expand the row automatically
-                            if (_this._config.detailView) {
-                                $(PolymerUtils.getElementById(_this.prefix + 'FamilyBrowserGrid')).bootstrapTable('expandRow', element[0].dataset.index);
-                            }
-
                             // We only activate the row when checking
                             if (_this._config.detailView) {
                                 $('.success').removeClass('success');
@@ -293,8 +283,8 @@
                             $(element[0].parentElement.parentElement).addClass('success');
 
                             // If exist on single nested sample we must check it
-                            if (row.samples.length === 1) {
-                                let checkbox = PolymerUtils.getElementById(_this.prefix + row.samples[0].id + "Checkbox");
+                            if (row.members.length === 1) {
+                                let checkbox = PolymerUtils.getElementById(_this.prefix + row.members[0].id + "Checkbox");
                                 if (UtilsNew.isNotUndefinedOrNull(checkbox)) {
                                     checkbox.checked = true;
                                 }
@@ -322,8 +312,8 @@
                             }
 
                             // We must uncheck nested checked samples
-                            if (row.samples.length > 0) {
-                                for (let sample of row.samples) {
+                            if (row.members.length > 0) {
+                                for (let sample of row.members) {
                                     let checkbox = PolymerUtils.getElementById(_this.prefix + sample.id + "Checkbox");
                                     if (UtilsNew.isNotUndefinedOrNull(checkbox)) {
                                         checkbox.checked = false;
@@ -350,8 +340,8 @@
 
                             // We must uncheck nested checked samples
                             for (let row of rows) {
-                                if (row.samples.length === 1) {
-                                    let checkbox = PolymerUtils.getElementById(_this.prefix + row.samples[0].id + "Checkbox");
+                                if (row.members.length === 1) {
+                                    let checkbox = PolymerUtils.getElementById(_this.prefix + row.members[0].id + "Checkbox");
                                     if (UtilsNew.isNotUndefinedOrNull(checkbox)) {
                                         checkbox.checked = true;
                                     }
@@ -372,7 +362,7 @@
 
                             // We must uncheck nested checked samples
                             for (let row of rows) {
-                                for (let sample of row.samples) {
+                                for (let sample of row.members) {
                                     let checkbox = PolymerUtils.getElementById(_this.prefix + sample.id + "Checkbox");
                                     if (UtilsNew.isNotUndefinedOrNull(checkbox)) {
                                         checkbox.checked = false;
@@ -678,7 +668,7 @@
                     showExport: false,
                     detailView: true,
                     detailFormatter: this.detailFormatter, // function with the detail formatter
-                    multiSelection: true,
+                    multiSelection: false,
                     header: {
                         horizontalAlign: 'center',
                         verticalAlign: 'bottom'
