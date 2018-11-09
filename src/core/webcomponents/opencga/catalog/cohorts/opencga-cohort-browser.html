@@ -56,17 +56,17 @@
                 </opencga-active-filters>
 
                 <!-- Cohort View Buttons -->
-                <div class="col-md-12" style="padding: 5px 0px 5px 0px">
+                <div style="padding: 5px 0px 5px 0px">
                     <div class="btn-toolbar" role="toolbar" aria-label="..." style="padding: 10px 0px;margin-left: 0px">
                         <div class="btn-group" role="group" style="margin-left: 0px">
-                            <button type="button" class="btn btn-success cohort-browser-view-buttons active" data-view="TableResult" on-click="_changeView">
-                                <i class="fa fa-table icon-padding" aria-hidden="true" data-view="TableResult" on-click="_changeView"></i> Table Result
+                            <button type="button" class="btn btn-success cohort-browser-view-buttons active" data-view="TableResult" on-click="_changeView" data-id="table">
+                                <i class="fa fa-table icon-padding" aria-hidden="true" data-view="TableResult" on-click="_changeView" data-id="table"></i> Table Result
                             </button>
                             <button type="button" class="btn btn-success cohort-browser-view-buttons" data-view="SummaryStats" on-click="_changeView">
                                 <i class="fa fa-line-chart icon-padding" aria-hidden="true" data-view="SummaryStats" on-click="_changeView"></i> Summary Stats
                             </button>
-                            <button type="button" class="btn btn-success cohort-browser-view-buttons" data-view="CohortComparator" on-click="_changeView">
-                                <i class="fa fa-users icon-padding" aria-hidden="true" data-view="CohortComparator" on-click="_changeView"></i> Cohort Comparator
+                            <button type="button" class="btn btn-success cohort-browser-view-buttons" data-view="CohortComparator" on-click="_changeView" data-id="comparator">
+                                <i class="fa fa-users icon-padding" aria-hidden="true" data-view="CohortComparator" on-click="_changeView" data-id="comparator"></i> Cohort Comparator
                             </button>
                         </div>
                     </div>
@@ -77,21 +77,24 @@
                     <div id="{{prefix}}TableResult" class="cohort-browser-view-content">
                         <opencga-cohort-grid opencga-client="{{opencgaSession.opencgaClient}}"
                                              opencga-session="{{opencgaSession}}" config="[[_config.grid]]"
-                                             event-notify-name="[[eventNotifyName]]" cohorts="{{cohorts}}"
-                                             search="{{search}}" style="font-size: 12px" on-selectcohort="onSelectCohort">
+                                             event-notify-name="[[eventNotifyName]]"
+                                             search="{{search}}" style="font-size: 12px" on-selectcohort="onSelectCohort"
+                                             active="{{activeMenu.table}}">
                         </opencga-cohort-grid>
 
                         <div style="padding-top: 5px">
                             <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
 
                                 <li role="presentation" class="active">
-                                    <a href="#{{prefix}}CohortViewer" role="tab" data-toggle="tab" class="detail-tab-title">
+                                    <a href="#{{prefix}}CohortViewer" role="tab" data-toggle="tab" class="detail-tab-title"
+                                       data-id="info" on-click="_changeBottomTab">
                                         Cohort info
                                     </a>
                                 </li>
 
                                 <li role="presentation">
-                                    <a href="#{{prefix}}SampleViewer" role="tab" data-toggle="tab" class="detail-tab-title">
+                                    <a href="#{{prefix}}SampleViewer" role="tab" data-toggle="tab" class="detail-tab-title"
+                                       data-id="sampleGrid" on-click="_changeBottomTab">
                                         Sample grid
                                     </a>
                                 </li>
@@ -104,14 +107,12 @@
                                 <div role="tabpanel" class="tab-pane" id="{{prefix}}SampleViewer">
                                     <opencga-sample-grid opencga-client="{{opencgaSession.opencgaClient}}"
                                                          opencga-session="{{opencgaSession}}" search="{{sampleSearch}}"
-                                                         style="font-size: 12px">
+                                                         style="font-size: 12px"  active="{{detailActiveTabs.sampleGrid}}">
                                     </opencga-sample-grid>
                                 </div>
 
                             </div>
                         </div>
-
-
                     </div>
 
                     <div id="{{prefix}}SummaryStats" class="cohort-browser-view-content" style="display: none;" >
@@ -123,15 +124,15 @@
 
                         <opencga-cohort-grid opencga-client="{{opencgaSession.opencgaClient}}"
                                              opencga-session="{{opencgaSession}}" config="[[_config.gridComparator]]"
-                                             event-notify-name="[[eventNotifyName]]" cohorts="{{cohorts}}"
-                                             search="{{search}}" style="font-size: 12px">
+                                             event-notify-name="[[eventNotifyName]]" on-selectcohort="onSelectCohortComparator"
+                                             search="{{search}}" style="font-size: 12px" active="{{activeMenu.comparator}}">
                         </opencga-cohort-grid>
 
                         <div style="padding-top: 5px">
                             <h3> Annotation comparator</h3>
                             <opencga-annotation-viewer opencga-client="{{opencgaSession.opencgaClient}}"
                                                        opencga-session="{{opencgaSession}}" config="[[_config]]"
-                                                       entry-ids="{{cohorts}}" entity="COHORT">
+                                                       entry-ids="[[_selectedCohortsComparator.array]]" entity="COHORT">
                             </opencga-annotation-viewer>
                         </div>
 
@@ -201,12 +202,32 @@
                 return ['filterAvailableVariableSets(opencgaSession, config)', 'cohortObserver(cohorts.*)'];
             }
 
+            connectedCallback() {
+                super.connectedCallback();
+
+                this.activeMenu = {
+                    table: true,
+                    comparator: false
+                };
+
+                this.detailActiveTabs = {
+                    info: true,
+                    sampleGrid: false
+                };
+            }
+
             configObserver() {
                 this._config = Object.assign(this.getDefaultConfig(), this.config);
             }
 
             _changeView(e) {
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+
+                let activeMenu = {
+                    table: e.currentTarget.dataset.id === "table",
+                    comparator: e.currentTarget.dataset.id === "comparator"
+                };
+                this.set("activeMenu", activeMenu);
 
                 $('.cohort-browser-view-content').hide(); // hides all content divs
                 if (typeof e.target !== "undefined" && typeof e.target.dataset.view !== "undefined") {
@@ -231,6 +252,21 @@
                 this.sampleSearch = {
                     id: sampleList.join(",")
                 }
+            }
+
+            onSelectCohortComparator(e) {
+                if (UtilsNew.isUndefinedOrNull(this._selectedCohortsComparator)) {
+                    this._selectedCohortsComparator = {
+                        set: new Set(),
+                        array: []
+                    }
+                }
+                if (e.detail.checked) {
+                    this._selectedCohortsComparator.set.add(e.detail.cohort);
+                } else {
+                    this._selectedCohortsComparator.set.delete(e.detail.cohort);
+                }
+                this.set("_selectedCohortsComparator.array", Array.from(this._selectedCohortsComparator.set));
             }
 
             filterAvailableVariableSets(opencgaSession, config) {
@@ -272,18 +308,29 @@
                 this.search = e.detail;
             }
 
+            _changeBottomTab(e) {
+                let _activeTabs = {
+                    info: e.currentTarget.dataset.id === "info",
+                    sampleGrid: e.currentTarget.dataset.id === "sampleGrid"
+                };
+
+                this.set("detailActiveTabs", _activeTabs);
+            }
+
             getDefaultConfig() {
                 return {
                     title: "Cohort Browser",
                     showTitle: true,
+                    showSummaryStats: true,
+                    showComparator: true,
                     filter: {
 
                     },
                     grid: {
-                        showSelect: true,
+
                     },
                     gridComparator: {
-                        multiselection: true,
+                        multiSelection: true,
                         pageSize: 5,
                         pageList: [5, 10]
                     },
