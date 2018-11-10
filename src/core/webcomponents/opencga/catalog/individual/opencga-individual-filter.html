@@ -81,7 +81,7 @@
                     <div class="panel-body">
 
                         <div class="form-group">
-                            <div class="browser-subsection">Id
+                            <div class="browser-subsection">Individual ID
                             </div>
                             <div id="{{prefix}}-name" class="subsection-content form-group">
                                 <input type="text" id="{{prefix}}-individual-input" class$="form-control input-sm {{prefix}}FilterTextInput"
@@ -90,7 +90,7 @@
                         </div>
 
                         <div class="form-group">
-                            <div class="browser-subsection">Samples
+                            <div class="browser-subsection">Sample ID
                             </div>
                             <div id="{{prefix}}-sample" class="subsection-content form-group">
                                 <input type="text" id="{{prefix}}-sample-input" class$="form-control input-sm {{prefix}}FilterTextInput"
@@ -189,8 +189,7 @@
                                 </div>
                             </div>
                             <div id="{{prefix}}-annotations" class="subsection-content">
-                                <opencga-annotation-filter opencga-session="{{opencgaSession}}"
-                                                           opencga-client="{{opencgaClient}}"
+                                <opencga-annotation-filter opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}"
                                                            config="{{annotationFilterConfig}}"
                                                            on-filterannotation="addAnnotation">
                                 </opencga-annotation-filter>
@@ -207,11 +206,9 @@
                                 <opencga-date-filter config="{{dateFilterConfig}}" on-datechanged="onDateChanged"></opencga-date-filter>
                             </div>
                         </div>
-
                     </div>
                 </div>
             </div>
-
         </div>
 
     </template>
