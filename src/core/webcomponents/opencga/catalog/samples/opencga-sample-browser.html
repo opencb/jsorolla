@@ -116,7 +116,7 @@
                         </opencga-sample-grid>
 
                         <div style="padding-top: 5px">
-                            <h3> Annotation comparator</h3>
+                            <h3>Annotation comparator</h3>
                             <opencga-annotation-viewer opencga-client="{{opencgaSession.opencgaClient}}"
                                                        opencga-session="{{opencgaSession}}" config="[[_config]]"
                                                        entry-ids="{{samples}}" entity="SAMPLE">
@@ -277,11 +277,14 @@
 
                     },
                     grid: {
+                        pageSize: 10,
+                        pageList: [10, 25, 50],
+                        multiSelection: false,
                     },
                     gridComparator: {
-                        multiselection: true,
                         pageSize: 5,
                         pageList: [5, 10],
+                        multiSelection: true,
                     },
                     sampleDetail: {
                         showTitle: false
