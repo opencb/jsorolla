@@ -69,9 +69,9 @@
                         <hr style="margin: 2px 0px;border-top: 2px solid #eee">
                         <form class="form-horizontal">
                             <div class="form-group" style="margin: 0px 2px">
-                                <label class="col-md-4">Name:</label>
+                                <label class="col-md-4">Id:</label>
                                 <span class="col-md-8">
-                                {{clinicalAnalysis.subjects.0.samples.0.name}}
+                                {{clinicalAnalysis.proband.samples.0.id}}
                             </span>
                             </div>
                             <!--<div class="form-group" style="margin: 0px 2px">-->
@@ -84,12 +84,12 @@
                             <!--</div>-->
                             <div class="form-group" style="margin: 0px 2px">
                                 <label class="col-md-4">Somatic:</label>
-                                <span class="col-md-8">{{clinicalAnalysis.subjects.0.samples.0.somatic}}</span>
+                                <span class="col-md-8">{{clinicalAnalysis.proband.samples.0.somatic}}</span>
                             </div>
                             <div class="form-group" style="margin: 0px 2px">
                                 <label class="col-md-4">Phenotypes:</label>
                                 <span class="col-md-8">
-                                <template is="dom-repeat" items="{{clinicalAnalysis.subjects.0.samples.0.phenotypes}}">
+                                <template is="dom-repeat" items="{{clinicalAnalysis.proband.samples.0.phenotypes}}">
                                     <span>{{item.name}} (<a href="http://compbio.charite.de/hpoweb/showterm?id={{item.id}}" target="_blank">{{item.id}}</a>)</span>
                                     <br>
                                 </template>
@@ -106,18 +106,18 @@
                         <hr style="margin: 2px 0px;border-top: 2px solid #eee">
                         <form class="form-horizontal">
                             <div class="form-group" style="margin: 0px 2px">
-                                <label class="col-md-4">Name:</label>
+                                <label class="col-md-4">Id:</label>
                                 <span class="col-md-8">
-                                {{clinicalAnalysis.subjects.0.name}}
+                                {{clinicalAnalysis.proband.id}}
                             </span>
                             </div>
                             <div class="form-group" style="margin: 0px 2px">
                                 <label class="col-md-4">Sex (karyotype):</label>
-                                <span class="col-md-8">{{clinicalAnalysis.subjects.0.sex}} &nbsp;&nbsp; ({{clinicalAnalysis.subjects.0.karyotypicSex}})</span>
+                                <span class="col-md-8">{{clinicalAnalysis.proband.sex}} &nbsp;&nbsp; ({{clinicalAnalysis.proband.karyotypicSex}})</span>
                             </div>
                             <div class="form-group" style="margin: 0px 2px">
                                 <label class="col-md-4">Date of Birth:</label>
-                                <span class="col-md-8">{{clinicalAnalysis.subjects.0.dateOfBirth}} &nbsp;&nbsp; ({{clinicalAnalysis.subjects.0.lifeStatus}})</span>
+                                <span class="col-md-8">{{clinicalAnalysis.proband.dateOfBirth}} &nbsp;&nbsp; ({{clinicalAnalysis.proband.lifeStatus}})</span>
                             </div>
                             <div class="form-group" style="margin: 0px 2px">
                                 <label class="col-md-4">Pedigree:</label>
@@ -128,7 +128,7 @@
                             <div class="form-group" style="margin: 0px 2px">
                                 <label class="col-md-4">Phenotypes:</label>
                                 <span class="col-md-8">
-                                <template is="dom-repeat" items="{{clinicalAnalysis.subjects.0.phenotypes}}">
+                                <template is="dom-repeat" items="{{clinicalAnalysis.proband.phenotypes}}">
                                     <span>{{item.name}} (<a href="http://compbio.charite.de/hpoweb/showterm?id={{item.id}}" target="_blank">{{item.id}}</a>)</span>
                                     <br>
                                 </template>
@@ -261,7 +261,6 @@
 
             searchAnalysis(){
                 if(UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysisId)) {
-                    debugger
                     let params = {
                         study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias
                     };
