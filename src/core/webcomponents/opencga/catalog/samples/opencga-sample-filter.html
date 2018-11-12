@@ -154,6 +154,15 @@
                         </div>
 
                         <div class="form-group">
+                            <div class="browser-subsection">Source
+                            </div>
+                            <div id="{{prefix}}-source" class="subsection-content form-group">
+                                <input type="text" id="{{prefix}}-source-input" class$="form-control input-sm {{prefix}}FilterTextInput"
+                                       placeholder="Blood, Liver ..." on-keyup="calculateFilters">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
                             <div class="browser-subsection" id="{{prefix}}-annotationss">Sample annotations
                                 <div style="float: right" class="tooltip-div">
                                     <a><i class="fa fa-info-circle" aria-hidden="true" id="{{prefix}}-annotations-tooltip"></i></a>
@@ -351,6 +360,11 @@
                     PolymerUtils.setValue(`${this.prefix}-individual-input`, this.query.individual);
                 }
 
+                // Source
+                if (UtilsNew.isNotUndefined(this.query.source)) {
+                    PolymerUtils.setValue(`${this.prefix}-source-input`, this.query.source);
+                }
+
                 // Phenotypes
                 if (UtilsNew.isNotUndefined(this.query.phenotypes)) {
                     PolymerUtils.setValue(`${this.prefix}-phenotypes-input`, this.query.phenotypes);
@@ -375,6 +389,11 @@
                 let individual = PolymerUtils.getValue(`${this.prefix}-individual-input`);
                 if (UtilsNew.isNotEmpty(individual)) {
                     _query.individual = individual;
+                }
+
+                let source = PolymerUtils.getValue(`${this.prefix}-source-input`);
+                if (UtilsNew.isNotEmpty(source)) {
+                    _query.source = source;
                 }
 
                 let phenotypes = PolymerUtils.getValue(`${this.prefix}-phenotypes-input`);
