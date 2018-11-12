@@ -14,39 +14,75 @@
   ~ limitations under the License.
   -->
 
-<link rel="import" href="../samples/opencga-sample-filter.html">
+<link rel="import" href="opencga-clinical-analysis-filter.html">
+<link rel="import" href="opencga-clinical-analysis-grid.html">
 <link rel="import" href="../../opencga-active-filters.html">
 <link rel="import" href="../../opencga-message-dialog.html">
-<link rel="import" href="opencga-clinical-analysis-filter.html">
 
 <dom-module id="opencga-clinical-analysis-browser">
     <template>
         <style include="jso-styles"></style>
 
-        <div class="col-md-3">
-            <opencga-clinical-analysis-filter opencga-client="{{opencgaClient}}" opencga-session="{{opencgaSession}}" query="{{query}}" on-search="onSearch"></opencga-clinical-analysis-filter>
-        </div>
-        <div class="col-md-9">
-            <br>
-            <opencga-active-filters opencga-client="{{opencgaClient}}" query="[[query]]" filters="{{config.filters}}" on-filterchange="onFilterChange" on-clear="onClear"
-                                    filter-bioformat="VARIANT" default-study="{{opencgaSession.study.alias}}" alias="{{activeFilterAlias}}" refresh="{{search}}" genotype-samples="{{genotypeSamples}}"
-                                    mode-inheritance="[[modeInheritance]]">
-            </opencga-active-filters>
+        <template is="dom-if" if="{{_config.showTitle}}">
+            <div class="panel" style="margin-bottom: 15px">
+                <h3 style="margin: 10px 10px 10px 15px">
+                    <i class="fa fa-users" aria-hidden="true"></i> &nbsp;{{_config.title}}
+                </h3>
+            </div>
+        </template>
 
-            <!--<h3>Analysis results</h3>-->
-            <br>
-            <opencga-clinical-analysis-grid opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}"
-                                            query="{{search}}" config="{{clinicalAnalysisGridConfig}}"
-                                            on-analysis-selected="onAnalysisSelectedSelector">
-            </opencga-clinical-analysis-grid>
+        <div class="row" style="padding: 0px 10px">
+            <div class="col-md-2">
+                <opencga-clinical-analysis-filter opencga-client="{{opencgaClient}}" opencga-session="{{opencgaSession}}" query="{{query}}" on-search="onSearch"></opencga-clinical-analysis-filter>
+            </div>
 
+            <div class="col-md-10">
+                <opencga-active-filters opencga-client="{{opencgaClient}}" query="[[query]]" filters="{{config.filters}}" on-filterchange="onFilterChange" on-clear="onClear"
+                                        filter-bioformat="VARIANT" default-study="{{opencgaSession.study.alias}}" alias="{{activeFilterAlias}}" refresh="{{search}}" genotype-samples="{{genotypeSamples}}"
+                                        mode-inheritance="[[modeInheritance]]">
+                </opencga-active-filters>
+
+
+                <!-- Clinical Analysis View Buttons -->
+                <div class="col-md-12" style="padding: 5px 0px 5px 0px">
+                    <div class="btn-toolbar" role="toolbar" aria-label="..." style="padding: 10px 0px;margin-left: 0px">
+                        <div class="btn-group" role="group" style="margin-left: 0px">
+                            <button type="button" class="btn btn-success family-browser-view-buttons active" data-view="TableResult" on-click="_changeView" data-id="table">
+                                <i class="fa fa-table icon-padding" aria-hidden="true" data-view="TableResult" on-click="_changeView" data-id="table"></i> Table Result
+                            </button>
+                            <button type="button" class="btn btn-success family-browser-view-buttons" data-view="SummaryStats" on-click="_changeView">
+                                <i class="fa fa-line-chart icon-padding" aria-hidden="true" data-view="SummaryStats" on-click="_changeView"></i> Summary Stats
+                            </button>
+                            <button type="button" class="btn btn-success family-browser-view-buttons" data-view="FamilyComparator" on-click="_changeView" data-id="comparator">
+                                <i class="fa fa-users icon-padding" aria-hidden="true" data-view="FamilyComparator" on-click="_changeView" data-id="comparator"></i> Family Comparator
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div id="{{prefix}}TableResult" class="clinical-analysis-browser-view-content">
+                        <opencga-clinical-analysis-grid opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}"
+                                                        query="{{search}}" config="{{clinicalAnalysisGridConfig}}"
+                                                        on-analysis-selected="onAnalysisSelectedSelector">
+                        </opencga-clinical-analysis-grid>
+                    </div>
+
+                    <div id="{{prefix}}SummaryStats" class="clinical-analysis-browser-view-content" style="display: none">
+                        <!--<opencga-facet-view opencga-session="{{opencgaSession}}" entity="FAMILY"-->
+                                            <!--variable-sets="[[variableSets]]"></opencga-facet-view>-->
+                    </div>
+                </div>
+            </div>
         </div>
     </template>
     <script>
 
         class OpencgaClinicalAnalysisBrowser extends Polymer.Element {
+
             constructor() {
                 super();
+
                 this._init();
             }
 
@@ -82,6 +118,8 @@
             }
 
             _init() {
+                this._config = this.getDefaultConfig();
+
                 this.clinicalDefaultAnalysisQuery = {sort: "id"};
                 this.clinicalAnalysisQuery = {sort: "id"};
                 this.search = Object.assign({}, this.clinicalAnalysisQuery);
@@ -107,7 +145,27 @@
             }
 
             getDefaultConfig() {
-                return {pagination: true, pageSize: 10, pageList: [5,10,25]};
+                return {
+                    title: "Clinical Analysis Browser",
+                    showTitle: true,
+                    showSummaryStats: true,
+                    showComparator: true,
+                    filter: {
+
+                    },
+                    grid: {
+                        pageSize: 10,
+                        pageList: [10, 25, 50],
+                        detailView: true,
+                        multiSelection: false
+                    },
+                    gridComparator: {
+                        pageSize: 5,
+                        pageList: [5, 10],
+                        detailView: true,
+                        multiSelection: true
+                    },
+                };
             }
         }
 

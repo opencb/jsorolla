@@ -20,7 +20,6 @@
     <template>
         <style include="jso-styles"></style>
 
-        <!--<span>Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> analysis</span>-->
         <opencb-grid-toolbar from="{{from}}" to="{{to}}" num-total-results-text="{{numTotalResultsText}}"></opencb-grid-toolbar>
 
         <table id="{{prefix}}tableAnalysis" data-icons-prefix="fa" data-icons="icons">
@@ -289,7 +288,7 @@
                             },
                             {
                                 title: 'Disease',
-                                field: 'disease',
+                                field: 'disease.name',
                                 // formatter: this.diseaseFormatter
                             },
                             {
@@ -322,8 +321,8 @@
             getDefaultConfig() {
                 return {
                     pagination: true,
-                    pageSize: 5,
-                    pageList: [5, 10, 25],
+                    pageSize: 10,
+                    pageList: [10, 25, 50],
                     showExport: false,
                     detailView: true,
                     detailFormatter: this.detailFormatter,
