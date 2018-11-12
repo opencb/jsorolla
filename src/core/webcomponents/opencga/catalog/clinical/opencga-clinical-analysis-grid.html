@@ -14,17 +14,36 @@
   ~ limitations under the License.
   -->
 
-<link rel="import" href="../../clinical/clinical-analysis-view.html">
+<link rel="import" href="../../../commons/opencb-grid-toolbar.html">
 
 <dom-module id="opencga-clinical-analysis-grid">
     <template>
-        <style include="jso-styles"></style>
+        <style include="jso-styles">
+            .detail-view :hover {
+                background-color: white;
+            }
 
-        <opencb-grid-toolbar from="{{from}}" to="{{to}}" num-total-results-text="{{numTotalResultsText}}"></opencb-grid-toolbar>
+            .detail-view-row :hover {
+                background-color: #f5f5f5;
+            }
 
-        <table id="{{prefix}}tableAnalysis" data-icons-prefix="fa" data-icons="icons">
-            <thead style="background-color: #eee"></thead>
-        </table>
+            .cursor-pointer {
+                cursor: pointer;
+            }
+
+            .phenotypes-link-dropdown:hover .dropdown-menu {
+                display: block;
+            }
+        </style>
+
+        <opencb-grid-toolbar from="{{from}}" to="{{to}}" num-total-results-text="{{numTotalResultsText}}"
+                             config="{{toolbarConfig}}" on-columnchange="onColumnChange"></opencb-grid-toolbar>
+
+        <div id="{{prefix}}GridTableDiv" style="margin-top: 10px">
+            <table id="{{prefix}}ClinicalAnalysisBrowserGrid">
+                <thead style="background-color: #eee"></thead>
+            </table>
+        </div>
     </template>
 
     <script>
@@ -32,9 +51,7 @@
 
             constructor() {
                 super();
-
-                // Set status and init private properties
-                this._init();
+                this.prefix = "VarClinicalAnalysisGrid" + Utils.randomString(6);
             }
 
             static get is() {
@@ -44,24 +61,26 @@
             static get properties() {
                 return {
                     opencgaSession: {
-                        type: Object,
-                        observer: "renderTable"
-                    },
-                    opencgaClient: {
                         type: Object
                     },
-                    query: {
-                        type: Object,
-                        observer: "queryObserver"
+                    analyses: {
+                        type: Array
                     },
-                    analysis: {
-                        type: Object,
-                        observer: "analysisObserver"
+                    search: {
+                        type: Object
+                    },
+                    active: {
+                        type: Boolean,
+                        value: false
                     },
                     config: {
                         type: Object
                     }
                 }
+            }
+
+            static get observers() {
+                return ['propertyObserver(opencgaSession, search, config, active)'];
             }
 
             _attachDom(dom) {
@@ -71,157 +90,337 @@
             connectedCallback() {
                 super.connectedCallback();
 
-                // Next code add an event to the blue plus symbol that expands the rows
-                let table = $('#' + this.prefix + 'tableAnalysis');
-                let _this = this;
-                table.on('expand-row.bs.table', function (e, index, row, $detail) {
-                    let res = _this.detailFormatter(index, row);
-                    $detail.html(res);
-                });
-
-                // Now we render the table the first time and set _rendered as tru to avoid more than one render the first time
-                this.renderTable();
-                this._rendered = true;
+                this.renderTable(this.active);
             }
 
-            _init() {
-                this.prefix = "ocag" + Utils.randomString(6);
+            propertyObserver(opencgaSession, search, config, active) {
+                // With each property change we must updated config and create the columns again. No extra checks are needed.
+                this._config = Object.assign(this.getDefaultConfig(), this.config);
+                this._columns = this._initTableColumns();
 
-                this._config = this.getDefaultConfig();
-
-                window.icons = {
-                    refresh: 'fa-refresh',
-                    columns: 'fa-th',
-                    paginationSwitchDown: 'fa-caret-square-o-down',
-                    paginationSwitchUp: 'fa-caret-square-o-up',
-                    detailOpen: 'fa-plus',
-                    detailClose: 'fa-minus'
+                // Config for the grid toolbar
+                this.toolbarConfig = {
+                    columns: this._columns[0]
                 };
+
+                this.renderTable(active);
             }
 
-            queryObserver() {
-                if (this._rendered) {
-                    this.renderTable();
+            renderTable(active) {
+                debugger
+
+                if (!active) {
+                    return;
                 }
-            }
 
-            renderTable() {
+                this.opencgaClient = this.opencgaSession.opencgaClient;
+
+                this.set('analyses', []);
+
+                let filters = Object.assign({}, this.search);
+
+                // Initialise the counters
                 this.from = 1;
                 this.to = this._config.pageSize;
 
-                let urlQueryParams = this._getUrlQueryParams();
-                let queryParams = urlQueryParams.queryParams;
-                let _numTotal = -1;
+                if (UtilsNew.isNotUndefined(this.opencgaClient) && UtilsNew.isNotUndefined(this.opencgaSession.study)
+                    && UtilsNew.isNotUndefined(this.opencgaSession.study.fqn)) {
 
-                let _this = this;
-                $(PolymerUtils.getElementById(this.prefix + "tableAnalysis")).bootstrapTable('destroy');
-                $(PolymerUtils.getElementById(this.prefix + "tableAnalysis")).bootstrapTable({
-                    url: urlQueryParams.host,
-                    columns: _this._getTableColumns(),
-                    method: 'get',
-                    sidePagination: 'server',
+                    filters.study = this.opencgaSession.study.fqn;
+                    if (UtilsNew.isNotUndefinedOrNull(this.lastFilters)
+                        && JSON.stringify(this.lastFilters) === JSON.stringify(filters)) {
+                        // Abort destroying and creating again the grid. The filters have not changed
+                        return;
+                    }
+                    // Store the current filters
+                    this.lastFilters = Object.assign({}, filters);
 
-                    // Set table properties, these are read from config property
-                    pagination: _this._config.pagination,
-                    pageSize: _this._config.pageSize,
-                    pageList: _this._config.pageList,
-                    showExport: _this._config.showExport,
-                    detailView: _this._config.detailView,
-                    detailFormatter: _this._config.detailFormatter,
+                    // Make a copy of the analyses (if they exist), we will use this private copy until it is assigned to this.analyses
+                    if (UtilsNew.isNotUndefined(this.analyses)) {
+                        this._analyses = this.analyses;
+                    } else {
+                        this._analyses = [];
+                    }
 
-                    // Make Polymer components avalaible to table formatters
-                    gridContext: _this,
+                    // Check that HTTP protocol is present and complete the URL
+                    let opencgaHostUrl = this.opencgaClient.getConfig().host;
+                    if (!opencgaHostUrl.startsWith("http://") && !opencgaHostUrl.startsWith("https://")) {
+                        opencgaHostUrl = 'http://' + opencgaHostUrl;
+                    }
+                    opencgaHostUrl += '/webservices/rest/v1/clinical/search';
 
-                    queryParams: function (params) {
-                        if ((queryParams.limit === undefined || params.limit !== queryParams.limit) && UtilsNew.isNotUndefinedOrNull(params.limit)) {
-                            queryParams.limit = params.limit;
-                        }
-                        queryParams.skip = params.offset;
-                        return queryParams;
-                    },
-                    responseHandler: function (resp) {
-                        if (_numTotal === -1) {
-                            _numTotal = resp.response[0].numTotalResults;
-                        }
-                        // Format the number string with commas
-                        _this.numTotalResultsText = _numTotal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-                        return {total: _numTotal, rows: resp.response[0].result}
-                    },
-                    onLoadSuccess: function (data) {
-                        if (UtilsNew.isUndefinedOrNull(_this.analysis)) {
-                            // The first time we mark as selected the first row
-                            let _table = $('#' + _this.prefix + 'tableAnalysis');
-                            if (UtilsNew.isNotUndefinedOrNull(_table) && data.total > 0) {
-                                _table.bootstrapTable('check', 0);
+                    let skipCount = false;
+
+                    let _table = $('#' + this.prefix + 'ClinicalAnalysisBrowserGrid');
+
+                    let _this = this;
+                   _table.bootstrapTable('destroy');
+                    _table.bootstrapTable({
+                        url: opencgaHostUrl,
+                        columns: _this._columns,
+                        method: 'get',
+                        sidePagination: 'server',
+                        uniqueId: "id",
+
+                        // Table properties
+                        pagination: _this._config.pagination,
+                        pageSize: _this._config.pageSize,
+                        pageList: _this._config.pageList,
+                        showExport: _this._config.showExport,
+                        detailView: _this._config.detailView,
+                        detailFormatter: _this._config.detailFormatter,
+
+                        // Make Polymer components avalaible to table formatters
+                        gridContext: _this,
+
+                        queryParams: function (params) {
+                            if (this.pageNumber > 1) {
+                                skipCount = true;
                             }
-                        } else {
-                            _this.analysisObserver();
+
+                            let auxParams = {
+                                sid: Cookies.get(_this.opencgaClient.getConfig().cookieSessionId),
+                                order: params.order,
+                                sort: params.sort,
+                                limit: params.limit,
+                                skip: params.offset,
+                                skipCount: skipCount,
+                                include: "id,name,priority,proband,family,disease,type,creationDate,interpretations,status,dueDate"
+                            };
+
+                            if (UtilsNew.isUndefined(filters)) {
+                                filters = {};
+                            }
+                            return Object.assign({}, filters, auxParams);
+                        },
+                        responseHandler: function (response) {
+                            if (!skipCount) {
+                                if (!_this.hasOwnProperty("numTotalResults")) {
+                                    _this.numTotalResults = 0;
+                                }
+                                if (_this.numTotalResults !== response.response[0].numTotalResults
+                                    && response.queryOptions.skip === 0) {
+                                    _this.numTotalResults = response.response[0].numTotalResults;
+                                }
+                            }
+
+                            // Set the num total rows in a human readable format
+                            _this.numTotalResultsText = _this.numTotalResults.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+                            if(response.queryOptions.skip === 0 && _this.numTotalResults < response.queryOptions.limit){
+                                _this.from = 1;
+                                _this.to = _this.numTotalResults;
+                            }
+
+                            return {
+                                total: _this.numTotalResults,
+                                rows: response.response[0].result
+                            };
+                        },
+                        onClickRow: function (row, element, field) {
+                            if (_this._config.multiSelection) {
+                                // Check and uncheck when clicking in the checkbox TD cell
+                                if (field === "state") {
+                                    let index = element[0].dataset.index;
+                                    if (element[0].className.includes("selected")) {
+                                        $(PolymerUtils.getElementById(_this.prefix + 'ClinicalAnalysisBrowserGrid')).bootstrapTable('uncheck', index);
+                                    } else {
+                                        $(PolymerUtils.getElementById(_this.prefix + "ClinicalAnalysisBrowserGrid")).bootstrapTable('check', index);
+
+                                        $('.success').removeClass('success');
+                                        $(element).addClass('success');
+                                    }
+                                } else {
+                                    // If user has clicked in the row
+                                    let index = element[0].dataset.index;
+                                    if (element[0].className.includes("selected")) {
+                                        $(PolymerUtils.getElementById(_this.prefix + 'ClinicalAnalysisBrowserGrid')).bootstrapTable('uncheck', index);
+                                        $(element).removeClass('success');
+                                    } else {
+                                        $(PolymerUtils.getElementById(_this.prefix + "ClinicalAnalysisBrowserGrid")).bootstrapTable('check', index);
+                                    }
+                                }
+                            } else {
+                                // If not checkboxes exist
+                                $('.success').removeClass('success');
+                                $(element).addClass('success');
+                            }
+
+                            _this._onSelectClinicalAnalysis(row);
+                        },
+                        onDblClickRow: function (row, element, field) {
+                            // We detail view is active we expand the row automatically.
+                            // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
+                            if (_this._config.detailView) {
+                                if (element[0].innerHTML.includes("icon-plus")) {
+                                    $(PolymerUtils.getElementById(_this.prefix + 'ClinicalAnalysisBrowserGrid')).bootstrapTable('expandRow', element[0].dataset.index);
+                                } else {
+                                    $(PolymerUtils.getElementById(_this.prefix + 'ClinicalAnalysisBrowserGrid')).bootstrapTable('collapseRow', element[0].dataset.index);
+                                }
+                            }
+                        },
+                        onCheck: function (row, element) {
+                            // check analysis is not already selected
+                            for (let i in _this._analyses) {
+                                if (_this._analyses[i].id === row.id) {
+                                    return;
+                                }
+                            }
+
+                            // we add analyses to selected analyses
+                            _this.push("_analyses", row);
+                            _this.set('analyses', _this._analyses.slice());
+
+                            // We only activate the row when checking
+                            if (_this._config.detailView) {
+                                $('.success').removeClass('success');
+                            }
+                            $(element[0].parentElement.parentElement).addClass('success');
+
+                            // If exist on single nested sample we must check it
+                            if (row.samples.length === 1) {
+                                let checkbox = PolymerUtils.getElementById(_this.prefix + row.samples[0].id + "Checkbox");
+                                if (UtilsNew.isNotUndefinedOrNull(checkbox)) {
+                                    checkbox.checked = true;
+                                }
+                            }
+                        },
+                        onUncheck: function (row, elem) {
+                            let analysisToDeleteIdx = -1;
+                            for (let i in _this.analyses) {
+                                if (_this.analyses[i].id === row.id) {
+                                    analysisToDeleteIdx = i;
+                                    break;
+                                }
+                            }
+
+                            if (analysisToDeleteIdx === -1) {
+                                return;
+                            }
+
+                            _this.splice('_analyses', analysisToDeleteIdx, 1);
+                            _this.set('analyses', _this._analyses.slice());
+
+                            // We detail view is active we expand the row automatically
+                            if (_this._config.detailView) {
+                                $(PolymerUtils.getElementById(_this.prefix + 'ClinicalAnalysisBrowserGrid')).bootstrapTable('collapseRow', elem[0].dataset.index);
+                            }
+
+                            // We must uncheck nested checked samples
+                            if (row.samples.length > 0) {
+                                for (let sample of row.samples) {
+                                    let checkbox = PolymerUtils.getElementById(_this.prefix + sample.id + "Checkbox");
+                                    if (UtilsNew.isNotUndefinedOrNull(checkbox)) {
+                                        checkbox.checked = false;
+                                    }
+                                }
+                            }
+                        },
+                        onCheckAll: function (rows) {
+                            let newClinicalAnalyses = _this._analyses.slice();
+                            // check analysis is not already selected
+                            rows.forEach((analysis) => {
+                                let existsNewSelected = _this._analyses.some((analysisSelected) => {
+                                    return analysisSelected.id === analysis.id;
+                                });
+
+                                if(!existsNewSelected) {
+                                    newClinicalAnalyses.push(analysis);
+                                }
+                            });
+
+                            // we add analyses to selected analyses
+                            _this._analyses = newClinicalAnalyses;
+                            _this.set('analyses', newClinicalAnalyses.slice());
+
+                            // We must uncheck nested checked samples
+                            for (let row of rows) {
+                                if (row.samples.length === 1) {
+                                    let checkbox = PolymerUtils.getElementById(_this.prefix + row.samples[0].id + "Checkbox");
+                                    if (UtilsNew.isNotUndefinedOrNull(checkbox)) {
+                                        checkbox.checked = true;
+                                    }
+                                }
+                            }
+                        },
+                        onUncheckAll: function (rows) {
+                            // check analysis is not already selected
+                            rows.forEach((analysis) => {
+                                _this._analyses = _this._analyses.filter((analysisSelected) => {
+                                    return analysisSelected.id !== analysis.id;
+                                });
+                            });
+
+                            // we add analyses to selected analyses
+//                            _this.push("_analyses", row);
+                            _this.set('analyses', _this._analyses.slice());
+
+                            // We must uncheck nested checked samples
+                            for (let row of rows) {
+                                for (let sample of row.samples) {
+                                    let checkbox = PolymerUtils.getElementById(_this.prefix + sample.id + "Checkbox");
+                                    if (UtilsNew.isNotUndefinedOrNull(checkbox)) {
+                                        checkbox.checked = false;
+                                    }
+                                }
+                            }
+                        },
+                        onLoadSuccess: function (data) {
+                            // Check all already selected rows. Selected analyses are stored in this.analyses array
+                            if (UtilsNew.isNotUndefinedOrNull(_table)) {
+                                if (!_this._config.multiSelection) {
+                                    PolymerUtils.querySelector(_table.selector).rows[1].setAttribute('class', 'success');
+                                    _this._onSelectClinicalAnalysis(data.rows[0]);
+                                }
+
+                                if (_this.analyses !== "undefined") {
+                                    for (let idx in _this.analyses) {
+                                        for (let j in data.rows) {
+                                            if (_this.analyses[idx].id === data.rows[j].id) {
+                                                $(PolymerUtils.getElementById(_this.prefix + 'ClinicalAnalysisBrowserGrid')).bootstrapTable('check', j);
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        onPageChange: function (page, size) {
+                            _this.from = (page - 1) * size + 1;
+                            _this.to = page * size;
+                        },
+                    });
+                } else {
+                    // Delete table
+                    $(PolymerUtils.getElementById(this.prefix + 'ClinicalAnalysisBrowserGrid')).bootstrapTable('destroy');
+                    this.numTotalResults = 0;
+                }
+            }
+
+            _onSelectClinicalAnalysis(row) {
+                if (typeof row !== "undefined") {
+                    this.dispatchEvent(new CustomEvent('selectanalysis', {
+                        detail: {
+                            id: row.id,
+                            analysis: row
                         }
-                    },
-                    onCheck: function (row, elem) {
-                        _this.dispatchEvent(new CustomEvent("analysis-selected", {
-                            detail: row,
-                            bubbles: true,
-                            composed: true
-                        }));
-                    },
-                    onPageChange: function (page, size) {
-                        _this.from = (page - 1) * size + 1;
-                        _this.to = page * size;
-                    }
-                });
+                    }));
+                }
             }
 
-            _getUrlQueryParams() {
-                // Check the opencgaClient exists
-                if (UtilsNew.isUndefinedOrNull(this.opencgaClient)) {
-                    return {host: "", queryParams: {}};
-                }
-
-                let host = this.opencgaClient.getConfig().host;
-                // By default we assume https protocol instead of http
-                if (!host.startsWith("https://") && !host.startsWith("http://")) {
-                    host = 'https://' + this.opencgaClient.getConfig().host;
-                }
-
-                if (typeof this.opencgaSession.project !== "undefined" && typeof this.opencgaSession.study.alias !== "undefined") {
-                    if (typeof this.query === "undefined") {
-                        this.query = {};
-                    }
-                    if (UtilsNew.isEmpty(this.query.studies) || this.query.studies.split(new RegExp("[,;]")).length === 1) {
-                        this.query.study = this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias;
-                    }
-                    host += '/webservices/rest/v1/clinical/search';
+            onColumnChange(e) {
+                let table = $('#' + this.prefix + 'ClinicalAnalysisBrowserGrid');
+                if (e.detail.selected) {
+                    table.bootstrapTable("showColumn", e.detail.id);
                 } else {
-                    return {host: host, queryParams: {}};
-                }
-
-                // Init queryParams with default and config values plus query object
-                let queryParams = Object.assign(
-                    {
-                        sid: this.opencgaClient._config.sessionId,
-                        include: "id,name,proband,family,disease,type,creationDate,interpretations,status,dueDate",
-                        skipCount: false
-                    }, this.query);
-
-                return {host: host, queryParams: queryParams};
-            }
-
-            analysisObserver() {
-                if (UtilsNew.isNotUndefinedOrNull(this.analysis)) {
-                    $('#' + this.prefix + 'tableAnalysis').bootstrapTable("checkBy", {
-                        field: "name",
-                        values: [this.analysis.name]
-                    })
-                } else {
-                    $('#' + this.prefix + 'tableAnalysis').bootstrapTable('check', 0);
+                    table.bootstrapTable("hideColumn", e.detail.id);
                 }
             }
 
             detailFormatter(index, row) {
                 let clinicalAnalysisView = document.createElement("clinical-analysis-view");
-                clinicalAnalysisView.opencgaSession = this.opencgaSession;
-                clinicalAnalysisView.opencgaClient = this.opencgaSession.opencgaClient;
+                clinicalAnalysisView.opencgaSession = this.gridContext.opencgaSession;
+                clinicalAnalysisView.opencgaClient = this.gridContext.opencgaSession.opencgaClient;
                 clinicalAnalysisView.clinicalAnalysisId = row.id;
                 clinicalAnalysisView.showTitle = false;
 
@@ -250,14 +449,31 @@
 
             priorityFormatter(value) {
                 if (UtilsNew.isEmpty(value)) {
-                    return "<span style='color: orange'>HIGH</span>"
+                    return "<span>-</span>";
+                } else {
+                    switch (value) {
+                        case "URGENT":
+                            return "<span style='color: red'>" + value + "</span>";
+                        case "HIGH":
+                            return "<span style='color: orange'>" + value + "</span>";
+                        case "MEDIUM":
+                            return "<span style='color: blue'>" + value + "</span>";
+                        case "LOW":
+                            return "<span style='color: green'>" + value + "</span>";
+                        default:
+                            return "<span>-</span>";
+                    }
                 }
             }
-            dateFormatter(value) {
+
+            dateFormatter(value, row) {
+                if (UtilsNew.isUndefinedOrNull(value)) {
+                    return "-";
+                }
                 return moment(value, "YYYYMMDDHHmmss").format('D MMM YYYY');
             }
 
-            _getTableColumns() {
+            _initTableColumns() {
                 let columns = [];
                 if (this._config.multiSelection) {
                     columns.push({
@@ -269,7 +485,7 @@
                     });
                 }
 
-                return [
+                this._columns = [
                     columns.concat(
                         [
                             {
@@ -278,8 +494,7 @@
                             },
                             {
                                 title: 'Proband',
-                                field: 'proband.id',
-                                // formatter: this.probandFormatter
+                                field: 'proband.id'
                             },
                             {
                                 title: 'Family',
@@ -317,7 +532,10 @@
                             }
                         ])
                 ];
+
+                return this._columns;
             }
+
             getDefaultConfig() {
                 return {
                     pagination: true,
@@ -325,13 +543,13 @@
                     pageList: [10, 25, 50],
                     showExport: false,
                     detailView: true,
-                    detailFormatter: this.detailFormatter,
-                    multiSelection: true,
+                    detailFormatter: this.detailFormatter, // function with the detail formatter
+                    multiSelection: false,
                     header: {
                         horizontalAlign: 'center',
                         verticalAlign: 'bottom'
-                    },
-                };
+                    }
+                }
             }
         }
 

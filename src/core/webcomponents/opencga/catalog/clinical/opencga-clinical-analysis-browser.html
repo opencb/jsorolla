@@ -17,11 +17,20 @@
 <link rel="import" href="opencga-clinical-analysis-filter.html">
 <link rel="import" href="opencga-clinical-analysis-grid.html">
 <link rel="import" href="../../opencga-active-filters.html">
-<link rel="import" href="../../opencga-message-dialog.html">
 
 <dom-module id="opencga-clinical-analysis-browser">
     <template>
-        <style include="jso-styles"></style>
+        <style include="jso-styles">
+            .icon-padding {
+                padding-left: 4px;
+                padding-right: 5px;
+            }
+
+            .detail-tab-title {
+                font-size: 115%;
+                font-weight: bold;
+            }
+        </style>
 
         <template is="dom-if" if="{{_config.showTitle}}">
             <div class="panel" style="margin-bottom: 15px">
@@ -33,13 +42,13 @@
 
         <div class="row" style="padding: 0px 10px">
             <div class="col-md-2">
-                <opencga-clinical-analysis-filter opencga-client="{{opencgaClient}}" opencga-session="{{opencgaSession}}" query="{{query}}" on-search="onSearch"></opencga-clinical-analysis-filter>
+                <opencga-clinical-analysis-filter opencga-session="{{opencgaSession}}" config="{{_config.filter}}" analyses="{{analyses}}"
+                                                  query="{{query}}" search="{{search}}"></opencga-clinical-analysis-filter>
             </div>
 
             <div class="col-md-10">
-                <opencga-active-filters opencga-client="{{opencgaClient}}" query="[[query]]" filters="{{config.filters}}" on-filterchange="onFilterChange" on-clear="onClear"
-                                        filter-bioformat="VARIANT" default-study="{{opencgaSession.study.alias}}" alias="{{activeFilterAlias}}" refresh="{{search}}" genotype-samples="{{genotypeSamples}}"
-                                        mode-inheritance="[[modeInheritance]]">
+                <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" default-study="{{opencgaSession.study.alias}}"
+                                        config="{{filtersConfig}}" alias="{{activeFilterAlias}}" refresh="{{search}}" on-clear="onClear" on-filterchange="onActiveFilterChange">
                 </opencga-active-filters>
 
 
@@ -47,28 +56,30 @@
                 <div class="col-md-12" style="padding: 5px 0px 5px 0px">
                     <div class="btn-toolbar" role="toolbar" aria-label="..." style="padding: 10px 0px;margin-left: 0px">
                         <div class="btn-group" role="group" style="margin-left: 0px">
-                            <button type="button" class="btn btn-success family-browser-view-buttons active" data-view="TableResult" on-click="_changeView" data-id="table">
+                            <button type="button" class="btn btn-success analysis-browser-view-buttons active" data-view="TableResult" on-click="_changeView" data-id="table">
                                 <i class="fa fa-table icon-padding" aria-hidden="true" data-view="TableResult" on-click="_changeView" data-id="table"></i> Table Result
                             </button>
-                            <button type="button" class="btn btn-success family-browser-view-buttons" data-view="SummaryStats" on-click="_changeView">
+                            <button type="button" class="btn btn-success analysis-browser-view-buttons" data-view="SummaryStats" on-click="_changeView">
                                 <i class="fa fa-line-chart icon-padding" aria-hidden="true" data-view="SummaryStats" on-click="_changeView"></i> Summary Stats
                             </button>
-                            <button type="button" class="btn btn-success family-browser-view-buttons" data-view="FamilyComparator" on-click="_changeView" data-id="comparator">
-                                <i class="fa fa-users icon-padding" aria-hidden="true" data-view="FamilyComparator" on-click="_changeView" data-id="comparator"></i> Family Comparator
-                            </button>
+                            <!--<button type="button" class="btn btn-success analysis-browser-view-buttons" data-view="FamilyComparator" on-click="_changeView" data-id="comparator">-->
+                                <!--<i class="fa fa-users icon-padding" aria-hidden="true" data-view="FamilyComparator" on-click="_changeView" data-id="comparator"></i> Family Comparator-->
+                            <!--</button>-->
                         </div>
                     </div>
                 </div>
 
                 <div>
                     <div id="{{prefix}}TableResult" class="clinical-analysis-browser-view-content">
-                        <opencga-clinical-analysis-grid opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}"
-                                                        query="{{search}}" config="{{clinicalAnalysisGridConfig}}"
-                                                        on-analysis-selected="onAnalysisSelectedSelector">
+                        <opencga-clinical-analysis-grid opencga-session="{{opencgaSession}}" config="[[_config.grid]]"
+                                                        analyses="{{analyses}}" search="{{search}}" style="font-size: 12px"
+                                                        on-selectanalysis="onSelectClinicalAnalysis"
+                                                        active="{{activeMenu.table}}">
                         </opencga-clinical-analysis-grid>
                     </div>
 
                     <div id="{{prefix}}SummaryStats" class="clinical-analysis-browser-view-content" style="display: none">
+                        Work in progress
                         <!--<opencga-facet-view opencga-session="{{opencgaSession}}" entity="FAMILY"-->
                                             <!--variable-sets="[[variableSets]]"></opencga-facet-view>-->
                     </div>
@@ -96,19 +107,25 @@
                         type: Object
                     },
                     opencgaClient: {
-                        type: Object
+                        type: Object,
+                        observer: "renderAnalysisTable"
                     },
-                    analysisSelected: {
+                    // analysisSelected: {
+                    //     type: Object,
+                    //     notify: true
+                    // },
+                    filters: {
+                        type: Object,
+                        notify: true,
+                        observer: "onFilterUpdate"
+                    },
+                    search: {
                         type: Object,
                         notify: true
                     },
-                    analysisModal: {
-                        type: Boolean,
-                        observer: "loadData"
-                    },
-                    query:{
+                    config: {
                         type: Object,
-                        observer: "queryObserver"
+                        observer: "configObserver"
                     }
                 }
             }
@@ -118,30 +135,84 @@
             }
 
             _init() {
+                this.prefix = "ocab-" + Utils.randomString(6);
+
+                this.analyses = [];
+
                 this._config = this.getDefaultConfig();
-
-                this.clinicalDefaultAnalysisQuery = {sort: "id"};
-                this.clinicalAnalysisQuery = {sort: "id"};
-                this.search = Object.assign({}, this.clinicalAnalysisQuery);
-                this.clinicalAnalysisGridConfig = this.getDefaultConfig();
             }
 
-            onAnalysisSelectedSelector (e) {
-                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-                this.analysisSelected = e.detail;
+            static get observers() {
+                return ['analysisObserver(analyses.*)'];
             }
 
-            queryObserver() {
-                this.clinicalAnalysisQuery = Object.assign({}, this.clinicalDefaultAnalysisQuery, this.query);
+            connectedCallback() {
+                super.connectedCallback();
+
+                this.activeMenu = {
+                    table: true
+                };
+            }
+
+            configObserver() {
+                this._config = Object.assign(this.getDefaultConfig(), this.config);
+            }
+
+            analysisObserver() {
+                this.dispatchEvent(new CustomEvent("analysischange", {
+                    detail: {
+                        analyses: this.analyses
+                    },
+                    bubbles: true, composed: true
+                }));
             }
 
             onClear() {
-                this.query = {studies: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias};
-                this.search = this.query;
+                this._config = Object.assign(this.getDefaultConfig(), this.config);
+                this.query = {};
+                // this.query = {studies: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias};
+                this.search = {};
             }
 
-            onSearch(e) {
-                this.search = Object.assign({}, this.clinicalDefaultAnalysisQuery, e.detail.query);
+            onActiveFilterChange(e) {
+                this.query = e.detail;
+                this.search = e.detail;
+            }
+
+            onSelectClinicalAnalysis(e) {
+                this.analysis = e.detail.analysis;
+            }
+
+            _changeBottomTab(e) {
+                let _activeTabs = {
+                    info: e.currentTarget.dataset.id === "info",
+                    // familyGrid: e.currentTarget.dataset.id === "familyGrid"
+                };
+
+                this.set("detailActiveTabs", _activeTabs);
+            }
+
+            _changeView(e) {
+                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+
+                let activeMenu = {
+                    table: e.currentTarget.dataset.id === "table",
+                    // comparator: e.currentTarget.dataset.id === "comparator"
+                };
+                this.set("activeMenu", activeMenu);
+
+                $('.clinical-analysis-browser-view-content').hide(); // hides all content divs
+                if (typeof e.target !== "undefined" && typeof e.target.dataset.view !== "undefined") {
+                    PolymerUtils.show(this.prefix + e.target.dataset.view);
+                }
+
+                // Show the active button
+                $('.analysis-browser-view-buttons').removeClass("active");
+                $(e.target).addClass("active");
+
+                // if (e.target.dataset.view === "SummaryStats") {
+                //     this.executeFacet();
+                // }
             }
 
             getDefaultConfig() {
