@@ -62,8 +62,8 @@
                             <button type="button" class="btn btn-success cohort-browser-view-buttons active" data-view="TableResult" on-click="_changeView" data-id="table">
                                 <i class="fa fa-table icon-padding" aria-hidden="true" data-view="TableResult" on-click="_changeView" data-id="table"></i> Table Result
                             </button>
-                            <button type="button" class="btn btn-success cohort-browser-view-buttons" data-view="SummaryStats" on-click="_changeView">
-                                <i class="fa fa-line-chart icon-padding" aria-hidden="true" data-view="SummaryStats" on-click="_changeView"></i> Summary Stats
+                            <button type="button" class="btn btn-success cohort-browser-view-buttons" data-view="AggregationStats" on-click="_changeView">
+                                <i class="fa fa-line-chart icon-padding" aria-hidden="true" data-view="AggregationStats" on-click="_changeView"></i> Aggregation Stats
                             </button>
                             <button type="button" class="btn btn-success cohort-browser-view-buttons" data-view="CohortComparator" on-click="_changeView" data-id="comparator">
                                 <i class="fa fa-users icon-padding" aria-hidden="true" data-view="CohortComparator" on-click="_changeView" data-id="comparator"></i> Cohort Comparator
@@ -115,7 +115,7 @@
                         </div>
                     </div>
 
-                    <div id="{{prefix}}SummaryStats" class="cohort-browser-view-content" style="display: none;" >
+                    <div id="{{prefix}}AggregationStats" class="cohort-browser-view-content" style="display: none;" >
                         <opencga-facet-view opencga-session="{{opencgaSession}}" entity="COHORT"
                             variable-sets="[[variableSets]]"></opencga-facet-view>
                     </div>
@@ -238,7 +238,7 @@
                 $('.cohort-browser-view-buttons').removeClass("active");
                 $(e.target).addClass("active");
 
-                if (e.target.dataset.view === "SummaryStats") {
+                if (e.target.dataset.view === "AggregationStats") {
                     this.executeFacet();
                 }
             }
@@ -321,7 +321,7 @@
                 return {
                     title: "Cohort Browser",
                     showTitle: true,
-                    showSummaryStats: true,
+                    showAggregationStats: true,
                     showComparator: true,
                     filter: {
 
