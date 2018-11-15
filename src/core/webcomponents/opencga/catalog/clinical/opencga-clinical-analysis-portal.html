@@ -54,7 +54,8 @@
                                 <!-- Proband -->
                                 <div class="btn-group">
                                     <button class="btn btn-default dropdown-toggle" style="width:125px; color: rgb(153, 153, 153);" type="button" id="{{prefix}}probandMenu"
-                                            data-id="proband" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                            data-id="proband" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"
+                                            title="{{proband}}">
                                         <span class="ocap-text-button">Proband: {{proband}}</span>&nbsp;
                                         <span class="bs-caret">
                                             <span class="caret"></span>
@@ -72,7 +73,8 @@
 
                                 <!-- Family -->
                                 <div class="btn-group">
-                                    <button class="dropdown-toggle btn btn-default" style="width:125px; color: rgb(153, 153, 153);" type="button" id="{{prefix}}familyMenu"
+                                    <button class="dropdown-toggle btn btn-default" style="width:125px; color: rgb(153, 153, 153);"
+                                            type="button" id="{{prefix}}familyMenu" title="{{family}}"
                                             data-id="family" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                                         <span class="ocap-text-button">Family: {{family}}</span>&nbsp;
                                         <span class="bs-caret">
@@ -91,8 +93,9 @@
 
                                 <!-- Case ID -->
                                 <div class="btn-group">
-                                    <button class="dropdown-toggle btn btn-default" style="width:125px; color: rgb(153, 153, 153);" type="button"
-                                            id="{{prefix}}caseMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                    <button class="dropdown-toggle btn btn-default" style="width:125px; color: rgb(153, 153, 153);"
+                                            type="button" title="{{case}}" id="{{prefix}}caseMenu"
+                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                                         <span class="ocap-text-button">Case: {{case}}</span>&nbsp;
                                         <span class="bs-caret">
                                             <span class="caret"></span>
@@ -273,6 +276,8 @@
                     inputElements[i].value = "";
                     inputElements[i].dispatchEvent(event);
                 }
+
+                this.updateQuery();
             }
 
             updateQuery() {
