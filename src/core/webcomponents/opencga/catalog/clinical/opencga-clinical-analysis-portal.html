@@ -1,0 +1,228 @@
+<!--
+  ~ Copyright 2015-2016 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<link rel="import" href="opencga-clinical-analysis-grid.html">
+
+<dom-module id="opencga-clinical-analysis-portal">
+    <template>
+        <style>
+            .ocap-status-selected {
+                background-color: rgb(236, 151, 31);
+                font-weight: bold;
+            }
+
+            .ocap-priority-selected {
+                background-color: rgb(201, 48, 44);
+                font-weight: bold;
+            }
+
+            .browser-subsection {
+                font-size: 1.35rem;
+                font-weight: bold;
+                padding: 5px 0px;
+                color: #444444;
+                border-bottom: 1px solid rgba(221, 221, 221, 0.8);
+            }
+
+        </style>
+
+        <div class="row">
+            <div class="col-md-offset-1 col-md-10">
+
+                <div class="browser-subsection">
+                    <h3>Case Portal</h3>
+                </div>
+
+                <br/>
+
+                <div style="padding: 5px 10px;">
+                    <div class="col-md-6" style="padding-left: 0px;">
+                        <div class="col-md-2" style="padding-top: 5px; padding-left: 0px">
+                            <span style="font-size: 14px">Search case by </span>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="selectpicker" data-width="100%" id="{{prefix}}-filter-type">
+                                <option value="proband">Proband ID</option>
+                                <option value="family">Family ID</option>
+                                <option value="id">Case ID</option>
+                                <option value="disease">Disease</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <input id="{{prefix}}-search-input" type="text" class="form-control" placeholder="Search ...">
+                        </div>
+                        <div class="col-md-1">
+                            <button id="{{prefix}}AddButton" type="button" class="btn btn-default btn-sm form-control" on-click="updateQuery">
+                                <i class="fa fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="btn-group btn-group" role="group" aria-label="..." style="float: right; padding-left: 10px;">
+                        <button id="{{prefix}}Urgent" value="URGENT" type="button" class="btn btn-default btn-danger ocap-priority-buttons ocap-priority-selected" on-click="onPriorityChange">
+                            Urgent
+                        </button>
+                        <button id="{{prefix}}High" value="HIGH" type="button" class="btn btn-default btn-danger ocap-priority-buttons" on-click="onPriorityChange">
+                            High
+                        </button>
+                        <button id="{{prefix}}Medium" value="MEDIUM" type="button" class="btn btn-default btn-danger ocap-priority-buttons" on-click="onPriorityChange">
+                            Medium
+                        </button>
+                        <button id="{{prefix}}Low" value="LOW" type="button" class="btn btn-default btn-danger ocap-priority-buttons" on-click="onPriorityChange">
+                            Low
+                        </button>
+                    </div>
+
+                    <div class="btn-group btn-group" role="group" aria-label="..." style="float: right;">
+                        <button id="{{prefix}}AllCases" value="" type="button" class="btn btn-default btn-warning ocap-status-buttons ocap-status-selected" on-click="onStatusChange">
+                            All
+                        </button>
+                        <button id="{{prefix}}ReadyToDispatch" value="Ready to dispatch" type="button" class="btn btn-default btn-warning ocap-status-buttons" on-click="onStatusChange">
+                            Ready to dispatch
+                        </button>
+                        <button id="{{prefix}}ToBeReviewed" value="To be reviewed" type="button" class="btn btn-default btn-warning ocap-status-buttons" on-click="onStatusChange">
+                            To be reviewed
+                        </button>
+                        <button id="{{prefix}}ToBeClosed" value="To be closed" type="button" class="btn btn-default btn-warning ocap-status-buttons" on-click="onStatusChange">
+                            To be closed
+                        </button>
+                        <button id="{{prefix}}ArchivedCases" value="Archived cases" type="button" class="btn btn-default btn-warning ocap-status-buttons" on-click="onStatusChange">
+                            Archived cases
+                        </button>
+                    </div>
+
+                    <br/><br/><br/>
+
+                    <opencga-clinical-analysis-grid opencga-session="{{opencgaSession}}" config="[[_config.grid]]"
+                                                    search="{{search}}" style="font-size: 12px"
+                                                    on-selectanalysis="onSelectClinicalAnalysis"
+                                                    active>
+                    </opencga-clinical-analysis-grid>
+                </div>
+            </div>
+        </div>
+
+    </template>
+
+    <script>
+        class OpencgaClinicalAnalysisPortal extends Polymer.Element {
+
+            constructor() {
+                super();
+                this.prefix = "ocap-" + Utils.randomString(6);
+            }
+
+            static get is() {
+                return 'opencga-clinical-analysis-portal';
+            }
+
+            static get properties() {
+                return {
+                    opencgaSession: {
+                        type: Object
+                    },
+                    search: {
+                        type: Object,
+                        notify: true
+                    },
+                    config: {
+                        type: Object,
+                        observer: "configObserver"
+                    }
+                }
+            }
+
+            static get observers() {
+                return ['propertyObserver(opencgaSession, config)'];
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            connectedCallback() {
+                super.connectedCallback();
+                this.search = {};
+            }
+
+            propertyObserver(opencgaSession, config) {
+                this._config = Object.assign(this.getDefaultConfig(), this.config);
+            }
+
+            onStatusChange(e) {
+                if (e.target.innerText === "All") {
+                    PolymerUtils.removeClass(".ocap-status-buttons", "ocap-status-selected");
+                    PolymerUtils.addClass(e.target.id, "ocap-status-selected");
+                } else {
+                    PolymerUtils.removeClass(`${this.prefix}AllCases`, "ocap-status-selected");
+                    PolymerUtils.toggleClass(e.target.id, "ocap-status-selected");
+                }
+
+                this.updateQuery();
+            }
+
+            onPriorityChange(e) {
+                PolymerUtils.removeClass(".ocap-priority-buttons", "ocap-priority-selected");
+                PolymerUtils.addClass(e.target.id, "ocap-priority-selected");
+
+                this.updateQuery();
+            }
+
+            updateQuery() {
+                let search = {};
+
+                // Check value written in the input text
+                let value = PolymerUtils.getValue(`${this.prefix}-search-input`);
+                if (UtilsNew.isNotEmpty(value)) {
+                    let field = PolymerUtils.getValue(`${this.prefix}-filter-type`);
+                    search[field] = value;
+                }
+
+                // Check status selected
+                let values = [];
+                PolymerUtils.querySelectorAll(".ocap-status-selected").forEach(function(button) {
+                    if (UtilsNew.isNotEmpty(button.value)) {
+                        values.push(button.value)
+                    }
+                });
+                if (values.length > 0) {
+                    search["status"] = values.join(",");
+                }
+
+                // Check priority
+                let priority = PolymerUtils.querySelector(".ocap-priority-selected").value;
+                search["priority"] = priority;
+
+                this.search = search;
+            }
+
+            getDefaultConfig() {
+                return {
+                    title: "Clinical Analysis Portal",
+                    showTitle: true,
+                    grid: {
+                        pageSize: 10,
+                        pageList: [10, 25, 50],
+                        detailView: true,
+                        multiSelection: false
+                    }
+                }
+            }
+        }
+
+        customElements.define(OpencgaClinicalAnalysisPortal.is, OpencgaClinicalAnalysisPortal);
+    </script>
+</dom-module>

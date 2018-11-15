@@ -364,6 +364,12 @@
                             }
                         },
                         onLoadSuccess: function (data) {
+                            // Add click event to the "review case" buttons
+                            let reviewCaseButtons = PolymerUtils.querySelectorAll(".reviewCaseButton");
+                            for (let i = 0; i < reviewCaseButtons.length; i++) {
+                                reviewCaseButtons[i].addEventListener('click', _this.reviewCaseButtonClicked);
+                            }
+
                             // Check all already selected rows. Selected analyses are stored in this.analyses array
                             if (UtilsNew.isNotUndefinedOrNull(_table)) {
                                 if (!_this._config.multiSelection) {
@@ -446,18 +452,41 @@
             }
 
             priorityFormatter(value) {
+                // TODO: Remove commented code. This is only for debugging purposes to see all the different priorities
+                // if (UtilsNew.isUndefinedOrNull(this.count)) {
+                //     this.count = 0;
+                // }
+                // if (this.count % 4 === 0) {
+                //     value = "URGENT";
+                // }
+                // if (this.count % 4 === 1) {
+                //     value = "HIGH";
+                // }
+                // if (this.count % 4 === 2) {
+                //     value = "MEDIUM";
+                // }
+                // if (this.count % 4 === 3) {
+                //     value = "LOW";
+                // }
+                // this.count++;
                 if (UtilsNew.isEmpty(value)) {
                     return "<span>-</span>";
                 } else {
+                    let styles = ["color: white", "border-radius: 5px", "padding: 3px", "width: 65px", "display: block",
+                        "margin: auto"];
                     switch (value) {
                         case "URGENT":
-                            return "<span style='color: red'>" + value + "</span>";
+                            styles.push("background: #ef6363", "border: 1px solid red");
+                            return `<span style='${styles.join("; ")}'>Urgent</span>`;
                         case "HIGH":
-                            return "<span style='color: orange'>" + value + "</span>";
+                            styles.push("background: #ffb42b", "border: 1px solid orange");
+                            return `<span style='${styles.join("; ")}'>High</span>`;
                         case "MEDIUM":
-                            return "<span style='color: blue'>" + value + "</span>";
+                            styles.push("background: #237afb", "border: 1px solid blue");
+                            return `<span style='${styles.join("; ")}'>Medium</span>`;
                         case "LOW":
-                            return "<span style='color: green'>" + value + "</span>";
+                            styles.push("background: #1bb31b", "border: 1px solid green");
+                            return `<span style='${styles.join("; ")}'>Low</span>`;
                         default:
                             return "<span>-</span>";
                     }
@@ -471,6 +500,16 @@
                 return moment(value, "YYYYMMDDHHmmss").format('D MMM YYYY');
             }
 
+            reviewCaseFormatter(value, row) {
+                return `<button data-id=${row.id} style="cursor: pointer; color: #5a4444; border-radius: 5px; padding: 4px;
+                        background: #eae7d8; border: 1px solid #8a6d3b;" class='reviewCaseButton'>
+                        <i class="fa fa-search" aria-hidden="true"></i> Review case</button>`;
+            }
+
+            reviewCaseButtonClicked(e) {
+                // The clinical anlysisi id is in: e.target.dataset.id
+            }
+
             _initTableColumns() {
                 let columns = [];
                 if (this._config.multiSelection) {
@@ -479,7 +518,8 @@
                         radio: true,
                         align: 'center',
                         valign: 'middle',
-                        class: "cursor-pointer"
+                        class: "cursor-pointer",
+                        eligible: false
                     });
                 }
 
@@ -488,45 +528,61 @@
                         [
                             {
                                 title: 'Analysis ID',
-                                field: 'id'
+                                field: 'id',
+                                valign: 'middle',
                             },
                             {
                                 title: 'Proband',
-                                field: 'proband.id'
+                                field: 'proband.id',
+                                valign: 'middle',
                             },
                             {
                                 title: 'Family',
                                 field: 'family.id',
+                                valign: 'middle',
                                 // formatter: this.familyFormatter
                             },
                             {
                                 title: 'Disease',
                                 field: 'disease.name',
+                                valign: 'middle',
                                 // formatter: this.diseaseFormatter
                             },
                             {
                                 title: 'Analysis Type',
-                                field: 'type'
-                            },
-                            {
-                                title: 'Priority',
-                                field: 'priority',
-                                formatter: this.priorityFormatter
+                                field: 'type',
+                                valign: 'middle',
                             },
                             {
                                 title: 'Due Date',
                                 field: 'dueDate',
+                                valign: 'middle',
                                 formatter: this.dateFormatter
                             },
                             {
                                 title: 'Creation Date',
                                 field: 'creationDate',
+                                valign: 'middle',
                                 formatter: this.dateFormatter
                             },
                             {
                                 title: 'Status',
                                 field: 'status.name',
+                                valign: 'middle',
                                 halign: this._config.header.horizontalAlign
+                            },
+                            {
+                                title: 'Priority',
+                                field: 'priority',
+                                align: 'center',
+                                valign: 'middle',
+                                formatter: this.priorityFormatter
+                            },
+                            {
+                                title: 'Review',
+                                eligible: false,
+                                align: 'center',
+                                formatter: this.reviewCaseFormatter.bind(this)
                             }
                         ])
                 ];
