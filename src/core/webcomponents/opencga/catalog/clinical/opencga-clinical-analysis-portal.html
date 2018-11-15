@@ -19,22 +19,20 @@
 <dom-module id="opencga-clinical-analysis-portal">
     <template>
         <style>
-            .ocap-status-selected {
-                background-color: rgb(236, 151, 31);
-                font-weight: bold;
-            }
-
-            .ocap-priority-selected {
-                background-color: rgb(201, 48, 44);
-                font-weight: bold;
-            }
-
             .browser-subsection {
                 font-size: 1.35rem;
                 font-weight: bold;
                 padding: 5px 0px;
                 color: #444444;
                 border-bottom: 1px solid rgba(221, 221, 221, 0.8);
+            }
+
+            .ocap-text-button {
+                display: inline-block;
+                overflow: hidden;
+                width: 86px;
+                text-align: left;
+                float: left !important;
             }
 
         </style>
@@ -49,62 +47,124 @@
                 <br/>
 
                 <div style="padding: 5px 10px;">
-                    <div class="col-md-6" style="padding-left: 0px;">
-                        <div class="col-md-2" style="padding-top: 5px; padding-left: 0px">
-                            <span style="font-size: 14px">Search case by </span>
-                        </div>
-                        <div class="col-md-3">
-                            <select class="selectpicker" data-width="100%" id="{{prefix}}-filter-type">
-                                <option value="proband">Proband ID</option>
-                                <option value="family">Family ID</option>
-                                <option value="id">Case ID</option>
-                                <option value="disease">Disease</option>
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <input id="{{prefix}}-search-input" type="text" class="form-control" placeholder="Search ...">
-                        </div>
-                        <div class="col-md-1">
-                            <button id="{{prefix}}AddButton" type="button" class="btn btn-default btn-sm form-control" on-click="updateQuery">
-                                <i class="fa fa-plus"></i>
-                            </button>
+
+                    <div class="panel panel-default" style="margin-bottom: 10px">
+                        <div class="panel-body" style="padding: 10px">
+                            <div class="dropdown">
+                                <!-- Proband -->
+                                <div class="btn-group">
+                                    <button class="btn btn-default dropdown-toggle" style="width:125px; color: rgb(153, 153, 153);" type="button" id="{{prefix}}probandMenu"
+                                            data-id="proband" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                        <span class="ocap-text-button">Proband: {{proband}}</span>&nbsp;
+                                        <span class="bs-caret">
+                                            <span class="caret"></span>
+                                        </span>
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="{{prefix}}probandMenu">
+                                        <li style="padding: 5px;">
+                                            <div style="display: inline-flex; width: 250px;">
+                                                <label style="margin: auto;">Proband ID: </label>
+                                                <input style="width: 165px;" type="text" class$="{{prefix}}-input" placeholder="Any" on-keyup="onProbandInput">
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <!-- Family -->
+                                <div class="btn-group">
+                                    <button class="dropdown-toggle btn btn-default" style="width:125px; color: rgb(153, 153, 153);" type="button" id="{{prefix}}familyMenu"
+                                            data-id="family" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                        <span class="ocap-text-button">Family: {{family}}</span>&nbsp;
+                                        <span class="bs-caret">
+                                            <span class="caret"></span>
+                                        </span>
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="{{prefix}}familyMenu">
+                                        <li style="padding: 5px;">
+                                            <div style="display: inline-flex; width: 250px;">
+                                                <label style="margin: auto;">Family ID: </label>
+                                                <input style="width: 165px;" type="text" class$="{{prefix}}-input" placeholder="Any" on-keyup="onFamilyInput">
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <!-- Case ID -->
+                                <div class="btn-group">
+                                    <button class="dropdown-toggle btn btn-default" style="width:125px; color: rgb(153, 153, 153);" type="button"
+                                            id="{{prefix}}caseMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                        <span class="ocap-text-button">Case: {{case}}</span>&nbsp;
+                                        <span class="bs-caret">
+                                            <span class="caret"></span>
+                                        </span>
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="{{prefix}}caseMenu">
+                                        <li style="padding: 5px;">
+                                            <div style="display: inline-flex; width: 250px;">
+                                                <label style="margin: auto;">Case ID: </label>
+                                                <input style="width: 165px;" type="text" class$="{{prefix}}-input" placeholder="Any" on-keyup="onCaseInput">
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <!-- Status -->
+                                <select class="selectpicker" data-width="125px" id="{{prefix}}-status" multiple title="Status: Any"
+                                        on-change="updateQuery">
+                                    <option value="Ready to dispatch">Ready to dispatch</option>
+                                    <option value="To be reviewed">To be reviewed</option>
+                                    <option value="To be closed">To be closed</option>
+                                    <option value="Archived cases">Archived cases</option>
+                                </select>
+
+                                <!-- Priority -->
+                                <select class="selectpicker" data-width="125px" id="{{prefix}}-priority" multiple
+                                        title="Priority: Any" on-change="updateQuery">
+                                    <option style="color: red; font-weight: bold;" value="URGENT">Urgent</option>
+                                    <option style="color: orange; font-weight: bold;" value="HIGH">High</option>
+                                    <option style="color: blue; font-weight: bold;" value="MEDIUM">Medium</option>
+                                    <option style="color: green; font-weight: bold;" value="LOW">Low</option>
+                                </select>
+
+                                <button class="btn btn-default" style="margin-left: 15px;" type="button" on-click="onClearQuery">
+                                    <i class="fa fa-times fa-lg" aria-hidden="true"></i>
+                                </button>
+
+                                <button class="btn btn-default" type="button" on-click="updateQuery">
+                                    <i class="fa fa-search fa-lg" aria-hidden="true"></i>
+                                </button>
+
+
+                                <!--<template is="dom-if" if="{{showSelectFilters(opencgaClient._config)}}">-->
+                                    <div class="btn-group" style="float: right">
+                                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="fa fa-filter" aria-hidden="true" style="padding-right: 5px"></i> Filters <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-right">
+                                            <li><a style="font-weight: bold">Saved Filters</a></li>
+                                            <template is="dom-repeat" items="{{filters}}">
+                                                <li>
+                                                    <template is="dom-if" if="{{!item.active}}">
+                                                        <a data-filter-name$="{{item.name}}" style="cursor: pointer" on-click="onServerFilterChange" class="filtersLink">&nbsp;&nbsp;{{item.name}}</a>
+                                                    </template>
+                                                    <template is="dom-if" if="{{item.active}}">
+                                                        <a data-filter-name$="{{item.name}}" style="cursor: pointer;color: green" on-click="onServerFilterChange" class="filtersLink">&nbsp;&nbsp;{{item.name}}</a>
+                                                    </template>
+                                                </li>
+                                            </template>
+                                            <template is="dom-if" if="{{checkSid(opencgaClient._config)}}">
+                                                <li role="separator" class="divider"></li>
+                                                <li>
+                                                    <a style="cursor: pointer" on-click="launchModal"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save...</a>
+                                                </li>
+                                            </template>
+                                        </ul>
+                                    </div>
+                                <!--</template>-->
+
+                            </div>
                         </div>
                     </div>
-
-                    <div class="btn-group btn-group" role="group" aria-label="..." style="float: right; padding-left: 10px;">
-                        <button id="{{prefix}}Urgent" value="URGENT" type="button" class="btn btn-default btn-danger ocap-priority-buttons ocap-priority-selected" on-click="onPriorityChange">
-                            Urgent
-                        </button>
-                        <button id="{{prefix}}High" value="HIGH" type="button" class="btn btn-default btn-danger ocap-priority-buttons" on-click="onPriorityChange">
-                            High
-                        </button>
-                        <button id="{{prefix}}Medium" value="MEDIUM" type="button" class="btn btn-default btn-danger ocap-priority-buttons" on-click="onPriorityChange">
-                            Medium
-                        </button>
-                        <button id="{{prefix}}Low" value="LOW" type="button" class="btn btn-default btn-danger ocap-priority-buttons" on-click="onPriorityChange">
-                            Low
-                        </button>
-                    </div>
-
-                    <div class="btn-group btn-group" role="group" aria-label="..." style="float: right;">
-                        <button id="{{prefix}}AllCases" value="" type="button" class="btn btn-default btn-warning ocap-status-buttons ocap-status-selected" on-click="onStatusChange">
-                            All
-                        </button>
-                        <button id="{{prefix}}ReadyToDispatch" value="Ready to dispatch" type="button" class="btn btn-default btn-warning ocap-status-buttons" on-click="onStatusChange">
-                            Ready to dispatch
-                        </button>
-                        <button id="{{prefix}}ToBeReviewed" value="To be reviewed" type="button" class="btn btn-default btn-warning ocap-status-buttons" on-click="onStatusChange">
-                            To be reviewed
-                        </button>
-                        <button id="{{prefix}}ToBeClosed" value="To be closed" type="button" class="btn btn-default btn-warning ocap-status-buttons" on-click="onStatusChange">
-                            To be closed
-                        </button>
-                        <button id="{{prefix}}ArchivedCases" value="Archived cases" type="button" class="btn btn-default btn-warning ocap-status-buttons" on-click="onStatusChange">
-                            Archived cases
-                        </button>
-                    </div>
-
-                    <br/><br/><br/>
 
                     <opencga-clinical-analysis-grid opencga-session="{{opencgaSession}}" config="[[_config.grid]]"
                                                     search="{{search}}" style="font-size: 12px"
@@ -156,55 +216,91 @@
             connectedCallback() {
                 super.connectedCallback();
                 this.search = {};
+
+                this.proband = "Any";
+                this.family = "Any";
+                this.case = "Any";
             }
 
             propertyObserver(opencgaSession, config) {
                 this._config = Object.assign(this.getDefaultConfig(), this.config);
             }
 
-            onStatusChange(e) {
-                if (e.target.innerText === "All") {
-                    PolymerUtils.removeClass(".ocap-status-buttons", "ocap-status-selected");
-                    PolymerUtils.addClass(e.target.id, "ocap-status-selected");
-                } else {
-                    PolymerUtils.removeClass(`${this.prefix}AllCases`, "ocap-status-selected");
-                    PolymerUtils.toggleClass(e.target.id, "ocap-status-selected");
-                }
+            onProbandInput(e) {
+                let buttonElem = e.target.parentElement.parentElement.parentElement.previousSibling.previousElementSibling;
 
-                this.updateQuery();
+                if (UtilsNew.isNotEmpty(e.target.value)) {
+                    this.proband = e.target.value;
+                    buttonElem.style.color = "#333";
+                } else {
+                    this.proband = "Any";
+                    buttonElem.style.color = "rgb(153, 153, 153)";
+                }
             }
 
-            onPriorityChange(e) {
-                PolymerUtils.removeClass(".ocap-priority-buttons", "ocap-priority-selected");
-                PolymerUtils.addClass(e.target.id, "ocap-priority-selected");
+            onFamilyInput(e) {
+                let buttonElem = e.target.parentElement.parentElement.parentElement.previousSibling.previousElementSibling;
 
-                this.updateQuery();
+                if (UtilsNew.isNotEmpty(e.target.value)) {
+                    this.family = e.target.value;
+                    buttonElem.style.color = "#333";
+                } else {
+                    this.family = "Any";
+                    buttonElem.style.color = "rgb(153, 153, 153)";
+                }
+            }
+
+            onCaseInput(e) {
+                let buttonElem = e.target.parentElement.parentElement.parentElement.previousSibling.previousElementSibling;
+
+                if (UtilsNew.isNotEmpty(e.target.value)) {
+                    this.case = e.target.value;
+                    buttonElem.style.color = "#333";
+                } else {
+                    this.case = "Any";
+                    buttonElem.style.color = "rgb(153, 153, 153)";
+                }
+            }
+
+            onClearQuery(e) {
+                $(`#${this.prefix}-priority`).selectpicker('val', '');
+                $(`#${this.prefix}-status`).selectpicker('val', '');
+
+                // We create a dummy event so the input listeners are called and everything is automatically cleaned up
+                let event = new CustomEvent("keyup", {});
+                let inputElements = PolymerUtils.querySelectorAll(`.${this.prefix}-input`);
+                for (let i = 0; i < inputElements.length; i++) {
+                    inputElements[i].value = "";
+                    inputElements[i].dispatchEvent(event);
+                }
             }
 
             updateQuery() {
                 let search = {};
 
-                // Check value written in the input text
-                let value = PolymerUtils.getValue(`${this.prefix}-search-input`);
-                if (UtilsNew.isNotEmpty(value)) {
-                    let field = PolymerUtils.getValue(`${this.prefix}-filter-type`);
-                    search[field] = value;
+                let defaultValue = "Any";
+
+                if (this.case !== defaultValue) {
+                    search['id'] = this.case;
                 }
 
-                // Check status selected
-                let values = [];
-                PolymerUtils.querySelectorAll(".ocap-status-selected").forEach(function(button) {
-                    if (UtilsNew.isNotEmpty(button.value)) {
-                        values.push(button.value)
-                    }
-                });
-                if (values.length > 0) {
-                    search["status"] = values.join(",");
+                if (this.family !== defaultValue) {
+                    search['family'] = this.family;
                 }
 
-                // Check priority
-                let priority = PolymerUtils.querySelector(".ocap-priority-selected").value;
-                search["priority"] = priority;
+                if (this.proband !== defaultValue) {
+                    search['proband'] = this.proband;
+                }
+
+                let priority = $(`#${this.prefix}-priority`).selectpicker('val');
+                if (UtilsNew.isNotEmpty(priority)) {
+                    search["priority"] = priority.join(",");
+                }
+
+                let status = $(`#${this.prefix}-status`).selectpicker('val');
+                if (UtilsNew.isNotEmpty(status)) {
+                    search["status"] = status.join(",");
+                }
 
                 this.search = search;
             }
