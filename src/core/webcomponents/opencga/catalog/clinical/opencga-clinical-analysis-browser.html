@@ -76,6 +76,25 @@
                                                         on-selectanalysis="onSelectClinicalAnalysis"
                                                         active="{{activeMenu.table}}">
                         </opencga-clinical-analysis-grid>
+
+                        <div style="padding-top: 5px">
+                            <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
+                                <li role="presentation" class="active">
+                                    <a href="#{{prefix}}SampleViewer" role="tab" data-toggle="tab" class="detail-tab-title">
+                                        Clinical Analysis Info
+                                    </a>
+                                </li>
+                            </ul>
+
+                            <div class="tab-content" style="height: 680px">
+                                <div role="tabpanel" class="tab-pane active" id="{{prefix}}SampleViewer">
+                                    <clinical-analysis-view opencga-session="{{opencgaSession}}" opencga-client="{{opencgaSession.opencgaClient}}"
+                                                         clinical-analysis-id="{{analysis.id}}" config="{{_config.sampleDetail}}" style="font-size: 12px;">
+                                    </clinical-analysis-view>
+                                </div>
+
+                            </div>
+                        </div>
                     </div>
 
                     <div id="{{prefix}}AggregationStats" class="clinical-analysis-browser-view-content" style="display: none">
@@ -227,7 +246,7 @@
                     grid: {
                         pageSize: 10,
                         pageList: [10, 25, 50],
-                        detailView: true,
+                        detailView: false,
                         multiSelection: false
                     },
                     gridComparator: {

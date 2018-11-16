@@ -190,7 +190,7 @@ class Pedigree {
         if (showSampleNames) {
             let text = SVG.addChild(svg, "text", {
                 x: x - radius + 2,  y: y + width + 15,
-                style: "fill: black;font-size=8px;font-weight:10"
+                style: "fill: black;font-size=6px;font-weight:8"
             });
             text.textContent = object.name;
         }
@@ -223,12 +223,11 @@ class Pedigree {
         for (let m of family.members) {
             if (m.father !== undefined || m.mother !== undefined ) {
                 if (m.father !== undefined) {
-
                     map[m.father].partner = m.mother;
                     map[m.father].partnerConsaguinity = m.parentalConsanguinity;
                 }
 
-                if(m.mother !== undefined) {
+                if (m.mother !== undefined) {
                     map[m.mother].partner = m.father;
                     map[m.mother].partnerConsaguinity = m.parentalConsanguinity;
                 }
@@ -237,7 +236,7 @@ class Pedigree {
                     family.father = map[m.father];
                 }
 
-                if(m.mother!== undefined && this._isOrphan(map[m.mother])){
+                if (m.mother!== undefined && this._isOrphan(map[m.mother])){
                     family.mother = map[m.mother];
                 }
 
