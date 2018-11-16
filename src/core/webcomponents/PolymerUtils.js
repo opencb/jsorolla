@@ -168,6 +168,33 @@ class PolymerUtils {
         }
     }
 
+    static toggleClass(id, className) {
+        if (UtilsNew.isNotUndefinedOrNull(id)) {
+            let el;
+            if (id.startsWith('.')) {
+                // If starts with a dot then is a class, we use querySelector
+                el = PolymerUtils.querySelectorAll(id);
+            } else {
+                // It is an ID
+                el = PolymerUtils.getElementById(id);
+            }
+
+            if (Array.isArray(className)) {
+                if (UtilsNew.isNotUndefinedOrNull(el)) {
+                    className.forEach((item) => {
+                        el.classList.toggle(item);
+                    });
+                }
+            } else if (UtilsNew.isNotUndefinedOrNull(el.length) && el.length > 1) {
+                el.forEach((element) => {
+                    element.classList.toggle(className);
+                });
+            } else {
+                el.classList.toggle(className);
+            }
+        }
+    }
+
 
     static removeElement(id) {
         if (UtilsNew.isNotUndefinedOrNull(id)) {
