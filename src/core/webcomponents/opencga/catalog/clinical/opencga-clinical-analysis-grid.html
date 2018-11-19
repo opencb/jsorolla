@@ -421,6 +421,12 @@
                 }
             }
 
+            /**
+             * DEPRECATED.
+             * @param index
+             * @param row
+             * @returns {HTMLElement}
+             */
             detailFormatter(index, row) {
                 let clinicalAnalysisView = document.createElement("clinical-analysis-view");
                 clinicalAnalysisView.opencgaSession = this.gridContext.opencgaSession;
@@ -439,12 +445,17 @@
                 return div;
             }
 
+            analysisIdFormatter(value, row) {
+                let html = `<span style="font-weight: bold; font-size: 1.1em; cursor: pointer">${value}</span>`;
+                return value;
+            }
+
             probandFormatter(value, row) {
                 return row.proband.name;
             }
 
             familyFormatter(value, row) {
-                return row.subjects[0].samples[0].name;
+                return value + ` (${row.family.members.length})`;
             }
 
             diseaseFormatter(value, row) {
@@ -529,6 +540,7 @@
                             {
                                 title: 'Analysis ID',
                                 field: 'id',
+                                formatter: this.analysisIdFormatter,
                                 valign: 'middle',
                             },
                             {
@@ -537,10 +549,10 @@
                                 valign: 'middle',
                             },
                             {
-                                title: 'Family',
+                                title: 'Family (#members)',
                                 field: 'family.id',
                                 valign: 'middle',
-                                // formatter: this.familyFormatter
+                                formatter: this.familyFormatter
                             },
                             {
                                 title: 'Disease',
@@ -582,6 +594,7 @@
                                 title: 'Review',
                                 eligible: false,
                                 align: 'center',
+                                visible: this._config.showReviewCase,
                                 formatter: this.reviewCaseFormatter.bind(this)
                             }
                         ])
@@ -596,6 +609,7 @@
                     pageSize: 10,
                     pageList: [10, 25, 50],
                     showExport: false,
+                    showReviewCase: false,
                     detailView: false,
                     detailFormatter: this.detailFormatter, // function with the detail formatter
                     multiSelection: false,

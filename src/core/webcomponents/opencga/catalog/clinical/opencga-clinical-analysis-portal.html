@@ -30,27 +30,50 @@
             .ocap-text-button {
                 display: inline-block;
                 overflow: hidden;
-                width: 86px;
+                width: 90px;
                 text-align: left;
                 float: left !important;
             }
 
+            .filter-label {
+                margin: auto 10px;
+                white-space: nowrap
+            }
         </style>
 
         <div class="row">
-            <div class="col-md-offset-1 col-md-10">
+            <div class="col-md-10 col-md-offset-1">
 
                 <div class="browser-subsection">
                     <h3>Case Portal</h3>
                 </div>
-
-                <br/>
 
                 <div style="padding: 5px 10px;">
 
                     <div class="panel panel-default" style="margin-bottom: 10px">
                         <div class="panel-body" style="padding: 10px">
                             <div class="dropdown">
+
+                                <!-- Case ID -->
+                                <div class="btn-group">
+                                    <button class="dropdown-toggle btn btn-default" style="width:125px; color: rgb(153, 153, 153);"
+                                            type="button" title="{{case}}" id="{{prefix}}caseMenu"
+                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                        <span class="ocap-text-button">Case: {{case}}</span>&nbsp;
+                                        <span class="bs-caret">
+                                            <span class="caret"></span>
+                                        </span>
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="{{prefix}}caseMenu">
+                                        <li style="padding: 5px;">
+                                            <div style="display: inline-flex; width: 300px;">
+                                                <label class="filter-label">Case ID:</label>
+                                                <input type="text" class$="{{prefix}}-input form-control" placeholder="Any" on-keyup="onCaseInput">
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+
                                 <!-- Proband -->
                                 <div class="btn-group">
                                     <button class="btn btn-default dropdown-toggle" style="width:125px; color: rgb(153, 153, 153);" type="button" id="{{prefix}}probandMenu"
@@ -63,9 +86,9 @@
                                     </button>
                                     <ul class="dropdown-menu" aria-labelledby="{{prefix}}probandMenu">
                                         <li style="padding: 5px;">
-                                            <div style="display: inline-flex; width: 250px;">
-                                                <label style="margin: auto;">Proband ID: </label>
-                                                <input style="width: 165px;" type="text" class$="{{prefix}}-input" placeholder="Any" on-keyup="onProbandInput">
+                                            <div style="display: inline-flex;width: 300px">
+                                                <label class="filter-label">Proband ID:</label>
+                                                <input type="text" class$="{{prefix}}-input form-control" placeholder="Any" on-keyup="onProbandInput">
                                             </div>
                                         </li>
                                     </ul>
@@ -83,29 +106,9 @@
                                     </button>
                                     <ul class="dropdown-menu" aria-labelledby="{{prefix}}familyMenu">
                                         <li style="padding: 5px;">
-                                            <div style="display: inline-flex; width: 250px;">
-                                                <label style="margin: auto;">Family ID: </label>
-                                                <input style="width: 165px;" type="text" class$="{{prefix}}-input" placeholder="Any" on-keyup="onFamilyInput">
-                                            </div>
-                                        </li>
-                                    </ul>
-                                </div>
-
-                                <!-- Case ID -->
-                                <div class="btn-group">
-                                    <button class="dropdown-toggle btn btn-default" style="width:125px; color: rgb(153, 153, 153);"
-                                            type="button" title="{{case}}" id="{{prefix}}caseMenu"
-                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                        <span class="ocap-text-button">Case: {{case}}</span>&nbsp;
-                                        <span class="bs-caret">
-                                            <span class="caret"></span>
-                                        </span>
-                                    </button>
-                                    <ul class="dropdown-menu" aria-labelledby="{{prefix}}caseMenu">
-                                        <li style="padding: 5px;">
-                                            <div style="display: inline-flex; width: 250px;">
-                                                <label style="margin: auto;">Case ID: </label>
-                                                <input style="width: 165px;" type="text" class$="{{prefix}}-input" placeholder="Any" on-keyup="onCaseInput">
+                                            <div style="display: inline-flex; width: 300px;">
+                                                <label class="filter-label">Family ID:</label>
+                                                <input type="text" class$="{{prefix}}-input form-control" placeholder="Any" on-keyup="onFamilyInput">
                                             </div>
                                         </li>
                                     </ul>
@@ -220,9 +223,9 @@
                 super.connectedCallback();
                 this.search = {};
 
+                this.case = "";
                 this.proband = "Any";
                 this.family = "Any";
-                this.case = "Any";
             }
 
             propertyObserver(opencgaSession, config) {
@@ -317,7 +320,7 @@
                     grid: {
                         pageSize: 10,
                         pageList: [10, 25, 50],
-                        detailView: true,
+                        detailView: false,
                         multiSelection: false
                     }
                 }
